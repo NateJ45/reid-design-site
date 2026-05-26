@@ -1,0 +1,63 @@
+---
+// Safe to edit by hand
+// The eyebrow + headline pairing used at the top of nearly every section.
+// Pass `headingId` so the parent <section> can use aria-labelledby={headingId}
+// for an accessible name (per CLAUDE.md a11y guidance).
+//
+// Variants:
+//   - level: which heading tag (h1 for hero, h2 for sections, h3 for sub-sections). Default h2.
+//   - align: "left" (default) or "center" for centered section heads
+//   - tone: "default" (foreground on light surfaces) or "inverse" (bg/light on dark CTA banners)
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
+  headingId: string;
+  level?: 'h1' | 'h2' | 'h3';
+  align?: 'left' | 'center';
+  tone?: 'default' | 'inverse';
+  class?: string;
+}
+
+const {
+  eyebrow,
+  headline,
+  subhead,
+  headingId,
+  level = 'h2',
+  align = 'left',
+  tone = 'default',
+  class: extraClass = '',
+} = Astro.props as Props;
+
+const headingClass =
+  level === 'h1'
+    ? 'font-display text-h1 leading-tight'
+    : level === 'h2'
+    ? 'font-display text-h2 leading-tight'
+    : 'font-display text-h3 leading-tight';
+
+const wrapperAlign = align === 'center' ? 'text-center mx-auto' : 'text-left';
+const toneHeadline = tone === 'inverse' ? 'text-bg' : 'text-foreground';
+const toneEyebrow = tone === 'inverse' ? 'text-bg/70' : 'text-secondary';
+const toneSub = tone === 'inverse' ? 'text-bg/80' : 'text-foreground/80';
+---
+
+<div class:list={[wrapperAlign, 'max-w-3xl', extraClass]}>
+  {eyebrow && (
+    <p class:list={['text-xs uppercase tracking-[0.22em] mb-s', toneEyebrow]}>{eyebrow}</p>
+  )}
+  {headline && (
+    level === 'h1' ? (
+      <h1 id={headingId} class:list={[headingClass, toneHeadline]}>{headline}</h1>
+    ) : level === 'h2' ? (
+      <h2 id={headingId} class:list={[headingClass, toneHeadline]}>{headline}</h2>
+    ) : (
+      <h3 id={headingId} class:list={[headingClass, toneHeadline]}>{headline}</h3>
+    )
+  )}
+  {subhead && (
+    <p class:list={['mt-m text-lg', toneSub]}>{subhead}</p>
+  )}
+</div>

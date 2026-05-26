@@ -1,0 +1,59 @@
+---
+// Safe to edit by hand
+// The full-bleed call-to-action section that closes every interior page (and the home page).
+// Charcoal Dark panel with editorial headline, optional subhead, and a Bronze CTA pill.
+// This is intentionally the only section on the page that uses the dark brand panel —
+// it punctuates the read and pushes toward booking a consultation.
+
+import CtaLink from '@/components/CtaLink.astro';
+
+interface CtaBlock {
+  label?: string;
+  linkType?: 'internal' | 'external' | 'email' | 'phone';
+  internalLink?: { _type?: string; slug?: string } | null;
+  externalUrl?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  openInNewTab?: boolean;
+}
+
+interface Props {
+  headline?: string;
+  subhead?: string;
+  cta?: CtaBlock | null;
+  /** Override the default heading id (defaults to "final-cta"). */
+  headingId?: string;
+  /** Fallback CTA label when cta.label isn't set. */
+  fallbackCtaLabel?: string;
+}
+
+const {
+  headline = 'Ready to Love Your Space?',
+  subhead = "Let's start with a conversation.",
+  cta,
+  headingId = 'final-cta',
+  fallbackCtaLabel = 'Book a Consultation',
+} = Astro.props as Props;
+---
+
+<section
+  class="bg-accent-dark text-bg"
+  aria-labelledby={headingId}
+>
+  <div class="mx-auto max-w-content px-m py-2xl text-center">
+    <h2 id={headingId} class="font-display text-h1 leading-tight text-bg">
+      {headline}
+    </h2>
+    {subhead && (
+      <p class="mt-m text-lg text-bg/85 max-w-2xl mx-auto">{subhead}</p>
+    )}
+    <div class="mt-l flex justify-center">
+      <CtaLink
+        cta={cta}
+        variant="primary"
+        fallbackHref="/contact"
+        fallbackLabel={fallbackCtaLabel}
+      />
+    </div>
+  </div>
+</section>

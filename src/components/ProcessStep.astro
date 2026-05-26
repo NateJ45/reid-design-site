@@ -1,0 +1,77 @@
+---
+// Safe to edit by hand
+// Numbered process step. Used twice:
+//   - Home process preview ("preview" mode): number, title, time, shortDescription, optional tier note
+//   - Process page ("full" mode): adds fullDescription PortableText and feature bullets
+//
+// The step number is a large display numeral (font-display, light-weight) sitting to the
+// left of the content column on desktop, stacked above on mobile. Bronze tint for the
+// number plays against Charcoal text.
+
+import PortableText from '@/components/PortableText';
+
+interface PortableTextBlock {
+  _type?: string;
+  [key: string]: any;
+}
+
+interface Props {
+  step: {
+    stepNumber?: number;
+    title?: string;
+    timeEstimate?: string;
+    shortDescription?: string;
+    fullDescription?: PortableTextBlock[];
+    features?: string[];
+    tierNote?: string;
+  };
+  /** "preview" (homepage) shows just shortDescription. "full" (Process page) shows fullDescription + features. */
+  variant?: 'preview' | 'full';
+}
+
+const { step, variant = 'preview' } = Astro.props as Props;
+const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0') : '01');
+---
+
+<article class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-m md:gap-l items-start">
+  <div class="font-display text-[clamp(3rem,8vw,5.5rem)] leading-none text-primary-dark/70 select-none">
+    {padNum(step.stepNumber)}
+  </div>
+
+  <div>
+    <header class="flex flex-wrap items-baseline gap-x-m gap-y-xs">
+      <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
+      {step.timeEstimate && (
+        <p class="text-xs uppercase tracking-widest text-secondary">{step.timeEstimate}</p>
+      )}
+    </header>
+
+    {variant === 'preview' && step.shortDescription && (
+      <p class="mt-s text-foreground/85 max-w-2xl">{step.shortDescription}</p>
+    )}
+
+    {variant === 'full' && step.fullDescription && (
+      <div class="mt-s max-w-2xl">
+        <PortableText client:visible value={step.fullDescription} />
+      </div>
+    )}
+
+    {variant === 'full' && step.features && step.features.length > 0 && (
+      <ul class="mt-m grid gap-1.5 sm:grid-cols-2 text-sm text-foreground/85 max-w-2xl">
+        {step.features.map((f) => (
+          <li class="flex items-start gap-s">
+            <span
+              class="mt-1.5 inline-block w-1.5 h-1.5 rounded-full bg-tertiary shrink-0"
+              aria-hidden="true"
+            ></span>
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {step.tierNote && (
+      <p class="mt-m text-xs italic text-muted-foreground max-w-2xl">{step.tierNote}</p>
+    )}
+  </div>
+</article>

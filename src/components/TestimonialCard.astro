@@ -1,0 +1,42 @@
+---
+// Safe to edit by hand
+// Grid testimonial card. Sits below the featured pull-quote on the homepage.
+// Compact quote + attribution + date/source.
+
+interface Props {
+  testimonial: {
+    quote?: string;
+    attribution?: string;
+    date?: string;
+    source?: string;
+  };
+}
+
+const { testimonial } = Astro.props as Props;
+
+function formatDate(d?: string): string {
+  if (!d) return '';
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+const dateLabel = formatDate(testimonial.date);
+const sourceLabel = testimonial.source && testimonial.source !== 'Other' ? testimonial.source : '';
+const attributionMeta = [dateLabel, sourceLabel].filter(Boolean).join(' · ');
+
+// Cap card quote at ~3 lines worth so cards stay visually consistent in the grid.
+// We render the full quote (no truncation in markup), but apply line-clamp for layout.
+---
+
+<figure class="flex flex-col h-full p-l bg-card text-card-foreground border border-border-soft rounded-md">
+  <blockquote class="font-display text-lg leading-relaxed text-foreground/90 italic line-clamp-6">
+    {testimonial.quote}
+  </blockquote>
+  <figcaption class="mt-m pt-m border-t border-border-soft">
+    <p class="text-sm font-semibold text-foreground">{testimonial.attribution}</p>
+    {attributionMeta && (
+      <p class="mt-xs text-xs uppercase tracking-widest text-secondary">{attributionMeta}</p>
+    )}
+  </figcaption>
+</figure>

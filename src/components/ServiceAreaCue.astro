@@ -1,0 +1,19 @@
+---
+// Safe to edit by hand
+// Slim "Plainfield-first" service area cue line. Sits between the Services grid
+// and the Final CTA on the home page. Quiet by design — it confirms geography
+// without competing with the rest of the read.
+
+interface Props {
+  text?: string;
+}
+
+const { text } = Astro.props as Props;
+const cue = text ?? 'Serving Plainfield, Indianapolis, and the surrounding suburbs.';
+---
+
+<div class="bg-muted">
+  <div class="mx-auto max-w-content px-m py-m text-center">
+    <p class="text-sm text-muted-foreground italic">{cue}</p>
+  </div>
+</div>

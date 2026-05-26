@@ -1,18 +1,234 @@
 ---
-// Safe to edit by hand (scaffolding only — replaced with Sanity-driven version once homePage queries land)
-import BaseLayout from '@/layouts/BaseLayout.astro';
+// Safe to edit by hand for copy + structure changes.
+// Home page. Renders the 7 sections in the order locked by CLAUDE.md:
+//   1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
+//   2. Meet Staci (photo, intro copy, CTA to About)
+//   3. How It Works (4-step process preview, CTA to Process)
+//   4. Kind Words (1 featured testimonial + grid)
+//   5. How Reid Design Can Help (services grid)
+//   6. Service area cue line
+//   7. Final CTA (full-bleed)
+//
+// Everything inside each section is editable in Sanity via the homePage singleton plus the
+// service / testimonial / processStep collections. Section structure is fixed in code (don't
+// reorder or drop sections without updating CLAUDE.md's spec first).
 
-const title = 'Reid Design LLC';
-const description = 'Plainfield interior design for homes that feel genuinely yours.';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getHomePage, getSiteSettings } from '@/lib/queries';
+import { site } from '@/data/site';
+
+import Hero from '@/components/Hero.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import CtaLink from '@/components/CtaLink.astro';
+import PortableText from '@/components/PortableText';
+import ProcessStep from '@/components/ProcessStep.astro';
+import FeaturedTestimonial from '@/components/FeaturedTestimonial.astro';
+import TestimonialGrid from '@/components/TestimonialGrid.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
+import FinalCta from '@/components/FinalCta.astro';
+
+const [page, siteSettings] = await Promise.all([
+  getHomePage().catch(() => null),
+  getSiteSettings().catch(() => null),
+]);
+
+// Top-level SEO meta. Fall back to site identity when Sanity is empty (e.g., before content seed).
+const title       = page?.seoTitle       ?? site.name;
+const description = page?.seoDescription ?? 'Plainfield interior design for homes that feel genuinely yours.';
+
+// Hero defaults — keep them aligned with CLAUDE.md voice in case the homePage doc is bare.
+const heroEyebrow  = page?.heroEyebrow  ?? 'Plainfield, Indiana.';
+const heroHeadline = page?.heroHeadline ?? 'Interior design for homes that feel genuinely yours.';
+const heroSubhead  = page?.heroSubhead  ?? '';
+
+// Collections: services with showOnHomepage, testimonialsToShow (in order), process steps in order.
+const services       = page?.services       ?? [];
+const processSteps   = page?.processSteps   ?? [];
+const featuredQuote  = page?.featuredTestimonial;
+const gridQuotes     = page?.testimonialsToShow ?? [];
+
+// Section copy fallbacks (lock the home page in even before all Sanity copy lands).
+const meetStaciHeadline = page?.meetStaciHeadline ?? 'Hi, I’m Staci.';
+const meetStaciContent  = page?.meetStaciContent  ?? null;
+
+const processPreviewEyebrow  = page?.processPreviewEyebrow  ?? 'How It Works.';
+const processPreviewHeadline = page?.processPreviewHeadline ?? 'A clear path from first conversation to final reveal.';
+
+const testimonialsEyebrow  = page?.testimonialsEyebrow  ?? 'Kind Words.';
+const testimonialsHeadline = page?.testimonialsHeadline ?? 'Words from real homes.';
+
+const servicesGridEyebrow  = page?.servicesGridEyebrow  ?? 'Reid Design.';
+const servicesGridHeadline = page?.servicesGridHeadline ?? 'How we can help your home.';
+const servicesGridSubhead  = page?.servicesGridSubhead;
 ---
 
-<BaseLayout {title} {description}>
-  <section class="mx-auto max-w-content px-m py-2xl">
-    <p class="text-xs uppercase tracking-widest text-secondary mb-s">Plainfield, Indiana</p>
-    <h1 class="font-display text-h1 text-foreground">Interior design for homes that feel genuinely yours.</h1>
-    <p class="mt-m max-w-2xl text-lg text-foreground/80">
-      Scaffolding placeholder. Once Sanity content is wired up, this page renders the
-      <code class="font-mono">homePage</code> singleton plus auto-populated services, testimonials, and process steps.
-    </p>
+<BaseLayout {title} {description} {siteSettings}>
+  {/* ------- 1. Hero --------------------------------------------------------- */}
+  <Hero
+    eyebrow={heroEyebrow}
+    headline={heroHeadline}
+    subhead={heroSubhead}
+    backgroundImage={page?.heroImage}
+    primaryCta={page?.heroPrimaryCta}
+    secondaryCta={page?.heroSecondaryCta}
+    headingId="hero-heading"
+    size="tall"
+  />
+
+  {/* ------- 2. Meet Staci --------------------------------------------------- */}
+  <section
+    class="bg-background"
+    aria-labelledby="meet-staci-heading"
+  >
+    <div class="mx-auto max-w-content px-m py-2xl grid grid-cols-1 md:grid-cols-2 gap-l md:gap-xl items-center">
+      {page?.meetStaciPhoto?.asset ? (
+        <div class="order-1 md:order-1">
+          <SanityImage
+            source={page.meetStaciPhoto}
+            width={900}
+            sizes="(min-width: 768px) 45vw, 100vw"
+            quality={75}
+            class="w-full h-auto rounded-md"
+          />
+        </div>
+      ) : (
+        <div class="order-1 md:order-1 aspect-[4/5] bg-muted rounded-md" aria-hidden="true"></div>
+      )}
+
+      <div class="order-2 md:order-2">
+        <p class="text-xs uppercase tracking-[0.22em] text-secondary mb-s">The Designer.</p>
+        <h2 id="meet-staci-heading" class="font-display text-h2 text-foreground">
+          {meetStaciHeadline}
+        </h2>
+        {meetStaciContent ? (
+          <PortableText
+            value={meetStaciContent}
+            className="mt-m text-foreground/85 text-lg leading-relaxed"
+          />
+        ) : (
+          <p class="mt-m text-foreground/85 text-lg leading-relaxed">
+            Plainfield-based interior designer working with homeowners across Greater Indianapolis to
+            create spaces that feel calm, considered, and unmistakably theirs.
+          </p>
+        )}
+        <div class="mt-l">
+          <CtaLink
+            cta={page?.meetStaciCta}
+            variant="secondary"
+            fallbackHref="/about"
+            fallbackLabel="Get to Know Me"
+          />
+        </div>
+      </div>
+    </div>
   </section>
+
+  {/* ------- 3. How It Works (process preview) ------------------------------- */}
+  <section
+    class="bg-muted"
+    aria-labelledby="process-preview-heading"
+  >
+    <div class="mx-auto max-w-content px-m py-2xl">
+      <SectionHeading
+        eyebrow={processPreviewEyebrow}
+        headline={processPreviewHeadline}
+        headingId="process-preview-heading"
+        align="center"
+        class="mx-auto"
+      />
+
+      {processSteps.length > 0 && (
+        <div class="mt-2xl grid grid-cols-1 md:grid-cols-2 gap-xl">
+          {processSteps.slice(0, 4).map((step: any) => (
+            <ProcessStep step={step} variant="preview" />
+          ))}
+        </div>
+      )}
+
+      <div class="mt-2xl flex justify-center">
+        <CtaLink
+          cta={page?.processPreviewCta}
+          variant="secondary"
+          fallbackHref="/process"
+          fallbackLabel="See the Full Process"
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ------- 4. Kind Words --------------------------------------------------- */}
+  {(featuredQuote || gridQuotes.length > 0) && (
+    <section
+      class="bg-background"
+      aria-labelledby="testimonials-heading"
+    >
+      <div class="mx-auto max-w-content px-m py-2xl">
+        <SectionHeading
+          eyebrow={testimonialsEyebrow}
+          headline={testimonialsHeadline}
+          headingId="testimonials-heading"
+          align="center"
+          class="mx-auto"
+        />
+
+        {featuredQuote && (
+          <div class="mt-2xl">
+            <FeaturedTestimonial testimonial={featuredQuote} />
+          </div>
+        )}
+
+        {gridQuotes.length > 0 && (
+          <div class="mt-2xl">
+            <TestimonialGrid testimonials={gridQuotes} limit={6} />
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  {/* ------- 5. How Reid Design Can Help (services grid) -------------------- */}
+  <section
+    class="bg-muted"
+    aria-labelledby="services-heading"
+  >
+    <div class="mx-auto max-w-content px-m py-2xl">
+      <SectionHeading
+        eyebrow={servicesGridEyebrow}
+        headline={servicesGridHeadline}
+        subhead={servicesGridSubhead}
+        headingId="services-heading"
+        align="center"
+        class="mx-auto"
+      />
+
+      {services.length > 0 && (
+        <div class="mt-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-m">
+          {services.slice(0, 4).map((service: any) => (
+            <ServiceCard service={service} compact={true} />
+          ))}
+        </div>
+      )}
+
+      <div class="mt-2xl flex justify-center">
+        <CtaLink
+          cta={page?.servicesGridCta}
+          variant="secondary"
+          fallbackHref="/services"
+          fallbackLabel="See All Services"
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ------- 6. Service area cue line --------------------------------------- */}
+  <ServiceAreaCue text={page?.serviceAreaCue} />
+
+  {/* ------- 7. Final CTA --------------------------------------------------- */}
+  <FinalCta
+    headline={page?.finalCtaHeadline}
+    subhead={page?.finalCtaSubhead}
+    cta={page?.finalCta}
+  />
 </BaseLayout>
