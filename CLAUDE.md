@@ -118,6 +118,37 @@ The wiring, in order of execution:
 
 Reid Design is primarily a light-toned warm brand. Dark mode is supported because it's standard infrastructure and a small audience subset prefers it, but the site is designed and tested first in light mode. Don't optimize dark mode at the expense of light.
 
+### Light/dark discipline (build with both in mind)
+
+Every new component renders correctly in BOTH modes. This is not a "we'll get to it" — it's a foundation rule. The bug it prevents is real: the original placeholder used `text-accent` (Charcoal `#3D3D3D`) for body copy, which doesn't flip in dark mode, producing Charcoal-on-near-black at 1.57:1 contrast. Lighthouse caught it; the rule below prevents it from recurring.
+
+**Dynamic tokens (flip with theme — use these for text and surfaces):**
+- `bg-background`, `text-foreground` — body text + page background
+- `bg-card`, `text-card-foreground` — card surfaces
+- `bg-popover`, `text-popover-foreground` — popovers and tooltips
+- `bg-muted`, `text-muted-foreground` — quiet surfaces and secondary text
+- `bg-accent`, `text-accent-foreground` — hover backgrounds on interactive elements
+- `border-border`, `border-input` — borders that need to read in both modes
+- `ring-ring` — focus rings
+
+These are shadcn's semantic tokens, defined in `:root` for light and overridden in `.dark` for dark. Always use these for anything that should adapt to mode.
+
+**Static brand tokens (do NOT flip — use only where the brand color must hold in both modes):**
+- `bg-primary`, `text-primary-foreground` — CTA buttons (Warm Bronze stays Warm Bronze)
+- `text-primary-dark` — anchor-style body text in prose (Bronze Dark)
+- `bg-accent-dark`, `text-bg` — dark section panels (Footer, occasional CTA banner where Charcoal Dark is the design)
+- `bg-bg`, `bg-bg-soft` — Soft Linen and Cream brand surfaces (rarely used; prefer `bg-background` and `bg-muted` for theme-aware surfaces)
+- `border-secondary` (Warm Taupe), `text-secondary` — eyebrow labels, brand-color dividers
+- `text-tertiary` — Soft Sage accents
+
+**The trap:** `text-accent` is a STATIC brand token mapped to Charcoal `#3D3D3D` because Reid Design's `@theme` block declares `--color-accent: #3D3D3D` for use in the brand palette. It does NOT flip in dark mode. Reserve `text-accent` strictly for places where Charcoal is the only relevant color (e.g., a label on top of a hard-coded light surface inside an image). For body text and headings that need to read in both modes, always use `text-foreground`.
+
+**Quick checklist before adding a color class:**
+1. Does this text or surface need to be readable in BOTH modes? → semantic token (`text-foreground`, `bg-background`, `bg-muted`, etc.)
+2. Is this a brand-color CTA, footer panel, or eyebrow that should hold its hue in both modes? → brand token (`bg-primary`, `bg-accent-dark`, `text-secondary`)
+3. Adding opacity? → `text-foreground/80`, not `text-accent/80`
+4. Not sure? → render it in both modes via the Playwright MCP before merging. See the [Visual verification workflow](#visual-verification-workflow) section.
+
 ---
 
 ## Build pipeline
@@ -186,6 +217,37 @@ shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with por
 
 ---
 
+## Error and empty states
+
+Patterns for the moments when things go sideways or content hasn't landed yet.
+
+### 404
+
+`src/pages/404.astro` uses BaseLayout, sets a clear "We can't find that page" headline, and gives the visitor two paths: back to Home, or to Contact. Don't link "Search" (there isn't one). Don't dump a list of random pages. Two clear choices.
+
+### Form submission failure
+
+The contact form posts to Web3Forms. Three failure modes, each with a distinct user-visible message:
+- **Network failure** ("Couldn't send right now. Try again, or email staci@reiddesignllc.com directly.")
+- **Rate limit** (rare, Web3Forms free tier is 250/month): same message, Staci's email is the failsafe.
+- **Validation rejection** (missing required field, bad email format): inline per-field message, focus moves to the first invalid field, and the error container has `role="alert"` so screen readers announce.
+
+Don't show "Oops!" or "Something went wrong." Always tell the user what to do next.
+
+### "No projects yet" empty state
+
+`/portfolio` index (post-launch) renders an empty state for the period between launch and the first 1 or 2 case studies landing. Content: brief explanation that case studies are coming, link to Contact for "start your own project," link back to Services. Don't hide the page entirely — keeping it live builds expectation and gives Google something to crawl.
+
+### Sanity reference resolution
+
+A few queries reference other documents (e.g., `homePage.featuredTestimonial` → testimonial). If the referenced doc gets unpublished or deleted, the query returns `null`. Every component that consumes a referenced doc must handle null gracefully — render the section without it, or skip the section entirely. Don't crash, don't show "undefined."
+
+### Sanity content not yet seeded
+
+During the launch window, some `siteSettings` or page fields may be empty while Staci completes them. Every component reading from Sanity falls back to a sensible default (see `Footer.astro` and `Header.astro` for the pattern: `siteSettings?.field ?? site.staticDefault`). The site stays presentable even with empty content.
+
+---
+
 ## Code conventions
 
 - TypeScript strict mode. No `any`.
@@ -226,6 +288,20 @@ For before/after pairs on project pages, use `BeforeAfterSlider.tsx` (React isla
 
 Enable `hotspot: true` on every Sanity image field. Staci can then click to set the focal point, and the `<SanityImage />` wrapper passes that hotspot to the URL builder so crops at smaller sizes keep the right part of the image in frame. Faces, key visual elements, anything that matters when the image gets cropped down.
 
+### Image guidelines for editors
+
+When Staci uploads images via Sanity:
+
+- **Source size:** at least 2000px on the longest edge for hero and project images. Sanity downsizes; it can't upsize without losing quality.
+- **Format:** JPEG for photos (Sanity converts to AVIF/WebP on delivery), PNG for graphics with transparency, SVG for logos.
+- **Color profile:** sRGB. Some pro cameras shoot Adobe RGB by default; convert before upload or browsers will shift the colors.
+- **File size:** original up to 5MB is fine. Sanity optimizes on the way out.
+- **Alt text:** required on every image. Describe the image like a friend describing it to someone who can't see. Include location if relevant ("Living room redesign in Fishers, Indiana"). Skip "Photo of..." or "Image of..." since screen readers already announce that.
+- **Filename:** matters less than alt text but still matters. Upload `fishers-living-room-after.jpg` instead of `IMG_4827.jpg`. The Sanity asset filename is preserved in the CDN URL and contributes a tiny bit to image search.
+- **Hotspot:** click the image after upload to set the focal point. The site crops around it at smaller sizes. Set it on faces, lamp focal points, sofa centerpieces, anything that matters at thumbnail size.
+
+For project before/after pairs: shoot from the same angle, same lens, same lighting, ideally same time of day. The slider only works when the geometry matches. If they don't, use a captioned pair in the `gallery` array instead of the before/after slider.
+
 ---
 
 ## Accessibility
@@ -261,6 +337,44 @@ Target: WCAG 2.1 AA in both light and dark modes. Aim for 100 Lighthouse Accessi
 
 **Language and metadata.** `<html lang="en">` and the document `title` and `description` come from `BaseLayout`. Pass `title` and `description` through every page that uses the layout. The contactPage Calendly embed needs an `aria-label` on its iframe.
 
+### Touch targets and tap spacing
+
+All interactive elements get at least a 44×44px hit area on mobile (WCAG 2.5.5 AAA, and table stakes on touch screens). For icon-only buttons, that means generous padding even if the icon glyph is 20px. For inline links in body copy, ensure adequate line-height so adjacent links aren't fat-finger collisions.
+
+Adjacent independent controls (two side-by-side icon buttons, two stacked nav links) get at least 8px of clear space between them. The shadcn primitives generally handle this; verify any custom button or link adheres.
+
+### Focus traps in modals and drawers
+
+The mobile nav uses shadcn Sheet (Radix Dialog under the hood) and gets focus trap for free. Same applies to any shadcn Dialog. Don't roll your own modal. If you build a custom overlay, you OWE: focus moves into the overlay on open, Tab cycles within the overlay, Escape closes, focus returns to the trigger on close. Test with keyboard before merging.
+
+### Screen reader pass
+
+Lighthouse catches missing alt text and contrast but doesn't catch:
+- Heading order that's logical visually but jumps levels in the DOM
+- "Click here" or "Learn more" link text that's meaningless out of context
+- Form fields where the visible label is far from the input in the DOM
+- Live regions that announce too often (every keystroke) or not at all (silent state changes)
+
+Before launch and after any structural change, do one screen-reader pass with NVDA (Windows, free at nvaccess.org) or VoiceOver (Mac, built-in, Cmd+F5 to toggle). Close your eyes, move through the page with only the keyboard, listen. If you can complete: landing → understanding what Reid Design does → submitting the contact form, the page works. If you stumble, find the friction.
+
+### Form error UX
+
+When the contact form fails validation or submission:
+- Error container has `role="alert"` and `aria-live="polite"`
+- Focus moves to the first invalid field on submit-attempt with errors
+- Error text is visible AND descriptive ("Please enter an email address" not "Invalid input")
+- Inline validation runs on blur, not on every keystroke (avoids announcer spam)
+- Success states get a confirmation message in the same region so the reader announces it
+
+### Animation discipline
+
+The site uses motion for hero entrances, View Transitions, and component micro-interactions. Discipline:
+- **Durations:** 150–300ms for state changes (hover, focus), 400–600ms for content reveals, never longer than 800ms for a single animation. Long animations feel laggy.
+- **Easing:** `ease-out` for entrances, `ease-in` for exits. Avoid spring physics for primary content at large scales (disorienting).
+- **What to animate:** opacity, transform (translate/scale). NOT layout properties (width, height, top) — expensive and janky.
+- **Reduced motion:** the global stylesheet kills animations and transitions under `prefers-reduced-motion: reduce`, and Lenis becomes a no-op. New components inherit this; verify by toggling the OS setting and reloading.
+- **Don't animate to grab attention.** If users need to look at something, the design should pull the eye structurally, not by wiggling.
+
 ### Before merging
 
 Run Lighthouse against any page changed. Accessibility should stay at 100. Common regressions:
@@ -279,6 +393,202 @@ For structural changes, do a manual keyboard pass: Tab from the address bar thro
 - Remove focus outlines without a visible replacement.
 - Use color as the only state cue.
 - Add ARIA roles to native elements that already have the right role.
+
+---
+
+## SEO
+
+Reid Design competes on local search ("Plainfield interior designer", "Indianapolis interior design", "interior designer near me" from a Plainfield IP). Every SEO decision passes the local-search lens.
+
+### Foundation (BaseLayout, every page)
+
+- `<title>` — unique per page, 50–60 characters, brand name as suffix ("Services — Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
+- `<meta name="description">` — unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
+- `<link rel="canonical">` — absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
+- Open Graph + Twitter meta — set in BaseLayout with `og-default.png` as the fallback. Pages with hero images should override `ogImage` to point at their hero.
+- `<html lang="en">`.
+
+### JSON-LD schemas
+
+Every page receives a relevant structured data block via the `schemas` prop on BaseLayout. The site-wide LocalBusiness schema renders on every page; per-page schemas add to it.
+
+**Site-wide LocalBusiness (template):**
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "InteriorDesigner",
+  "@id": "https://reiddesignllc.com/#business",
+  "name": "Reid Design LLC",
+  "url": "https://reiddesignllc.com",
+  "image": "https://reiddesignllc.com/og-default.png",
+  "telephone": "+1-XXX-XXX-XXXX",
+  "email": "staci@reiddesignllc.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Plainfield",
+    "addressRegion": "IN",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 39.7042,
+    "longitude": -86.3994
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Plainfield" },
+    { "@type": "City", "name": "Indianapolis" },
+    { "@type": "City", "name": "Carmel" },
+    { "@type": "City", "name": "Fishers" },
+    { "@type": "City", "name": "Westfield" },
+    { "@type": "City", "name": "Zionsville" },
+    { "@type": "City", "name": "Noblesville" }
+  ],
+  "priceRange": "$$",
+  "sameAs": [
+    "https://www.instagram.com/reiddesignin/",
+    "https://www.facebook.com/ReidDesignLLC"
+  ]
+}
+```
+
+Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUST match Google Business Profile exactly — Google compares them for NAP (Name/Address/Phone) consistency, and a mismatch tanks local ranking.
+
+**Per-page schemas to add:**
+
+- `/services` — array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id`.
+- `/faq` — `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer`.
+- `/portfolio/[slug]` (post-launch) — `CreativeWork` schema for the project.
+- Every internal page — `BreadcrumbList` from `/` to the current page.
+
+Test every schema with Google's Rich Results Test (https://search.google.com/test/rich-results) before launch. Errors at scale will tank rankings rather than fail loudly.
+
+### Google Business Profile
+
+A complete GBP listing is the single biggest local-SEO lever for a Plainfield service business. The site supports the listing but doesn't replace it. Confirm at launch:
+- Business name exactly "Reid Design LLC" (matches the site's NAP)
+- Address, phone, hours match `siteSettings`
+- Service area set to the same cities listed in `siteSettings.serviceAreas`
+- Primary category: "Interior Designer"
+- Photos uploaded (different shots from the site's hero/portfolio)
+- Posts active (at least one per quarter)
+
+If GBP and the site disagree on phone, address, or hours, Google treats the site as suspect. Make `siteSettings` the source of truth and reflect it in GBP.
+
+### Internal linking strategy
+
+Plainfield-first means Plainfield gets named in:
+- The home hero eyebrow
+- The footer service area list (first item)
+- The OG description
+- The contact page's geographic copy
+- At least one inline link from each major page back to home using "Plainfield interior design" anchor text where it reads naturally
+
+Other cities appear in the service-area list and (optionally) in case-study geo tags. Don't keyword-stuff city names into body copy — Google detects it and Staci's voice rejects it. One mention per page is plenty.
+
+### Image SEO
+
+For Sanity-uploaded images, the alt text field does double duty: accessibility (required) and SEO (ranked in image search). Good alt text describes the image AND uses relevant terms where natural. "Living room redesign in Fishers, Indiana" beats "Living room" and waaaay beats empty alt.
+
+See the [Image guidelines for editors](#image-guidelines-for-editors) section above for filename, format, and color profile rules.
+
+### Title and description rules
+
+- Every Sanity page singleton has `seoTitle` and `seoDescription` fields. They MUST be unique across pages.
+- Title: target 50–60 characters. Front-load the keyword (location or service).
+- Description: target 150–160 characters. Speak to the reader, not the search engine. Don't restate the title.
+- If `seoTitle` is empty, BaseLayout falls back to the page's primary headline. Don't rely on the fallback for launch — fill the field.
+
+### Sitemap and robots
+
+`@astrojs/sitemap` generates `sitemap-index.xml` automatically from every prerendered page on `astro build`. The default `<priority>` and `<changefreq>` are fine for a marketing site of this size.
+
+`public/robots.txt` content:
+
+```
+User-agent: *
+Allow: /
+
+Sitemap: https://reiddesignllc.com/sitemap-index.xml
+```
+
+After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify the property via DNS TXT record (preferred — survives redeploys) or HTML file upload.
+
+### Pre-launch SEO checklist
+
+- [ ] Every page has unique `seoTitle` and `seoDescription` in Sanity
+- [ ] LocalBusiness JSON-LD validates in Google Rich Results Test
+- [ ] FAQPage JSON-LD validates
+- [ ] Service schemas validate
+- [ ] BreadcrumbList present on every internal page
+- [ ] OG previews look right in Slack, Twitter, Facebook (verify with opengraph.xyz or similar)
+- [ ] Google Business Profile NAP matches `siteSettings` NAP exactly
+- [ ] All Sanity image alt text is meaningful (no "image1" placeholders, no empty strings)
+- [ ] Sitemap submitted to Google Search Console
+- [ ] `robots.txt` allows crawling
+- [ ] Canonical URL points at the production domain on every page
+
+---
+
+## Performance budgets
+
+Reid Design's audience arrives on mobile, often on Indiana suburban networks (cellular dead zones exist). Performance is a UX feature, not a vanity score. Lighthouse 100 on Performance is the ceiling target; the more honest measures are the field metrics below.
+
+### Core Web Vitals targets
+
+- **LCP (Largest Contentful Paint)** < 1.0s on the home hero, < 1.5s site-wide. The hero image is usually LCP — size it for mobile (750px wide, quality ~65) and let it grow on larger viewports.
+- **CLS (Cumulative Layout Shift)** < 0.05. Reserve space for images with explicit width/height (or aspect-ratio CSS). Don't lazy-load above-the-fold images. Web fonts use `font-display: swap` to avoid invisible-text shifts.
+- **INP (Interaction to Next Paint)** < 200ms. Keep React island hydration light. Favor `client:visible` and `client:idle` over `client:load` for anything below the fold.
+
+### Bundle budgets
+
+| Slot | Target |
+|---|---|
+| Total JS on home page (compressed) | < 100KB |
+| Largest single React island bundle (compressed) | < 50KB |
+| Total CSS (compressed) | < 30KB |
+| Hero image (any viewport) | < 200KB |
+
+If a new dependency pushes a budget, that's a discussion before merging. Some are worth it (Lenis adds smooth scroll, motion is the interaction language); some aren't (a 60KB icon library when three lucide-react icons would cover it).
+
+### Image weight by slot
+
+| Slot | Max delivered weight | Sanity url params |
+|---|---|---|
+| Hero (full-bleed) | 200KB | `w=1920&fm=webp&q=70` desktop, `w=750&fm=webp&q=65` mobile |
+| Project gallery thumbnail | 60KB | `w=600&fm=webp&q=70` |
+| Project gallery fullscreen | 250KB | `w=2000&fm=webp&q=80` |
+| Testimonial avatar | 20KB | `w=120&h=120&fit=crop&fm=webp` |
+| OG image (committed) | 100KB | n/a, generated once via `npm run og` |
+
+Use `<SanityImage />`'s `width` prop to drive these. Never request larger than the slot renders at.
+
+### Font loading
+
+- Cormorant Garamond: self-hosted via `@fontsource/cormorant-garamond` (400, 500, 600). Loaded via CSS `@import` in globals.css. `font-display: swap` (fontsource default), which is what we want.
+- Source Sans 3 Variable: same pattern, single file covers all weights.
+- No `<link rel="preload">` on font URLs. Vite hashes the filenames at build time, so a static preload tag would 404. The cost is one extra paint; the benefit is no broken preload (and Lighthouse stays at 100 Best Practices).
+
+### Hydration strategy
+
+| Component | Directive | Why |
+|---|---|---|
+| `ThemeToggle` | `client:load` | Must flip class before user can interact |
+| `MobileNav` | `client:only="react"` | Radix portal can't SSR |
+| `ContactForm` | `client:visible` | Below the fold on most pages |
+| `BackToTop` | `client:load` | Listens to scroll immediately |
+| `ProjectGallery` | `client:visible` | Always below fold |
+| `BeforeAfterSlider` | `client:visible` | Always below fold |
+| `FaqAccordion` | `client:idle` | Interactive but not critical-path |
+| `AnimatedBeam` / `Spotlight` (visual flourish) | `client:visible` | Decorative |
+
+Default to `client:visible` or `client:idle` for anything not immediately above the fold. Astro ships less JS up front.
+
+### Verifying
+
+- `npm run build` then check `dist/` size for sanity. Astro reports the largest bundles in the build log.
+- Run Lighthouse on the deployed Cloudflare URL after every push that touches a page template or component.
+- Cloudflare Web Analytics surfaces real-user LCP, INP, CLS once traffic exists. Watch weekly post-launch; investigate any page that drifts past the budgets above.
 
 ---
 
@@ -344,6 +654,15 @@ This trades a small amount of flexibility for a much simpler editor experience. 
 ### Form submissions
 
 The contact form posts to Web3Forms (see Deployment section for env vars). On submit, the form sends a structured email to `staci@reiddesignllc.com` with all fields. The Project Type dropdown values are hardcoded in `ContactForm.tsx` (not Sanity) because they need to match the actual services exactly and shouldn't drift; if Staci adds a new service in Sanity, Nathan updates the dropdown in code.
+
+### Form spam protection
+
+Web3Forms provides three layers:
+- **Honeypot field** (`botcheck` hidden input) that bots fill but humans don't see. `ContactForm.tsx` includes it; verify before deploy.
+- **hCaptcha** as a fallback if the honeypot proves insufficient. The form supports it via the `h-captcha-response` field; enable in the Web3Forms dashboard if spam becomes a problem.
+- **Rate limiting** on Web3Forms' side (250/month on the free tier).
+
+Don't add custom client-side spam guards (timing checks, IP rate limits, character-input throttles). They degrade UX for legit users and bots ignore them anyway.
 
 ---
 
@@ -440,6 +759,52 @@ All documented in `.env.example`; copy to `.env` and fill in real values for loc
 
 Content-Security-Policy is intentionally not included; doing it right requires testing because of the Sanity CDN, the Web3Forms POST endpoint, the Calendly embed, and the Cloudflare Analytics beacon.
 
+### Privacy and analytics
+
+Reid Design ships with zero cookies and no cookie banner. The deliberate stance:
+
+- **Cloudflare Web Analytics** uses no cookies and stores no personal data. No GDPR/CCPA banner required.
+- **No Google Analytics, no Facebook Pixel, no Meta Pixel, no LinkedIn Insight Tag.** Adding any of these requires a cookie banner. Don't.
+- **Sanity client** reads public published content, no auth cookies.
+- **Web3Forms** form submissions go server-side via `fetch`; no cookies set.
+
+If a future need arises (richer analytics, ad retargeting, A/B testing), revisit the privacy stance deliberately and add a consent management platform (Cookiebot, OneTrust, Osano) BEFORE adding the tracker. Don't bolt a banner onto the current setup — design it in.
+
+Privacy policy: not required at launch given zero tracking. If regulations later require one (EU traffic under GDPR, California under CCPA), add `/privacy` as a new page singleton in Sanity. The current "no cookies, no tracking" posture makes the policy short and honest.
+
+---
+
+## Visual verification workflow
+
+Every UI change is verified visually before being reported done. The build that ships first-time-right is the one where the person who wrote the code saw it rendering correctly in every state that matters. This is a rule, not a habit.
+
+### What to verify
+
+For any change touching components, layouts, styles, or copy that affects layout:
+
+1. **Both themes.** Light AND dark. Toggle in the running site via the header `ThemeToggle`, or use Chrome DevTools' "Emulate CSS prefers-color-scheme" while testing system mode. Light is primary, but dark must read as the brand, not as broken.
+2. **Both viewports.** Mobile (~375px wide) and desktop (~1280px wide). Reid Design's audience arrives on mobile first. Never ship desktop-only.
+3. **Interactive states.** Hover, focus (keyboard Tab), active. Test with mouse AND keyboard.
+4. **Adjacent regressions.** Look at the sections immediately before and after the change. Cascading styles wreck neighbors more often than people expect.
+
+### How to verify
+
+Use the Playwright MCP for screenshot-and-compare loops:
+
+1. `npm run dev` (or hit the deployed URL for deployed changes)
+2. Open the page via Playwright MCP at both viewports
+3. Take screenshots, light and dark
+4. Compare against the intent (spec, mockup, or prior screenshot)
+5. If something's off, fix and re-screenshot. Don't ship a change you haven't seen rendered.
+
+For accessibility-affecting changes, run Lighthouse on the changed page before opening a PR. Targets: 100/100/100/100 desktop. Defend them — when a score drops, find out why before merging.
+
+For Sanity Studio testing (schema or structure changes), run `npm run studio:dev` and check the editor experience as Staci would see it. The Studio is the editor's UI; broken Studio = broken editor workflow.
+
+### When NOT to skip this
+
+Even "tiny" changes — a color tweak, a spacing nudge, a copy edit — go through the same loop. The smallest changes are where regressions hide because no one looks at them.
+
 ---
 
 ## Working with Claude
@@ -448,8 +813,9 @@ Content-Security-Policy is intentionally not included; doing it right requires t
 - Prefer Plan Mode for any multi-file change, especially when touching Sanity schemas (schema changes propagate to live content).
 - Pause for confirmation before installing new dependencies.
 - When proposing design changes, describe the visual outcome in plain language, not just the code.
-- For browser-based verification (clicking through the site, screenshotting changes), prefer the Playwright MCP over chrome-devtools unless you specifically need DevTools-style inspection.
+- For browser-based verification, prefer the Playwright MCP. See the [Visual verification workflow](#visual-verification-workflow) section above for what to verify and when.
 - For Sanity Studio testing, run `npm run studio:dev` and check the editor experience as Staci would see it.
+- Don't report a UI change as done without screenshots in both themes and both viewports.
 
 ---
 
