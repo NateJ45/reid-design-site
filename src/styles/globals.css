@@ -90,6 +90,17 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    /* IMPORTANT: bg-accent must be theme-aware (shadcn convention — soft hover
+       surface, Cream in light / darker warm in dark). The @theme block above
+       declares --color-accent as static Charcoal for legacy brand-palette
+       reasons, but every component that uses bg-accent (ThemeToggle hover,
+       MobileNav hover, dropdown-menu focus, secondary outlined buttons) needs
+       it to flip with theme — otherwise the hover surface in light mode is
+       Charcoal-on-Charcoal-icon and the icon disappears. This mapping wins
+       because @theme inline is declared after @theme. Side effect: text-accent
+       is now theme-aware too (Cream in light, darker in dark) — fine because
+       no component uses bare text-accent (use text-foreground for body text). */
+    --color-accent: var(--accent);
     /* Dark-mode-aware brand link/anchor color: Bronze Dark in light mode,
        lifted Bronze in dark mode. Use text-link for inline links and bronze
        link-style buttons that need to read in both modes. */

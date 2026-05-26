@@ -142,7 +142,9 @@ These are shadcn's semantic tokens, defined in `:root` for light and overridden 
 - `border-secondary` (Warm Taupe), `text-secondary` — eyebrow labels, brand-color dividers
 - `text-tertiary` — Soft Sage accents
 
-**The trap:** `text-accent` is a STATIC brand token mapped to Charcoal `#3D3D3D` because Reid Design's `@theme` block declares `--color-accent: #3D3D3D` for use in the brand palette. It does NOT flip in dark mode. Reserve `text-accent` strictly for places where Charcoal is the only relevant color (e.g., a label on top of a hard-coded light surface inside an image). For body text and headings that need to read in both modes, always use `text-foreground`.
+**`text-accent` and `bg-accent` are theme-aware via shadcn's `--accent` token** (Cream `#F5F0EB` in light, darker warm `#3A332D` in dark). The `@theme inline` block remaps `--color-accent → var(--accent)` so `bg-accent` works as a hover surface that flips with theme. The `@theme` block's literal `--color-accent: #3D3D3D` is overridden by the `@theme inline` mapping (later declarations win in Tailwind v4). **Don't use `text-accent` for body text** — its color now mirrors `--accent` (Cream/dark) which is meant for hover surfaces, not text. Always use `text-foreground` for headings and body copy.
+
+**Earlier bug avoided by this mapping:** without the `--color-accent → var(--accent)` remap, `bg-accent` resolved to static Charcoal in both modes. In light mode, hovering a Charcoal `text-foreground` icon on a Charcoal `bg-accent` surface hid the icon entirely (ThemeToggle, MobileNav, dropdown-menu focus, the secondary outlined CTA). Dark mode masked the problem because `text-foreground` was Cream there. If you ever revert the mapping, every `hover:bg-accent` and `focus:bg-accent` in the codebase regresses.
 
 **Same trap for `text-primary-dark`:** it's static Bronze Dark `#7A5D4C`, which reads fine on Soft Linen but fails contrast on the dark-mode background. **For link-style text in both modes, use `text-link`** (defined above). `text-primary-dark` is fine on a static bronze CTA panel or a light-mode-only surface, but not for any text that ships on a theme-aware background.
 
