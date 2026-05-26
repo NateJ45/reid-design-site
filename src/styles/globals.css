@@ -97,6 +97,22 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --animate-marquee:          marquee var(--duration) infinite linear;
+    --animate-marquee-vertical:  marquee-vertical var(--duration) linear infinite;
+    --animate-spotlight:         spotlight 2s ease 0.75s 1 forwards;
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(-100% - var(--gap))); }
+    }
+    @keyframes marquee-vertical {
+      from { transform: translateY(0); }
+      to   { transform: translateY(calc(-100% - var(--gap))); }
+    }
+    @keyframes spotlight {
+      0%   { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
+      100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+    }
 }
 
 /* ---------- Light mode (Reid Design overrides shadcn defaults) -------- */
