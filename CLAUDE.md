@@ -146,7 +146,11 @@ These are shadcn's semantic tokens, defined in `:root` for light and overridden 
 
 **Same trap for `text-primary-dark`:** it's static Bronze Dark `#7A5D4C`, which reads fine on Soft Linen but fails contrast on the dark-mode background. **For link-style text in both modes, use `text-link`** (defined above). `text-primary-dark` is fine on a static bronze CTA panel or a light-mode-only surface, but not for any text that ships on a theme-aware background.
 
-**CTA buttons (bronze background) keep `text-white`, not `text-primary-foreground`.** The bronze `bg-primary` is static (Bronze in both modes); `--primary-foreground` flips to a dark color in dark mode, which fails contrast against the Bronze. Always use `text-white` on `bg-primary` CTAs.
+**CTA buttons use `bg-primary-dark` + `text-white`, not `bg-primary` + `text-primary-foreground`.** Two compounding rules:
+1. `bg-primary` (Warm Bronze `#9C7661`) with white at button label sizes hits only 4.05:1 — just under WCAG AA 4.5:1 for body text. The original brand spec acknowledged this ("Bronze fine on backgrounds where the foreground is white at large size") and called for Bronze Dark on small-text-on-bronze. Use `bg-primary-dark` (`#7A5D4C`) for CTA buttons; white on it lands at 5.5:1.
+2. `--primary-foreground` flips to a dark color in dark mode, which would tank contrast against any bronze background. Always pair the bronze CTA BG with literal `text-white`, not the semantic token.
+
+The primary hover state on CTAs goes to `bg-accent-dark` (Charcoal Dark) — even more contrast on hover, consistent with the "darker on hover" pattern visitors expect.
 
 **Quick checklist before adding a color class:**
 1. Does this text or surface need to be readable in BOTH modes? → semantic token (`text-foreground`, `bg-background`, `bg-muted`, etc.)
