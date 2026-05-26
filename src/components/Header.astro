@@ -35,7 +35,7 @@ function isActive(href: string) {
 
 <header class="border-b border-border bg-background">
   <div class="mx-auto flex max-w-content items-center justify-between px-m py-s">
-    <a href="/" class="font-display text-h4 text-primary-dark hover:text-primary transition-colors">
+    <a href="/" class="font-display text-h4 text-link hover:opacity-80 transition-opacity">
       {brandName}
     </a>
 
@@ -46,8 +46,8 @@ function isActive(href: string) {
           class:list={[
             'text-sm tracking-wide transition-colors',
             isActive(link.href)
-              ? 'text-primary-dark font-semibold'
-              : 'text-accent hover:text-primary',
+              ? 'text-link font-semibold'
+              : 'text-foreground hover:text-link',
           ]}
           aria-current={isActive(link.href) ? 'page' : undefined}
         >

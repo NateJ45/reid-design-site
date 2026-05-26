@@ -46,13 +46,13 @@ export default function MobileNav({ links }: Props) {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-base text-accent hover:text-primary"
+                className="text-base text-foreground hover:text-link"
                 onClick={() => setOpen(false)}
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-m border-t border-border-soft">
+            <div className="pt-m border-t border-border">
               <ThemeToggle />
             </div>
           </nav>
