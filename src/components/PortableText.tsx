@@ -5,7 +5,7 @@
 //
 // Style discipline: this component picks the right semantic + brand tokens so
 // Portable Text content inherits theme-aware colors automatically. Body text
-// uses text-foreground (dark-mode-aware). Links use text-primary-dark with
+// uses text-foreground (dark-mode-aware). Links use text-link with
 // underline for contrast and discoverability. Don't hard-code colors here.
 
 import { PortableText as PT, type PortableTextComponents } from '@portabletext/react';
@@ -69,7 +69,7 @@ function makeComponents(): PortableTextComponents {
       return (
         <a
           href={href}
-          className="text-primary-dark underline underline-offset-2 hover:text-primary transition-colors"
+          className="text-link underline underline-offset-2 hover:text-primary transition-colors"
           target={newTab ? '_blank' : undefined}
           rel={newTab ? 'noopener noreferrer' : undefined}
         >

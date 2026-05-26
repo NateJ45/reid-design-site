@@ -90,6 +90,10 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    /* Dark-mode-aware brand link/anchor color: Bronze Dark in light mode,
+       lifted Bronze in dark mode. Use text-link for inline links and bronze
+       link-style buttons that need to read in both modes. */
+    --color-link: var(--link);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -145,6 +149,7 @@
     --border: #E8E4E0;              /* Light Gray */
     --input: #E8E4E0;
     --ring: #9C7661;                /* Warm Bronze focus rings */
+    --link: #7A5D4C;                /* Bronze Dark for link text on light surfaces (AA on Soft Linen) */
 
     /* Charts (kept neutral, not used at launch) */
     --chart-1: oklch(0.87 0 0);
@@ -194,6 +199,7 @@
     --border: oklch(1 0 0 / 12%);
     --input: oklch(1 0 0 / 15%);
     --ring: #B89274;
+    --link: #B89274;                /* Lifted Bronze for link text on dark surfaces (6.4:1 on #1F1B17) */
 
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);

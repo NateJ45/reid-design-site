@@ -130,6 +130,7 @@ Every new component renders correctly in BOTH modes. This is not a "we'll get to
 - `bg-accent`, `text-accent-foreground` — hover backgrounds on interactive elements
 - `border-border`, `border-input` — borders that need to read in both modes
 - `ring-ring` — focus rings
+- `text-link` — bronze link/anchor color. Bronze Dark `#7A5D4C` in light mode, lifted Bronze `#B89274` in dark mode. Use this anywhere a bronze-tinted link or link-style button needs to read in both themes (inline body links, sidebar action links, the Portable Text renderer's `link` mark, "secondary CTA" outlined buttons).
 
 These are shadcn's semantic tokens, defined in `:root` for light and overridden in `.dark` for dark. Always use these for anything that should adapt to mode.
 
@@ -142,6 +143,10 @@ These are shadcn's semantic tokens, defined in `:root` for light and overridden 
 - `text-tertiary` — Soft Sage accents
 
 **The trap:** `text-accent` is a STATIC brand token mapped to Charcoal `#3D3D3D` because Reid Design's `@theme` block declares `--color-accent: #3D3D3D` for use in the brand palette. It does NOT flip in dark mode. Reserve `text-accent` strictly for places where Charcoal is the only relevant color (e.g., a label on top of a hard-coded light surface inside an image). For body text and headings that need to read in both modes, always use `text-foreground`.
+
+**Same trap for `text-primary-dark`:** it's static Bronze Dark `#7A5D4C`, which reads fine on Soft Linen but fails contrast on the dark-mode background. **For link-style text in both modes, use `text-link`** (defined above). `text-primary-dark` is fine on a static bronze CTA panel or a light-mode-only surface, but not for any text that ships on a theme-aware background.
+
+**CTA buttons (bronze background) keep `text-white`, not `text-primary-foreground`.** The bronze `bg-primary` is static (Bronze in both modes); `--primary-foreground` flips to a dark color in dark mode, which fails contrast against the Bronze. Always use `text-white` on `bg-primary` CTAs.
 
 **Quick checklist before adding a color class:**
 1. Does this text or surface need to be readable in BOTH modes? → semantic token (`text-foreground`, `bg-background`, `bg-muted`, etc.)
