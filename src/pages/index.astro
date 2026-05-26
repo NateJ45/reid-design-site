@@ -1,17 +1,18 @@
 ---
+// Safe to edit by hand (scaffolding only — replaced with Sanity-driven version once homePage queries land)
+import BaseLayout from '@/layouts/BaseLayout.astro';
 
+const title = 'Reid Design LLC';
+const description = 'Plainfield interior design for homes that feel genuinely yours.';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout {title} {description}>
+  <section class="mx-auto max-w-content px-m py-2xl">
+    <p class="text-xs uppercase tracking-widest text-secondary mb-s">Plainfield, Indiana</p>
+    <h1 class="font-display text-h1 text-accent">Interior design for homes that feel genuinely yours.</h1>
+    <p class="mt-m max-w-2xl text-lg text-accent/80">
+      Scaffolding placeholder. Once Sanity content is wired up, this page renders the
+      <code>homePage</code> singleton plus auto-populated services, testimonials, and process steps.
+    </p>
+  </section>
+</BaseLayout>

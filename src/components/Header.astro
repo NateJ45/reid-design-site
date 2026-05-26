@@ -1,0 +1,62 @@
+---
+// Foundation, edit with care
+// Site header with primary nav. siteSettings is optional — when Sanity content is
+// wired up the page passes the resolved settings document; until then the header
+// renders with hardcoded NAV_LINKS and the site name from src/data/site.ts.
+
+import { site } from '@/data/site';
+import ThemeToggle from './ThemeToggle';
+import MobileNav from './MobileNav';
+
+interface Props {
+  siteSettings?: {
+    siteName?: string;
+  } | null;
+}
+
+const { siteSettings } = Astro.props as Props;
+const brandName = siteSettings?.siteName ?? site.name;
+
+const NAV_LINKS = [
+  { label: 'Home',     href: '/' },
+  { label: 'Process',  href: '/process' },
+  { label: 'Services', href: '/services' },
+  { label: 'FAQ',      href: '/faq' },
+  { label: 'About',    href: '/about' },
+  { label: 'Contact',  href: '/contact' },
+];
+
+const pathname = Astro.url.pathname;
+function isActive(href: string) {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
+}
+---
+
+<header class="border-b border-border-soft bg-bg">
+  <div class="mx-auto flex max-w-content items-center justify-between px-m py-s">
+    <a href="/" class="font-display text-h4 text-primary-dark hover:text-primary transition-colors">
+      {brandName}
+    </a>
+
+    <nav class="hidden md:flex items-center gap-l" aria-label="Primary">
+      {NAV_LINKS.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'text-sm tracking-wide transition-colors',
+            isActive(link.href)
+              ? 'text-primary-dark font-semibold'
+              : 'text-accent hover:text-primary',
+          ]}
+          aria-current={isActive(link.href) ? 'page' : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+      <ThemeToggle client:load />
+    </nav>
+
+    <MobileNav client:only="react" links={NAV_LINKS} />
+  </div>
+</header>

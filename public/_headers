@@ -1,0 +1,11 @@
+# Cloudflare applies these headers to every route. Mirrors the NCS portfolio pattern.
+# Content-Security-Policy is intentionally not set — getting it right requires
+# testing because of the Sanity CDN, Web3Forms POST, Calendly iframe, and the
+# Cloudflare Analytics beacon. Revisit post-launch.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin

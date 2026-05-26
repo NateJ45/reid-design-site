@@ -1,0 +1,136 @@
+---
+// Foundation, edit with care
+// Site-wide layout. Provides:
+//   - <html lang>, document head, OG/Twitter meta
+//   - Anti-FOUC theme bootstrap (runs before first paint)
+//   - Cormorant Garamond font preload (LCP element on hero)
+//   - Cloudflare Web Analytics beacon (conditional)
+//   - Astro View Transitions <ClientRouter />
+//   - Skip-to-main link, Header, <main id="main">, Footer
+//   - Lenis smooth scroll init (prefers-reduced-motion-aware)
+//   - BackToTop React island
+
+import { ClientRouter } from 'astro:transitions';
+import { site } from '@/data/site';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import BackToTop from '@/components/BackToTop';
+import '@/styles/globals.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  /** Pre-serialized JSON-LD strings injected into <head> as <script type="application/ld+json">. */
+  schemas?: string[];
+  /** Sanity siteSettings document — optional until Sanity client is wired up. */
+  siteSettings?: any;
+}
+
+const {
+  title,
+  description,
+  ogImage = site.assets.ogDefault,
+  schemas = [],
+  siteSettings = null,
+} = Astro.props as Props;
+
+const canonical = new URL(Astro.url.pathname, site.url).toString();
+const absOg = ogImage.startsWith('http') ? ogImage : new URL(ogImage, site.url).toString();
+const fullTitle = title === site.name ? site.name : `${title} — ${site.name}`;
+
+// Cloudflare Web Analytics token — only render the beacon when present.
+const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/_astro/cormorant-garamond-latin-500-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={absOg} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absOg} />
+
+    {/* JSON-LD */}
+    {schemas.map((json) => (
+      <script type="application/ld+json" set:html={json} />
+    ))}
+
+    {/* Anti-FOUC theme bootstrap — must run inline before first paint. */}
+    <script is:inline define:vars={{ key: site.themeStorageKey }}>
+      try {
+        const stored = localStorage.getItem(key) ?? 'system';
+        const dark =
+          stored === 'dark' ||
+          (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      } catch (_) { /* localStorage unavailable, fall through to default light */ }
+    </script>
+
+    {/* Cloudflare Web Analytics — conditional, no cookie banner needed. */}
+    {cfToken && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token": "${cfToken}"}`}
+      ></script>
+    )}
+
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <Header siteSettings={siteSettings} />
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer siteSettings={siteSettings} />
+
+    <BackToTop client:load />
+
+    {/* Lenis smooth scroll. The reduced-motion guard in globals.css already
+        kills smooth-scroll behavior; we also bail out here so we don't pay
+        for the Lenis runtime when the user prefers reduced motion. */}
+    <script>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        import('lenis').then(({ default: Lenis }) => {
+          const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
+          function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+          requestAnimationFrame(raf);
+        });
+      }
+    </script>
+  </body>
+</html>

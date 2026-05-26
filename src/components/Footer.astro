@@ -1,0 +1,69 @@
+---
+// Foundation, edit with care
+// Site footer. Mostly editable through Sanity siteSettings; this file renders
+// the structure and falls back to static defaults when the document isn't loaded.
+
+import { site } from '@/data/site';
+
+interface Props {
+  siteSettings?: {
+    siteName?: string;
+    contactEmail?: string;
+    socialLinks?: Array<{ platform: string; url: string }>;
+    serviceAreas?: string[];
+    footerTagline?: string;
+    footerCredit?: string;
+  } | null;
+}
+
+const { siteSettings } = Astro.props as Props;
+
+const brandName = siteSettings?.siteName ?? site.name;
+const email = siteSettings?.contactEmail ?? '';
+const socials = siteSettings?.socialLinks ?? [];
+const areas = siteSettings?.serviceAreas ?? ['Plainfield', 'Indianapolis', 'Greater Indianapolis suburbs'];
+const tagline = siteSettings?.footerTagline ?? 'Interior design for homes that feel genuinely yours.';
+const credit = siteSettings?.footerCredit ?? `© ${new Date().getFullYear()} ${brandName}`;
+---
+
+<footer class="bg-accent-dark text-bg mt-2xl">
+  <div class="mx-auto max-w-content px-m py-xl grid gap-l md:grid-cols-3">
+    <div>
+      <p class="font-display text-h3 text-bg">{brandName}</p>
+      <p class="mt-s text-sm opacity-80">{tagline}</p>
+    </div>
+
+    <div>
+      <p class="text-xs uppercase tracking-widest opacity-70">Service area</p>
+      <ul class="mt-xs text-sm space-y-1">
+        {areas.map((area) => <li>{area}</li>)}
+      </ul>
+    </div>
+
+    <div>
+      <p class="text-xs uppercase tracking-widest opacity-70">Get in touch</p>
+      {email && (
+        <p class="mt-xs text-sm">
+          <a href={`mailto:${email}`} class="underline hover:text-primary">{email}</a>
+        </p>
+      )}
+      {socials.length > 0 && (
+        <ul class="mt-s flex gap-m text-sm">
+          {socials.map((s) => (
+            <li>
+              <a href={s.url} class="underline hover:text-primary" target="_blank" rel="noopener">
+                {s.platform}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+
+  <div class="border-t border-bg/10">
+    <div class="mx-auto max-w-content px-m py-m text-xs opacity-60">
+      {credit}
+    </div>
+  </div>
+</footer>
