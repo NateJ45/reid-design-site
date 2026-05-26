@@ -1,0 +1,62 @@
+---
+// Safe to edit by hand
+// Portfolio index. Grid of project cards, sorted by displayOrder then publishedAt.
+// Renders an empty state when no projects exist yet (launch state).
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getAllProjects, getSiteSettings } from '@/lib/queries';
+import { breadcrumbSchema } from '@/lib/schemas';
+import { site } from '@/data/site';
+import ProjectCard from '@/components/ProjectCard.astro';
+
+const [projects, siteSettings] = await Promise.all([
+  getAllProjects().catch(() => []),
+  getSiteSettings().catch(() => null),
+]);
+
+const title = 'Portfolio';
+const description = 'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: site.url },
+    { name: 'Portfolio', url: `${site.url}/portfolio` },
+  ]),
+];
+
+const hasProjects = Array.isArray(projects) && projects.length > 0;
+---
+
+<BaseLayout {title} {description} {schemas} {siteSettings}>
+  <section class="mx-auto max-w-content px-m py-xl">
+    <p class="text-xs uppercase tracking-widest text-secondary mb-s">Recent work</p>
+    <h1 class="font-display text-h1 text-foreground">Projects across Plainfield and Indianapolis.</h1>
+    <p class="mt-m max-w-2xl text-lg text-foreground/80">
+      A look at how rooms come together. Each project starts with a conversation about how the
+      space needs to function, then works back from there.
+    </p>
+  </section>
+
+  {hasProjects ? (
+    <section class="mx-auto max-w-content px-m pb-2xl">
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l list-none p-0">
+        {projects.map((p: any) => (
+          <li><ProjectCard project={p} /></li>
+        ))}
+      </ul>
+    </section>
+  ) : (
+    <section class="mx-auto max-w-content px-m pb-2xl">
+      <div class="rounded-md border border-border-soft bg-bg-soft p-xl text-center">
+        <h2 class="font-display text-h3 text-foreground">Case studies are on the way.</h2>
+        <p class="mt-s text-foreground/80 max-w-prose mx-auto">
+          The first projects under Reid Design LLC are wrapping up now, with full write-ups
+          coming shortly. In the meantime, you can read about
+          <a href="/process" class="text-primary-dark underline underline-offset-2 hover:text-primary"> how Reid Design works</a>
+          or
+          <a href="/contact" class="text-primary-dark underline underline-offset-2 hover:text-primary"> start a conversation about your space</a>.
+        </p>
+      </div>
+    </section>
+  )}
+</BaseLayout>

@@ -1,0 +1,38 @@
+---
+// Safe to edit by hand
+// Custom 404. Warm, on-brand, two clear paths back. No search (there isn't one).
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getSiteSettings } from '@/lib/queries';
+
+const siteSettings = await getSiteSettings().catch(() => null);
+---
+
+<BaseLayout
+  title="Page not found"
+  description="That page wandered off. Head back to the homepage or get in touch."
+  siteSettings={siteSettings}
+>
+  <section class="mx-auto max-w-content px-m py-2xl">
+    <p class="text-xs uppercase tracking-widest text-secondary mb-s">404</p>
+    <h1 class="font-display text-h1 text-foreground">That page wandered off.</h1>
+    <p class="mt-m max-w-xl text-lg text-foreground/80">
+      It happens. Maybe a link was old, maybe the URL has a typo. Either way, here's where to head next.
+    </p>
+
+    <div class="mt-l flex flex-wrap gap-m">
+      <a
+        href="/"
+        class="inline-flex items-center px-m py-s bg-primary text-primary-foreground font-semibold uppercase tracking-widest text-sm hover:bg-primary-dark transition-colors"
+      >
+        Back home
+      </a>
+      <a
+        href="/contact"
+        class="inline-flex items-center px-m py-s border border-primary text-primary-dark font-semibold uppercase tracking-widest text-sm hover:bg-bg-soft transition-colors"
+      >
+        Get in touch
+      </a>
+    </div>
+  </section>
+</BaseLayout>

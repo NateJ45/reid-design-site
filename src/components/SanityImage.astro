@@ -1,0 +1,74 @@
+---
+// Foundation, edit with care
+// Wrapper for Sanity-hosted images. Reads the image object (with hotspot/crop/alt),
+// builds the CDN URL with the right transform params, renders lazy <img>.
+//
+// Always pulls alt text from the Sanity image field (editors set it once on
+// the image and it carries everywhere). Pass `width` to drive the request size,
+// `height` if you need a specific aspect ratio crop, and `loading` to override
+// the default "lazy". Set `loading="eager"` for above-the-fold hero images.
+
+import { urlFor } from '@/lib/sanity';
+
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  source: SanityImageObject | undefined | null;
+  width: number;
+  height?: number;
+  /** Override the alt text from Sanity. Pass "" only for decorative images that have an adjacent text equivalent. */
+  alt?: string;
+  loading?: 'lazy' | 'eager';
+  /** Provide explicit sizes attribute for responsive serving. */
+  sizes?: string;
+  class?: string;
+  /** Quality 0-100. Default 75 for content, 65 for hero (use 65 explicitly). */
+  quality?: number;
+  /** Output format. Default webp; pass 'auto' to let Sanity decide (AVIF where supported). */
+  format?: 'webp' | 'auto';
+}
+
+const {
+  source,
+  width,
+  height,
+  alt,
+  loading = 'lazy',
+  sizes,
+  class: className,
+  quality = 75,
+  format = 'webp',
+} = Astro.props;
+
+// Build the URL. If source is null/undefined we render nothing — pages should handle absence explicitly.
+if (!source?.asset) {
+  return null;
+}
+
+const builder = urlFor(source).width(width).quality(quality);
+const url = format === 'webp' ? builder.format('webp').url() : builder.auto('format').url();
+
+// 2x for retina. Skip if explicit height would distort.
+const url2x = format === 'webp'
+  ? urlFor(source).width(width * 2).quality(quality).format('webp').url()
+  : urlFor(source).width(width * 2).quality(quality).auto('format').url();
+
+const resolvedAlt = alt !== undefined ? alt : (source.alt ?? '');
+---
+
+<img
+  src={url}
+  srcset={`${url} 1x, ${url2x} 2x`}
+  width={width}
+  height={height}
+  alt={resolvedAlt}
+  loading={loading}
+  decoding="async"
+  sizes={sizes}
+  class={className}
+/>

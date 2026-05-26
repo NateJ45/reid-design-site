@@ -12,32 +12,50 @@
 
 import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
+import { localBusinessSchema } from '@/lib/schemas';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
+import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
 
 interface Props {
   title: string;
   description: string;
+  /** Override the default OG image. If omitted, BaseLayout looks for a per-page OG at /og/&lt;slug&gt;.png, falling back to /og-default.png. */
   ogImage?: string;
-  /** Pre-serialized JSON-LD strings injected into <head> as <script type="application/ld+json">. */
+  /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
   schemas?: string[];
-  /** Sanity siteSettings document — optional until Sanity client is wired up. */
+  /** Sanity siteSettings document — drives footer, header, and the LocalBusiness schema. */
   siteSettings?: any;
 }
 
 const {
   title,
   description,
-  ogImage = site.assets.ogDefault,
+  ogImage,
   schemas = [],
   siteSettings = null,
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, site.url).toString();
-const absOg = ogImage.startsWith('http') ? ogImage : new URL(ogImage, site.url).toString();
+
+// Per-page OG image: convention is /og/<route-slug>.png generated at build time.
+// `/` → /og/home.png, `/contact` → /og/contact.png, `/portfolio/foo` → /og/portfolio-foo.png.
+// Falls back to og-default.png if the slug-specific file isn't there.
+function ogPathForRoute(pathname: string): string {
+  const trimmed = pathname.replace(/^\/|\/$/g, '');
+  if (!trimmed) return '/og/home.png';
+  return `/og/${trimmed.replace(/\//g, '-')}.png`;
+}
+const resolvedOg = ogImage ?? ogPathForRoute(Astro.url.pathname);
+const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
+
 const fullTitle = title === site.name ? site.name : `${title} — ${site.name}`;
+
+// Auto-inject LocalBusiness on every page when siteSettings is available.
+// Pages can still pass their own additional schemas (Service, FAQPage, BreadcrumbList).
+const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas] : schemas;
 
 // Cloudflare Web Analytics token — only render the beacon when present.
 const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
@@ -76,8 +94,8 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={absOg} />
 
-    {/* JSON-LD */}
-    {schemas.map((json) => (
+    {/* JSON-LD (LocalBusiness auto-injected from siteSettings + per-page schemas) */}
+    {allSchemas.map((json) => (
       <script type="application/ld+json" set:html={json} />
     ))}
 
@@ -116,6 +134,9 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <Footer siteSettings={siteSettings} />
 
     <BackToTop client:load />
+
+    {/* Sonner toast region. Used by CopyEmailButton and ContactForm. Position bottom-right by default. */}
+    <Toaster client:load position="bottom-right" />
 
     {/* Lenis smooth scroll. The reduced-motion guard in globals.css already
         kills smooth-scroll behavior; we also bail out here so we don't pay

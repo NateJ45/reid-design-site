@@ -4,25 +4,30 @@
 // the structure and falls back to static defaults when the document isn't loaded.
 
 import { site } from '@/data/site';
+import CopyEmailButton from '@/components/CopyEmailButton';
 
 interface Props {
   siteSettings?: {
-    siteName?: string;
-    contactEmail?: string;
-    socialLinks?: Array<{ platform: string; url: string }>;
+    title?: string;
+    email?: string;
+    socialInstagram?: string;
+    socialFacebook?: string;
     serviceAreas?: string[];
-    footerTagline?: string;
+    tagline?: string;
     footerCredit?: string;
   } | null;
 }
 
 const { siteSettings } = Astro.props as Props;
 
-const brandName = siteSettings?.siteName ?? site.name;
-const email = siteSettings?.contactEmail ?? '';
-const socials = siteSettings?.socialLinks ?? [];
+const brandName = siteSettings?.title ?? site.name;
+const email = siteSettings?.email ?? '';
+const socials = [
+  siteSettings?.socialInstagram ? { platform: 'Instagram', url: siteSettings.socialInstagram } : null,
+  siteSettings?.socialFacebook  ? { platform: 'Facebook',  url: siteSettings.socialFacebook  } : null,
+].filter((s): s is { platform: string; url: string } => s !== null);
 const areas = siteSettings?.serviceAreas ?? ['Plainfield', 'Indianapolis', 'Greater Indianapolis suburbs'];
-const tagline = siteSettings?.footerTagline ?? 'Interior design for homes that feel genuinely yours.';
+const tagline = siteSettings?.tagline ?? 'Interior design for homes that feel genuinely yours.';
 const credit = siteSettings?.footerCredit ?? `© ${new Date().getFullYear()} ${brandName}`;
 ---
 
@@ -44,7 +49,7 @@ const credit = siteSettings?.footerCredit ?? `© ${new Date().getFullYear()} ${b
       <p class="text-xs uppercase tracking-widest opacity-70">Get in touch</p>
       {email && (
         <p class="mt-xs text-sm">
-          <a href={`mailto:${email}`} class="underline hover:text-primary">{email}</a>
+          <CopyEmailButton client:visible email={email} variant="link" />
         </p>
       )}
       {socials.length > 0 && (

@@ -1,0 +1,183 @@
+---
+// Foundation, edit with care
+// Project detail page. Hero image + meta, intro story (Portable Text with anchor IDs),
+// optional gallery (justified album + lightbox), optional before/after pairs,
+// related testimonial, services used, next/previous navigation, sticky TOC.
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getAllProjects, getProjectBySlug, getSiteSettings } from '@/lib/queries';
+import { breadcrumbSchema, projectSchema } from '@/lib/schemas';
+import { extractHeadings } from '@/lib/portable-text-headings';
+import { readingTimeFromPortableText, formatReadingTime } from '@/lib/reading-time';
+import { site } from '@/data/site';
+import { urlFor } from '@/lib/sanity';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CaseStudyTOC from '@/components/CaseStudyTOC';
+import ProjectGallery from '@/components/ProjectGallery';
+import BeforeAfterSlider from '@/components/BeforeAfterSlider';
+
+// Static site: enumerate all project slugs at build time.
+export async function getStaticPaths() {
+  const projects: any[] = await getAllProjects().catch(() => []);
+  if (!Array.isArray(projects) || projects.length === 0) return [];
+
+  return projects.map((p, i) => {
+    const prev = projects[i - 1] ?? null;
+    const next = projects[i + 1] ?? null;
+    return {
+      params: { slug: p.slug?.current ?? '' },
+      props: {
+        prev: prev ? { title: prev.title, slug: prev.slug?.current } : null,
+        next: next ? { title: next.title, slug: next.slug?.current } : null,
+      },
+    };
+  }).filter((entry) => entry.params.slug);
+}
+
+const { slug } = Astro.params;
+const { prev, next } = Astro.props as {
+  prev: { title?: string; slug?: string } | null;
+  next: { title?: string; slug?: string } | null;
+};
+
+const [project, siteSettings] = await Promise.all([
+  getProjectBySlug(slug as string),
+  getSiteSettings().catch(() => null),
+]);
+
+if (!project) {
+  return Astro.redirect('/404');
+}
+
+const title = `${project.title} — ${project.location}`;
+const description = project.briefSummary ?? 'A Reid Design project case study.';
+const heroOg = project.heroImage?.asset
+  ? urlFor(project.heroImage).width(1200).height(630).fit('crop').quality(80).format('webp').url()
+  : undefined;
+
+const headings = extractHeadings(project.introStory);
+const readMinutes = readingTimeFromPortableText(project.introStory);
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: site.url },
+    { name: 'Portfolio', url: `${site.url}/portfolio` },
+    { name: project.title ?? slug, url: `${site.url}/portfolio/${slug}` },
+  ]),
+  projectSchema(project, heroOg ?? null),
+];
+---
+
+<BaseLayout
+  {title}
+  {description}
+  ogImage={heroOg}
+  {schemas}
+  {siteSettings}
+>
+  {/* Hero */}
+  <section class="mx-auto max-w-content px-m pt-xl pb-l">
+    <p class="text-xs uppercase tracking-widest text-secondary mb-s">
+      <a href="/portfolio" class="hover:text-primary transition-colors">Portfolio</a> · {project.roomType?.replace(/([A-Z])/g, ' $1').toLowerCase()}
+    </p>
+    <h1 class="font-display text-h1 text-foreground">{project.title}</h1>
+    <p class="mt-s text-foreground/80 text-lg">{project.briefSummary}</p>
+    <div class="mt-m flex flex-wrap items-center gap-m text-sm text-muted-foreground">
+      {project.location && <span>{project.location}</span>}
+      {project.year && <span>·</span>}
+      {project.year && <span>{project.year}</span>}
+      {readMinutes > 0 && <span>·</span>}
+      {readMinutes > 0 && <span>{formatReadingTime(readMinutes)}</span>}
+    </div>
+  </section>
+
+  {project.heroImage?.asset && (
+    <section class="mx-auto max-w-content px-m">
+      <SanityImage
+        source={project.heroImage}
+        width={1920}
+        loading="eager"
+        sizes="(min-width: 1320px) 1280px, 100vw"
+        class="w-full h-auto rounded-md"
+      />
+    </section>
+  )}
+
+  {/* Body: TOC sidebar + story */}
+  <section class="mx-auto max-w-content px-m py-xl grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-xl">
+    <CaseStudyTOC client:idle headings={headings} />
+
+    <article class="max-w-prose">
+      <PortableText client:load value={project.introStory} className="text-foreground/90" />
+
+      {Array.isArray(project.beforeAfters) && project.beforeAfters.length > 0 && (
+        <div class="mt-2xl">
+          <h2 class="font-display text-h2 text-foreground" id="before-and-after">Before and after</h2>
+          {project.beforeAfters.map((pair: any) => (
+            <BeforeAfterSlider
+              client:visible
+              beforeImage={pair.beforeImage}
+              afterImage={pair.afterImage}
+              caption={pair.caption}
+            />
+          ))}
+        </div>
+      )}
+
+      {Array.isArray(project.gallery) && project.gallery.length > 0 && (
+        <div class="mt-2xl">
+          <h2 class="font-display text-h2 text-foreground" id="gallery">Gallery</h2>
+          <ProjectGallery client:visible images={project.gallery} />
+        </div>
+      )}
+
+      {Array.isArray(project.servicesUsed) && project.servicesUsed.length > 0 && (
+        <div class="mt-2xl">
+          <h2 class="font-display text-h3 text-foreground" id="services-used">Services used on this project</h2>
+          <ul class="mt-s flex flex-wrap gap-s list-none p-0">
+            {project.servicesUsed.map((s: any) => (
+              <li>
+                <a
+                  href={`/services#${s.slug?.current ?? ''}`}
+                  class="inline-flex items-center px-s py-1.5 border border-border-soft rounded-full text-sm text-foreground hover:border-primary hover:text-primary-dark transition-colors"
+                >
+                  {s.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {project.relatedTestimonial && (
+        <blockquote class="mt-2xl border-l-4 border-primary pl-m italic text-foreground/90 text-lg">
+          <p>“{project.relatedTestimonial.quote}”</p>
+          <footer class="mt-s text-sm not-italic text-muted-foreground">
+            — {project.relatedTestimonial.attribution}
+          </footer>
+        </blockquote>
+      )}
+    </article>
+  </section>
+
+  {/* Next / previous */}
+  {(prev || next) && (
+    <nav class="border-t border-border-soft" aria-label="More projects">
+      <div class="mx-auto max-w-content px-m py-l grid grid-cols-1 md:grid-cols-2 gap-m">
+        {prev ? (
+          <a href={`/portfolio/${prev.slug}`} class="group">
+            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Previous project</p>
+            <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">← {prev.title}</p>
+          </a>
+        ) : <div></div>}
+        {next ? (
+          <a href={`/portfolio/${next.slug}`} class="group md:text-right">
+            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Next project</p>
+            <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">{next.title} →</p>
+          </a>
+        ) : <div></div>}
+      </div>
+    </nav>
+  )}
+</BaseLayout>

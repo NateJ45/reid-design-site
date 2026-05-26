@@ -3,7 +3,7 @@
 // from env at build time. Public dataset → useCdn:true is safe and fast.
 
 import { createClient, type SanityClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
@@ -27,7 +27,10 @@ export const client: SanityClient = createClient({
   perspective: 'published',
 });
 
-const builder = imageUrlBuilder(client);
+const builder = createImageUrlBuilder({
+  projectId: projectId ?? 'placeholder',
+  dataset,
+});
 
 export function urlFor(source: SanityImageSource) {
   return builder.image(source);

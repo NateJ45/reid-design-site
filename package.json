@@ -15,6 +15,7 @@
     "generate-types": "wrangler types",
     "typegen": "npm --prefix studio run typegen",
     "og": "node scripts/generate-og-default.mjs",
+    "og:pages": "node scripts/generate-og-pages.mjs",
     "studio:dev": "npm --prefix studio run dev",
     "studio:deploy": "npx --prefix studio sanity deploy",
     "studio:import": "node scripts/import-content.mjs"
@@ -28,6 +29,8 @@
     "@fontsource-variable/geist": "^5.2.9",
     "@fontsource-variable/source-sans-3": "^5.2.9",
     "@fontsource/cormorant-garamond": "^5.2.11",
+    "@portabletext/react": "^6.2.0",
+    "@portabletext/types": "^4.0.2",
     "@sanity/client": "^7.22.0",
     "@sanity/image-url": "^2.1.1",
     "@tabler/icons-react": "^3.44.0",
