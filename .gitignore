@@ -25,6 +25,9 @@ tmp/
 studio/schema.json
 studio/dist/
 
+# transient commit message files
+.git-commit-msg.tmp
+
 # macOS-specific files
 .DS_Store
 
