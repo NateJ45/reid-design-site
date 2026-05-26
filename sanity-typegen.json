@@ -1,0 +1,4 @@
+{
+  "path": "./studio/schemaTypes/index.ts",
+  "generates": "./src/lib/sanity.types.ts"
+}
