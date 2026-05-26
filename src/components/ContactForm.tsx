@@ -153,7 +153,7 @@ export default function ContactForm() {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-primary bg-bg-soft p-l"
+        className="rounded-md border border-primary bg-muted p-l"
       >
         <h3 className="font-display text-h3 text-foreground">Thanks, your note's on its way.</h3>
         <p className="mt-s text-foreground/80">

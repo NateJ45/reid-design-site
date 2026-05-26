@@ -31,7 +31,7 @@ export default function CopyEmailButton({ email, label, variant = 'link' }: Prop
 
   const baseClasses =
     variant === 'button'
-      ? 'inline-flex items-center gap-2 px-m py-s border border-primary text-link hover:bg-bg-soft transition-colors'
+      ? 'inline-flex items-center gap-2 px-m py-s border border-primary text-link hover:bg-muted transition-colors'
       : 'inline-flex items-center gap-1.5 text-link hover:text-primary underline underline-offset-2 transition-colors';
 
   return (
