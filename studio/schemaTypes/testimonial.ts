@@ -37,11 +37,11 @@ export const testimonial = defineType({
       description: 'Where the testimonial came from.',
       options: {
         list: [
-          { title: 'Facebook', value: 'facebook' },
-          { title: 'Google', value: 'google' },
-          { title: 'Houzz', value: 'houzz' },
-          { title: 'Direct (email or text)', value: 'direct' },
-          { title: 'Other', value: 'other' },
+          { title: 'Facebook', value: 'Facebook' },
+          { title: 'Google', value: 'Google' },
+          { title: 'Houzz', value: 'Houzz' },
+          { title: 'Direct (email or text)', value: 'Direct (email or text)' },
+          { title: 'Other', value: 'Other' },
         ],
       },
       validation: (Rule) => Rule.required(),

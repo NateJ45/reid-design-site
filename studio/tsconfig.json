@@ -1,5 +1,4 @@
 {
-  "extends": "@sanity/eslint-config-studio/tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
@@ -11,7 +10,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "noEmit": true
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]

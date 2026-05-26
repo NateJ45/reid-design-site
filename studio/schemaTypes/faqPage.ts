@@ -28,7 +28,7 @@ export const faqPage = defineType({
       group: 'list',
       description: 'Drag to reorder. Must match the option values on faqItem.category.',
       of: [defineArrayMember({ type: 'string' })],
-      initialValue: ['pricing', 'process', 'logistics', 'serviceArea', 'gettingStarted'],
+      initialValue: ['Pricing & Cost', 'The Process', 'Logistics', 'Service Area', 'Getting Started'],
     }),
 
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Just ask.' }),

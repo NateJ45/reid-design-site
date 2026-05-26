@@ -5,7 +5,7 @@
 
 import type { StructureBuilder } from 'sanity/structure';
 import {
-  Cog,
+  CogIcon,
   HomeIcon,
   UserIcon,
   TrendUpwardIcon,
@@ -36,7 +36,7 @@ export const deskStructure = (S: StructureBuilder) =>
       // Site Settings — pinned singleton
       S.listItem()
         .title('Site Settings')
-        .icon(Cog)
+        .icon(CogIcon)
         .child(S.editor().id('siteSettings').schemaType('siteSettings').documentId('siteSettings')),
 
       S.divider(),

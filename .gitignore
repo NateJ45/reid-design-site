@@ -20,6 +20,11 @@ pnpm-debug.log*
 # wrangler local cache (Cloudflare adapter)
 .wrangler/
 
+# generated artifacts
+tmp/
+studio/schema.json
+studio/dist/
+
 # macOS-specific files
 .DS_Store
 

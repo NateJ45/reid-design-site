@@ -59,11 +59,11 @@ export const faqItem = defineType({
       description: 'Which group this question belongs in on the FAQ page.',
       options: {
         list: [
-          { title: 'Pricing & Cost', value: 'pricing' },
-          { title: 'The Process', value: 'process' },
-          { title: 'Logistics', value: 'logistics' },
-          { title: 'Service Area', value: 'serviceArea' },
-          { title: 'Getting Started', value: 'gettingStarted' },
+          { title: 'Pricing & Cost', value: 'Pricing & Cost' },
+          { title: 'The Process', value: 'The Process' },
+          { title: 'Logistics', value: 'Logistics' },
+          { title: 'Service Area', value: 'Service Area' },
+          { title: 'Getting Started', value: 'Getting Started' },
         ],
       },
       validation: (Rule) => Rule.required(),

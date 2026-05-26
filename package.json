@@ -7,15 +7,16 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run typegen && astro build",
     "preview": "wrangler dev",
     "astro": "astro",
     "deploy": "npm run build && wrangler deploy",
     "generate-types": "wrangler types",
-    "typegen": "sanity typegen generate",
+    "typegen": "npm --prefix studio run typegen",
     "og": "node scripts/generate-og-default.mjs",
     "studio:dev": "npm --prefix studio run dev",
-    "studio:deploy": "npx --prefix studio sanity deploy"
+    "studio:deploy": "npx --prefix studio sanity deploy",
+    "studio:import": "node scripts/import-content.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.5",
