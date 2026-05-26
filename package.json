@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run typegen && astro build",
+    "build": "astro build",
+    "build:full": "npm run typegen && astro build",
     "preview": "wrangler dev",
     "astro": "astro",
     "deploy": "npm run build && wrangler deploy",
