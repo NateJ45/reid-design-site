@@ -55,13 +55,10 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <link rel="canonical" href={canonical} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link
-      rel="preload"
-      href="/_astro/cormorant-garamond-latin-500-normal.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {/* Note: Cormorant Garamond is loaded via @fontsource @import in globals.css.
+        Vite hashes the woff2 filename at build time so a static preload here
+        would 404. If hero h1 LCP needs faster fonts, switch to font-display: optional
+        or generate the preload tag from the built CSS manifest. */}
 
     {/* Open Graph */}
     <meta property="og:type" content="website" />
