@@ -7,6 +7,8 @@ export const testimonial = defineType({
   name: 'testimonial',
   title: 'Testimonial',
   type: 'document',
+  // Verbatim client quotes — AI must NOT touch or "improve" these.
+  options: { canvasApp: { exclude: true } },
   fields: [
     defineField({
       name: 'quote',

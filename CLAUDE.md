@@ -680,6 +680,31 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 **Reusable object types (embedded, not standalone documents):**
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
 
+### Canvas (AI-assisted writing)
+
+[Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio — an AI-assisted free-form drafting tool that creates `journalEntry` (and other) drafts in the production dataset. Staci uses it for longer blog work; the drafts flow into Studio for review and publish.
+
+Two schema-level controls govern what Canvas sees, both expressed as `options.canvasApp.*` on a defineType or defineField:
+
+**Excluded from Canvas entirely** (`options.canvasApp.exclude: true` at the type level):
+- All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage`) — marketing copy is structural and locked; edit fields directly in Studio.
+- `siteSettings` — configuration, not prose.
+- `testimonial` — verbatim client quotes; AI must not "improve" them.
+- `philosophyPoint`, `processStep` — short, locked structural content.
+- `journalCategory` — taxonomy, not content.
+
+**Available in Canvas with per-field voice hints** (`options.canvasApp.purpose: '...'` on prose fields):
+- `journalEntry` — title, excerpt, body, seoTitle, seoDescription
+- `project` — title, briefSummary, introStory, metaTitle, metaDescription
+- `service` — shortDescription, bestFor, longDescription
+- `faqItem` — question, answer
+
+The `purpose` strings carry a compressed version of the voice manifesto ("warm, plain-spoken, slightly informal, confident about money; sounds like a smart friend, not a brochure; banned vocabulary: transformative, curated, elevated, tailored, investment in your space") plus per-field role guidance. These ride along with every Canvas suggestion for that field, but they are NOT a hard guardrail — Staci should still apply the manifesto in review, and Claude in chat can run a `brand-voice:enforce-voice` pass over any Canvas draft before publish.
+
+**Deploying changes** that touch Canvas annotations: run `npm run studio:deploy` from the project root. Canvas reads the deployed Studio schema, so any new `canvasApp.purpose` or `exclude` change needs a Studio redeploy to take effect.
+
+**Activating Canvas** for the project (one-time): the toggle lives in [manage.sanity.io](https://manage.sanity.io) under the project's Canvas section. May require a paid plan tier depending on Sanity's pricing at the time.
+
 ### Where queries live
 
 GROQ queries live in `src/lib/queries.ts`. Each page has a typed query function that pulls the singleton plus any auto-populated collections it needs (e.g., homePage query includes featured testimonial, services-where-showOnHomepage, and process steps in order).

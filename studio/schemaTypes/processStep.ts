@@ -8,6 +8,8 @@ export const processStep = defineType({
   name: 'processStep',
   title: 'Process Step',
   type: 'document',
+  // Locked structural content (numbered steps with tier notes) — not Canvas territory.
+  options: { canvasApp: { exclude: true } },
   fields: [
     defineField({
       name: 'stepNumber',

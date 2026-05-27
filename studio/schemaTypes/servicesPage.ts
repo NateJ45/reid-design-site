@@ -7,6 +7,8 @@ export const servicesPage = defineType({
   name: 'servicesPage',
   title: 'Services Page',
   type: 'document',
+  // Marketing copy is locked and structural — edit fields directly in Studio, not Canvas.
+  options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
     { name: 'hero', title: 'Hero', default: true },

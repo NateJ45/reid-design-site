@@ -14,6 +14,12 @@ export const project = defineType({
       title: 'Project title',
       type: 'string',
       description: 'Example: "Fishers ranch refresh".',
+      options: {
+        canvasApp: {
+          purpose:
+            'Case study title. Place-named, NOT client-named. Examples: "The Plainfield Bungalow", "Cedar Lane Living Room", "Fishers Ranch Refresh". Voice: warm, specific. The place gives the project identity without naming the homeowner.',
+        },
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -29,6 +35,12 @@ export const project = defineType({
       title: 'SEO title (optional)',
       type: 'string',
       description: 'Browser tab + search result title. 50–60 chars. Leave blank to use the project title.',
+      options: {
+        canvasApp: {
+          purpose:
+            'Optional per-project SEO title override. 50-60 chars. Front-load location + room type for local search ("Plainfield Kitchen Refresh" beats "Beautiful Modern Kitchen Project").',
+        },
+      },
       validation: (Rule) => Rule.max(70),
     }),
     defineField({
@@ -37,6 +49,12 @@ export const project = defineType({
       type: 'text',
       rows: 2,
       description: 'Search result snippet. 150–160 chars. Leave blank to use the brief summary.',
+      options: {
+        canvasApp: {
+          purpose:
+            'Optional per-project SEO description. 150-160 chars. Written for a human about to click, not a search engine. Specific (location + room type + transformation) beats generic.',
+        },
+      },
       validation: (Rule) => Rule.max(170),
     }),
     defineField({
@@ -105,6 +123,12 @@ export const project = defineType({
       type: 'text',
       description: 'One-sentence summary for the portfolio grid card (max ~200 characters).',
       rows: 2,
+      options: {
+        canvasApp: {
+          purpose:
+            'One-sentence summary on the portfolio grid card, max 200 chars. Voice: smart friend, not brochure. Hint at the design problem and the move. Banned: transformative, curated, elevated, tailored, sanctuary.',
+        },
+      },
       validation: (Rule) => Rule.required().max(200),
     }),
     defineField({
@@ -112,6 +136,12 @@ export const project = defineType({
       title: 'Intro story',
       type: 'array',
       description: 'The brief, the approach, the result.',
+      options: {
+        canvasApp: {
+          purpose:
+            'Long-form case study narrative. Open with one warm paragraph in Staci\'s voice (the client\'s situation, the brief, the approach), then walk through the design thinking. Voice: warm, plain-spoken, confident about money, slightly informal. Show the reasoning ("I started with the paint sample because the wall color sets what every other choice has to answer to"), not credentials. Stop when done. Banned: transformative, curated, elevated, tailored, sanctuary, investment in your space. No em-dashes.',
+        },
+      },
       of: [
         defineArrayMember({
           type: 'block',

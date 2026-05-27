@@ -13,6 +13,12 @@ export const faqItem = defineType({
       title: 'Question',
       type: 'string',
       description: 'The question as a visitor would ask it.',
+      options: {
+        canvasApp: {
+          purpose:
+            'The question as a visitor would actually ask it — plain English, not jargon. Example: "How much does a full room design cost?" not "What is the pricing structure for full-room design services?"',
+        },
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -20,6 +26,12 @@ export const faqItem = defineType({
       title: 'Answer',
       type: 'array',
       description: 'The answer in your voice. Paragraphs, lists, and bold are supported.',
+      options: {
+        canvasApp: {
+          purpose:
+            'Plain-English answer. Voice: warm, slightly informal, confident about money. Lead with the direct answer; expand if needed. Stop when done — don\'t pad. Banned: transformative, curated, elevated, tailored, investment in your space.',
+        },
+      },
       of: [
         defineArrayMember({
           type: 'block',

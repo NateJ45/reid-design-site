@@ -43,6 +43,12 @@ export const service = defineType({
       type: 'text',
       description: 'One or two sentences for the service card (max ~200 characters).',
       rows: 3,
+      options: {
+        canvasApp: {
+          purpose:
+            'One or two sentences for the service tier card. Voice: warm, plain-spoken, confident about money. Be specific about what\'s included (concrete verbs over abstract benefits). Banned: transformative, curated, elevated, tailored, investment in your space.',
+        },
+      },
       validation: (Rule) => Rule.required().max(200),
     }),
     defineField({
@@ -59,6 +65,12 @@ export const service = defineType({
       type: 'text',
       description: 'One sentence describing the ideal client for this service.',
       rows: 2,
+      options: {
+        canvasApp: {
+          purpose:
+            'One sentence describing the ideal client. Voice: plain-spoken, slightly informal. Examples: "When you\'d rather hand the project off than manage it." / "Homeowners who know something feels off but aren\'t sure where to start."',
+        },
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -77,6 +89,12 @@ export const service = defineType({
       title: 'Long description',
       type: 'array',
       description: 'Optional detail block shown lower on the Services page.',
+      options: {
+        canvasApp: {
+          purpose:
+            'Longer detail block shown lower on the Services page. Same voice as shortDescription but with room to walk through what the service actually looks like. Specific verbs (shopping with you, picking paint, hanging art) beat generic adjectives. Banned: transformative, curated, elevated, tailored, investment in your space.',
+        },
+      },
       of: [
         defineArrayMember({
           type: 'block',

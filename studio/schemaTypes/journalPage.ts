@@ -7,6 +7,8 @@ export const journalPage = defineType({
   name: 'journalPage',
   title: 'Journal Page',
   type: 'document',
+  // Page singleton (hero + final CTA only) — structural, not free-form drafting.
+  options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo',   title: 'SEO' },
     { name: 'hero',  title: 'Hero', default: true },

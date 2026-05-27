@@ -7,6 +7,8 @@ export const philosophyPoint = defineType({
   name: 'philosophyPoint',
   title: 'Philosophy Point',
   type: 'document',
+  // Three locked About-page values — not free-form writing fodder for Canvas.
+  options: { canvasApp: { exclude: true } },
   fields: [
     defineField({
       name: 'title',

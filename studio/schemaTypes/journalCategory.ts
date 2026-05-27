@@ -15,6 +15,8 @@ export const journalCategory = defineType({
   name: 'journalCategory',
   title: 'Journal Category',
   type: 'document',
+  // Taxonomy, not content — exclude from Canvas's free-form writing UI.
+  options: { canvasApp: { exclude: true } },
   fields: [
     defineField({
       name: 'title',

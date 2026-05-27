@@ -29,6 +29,12 @@ export const journalEntry = defineType({
       type: 'string',
       description: 'The post title. Aim for under 70 characters so it reads as a single line on cards and in search.',
       group: 'meta',
+      options: {
+        canvasApp: {
+          purpose:
+            'Blog post headline, under 70 chars. Voice: warm, plain-spoken, specific. "A 1970s ranch in Fishers" beats "modern home." Banned: transformative, curated, elevated, tailored, ultimate, top tips.',
+        },
+      },
       validation: (Rule) => Rule.required().max(120),
     }),
     defineField({
@@ -47,6 +53,12 @@ export const journalEntry = defineType({
       description: 'One or two sentences that show on the journal index card AND the SEO description. ~160 characters reads well in Google.',
       rows: 3,
       group: 'meta',
+      options: {
+        canvasApp: {
+          purpose:
+            'One or two sentences shown on the journal card AND as the SEO description (~160 chars). Voice: warm, plain-spoken, slightly informal. Specific beats generic. Banned: transformative, curated, elevated, tailored, investment in your space.',
+        },
+      },
       validation: (Rule) => Rule.required().max(220),
     }),
     defineField({
@@ -108,6 +120,12 @@ export const journalEntry = defineType({
       type: 'array',
       description: 'The post itself. Use headings to break it up; the seven custom blocks (pull quote, before/after, source card, tip, gallery, divider, video) appear in the "insert" menu.',
       group: 'content',
+      options: {
+        canvasApp: {
+          purpose:
+            'Long-form blog post body. Voice: warm, plain-spoken, slightly informal, confident about money — like a smart friend, not a brochure. Show specific design thinking, not credentials. Stop when done; don\'t tack on summary sentences. Banned vocabulary: transformative, curated experience, investment in your space, elevated living, tailored solutions, ever-evolving, in the realm of, navigate (as a verb), leverage, robust, seamless, meticulous, tapestry, testament to. Audience: Plainfield and Greater Indianapolis-area homeowners with budget for design help but not luxury tier. "A 1970s ranch in Fishers" beats "modern home." No em-dashes; use commas or restructure.',
+        },
+      },
       validation: (Rule) => Rule.required().min(1),
       of: [
         // Standard Portable Text block — paragraphs, headings, lists, marks
@@ -462,6 +480,12 @@ export const journalEntry = defineType({
       type: 'string',
       description: 'Optional. Overrides the <title> tag if set. Defaults to "{title} · Reid Design Journal".',
       group: 'seo',
+      options: {
+        canvasApp: {
+          purpose:
+            'Optional override for the HTML <title> tag. 50-60 chars. Front-load the keyword (location or topic). No marketing puffery.',
+        },
+      },
       validation: (Rule) => Rule.max(70),
     }),
     defineField({
@@ -471,6 +495,12 @@ export const journalEntry = defineType({
       rows: 3,
       description: 'Optional. Overrides the meta description if set. Defaults to the excerpt.',
       group: 'seo',
+      options: {
+        canvasApp: {
+          purpose:
+            'Optional override for the meta description. 150-160 chars. Written for a human about to click, not for a search engine. Don\'t restate the title.',
+        },
+      },
       validation: (Rule) => Rule.max(220),
     }),
 

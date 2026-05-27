@@ -8,6 +8,8 @@ export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
   type: 'document',
+  // Marketing copy is locked and structural — edit fields directly in Studio, not Canvas.
+  options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
     { name: 'hero', title: 'Hero', default: true },

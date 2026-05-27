@@ -7,6 +7,8 @@ export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  // Configuration, not prose — don't surface in Canvas's AI-assisted writing UI.
+  options: { canvasApp: { exclude: true } },
   fields: [
     defineField({
       name: 'title',
