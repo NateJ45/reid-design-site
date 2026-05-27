@@ -174,4 +174,4 @@ console.log(`\nManifest written to ${manifestPath}`);
 console.log(`(maps filename → Sanity asset _id, useful if we ever want to wire specific photos to specific docs later)`);
 
 if (failed > 0) process.exit(1);
-console.log('\nDone! All photos are now in Staci\\'s Sanity asset library.');
+console.log("\nDone! All photos are now in Staci's Sanity asset library.");
