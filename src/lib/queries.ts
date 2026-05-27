@@ -33,7 +33,8 @@ export async function getSiteSettings() {
     travelFees,
     socialInstagram,
     socialFacebook,
-    footerCredit
+    footerCredit,
+    footerCreditUrl
   }`);
 }
 

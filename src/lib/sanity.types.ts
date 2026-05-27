@@ -172,6 +172,7 @@ export type SiteSettings = {
   socialInstagram?: string;
   socialFacebook?: string;
   footerCredit?: string;
+  footerCreditUrl?: string;
 };
 
 export type HomePageReference = {

@@ -101,6 +101,12 @@ export const siteSettings = defineType({
       type: 'string',
       description: 'Optional credit line in the footer (e.g., "Site by Nixon Creative Studio").',
     }),
+    defineField({
+      name: 'footerCreditUrl',
+      title: 'Footer credit URL',
+      type: 'url',
+      description: 'Optional. When set, the footer credit becomes a link to this URL (opens in a new tab).',
+    }),
   ],
   preview: {
     prepare: () => ({ title: 'Site Settings' }),

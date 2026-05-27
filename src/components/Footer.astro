@@ -15,6 +15,7 @@ interface Props {
     serviceAreas?: string[];
     tagline?: string;
     footerCredit?: string;
+    footerCreditUrl?: string;
   } | null;
 }
 
@@ -29,6 +30,7 @@ const socials = [
 const areas = siteSettings?.serviceAreas ?? ['Plainfield', 'Indianapolis', 'Greater Indianapolis suburbs'];
 const tagline = siteSettings?.tagline ?? 'Interior design for homes that feel genuinely yours.';
 const credit = siteSettings?.footerCredit ?? `© ${new Date().getFullYear()} ${brandName}`;
+const creditUrl = siteSettings?.footerCreditUrl;
 ---
 
 <footer class="bg-accent-dark text-bg">
@@ -68,7 +70,18 @@ const credit = siteSettings?.footerCredit ?? `© ${new Date().getFullYear()} ${b
 
   <div class="border-t border-bg/10">
     <div class="mx-auto max-w-content px-m py-m text-xs opacity-60">
-      {credit}
+      {creditUrl ? (
+        <a
+          href={creditUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-2 hover:opacity-100 hover:text-primary transition-colors"
+        >
+          {credit}
+        </a>
+      ) : (
+        credit
+      )}
     </div>
   </div>
 </footer>
