@@ -167,3 +167,41 @@ export function projectSchema(project: Project, heroImageUrl: string | null): st
     datePublished: project.publishedAt,
   });
 }
+
+// ---------- BlogPosting (for /journal/[slug]) -----------------------------
+
+interface JournalEntryForSchema {
+  title?: string;
+  slug?: { current?: string };
+  excerpt?: string;
+  author?: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  body?: any;
+  categories?: Array<{ title?: string }>;
+}
+
+export function blogPostingSchema(
+  entry: JournalEntryForSchema,
+  coverImageUrl: string | null,
+): string {
+  const url = entry.slug?.current ? `${site.url}/journal/${entry.slug.current}` : `${site.url}/journal`;
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: entry.title,
+    description: entry.excerpt,
+    url,
+    image: coverImageUrl ?? undefined,
+    datePublished: entry.publishedAt,
+    dateModified: entry.updatedAt ?? entry.publishedAt,
+    author: entry.author
+      ? { '@type': 'Person', name: entry.author }
+      : { '@id': `${site.url}/#business` },
+    publisher: { '@id': `${site.url}/#business` },
+    keywords: Array.isArray(entry.categories)
+      ? entry.categories.map((c) => c?.title).filter(Boolean).join(', ')
+      : undefined,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  });
+}

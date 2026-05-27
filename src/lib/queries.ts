@@ -189,3 +189,88 @@ export async function getProjectBySlug(slug: string) {
     { slug },
   );
 }
+
+// ---- Journal --------------------------------------------------------------
+
+// Projection for a journal card (index page) — small surface, no body.
+const JOURNAL_CARD_PROJECTION = `{
+  _id,
+  title,
+  slug,
+  excerpt,
+  publishedAt,
+  featured,
+  coverImage${IMAGE_PROJECTION},
+  "categories": categories[]->{ _id, title, slug, description }
+}`;
+
+export async function getJournalPage() {
+  return client.fetch(`*[_type == "journalPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    finalCtaHeadline, finalCtaSubhead,
+    finalCta${CTA_PROJECTION}
+  }`);
+}
+
+export async function getAllJournalEntries() {
+  // Featured first, then newest first. Excerpt + cover only (no body).
+  return client.fetch(`*[_type == "journalEntry"] | order(featured desc, publishedAt desc) ${JOURNAL_CARD_PROJECTION}`);
+}
+
+export async function getAllJournalCategories() {
+  return client.fetch(`*[_type == "journalCategory"] | order(title asc){
+    _id, title, slug, description,
+    "postCount": count(*[_type == "journalEntry" && references(^._id)])
+  }`);
+}
+
+export async function getJournalEntryBySlug(slug: string) {
+  // Full doc including body. The body's inline image blocks get their asset
+  // resolved + alt fallback at the GROQ layer so the renderer doesn't have to
+  // chase asset refs for every block. Image gallery items + beforeAfter pairs
+  // + sourceCard images + inline images all get the same treatment.
+  return client.fetch(
+    `*[_type == "journalEntry" && slug.current == $slug][0]{
+      _id, title, slug, excerpt, author, publishedAt, updatedAt, featured,
+      seoTitle, seoDescription,
+      coverImage${IMAGE_PROJECTION},
+      "categories": categories[]->{ _id, title, slug, description },
+      "relatedProject": relatedProject->{ _id, title, slug, location, year, heroImage${IMAGE_PROJECTION} },
+      body[]{
+        ...,
+        _type == "inlineImage" => ${IMAGE_PROJECTION},
+        _type == "beforeAfter" => {
+          ...,
+          beforeImage${IMAGE_PROJECTION},
+          afterImage${IMAGE_PROJECTION}
+        },
+        _type == "sourceCard" => {
+          ...,
+          image${IMAGE_PROJECTION}
+        },
+        _type == "imageGallery" => {
+          ...,
+          images[]${IMAGE_PROJECTION}
+        }
+      },
+      // Explicit relatedPosts if set; otherwise auto-pick 3 most recent in the
+      // same primary category, excluding this post itself.
+      "relatedPosts": coalesce(
+        relatedPosts[]->${JOURNAL_CARD_PROJECTION},
+        *[_type == "journalEntry" && _id != ^._id && count(categories[@._ref in ^.^.categories[]._ref]) > 0]
+          | order(publishedAt desc)[0..2] ${JOURNAL_CARD_PROJECTION}
+      )
+    }`,
+    { slug },
+  );
+}
+
+// Static path generation for /journal/[slug]. Returns just the slugs.
+export async function getAllJournalSlugs(): Promise<string[]> {
+  const list: Array<{ slug: { current: string } }> = await client.fetch(
+    `*[_type == "journalEntry" && defined(slug.current)]{ slug }`,
+  );
+  return list.map((e) => e.slug?.current).filter(Boolean);
+}

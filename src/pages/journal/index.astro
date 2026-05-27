@@ -1,0 +1,111 @@
+---
+// Safe to edit by hand for copy + structure changes.
+// Journal index page. Hero, category chips (display-only for now), responsive
+// post grid, final CTA. Sanity-driven via getJournalPage() + getAllJournalEntries()
+// + getAllJournalCategories().
+//
+// First post gets the `featured` card treatment (spans 2 columns at lg, larger
+// type). If editors flag multiple posts as featured, the first by date wins
+// the big slot; others get normal cards.
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import {
+  getJournalPage,
+  getAllJournalEntries,
+  getAllJournalCategories,
+  getSiteSettings,
+} from '@/lib/queries';
+import { breadcrumbSchema } from '@/lib/schemas';
+import { site } from '@/data/site';
+
+import Hero from '@/components/Hero.astro';
+import JournalCard from '@/components/JournalCard.astro';
+import JournalCategoryChip from '@/components/JournalCategoryChip.astro';
+import FinalCta from '@/components/FinalCta.astro';
+
+const [page, entries, categories, siteSettings] = await Promise.all([
+  getJournalPage().catch(() => null),
+  getAllJournalEntries().catch(() => []),
+  getAllJournalCategories().catch(() => []),
+  getSiteSettings().catch(() => null),
+]);
+
+const title       = page?.seoTitle       ?? 'Journal · Reid Design';
+const description = page?.seoDescription ?? 'Notes from a Plainfield interior designer — project walkthroughs, style thinking, and the occasional opinion.';
+
+const heroEyebrow  = page?.heroEyebrow  ?? 'The Journal.';
+const heroHeadline = page?.heroHeadline ?? 'Notes from the studio.';
+const heroSubhead  = page?.heroSubhead  ?? 'Project walkthroughs, design thinking, and the occasional opinion. Written between projects.';
+
+// Categories with at least one post (filters out empty taxonomies).
+const usedCategories = (categories ?? []).filter((c: any) => (c.postCount ?? 0) > 0);
+
+// Posts have already come back sorted "featured desc, publishedAt desc" via the query.
+const list = entries ?? [];
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: site.url },
+    { name: 'Journal', url: `${site.url}/journal` },
+  ]),
+];
+---
+
+<BaseLayout {title} {description} {schemas} {siteSettings}>
+  {/* ------- 1. Hero --------------------------------------------------------- */}
+  <Hero
+    eyebrow={heroEyebrow}
+    headline={heroHeadline}
+    subhead={heroSubhead}
+    headingId="journal-hero-heading"
+    size="short"
+  />
+
+  {/* ------- 2. Category chips (display-only for now) ----------------------- */}
+  {usedCategories.length > 0 && (
+    <section class="bg-background" aria-label="Journal categories">
+      <div class="mx-auto max-w-content px-m pt-l">
+        <ul class="flex flex-wrap gap-xs list-none p-0">
+          {usedCategories.map((cat: any) => (
+            <li>
+              <JournalCategoryChip
+                title={cat.title}
+                tooltip={cat.description ?? `${cat.postCount} ${cat.postCount === 1 ? 'post' : 'posts'}`}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {/* ------- 3. Post grid --------------------------------------------------- */}
+  <section class="bg-background" aria-label="Journal posts">
+    <div class="mx-auto max-w-content px-m py-xl">
+      {list.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
+          {list.map((entry: any, i: number) => (
+            <JournalCard entry={entry} featured={i === 0 && entry.featured} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-2xl">
+          <p class="text-foreground/80 text-lg max-w-prose mx-auto">
+            The first journal entries are on their way.
+          </p>
+          <p class="mt-s text-muted-foreground">
+            In the meantime, <a href="/portfolio" class="text-link underline underline-offset-2">browse the portfolio</a> or
+            <a href="/contact" class="text-link underline underline-offset-2"> start a conversation</a>.
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* ------- 4. Final CTA ---------------------------------------------------- */}
+  <FinalCta
+    headline={page?.finalCtaHeadline}
+    subhead={page?.finalCtaSubhead}
+    cta={page?.finalCta}
+  />
+</BaseLayout>

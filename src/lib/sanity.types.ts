@@ -12,7 +12,33 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol;
+
 // Source: schema.json
+export type JournalCategory = {
+  _id: string;
+  _type: "journalCategory";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  description?: string;
+};
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
+export type ServiceReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "service";
+};
+
 export type ProcessStep = {
   _id: string;
   _type: "processStep";
@@ -39,13 +65,11 @@ export type ProcessStep = {
   }>;
   features?: Array<string>;
   tierNote?: string;
-  relatedServices?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "service";
-  }>;
+  relatedServices?: Array<
+    {
+      _key: string;
+    } & ServiceReference
+  >;
 };
 
 export type Service = {
@@ -78,12 +102,6 @@ export type Service = {
   displayOrder?: number;
   showOnHomepage?: boolean;
   ctaLabel?: string;
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
 };
 
 export type PhilosophyPoint = {
@@ -123,7 +141,12 @@ export type FaqItem = {
     _type: "block";
     _key: string;
   }>;
-  category?: "Pricing & Cost" | "The Process" | "Logistics" | "Service Area" | "Getting Started";
+  category?:
+    | "Pricing & Cost"
+    | "The Process"
+    | "Logistics"
+    | "Service Area"
+    | "Getting Started";
   displayOrder?: number;
   alsoShowOnProcessPage?: boolean;
 };
@@ -151,45 +174,295 @@ export type SiteSettings = {
   footerCredit?: string;
 };
 
+export type HomePageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "homePage";
+};
+
+export type AboutPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "aboutPage";
+};
+
+export type ProcessPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "processPage";
+};
+
+export type ServicesPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "servicesPage";
+};
+
+export type FaqPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "faqPage";
+};
+
+export type ContactPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "contactPage";
+};
+
+export type JournalPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "journalPage";
+};
+
+export type JournalEntryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "journalEntry";
+};
+
 export type CtaBlock = {
   _type: "ctaBlock";
   label?: string;
   linkType?: "internal" | "external" | "email" | "phone";
-  internalLink?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "homePage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "aboutPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "processPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "servicesPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "faqPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "contactPage";
-  };
+  internalLink?:
+    | HomePageReference
+    | AboutPageReference
+    | ProcessPageReference
+    | ServicesPageReference
+    | FaqPageReference
+    | ContactPageReference
+    | JournalPageReference
+    | JournalEntryReference;
   externalUrl?: string;
   emailAddress?: string;
   phoneNumber?: string;
   openInNewTab?: boolean;
+};
+
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
+export type JournalCategoryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "journalCategory";
+};
+
+export type ProjectReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "project";
+};
+
+export type JournalEntry = {
+  _id: string;
+  _type: "journalEntry";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  excerpt?: string;
+  coverImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  categories?: Array<
+    {
+      _key: string;
+    } & JournalCategoryReference
+  >;
+  author?: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  featured?: boolean;
+  body?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal" | "lead" | "h2" | "h3" | "h4" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          openInNewTab?: boolean;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        caption?: string;
+        size?: "standard" | "wide" | "full";
+        _type: "inlineImage";
+        _key: string;
+      }
+    | {
+        quote?: string;
+        attribution?: string;
+        _type: "pullQuote";
+        _key: string;
+      }
+    | {
+        beforeImage?: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          alt?: string;
+          _type: "image";
+        };
+        afterImage?: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          alt?: string;
+          _type: "image";
+        };
+        caption?: string;
+        _type: "beforeAfter";
+        _key: string;
+      }
+    | {
+        image?: {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          alt?: string;
+          _type: "image";
+        };
+        itemName?: string;
+        vendor?: string;
+        price?: string;
+        url?: string;
+        notes?: string;
+        _type: "sourceCard";
+        _key: string;
+      }
+    | {
+        label?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet";
+          markDefs?: Array<{
+            href?: string;
+            openInNewTab?: boolean;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+        _type: "tipCallout";
+        _key: string;
+      }
+    | {
+        images?: Array<{
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          alt?: string;
+          caption?: string;
+          _type: "image";
+          _key: string;
+        }>;
+        layout?: "grid2" | "grid3" | "row";
+        caption?: string;
+        _type: "imageGallery";
+        _key: string;
+      }
+    | {
+        style?: "line" | "ornament" | "space";
+        _type: "divider";
+        _key: string;
+      }
+    | {
+        url?: string;
+        caption?: string;
+        _type: "videoEmbed";
+        _key: string;
+      }
+  >;
+  seoTitle?: string;
+  seoDescription?: string;
+  relatedProject?: ProjectReference;
+  relatedPosts?: Array<
+    {
+      _key: string;
+    } & JournalEntryReference
+  >;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
+export type JournalPage = {
+  _id: string;
+  _type: "journalPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  finalCtaHeadline?: string;
+  finalCtaSubhead?: string;
+  finalCta?: CtaBlock;
 };
 
 export type ContactPage = {
@@ -332,12 +605,7 @@ export type AboutPage = {
     _key: string;
   }>;
   staciPhoto?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -354,20 +622,11 @@ export type AboutPage = {
   finalCta?: CtaBlock;
 };
 
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
+export type TestimonialReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "testimonial";
 };
 
 export type HomePage = {
@@ -382,12 +641,7 @@ export type HomePage = {
   heroHeadline?: string;
   heroSubhead?: string;
   heroImage?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -397,12 +651,7 @@ export type HomePage = {
   heroPrimaryCta?: CtaBlock;
   heroSecondaryCta?: CtaBlock;
   meetStaciPhoto?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -428,21 +677,14 @@ export type HomePage = {
   processPreviewEyebrow?: string;
   processPreviewHeadline?: string;
   processPreviewCta?: CtaBlock;
-  featuredTestimonial?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "testimonial";
-  };
+  featuredTestimonial?: TestimonialReference;
   testimonialsEyebrow?: string;
   testimonialsHeadline?: string;
-  testimonialsToShow?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "testimonial";
-  }>;
+  testimonialsToShow?: Array<
+    {
+      _key: string;
+    } & TestimonialReference
+  >;
   servicesGridEyebrow?: string;
   servicesGridHeadline?: string;
   servicesGridSubhead?: string;
@@ -464,12 +706,7 @@ export type Testimonial = {
   date?: string;
   source?: "Facebook" | "Google" | "Houzz" | "Direct (email or text)" | "Other";
   featured?: boolean;
-  relatedProject?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "project";
-  };
+  relatedProject?: ProjectReference;
 };
 
 export type Project = {
@@ -481,15 +718,18 @@ export type Project = {
   title?: string;
   slug?: Slug;
   location?: string;
-  roomType?: "livingRoom" | "bedroom" | "kitchen" | "diningRoom" | "office" | "wholeHome" | "multipleRooms" | "other";
+  roomType?:
+    | "livingRoom"
+    | "bedroom"
+    | "kitchen"
+    | "diningRoom"
+    | "office"
+    | "wholeHome"
+    | "multipleRooms"
+    | "other";
   year?: number;
   heroImage?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -497,46 +737,39 @@ export type Project = {
     _type: "image";
   };
   briefSummary?: string;
-  introStory?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h3" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      openInNewTab?: boolean;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    caption?: string;
-    _type: "image";
-    _key: string;
-  }>;
+  introStory?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal" | "h3" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          openInNewTab?: boolean;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        caption?: string;
+        _type: "image";
+        _key: string;
+      }
+  >;
   gallery?: Array<{
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -547,12 +780,7 @@ export type Project = {
   }>;
   beforeAfters?: Array<{
     beforeImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -560,12 +788,7 @@ export type Project = {
       _type: "image";
     };
     afterImage?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -576,19 +799,12 @@ export type Project = {
     _type: "beforeAfterPair";
     _key: string;
   }>;
-  servicesUsed?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    _key: string;
-    [internalGroqTypeReferenceTo]?: "service";
-  }>;
-  relatedTestimonial?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "testimonial";
-  };
+  servicesUsed?: Array<
+    {
+      _key: string;
+    } & ServiceReference
+  >;
+  relatedTestimonial?: TestimonialReference;
   displayOrder?: number;
   publishedAt?: string;
 };
@@ -626,6 +842,7 @@ export type SanityImageMetadata = {
   palette?: SanityImagePalette;
   lqip?: string;
   blurHash?: string;
+  thumbHash?: string;
   hasAlpha?: boolean;
   isOpaque?: boolean;
 };
@@ -689,5 +906,45 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = ProcessStep | Service | Slug | PhilosophyPoint | FaqItem | SiteSettings | CtaBlock | ContactPage | FaqPage | ServicesPage | ProcessPage | AboutPage | SanityImageCrop | SanityImageHotspot | HomePage | Testimonial | Project | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
-export declare const internalGroqTypeReferenceTo: unique symbol;
+export type AllSanitySchemaTypes =
+  | JournalCategory
+  | Slug
+  | ServiceReference
+  | ProcessStep
+  | Service
+  | PhilosophyPoint
+  | FaqItem
+  | SiteSettings
+  | HomePageReference
+  | AboutPageReference
+  | ProcessPageReference
+  | ServicesPageReference
+  | FaqPageReference
+  | ContactPageReference
+  | JournalPageReference
+  | JournalEntryReference
+  | CtaBlock
+  | SanityImageAssetReference
+  | JournalCategoryReference
+  | ProjectReference
+  | JournalEntry
+  | SanityImageCrop
+  | SanityImageHotspot
+  | JournalPage
+  | ContactPage
+  | FaqPage
+  | ServicesPage
+  | ProcessPage
+  | AboutPage
+  | TestimonialReference
+  | HomePage
+  | Testimonial
+  | Project
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageMetadata
+  | SanityFileAsset
+  | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint;

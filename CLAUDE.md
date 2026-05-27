@@ -66,10 +66,12 @@ Lock in the home page sections in render order. Don't reorder. Don't drop. If a 
 
 Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus auto-populated content from reusable collections (services, testimonials, FAQs, process steps, philosophy points). The structure of each page is fixed in code; the content within each section is editable in Sanity.
 
-Future additions (deferred per strategy, not at launch):
-- Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`)
-- Journal/blog (`/journal`)
-- E-Design (a virtual service tier, not currently active on the live site)
+Now also live (built during placeholder-content phase):
+- Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`) — schema + 3 placeholder projects; Staci adds real photos
+- Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
+- E-Design — seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
+
+Header nav now carries seven items: Home / Process / Services / Journal / FAQ / About / Contact. Portfolio is reachable from its own `/portfolio` URL and the prev/next nav on each post; it's intentionally not in the top nav (visitors come to projects from search and case studies, not browsing).
 
 ---
 

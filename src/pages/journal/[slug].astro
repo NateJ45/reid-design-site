@@ -1,0 +1,213 @@
+---
+// Safe to edit by hand for copy + structure changes.
+// Journal post detail page. Hero (eyebrow with date + reading time + categories),
+// title + excerpt, cover image, body Portable Text (rich with custom blocks),
+// related posts grid, related project link if attached, prev/next navigation,
+// final CTA. BreadcrumbList + BlogPosting JSON-LD.
+//
+// Static-site routing: getStaticPaths enumerates every journalEntry slug at
+// build time. The query is duplicated (once for paths, once for the full doc)
+// — Astro caches each call per slug, so the perf hit is just the static map.
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import {
+  getAllJournalEntries,
+  getJournalEntryBySlug,
+  getSiteSettings,
+} from '@/lib/queries';
+import { breadcrumbSchema, blogPostingSchema } from '@/lib/schemas';
+import { readingTimeFromPortableText, formatReadingTime } from '@/lib/reading-time';
+import { site } from '@/data/site';
+import { urlFor } from '@/lib/sanity';
+
+import SanityImage from '@/components/SanityImage.astro';
+import JournalPortableText from '@/components/JournalPortableText';
+import JournalCard from '@/components/JournalCard.astro';
+import JournalCategoryChip from '@/components/JournalCategoryChip.astro';
+import FinalCta from '@/components/FinalCta.astro';
+
+// Enumerate slugs + carry prev/next refs (newest-first iteration).
+export async function getStaticPaths() {
+  const entries: any[] = await getAllJournalEntries().catch(() => []);
+  if (!Array.isArray(entries) || entries.length === 0) return [];
+
+  return entries
+    .map((e, i) => {
+      const prev = entries[i - 1] ?? null; // newer post
+      const next = entries[i + 1] ?? null; // older post
+      return {
+        params: { slug: e.slug?.current ?? '' },
+        props: {
+          prev: prev ? { title: prev.title, slug: prev.slug?.current } : null,
+          next: next ? { title: next.title, slug: next.slug?.current } : null,
+        },
+      };
+    })
+    .filter((entry) => entry.params.slug);
+}
+
+const { slug } = Astro.params;
+const { prev, next } = Astro.props as {
+  prev: { title?: string; slug?: string } | null;
+  next: { title?: string; slug?: string } | null;
+};
+
+const [entry, siteSettings] = await Promise.all([
+  getJournalEntryBySlug(slug as string),
+  getSiteSettings().catch(() => null),
+]);
+
+if (!entry) {
+  return Astro.redirect('/404');
+}
+
+// Meta
+const title = entry.seoTitle ?? `${entry.title} · Reid Design Journal`;
+const description = entry.seoDescription ?? entry.excerpt ?? 'A note from Reid Design.';
+const coverOg = entry.coverImage?.asset
+  ? urlFor(entry.coverImage).width(1200).height(630).fit('crop').quality(80).format('webp').url()
+  : undefined;
+
+// Derived
+const readMinutes = readingTimeFromPortableText(entry.body);
+const dateLabel = entry.publishedAt
+  ? new Date(entry.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  : '';
+const updatedLabel =
+  entry.updatedAt && entry.updatedAt !== entry.publishedAt
+    ? new Date(entry.updatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : '';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: site.url },
+    { name: 'Journal', url: `${site.url}/journal` },
+    { name: entry.title ?? slug, url: `${site.url}/journal/${slug}` },
+  ]),
+  blogPostingSchema(entry, coverOg ?? null),
+];
+---
+
+<BaseLayout
+  {title}
+  {description}
+  ogImage={coverOg}
+  {schemas}
+  {siteSettings}
+>
+  {/* ------- 1. Article header --------------------------------------------- */}
+  <article>
+    <header class="bg-background">
+      <div class="mx-auto max-w-3xl px-m pt-2xl pb-l">
+        <p class="text-xs uppercase tracking-widest text-secondary mb-s">
+          <a href="/journal" class="hover:text-primary-dark transition-colors">Journal</a>
+          {dateLabel && <span class="mx-xs">·</span>}
+          {dateLabel && <time datetime={entry.publishedAt}>{dateLabel}</time>}
+          {readMinutes > 0 && <span class="mx-xs">·</span>}
+          {readMinutes > 0 && <span>{formatReadingTime(readMinutes)}</span>}
+        </p>
+        <h1 class="font-display text-h1 text-foreground leading-tight">{entry.title}</h1>
+        {entry.excerpt && (
+          <p class="mt-m text-foreground/80 text-xl leading-relaxed">{entry.excerpt}</p>
+        )}
+        {Array.isArray(entry.categories) && entry.categories.length > 0 && (
+          <ul class="mt-l flex flex-wrap gap-xs list-none p-0">
+            {entry.categories.map((cat: any) => (
+              <li>
+                <JournalCategoryChip title={cat.title} tooltip={cat.description} />
+              </li>
+            ))}
+          </ul>
+        )}
+        {entry.author && (
+          <p class="mt-l text-sm text-muted-foreground">
+            By <span class="text-foreground font-semibold">{entry.author}</span>
+            {updatedLabel && <span> · Updated {updatedLabel}</span>}
+          </p>
+        )}
+      </div>
+    </header>
+
+    {/* ------- 2. Cover image ---------------------------------------------- */}
+    {entry.coverImage?.asset && (
+      <div class="mx-auto max-w-content px-m">
+        <SanityImage
+          source={entry.coverImage}
+          width={1920}
+          loading="eager"
+          sizes="(min-width: 1320px) 1280px, 100vw"
+          class="w-full h-auto rounded-md"
+        />
+      </div>
+    )}
+
+    {/* ------- 3. Body ------------------------------------------------------ */}
+    <div class="mx-auto max-w-3xl px-m py-2xl">
+      <JournalPortableText client:load value={entry.body} />
+
+      {/* Related project link (if this post walks through a specific portfolio piece) */}
+      {entry.relatedProject?.slug?.current && (
+        <aside class="mt-2xl pt-l border-t border-border-soft">
+          <p class="text-xs uppercase tracking-widest text-secondary mb-s">Related project</p>
+          <a
+            href={`/portfolio/${entry.relatedProject.slug.current}`}
+            class="group inline-flex items-baseline gap-s text-foreground hover:text-primary-dark transition-colors"
+          >
+            <span class="font-display text-h3">{entry.relatedProject.title}</span>
+            <span aria-hidden="true" class="text-xl transition-transform group-hover:translate-x-1">→</span>
+          </a>
+          {(entry.relatedProject.location || entry.relatedProject.year) && (
+            <p class="mt-xs text-sm text-muted-foreground">
+              {entry.relatedProject.location}
+              {entry.relatedProject.location && entry.relatedProject.year && <span> · </span>}
+              {entry.relatedProject.year}
+            </p>
+          )}
+        </aside>
+      )}
+    </div>
+  </article>
+
+  {/* ------- 4. Related posts --------------------------------------------- */}
+  {Array.isArray(entry.relatedPosts) && entry.relatedPosts.length > 0 && (
+    <section class="bg-muted" aria-labelledby="related-posts-heading">
+      <div class="mx-auto max-w-content px-m py-2xl">
+        <h2 id="related-posts-heading" class="font-display text-h2 text-foreground mb-l">
+          Keep reading
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-l">
+          {entry.relatedPosts.slice(0, 3).map((post: any) => (
+            <JournalCard entry={post} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* ------- 5. Next / previous post -------------------------------------- */}
+  {(prev || next) && (
+    <nav class="border-t border-border-soft bg-background" aria-label="More journal posts">
+      <div class="mx-auto max-w-content px-m py-l grid grid-cols-1 md:grid-cols-2 gap-m">
+        {prev ? (
+          <a href={`/journal/${prev.slug}`} class="group">
+            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Newer post</p>
+            <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">← {prev.title}</p>
+          </a>
+        ) : <div></div>}
+        {next ? (
+          <a href={`/journal/${next.slug}`} class="group md:text-right">
+            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Older post</p>
+            <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">{next.title} →</p>
+          </a>
+        ) : <div></div>}
+      </div>
+    </nav>
+  )}
+
+  {/* ------- 6. Final CTA -------------------------------------------------- */}
+  <FinalCta
+    headline="Working on a project of your own?"
+    subhead="Reid Design takes on a small handful of projects at a time. Get in touch and let's see if we're a fit."
+    fallbackCtaLabel="Start a Conversation"
+  />
+</BaseLayout>

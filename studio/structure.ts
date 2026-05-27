@@ -17,6 +17,9 @@ import {
   HeartIcon,
   ImagesIcon,
   ThListIcon,
+  EditIcon,
+  TagIcon,
+  BookIcon,
 } from '@sanity/icons';
 
 const SINGLETON_TYPES = [
@@ -27,6 +30,7 @@ const SINGLETON_TYPES = [
   'servicesPage',
   'faqPage',
   'contactPage',
+  'journalPage',
 ] as const;
 
 export const deskStructure = (S: StructureBuilder) =>
@@ -73,6 +77,10 @@ export const deskStructure = (S: StructureBuilder) =>
                 .title('Contact')
                 .icon(EnvelopeIcon)
                 .child(S.editor().id('contactPage').schemaType('contactPage').documentId('contactPage')),
+              S.listItem()
+                .title('Journal (index page)')
+                .icon(BookIcon)
+                .child(S.editor().id('journalPage').schemaType('journalPage').documentId('journalPage')),
             ]),
         ),
 
@@ -95,9 +103,24 @@ export const deskStructure = (S: StructureBuilder) =>
             ]),
         ),
 
+      S.divider(),
+
+      // Journal — its own section so Staci can find posts + categories at a glance
+      S.listItem()
+        .title('Journal')
+        .icon(BookIcon)
+        .child(
+          S.list()
+            .title('Journal')
+            .items([
+              S.documentTypeListItem('journalEntry').title('Posts').icon(EditIcon),
+              S.documentTypeListItem('journalCategory').title('Categories').icon(TagIcon),
+            ]),
+        ),
+
       // Hide everything we've already pinned above from the default list.
       ...S.documentTypeListItems().filter(
         (item) => !SINGLETON_TYPES.includes(item.getId() as any) &&
-                  !['service', 'processStep', 'testimonial', 'faqItem', 'project', 'philosophyPoint'].includes(item.getId() as any),
+                  !['service', 'processStep', 'testimonial', 'faqItem', 'project', 'philosophyPoint', 'journalEntry', 'journalCategory'].includes(item.getId() as any),
       ),
     ]);

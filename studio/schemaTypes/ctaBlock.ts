@@ -40,6 +40,8 @@ export const ctaBlock = defineType({
         { type: 'servicesPage' },
         { type: 'faqPage' },
         { type: 'contactPage' },
+        { type: 'journalPage' },
+        { type: 'journalEntry' },
       ],
       hidden: ({ parent }) => parent?.linkType !== 'internal',
     }),

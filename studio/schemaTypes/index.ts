@@ -7,6 +7,9 @@ import { ctaBlock } from './ctaBlock';
 import { faqItem } from './faqItem';
 import { faqPage } from './faqPage';
 import { homePage } from './homePage';
+import { journalCategory } from './journalCategory';
+import { journalEntry } from './journalEntry';
+import { journalPage } from './journalPage';
 import { philosophyPoint } from './philosophyPoint';
 import { processPage } from './processPage';
 import { processStep } from './processStep';
@@ -28,6 +31,7 @@ export const schemaTypes = [
   servicesPage,
   faqPage,
   contactPage,
+  journalPage,
 
   // Reusable content collections
   testimonial,
@@ -36,4 +40,6 @@ export const schemaTypes = [
   service,
   processStep,
   project,
+  journalCategory,
+  journalEntry,
 ];
