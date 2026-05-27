@@ -18,9 +18,13 @@ interface CtaBlock {
 }
 
 interface Props {
+  /** Optional eyebrow label above the headline (e.g., "Ready to Begin?"). */
+  eyebrow?: string;
   headline?: string;
   subhead?: string;
   cta?: CtaBlock | null;
+  /** Optional secondary CTA rendered as an outlined inverse button next to the primary. */
+  secondaryCta?: CtaBlock | null;
   /** Override the default heading id (defaults to "final-cta"). */
   headingId?: string;
   /** Fallback CTA label when cta.label isn't set. */
@@ -28,9 +32,11 @@ interface Props {
 }
 
 const {
+  eyebrow,
   headline = 'Ready to Love Your Space?',
   subhead = "Let's start with a conversation.",
   cta,
+  secondaryCta,
   headingId = 'final-cta',
   fallbackCtaLabel = 'Book a Consultation',
 } = Astro.props as Props;
@@ -41,19 +47,29 @@ const {
   aria-labelledby={headingId}
 >
   <div class="mx-auto max-w-content px-m py-2xl text-center">
+    {eyebrow && (
+      <p class="text-xs uppercase tracking-[0.22em] text-bg/70 mb-s">{eyebrow}</p>
+    )}
     <h2 id={headingId} class="font-display text-h1 leading-tight text-bg">
       {headline}
     </h2>
     {subhead && (
       <p class="mt-m text-lg text-bg/85 max-w-2xl mx-auto">{subhead}</p>
     )}
-    <div class="mt-l flex justify-center">
+    <div class="mt-l flex flex-wrap justify-center gap-s">
       <CtaLink
         cta={cta}
         variant="primary"
         fallbackHref="/contact"
         fallbackLabel={fallbackCtaLabel}
       />
+      {secondaryCta && (
+        <CtaLink
+          cta={secondaryCta}
+          variant="secondary"
+          class="text-bg border-bg/70 hover:bg-bg/10"
+        />
+      )}
     </div>
   </div>
 </section>

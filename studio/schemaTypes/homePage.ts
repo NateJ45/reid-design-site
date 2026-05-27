@@ -63,6 +63,7 @@ export const homePage = defineType({
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
     }),
+    defineField({ name: 'meetStaciEyebrow', title: 'Eyebrow', type: 'string', group: 'meetStaci', initialValue: 'Meet Staci.' }),
     defineField({ name: 'meetStaciHeadline', title: 'Headline', type: 'string', group: 'meetStaci' }),
     defineField({
       name: 'meetStaciContent',
@@ -108,12 +109,26 @@ export const homePage = defineType({
       group: 'testimonials',
       of: [defineArrayMember({ type: 'reference', to: [{ type: 'testimonial' }] })],
     }),
+    defineField({
+      name: 'testimonialsAttribution',
+      title: 'Attribution line',
+      type: 'string',
+      group: 'testimonials',
+      description: 'Optional line under the testimonials grid. Example: "From Reid Design\'s Facebook recommendations."',
+    }),
 
     // Services grid
     defineField({ name: 'servicesGridEyebrow', title: 'Eyebrow', type: 'string', group: 'services', initialValue: 'Reid Design.' }),
     defineField({ name: 'servicesGridHeadline', title: 'Headline', type: 'string', group: 'services' }),
     defineField({ name: 'servicesGridSubhead', title: 'Subhead', type: 'text', rows: 2, group: 'services' }),
     defineField({ name: 'servicesGridCta', title: 'Services grid CTA', type: 'ctaBlock', group: 'services' }),
+    defineField({
+      name: 'servicesGridFootnote',
+      title: 'Footnote',
+      type: 'string',
+      group: 'services',
+      description: 'Small-print line under the services grid. Example: "Final pricing is always discussed before any work begins."',
+    }),
 
     // Service area cue + final CTA
     defineField({
@@ -123,6 +138,7 @@ export const homePage = defineType({
       group: 'final',
       description: 'Example: "Serving Plainfield, Indianapolis, and the surrounding suburbs."',
     }),
+    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: 'Ready to Begin?' }),
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Ready to Love Your Space?' }),
     defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final', initialValue: "Let's start with a conversation." }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),

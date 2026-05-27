@@ -29,6 +29,7 @@ export const processPage = defineType({
       initialValue: 'Things People Ask Before We Start.',
     }),
 
+    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: 'Ready to Begin?' }),
     defineField({
       name: 'finalCtaHeadline',
       title: 'Final CTA headline',
@@ -38,6 +39,14 @@ export const processPage = defineType({
     }),
     defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final' }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
+
+    defineField({
+      name: 'note',
+      title: 'Editor note (not shown on the site)',
+      type: 'text',
+      rows: 3,
+      description: 'Internal-only reminder for editors. Anything you write here stays in Studio and never renders on the live page.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Process Page' }) },
 });

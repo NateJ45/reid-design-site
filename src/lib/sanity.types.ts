@@ -477,6 +477,8 @@ export type ContactPage = {
   heroHeadline?: string;
   heroSubhead?: string;
   formIntroNote?: string;
+  formProjectTypeOptions?: Array<string>;
+  whatToExpectEyebrow?: string;
   whatToExpectHeadline?: string;
   whatToExpectContent?: Array<{
     children?: Array<{
@@ -495,6 +497,7 @@ export type ContactPage = {
   schedulingLink?: string;
   schedulingLinkLabel?: string;
   availabilityNote?: string;
+  note?: string;
 };
 
 export type FaqPage = {
@@ -509,9 +512,12 @@ export type FaqPage = {
   heroHeadline?: string;
   heroSubhead?: string;
   categoryOrder?: Array<string>;
+  finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  secondaryCta?: CtaBlock;
+  note?: string;
 };
 
 export type ServicesPage = {
@@ -525,6 +531,7 @@ export type ServicesPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  servicesListEyebrow?: string;
   servicesListHeadline?: string;
   servicesListSubhead?: string;
   builderRealtorSection?: {
@@ -554,9 +561,11 @@ export type ServicesPage = {
     headline?: string;
     description?: string;
   };
+  finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  note?: string;
 };
 
 export type ProcessPage = {
@@ -572,9 +581,11 @@ export type ProcessPage = {
   heroSubhead?: string;
   faqSectionEyebrow?: string;
   faqSectionHeadline?: string;
+  finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  note?: string;
 };
 
 export type AboutPage = {
@@ -617,6 +628,7 @@ export type AboutPage = {
   serviceAreaMention?: string;
   philosophyEyebrow?: string;
   philosophyHeadline?: string;
+  finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
@@ -658,6 +670,7 @@ export type HomePage = {
     alt?: string;
     _type: "image";
   };
+  meetStaciEyebrow?: string;
   meetStaciHeadline?: string;
   meetStaciContent?: Array<{
     children?: Array<{
@@ -685,11 +698,14 @@ export type HomePage = {
       _key: string;
     } & TestimonialReference
   >;
+  testimonialsAttribution?: string;
   servicesGridEyebrow?: string;
   servicesGridHeadline?: string;
   servicesGridSubhead?: string;
   servicesGridCta?: CtaBlock;
+  servicesGridFootnote?: string;
   serviceAreaCue?: string;
+  finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;

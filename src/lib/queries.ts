@@ -50,6 +50,7 @@ export async function getHomePage() {
     heroPrimaryCta${CTA_PROJECTION},
     heroSecondaryCta${CTA_PROJECTION},
     meetStaciPhoto${IMAGE_PROJECTION},
+    meetStaciEyebrow,
     meetStaciHeadline,
     meetStaciContent,
     meetStaciCta${CTA_PROJECTION},
@@ -58,17 +59,20 @@ export async function getHomePage() {
     processPreviewCta${CTA_PROJECTION},
     testimonialsEyebrow,
     testimonialsHeadline,
+    testimonialsAttribution,
     "featuredTestimonial": featuredTestimonial->,
     "testimonialsToShow": testimonialsToShow[]->,
     servicesGridEyebrow,
     servicesGridHeadline,
     servicesGridSubhead,
     servicesGridCta${CTA_PROJECTION},
+    servicesGridFootnote,
     "services": *[_type == "service" && showOnHomepage == true] | order(displayOrder asc),
     "processSteps": *[_type == "processStep"] | order(stepNumber asc){
       stepNumber, title, timeEstimate, shortDescription, features, tierNote
     },
     serviceAreaCue,
+    finalCtaEyebrow,
     finalCtaHeadline,
     finalCtaSubhead,
     finalCta${CTA_PROJECTION}
@@ -91,7 +95,7 @@ export async function getAboutPage() {
     "philosophyPoints": *[_type == "philosophyPoint"] | order(displayOrder asc){
       title, description, displayOrder
     },
-    finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -106,7 +110,7 @@ export async function getProcessPage() {
     faqSectionEyebrow, faqSectionHeadline,
     "processSteps": *[_type == "processStep"] | order(stepNumber asc),
     "faqs": *[_type == "faqItem" && alsoShowOnProcessPage == true] | order(category asc, displayOrder asc),
-    finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -118,7 +122,7 @@ export async function getServicesPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
-    servicesListHeadline, servicesListSubhead,
+    servicesListEyebrow, servicesListHeadline, servicesListSubhead,
     "services": *[_type == "service"] | order(displayOrder asc),
     builderRealtorSection{
       ...,
@@ -126,7 +130,7 @@ export async function getServicesPage() {
     },
     serviceAreaSection,
     "travelFees": *[_type == "siteSettings"][0].travelFees,
-    finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -142,8 +146,9 @@ export async function getFaqPage() {
     "faqs": *[_type == "faqItem"] | order(category asc, displayOrder asc){
       question, answer, category, displayOrder
     },
-    finalCtaHeadline, finalCtaSubhead,
-    finalCta${CTA_PROJECTION}
+    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCta${CTA_PROJECTION},
+    secondaryCta${CTA_PROJECTION}
   }`);
 }
 
@@ -155,6 +160,8 @@ export async function getContactPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     formIntroNote,
+    formProjectTypeOptions,
+    whatToExpectEyebrow,
     whatToExpectHeadline,
     whatToExpectContent,
     schedulingLink,

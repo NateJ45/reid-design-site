@@ -3,9 +3,9 @@
 // Autosaves draft to localStorage so a long message survives accidental navigation.
 // Honeypot included. Accessible focus management on error.
 //
-// When Staci adds a new service in Sanity, update PROJECT_TYPES below to match —
-// the dropdown values are intentionally hardcoded so they can't drift from the
-// services that actually exist.
+// Project type options come from Sanity (contactPage.formProjectTypeOptions) when
+// the page passes `projectTypes` in. Falls back to DEFAULT_PROJECT_TYPES when the
+// prop is missing or empty so the form still works during local-dev sanity checks.
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { site } from '@/data/site';
@@ -14,7 +14,7 @@ const DRAFT_KEY = `${site.storageKeyPrefix}-contact-draft`;
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
 const ACCESS_KEY = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
 
-const PROJECT_TYPES = [
+const DEFAULT_PROJECT_TYPES = [
   'In-Home Consultation',
   'Full Room Design',
   'Full Room Design + Styling',
@@ -22,6 +22,11 @@ const PROJECT_TYPES = [
   'Builder or Realtor Partnership',
   "Not sure yet — let's chat",
 ] as const;
+
+interface ContactFormProps {
+  /** Optional. Override the default project-type dropdown options (from contactPage.formProjectTypeOptions). */
+  projectTypes?: string[];
+}
 
 interface Draft {
   name: string;
@@ -36,7 +41,14 @@ const EMPTY: Draft = { name: '', email: '', phone: '', projectType: '', message:
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
-export default function ContactForm() {
+export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
+  // Use Sanity-driven options when provided; fall back to defaults so the form is
+  // still usable when contactPage.formProjectTypeOptions hasn't been filled in.
+  const projectTypeOptions =
+    Array.isArray(projectTypes) && projectTypes.length > 0
+      ? projectTypes
+      : [...DEFAULT_PROJECT_TYPES];
+
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Partial<Record<keyof Draft, string>>>({});
@@ -251,7 +263,7 @@ export default function ContactForm() {
           className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">Pick the closest match</option>
-          {PROJECT_TYPES.map((opt) => (
+          {projectTypeOptions.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
         </select>

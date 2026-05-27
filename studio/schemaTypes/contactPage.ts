@@ -30,6 +30,21 @@ export const contactPage = defineType({
       description: 'Pre-submit expectation note shown above the form.',
     }),
     defineField({
+      name: 'formProjectTypeOptions',
+      title: 'Project type dropdown options',
+      type: 'array',
+      group: 'form',
+      description: 'The options shown in the "Project type" dropdown on the contact form. Order matters. Examples: "Single room", "Whole home", "Builder/realtor partnership".',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'whatToExpectEyebrow',
+      title: '"What to expect" eyebrow',
+      type: 'string',
+      group: 'form',
+      initialValue: 'What to Expect.',
+    }),
+    defineField({
       name: 'whatToExpectHeadline',
       title: '"What to expect" headline',
       type: 'string',
@@ -76,6 +91,14 @@ export const contactPage = defineType({
       type: 'string',
       group: 'scheduling',
       description: 'Optional override of siteSettings.availabilityStatus. Usually leave blank.',
+    }),
+
+    defineField({
+      name: 'note',
+      title: 'Editor note (not shown on the site)',
+      type: 'text',
+      rows: 3,
+      description: 'Internal-only reminder for editors. Anything you write here stays in Studio and never renders on the live page.',
     }),
   ],
   preview: { prepare: () => ({ title: 'Contact Page' }) },

@@ -50,18 +50,21 @@ const featuredQuote  = page?.featuredTestimonial;
 const gridQuotes     = page?.testimonialsToShow ?? [];
 
 // Section copy fallbacks (lock the home page in even before all Sanity copy lands).
+const meetStaciEyebrow  = page?.meetStaciEyebrow  ?? 'The Designer.';
 const meetStaciHeadline = page?.meetStaciHeadline ?? 'Hi, I’m Staci.';
 const meetStaciContent  = page?.meetStaciContent  ?? null;
 
 const processPreviewEyebrow  = page?.processPreviewEyebrow  ?? 'How It Works.';
 const processPreviewHeadline = page?.processPreviewHeadline ?? 'A clear path from first conversation to final reveal.';
 
-const testimonialsEyebrow  = page?.testimonialsEyebrow  ?? 'Kind Words.';
-const testimonialsHeadline = page?.testimonialsHeadline ?? 'Words from real homes.';
+const testimonialsEyebrow      = page?.testimonialsEyebrow      ?? 'Kind Words.';
+const testimonialsHeadline     = page?.testimonialsHeadline     ?? 'Words from real homes.';
+const testimonialsAttribution  = page?.testimonialsAttribution;
 
-const servicesGridEyebrow  = page?.servicesGridEyebrow  ?? 'Reid Design.';
-const servicesGridHeadline = page?.servicesGridHeadline ?? 'How we can help your home.';
-const servicesGridSubhead  = page?.servicesGridSubhead;
+const servicesGridEyebrow   = page?.servicesGridEyebrow   ?? 'Reid Design.';
+const servicesGridHeadline  = page?.servicesGridHeadline  ?? 'How we can help your home.';
+const servicesGridSubhead   = page?.servicesGridSubhead;
+const servicesGridFootnote  = page?.servicesGridFootnote;
 ---
 
 <BaseLayout {title} {description} {siteSettings}>
@@ -98,7 +101,7 @@ const servicesGridSubhead  = page?.servicesGridSubhead;
       )}
 
       <div class="order-2 md:order-2">
-        <p class="text-xs uppercase tracking-[0.22em] text-secondary mb-s">The Designer.</p>
+        <p class="text-xs uppercase tracking-[0.22em] text-secondary mb-s">{meetStaciEyebrow}</p>
         <h2 id="meet-staci-heading" class="font-display text-h2 text-foreground">
           {meetStaciHeadline}
         </h2>
@@ -184,6 +187,12 @@ const servicesGridSubhead  = page?.servicesGridSubhead;
             <TestimonialGrid testimonials={gridQuotes} limit={6} />
           </div>
         )}
+
+        {testimonialsAttribution && (
+          <p class="mt-xl text-center text-sm text-muted-foreground italic">
+            {testimonialsAttribution}
+          </p>
+        )}
       </div>
     </section>
   )}
@@ -219,6 +228,12 @@ const servicesGridSubhead  = page?.servicesGridSubhead;
           fallbackLabel="See All Services"
         />
       </div>
+
+      {servicesGridFootnote && (
+        <p class="mt-xl text-center text-sm text-muted-foreground italic">
+          {servicesGridFootnote}
+        </p>
+      )}
     </div>
   </section>
 
@@ -227,6 +242,7 @@ const servicesGridSubhead  = page?.servicesGridSubhead;
 
   {/* ------- 7. Final CTA --------------------------------------------------- */}
   <FinalCta
+    eyebrow={page?.finalCtaEyebrow}
     headline={page?.finalCtaHeadline}
     subhead={page?.finalCtaSubhead}
     cta={page?.finalCta}

@@ -31,9 +31,25 @@ export const faqPage = defineType({
       initialValue: ['Pricing & Cost', 'The Process', 'Logistics', 'Service Area', 'Getting Started'],
     }),
 
+    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: 'Not Finding Your Answer?' }),
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Just ask.' }),
     defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final' }),
-    defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
+    defineField({ name: 'finalCta', title: 'Final CTA button (primary)', type: 'ctaBlock', group: 'final' }),
+    defineField({
+      name: 'secondaryCta',
+      title: 'Secondary CTA (optional)',
+      type: 'ctaBlock',
+      group: 'final',
+      description: 'Optional second button next to the primary CTA. Use for "see process" / "browse portfolio" style secondary actions.',
+    }),
+
+    defineField({
+      name: 'note',
+      title: 'Editor note (not shown on the site)',
+      type: 'text',
+      rows: 3,
+      description: 'Internal-only reminder for editors. Anything you write here stays in Studio and never renders on the live page.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'FAQ Page' }) },
 });

@@ -52,10 +52,13 @@ const schemas = [
         <p class="mb-m text-foreground/80 text-base">{formIntroNote}</p>
       )}
 
-      <ContactForm client:visible />
+      <ContactForm client:visible projectTypes={page?.formProjectTypeOptions} />
 
       {page?.whatToExpectContent && (
         <div class="mt-2xl border-t border-border-soft pt-l">
+          {page.whatToExpectEyebrow && (
+            <p class="text-xs uppercase tracking-[0.22em] text-secondary mb-s">{page.whatToExpectEyebrow}</p>
+          )}
           {page.whatToExpectHeadline && (
             <h2 class="font-display text-h3 text-foreground">{page.whatToExpectHeadline}</h2>
           )}

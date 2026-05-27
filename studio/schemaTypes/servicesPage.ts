@@ -23,6 +23,7 @@ export const servicesPage = defineType({
     defineField({ name: 'heroHeadline', title: 'Hero headline', type: 'string', group: 'hero', initialValue: 'Design Services for Every Space and Stage.' }),
     defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', rows: 2, group: 'hero' }),
 
+    defineField({ name: 'servicesListEyebrow', title: 'Services list eyebrow', type: 'string', group: 'list', initialValue: 'The Tiers.' }),
     defineField({ name: 'servicesListHeadline', title: 'Services list headline', type: 'string', group: 'list' }),
     defineField({ name: 'servicesListSubhead', title: 'Services list subhead', type: 'text', rows: 2, group: 'list' }),
 
@@ -82,9 +83,18 @@ export const servicesPage = defineType({
       ],
     }),
 
+    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: "Let's Talk." }),
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final' }),
     defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final' }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
+
+    defineField({
+      name: 'note',
+      title: 'Editor note (not shown on the site)',
+      type: 'text',
+      rows: 3,
+      description: 'Internal-only reminder for editors. Anything you write here stays in Studio and never renders on the live page.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Services Page' }) },
 });

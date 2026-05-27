@@ -37,6 +37,7 @@ const heroEyebrow  = page?.heroEyebrow  ?? 'What We Offer.';
 const heroHeadline = page?.heroHeadline ?? 'Design Services for Every Space and Stage.';
 const heroSubhead  = page?.heroSubhead  ?? '';
 
+const listEyebrow  = page?.servicesListEyebrow  ?? 'The Tiers.';
 const listHeadline = page?.servicesListHeadline ?? 'Find the right fit for your project.';
 const listSubhead  = page?.servicesListSubhead;
 
@@ -71,7 +72,7 @@ const schemas = [
   >
     <div class="mx-auto max-w-content px-m py-2xl">
       <SectionHeading
-        eyebrow="The Tiers."
+        eyebrow={listEyebrow}
         headline={listHeadline}
         subhead={listSubhead}
         headingId="services-list-heading"
@@ -192,6 +193,7 @@ const schemas = [
 
   {/* ------- 5. Final CTA ---------------------------------------------------- */}
   <FinalCta
+    eyebrow={page?.finalCtaEyebrow}
     headline={page?.finalCtaHeadline}
     subhead={page?.finalCtaSubhead}
     cta={page?.finalCta}
