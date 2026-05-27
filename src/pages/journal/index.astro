@@ -81,7 +81,7 @@ const schemas = [
 
   {/* ------- 3. Post grid --------------------------------------------------- */}
   <section class="bg-background" aria-label="Journal posts">
-    <div class="mx-auto max-w-content px-m py-xl">
+    <div class="mx-auto max-w-content px-m py-section-md">
       {list.length > 0 ? (
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
           {list.map((entry: any, i: number) => (
@@ -89,7 +89,7 @@ const schemas = [
           ))}
         </div>
       ) : (
-        <div class="text-center py-2xl">
+        <div class="text-center py-section-lg">
           <p class="text-foreground/80 text-lg max-w-prose mx-auto">
             The first journal entries are on their way.
           </p>

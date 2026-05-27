@@ -85,7 +85,7 @@ function makeComponents(): PortableTextComponents {
       h2: ({ children }) => (
         <h2
           id={makeHeadingId(seen, children)}
-          className="mt-2xl mb-m font-display text-h2 text-foreground scroll-mt-24"
+          className="mt-section-lg mb-m font-display text-h2 text-foreground scroll-mt-24"
         >
           {children}
         </h2>
@@ -93,7 +93,7 @@ function makeComponents(): PortableTextComponents {
       h3: ({ children }) => (
         <h3
           id={makeHeadingId(seen, children)}
-          className="mt-xl mb-s font-display text-h3 text-foreground scroll-mt-24"
+          className="mt-section-md mb-s font-display text-h3 text-foreground scroll-mt-24"
         >
           {children}
         </h3>
@@ -162,9 +162,9 @@ function makeComponents(): PortableTextComponents {
         const url2x = urlFor(value).width(targetWidth * 2).quality(75).format('webp').url();
         const wrapperClass =
           size === 'full'
-            ? '-mx-m md:-mx-2xl lg:-mx-[8vw] my-xl'
+            ? '-mx-m md:-mx-section-lg lg:-mx-[8vw] my-section-md'
             : size === 'wide'
-            ? 'my-xl'
+            ? 'my-section-md'
             : 'my-l max-w-2xl mx-auto';
         return (
           <figure className={wrapperClass}>
@@ -189,7 +189,7 @@ function makeComponents(): PortableTextComponents {
       pullQuote: ({ value }) => {
         if (!value?.quote) return null;
         return (
-          <figure className="my-2xl py-xl border-y border-border-soft text-center">
+          <figure className="my-section-lg py-section-md border-y border-border-soft text-center">
             <span
               aria-hidden="true"
               className="block font-display text-[clamp(3rem,6vw,5rem)] leading-none text-primary-dark/40 select-none mb-[-1.5rem]"
@@ -212,7 +212,7 @@ function makeComponents(): PortableTextComponents {
       beforeAfter: ({ value }) => {
         if (!value?.beforeImage?.asset || !value?.afterImage?.asset) return null;
         return (
-          <div className="my-xl -mx-m md:mx-0">
+          <div className="my-section-md -mx-m md:mx-0">
             <BeforeAfterSlider
               beforeImage={value.beforeImage}
               afterImage={value.afterImage}
@@ -277,7 +277,7 @@ function makeComponents(): PortableTextComponents {
         if (!value?.content) return null;
         return (
           <aside
-            className="my-xl p-l border-l-4 border-tertiary bg-muted/70 rounded-r-md"
+            className="my-section-md p-l border-l-4 border-tertiary bg-muted/70 rounded-r-md"
             aria-label={value.label ?? 'Note'}
           >
             <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-s">
@@ -302,7 +302,7 @@ function makeComponents(): PortableTextComponents {
             ? 'flex gap-s overflow-x-auto snap-x snap-mandatory pb-s -mx-m px-m md:overflow-visible md:mx-0 md:px-0 md:grid md:grid-cols-3'
             : 'grid grid-cols-1 md:grid-cols-2 gap-s';
         return (
-          <figure className="my-xl">
+          <figure className="my-section-md">
             <div className={gridClass}>
               {images.map((img, i) => {
                 if (!img?.asset) return null;
@@ -338,14 +338,14 @@ function makeComponents(): PortableTextComponents {
       // -- divider --------------------------------------------------------
       divider: ({ value }) => {
         const style: 'line' | 'ornament' | 'space' = value?.style ?? 'ornament';
-        if (style === 'space') return <div className="my-2xl" aria-hidden="true"></div>;
+        if (style === 'space') return <div className="my-section-lg" aria-hidden="true"></div>;
         if (style === 'line') {
           return (
-            <hr className="my-2xl border-t border-border-soft max-w-md mx-auto" aria-hidden="true" />
+            <hr className="my-section-lg border-t border-border-soft max-w-md mx-auto" aria-hidden="true" />
           );
         }
         return (
-          <div className="my-2xl text-center" aria-hidden="true">
+          <div className="my-section-lg text-center" aria-hidden="true">
             <span className="font-display text-2xl text-secondary tracking-[0.5em] pl-[0.5em]">
               ✺ ✺ ✺
             </span>
@@ -358,7 +358,7 @@ function makeComponents(): PortableTextComponents {
         const src = value?.url ? videoEmbedSrc(value.url) : null;
         if (!src) return null;
         return (
-          <figure className="my-xl">
+          <figure className="my-section-md">
             <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted">
               <iframe
                 src={src}

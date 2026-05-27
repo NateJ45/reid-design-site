@@ -47,6 +47,22 @@ export const testimonial = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'location',
+      title: 'Location (optional)',
+      type: 'string',
+      description: 'Where they live, if relevant. Example: "Plainfield, IN" or "Fishers".',
+    }),
+    defineField({
+      name: 'photo',
+      title: 'Photo (optional)',
+      type: 'image',
+      description: 'Optional photo of the client. Get permission before adding.',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
+      ],
+    }),
+    defineField({
       name: 'featured',
       title: 'Featured',
       type: 'boolean',

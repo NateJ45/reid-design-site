@@ -25,6 +25,21 @@ export const project = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'metaTitle',
+      title: 'SEO title (optional)',
+      type: 'string',
+      description: 'Browser tab + search result title. 50–60 chars. Leave blank to use the project title.',
+      validation: (Rule) => Rule.max(70),
+    }),
+    defineField({
+      name: 'metaDescription',
+      title: 'SEO description (optional)',
+      type: 'text',
+      rows: 2,
+      description: 'Search result snippet. 150–160 chars. Leave blank to use the brief summary.',
+      validation: (Rule) => Rule.max(170),
+    }),
+    defineField({
       name: 'location',
       title: 'Location',
       type: 'string',
@@ -48,6 +63,24 @@ export const project = defineType({
         ],
       },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'designStyle',
+      title: 'Design style',
+      type: 'string',
+      description: 'Primary style of the finished space. Used as the second filter axis on the portfolio.',
+      options: {
+        list: [
+          { title: 'Modern traditional', value: 'modernTraditional' },
+          { title: 'Transitional',       value: 'transitional' },
+          { title: 'Modern coastal',     value: 'modernCoastal' },
+          { title: 'Modern farmhouse',   value: 'modernFarmhouse' },
+          { title: 'Modern organic',     value: 'modernOrganic' },
+          { title: 'Eclectic',           value: 'eclectic' },
+          { title: 'Mid-century',        value: 'midCentury' },
+          { title: 'Other',              value: 'other' },
+        ],
+      },
     }),
     defineField({
       name: 'year',

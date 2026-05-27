@@ -98,7 +98,7 @@ const schemas = [
   {/* ------- 1. Article header --------------------------------------------- */}
   <article>
     <header class="bg-background">
-      <div class="mx-auto max-w-3xl px-m pt-2xl pb-l">
+      <div class="mx-auto max-w-3xl px-m pt-section-lg pb-l">
         <p class="text-xs uppercase tracking-widest text-secondary mb-s">
           <a href="/journal" class="hover:text-primary-dark transition-colors">Journal</a>
           {dateLabel && <span class="mx-xs">·</span>}
@@ -142,12 +142,12 @@ const schemas = [
     )}
 
     {/* ------- 3. Body ------------------------------------------------------ */}
-    <div class="mx-auto max-w-3xl px-m py-2xl">
+    <div class="mx-auto max-w-3xl px-m py-section-lg">
       <JournalPortableText client:load value={entry.body} />
 
       {/* Related project link (if this post walks through a specific portfolio piece) */}
       {entry.relatedProject?.slug?.current && (
-        <aside class="mt-2xl pt-l border-t border-border-soft">
+        <aside class="mt-section-lg pt-l border-t border-border-soft">
           <p class="text-xs uppercase tracking-widest text-secondary mb-s">Related project</p>
           <a
             href={`/portfolio/${entry.relatedProject.slug.current}`}
@@ -171,7 +171,7 @@ const schemas = [
   {/* ------- 4. Related posts --------------------------------------------- */}
   {Array.isArray(entry.relatedPosts) && entry.relatedPosts.length > 0 && (
     <section class="bg-muted" aria-labelledby="related-posts-heading">
-      <div class="mx-auto max-w-content px-m py-2xl">
+      <div class="mx-auto max-w-content px-m py-section-lg">
         <h2 id="related-posts-heading" class="font-display text-h2 text-foreground mb-l">
           Keep reading
         </h2>

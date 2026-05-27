@@ -65,8 +65,8 @@ const schemas = [
     class="bg-background"
     aria-labelledby="about-story-heading"
   >
-    <div class="mx-auto max-w-content px-m py-2xl grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-l md:gap-xl items-start">
-      <div class="md:sticky md:top-2xl">
+    <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-l md:gap-section-md items-start">
+      <div class="md:sticky md:top-section-lg">
         {page?.staciPhoto?.asset ? (
           <SanityImage
             source={page.staciPhoto}
@@ -100,7 +100,7 @@ const schemas = [
         )}
 
         {(page?.backgroundLine || page?.serviceAreaMention) && (
-          <div class="mt-xl pt-l border-t border-border-soft space-y-m text-foreground/80">
+          <div class="mt-section-md pt-l border-t border-border-soft space-y-m text-foreground/80">
             {page?.backgroundLine && (
               <p>
                 <span class="block text-xs uppercase tracking-widest text-secondary mb-xs">Background</span>
@@ -125,7 +125,7 @@ const schemas = [
       class="bg-muted"
       aria-labelledby="about-philosophy-heading"
     >
-      <div class="mx-auto max-w-content px-m py-2xl">
+      <div class="mx-auto max-w-content px-m py-section-lg">
         <SectionHeading
           eyebrow={philosophyEyebrow}
           headline={philosophyHeadline}
@@ -134,7 +134,7 @@ const schemas = [
           class="mx-auto"
         />
 
-        <div class="mt-2xl grid grid-cols-1 md:grid-cols-3 gap-l">
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-3 gap-l">
           {philosophyPoints.map((point: any, idx: number) => (
             <article class="bg-card p-l rounded-md border border-border-soft">
               <p

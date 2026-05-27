@@ -11,6 +11,15 @@
 // Layout is a flex column so cards in a CSS grid stay the same height
 // regardless of feature count; the CTA always pins to the bottom.
 
+import SanityImage from '@/components/SanityImage.astro';
+
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
 interface Props {
   service: {
     name?: string;
@@ -20,6 +29,7 @@ interface Props {
     features?: string[];
     bestFor?: string;
     ctaLabel?: string;
+    featuredImage?: SanityImageObject | null;
   };
   /** When true, render an anchor id from the slug so /services?#consultation deep-links. */
   withAnchor?: boolean;
@@ -33,16 +43,29 @@ const features = service.features ?? [];
 const visibleFeatures = compact ? features.slice(0, 4) : features;
 const moreCount = compact ? Math.max(0, features.length - visibleFeatures.length) : 0;
 const ctaLabel = service.ctaLabel ?? 'Start a Conversation';
+const hasImage = !!service.featuredImage?.asset;
 ---
 
 <article
   id={id}
-  class="relative flex flex-col h-full p-l bg-card text-card-foreground border border-border-soft rounded-md transition-colors hover:border-primary/40 scroll-mt-24"
+  class="relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden transition-colors hover:border-primary/40 scroll-mt-24"
 >
+  {hasImage && (
+    <div class="aspect-[4/3] overflow-hidden bg-muted">
+      <SanityImage
+        source={service.featuredImage}
+        width={640}
+        sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+        class="w-full h-full object-cover"
+      />
+    </div>
+  )}
+
+  <div class="flex flex-col flex-1 p-l">
   <header>
     <h3 class="font-display text-h3 text-foreground">{service.name}</h3>
     {service.price && (
-      <p class="mt-xs text-sm font-mono uppercase tracking-widest text-primary-dark">
+      <p class="mt-xs text-sm font-mono uppercase tracking-eyebrow text-primary-dark">
         {service.price}
       </p>
     )}
@@ -71,7 +94,7 @@ const ctaLabel = service.ctaLabel ?? 'Start a Conversation';
 
   {!compact && service.bestFor && (
     <div class="mt-m pt-m border-t border-border-soft">
-      <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Best for</p>
+      <p class="text-xs uppercase tracking-eyebrow text-secondary mb-xs">Best for</p>
       <p class="text-sm text-foreground/80 italic">{service.bestFor}</p>
     </div>
   )}
@@ -79,9 +102,10 @@ const ctaLabel = service.ctaLabel ?? 'Start a Conversation';
   <div class="mt-l pt-m flex-1 flex items-end">
     <a
       href="/contact"
-      class="inline-flex items-center min-h-[44px] py-s text-xs font-semibold uppercase tracking-[0.18em] text-link hover:text-primary-dark transition-colors"
+      class="inline-flex items-center min-h-[44px] py-s text-xs font-semibold uppercase tracking-eyebrow text-link hover:text-primary-dark transition-colors"
     >
       {ctaLabel} <span aria-hidden="true" class="ml-xs">→</span>
     </a>
+  </div>
   </div>
 </article>

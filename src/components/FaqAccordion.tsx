@@ -75,7 +75,7 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
   }
 
   return (
-    <div className="space-y-2xl">
+    <div className="space-y-section-lg">
       {sections.map((section, sectionIdx) => {
         const sectionId = section.category
           ? `${idPrefix}-${slugify(section.category)}`

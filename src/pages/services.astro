@@ -70,7 +70,7 @@ const schemas = [
     class="bg-background"
     aria-labelledby="services-list-heading"
   >
-    <div class="mx-auto max-w-content px-m py-2xl">
+    <div class="mx-auto max-w-content px-m py-section-lg">
       <SectionHeading
         eyebrow={listEyebrow}
         headline={listHeadline}
@@ -81,13 +81,13 @@ const schemas = [
       />
 
       {services.length > 0 ? (
-        <div class="mt-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
           {services.map((service: any) => (
             <ServiceCard service={service} withAnchor={true} />
           ))}
         </div>
       ) : (
-        <p class="mt-2xl text-center text-muted-foreground italic">
+        <p class="mt-section-lg text-center text-muted-foreground italic">
           Services are being updated. <a href="/contact" class="text-link underline underline-offset-2">Get in touch</a> and we'll talk through what you need.
         </p>
       )}
@@ -100,7 +100,7 @@ const schemas = [
       class="bg-muted"
       aria-labelledby="builders-realtors-heading"
     >
-      <div class="mx-auto max-w-content px-m py-2xl">
+      <div class="mx-auto max-w-content px-m py-section-lg">
         <SectionHeading
           eyebrow={builders.eyebrow ?? 'For Professionals.'}
           headline={builders.headline ?? 'Builder & Realtor Partnerships.'}
@@ -118,7 +118,7 @@ const schemas = [
         )}
 
         {(builders.forBuildersText || builders.forRealtorsText || builders.forContractorsText) && (
-          <div class="mt-xl grid grid-cols-1 md:grid-cols-3 gap-l">
+          <div class="mt-section-md grid grid-cols-1 md:grid-cols-3 gap-l">
             {builders.forBuildersText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
                 <p class="text-xs uppercase tracking-widest text-secondary mb-xs">For Builders</p>
@@ -141,7 +141,7 @@ const schemas = [
         )}
 
         {builders.cta && (
-          <div class="mt-xl">
+          <div class="mt-section-md">
             <CtaLink
               cta={builders.cta}
               variant="primary"
@@ -160,7 +160,7 @@ const schemas = [
       class="bg-background"
       aria-labelledby="service-area-heading"
     >
-      <div class="mx-auto max-w-content px-m py-2xl grid grid-cols-1 md:grid-cols-2 gap-l md:gap-xl items-start">
+      <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-start">
         <div>
           <SectionHeading
             eyebrow={areaSec?.eyebrow ?? 'Service Area.'}

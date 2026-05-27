@@ -46,13 +46,27 @@
   --text-h2: clamp(2rem,     4vw,   3rem);
   --text-h1: clamp(2.5rem,   6vw,   5rem);
 
-  /* Fluid spacing */
-  --spacing-xs:  clamp(0.25rem, 0.5vw, 0.5rem);
-  --spacing-s:   clamp(0.5rem,  1vw,   1rem);
-  --spacing-m:   clamp(1rem,    2vw,   1.5rem);
-  --spacing-l:   clamp(2rem,    4vw,   3rem);
-  --spacing-xl:  clamp(3rem,    6vw,   5rem);
-  --spacing-2xl: clamp(4rem,    8vw,   7rem);
+  /* Typographic micro-rules. Codified so usage stays consistent across
+     components — drift from ad-hoc arbitrary values (tracking-[0.22em],
+     leading-[1.05]) into shared tokens. */
+  --leading-headline-tight: 1.05;   /* Hero H1 and any oversized display type */
+  --tracking-eyebrow:       0.18em; /* Uppercase eyebrow labels above headings */
+
+  /* Fluid spacing.
+     Note: the larger section-padding sizes use a `--spacing-section-*`
+     prefix instead of `--spacing-xl` / `--spacing-2xl`. In Tailwind v4
+     the `max-w-*` utility resolves to `--spacing-{key}` BEFORE
+     `--container-{key}` when both exist, so naming our fluid section
+     tokens `--spacing-xl` would silently break `max-w-xl` / `max-w-2xl`
+     site-wide (they'd inherit the fluid clamp instead of the container
+     width). Section utilities are now `py-section-lg`, `mt-section-md`,
+     etc. — Tailwind containers stay safe. */
+  --spacing-xs:           clamp(0.25rem, 0.5vw, 0.5rem);
+  --spacing-s:            clamp(0.5rem,  1vw,   1rem);
+  --spacing-m:            clamp(1rem,    2vw,   1.5rem);
+  --spacing-l:            clamp(2rem,    4vw,   3rem);
+  --spacing-section-md:   clamp(3rem,    6vw,   5rem); /* was --spacing-xl */
+  --spacing-section-lg:   clamp(4rem,    8vw,   7rem); /* was --spacing-2xl */
 
   --container-content: 82.5rem;
 }
@@ -128,6 +142,19 @@
       0%   { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
       100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
     }
+}
+
+/* ---------- Typographic utilities ------------------------------------- */
+/* Expose the micro-rule tokens above as utility classes.
+   Use tracking-eyebrow everywhere we render an uppercase eyebrow label,
+   and leading-headline-tight on hero-scale display type. */
+
+@utility leading-headline-tight {
+  line-height: var(--leading-headline-tight);
+}
+
+@utility tracking-eyebrow {
+  letter-spacing: var(--tracking-eyebrow);
 }
 
 /* ---------- Light mode (Reid Design overrides shadcn defaults) -------- */

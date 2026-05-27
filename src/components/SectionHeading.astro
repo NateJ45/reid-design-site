@@ -33,7 +33,7 @@ const {
 
 const headingClass =
   level === 'h1'
-    ? 'font-display text-h1 leading-tight'
+    ? 'font-display text-h1 leading-headline-tight tracking-[-0.02em]'
     : level === 'h2'
     ? 'font-display text-h2 leading-tight'
     : 'font-display text-h3 leading-tight';
@@ -46,7 +46,7 @@ const toneSub = tone === 'inverse' ? 'text-bg/80' : 'text-foreground/80';
 
 <div class:list={[wrapperAlign, 'max-w-3xl', extraClass]}>
   {eyebrow && (
-    <p class:list={['text-xs uppercase tracking-[0.22em] mb-s', toneEyebrow]}>{eyebrow}</p>
+    <p class:list={['text-xs uppercase tracking-eyebrow mb-s', toneEyebrow]}>{eyebrow}</p>
   )}
   {headline && (
     level === 'h1' ? (

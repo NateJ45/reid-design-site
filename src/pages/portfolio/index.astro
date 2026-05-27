@@ -28,7 +28,7 @@ const hasProjects = Array.isArray(projects) && projects.length > 0;
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
-  <section class="mx-auto max-w-content px-m py-xl">
+  <section class="mx-auto max-w-content px-m py-section-md">
     <p class="text-xs uppercase tracking-widest text-secondary mb-s">Recent work</p>
     <h1 class="font-display text-h1 text-foreground">Projects across Plainfield and Indianapolis.</h1>
     <p class="mt-m max-w-2xl text-lg text-foreground/80">
@@ -38,7 +38,7 @@ const hasProjects = Array.isArray(projects) && projects.length > 0;
   </section>
 
   {hasProjects ? (
-    <section class="mx-auto max-w-content px-m pb-2xl">
+    <section class="mx-auto max-w-content px-m pb-section-lg">
       <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l list-none p-0">
         {projects.map((p: any) => (
           <li><ProjectCard project={p} /></li>
@@ -46,8 +46,8 @@ const hasProjects = Array.isArray(projects) && projects.length > 0;
       </ul>
     </section>
   ) : (
-    <section class="mx-auto max-w-content px-m pb-2xl">
-      <div class="rounded-md border border-border bg-muted p-xl text-center">
+    <section class="mx-auto max-w-content px-m pb-section-lg">
+      <div class="rounded-md border border-border bg-muted p-section-md text-center">
         <h2 class="font-display text-h3 text-foreground">Case studies are on the way.</h2>
         <p class="mt-s text-foreground/80 max-w-prose mx-auto">
           The first projects under Reid Design LLC are wrapping up now, with full write-ups

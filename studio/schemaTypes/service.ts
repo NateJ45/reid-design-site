@@ -62,6 +62,17 @@ export const service = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'featuredImage',
+      title: 'Card image (optional)',
+      type: 'image',
+      description:
+        'Small image at the top of the service card. Use a finished-room photo that represents this tier. Cards without an image render gracefully.',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+      ],
+    }),
+    defineField({
       name: 'longDescription',
       title: 'Long description',
       type: 'array',

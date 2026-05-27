@@ -82,12 +82,12 @@ const wrapperHeight =
       aria-hidden="true"
     ></div>
 
-    <div class="relative mx-auto max-w-content px-m h-full flex items-end pb-2xl pt-xl">
+    <div class="relative mx-auto max-w-content px-m h-full flex items-end pb-section-lg pt-section-md">
       <div class="max-w-3xl">
         {eyebrow && (
-          <p class="text-xs uppercase tracking-[0.22em] text-bg/80 mb-s">{eyebrow}</p>
+          <p class="text-xs uppercase tracking-eyebrow text-bg/80 mb-s">{eyebrow}</p>
         )}
-        <h1 id={headingId} class="font-display text-h1 leading-[1.05] text-bg">
+        <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
           {headline}
         </h1>
         {subhead && (
@@ -110,7 +110,7 @@ const wrapperHeight =
   </section>
 ) : (
   <section class="bg-background" aria-labelledby={headingId}>
-    <div class:list={['mx-auto max-w-content px-m py-2xl flex items-end', wrapperHeight]}>
+    <div class:list={['mx-auto max-w-content px-m py-section-lg flex items-end', wrapperHeight]}>
       <SectionHeading
         eyebrow={eyebrow}
         headline={headline}

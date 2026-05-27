@@ -37,7 +37,7 @@ function makeComponents(): PortableTextComponents {
   block: {
     normal: ({ children }) => <p className="my-m text-foreground">{children}</p>,
     h2: ({ children }) => (
-      <h2 id={headingId(children)} className="mt-xl mb-m font-display text-h2 text-foreground scroll-mt-24">{children}</h2>
+      <h2 id={headingId(children)} className="mt-section-md mb-m font-display text-h2 text-foreground scroll-mt-24">{children}</h2>
     ),
     h3: ({ children }) => (
       <h3 id={headingId(children)} className="mt-l mb-s font-display text-h3 text-foreground scroll-mt-24">{children}</h3>

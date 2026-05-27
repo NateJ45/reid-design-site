@@ -175,7 +175,7 @@ export async function getContactPage() {
 
 export async function getAllProjects() {
   return client.fetch(`*[_type == "project"] | order(orderRank asc, coalesce(displayOrder, 999) asc, publishedAt desc){
-    _id, title, slug, location, year, roomType, briefSummary,
+    _id, title, slug, location, year, roomType, designStyle, briefSummary,
     heroImage${IMAGE_PROJECTION}
   }`);
 }

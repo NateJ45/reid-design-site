@@ -85,7 +85,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     class="bg-background"
     aria-labelledby="meet-staci-heading"
   >
-    <div class="mx-auto max-w-content px-m py-2xl grid grid-cols-1 md:grid-cols-2 gap-l md:gap-xl items-center">
+    <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-center">
       {page?.meetStaciPhoto?.asset ? (
         <div class="order-1 md:order-1">
           <SanityImage
@@ -133,7 +133,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     class="bg-muted"
     aria-labelledby="process-preview-heading"
   >
-    <div class="mx-auto max-w-content px-m py-2xl">
+    <div class="mx-auto max-w-content px-m py-section-lg">
       <SectionHeading
         eyebrow={processPreviewEyebrow}
         headline={processPreviewHeadline}
@@ -143,14 +143,14 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       />
 
       {processSteps.length > 0 && (
-        <div class="mt-2xl grid grid-cols-1 md:grid-cols-2 gap-xl">
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 gap-section-md">
           {processSteps.slice(0, 4).map((step: any) => (
             <ProcessStep step={step} variant="preview" />
           ))}
         </div>
       )}
 
-      <div class="mt-2xl flex justify-center">
+      <div class="mt-section-lg flex justify-center">
         <CtaLink
           cta={page?.processPreviewCta}
           variant="secondary"
@@ -167,7 +167,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       class="bg-background"
       aria-labelledby="testimonials-heading"
     >
-      <div class="mx-auto max-w-content px-m py-2xl">
+      <div class="mx-auto max-w-content px-m py-section-lg">
         <SectionHeading
           eyebrow={testimonialsEyebrow}
           headline={testimonialsHeadline}
@@ -177,19 +177,19 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
         />
 
         {featuredQuote && (
-          <div class="mt-2xl">
+          <div class="mt-section-lg">
             <FeaturedTestimonial testimonial={featuredQuote} />
           </div>
         )}
 
         {gridQuotes.length > 0 && (
-          <div class="mt-2xl">
+          <div class="mt-section-lg">
             <TestimonialGrid testimonials={gridQuotes} limit={6} />
           </div>
         )}
 
         {testimonialsAttribution && (
-          <p class="mt-xl text-center text-sm text-muted-foreground italic">
+          <p class="mt-section-md text-center text-sm text-muted-foreground italic">
             {testimonialsAttribution}
           </p>
         )}
@@ -202,7 +202,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     class="bg-muted"
     aria-labelledby="services-heading"
   >
-    <div class="mx-auto max-w-content px-m py-2xl">
+    <div class="mx-auto max-w-content px-m py-section-lg">
       <SectionHeading
         eyebrow={servicesGridEyebrow}
         headline={servicesGridHeadline}
@@ -213,14 +213,14 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       />
 
       {services.length > 0 && (
-        <div class="mt-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-m">
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-m">
           {services.slice(0, 4).map((service: any) => (
             <ServiceCard service={service} compact={true} />
           ))}
         </div>
       )}
 
-      <div class="mt-2xl flex justify-center">
+      <div class="mt-section-lg flex justify-center">
         <CtaLink
           cta={page?.servicesGridCta}
           variant="secondary"
@@ -230,7 +230,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       </div>
 
       {servicesGridFootnote && (
-        <p class="mt-xl text-center text-sm text-muted-foreground italic">
+        <p class="mt-section-md text-center text-sm text-muted-foreground italic">
           {servicesGridFootnote}
         </p>
       )}

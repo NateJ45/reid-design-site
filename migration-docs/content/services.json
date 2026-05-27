@@ -26,7 +26,7 @@
     "slug": { "_type": "slug", "current": "full-room-design" },
     "price": "starting at $650",
     "priceNumeric": 650,
-    "shortDescription": "A custom design plan with mood direction, layout, furniture and decor selections, and a sourcing list with direct shopping links.",
+    "shortDescription": "A complete plan for one room — layout, furniture, decor, paint direction, and a sourcing list with direct shopping links. You shop at your own pace.",
     "features": [
       "Layout and furniture placement",
       "Mood board and concept direction",
@@ -48,7 +48,7 @@
     "slug": { "_type": "slug", "current": "full-room-design-plus-styling" },
     "price": "starting at $850",
     "priceNumeric": 850,
-    "shortDescription": "Everything in Full Room Design, plus the hands-on layer that actually makes the space feel finished.",
+    "shortDescription": "Everything in Full Room Design, plus me on the ground — shopping with you, picking paint, hanging the art, styling the shelves.",
     "features": [
       "Everything in Full Room Design",
       "Hands-on shopping and sourcing",
@@ -56,8 +56,8 @@
       "Rug, art, and styling direction",
       "In-home styling and final reveal"
     ],
-    "bestFor": "A full transformation where you want someone else to handle the heavy lifting.",
-    "longDescription": null,
+    "bestFor": "When you'd rather hand the project off than manage it.",
+    "longDescription": "The version where I do the parts that take real time. The plan is the same as Full Room Design — concept, layout, furniture and decor selections, paint — but I'm there for the rest of it too. I shop with you (or for you), pick the paint colors on the wall in your actual light, and come back to install: hanging art, styling shelves, laying rugs, fluffing the couch until it looks like a magazine and feels like your house. The day I leave is the day you stop having a project and start having a finished room.",
     "displayOrder": 3,
     "showOnHomepage": true,
     "ctaLabel": "Start a project"
@@ -69,7 +69,7 @@
     "slug": { "_type": "slug", "current": "shopping-and-sourcing" },
     "price": "$75 per hour",
     "priceNumeric": 75,
-    "shortDescription": "Hands-on help finding the right pieces to complete your space. Billed hourly so you only pay for the time we use.",
+    "shortDescription": "Help finding the right pieces — billed hourly, no minimum, trade-vendor access included.",
     "features": [
       "Trade-only and retail vendor sourcing",
       "Curated finds matched to your style",
@@ -80,7 +80,7 @@
     "longDescription": "You already know what you want. You just need someone who knows where to find it. As a designer, I have access to trade-only vendors and lines that aren't in retail stores, and I'm happy to put those relationships to work for you on an hourly basis. Billed at $75 per hour, no minimum. Great for filling in the last few pieces of a space, replacing one item that's not working, or adding warmth to a room that feels almost-done.",
     "displayOrder": 4,
     "showOnHomepage": true,
-    "ctaLabel": "Get in touch"
+    "ctaLabel": "Start a project"
   },
   {
     "_type": "service",
@@ -89,7 +89,7 @@
     "slug": { "_type": "slug", "current": "builder-realtor-partnerships" },
     "price": "Custom",
     "priceNumeric": null,
-    "shortDescription": "[NEW per audit, softer framing] If you're a builder, realtor, or contractor in the Plainfield or Indianapolis area, I'd love to talk about how design support could help your clients.",
+    "shortDescription": "For builders, realtors, and contractors in the Plainfield and Indianapolis area. Finish selections, staging, move-in styling — whatever the project needs.",
     "features": [
       "Finish selections and fixture packages for new construction",
       "Staging for listings and move-in styling for buyers",

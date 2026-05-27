@@ -73,6 +73,13 @@ export type ProcessStep = {
   orderRank?: string;
 };
 
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
 export type Service = {
   _id: string;
   _type: "service";
@@ -86,6 +93,14 @@ export type Service = {
   shortDescription?: string;
   features?: Array<string>;
   bestFor?: string;
+  featuredImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   longDescription?: Array<{
     children?: Array<{
       marks?: Array<string>;
@@ -104,6 +119,22 @@ export type Service = {
   showOnHomepage?: boolean;
   ctaLabel?: string;
   orderRank?: string;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
 };
 
 export type PhilosophyPoint = {
@@ -251,13 +282,6 @@ export type CtaBlock = {
   emailAddress?: string;
   phoneNumber?: string;
   openInNewTab?: boolean;
-};
-
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
 export type JournalCategoryReference = {
@@ -435,22 +459,6 @@ export type JournalEntry = {
       _key: string;
     } & JournalEntryReference
   >;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
 };
 
 export type JournalPage = {
@@ -725,6 +733,15 @@ export type Testimonial = {
   attribution?: string;
   date?: string;
   source?: "Facebook" | "Google" | "Houzz" | "Direct (email or text)" | "Other";
+  location?: string;
+  photo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   featured?: boolean;
   relatedProject?: ProjectReference;
 };
@@ -737,6 +754,8 @@ export type Project = {
   _rev: string;
   title?: string;
   slug?: Slug;
+  metaTitle?: string;
+  metaDescription?: string;
   location?: string;
   roomType?:
     | "livingRoom"
@@ -746,6 +765,15 @@ export type Project = {
     | "office"
     | "wholeHome"
     | "multipleRooms"
+    | "other";
+  designStyle?:
+    | "modernTraditional"
+    | "transitional"
+    | "modernCoastal"
+    | "modernFarmhouse"
+    | "modernOrganic"
+    | "eclectic"
+    | "midCentury"
     | "other";
   year?: number;
   heroImage?: {
@@ -941,7 +969,10 @@ export type AllSanitySchemaTypes =
   | Slug
   | ServiceReference
   | ProcessStep
+  | SanityImageAssetReference
   | Service
+  | SanityImageCrop
+  | SanityImageHotspot
   | PhilosophyPoint
   | FaqItem
   | SiteSettings
@@ -954,12 +985,9 @@ export type AllSanitySchemaTypes =
   | JournalPageReference
   | JournalEntryReference
   | CtaBlock
-  | SanityImageAssetReference
   | JournalCategoryReference
   | ProjectReference
   | JournalEntry
-  | SanityImageCrop
-  | SanityImageHotspot
   | JournalPage
   | ContactPage
   | FaqPage
