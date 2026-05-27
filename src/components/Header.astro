@@ -1,21 +1,53 @@
 ---
 // Foundation, edit with care
-// Site header with primary nav. siteSettings is optional — when Sanity content is
-// wired up the page passes the resolved settings document; until then the header
-// renders with hardcoded NAV_LINKS and the site name from src/data/site.ts.
+// Site header. Two structural rows on desktop, one on mobile:
+//   ┌─────────────────────────────────────── 4px Warm Bronze accent stripe
+//   │ ─────────────────────────────────────── eyebrow strip (desktop-only)
+//   │   Plainfield Interior Design · ...    staci@…  · IG · FB · theme
+//   ├─────────────────────────────────────── main row
+//   │   [logo]                  [nav]  │  [Book a consultation CTA]
+//   └───────────────────────────────────────
+// On mobile the eyebrow strip is hidden (its info lives in the redesigned
+// MobileNav drawer) and the main row centers the logo with the hamburger
+// pinned absolute to the right.
+//
+// siteSettings is optional. Defaults render cleanly so the header works
+// even before Sanity content is wired up.
 
 import { site } from '@/data/site';
+import { Mail } from 'lucide-react';
+import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
 
 interface Props {
   siteSettings?: {
     siteName?: string;
+    title?: string;
+    tagline?: string;
+    email?: string;
+    socialInstagram?: string;
+    socialFacebook?: string;
   } | null;
 }
 
 const { siteSettings } = Astro.props as Props;
-const brandName = siteSettings?.siteName ?? site.name;
+const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
+
+// Subset of siteSettings the mobile menu needs. Pass as a plain object so the
+// React island doesn't try to serialize the whole Sanity document graph.
+const mobileNavSettings = siteSettings
+  ? {
+      tagline: siteSettings.tagline,
+      email: siteSettings.email,
+      socialInstagram: siteSettings.socialInstagram,
+      socialFacebook: siteSettings.socialFacebook,
+    }
+  : null;
+
+const email = siteSettings?.email ?? '';
+const ig = siteSettings?.socialInstagram ?? '';
+const fb = siteSettings?.socialFacebook ?? '';
 
 const NAV_LINKS = [
   { label: 'Home',     href: '/' },
@@ -24,8 +56,10 @@ const NAV_LINKS = [
   { label: 'Journal',  href: '/journal' },
   { label: 'FAQ',      href: '/faq' },
   { label: 'About',    href: '/about' },
-  { label: 'Contact',  href: '/contact' },
 ];
+// "Contact" is intentionally NOT in the primary nav — the "Book a consultation"
+// CTA at the right of the nav row does that job, and the MobileNav drawer also
+// surfaces the CTA at the top. Keeping the nav at six items.
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {
@@ -34,19 +68,75 @@ function isActive(href: string) {
 }
 ---
 
-<header class="border-b border-border bg-background">
-  <div class="mx-auto flex max-w-content items-center justify-between px-m py-s">
-    <a href="/" class="inline-flex items-center hover:opacity-80 transition-opacity" aria-label={`${brandName} home`}>
-      {/* Two logo variants — Charcoal for light surfaces, Cream for dark.
-          The dark: modifier toggles them off the html.dark class set by the
-          anti-FOUC theme bootstrap (no JS, no layout shift). Width auto + a
-          fixed height keeps the wordmark + monogram both within the header bar. */}
+<header class="bg-background">
+  {/* Brand accent stripe — same visual signature used at the top of the
+      mobile menu drawer. Visible on every viewport. */}
+  <div class="h-1 bg-primary" aria-hidden="true"></div>
+
+  {/* Eyebrow strip (desktop only). Carries the locked positioning line and
+      utility controls (email + social icons + theme toggle). Mobile gets
+      the same info through the MobileNav drawer. */}
+  <div class="hidden md:block bg-muted border-b border-border-soft">
+    <div class="mx-auto flex max-w-content items-center justify-between px-m py-2">
+      <p class="text-xs uppercase tracking-eyebrow text-secondary">
+        Plainfield Interior Design · Serving Greater Indianapolis
+      </p>
+      <div class="flex items-center gap-m">
+        {email && (
+          <a
+            href={`mailto:${email}`}
+            class="inline-flex items-center gap-xs text-xs text-foreground hover:text-link transition-colors"
+          >
+            <Mail size={12} aria-hidden="true" />
+            {email}
+          </a>
+        )}
+        {(ig || fb) && (
+          <div class="flex items-center gap-1">
+            {ig && (
+              <a
+                href={ig}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-accent hover:text-link transition-colors"
+              >
+                <IconBrandInstagram size={14} stroke={1.5} />
+              </a>
+            )}
+            {fb && (
+              <a
+                href={fb}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-accent hover:text-link transition-colors"
+              >
+                <IconBrandFacebook size={14} stroke={1.5} />
+              </a>
+            )}
+          </div>
+        )}
+        <ThemeToggle client:load />
+      </div>
+    </div>
+  </div>
+
+  {/* Main nav row. Mobile centers the logo; desktop justifies logo left,
+      nav+CTA grouped right. */}
+  <div class="relative mx-auto flex max-w-content items-center justify-center md:justify-between px-m py-m border-b border-border">
+    <a
+      href="/"
+      class="inline-flex items-center hover:opacity-80 transition-opacity"
+      aria-label={`${brandName} home`}
+    >
+      {/* Two logo variants. dark: modifier swaps them off the .dark class. */}
       <img
         src={site.assets.logoLight}
         alt={brandName}
         width={319}
         height={357}
-        class="block dark:hidden h-12 w-auto"
+        class="block dark:hidden h-[6.25rem] w-auto"
         loading="eager"
         decoding="async"
       />
@@ -56,30 +146,44 @@ function isActive(href: string) {
         aria-hidden="true"
         width={319}
         height={357}
-        class="hidden dark:block h-12 w-auto"
+        class="hidden dark:block h-[6.25rem] w-auto"
         loading="eager"
         decoding="async"
       />
     </a>
 
-    <nav class="hidden md:flex items-center gap-l" aria-label="Primary">
-      {NAV_LINKS.map((link) => (
-        <a
-          href={link.href}
-          class:list={[
-            'text-sm tracking-wide transition-colors',
-            isActive(link.href)
-              ? 'text-link font-semibold'
-              : 'text-foreground hover:text-link',
-          ]}
-          aria-current={isActive(link.href) ? 'page' : undefined}
-        >
-          {link.label}
-        </a>
-      ))}
-      <ThemeToggle client:load />
-    </nav>
+    {/* Nav + CTA grouped on the right (desktop only). */}
+    <div class="hidden md:flex items-center gap-l">
+      <nav class="flex items-center gap-l" aria-label="Primary">
+        {NAV_LINKS.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              'text-sm tracking-wide transition-colors',
+              isActive(link.href)
+                ? 'text-link font-semibold'
+                : 'text-foreground hover:text-link',
+            ]}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))}
+      </nav>
+      <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
+      <a
+        href="/contact"
+        class:list={[
+          'inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold transition-colors',
+          isActive('/contact')
+            ? 'bg-accent-dark text-white'
+            : 'bg-primary-dark text-white hover:bg-accent-dark',
+        ]}
+      >
+        Book a consultation
+      </a>
+    </div>
 
-    <MobileNav client:only="react" links={NAV_LINKS} />
+    <MobileNav client:only="react" links={NAV_LINKS} siteSettings={mobileNavSettings} />
   </div>
 </header>

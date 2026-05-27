@@ -64,10 +64,13 @@ const wrapperHeight =
 
 {hasImage ? (
   <section
-    class:list={['relative overflow-hidden bg-accent-dark text-bg', wrapperHeight]}
+    class:list={[
+      'relative overflow-hidden bg-accent-dark text-bg flex flex-col justify-end',
+      wrapperHeight,
+    ]}
     aria-labelledby={headingId}
   >
-    {/* Background image — eager loaded; the dark scrim ensures contrast on any photo. */}
+    {/* Background image — eager loaded; two layered overlays handle readability. */}
     <SanityImage
       source={backgroundImage}
       width={2400}
@@ -76,22 +79,27 @@ const wrapperHeight =
       quality={70}
       class="absolute inset-0 w-full h-full object-cover"
     />
-    {/* Scrim: bottom-weighted vertical gradient so text in the lower-half reads on any image. */}
+    {/* Uniform overlay — guarantees minimum readability across the whole image. */}
+    <div class="absolute inset-0 bg-accent-dark/25" aria-hidden="true"></div>
+    {/* Bottom-weighted gradient — adds extra darkening behind the text area at the bottom. */}
     <div
-      class="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-accent-dark/35 to-accent-dark/15"
+      class="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-accent-dark/45 to-transparent"
       aria-hidden="true"
     ></div>
 
-    <div class="relative mx-auto max-w-content px-m h-full flex items-end pb-section-lg pt-section-md">
+    {/* Content sits at the bottom of the section thanks to justify-end on the
+        section itself. Avoids the h-full-on-flex-item brittleness that left
+        content floating mid-hero on min-height containers. */}
+    <div class="relative mx-auto w-full max-w-content px-m pb-section-lg pt-section-md">
       <div class="max-w-3xl">
         {eyebrow && (
-          <p class="text-xs uppercase tracking-eyebrow text-bg/80 mb-s">{eyebrow}</p>
+          <p class="text-xs uppercase tracking-eyebrow text-bg/85 mb-s">{eyebrow}</p>
         )}
         <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
           {headline}
         </h1>
         {subhead && (
-          <p class="mt-m max-w-2xl text-lg text-bg/85">{subhead}</p>
+          <p class="mt-m max-w-2xl text-lg text-bg/90">{subhead}</p>
         )}
         {(primaryCta || secondaryCta) && (
           <div class="mt-l flex flex-wrap gap-s">

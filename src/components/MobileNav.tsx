@@ -2,9 +2,24 @@
 // Mobile nav drawer. Uses shadcn Sheet (Radix Dialog under the hood) so it
 // must be hydrated with client:only="react" — Radix's portal hook calls during
 // SSR throw "Invalid hook call" inside Astro.
+//
+// Layout (top to bottom inside the sheet):
+//   1. Brand accent stripe (4px Warm Bronze) + "Menu" eyebrow
+//   2. Primary CTA — Book a consultation
+//   3. Tagline in display serif italic
+//   4. Nav links (one per row, full-width hover)
+//   5. Spacer pushes the rest to the bottom
+//   6. Email link with Mail icon
+//   7. Social icons row (Instagram, Facebook) + ThemeToggle on the right
+//   8. Logo centered at the bottom of the panel
+//
+// Data: tagline, email, social URLs all come from Sanity siteSettings via
+// the Header, with sensible defaults so the menu renders cleanly before
+// content is wired up.
 
 import { useState } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Mail } from 'lucide-react';
+import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import {
   Sheet,
   SheetContent,
@@ -13,49 +28,159 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import ThemeToggle from './ThemeToggle';
+import { site } from '@/data/site';
 
 interface NavLink {
   label: string;
   href: string;
 }
 
-interface Props {
-  links: NavLink[];
+interface MobileNavSiteSettings {
+  tagline?: string;
+  email?: string;
+  socialInstagram?: string;
+  socialFacebook?: string;
 }
 
-export default function MobileNav({ links }: Props) {
+interface Props {
+  links: NavLink[];
+  siteSettings?: MobileNavSiteSettings | null;
+}
+
+export default function MobileNav({ links, siteSettings }: Props) {
   const [open, setOpen] = useState(false);
+
+  const tagline =
+    siteSettings?.tagline ??
+    'Plainfield interior design for homes that feel genuinely yours.';
+  const email = siteSettings?.email;
+  const ig = siteSettings?.socialInstagram;
+  const fb = siteSettings?.socialFacebook;
+
+  const close = () => setOpen(false);
+
   return (
-    <div className="md:hidden">
+    <div className="md:hidden absolute right-m top-1/2 -translate-y-1/2">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
             type="button"
             aria-label="Open menu"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent transition-colors text-accent-foreground"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground hover:bg-accent transition-colors"
           >
-            <Menu size={20} />
+            <Menu size={22} />
           </button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-72">
-          <SheetHeader>
-            <SheetTitle className="font-display text-h3">Menu</SheetTitle>
+        <SheetContent
+          side="right"
+          className="w-[min(380px,90vw)] sm:max-w-none bg-background border-t-4 border-t-primary p-0 gap-0 flex flex-col"
+        >
+          {/* Eyebrow header. Override SheetTitle's default font/size to render as a small label. */}
+          <SheetHeader className="px-l pt-xl pb-m">
+            <SheetTitle className="text-xs uppercase tracking-eyebrow text-secondary font-body font-normal">
+              Menu
+            </SheetTitle>
           </SheetHeader>
-          <nav className="mt-l flex flex-col gap-m px-m" aria-label="Primary mobile">
+
+          {/* Primary CTA — main conversion action surfaced before the nav list. */}
+          <div className="px-l pb-l">
+            <a
+              href="/contact"
+              onClick={close}
+              className="block w-full px-m py-m text-center rounded-md bg-primary-dark text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-accent-dark transition-colors"
+            >
+              Book a consultation
+            </a>
+          </div>
+
+          {/* Tagline in display serif for editorial feel. */}
+          <p className="px-l pb-l font-display italic text-h4 text-foreground/85 leading-snug">
+            {tagline}
+          </p>
+
+          {/* Primary nav — full-width tappable rows. */}
+          <nav className="border-t border-border-soft py-s" aria-label="Primary mobile">
             {links.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-base text-foreground hover:text-link"
-                onClick={() => setOpen(false)}
+                onClick={close}
+                className="block px-l py-s text-lg font-display text-foreground hover:bg-muted hover:text-link transition-colors"
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-m border-t border-border">
-              <ThemeToggle />
-            </div>
           </nav>
+
+          {/* Spacer pushes the contact + logo block to the bottom. */}
+          <div className="flex-1" />
+
+          {/* Contact + socials + theme. */}
+          <div className="border-t border-border-soft px-l pt-m pb-s">
+            <p className="text-xs uppercase tracking-eyebrow text-secondary mb-s">
+              Get in touch
+            </p>
+            {email && (
+              <a
+                href={`mailto:${email}`}
+                className="inline-flex items-center gap-s text-sm text-link hover:underline"
+              >
+                <Mail size={16} aria-hidden="true" />
+                {email}
+              </a>
+            )}
+
+            <div className="mt-m flex items-center gap-s">
+              {ig && (
+                <a
+                  href={ig}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground hover:bg-primary-dark hover:text-white hover:border-primary-dark transition-colors"
+                >
+                  <IconBrandInstagram size={20} stroke={1.5} />
+                </a>
+              )}
+              {fb && (
+                <a
+                  href={fb}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground hover:bg-primary-dark hover:text-white hover:border-primary-dark transition-colors"
+                >
+                  <IconBrandFacebook size={20} stroke={1.5} />
+                </a>
+              )}
+              <div className="ml-auto">
+                <ThemeToggle />
+              </div>
+            </div>
+          </div>
+
+          {/* Logo at the bottom — brand-anchored close to the sheet's foot. */}
+          <div className="border-t border-border-soft px-l py-l flex justify-center">
+            <img
+              src={site.assets.logoLight}
+              alt="Reid Design"
+              width={319}
+              height={357}
+              className="block dark:hidden h-16 w-auto"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              src={site.assets.logoDark}
+              alt=""
+              aria-hidden="true"
+              width={319}
+              height={357}
+              className="hidden dark:block h-16 w-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
         </SheetContent>
       </Sheet>
     </div>
