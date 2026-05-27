@@ -68,8 +68,8 @@ export async function getHomePage() {
     servicesGridSubhead,
     servicesGridCta${CTA_PROJECTION},
     servicesGridFootnote,
-    "services": *[_type == "service" && showOnHomepage == true] | order(displayOrder asc),
-    "processSteps": *[_type == "processStep"] | order(stepNumber asc){
+    "services": *[_type == "service" && showOnHomepage == true] | order(orderRank asc, displayOrder asc),
+    "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc){
       stepNumber, title, timeEstimate, shortDescription, features, tierNote
     },
     serviceAreaCue,
@@ -93,7 +93,7 @@ export async function getAboutPage() {
     backgroundLine,
     serviceAreaMention,
     philosophyEyebrow, philosophyHeadline,
-    "philosophyPoints": *[_type == "philosophyPoint"] | order(displayOrder asc){
+    "philosophyPoints": *[_type == "philosophyPoint"] | order(orderRank asc, displayOrder asc){
       title, description, displayOrder
     },
     finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
@@ -109,7 +109,7 @@ export async function getProcessPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     faqSectionEyebrow, faqSectionHeadline,
-    "processSteps": *[_type == "processStep"] | order(stepNumber asc),
+    "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc),
     "faqs": *[_type == "faqItem" && alsoShowOnProcessPage == true] | order(category asc, displayOrder asc),
     finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
@@ -124,7 +124,7 @@ export async function getServicesPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     servicesListEyebrow, servicesListHeadline, servicesListSubhead,
-    "services": *[_type == "service"] | order(displayOrder asc),
+    "services": *[_type == "service"] | order(orderRank asc, displayOrder asc),
     builderRealtorSection{
       ...,
       cta${CTA_PROJECTION}
@@ -174,7 +174,7 @@ export async function getContactPage() {
 // ---- Projects (post-launch portfolio) -------------------------------------
 
 export async function getAllProjects() {
-  return client.fetch(`*[_type == "project"] | order(coalesce(displayOrder, 999) asc, publishedAt desc){
+  return client.fetch(`*[_type == "project"] | order(orderRank asc, coalesce(displayOrder, 999) asc, publishedAt desc){
     _id, title, slug, location, year, roomType, briefSummary,
     heroImage${IMAGE_PROJECTION}
   }`);

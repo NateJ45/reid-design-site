@@ -826,6 +826,15 @@ export type Project = {
   publishedAt?: string;
 };
 
+export type MediaTag = {
+  _id: string;
+  _type: "media.tag";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: Slug;
+};
+
 export type SanityImagePaletteSwatch = {
   _type: "sanity.imagePaletteSwatch";
   background?: string;
@@ -957,6 +966,7 @@ export type AllSanitySchemaTypes =
   | HomePage
   | Testimonial
   | Project
+  | MediaTag
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
