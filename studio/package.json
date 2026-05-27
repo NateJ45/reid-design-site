@@ -12,13 +12,15 @@
     "deploy-graphql": "sanity graphql deploy",
     "typegen": "sanity schema extract && sanity typegen generate"
   },
-  "keywords": ["sanity"],
+  "keywords": [
+    "sanity"
+  ],
   "dependencies": {
     "@sanity/icons": "^3.5.0",
     "@sanity/vision": "^4.10.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "sanity": "^4.10.0",
+    "sanity": "^5.27.0",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {

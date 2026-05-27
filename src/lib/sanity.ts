@@ -1,6 +1,23 @@
 // Foundation, edit with care
 // Sanity client + image URL builder. Reads project ID / dataset / API version
-// from env at build time. Public dataset → useCdn:true is safe and fast.
+// from env at build time. The site is fully prerendered (output: 'static'),
+// so all Sanity reads happen at build time in Node, not in the Cloudflare runtime.
+//
+// Token-based reads (current default):
+//   This project's dataset is configured such that anonymous queries are filtered
+//   down to a subset of document types (a Sanity-side restriction we couldn't
+//   surface in Manage UI — only the page singletons came through anon, every
+//   collection returned empty). Passing SANITY_API_READ_TOKEN bypasses the
+//   filter and reads the full dataset.
+//
+//   When a token is set, Sanity disables CDN caching for the request (auth
+//   responses can vary by user, so CDN can't safely cache). Build-time only,
+//   not a runtime hot path, so the latency is harmless.
+//
+// Anon fallback:
+//   If SANITY_API_READ_TOKEN is missing, the client still constructs and queries
+//   work for whatever the API surfaces anonymously. Useful for local-dev sanity
+//   checks before the token's been wired into Cloudflare's env vars.
 
 import { createClient, type SanityClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
@@ -9,6 +26,7 @@ import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET ?? 'production';
 const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01';
+const readToken = import.meta.env.SANITY_API_READ_TOKEN as string | undefined;
 
 if (!projectId) {
   // Surface a clear build-time error rather than letting requests fail at runtime.
@@ -19,12 +37,24 @@ if (!projectId) {
   );
 }
 
+if (!readToken) {
+  // Soft warning — pages still render via fallback copy when the token is missing,
+  // but collections (services, testimonials, etc.) won't populate.
+  console.warn(
+    '[sanity] SANITY_API_READ_TOKEN is not set. Build-time reads will use the anonymous API; collection content (services, testimonials, processSteps, faqs, projects) may render empty. Set it in .env locally and in Cloudflare → Workers → Variables (as Secret) for production builds.',
+  );
+}
+
 export const client: SanityClient = createClient({
   projectId: projectId ?? 'placeholder',
   dataset,
   apiVersion,
-  useCdn: true,
+  // CDN is incompatible with token-based reads (Sanity rejects token + useCdn:true).
+  // When no token, we can use the CDN safely; it serves the same anon-filtered subset
+  // as the API anyway.
+  useCdn: !readToken,
   perspective: 'published',
+  ...(readToken ? { token: readToken } : {}),
 });
 
 const builder = createImageUrlBuilder({
