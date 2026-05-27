@@ -1,6 +1,7 @@
 // Values shown on the About page. Currently three; designed to grow to four.
 
 import { defineType, defineField } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const philosophyPoint = defineType({
   name: 'philosophyPoint',
@@ -29,6 +30,8 @@ export const philosophyPoint = defineType({
       description: '1, 2, 3 for left-to-right order on the About page.',
       validation: (Rule) => Rule.required().integer().min(1),
     }),
+    // Hidden field managed by the orderable-document-list plugin.
+    orderRankField({ type: 'philosophyPoint' }),
   ],
   preview: {
     select: { title: 'title', displayOrder: 'displayOrder' },

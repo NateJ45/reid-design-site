@@ -70,6 +70,7 @@ export type ProcessStep = {
       _key: string;
     } & ServiceReference
   >;
+  orderRank?: string;
 };
 
 export type Service = {
@@ -102,6 +103,7 @@ export type Service = {
   displayOrder?: number;
   showOnHomepage?: boolean;
   ctaLabel?: string;
+  orderRank?: string;
 };
 
 export type PhilosophyPoint = {
@@ -113,6 +115,7 @@ export type PhilosophyPoint = {
   title?: string;
   description?: string;
   displayOrder?: number;
+  orderRank?: string;
 };
 
 export type FaqItem = {
@@ -824,6 +827,7 @@ export type Project = {
   relatedTestimonial?: TestimonialReference;
   displayOrder?: number;
   publishedAt?: string;
+  orderRank?: string;
 };
 
 export type MediaTag = {

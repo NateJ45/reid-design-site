@@ -2,6 +2,7 @@
 // Project-story narrative, not room-type categorization.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const project = defineType({
   name: 'project',
@@ -205,6 +206,8 @@ export const project = defineType({
       initialValue: () => new Date().toISOString(),
       validation: (Rule) => Rule.required(),
     }),
+    // Hidden field managed by the orderable-document-list plugin.
+    orderRankField({ type: 'project' }),
   ],
   preview: {
     select: { title: 'title', location: 'location', year: 'year', media: 'heroImage' },

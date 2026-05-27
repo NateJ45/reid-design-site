@@ -7,9 +7,14 @@
 // orderable-document-list plugin. Editors drag rows to reorder; the plugin
 // writes an `orderRank` string to each doc. GROQ queries order by orderRank
 // (with displayOrder fallback) so the rendered site mirrors Studio order.
+//
+// Preview pane: singletons explicitly attach a form + preview iframe view
+// via the singletonWithPreview helper. Other types pick up preview from
+// defaultDocumentNode in sanity.config.ts.
 
 import type { StructureBuilder, StructureResolverContext } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
+import { Iframe, urlForDoc } from './sanity.config';
 import {
   CogIcon,
   HomeIcon,
@@ -39,12 +44,8 @@ const SINGLETON_TYPES = [
   'journalPage',
 ] as const;
 
-// Types we serve via orderableDocumentListDeskItem instead of the default list.
-// Each gets a drag-handle row; reordering writes `orderRank` on the doc.
 const ORDERABLE_TYPES = ['service', 'processStep', 'philosophyPoint', 'project'] as const;
 
-// Types we hide from the default unfiltered document-type list (because they're
-// already pinned in a custom group above).
 const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...SINGLETON_TYPES,
   ...ORDERABLE_TYPES,
@@ -54,19 +55,58 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'journalCategory',
 ]);
 
+/**
+ * Build a singleton list item whose editor pane includes both the form view
+ * and an iframe preview view (when the doc type has a viewable page).
+ *
+ * S.editor() and S.document().views([S.view.form()]) both pre-set views and
+ * thereby bypass the defaultDocumentNode in sanity.config.ts. So we attach
+ * views explicitly here for the singletons that need them.
+ */
+function singletonWithPreview(
+  S: StructureBuilder,
+  schemaType: string,
+  title: string,
+  icon: any,
+) {
+  const hasPreview = urlForDoc(schemaType, {}) !== null;
+  const views = [
+    S.view.form(),
+    ...(hasPreview
+      ? [
+          S.view
+            .component(Iframe)
+            .options({
+              url: (doc: any) => urlForDoc(schemaType, doc) ?? '',
+              reload: { button: true },
+              defaultSize: 'desktop',
+            })
+            .title('Preview'),
+        ]
+      : []),
+  ];
+
+  return S.listItem()
+    .title(title)
+    .icon(icon)
+    .child(
+      S.document()
+        .schemaType(schemaType)
+        .documentId(schemaType)
+        .views(views),
+    );
+}
+
 export const deskStructure = (S: StructureBuilder, context: StructureResolverContext) =>
   S.list()
     .title('Reid Design')
     .items([
-      // Site Settings — pinned singleton
-      S.listItem()
-        .title('Site Settings')
-        .icon(CogIcon)
-        .child(S.editor().id('siteSettings').schemaType('siteSettings').documentId('siteSettings')),
+      // Site Settings — pinned singleton (no preview; not a page)
+      singletonWithPreview(S, 'siteSettings', 'Site Settings', CogIcon),
 
       S.divider(),
 
-      // Pages — each a singleton
+      // Pages — each a singleton with form + preview tabs
       S.listItem()
         .title('Pages')
         .icon(DocumentTextIcon)
@@ -74,42 +114,20 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
           S.list()
             .title('Pages')
             .items([
-              S.listItem()
-                .title('Home')
-                .icon(HomeIcon)
-                .child(S.editor().id('homePage').schemaType('homePage').documentId('homePage')),
-              S.listItem()
-                .title('About')
-                .icon(UserIcon)
-                .child(S.editor().id('aboutPage').schemaType('aboutPage').documentId('aboutPage')),
-              S.listItem()
-                .title('Process')
-                .icon(TrendUpwardIcon)
-                .child(S.editor().id('processPage').schemaType('processPage').documentId('processPage')),
-              S.listItem()
-                .title('Services')
-                .icon(PackageIcon)
-                .child(S.editor().id('servicesPage').schemaType('servicesPage').documentId('servicesPage')),
-              S.listItem()
-                .title('FAQ')
-                .icon(HelpCircleIcon)
-                .child(S.editor().id('faqPage').schemaType('faqPage').documentId('faqPage')),
-              S.listItem()
-                .title('Contact')
-                .icon(EnvelopeIcon)
-                .child(S.editor().id('contactPage').schemaType('contactPage').documentId('contactPage')),
-              S.listItem()
-                .title('Journal (index page)')
-                .icon(BookIcon)
-                .child(S.editor().id('journalPage').schemaType('journalPage').documentId('journalPage')),
+              singletonWithPreview(S, 'homePage', 'Home', HomeIcon),
+              singletonWithPreview(S, 'aboutPage', 'About', UserIcon),
+              singletonWithPreview(S, 'processPage', 'Process', TrendUpwardIcon),
+              singletonWithPreview(S, 'servicesPage', 'Services', PackageIcon),
+              singletonWithPreview(S, 'faqPage', 'FAQ', HelpCircleIcon),
+              singletonWithPreview(S, 'contactPage', 'Contact', EnvelopeIcon),
+              singletonWithPreview(S, 'journalPage', 'Journal (index page)', BookIcon),
             ]),
         ),
 
       S.divider(),
 
-      // Content — reusable collections. Orderable types (service, processStep,
-      // philosophyPoint, project) get drag-and-drop. Non-orderable (testimonial,
-      // faqItem) use the standard list.
+      // Content — reusable collections. Orderable types get drag-and-drop;
+      // non-orderable use standard lists.
       S.listItem()
         .title('Content')
         .icon(ThListIcon)
@@ -145,7 +163,6 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 S,
                 context,
               }),
-              // Non-orderable — these read better in their own sort orders.
               S.documentTypeListItem('testimonial').title('Testimonials').icon(StarIcon),
               S.documentTypeListItem('faqItem').title('FAQ Items').icon(HelpCircleIcon),
             ]),

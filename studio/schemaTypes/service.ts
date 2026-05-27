@@ -2,6 +2,7 @@
 // Used by both the Services page and the homepage services grid.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const service = defineType({
   name: 'service',
@@ -105,6 +106,10 @@ export const service = defineType({
       description: 'Text on the button for this service.',
       initialValue: 'Start a Conversation',
     }),
+    // Hidden field managed by the orderable-document-list plugin. Required
+    // even when no one's reordered anything yet — the plugin validates the
+    // schema declares it.
+    orderRankField({ type: 'service' }),
   ],
   preview: {
     select: { name: 'name', price: 'price', order: 'displayOrder' },

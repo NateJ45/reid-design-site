@@ -2,6 +2,7 @@
 // Shopping + Selections, Styling + Reveal. Used on Process page and homepage preview.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const processStep = defineType({
   name: 'processStep',
@@ -79,9 +80,11 @@ export const processStep = defineType({
       name: 'relatedServices',
       title: 'Related services',
       type: 'array',
-      description: 'Which services this step applies to (optional, used for cross-linking).',
+      description: 'Which steps this service applies to (optional, used for cross-linking).',
       of: [defineArrayMember({ type: 'reference', to: [{ type: 'service' }] })],
     }),
+    // Hidden field managed by the orderable-document-list plugin.
+    orderRankField({ type: 'processStep' }),
   ],
   preview: {
     select: { stepNumber: 'stepNumber', title: 'title', time: 'timeEstimate' },

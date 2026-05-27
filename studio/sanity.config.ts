@@ -13,15 +13,16 @@ import { Iframe } from 'sanity-plugin-iframe-pane';
 import { schemaTypes } from './schemaTypes';
 import { deskStructure } from './structure';
 
-// Live site URL the preview pane embeds. Hardcoded so the deployed studio
-// shows the deployed site. Change this when DNS cuts over to reiddesignllc.com.
-const SITE_URL = 'https://reid-design-site.nathanjnixon86.workers.dev';
+// Re-export so structure.ts can attach the iframe view to every singleton.
+export { Iframe };
+export const SITE_URL_FOR_PREVIEW = 'https://reid-design-site.nathanjnixon86.workers.dev';
 
 // Map doc _type → live-site path. Singletons get a fixed path; slug-based
 // docs build the path from the doc's slug. Returns null for types that have
-// no viewable page (siteSettings, processStep, testimonial, faqItem, etc.) —
-// the preview pane is hidden for those.
-function urlForDoc(schemaType: string, doc: any): string | null {
+// no viewable page (siteSettings) — the preview pane is hidden for those.
+// Exported so structure.ts can call it when wiring per-doc views.
+export function urlForDoc(schemaType: string, doc: any): string | null {
+  const SITE_URL = SITE_URL_FOR_PREVIEW;
   const slug = doc?.slug?.current;
   switch (schemaType) {
     case 'homePage':     return `${SITE_URL}/`;
@@ -57,15 +58,21 @@ export default defineConfig({
       // the left, the live About page on the right. Saves the context-switch
       // of opening another tab. Hidden for types like siteSettings that don't
       // map to a page.
+      //
+      // Note: this only fires for documents opened via paths in the structure
+      // that DON'T pre-define their own views. Singletons in structure.ts that
+      // use S.document().views([...]) get explicit per-doc views attached
+      // there; this default handles everything else (orderable lists, journal
+      // entries, the generic document-type lists, etc.).
       defaultDocumentNode: (S, { schemaType }) => {
-        const url = urlForDoc(schemaType, {}); // sniff: does this type have any URL?
+        const url = urlForDoc(schemaType, {});
         if (!url) return S.document().views([S.view.form()]);
         return S.document().views([
           S.view.form(),
           S.view
             .component(Iframe)
             .options({
-              url: (doc: any) => urlForDoc(schemaType, doc) ?? `${SITE_URL}/`,
+              url: (doc: any) => urlForDoc(schemaType, doc) ?? `${SITE_URL_FOR_PREVIEW}/`,
               reload: { button: true },
               defaultSize: 'desktop',
             })
@@ -73,21 +80,17 @@ export default defineConfig({
         ]);
       },
     }),
+    // Unsplash plugin — adds an "Unsplash" tab to every image picker. The
+    // package's correct registration is via the plugins array (not
+    // form.image.assetSources — that was my earlier bug). Picking a photo
+    // uploads it to the Sanity library + attaches to the field in one shot.
+    unsplashImageAsset(),
     // Media browser — adds a top-level "Media" icon in the Studio sidebar
     // for browsing every uploaded image at once with tag + filter + bulk-edit.
     // Much better than the inline image picker for "what's in our library".
     media(),
     visionTool(),
   ],
-
-  // Image asset sources — adds an "Unsplash" tab to every image picker
-  // alongside "Upload" and "Select from library." Useful when Staci needs
-  // a stock photo for a journal post and doesn't have her own shot yet.
-  form: {
-    image: {
-      assetSources: (prev) => [...prev, unsplashImageAsset],
-    },
-  },
 
   schema: {
     types: schemaTypes,
