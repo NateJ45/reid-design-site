@@ -7,6 +7,7 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
+import { media } from 'sanity-plugin-media';
 import { schemaTypes } from './schemaTypes';
 import { deskStructure } from './structure';
 
@@ -20,6 +21,10 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure: deskStructure }),
+    // Media browser — adds a top-level "Media" icon in the Studio sidebar
+    // for browsing every uploaded image at once with tag + filter + bulk-edit.
+    // Much better than the inline image picker for "what's in our library".
+    media(),
     visionTool(),
   ],
 
@@ -56,4 +61,5 @@ const SINGLETON_TYPES = new Set<string>([
   'servicesPage',
   'faqPage',
   'contactPage',
+  'journalPage',
 ]);
