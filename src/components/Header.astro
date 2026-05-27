@@ -36,8 +36,30 @@ function isActive(href: string) {
 
 <header class="border-b border-border bg-background">
   <div class="mx-auto flex max-w-content items-center justify-between px-m py-s">
-    <a href="/" class="font-display text-h4 text-link hover:opacity-80 transition-opacity">
-      {brandName}
+    <a href="/" class="inline-flex items-center hover:opacity-80 transition-opacity" aria-label={`${brandName} home`}>
+      {/* Two logo variants — Charcoal for light surfaces, Cream for dark.
+          The dark: modifier toggles them off the html.dark class set by the
+          anti-FOUC theme bootstrap (no JS, no layout shift). Width auto + a
+          fixed height keeps the wordmark + monogram both within the header bar. */}
+      <img
+        src={site.assets.logoLight}
+        alt={brandName}
+        width={319}
+        height={357}
+        class="block dark:hidden h-12 w-auto"
+        loading="eager"
+        decoding="async"
+      />
+      <img
+        src={site.assets.logoDark}
+        alt=""
+        aria-hidden="true"
+        width={319}
+        height={357}
+        class="hidden dark:block h-12 w-auto"
+        loading="eager"
+        decoding="async"
+      />
     </a>
 
     <nav class="hidden md:flex items-center gap-l" aria-label="Primary">
