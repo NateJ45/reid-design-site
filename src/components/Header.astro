@@ -50,16 +50,17 @@ const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
 
 const NAV_LINKS = [
-  { label: 'Home',     href: '/' },
-  { label: 'Process',  href: '/process' },
-  { label: 'Services', href: '/services' },
-  { label: 'Journal',  href: '/journal' },
-  { label: 'FAQ',      href: '/faq' },
-  { label: 'About',    href: '/about' },
+  { label: 'Home',      href: '/' },
+  { label: 'Process',   href: '/process' },
+  { label: 'Services',  href: '/services' },
+  { label: 'Portfolio', href: '/portfolio' },
+  { label: 'Journal',   href: '/journal' },
+  { label: 'FAQ',       href: '/faq' },
+  { label: 'About',     href: '/about' },
 ];
 // "Contact" is intentionally NOT in the primary nav — the "Book a consultation"
 // CTA at the right of the nav row does that job, and the MobileNav drawer also
-// surfaces the CTA at the top. Keeping the nav at six items.
+// surfaces the CTA at the top.
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {

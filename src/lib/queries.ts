@@ -87,6 +87,7 @@ export async function getAboutPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
     storyEyebrow, storyHeadline, storyContent,
     staciPhoto${IMAGE_PROJECTION},
     staciAttribution,
@@ -108,6 +109,7 @@ export async function getProcessPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
     faqSectionEyebrow, faqSectionHeadline,
     "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc),
     "faqs": *[_type == "faqItem" && alsoShowOnProcessPage == true] | order(category asc, displayOrder asc),
@@ -123,6 +125,7 @@ export async function getServicesPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
     servicesListEyebrow, servicesListHeadline, servicesListSubhead,
     "services": *[_type == "service"] | order(orderRank asc, displayOrder asc),
     builderRealtorSection{
@@ -143,6 +146,7 @@ export async function getFaqPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
     categoryOrder,
     "faqs": *[_type == "faqItem"] | order(category asc, displayOrder asc){
       question, answer, category, displayOrder
@@ -160,6 +164,7 @@ export async function getContactPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
     formIntroNote,
     formProjectTypeOptions,
     whatToExpectEyebrow,
@@ -217,6 +222,7 @@ export async function getJournalPage() {
     seoTitle,
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
     finalCtaHeadline, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);

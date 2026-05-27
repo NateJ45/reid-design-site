@@ -22,6 +22,17 @@ export const contactPage = defineType({
     defineField({ name: 'heroEyebrow', title: 'Hero eyebrow', type: 'string', group: 'hero', initialValue: 'Request a Consultation.' }),
     defineField({ name: 'heroHeadline', title: 'Hero headline', type: 'string', group: 'hero', initialValue: 'Start the Conversation.' }),
     defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', rows: 2, group: 'hero' }),
+    defineField({
+      name: 'heroImage',
+      title: 'Hero background image',
+      type: 'image',
+      group: 'hero',
+      description: 'Full-bleed photo behind the hero text. Pick a landscape shot; the page applies a dark gradient over the bottom for readability.',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+      ],
+    }),
 
     defineField({
       name: 'formIntroNote',

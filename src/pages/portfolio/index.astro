@@ -7,6 +7,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getAllProjects, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
+import Hero from '@/components/Hero.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 
 const [projects, siteSettings] = await Promise.all([
@@ -25,17 +26,25 @@ const schemas = [
 ];
 
 const hasProjects = Array.isArray(projects) && projects.length > 0;
+
+// Portfolio doesn't have a Sanity singleton (just a hardcoded landing). The hero
+// background is referenced by asset _ref so it pipes through the same SanityImage
+// CDN/transform path as the other page heros. To swap the image, change the _ref.
+const heroBackground = {
+  asset: { _ref: 'image-95cf8e9cffed47a11f9f74386dc1659d3b45ffba-4736x4280-jpg' },
+  alt: 'Reid Design kitchen with island and woven counter stools.',
+};
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
-  <section class="mx-auto max-w-content px-m py-section-md">
-    <p class="text-xs uppercase tracking-widest text-secondary mb-s">Recent work</p>
-    <h1 class="font-display text-h1 text-foreground">Projects across Plainfield and Indianapolis.</h1>
-    <p class="mt-m max-w-2xl text-lg text-foreground/80">
-      A look at how rooms come together. Each project starts with a conversation about how the
-      space needs to function, then works back from there.
-    </p>
-  </section>
+  <Hero
+    eyebrow="Recent work"
+    headline="Projects across Plainfield and Indianapolis."
+    subhead="A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there."
+    backgroundImage={heroBackground}
+    headingId="portfolio-hero-heading"
+    size="short"
+  />
 
   {hasProjects ? (
     <section class="mx-auto max-w-content px-m pb-section-lg">

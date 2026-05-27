@@ -6,6 +6,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getContactPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
+import Hero from '@/components/Hero.astro';
 import PortableText from '@/components/PortableText';
 import ContactForm from '@/components/ContactForm';
 import CopyEmailButton from '@/components/CopyEmailButton';
@@ -39,13 +40,17 @@ const schemas = [
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
-  <section class="mx-auto max-w-content px-m py-section-md">
-    <p class="text-xs uppercase tracking-widest text-secondary mb-s">{heroEyebrow}</p>
-    <h1 class="font-display text-h1 text-foreground">{heroHeadline}</h1>
-    {heroSubhead && <p class="mt-m max-w-2xl text-lg text-foreground/80">{heroSubhead}</p>}
-  </section>
+  {/* Hero — same image-or-text shape every other page uses. */}
+  <Hero
+    eyebrow={heroEyebrow}
+    headline={heroHeadline}
+    subhead={heroSubhead}
+    backgroundImage={page?.heroImage}
+    headingId="contact-hero-heading"
+    size="short"
+  />
 
-  <section class="mx-auto max-w-content px-m pb-section-lg grid grid-cols-1 lg:grid-cols-3 gap-section-md">
+  <section class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 lg:grid-cols-3 gap-section-md">
     {/* Form column */}
     <div class="lg:col-span-2">
       {formIntroNote && (

@@ -12,7 +12,9 @@
 //   1. Bronze accent stripe
 //   2. Brand block: logo + tagline + short personal blurb + Meet me link
 //   3. Four-column link grid: Studio / Work / Latest projects / Get in touch
-//   4. Credit row beneath a hairline
+//      The Get in touch column ends with an auto-year copyright line plus the
+//      optional "Site by..." credit from siteSettings — tucked under the social
+//      icons so there's no standalone credit bar at the page bottom.
 //
 // Latest projects pull from Sanity. Gracefully degrades to a "see portfolio"
 // message when nothing is published yet.
@@ -45,8 +47,12 @@ const fb = siteSettings?.socialFacebook ?? '';
 const tagline =
   siteSettings?.tagline ??
   'Plainfield interior design for homes that feel genuinely yours.';
-const credit = siteSettings?.footerCredit ?? `© ${new Date().getFullYear()} ${brandName}`;
-const creditUrl = siteSettings?.footerCreditUrl;
+// Copyright auto-updates every build via new Date(). The "Site by..." line
+// (siteCredit + siteCreditUrl) is a SEPARATE concept that lives next to the
+// copyright in the Get in touch column.
+const currentYear = new Date().getFullYear();
+const siteCredit = siteSettings?.footerCredit;
+const siteCreditUrl = siteSettings?.footerCreditUrl;
 
 // Pull the three most recent projects for the Latest Projects column.
 // Falls back to an empty array when Sanity isn't reachable (build won't fail).
@@ -205,25 +211,31 @@ const latestProjects = allProjects.slice(0, 3);
             )}
           </ul>
         )}
-      </div>
-    </div>
-  </div>
 
-  {/* 3. Credit row. */}
-  <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-m text-xs text-foreground/55 text-center">
-      {creditUrl ? (
-        <a
-          href={creditUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="underline underline-offset-2 hover:text-link transition-colors"
-        >
-          {credit}
-        </a>
-      ) : (
-        credit
-      )}
+        {/* Auto-year copyright + optional "Site by..." link from Sanity.
+            Stacked tight under the socials so the column reads top-to-bottom:
+            email · location · socials · credit. No more standalone bar at the
+            page bottom. */}
+        <div class="mt-l space-y-1 text-xs text-foreground/55">
+          <p>© {currentYear} {brandName}</p>
+          {siteCredit && (
+            siteCreditUrl ? (
+              <p>
+                <a
+                  href={siteCreditUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="underline underline-offset-2 hover:text-link transition-colors"
+                >
+                  {siteCredit}
+                </a>
+              </p>
+            ) : (
+              <p>{siteCredit}</p>
+            )
+          )}
+        </div>
+      </div>
     </div>
   </div>
 </footer>

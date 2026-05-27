@@ -472,6 +472,14 @@ export type JournalPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
@@ -488,6 +496,14 @@ export type ContactPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   formIntroNote?: string;
   formProjectTypeOptions?: Array<string>;
   whatToExpectEyebrow?: string;
@@ -523,6 +539,14 @@ export type FaqPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   categoryOrder?: Array<string>;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
@@ -543,6 +567,14 @@ export type ServicesPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   servicesListEyebrow?: string;
   servicesListHeadline?: string;
   servicesListSubhead?: string;
@@ -591,6 +623,14 @@ export type ProcessPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   faqSectionEyebrow?: string;
   faqSectionHeadline?: string;
   finalCtaEyebrow?: string;
@@ -611,6 +651,14 @@ export type AboutPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   storyEyebrow?: string;
   storyHeadline?: string;
   storyContent?: Array<{
