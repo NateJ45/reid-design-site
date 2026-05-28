@@ -178,20 +178,26 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
           </div>
         </a>
 
-        {/* ------- Companion projects — compact stacked cards -------------- */}
+        {/* ------- Companion projects — compact stacked cards --------------
+            On lg+ the list fills the column height (`lg:h-full`) and each
+            card uses `lg:flex-1` so 2-3 companions distribute the available
+            space evenly — no big void below the stack. The thumb drops
+            `aspect-square` on lg and switches to `lg:h-full` so it stretches
+            to match the taller card, keeping the image flush top-to-bottom. */}
         {hasCompanions && (
-          <ul class="flex flex-col gap-m list-none p-0 m-0">
+          <ul class="flex flex-col gap-m list-none p-0 m-0 lg:h-full">
             {companions.map((p) => {
               const cHref = p.slug?.current ? `/portfolio/${p.slug.current}` : '#';
               const cRoom = humanizeRoom(p.roomType);
               return (
-                <li>
+                <li class="lg:flex-1 lg:min-h-[10rem]">
                   <a
                     href={cHref}
-                    class="card-lift group flex items-stretch gap-m rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+                    class="card-lift group flex items-stretch gap-m rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full"
                   >
-                    {/* Square thumb on the left — keeps the row compact. */}
-                    <div class="relative w-32 sm:w-40 lg:w-44 xl:w-52 aspect-square shrink-0 overflow-hidden bg-muted">
+                    {/* Square thumb on the left (mobile); stretches to fill
+                        card height on lg+ so paired columns read flush. */}
+                    <div class="relative w-32 sm:w-40 lg:w-44 xl:w-52 aspect-square lg:aspect-auto lg:h-full shrink-0 overflow-hidden bg-muted">
                       {/* Bronze stripe along the top of the thumb area. */}
                       <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" aria-hidden="true"></div>
                       {p.heroImage?.asset ? (
