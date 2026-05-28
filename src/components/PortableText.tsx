@@ -10,7 +10,7 @@
 
 import { PortableText as PT, type PortableTextComponents } from '@portabletext/react';
 import type { PortableTextBlock } from '@portabletext/types';
-import { urlFor } from '@/lib/sanity';
+import { urlFor, parseSanityAssetDimensions } from '@/lib/sanity';
 import { slugify } from '@/lib/slugify';
 
 interface Props {
@@ -109,6 +109,11 @@ function makeComponents(): PortableTextComponents {
       if (!value?.asset) return null;
       const url = urlFor(value).width(1600).quality(75).format('webp').url();
       const url2x = urlFor(value).width(3200).quality(75).format('webp').url();
+      // Intrinsic dimensions from the asset _ref let the browser reserve
+      // aspect-ratio space before the image loads — kills the CLS hit
+      // Lighthouse was flagging on portfolio + journal detail pages where
+      // inline images previously had no width/height.
+      const dims = parseSanityAssetDimensions(value);
       // Case-study image treatment. When decisionLine is set, the image reads
       // like an editorial spread: uppercase eyebrow above the caption, both
       // tucked under a full-width photograph. This is the "show the thinking"
@@ -118,6 +123,8 @@ function makeComponents(): PortableTextComponents {
           <img
             src={url}
             srcSet={`${url} 1x, ${url2x} 2x`}
+            width={dims?.width}
+            height={dims?.height}
             alt={value.alt ?? ''}
             loading="lazy"
             decoding="async"

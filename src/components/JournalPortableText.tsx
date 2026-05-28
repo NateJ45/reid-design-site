@@ -17,7 +17,7 @@
 
 import { PortableText as PT, type PortableTextComponents } from '@portabletext/react';
 import type { PortableTextBlock } from '@portabletext/types';
-import { urlFor } from '@/lib/sanity';
+import { urlFor, parseSanityAssetDimensions } from '@/lib/sanity';
 import { slugify } from '@/lib/slugify';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 
@@ -187,6 +187,10 @@ function makeComponents(): PortableTextComponents {
         const targetWidth = size === 'full' ? 2400 : size === 'wide' ? 1600 : 800;
         const url = urlFor(value).width(targetWidth).quality(75).format('webp').url();
         const url2x = urlFor(value).width(targetWidth * 2).quality(75).format('webp').url();
+        // Intrinsic dimensions from the Sanity asset _ref reserve the right
+        // aspect-ratio box before the file lands, eliminating the CLS hit
+        // that Lighthouse flagged on journal post detail pages.
+        const dims = parseSanityAssetDimensions(value);
         const wrapperClass =
           size === 'full'
             ? '-mx-m md:-mx-section-lg lg:-mx-[8vw] my-section-md'
@@ -198,6 +202,8 @@ function makeComponents(): PortableTextComponents {
             <img
               src={url}
               srcSet={`${url} 1x, ${url2x} 2x`}
+              width={dims?.width}
+              height={dims?.height}
               alt={value.alt ?? ''}
               loading="lazy"
               decoding="async"
@@ -259,6 +265,8 @@ function makeComponents(): PortableTextComponents {
               <div className="shrink-0 w-24 h-24 rounded-md overflow-hidden bg-card">
                 <img
                   src={urlFor(value.image).width(200).quality(75).format('webp').url()}
+                  width={96}
+                  height={96}
                   alt={value.image.alt ?? ''}
                   loading="lazy"
                   decoding="async"
@@ -334,6 +342,9 @@ function makeComponents(): PortableTextComponents {
               {images.map((img, i) => {
                 if (!img?.asset) return null;
                 const url = urlFor(img).width(900).quality(75).format('webp').url();
+                // 4:3 crop is enforced by `aspect-[4/3]` in CSS, so the
+                // width/height pair just needs to encode the SAME ratio to
+                // reserve layout space — exact pixel values don't matter.
                 return (
                   <div
                     key={img._key ?? i}
@@ -341,6 +352,8 @@ function makeComponents(): PortableTextComponents {
                   >
                     <img
                       src={url}
+                      width={800}
+                      height={600}
                       alt={img.alt ?? ''}
                       loading="lazy"
                       decoding="async"
