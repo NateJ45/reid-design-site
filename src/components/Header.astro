@@ -14,7 +14,7 @@
 // siteSettings is optional. Defaults render cleanly so the header works
 // even before Sanity content is wired up.
 
-import { Image, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
 import { Mail } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
@@ -23,12 +23,25 @@ import MobileNav from './MobileNav';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 
-// Pre-render the logo variants through Astro's image pipeline at the
-// dimensions the MobileNav drawer actually displays (h-16 = 64 px tall,
-// so 128 px wide source covers 2x retina with zero waste). The desktop
-// header uses a separate <Image> call below with its own dimensions —
-// keeping the mobile-drawer file small means the drawer doesn't pull
-// down a 378 px logo just to render at 64 px.
+// Pre-render every logo variant we'll need via Astro's image pipeline so we
+// have the hashed WebP URLs available at build time. The header displays at
+// h-[6.25rem] (≈95×100 px) with w-auto, so a 100w/200w pair covers 1×/2×
+// retina. The mobile drawer displays at h-16 (≈61×64 px), so 128w is plenty.
+// Pre-computing all four URLs means we can render ONE <img> with no src in
+// the HTML and let an inline script pick the right variant based on the
+// current theme — that's the only way to keep Lighthouse from flagging the
+// inactive logo as "image larger than displayed" (because Lighthouse
+// analyses the DOM, not the network log).
+const logoLight1x = await getImage({ src: logoLightAsset, format: 'webp', width: 100 });
+const logoLight2x = await getImage({ src: logoLightAsset, format: 'webp', width: 200 });
+const logoDark1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 100 });
+const logoDark2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 200 });
+const logoLightSrcset = `${logoLight1x.src} 1x, ${logoLight2x.src} 2x`;
+const logoDarkSrcset = `${logoDark1x.src} 1x, ${logoDark2x.src} 2x`;
+
+// Mobile drawer logos — separate getImage() calls at the smaller size the
+// drawer displays at. Their URLs are passed into MobileNav as plain
+// strings (the React island can't import assets directly).
 const logoLightWebpMobile = await getImage({ src: logoLightAsset, format: 'webp', width: 128 });
 const logoDarkWebpMobile = await getImage({ src: logoDarkAsset, format: 'webp', width: 128 });
 
@@ -186,43 +199,46 @@ function isActive(href: string) {
       aria-label={`${brandName} home`}
     >
       {/*
-        Two logo variants — Astro's <Image> auto-emits WebP and content-
-        hashes the filename. `densities={[1, 2]}` gives mobile + retina
-        coverage without bloating the srcset further (the display height
-        is fixed at 100 px; we don't need a 4-width responsive ladder).
-        Eager-loaded because the header logo is above the fold on every
-        page; the dark variant is `loading="lazy"` since most visitors
-        see the light variant first.
+        Single theme-aware logo. The img ships with NO src/srcset so the
+        browser doesn't start fetching anything; the inline script below
+        sets the right variant synchronously before paint based on the
+        current html.dark state, then re-applies on theme-toggle and
+        astro:after-swap (handled in the anti-FOUC script in BaseLayout).
+        Net result: only one logo file is ever fetched per page load, and
+        Lighthouse no longer sees a dark-variant in light-mode DOM (or
+        vice-versa).
+
+        Dimensions and aspect ratio (100×106) match the source 378:400,
+        so the browser reserves the right layout box before the file lands
+        — no CLS.
       */}
-      {/* Header logo display is h-[6.25rem] (100 px tall) with w-auto, so the
-          rendered size is ~95×100 px. width={100} height={106} matches the
-          source aspect ratio (378:400) and `densities={[1, 2]}` gives a
-          100w + 200w pair — enough for retina without serving the full
-          378×400 source like before (Lighthouse: "image larger than needed"). */}
-      <Image
-        src={logoLightAsset}
+      <img
         alt={brandName}
         width={100}
         height={106}
-        format="webp"
-        densities={[1, 2]}
-        class="block dark:hidden h-[6.25rem] w-auto"
+        class="h-[6.25rem] w-auto"
         loading="eager"
         decoding="async"
-      />
-      <Image
-        src={logoDarkAsset}
-        alt=""
-        aria-hidden="true"
-        width={100}
-        height={106}
-        format="webp"
-        densities={[1, 2]}
-        class="hidden dark:block h-[6.25rem] w-auto"
-        loading="lazy"
-        decoding="async"
+        data-theme-logo
+        data-logo-light-src={logoLight1x.src}
+        data-logo-light-srcset={logoLightSrcset}
+        data-logo-dark-src={logoDark1x.src}
+        data-logo-dark-srcset={logoDarkSrcset}
       />
     </a>
+    {/* Synchronous inline setup — runs immediately after the img element
+        is parsed, so the src is set before the browser begins any image
+        fetch. Re-applied across View Transitions navs by the anti-FOUC
+        listener in BaseLayout. */}
+    <script is:inline>
+      (function () {
+        const img = document.querySelector('header img[data-theme-logo]');
+        if (!img) return;
+        const dark = document.documentElement.classList.contains('dark');
+        img.src = dark ? img.dataset.logoDarkSrc : img.dataset.logoLightSrc;
+        img.srcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
+      })();
+    </script>
 
     {/* Nav + CTA grouped on the right (lg+ only). */}
     <div class="hidden lg:flex items-center gap-l">

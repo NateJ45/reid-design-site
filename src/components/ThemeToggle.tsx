@@ -18,6 +18,17 @@ function applyTheme(theme: Theme) {
     (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.classList.toggle('dark', dark);
   document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+  // Keep theme-aware images (header logo) in sync. The light/dark srcs are
+  // pre-rendered by Astro at build time and stored on each img as data
+  // attributes; we swap them here so toggling the theme doesn't leave a
+  // light logo on a dark background (or vice versa).
+  const imgs = document.querySelectorAll<HTMLImageElement>('img[data-theme-logo]');
+  imgs.forEach((img) => {
+    const nextSrc = dark ? img.dataset.logoDarkSrc : img.dataset.logoLightSrc;
+    const nextSrcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
+    if (nextSrc && img.src !== nextSrc) img.src = nextSrc;
+    if (nextSrcset && img.srcset !== nextSrcset) img.srcset = nextSrcset;
+  });
 }
 
 export default function ThemeToggle() {

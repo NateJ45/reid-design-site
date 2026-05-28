@@ -116,23 +116,38 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     ))}
 
     {/* Anti-FOUC theme bootstrap — must run inline before first paint.
-        Also re-applies the theme after every Astro View Transitions
-        navigation: the transition swap replaces <html>'s className with
-        the new page's (empty), so without this listener a user who set
-        dark mode would see the next page render in light. The listener
-        registers exactly once via the __themeBootstrapBound flag. */}
+        Also re-applies the theme + theme-aware images (header logo) after
+        every Astro View Transitions navigation: the transition swap
+        replaces <html>'s className with the new page's (empty), so without
+        this listener a user who set dark mode would see the next page
+        render in light. The listener registers exactly once via the
+        __themeBootstrapBound flag. */}
     <script is:inline define:vars={{ key: site.themeStorageKey }}>
       (function () {
         function applyTheme() {
+          let dark = false;
           try {
             const stored = localStorage.getItem(key) ?? 'system';
-            const dark =
+            dark =
               stored === 'dark' ||
               (stored === 'system' &&
                 window.matchMedia('(prefers-color-scheme: dark)').matches);
             document.documentElement.classList.toggle('dark', dark);
             document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
           } catch (_) { /* localStorage unavailable, default light */ }
+
+          // Theme-aware images (header logo) — swap src/srcset to match the
+          // active theme. Single-img approach means only one variant is ever
+          // fetched per page load, so Lighthouse doesn't flag the inactive
+          // variant as "image larger than displayed."
+          const imgs = document.querySelectorAll('img[data-theme-logo]');
+          for (let i = 0; i < imgs.length; i++) {
+            const img = imgs[i];
+            const nextSrc = dark ? img.dataset.logoDarkSrc : img.dataset.logoLightSrc;
+            const nextSrcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
+            if (nextSrc && img.src !== nextSrc) img.src = nextSrc;
+            if (nextSrcset && img.srcset !== nextSrcset) img.srcset = nextSrcset;
+          }
         }
         applyTheme();
         if (!window.__themeBootstrapBound) {
