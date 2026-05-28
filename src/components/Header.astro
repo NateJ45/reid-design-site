@@ -120,7 +120,12 @@ function isActive(href: string) {
             )}
           </div>
         )}
-        <ThemeToggle client:load />
+        {/* Hydrate when idle, not on load — the anti-FOUC inline script in
+            BaseLayout already applies the correct theme class before first
+            paint, so this React island only needs to be live by the time the
+            visitor moves to click it. Demoting from client:load shaves real
+            TBT off mobile Lighthouse runs. */}
+        <ThemeToggle client:idle />
       </div>
     </div>
   </div>
@@ -169,8 +174,8 @@ function isActive(href: string) {
       <img
         src={site.assets.logoLight}
         alt={brandName}
-        width={798}
-        height={844}
+        width={378}
+        height={400}
         class="block dark:hidden h-[6.25rem] w-auto"
         loading="eager"
         decoding="async"
@@ -179,8 +184,8 @@ function isActive(href: string) {
         src={site.assets.logoDark}
         alt=""
         aria-hidden="true"
-        width={798}
-        height={844}
+        width={378}
+        height={400}
         class="hidden dark:block h-[6.25rem] w-auto"
         loading="eager"
         decoding="async"

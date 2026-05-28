@@ -158,7 +158,11 @@ const schemas = [
 
     {/* ------- 3. Body ------------------------------------------------------ */}
     <div class="mx-auto max-w-3xl px-m py-section-lg">
-      <JournalPortableText client:load value={entry.body} />
+      {/* `client:visible` defers Sanity client + the journal-specific renderers
+          (inline images, before/after slider, source cards, galleries) until
+          the visitor scrolls the body into view. The article HTML is still
+          server-rendered above the fold, so reading starts immediately. */}
+      <JournalPortableText client:visible value={entry.body} />
 
       {/* Related project link (if this post walks through a specific portfolio piece).
           Centered on mobile so the cross-link reads as a deliberate "go see

@@ -133,7 +133,12 @@ const schemas = [
     <CaseStudyTOC client:idle headings={headings} />
 
     <article class="max-w-prose">
-      <PortableText client:load value={project.introStory} className="text-foreground/90" />
+      {/* `client:visible` defers the 94KB Sanity client bundle that PortableText
+          pulls in (via the urlFor import) until the visitor scrolls the
+          intro story into view. The HTML is still server-rendered by Astro,
+          so visitors see the content immediately — only the React
+          hydration is deferred. */}
+      <PortableText client:visible value={project.introStory} className="text-foreground/90" />
 
       {Array.isArray(project.beforeAfters) && project.beforeAfters.length > 0 && (
         <div class="mt-section-lg">

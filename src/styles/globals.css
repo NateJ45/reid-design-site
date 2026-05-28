@@ -6,14 +6,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Cormorant Garamond — display serif. Only 400 + 600 are actually used:
+   400 for plain headlines, 600 for emphasized headlines. The 500 weight
+   was loaded but never selected anywhere, costing ~30 KB on every page
+   for no visual change. Drop it. Variable + latin subsets are pulled in
+   automatically by @fontsource. */
 @import "@fontsource/cormorant-garamond/400.css";
-@import "@fontsource/cormorant-garamond/500.css";
 @import "@fontsource/cormorant-garamond/600.css";
 @import "@fontsource-variable/source-sans-3";
 /* Pinyon Script — calligraphic single-weight script used for ONE accent
-   word per hero (the editorial-signature flourish). Pairs warm with
-   Cormorant Garamond without becoming a marquee. Use sparingly via the
-   `font-script` utility — designed for headlines, not body copy. */
+   word per hero. Loaded after the primary fonts and with font-display:
+   swap (the @fontsource default) so it never blocks first paint. If a
+   hero has no scriptAccent, the file is fetched but doesn't render
+   anything — small price for the option. */
 @import "@fontsource/pinyon-script/400.css";
 
 @custom-variant dark (&:is(.dark *));

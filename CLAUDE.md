@@ -482,7 +482,7 @@ Audit basis: a 390×844 walk found exactly four "orphan-left" CTAs that benefit 
 
 Positioning: always `bottom-[5.5rem]` (above the BackToTop button which lives at `bottom-6`). On mobile centered via `left-1/2 -translate-x-1/2`; on `sm+` returns to right-aligned via `sm:left-auto sm:translate-x-0 sm:right-m` so it doesn't dominate the reading column on wider viewports.
 
-Labels are hardcoded per page in each `<StickyCTAChip>` call. Keep them short (under ~25 chars) — the chip has a 28rem desktop / 92vw mobile max-width and an internal `truncate` safety net.
+Labels are Sanity-editable now: `servicesPage.stickyCtaLabel` for /services, `journalPage.stickyCtaLabel` for every journal post detail page, `project.stickyCtaLabel` for each individual portfolio project. Clear the field to hide the chip on that surface. Keep labels short (under ~25 chars) — the chip has a 28rem desktop / 92vw mobile max-width and an internal `truncate` safety net.
 
 ### CtaLink `onDark` prop
 
@@ -500,7 +500,7 @@ Patterns for the moments when things go sideways or content hasn't landed yet.
 
 ### 404
 
-`src/pages/404.astro` uses BaseLayout, sets a clear "That page wandered off." headline, and gives the visitor three paths: back to Home, browse the Portfolio, or Contact. Two-column editorial layout — text on the left, a styled vignette photograph on the right (currently Staci's studio-dogs shot, asset ref hardcoded in the file). Don't link "Search" (there isn't one). Don't dump a list of random pages.
+`src/pages/404.astro` uses BaseLayout, sets a clear "That page wandered off." headline, and gives the visitor three paths: back to Home, browse the Portfolio, or Contact. Two-column editorial layout — text on the left, a styled vignette photograph on the right (currently Staci's studio-dogs shot). Don't link "Search" (there isn't one). Don't dump a list of random pages. Eyebrow + headline + body + image + the three CTA labels & hrefs are all Sanity-editable via the `notFoundPage` singleton — every field has a hardcoded fallback that matches the prior look so the page works even before the doc exists.
 
 ### Form submission failure
 
@@ -852,11 +852,11 @@ Use `<SanityImage />`'s `width` prop to drive these. Never request larger than t
 
 | Component | Directive | Why |
 |---|---|---|
-| `ThemeToggle` | `client:load` | Must flip class before user can interact |
+| `ThemeToggle` | `client:idle` | Anti-FOUC inline script in `BaseLayout` already applies the correct theme class before first paint, so the React island only needs to hydrate by the time the visitor moves to click it. Demoting from `client:load` shaves real TBT off mobile Lighthouse runs. |
 | `MobileNav` | `client:only="react"` | Radix Sheet portal can't SSR |
 | `ContactForm` | `client:visible` | Below the fold on most pages |
-| `BackToTop` | `client:load` | Listens to scroll immediately |
-| `Toaster` (Sonner) | `client:load` | Used by CopyEmailButton + ContactForm |
+| `BackToTop` | `client:idle` | Doesn't appear until the visitor scrolls 600px, so the JS doesn't need to race first paint |
+| `Toaster` (Sonner) | `client:idle` | Region only — toast calls fire from elsewhere, plenty of time for the region to mount |
 | `ProjectGallery` | `client:visible` | Always below fold |
 | `BeforeAfterSlider` | `client:visible` | Always below fold |
 | `FaqAccordion` | `client:visible` | Interactive but not critical-path |
@@ -866,9 +866,9 @@ Use `<SanityImage />`'s `width` prop to drive these. Never request larger than t
 | `CalendlyInline` | `client:visible` | Click-to-load, no widget code until tap |
 | `CaseStudyTOC` | `client:idle` | Sidebar scrollspy, not critical |
 | `CopyEmailButton` | `client:visible` | Used in footer + contact + email failsafe |
-| `PortableText` / `JournalPortableText` | `client:load` or `client:visible` | Renders body content; `client:load` on journal posts (above fold once cover image loads), `client:visible` elsewhere |
+| `PortableText` / `JournalPortableText` | `client:visible` | Defers the 94 KB Sanity client bundle (via the `urlFor` import) until the visitor scrolls the body into view. The HTML is still server-rendered, so reading starts immediately. |
 
-Default to `client:visible` or `client:idle` for anything not immediately above the fold. Astro ships less JS up front.
+Default to `client:visible` or `client:idle` for anything not immediately above the fold. Astro ships less JS up front. `client:load` is reserved for islands that genuinely must be live before first interaction — and even then, ask twice whether `client:idle` is acceptable.
 
 ### Verifying
 
@@ -976,7 +976,7 @@ The contact form posts to Web3Forms (see Deployment section for env vars). On su
 1. **Name** (required)
 2. **Email** (required) + **Phone** (optional) — side-by-side row
 3. **Where's the project?** (required) — dropdown of service-area cities + "Outside the area"
-4. **Project type** (required) — dropdown sourced from `contactPage.formProjectTypeOptions` in Sanity, falls back to `DEFAULT_PROJECT_TYPES` hardcoded in the component
+4. **Project type** (required) — dropdown sourced from `contactPage.formProjectTypeOptions` in Sanity, falls back to `DEFAULT_PROJECT_TYPES` in the component. All four other dropdowns (location, budget, timeline, source) are also Sanity-editable now via `contactPage.form{Location,Budget,Timeline,Source}Options` with the previously-hardcoded constants as fallback.
 5. **Rough budget range** (required) — dropdown of 6 brackets sized to Reid Design's actual pricing
 6. **Timeline** (required) — dropdown of 5 buckets
 7. **Tell us about the space** (required, textarea)
@@ -984,7 +984,7 @@ The contact form posts to Web3Forms (see Deployment section for env vars). On su
 
 The **email subject line** front-loads project type + location for inbox triage: `"Inquiry: Full Room Design in Carmel (Sarah Hooker)"`. Staci can sort and prioritize from her inbox without opening.
 
-**Why most dropdowns are hardcoded:** project type, budget brackets, timeline, source, location options are all stable structural enums that mirror Reid Design's actual pricing + service area. They're hardcoded in `ContactForm.tsx` so they don't drift away from the rest of the site. Only `formProjectTypeOptions` is Sanity-driven, and that's because Staci might want to refine the dropdown labels without touching code.
+**Why every dropdown stays in code as a fallback:** project type, budget brackets, timeline, source, location options are stable structural enums that mirror Reid Design's actual pricing + service area. The five `pick(override, FALLBACK)` calls at the top of `ContactForm.tsx` use the Sanity override when populated, otherwise the in-code list. That keeps the form usable even if Staci empties a field by accident, and gives her a single Studio panel to edit any dropdown if she wants to.
 
 **Form a11y:** every input has an associated `<label>`. Error `<p>` containers all carry `role="alert" aria-live="polite"`. `aria-describedby` includes both the error AND the hint when both are present. Focus moves to the first invalid field on submit. Honeypot field (`zip`) catches bots silently.
 
@@ -1292,19 +1292,20 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 - **Journal post extras** — coverImage caption, `sourcedFrom` annotation in body, related project reference.
 - **Testimonial extras** — photo, location, relatedProject reference.
 - **Hero subhead italic emphasis** — Staci can write `_word_` in any subhead and the parser renders the wrapped text in italic Cormorant. Editor-controlled, no code change needed.
-- **Contact form project-type dropdown** — `contactPage.formProjectTypeOptions`.
+- **Hero `heroRotatingWords` array on `homePage`** — the once-per-session first-word swap is now editor-driven. Set to 2+ strings to enable, clear/empty to disable.
+- **Hero `heroScriptAccent` string on every `*Page` singleton + `portfolioPage`** — the Pinyon Script accent word. Each page reads its own; defaults preserve the original feel ("reveal" on services, "Plainfield" on portfolio, "studio" on journal, "Know" on faq) only if the field is unset.
+- **`stickyCtaLabel`** — `servicesPage.stickyCtaLabel` covers /services; `journalPage.stickyCtaLabel` covers every journal post; `project.stickyCtaLabel` covers individual portfolio pages. Clearing any one hides the chip on that surface. Empty string = chip hidden; unset = falls back to the original copy.
+- **Contact form all four dropdowns** — `contactPage.form{ProjectType,Location,Budget,Timeline,Source}Options` arrays. Falls back to the hardcoded defaults in `ContactForm.tsx` when empty.
+- **Portfolio index page copy** — `portfolioPage` singleton (eyebrow, headline, subhead, hero image, scriptAccent).
+- **404 page** — `notFoundPage` singleton (eyebrow, headline, body, hero photo, the three CTA labels + hrefs). Lives next to the other page singletons in Studio.
 
 ### Hardcoded in code (intentional)
 
 These are stable design / system decisions that don't belong in editorial:
 
-- **Hero `rotatingWords` on /** — `['Lived-in', 'Considered', 'Quiet']` in `src/pages/index.astro`. The cycle words are part of the brand vocabulary; editorial drift here would weaken the home page identity.
-- **Hero `scriptAccent` word per page** — `"reveal"` / `"Plainfield"` / `"studio"` / `"Know"` in each page's Hero call. Stable per-page design decisions.
-- **StickyCTAChip labels** — `"Ready to talk it through?"` / `"Want a room like this?"` / `"Have a room in mind?"` hardcoded per page. Stable conversion-pattern copy.
-- **Contact form Location / Budget / Timeline / Source dropdowns** — hardcoded in `ContactForm.tsx`. These mirror Reid Design's actual pricing + service area + lead-source taxonomy and shouldn't drift away from the rest of the site.
 - **Process step illustrations** — inline SVG line drawings in `ProcessStepIllustration.astro`. Placeholder until / unless a real illustrator delivers final art.
-- **404 page text + photo** — hardcoded in `src/pages/404.astro`. Asset ref to a Sanity image is hardcoded.
-- **Portfolio index hero copy** — hardcoded in `src/pages/portfolio/index.astro` (no `portfolioPage` Sanity singleton exists yet). Asset ref hardcoded for the hero image.
+- **Brand colors / typography tokens** — declared in `src/styles/globals.css` `@theme` block. System-level, not editorial.
+- **Footer credit + auto-year copyright** — composed from `siteSettings.footerCredit` + the current year. Year is computed from `new Date()` at build/render time.
 
 If you ever want to flip one of these to editor-driven, the pattern is: add a field to the appropriate Sanity schema, run `npm run typegen`, update the page to consume the new field, deploy Studio.
 

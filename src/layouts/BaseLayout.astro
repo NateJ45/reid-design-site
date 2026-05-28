@@ -51,14 +51,23 @@ function ogPathForRoute(pathname: string): string {
 const resolvedOg = ogImage ?? ogPathForRoute(Astro.url.pathname);
 const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
 
-// Strip any pre-baked " — Reid Design LLC" suffix from the input so pages that
-// pass an already-branded seoTitle don't render "Foo — Reid Design LLC — Reid
-// Design LLC" (audit caught the double-brand suffix on most pages).
+// Build the document title. If the editor-supplied seoTitle already contains
+// the brand anywhere (e.g. "Reid Design LLC — Plainfield Interior Design" or
+// "About Staci · Reid Design"), use it verbatim. Otherwise append " — Reid
+// Design LLC" so the tab + search-result line carries the brand. Strips a
+// trailing " — Reid Design LLC" once before evaluating so any legacy
+// pre-baked suffix is handled. The looser brand check (matches "Reid Design"
+// not just "Reid Design LLC") catches the most common editor abbreviation
+// without producing duplicates.
 const brandSuffix = ` — ${site.name}`;
 const cleanTitle = title.endsWith(brandSuffix)
   ? title.slice(0, -brandSuffix.length)
   : title;
-const fullTitle = cleanTitle === site.name ? site.name : `${cleanTitle} — ${site.name}`;
+const brandRoot = 'Reid Design'; // base brand match for de-duplication
+const hasBrandInline = cleanTitle.toLowerCase().includes(brandRoot.toLowerCase());
+const fullTitle = cleanTitle === site.name || hasBrandInline
+  ? cleanTitle
+  : `${cleanTitle} — ${site.name}`;
 
 // Auto-inject LocalBusiness on every page when siteSettings is available.
 // Pages can still pass their own additional schemas (Service, FAQPage, BreadcrumbList).
@@ -140,21 +149,41 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 
     <Footer siteSettings={siteSettings} />
 
-    <BackToTop client:load />
+    {/*
+      Both islands were previously `client:load` which forced the JS to
+      execute before the first paint completed. Neither is interactive
+      until later in the page lifecycle (BackToTop only appears after the
+      visitor scrolls 600px; Toaster only mounts a region, the toast call
+      sites import it on demand). Hydrating with `client:idle` lets the
+      browser settle the main thread first and shifts ~10–20ms of TBT off
+      the critical path on mobile.
+    */}
+    <BackToTop client:idle />
 
     {/* Sonner toast region. Used by CopyEmailButton and ContactForm. Position bottom-right by default. */}
-    <Toaster client:load position="bottom-right" />
+    <Toaster client:idle position="bottom-right" />
 
     {/* Lenis smooth scroll. The reduced-motion guard in globals.css already
         kills smooth-scroll behavior; we also bail out here so we don't pay
-        for the Lenis runtime when the user prefers reduced motion. */}
+        for the Lenis runtime when the user prefers reduced motion.
+
+        Wrapped in requestIdleCallback so the ~10KB Lenis chunk isn't
+        fetched until the browser is genuinely idle — keeps it out of the
+        critical-path race with hero LCP. setTimeout fallback for browsers
+        without rIC support. */}
     <script>
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      function startLenis() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         import('lenis').then(({ default: Lenis }) => {
           const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
           function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
           requestAnimationFrame(raf);
         });
+      }
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(startLenis, { timeout: 2000 });
+      } else {
+        setTimeout(startLenis, 1500);
       }
     </script>
 
