@@ -22,6 +22,7 @@ import Hero from '@/components/Hero.astro';
 import JournalCard from '@/components/JournalCard.astro';
 import JournalCategoryChip from '@/components/JournalCategoryChip.astro';
 import FinalCta from '@/components/FinalCta.astro';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 const [page, entries, categories, siteSettings] = await Promise.all([
   getJournalPage().catch(() => null),
@@ -108,7 +109,24 @@ const schemas = [
     </div>
   </section>
 
-  {/* ------- 4. Final CTA ---------------------------------------------------- */}
+  {/* ------- 4. Newsletter signup — between post grid and Final CTA.
+         Renders only when newsletter is enabled and configured in siteSettings.
+         Island hydrates when scrolled into view. */}
+  {siteSettings?.newsletter?.enabled && (
+    <section class="bg-muted" aria-label="Newsletter signup">
+      <div class="mx-auto max-w-content px-m py-section-md">
+        <div class="max-w-lg mx-auto">
+          <NewsletterSignup
+            client:visible
+            newsletter={siteSettings.newsletter}
+            source="journal-index"
+          />
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* ------- 5. Final CTA ---------------------------------------------------- */}
   <FinalCta
     headline={page?.finalCtaHeadline}
     subhead={page?.finalCtaSubhead}

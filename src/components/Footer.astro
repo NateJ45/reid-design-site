@@ -24,6 +24,7 @@ import { site } from '@/data/site';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import { Mail } from 'lucide-react';
 import CopyEmailButton from '@/components/CopyEmailButton';
+import NewsletterSignup from '@/components/NewsletterSignup';
 import { getAllProjects } from '@/lib/queries';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
@@ -39,6 +40,17 @@ const footerLogoDark2x = await getImage({ src: logoDarkAsset, format: 'webp', wi
 const footerLogoLightSrcset = `${footerLogoLight1x.src} 1x, ${footerLogoLight2x.src} 2x`;
 const footerLogoDarkSrcset = `${footerLogoDark1x.src} 1x, ${footerLogoDark2x.src} 2x`;
 
+interface NewsletterConfig {
+  enabled?: boolean;
+  heading?: string;
+  blurb?: string;
+  buttonLabel?: string;
+  successMessage?: string;
+  consentNote?: string;
+  formActionUrl?: string | null;
+  audienceId?: string | null;
+}
+
 interface Props {
   siteSettings?: {
     title?: string;
@@ -49,6 +61,7 @@ interface Props {
     tagline?: string;
     footerCredit?: string;
     footerCreditUrl?: string;
+    newsletter?: NewsletterConfig | null;
   } | null;
 }
 
@@ -129,6 +142,21 @@ const latestProjects = allProjects.slice(0, 3);
       </a>
     </p>
   </div>
+
+  {/* 1b. Newsletter signup — renders only when siteSettings.newsletter.enabled is true
+         and a form-action or Web3Forms key exists. Island hydrates when scrolled into view
+         so it doesn't add JS cost for visitors who never reach the footer. */}
+  {siteSettings?.newsletter?.enabled && (
+    <div class="mx-auto max-w-content px-m pb-l">
+      <div class="max-w-md mx-auto">
+        <NewsletterSignup
+          client:visible
+          newsletter={siteSettings.newsletter}
+          source="footer"
+        />
+      </div>
+    </div>
+  )}
 
   {/* 2. Four-column links grid. */}
   <div class="border-t border-border">
