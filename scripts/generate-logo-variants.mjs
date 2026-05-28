@@ -1,11 +1,11 @@
 // Generate two transparent PNG variants of the Reid Design logo from the
-// source JPG (dark ink on white background). Outputs go to public/ and are
-// referenced from src/data/site.ts.
+// source JPG (dark ink on white background). Outputs go to src/assets/ so
+// they're picked up by Astro's <Image> pipeline (auto WebP + hashed names).
 //
-//   public/logo-light.png  — original Charcoal ink on transparent background.
-//                            For use on light surfaces (Soft Linen, white).
-//   public/logo-dark.png   — Cream ink on transparent background.
-//                            For use on the dark mode surface (Charcoal Dark).
+//   src/assets/logo-light.png  — original Charcoal ink on transparent background.
+//                                For use on light surfaces (Soft Linen, white).
+//   src/assets/logo-dark.png   — Cream ink on transparent background.
+//                                For use on the dark mode surface (Charcoal Dark).
 //
 // Strategy:
 //   1. Trim the original JPG's white border so the logo fills its bounding box.
@@ -23,7 +23,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
-const publicDir = resolve(root, 'public');
+// Logos used to live in public/ but moved to src/assets/ so Astro's <Image>
+// pipeline can emit WebP variants at build time. Anything that needs the
+// PNG bytes (this script + optimize-logo-files.mjs) reads/writes here now.
+const assetsDir = resolve(root, 'src', 'assets');
 // Source logo variant. The 09-Logos folder ships with several iterations
 // (reid-design-logo.jpg, -logo-2.jpg, etc.) — point this at whichever is the
 // current published mark. Override via CLI arg: `node generate-logo-variants.mjs reid-design-logo-3.jpg`
@@ -42,7 +45,7 @@ if (!existsSync(src)) {
   console.error('Source logo not found:', src);
   process.exit(1);
 }
-if (!existsSync(publicDir)) mkdirSync(publicDir, { recursive: true });
+if (!existsSync(assetsDir)) mkdirSync(assetsDir, { recursive: true });
 
 // Step 1: trim the white border. Returns a buffer + new dimensions.
 const trimmedBuffer = await sharp(src).trim({ threshold: 10 }).toBuffer();
@@ -78,7 +81,8 @@ async function makeVariant(inkColor, outputPath, label) {
 
 // Charcoal #3D3D3D for light-mode surfaces, Cream #F5F0EB for dark-mode surfaces.
 // These match the brand tokens declared in src/styles/globals.css.
-await makeVariant({ r: 0x3d, g: 0x3d, b: 0x3d }, resolve(publicDir, 'logo-light.png'), 'logo-light.png (Charcoal)');
-await makeVariant({ r: 0xf5, g: 0xf0, b: 0xeb }, resolve(publicDir, 'logo-dark.png'), 'logo-dark.png (Cream)');
+await makeVariant({ r: 0x3d, g: 0x3d, b: 0x3d }, resolve(assetsDir, 'logo-light.png'), 'logo-light.png (Charcoal)');
+await makeVariant({ r: 0xf5, g: 0xf0, b: 0xeb }, resolve(assetsDir, 'logo-dark.png'), 'logo-dark.png (Cream)');
 
-console.log('\nDone. Reference from src/data/site.ts → assets.logoLight / assets.logoDark.');
+console.log('\nDone. Header.astro / Footer.astro import these directly via @/assets/.');
+console.log('Then run `node scripts/optimize-logo-files.mjs` to shrink them before building.');

@@ -14,11 +14,22 @@
 // siteSettings is optional. Defaults render cleanly so the header works
 // even before Sanity content is wired up.
 
+import { Image, getImage } from 'astro:assets';
 import { site } from '@/data/site';
 import { Mail } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
+import logoLightAsset from '@/assets/logo-light.png';
+import logoDarkAsset from '@/assets/logo-dark.png';
+
+// Pre-render the logo variants through Astro's image pipeline once, then
+// reuse the resulting WebP URLs in both the desktop <Image> tags and the
+// MobileNav drawer. getImage() returns the same hashed/optimized file the
+// <Image> component would emit, which means there's only one WebP per
+// logo on disk no matter how many times it's referenced.
+const logoLightWebp = await getImage({ src: logoLightAsset, format: 'webp', width: 378 });
+const logoDarkWebp = await getImage({ src: logoDarkAsset, format: 'webp', width: 378 });
 
 interface Props {
   siteSettings?: {
@@ -170,24 +181,36 @@ function isActive(href: string) {
       class="inline-flex items-center hover:opacity-80 transition-opacity"
       aria-label={`${brandName} home`}
     >
-      {/* Two logo variants. dark: modifier swaps them off the .dark class. */}
-      <img
-        src={site.assets.logoLight}
+      {/*
+        Two logo variants — Astro's <Image> auto-emits WebP and content-
+        hashes the filename. `densities={[1, 2]}` gives mobile + retina
+        coverage without bloating the srcset further (the display height
+        is fixed at 100 px; we don't need a 4-width responsive ladder).
+        Eager-loaded because the header logo is above the fold on every
+        page; the dark variant is `loading="lazy"` since most visitors
+        see the light variant first.
+      */}
+      <Image
+        src={logoLightAsset}
         alt={brandName}
         width={378}
         height={400}
+        format="webp"
+        densities={[1, 2]}
         class="block dark:hidden h-[6.25rem] w-auto"
         loading="eager"
         decoding="async"
       />
-      <img
-        src={site.assets.logoDark}
+      <Image
+        src={logoDarkAsset}
         alt=""
         aria-hidden="true"
         width={378}
         height={400}
+        format="webp"
+        densities={[1, 2]}
         class="hidden dark:block h-[6.25rem] w-auto"
-        loading="eager"
+        loading="lazy"
         decoding="async"
       />
     </a>
@@ -224,6 +247,12 @@ function isActive(href: string) {
       </a>
     </div>
 
-    <MobileNav client:only="react" links={NAV_LINKS} siteSettings={mobileNavSettings} />
+    <MobileNav
+      client:only="react"
+      links={NAV_LINKS}
+      siteSettings={mobileNavSettings}
+      logoLightUrl={logoLightWebp.src}
+      logoDarkUrl={logoDarkWebp.src}
+    />
   </div>
 </header>

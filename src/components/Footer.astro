@@ -19,11 +19,14 @@
 // Latest projects pull from Sanity. Gracefully degrades to a "see portfolio"
 // message when nothing is published yet.
 
+import { Image } from 'astro:assets';
 import { site } from '@/data/site';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import { Mail } from 'lucide-react';
 import CopyEmailButton from '@/components/CopyEmailButton';
 import { getAllProjects } from '@/lib/queries';
+import logoLightAsset from '@/assets/logo-light.png';
+import logoDarkAsset from '@/assets/logo-dark.png';
 
 interface Props {
   siteSettings?: {
@@ -74,21 +77,28 @@ const latestProjects = allProjects.slice(0, 3);
       aria-label={`${brandName} home`}
       class="inline-block hover:opacity-80 transition-opacity"
     >
-      <img
-        src={site.assets.logoLight}
+      {/* Footer logo is below the fold on every page — lazy + WebP via
+          Astro's <Image>. Same asset hash as the header logo so the
+          browser cache hit is automatic on the second use. */}
+      <Image
+        src={logoLightAsset}
         alt={brandName}
         width={378}
         height={400}
+        format="webp"
+        densities={[1, 2]}
         class="block dark:hidden mx-auto h-24 w-auto"
         loading="lazy"
         decoding="async"
       />
-      <img
-        src={site.assets.logoDark}
+      <Image
+        src={logoDarkAsset}
         alt=""
         aria-hidden="true"
         width={378}
         height={400}
+        format="webp"
+        densities={[1, 2]}
         class="hidden dark:block mx-auto h-24 w-auto"
         loading="lazy"
         decoding="async"

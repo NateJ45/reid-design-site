@@ -28,7 +28,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import ThemeToggle from './ThemeToggle';
-import { site } from '@/data/site';
 
 interface NavLink {
   label: string;
@@ -45,9 +44,19 @@ interface MobileNavSiteSettings {
 interface Props {
   links: NavLink[];
   siteSettings?: MobileNavSiteSettings | null;
+  /**
+   * Optimized logo URLs pre-rendered by Astro's getImage() in the parent
+   * Header.astro. We can't import the asset directly in a React component
+   * because client:only skips SSR entirely — so the parent does the work
+   * once at build time and passes the resulting WebP URLs in as strings.
+   * Both logos share the same on-disk WebP file as the header's <Image>,
+   * so this is effectively cache-free.
+   */
+  logoLightUrl?: string;
+  logoDarkUrl?: string;
 }
 
-export default function MobileNav({ links, siteSettings }: Props) {
+export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkUrl }: Props) {
   const [open, setOpen] = useState(false);
 
   const tagline =
@@ -159,28 +168,35 @@ export default function MobileNav({ links, siteSettings }: Props) {
             </div>
           </div>
 
-          {/* Logo at the bottom — brand-anchored close to the sheet's foot. */}
-          <div className="border-t border-border-soft px-l py-l flex justify-center">
-            <img
-              src={site.assets.logoLight}
-              alt="Reid Design"
-              width={378}
-              height={400}
-              className="block dark:hidden h-16 w-auto"
-              loading="lazy"
-              decoding="async"
-            />
-            <img
-              src={site.assets.logoDark}
-              alt=""
-              aria-hidden="true"
-              width={378}
-              height={400}
-              className="hidden dark:block h-16 w-auto"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
+          {/* Logo at the bottom — brand-anchored close to the sheet's foot.
+              URLs come from Astro's image pipeline via Header.astro's
+              getImage() calls, so this is a WebP file with the same hash
+              as the desktop header logo (free cache hit). */}
+          {logoLightUrl && (
+            <div className="border-t border-border-soft px-l py-l flex justify-center">
+              <img
+                src={logoLightUrl}
+                alt="Reid Design"
+                width={378}
+                height={400}
+                className="block dark:hidden h-16 w-auto"
+                loading="lazy"
+                decoding="async"
+              />
+              {logoDarkUrl && (
+                <img
+                  src={logoDarkUrl}
+                  alt=""
+                  aria-hidden="true"
+                  width={378}
+                  height={400}
+                  className="hidden dark:block h-16 w-auto"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </div>

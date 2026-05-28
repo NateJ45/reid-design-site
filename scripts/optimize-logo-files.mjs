@@ -18,12 +18,15 @@ import { statSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
-const publicDir = resolve(root, 'public');
+// Logos live in src/assets/ since Astro's <Image> pipeline needs them
+// outside public/ to optimize them. This script shrinks the source PNGs;
+// Astro then emits WebP variants from these at build time.
+const assetsDir = resolve(root, 'src', 'assets');
 
 const TARGET_HEIGHT = 400;
 
 async function shrinkLogo(filename) {
-  const file = resolve(publicDir, filename);
+  const file = resolve(assetsDir, filename);
   const before = statSync(file).size;
 
   // Read into a buffer first so we can write back to the same path.
