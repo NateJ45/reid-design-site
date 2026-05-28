@@ -21,4 +21,31 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  // Auto-generate a Content Security Policy from the build. Astro emits
+  // SHA-256 hashes for every inline script + style so we satisfy Lighthouse's
+  // csp-xss audit without using 'unsafe-inline' (which fails it). External
+  // origins listed here cover everything the site actually loads — Sanity
+  // CDN for images, Calendly iframe, Web3Forms POST, Cloudflare Insights
+  // beacon. Astro writes the resulting CSP to <meta http-equiv> on every
+  // built page.
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' data: https://cdn.sanity.io",
+        "font-src 'self' data:",
+        "connect-src 'self' https://api.web3forms.com https://cdn.sanity.io https://static.cloudflareinsights.com",
+        "frame-src 'self' https://calendly.com https://*.calendly.com",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self' https://api.web3forms.com",
+      ],
+      scriptDirective: {
+        resources: ["'self'", 'https://static.cloudflareinsights.com'],
+      },
+      styleDirective: {
+        resources: ["'self'"],
+      },
+    },
+  },
 });

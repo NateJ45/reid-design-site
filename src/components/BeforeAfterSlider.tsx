@@ -104,6 +104,7 @@ export default function BeforeAfterSlider({
             alt={beforeImage.alt ?? 'Before'}
             className="absolute inset-0 w-full h-full object-cover"
             draggable={false}
+            crossOrigin="anonymous"
           />
 
           {/* After image — clipped to pos% from the left */}
@@ -117,6 +118,7 @@ export default function BeforeAfterSlider({
               alt={afterImage.alt ?? 'After'}
               className="absolute inset-0 w-full h-full object-cover"
               draggable={false}
+              crossOrigin="anonymous"
             />
           </div>
 
