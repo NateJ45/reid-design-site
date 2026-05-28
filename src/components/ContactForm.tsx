@@ -31,12 +31,28 @@ const ACCESS_KEY = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
 
 const DEFAULT_PROJECT_TYPES = [
   'In-Home Consultation',
+  'E-Design',
   'Full Room Design',
   'Full Room Design + Styling',
   'Shopping & Sourcing',
   'Builder or Realtor Partnership',
+  'Gift Certificate',
   "Not sure yet — let's chat",
 ] as const;
+
+// Map ?type= URL param values to dropdown option labels.
+// Defensive: unrecognised values produce undefined, which leaves the default blank.
+const TYPE_PARAM_MAP: Record<string, string> = {
+  'consultation': 'In-Home Consultation',
+  'e-design':     'E-Design',
+  'full-room':    'Full Room Design',
+  'styling':      'Full Room Design + Styling',
+  'shopping':     'Shopping & Sourcing',
+  'builder-realtor': 'Builder or Realtor Partnership',
+  'gift-certificate': 'Gift Certificate',
+  // quiz: map to the catch-all so the user sees a reasonable default
+  'quiz':         "Not sure yet — let's chat",
+};
 
 // Service-area cities, ordered Plainfield-first per brand positioning. "Other"
 // catches anyone outside the standard area — Staci can decide whether to travel.
@@ -153,17 +169,46 @@ export default function ContactForm({
   const formRef = useRef<HTMLFormElement | null>(null);
   const restoredOnce = useRef(false);
 
-  // Restore draft on mount.
+  // Restore draft on mount, then apply ?type= URL param if present.
+  // URL param wins over saved draft for the projectType field on first load
+  // only — this is the "preselect" behaviour for CTAs on /e-design,
+  // /gift-certificates, etc. Other draft fields are still restored normally.
   useEffect(() => {
     if (restoredOnce.current) return;
     restoredOnce.current = true;
+
+    // Read the ?type= query param before touching localStorage.
+    let preselectedType = '';
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const typeParam = params.get('type') ?? '';
+      preselectedType = TYPE_PARAM_MAP[typeParam] ?? '';
+      // Only accept the preselected value if the option actually exists in the
+      // current projectTypeOptions list (respects Sanity overrides).
+      if (preselectedType && !projectTypeOptions.includes(preselectedType)) {
+        preselectedType = '';
+      }
+    } catch { /* ignore — SSR / non-browser environment */ }
+
+    // Restore saved draft, then override projectType if the URL param matched.
     try {
       const stored = localStorage.getItem(DRAFT_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        setDraft({ ...EMPTY, ...parsed });
+        setDraft({
+          ...EMPTY,
+          ...parsed,
+          // URL param always wins for projectType on first load.
+          ...(preselectedType ? { projectType: preselectedType } : {}),
+        });
+      } else if (preselectedType) {
+        setDraft((d) => ({ ...d, projectType: preselectedType }));
       }
-    } catch { /* ignore */ }
+    } catch {
+      if (preselectedType) {
+        setDraft((d) => ({ ...d, projectType: preselectedType }));
+      }
+    }
   }, []);
 
   // Persist on every change, debounced lightly via the natural re-render cadence.
