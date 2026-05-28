@@ -15,6 +15,97 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
+export type ShopCollectionReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "shopCollection";
+};
+
+export type ShopItem = {
+  _id: string;
+  _type: "shopItem";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  vendor?: string;
+  affiliateUrl?: string;
+  note?: string;
+  collection?: ShopCollectionReference;
+  orderRank?: string;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
+export type ShopCollection = {
+  _id: string;
+  _type: "shopCollection";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  blurb?: string;
+  orderRank?: string;
+};
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
+export type PressItem = {
+  _id: string;
+  _type: "pressItem";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  outlet?: string;
+  logo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  quote?: string;
+  url?: string;
+  date?: string;
+  orderRank?: string;
+};
+
 export type JournalCategory = {
   _id: string;
   _type: "journalCategory";
@@ -24,12 +115,6 @@ export type JournalCategory = {
   title?: string;
   slug?: Slug;
   description?: string;
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
 };
 
 export type ServiceReference = {
@@ -71,70 +156,6 @@ export type ProcessStep = {
     } & ServiceReference
   >;
   orderRank?: string;
-};
-
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-};
-
-export type Service = {
-  _id: string;
-  _type: "service";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  slug?: Slug;
-  price?: string;
-  priceNumeric?: number;
-  shortDescription?: string;
-  features?: Array<string>;
-  bestFor?: string;
-  featuredImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-  };
-  longDescription?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
-    markDefs?: null;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
-  displayOrder?: number;
-  showOnHomepage?: boolean;
-  ctaLabel?: string;
-  orderRank?: string;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
 };
 
 export type PhilosophyPoint = {
@@ -183,6 +204,556 @@ export type FaqItem = {
     | "Getting Started";
   displayOrder?: number;
   alsoShowOnProcessPage?: boolean;
+};
+
+export type BudgetCalculator = {
+  _id: string;
+  _type: "budgetCalculator";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  introEyebrow?: string;
+  introHeadline?: string;
+  introSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  rooms?: Array<{
+    label?: string;
+    baseLow?: number;
+    baseHigh?: number;
+    _type: "room";
+    _key: string;
+  }>;
+  scopeOptions?: Array<{
+    label?: string;
+    addLow?: number;
+    addHigh?: number;
+    _type: "scopeOption";
+    _key: string;
+  }>;
+  addOns?: Array<{
+    label?: string;
+    low?: number;
+    high?: number;
+    _type: "addOn";
+    _key: string;
+  }>;
+  resultCopy?: string;
+  disclaimer?: string;
+  ctaLabel?: string;
+  consultPriceNote?: string;
+};
+
+export type LeadMagnetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "leadMagnet";
+};
+
+export type StyleQuiz = {
+  _id: string;
+  _type: "styleQuiz";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  introEyebrow?: string;
+  introHeadline?: string;
+  introSubhead?: string;
+  introImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  questions?: Array<{
+    prompt?: string;
+    helpText?: string;
+    answers?: Array<{
+      label?: string;
+      image?: {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+      };
+      archetypeWeights?: Array<{
+        archetypeSlug?: string;
+        weight?: number;
+        _type: "archetypeWeight";
+        _key: string;
+      }>;
+      _type: "quizAnswer";
+      _key: string;
+    }>;
+    _type: "quizQuestion";
+    _key: string;
+  }>;
+  qualifiers?: Array<{
+    prompt?: string;
+    type?: "budget" | "timeline" | "room";
+    options?: Array<{
+      label?: string;
+      value?: string;
+      _type: "qualifierOption";
+      _key: string;
+    }>;
+    _type: "qualifier";
+    _key: string;
+  }>;
+  archetypes?: Array<{
+    name?: string;
+    slug?: Slug;
+    description?: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal";
+      listItem?: "bullet" | "number";
+      markDefs?: null;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }>;
+    images?: Array<{
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+      _key: string;
+    }>;
+    recommendedServiceRef?: ServiceReference;
+    resultCtaLabel?: string;
+    _type: "archetype";
+    _key: string;
+  }>;
+  gate?: {
+    mode?: "optional" | "required-for-bonus" | "required";
+    heading?: string;
+    blurb?: string;
+    consentNote?: string;
+    espTag?: string;
+  };
+  routing?: {
+    highIntentRule?: string;
+    bookCtaLabel?: string;
+    guideCtaLabel?: string;
+    guideRef?: LeadMagnetReference;
+  };
+};
+
+export type SanityFileAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+};
+
+export type LeadMagnet = {
+  _id: string;
+  _type: "leadMagnet";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  summary?: string;
+  coverImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  file?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: "file";
+  };
+  gateHeading?: string;
+  gateBlurb?: string;
+  buttonLabel?: string;
+  successMessage?: string;
+  espTag?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  published?: boolean;
+  orderRank?: string;
+};
+
+export type Service = {
+  _id: string;
+  _type: "service";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  price?: string;
+  priceNumeric?: number;
+  shortDescription?: string;
+  features?: Array<string>;
+  bestFor?: string;
+  featuredImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  longDescription?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: null;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  displayOrder?: number;
+  showOnHomepage?: boolean;
+  ctaLabel?: string;
+  orderRank?: string;
+};
+
+export type PressPage = {
+  _id: string;
+  _type: "pressPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  intro?: string;
+};
+
+export type PrivacyPage = {
+  _id: string;
+  _type: "privacyPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  lastUpdated?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      openInNewTab?: boolean;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+};
+
+export type ResourcesPage = {
+  _id: string;
+  _type: "resourcesPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  intro?: string;
+  cards?: Array<{
+    title?: string;
+    blurb?: string;
+    icon?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+    };
+    link?: string;
+    _type: "resourceCard";
+    _key: string;
+  }>;
+};
+
+export type GiftPage = {
+  _id: string;
+  _type: "giftPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  intro?: string;
+  options?: Array<{
+    label?: string;
+    amount?: string;
+    blurb?: string;
+    _type: "giftOption";
+    _key: string;
+  }>;
+  howItWorks?: Array<{
+    stepNumber?: number;
+    title?: string;
+    body?: string;
+    _type: "giftStep";
+    _key: string;
+  }>;
+  finePrint?: string;
+  ctaLabel?: string;
+};
+
+export type ShopPage = {
+  _id: string;
+  _type: "shopPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  enabled?: boolean;
+  intro?: string;
+  disclosure?: string;
+  collections?: Array<
+    {
+      _key: string;
+    } & ShopCollectionReference
+  >;
+};
+
+export type FaqItemReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "faqItem";
+};
+
+export type EDesignPage = {
+  _id: string;
+  _type: "eDesignPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+  intro?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: null;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  howItWorks?: Array<{
+    stepNumber?: number;
+    title?: string;
+    body?: string;
+    _type: "howItWorksStep";
+    _key: string;
+  }>;
+  whatsIncluded?: Array<string>;
+  tiers?: Array<{
+    name?: string;
+    price?: string;
+    priceNumeric?: number;
+    features?: Array<string>;
+    bestFor?: string;
+    ctaLabel?: string;
+    _type: "eDesignTier";
+    _key: string;
+  }>;
+  faqRefs?: Array<
+    {
+      _key: string;
+    } & FaqItemReference
+  >;
+  finalCtaEyebrow?: string;
+  finalCtaHeadline?: string;
+  finalCtaSubhead?: string;
+  finalCta?: CtaBlock;
+};
+
+export type HomePageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "homePage";
+};
+
+export type AboutPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "aboutPage";
+};
+
+export type ProcessPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "processPage";
+};
+
+export type ServicesPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "servicesPage";
+};
+
+export type FaqPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "faqPage";
+};
+
+export type ContactPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "contactPage";
+};
+
+export type JournalPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "journalPage";
+};
+
+export type JournalEntryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "journalEntry";
+};
+
+export type CtaBlock = {
+  _type: "ctaBlock";
+  label?: string;
+  linkType?: "internal" | "external" | "email" | "phone";
+  internalLink?:
+    | HomePageReference
+    | AboutPageReference
+    | ProcessPageReference
+    | ServicesPageReference
+    | FaqPageReference
+    | ContactPageReference
+    | JournalPageReference
+    | JournalEntryReference;
+  externalUrl?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  openInNewTab?: boolean;
 };
 
 export type NotFoundPage = {
@@ -271,81 +842,6 @@ export type SiteSettings = {
   googleBusinessUrl?: string;
   reviewsNote?: string;
   satisfactionGuarantee?: string;
-};
-
-export type HomePageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "homePage";
-};
-
-export type AboutPageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "aboutPage";
-};
-
-export type ProcessPageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "processPage";
-};
-
-export type ServicesPageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "servicesPage";
-};
-
-export type FaqPageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "faqPage";
-};
-
-export type ContactPageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "contactPage";
-};
-
-export type JournalPageReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "journalPage";
-};
-
-export type JournalEntryReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "journalEntry";
-};
-
-export type CtaBlock = {
-  _type: "ctaBlock";
-  label?: string;
-  linkType?: "internal" | "external" | "email" | "phone";
-  internalLink?:
-    | HomePageReference
-    | AboutPageReference
-    | ProcessPageReference
-    | ServicesPageReference
-    | FaqPageReference
-    | ContactPageReference
-    | JournalPageReference
-    | JournalEntryReference;
-  externalUrl?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  openInNewTab?: boolean;
 };
 
 export type JournalCategoryReference = {
@@ -1133,19 +1629,32 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
-  | JournalCategory
-  | Slug
-  | ServiceReference
-  | ProcessStep
   | SanityImageAssetReference
-  | Service
+  | ShopCollectionReference
+  | ShopItem
   | SanityImageCrop
   | SanityImageHotspot
+  | ShopCollection
+  | Slug
+  | PressItem
+  | JournalCategory
+  | ServiceReference
+  | ProcessStep
   | PhilosophyPoint
   | FaqItem
-  | NotFoundPage
-  | PortfolioPage
-  | SiteSettings
+  | BudgetCalculator
+  | LeadMagnetReference
+  | StyleQuiz
+  | SanityFileAssetReference
+  | LeadMagnet
+  | Service
+  | PressPage
+  | PrivacyPage
+  | ResourcesPage
+  | GiftPage
+  | ShopPage
+  | FaqItemReference
+  | EDesignPage
   | HomePageReference
   | AboutPageReference
   | ProcessPageReference
@@ -1155,6 +1664,9 @@ export type AllSanitySchemaTypes =
   | JournalPageReference
   | JournalEntryReference
   | CtaBlock
+  | NotFoundPage
+  | PortfolioPage
+  | SiteSettings
   | JournalCategoryReference
   | ProjectReference
   | JournalEntry
