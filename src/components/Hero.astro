@@ -137,19 +137,22 @@ const wrapperHeight =
         if (!Array.isArray(words) || words.length < 2) return;
 
         const original = words[0];
-        let idx = 1;
         const intervalMs = 850;
-        const totalCycles = words.length + 1; // cycle through alternates, end on original
+        // words.length ticks lands us on the original at the final cycle
+        // because words[length % length] === words[0] === original. The
+        // earlier `length + 1` produced one redundant tick that flashed the
+        // original word twice in a row at the end of the sequence.
+        const totalCycles = words.length;
         let count = 0;
 
         const id = setInterval(() => {
           count += 1;
+          const target = count >= totalCycles ? original : words[count % words.length];
           el.style.transition = 'opacity 200ms ease-out';
           el.style.opacity = '0';
           setTimeout(() => {
-            el.textContent = count >= totalCycles ? original : words[idx % words.length];
+            el.textContent = target;
             el.style.opacity = '1';
-            idx += 1;
           }, 200);
 
           if (count >= totalCycles) {
