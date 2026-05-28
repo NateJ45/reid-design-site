@@ -830,10 +830,12 @@ export type HomePage = {
   featuredJournalCta?: CtaBlock;
   processPreviewEyebrow?: string;
   processPreviewHeadline?: string;
+  processPreviewSubhead?: string;
   processPreviewCta?: CtaBlock;
   featuredTestimonial?: TestimonialReference;
   testimonialsEyebrow?: string;
   testimonialsHeadline?: string;
+  testimonialsSubhead?: string;
   testimonialsToShow?: Array<
     {
       _key: string;

@@ -67,9 +67,11 @@ export async function getHomePage() {
     featuredJournalCta${CTA_PROJECTION},
     processPreviewEyebrow,
     processPreviewHeadline,
+    processPreviewSubhead,
     processPreviewCta${CTA_PROJECTION},
     testimonialsEyebrow,
     testimonialsHeadline,
+    testimonialsSubhead,
     testimonialsAttribution,
     "featuredTestimonial": featuredTestimonial->{
       ...,

@@ -1,20 +1,26 @@
 ---
 // Safe to edit by hand for copy + structure changes.
-// Home page. Renders the 9 sections in this order:
+// Home page. Section order is conversion-tuned (see the 2026-05 reorder):
+// visual proof and social proof come early, price transparency mid-funnel,
+// the long-read journal sits late for visitors in research mode.
 //   1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
 //   2. Meet Staci (photo, intro copy, CTA to About)
-//   3. Featured Work (hero project + 3 companion cards, pulled from Sanity)
-//   4. Featured Journal (hero entry + 3 companion cards, pulled from Sanity)
+//   3. Featured Work (hero project + companions — visual proof, the hook)
+//   4. Kind Words (1 featured testimonial + grid — social proof, early)
 //   5. How It Works (4-step process preview, CTA to Process)
-//   6. Kind Words (1 featured testimonial + grid)
-//   7. How Reid Design Can Help (services grid)
+//   6. How Reid Design Can Help (services grid + pricing)
+//   7. Featured Journal (hero entry + companions — depth for considerers)
 //   8. Service area cue line
 //   9. Final CTA (full-bleed)
 //
-// Sections 3 + 4 auto-populate from the Project + JournalEntry collections,
-// ordered featured-first then by publish date. Staci pins a piece via the
-// `featured` boolean on the doc; otherwise the section just shows the latest
-// 4. Both sections suppress entirely when there's no content yet.
+// Featured Work (3) + Featured Journal (7) auto-populate from the Project +
+// JournalEntry collections, ordered featured-first then by publish date.
+// Staci pins a piece via the `featured` boolean on the doc; otherwise the
+// section shows the latest 4. Both suppress entirely when there's no content.
+//
+// Background cadence alternates background / muted down the page so adjacent
+// sections never share a surface (the one muted/muted seam — Featured Journal
+// into the Service-area cue — is bridged by the bronze SectionDivider).
 //
 // Everything inside each section is editable in Sanity via the homePage singleton plus the
 // service / testimonial / processStep / project / journalEntry collections.
@@ -65,9 +71,13 @@ const meetStaciContent  = page?.meetStaciContent  ?? null;
 
 const processPreviewEyebrow  = page?.processPreviewEyebrow  ?? 'How It Works.';
 const processPreviewHeadline = page?.processPreviewHeadline ?? 'A clear path from first conversation to final reveal.';
+const processPreviewSubhead  = page?.processPreviewSubhead  ??
+  'No guesswork and no pressure. From our first conversation to the day everything comes together, you will always know exactly where things stand and what happens next.';
 
 const testimonialsEyebrow      = page?.testimonialsEyebrow      ?? 'Kind Words.';
 const testimonialsHeadline     = page?.testimonialsHeadline     ?? 'Words from real homes.';
+const testimonialsSubhead      = page?.testimonialsSubhead      ??
+  'The part that matters most: how it felt to work together, and how each space holds up to everyday life long after the last pillow is placed.';
 const testimonialsAttribution  = page?.testimonialsAttribution;
 
 const servicesGridEyebrow   = page?.servicesGridEyebrow   ?? 'Reid Design.';
@@ -168,10 +178,10 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
     </div>
   </section>
 
-  {/* ------- 3. Featured Work ----------------------------------------------- */}
+  {/* ------- 3. Featured Work (visual proof, the hook) ---------------------- */}
   {/* Auto-populated by query: 1 hero + up to 3 companion cards, ordered
       featured-then-newest. Section is render-suppressed when there are no
-      projects yet. Editor controls headline + eyebrow + CTA via homePage. */}
+      projects yet. surface-warm bg-muted. Editor controls copy via homePage. */}
   <FeaturedWork
     projects={featuredProjects}
     eyebrow={featuredWorkEyebrow}
@@ -180,50 +190,7 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
     cta={page?.featuredWorkCta}
   />
 
-  {/* ------- 4. Featured Journal -------------------------------------------- */}
-  {/* Mirrors Featured Work — paired editorial rhythm. */}
-  <FeaturedJournal
-    entries={featuredJournalEntries}
-    eyebrow={featuredJournalEyebrow}
-    headline={featuredJournalHeadline}
-    subhead={featuredJournalSubhead}
-    cta={page?.featuredJournalCta}
-  />
-
-  {/* ------- 5. How It Works (process preview) ------------------------------- */}
-  <section
-    class="bg-muted"
-    aria-labelledby="process-preview-heading"
-  >
-    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
-      <SectionHeading
-        eyebrow={processPreviewEyebrow}
-        headline={processPreviewHeadline}
-        headingId="process-preview-heading"
-        align="center"
-        class="mx-auto"
-      />
-
-      {processSteps.length > 0 && (
-        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 gap-section-md">
-          {processSteps.slice(0, 4).map((step: any) => (
-            <ProcessStep step={step} variant="preview" />
-          ))}
-        </div>
-      )}
-
-      <div class="mt-section-lg flex justify-center">
-        <CtaLink
-          cta={page?.processPreviewCta}
-          variant="secondary"
-          fallbackHref="/process"
-          fallbackLabel="See the Full Process"
-        />
-      </div>
-    </div>
-  </section>
-
-  {/* ------- 6. Kind Words --------------------------------------------------- */}
+  {/* ------- 4. Kind Words (social proof, early) ---------------------------- */}
   {(featuredQuote || gridQuotes.length > 0) && (
     <section
       class="surface-warm bg-background"
@@ -233,6 +200,7 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
         <SectionHeading
           eyebrow={testimonialsEyebrow}
           headline={testimonialsHeadline}
+          subhead={testimonialsSubhead}
           headingId="testimonials-heading"
           align="center"
           class="mx-auto"
@@ -259,9 +227,45 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
     </section>
   )}
 
-  {/* ------- 7. How Reid Design Can Help (services grid) -------------------- */}
+  {/* ------- 5. How It Works (process preview) ------------------------------- */}
   <section
-    class="surface-warm bg-muted"
+    class="bg-muted"
+    aria-labelledby="process-preview-heading"
+  >
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
+      <SectionHeading
+        eyebrow={processPreviewEyebrow}
+        headline={processPreviewHeadline}
+        subhead={processPreviewSubhead}
+        headingId="process-preview-heading"
+        align="center"
+        class="mx-auto"
+      />
+
+      {processSteps.length > 0 && (
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 gap-section-md">
+          {processSteps.slice(0, 4).map((step: any) => (
+            <ProcessStep step={step} variant="preview" />
+          ))}
+        </div>
+      )}
+
+      <div class="mt-section-lg flex justify-center">
+        <CtaLink
+          cta={page?.processPreviewCta}
+          variant="secondary"
+          fallbackHref="/process"
+          fallbackLabel="See the Full Process"
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ------- 6. How Reid Design Can Help (services grid + pricing) ---------- */}
+  {/* bg-background (not muted) so the cadence alternates cleanly now that
+      Kind Words moved above How It Works. */}
+  <section
+    class="surface-warm bg-background"
     aria-labelledby="services-heading"
   >
     <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
@@ -299,7 +303,19 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
     </div>
   </section>
 
-  {/* Bronze ornament between the services grid and the service-area cue.
+  {/* ------- 7. Featured Journal (depth for considerers) -------------------- */}
+  {/* Moved late in the funnel: the long-read journal speaks to visitors in
+      research mode, after Work + testimonials + services have warmed them.
+      surface-warm bg-muted (set in the component). */}
+  <FeaturedJournal
+    entries={featuredJournalEntries}
+    eyebrow={featuredJournalEyebrow}
+    headline={featuredJournalHeadline}
+    subhead={featuredJournalSubhead}
+    cta={page?.featuredJournalCta}
+  />
+
+  {/* Bronze ornament between Featured Journal and the service-area cue.
       Both sit on muted-toned backgrounds, so the alternating color cadence
       isn't doing the work — this is the case the ornament was built for. */}
   <div class="bg-muted">

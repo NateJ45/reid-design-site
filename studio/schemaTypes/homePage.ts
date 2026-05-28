@@ -176,6 +176,17 @@ export const homePage = defineType({
     // Process preview
     defineField({ name: 'processPreviewEyebrow', title: 'Eyebrow', type: 'string', group: 'process', initialValue: 'How It Works.' }),
     defineField({ name: 'processPreviewHeadline', title: 'Headline', type: 'string', group: 'process' }),
+    defineField({
+      name: 'processPreviewSubhead',
+      title: 'Subhead',
+      type: 'text',
+      rows: 2,
+      group: 'process',
+      description:
+        'Reassuring line under the headline. Lower the friction of reaching out — emphasize clarity, no pressure, knowing what comes next.',
+      initialValue:
+        'No guesswork and no pressure. From our first conversation to the day everything comes together, you will always know exactly where things stand and what happens next.',
+    }),
     defineField({ name: 'processPreviewCta', title: 'Link to full Process page', type: 'ctaBlock', group: 'process' }),
 
     // Testimonials
@@ -189,6 +200,17 @@ export const homePage = defineType({
     }),
     defineField({ name: 'testimonialsEyebrow', title: 'Eyebrow', type: 'string', group: 'testimonials', initialValue: 'Kind Words.' }),
     defineField({ name: 'testimonialsHeadline', title: 'Headline', type: 'string', group: 'testimonials', initialValue: 'Words from real homes.' }),
+    defineField({
+      name: 'testimonialsSubhead',
+      title: 'Subhead',
+      type: 'text',
+      rows: 2,
+      group: 'testimonials',
+      description:
+        'Warm line under the headline that frames the testimonials below. Focus on what clients value — how it felt to work together, how the space lives day to day.',
+      initialValue:
+        'The part that matters most: how it felt to work together, and how each space holds up to everyday life long after the last pillow is placed.',
+    }),
     defineField({
       name: 'testimonialsToShow',
       title: 'Testimonials in grid (in order)',
