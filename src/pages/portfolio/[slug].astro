@@ -105,13 +105,22 @@ const schemas = [
   </section>
 
   {project.heroImage?.asset && (
-    <section class="mx-auto max-w-content px-m" aria-label="Project hero image">
+    /*
+      Hero image sized to read like an editorial feature, not a billboard.
+      max-w-4xl (56rem ≈ 896 px) keeps the photo as the visual focal point
+      of the page without dominating it on wide desktops — matches the
+      reference editorial sites (theologymatters.com etc.) and pairs well
+      with the slightly-narrower body column that follows. The requested
+      Sanity width caps at 1800 so we're not asking the CDN for a 1920 px
+      file for an ~900 px slot even on 2× retina.
+    */
+    <section class="mx-auto max-w-4xl px-m" aria-label="Project hero image">
       <figure>
         <SanityImage
           source={project.heroImage}
-          width={1920}
+          width={1800}
           loading="eager"
-          sizes="(min-width: 1320px) 1280px, 100vw"
+          sizes="(min-width: 920px) 896px, 100vw"
           class="w-full h-auto rounded-md"
         />
         {project.heroImage.caption && (
