@@ -461,6 +461,34 @@
   }
 }
 
+/* Hero entry animation — staggered fade-up on page load for the eyebrow /
+   headline / subhead / CTAs inside an image-variant hero. Used by the
+   `.hero-entry-stagger` wrapper class on Hero.astro's content column. Each
+   direct child fades up with a small delay so the hero reads like a
+   considered editorial composition rather than a hard cut-in.
+   Reduced-motion users get the final state instantly — no animation, no
+   stagger, content visible at full opacity. */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-entry-stagger > * {
+  opacity: 0;
+  animation: hero-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-entry-stagger > *:nth-child(1) { animation-delay:   0ms; }
+.hero-entry-stagger > *:nth-child(2) { animation-delay: 120ms; }
+.hero-entry-stagger > *:nth-child(3) { animation-delay: 240ms; }
+.hero-entry-stagger > *:nth-child(4) { animation-delay: 360ms; }
+.hero-entry-stagger > *:nth-child(5) { animation-delay: 480ms; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-entry-stagger > * {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 /* Reading-room paper grain. A very subtle SVG noise tile at ~3% opacity over
    the Soft Linen surface. Sits below content via pointer-events:none and a
    negative z-index inside the page wrapper. Visible enough to add tactile

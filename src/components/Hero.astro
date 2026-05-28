@@ -157,9 +157,22 @@ const wrapperHeight =
         section itself. Avoids the h-full-on-flex-item brittleness that left
         content floating mid-hero on min-height containers. */}
     <div class="relative mx-auto w-full max-w-content px-m pb-section-lg pt-section-md">
-      <div class="max-w-3xl">
+      {/*
+        hero-entry-stagger triggers the global page-load fade-up animation
+        defined in globals.css. Each direct child of this wrapper fades up
+        with a small per-child delay (eyebrow → hairline → h1 → subhead →
+        CTAs). Reduced-motion users get the final composition instantly.
+
+        Cream hairline beneath the eyebrow mirrors the SectionHeading
+        inverse-tone treatment so heroes carry the same editorial signature
+        as every interior section heading.
+      */}
+      <div class="hero-entry-stagger max-w-3xl">
         {eyebrow && (
-          <p class="text-xs uppercase tracking-eyebrow text-bg/85 mb-s">{eyebrow}</p>
+          <p class="text-xs uppercase tracking-eyebrow text-bg/85">{eyebrow}</p>
+        )}
+        {eyebrow && (
+          <div class="mt-xs mb-m h-px w-12 bg-bg/40" aria-hidden="true"></div>
         )}
         <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
           {rotateEnabled ? (
