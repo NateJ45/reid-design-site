@@ -15,7 +15,7 @@
 // `loading` to override the default "lazy". Set `loading="eager"` for
 // above-the-fold hero images.
 
-import { urlFor } from '@/lib/sanity';
+import { urlFor, parseSanityAssetDimensions } from '@/lib/sanity';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
@@ -63,11 +63,21 @@ if (!source?.asset) {
   return null;
 }
 
+// If the caller didn't pass an explicit height we derive one from the
+// asset's intrinsic dimensions so the rendered <img> always carries both
+// `width` and `height` attributes. Without both the browser can't reserve
+// aspect-ratio space and the page racks up CLS while images stream in
+// (this was the portfolio-detail CLS regression Lighthouse was flagging).
+const intrinsic = parseSanityAssetDimensions(source);
+const derivedHeight =
+  height ?? (intrinsic ? Math.round((intrinsic.height * width) / intrinsic.width) : undefined);
+
 // Build a single optimized URL at a target width. Reusable for srcset entries.
 function buildUrl(targetWidth: number) {
   let b = urlFor(source).width(targetWidth).quality(quality);
   if (height) {
-    // Scale height proportionally so the aspect ratio stays locked.
+    // Caller-supplied height = aspect-ratio crop. Scale proportionally so
+    // every srcset variant keeps the same crop ratio.
     const ratio = targetWidth / width;
     b = b.height(Math.round(height * ratio));
   }
@@ -95,7 +105,7 @@ const resolvedAlt = alt !== undefined ? alt : (source.alt ?? '');
   src={src}
   srcset={srcset}
   width={width}
-  height={height}
+  height={derivedHeight}
   alt={resolvedAlt}
   loading={loading}
   decoding="async"
