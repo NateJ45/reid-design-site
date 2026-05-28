@@ -37,8 +37,15 @@ Pinned versions reflect what's known to work together as of May 2026. Bump delib
 - **Web3Forms** for the contact form (matches NCS pattern). Free tier covers 250 submissions/month, more than Reid Design needs.
 - **Calendly** embed (or link) for the 20-minute discovery call.
 - Cloudflare Web Analytics for privacy-friendly traffic (no cookie banner needed).
-- **Cloudflare Workers** for hosting (not Pages). The two products merged in early 2026; Pages is in maintenance mode, Workers gets all new investment. Use `wrangler deploy`.
+- **Cloudflare Workers** for hosting (not Pages). The two products merged in early 2026; Pages is in maintenance mode, Workers gets all new investment. Use `wrangler deploy`. Astro adapter config is `cloudflare({ imageService: 'compile' })` so image processing stays at build-time via Sharp — never reaches the Cloudflare Images runtime binding (avoids surprise per-transform fees, no Workers binding required).
 - GitHub for version control.
+
+### Astro config don'ts
+
+A few `astro.config.mjs` levers that look tempting but break things — left documented here so a future agent doesn't waste a cycle rediscovering them:
+
+- **`security.csp` is disabled on purpose.** Astro 6 has a hash-based CSP feature that auto-generates SHA-256 hashes for inline scripts + styles. Enabling it satisfies Lighthouse's `csp-xss` audit on paper, but in practice the build-time hash pass misses at least one runtime-generated inline script (ClientRouter's view-transitions runtime emits one) and one inline style from the astro-island markup. The browser then blocks them — theme bootstrap breaks, Lenis init breaks, polish observer breaks. Re-enabling would need either nonce-based SSR (doesn't apply to our `output: 'static'`) or an audit of every inline script Astro and React might emit at runtime. Not worth chasing for an unscored audit. The `public/_headers` file still ships a `frame-ancestors` CSP, which is the only security-relevant directive for our setup (lets Sanity Studio iframe the live site for the preview pane).
+- **`crossorigin="anonymous"` on Sanity CDN images breaks them.** Sanity's CDN doesn't send `Access-Control-Allow-Origin` for credential-less image requests, so the browser refuses the response and the image fails to render. Lighthouse's third-party-cookie warning about `sanitySession` is a real cookie but the only known fix would proxy every image through a Cloudflare Worker — not worth the engineering for an unscored Best Practices flag.
 
 ---
 
@@ -73,7 +80,9 @@ Now also live (built during placeholder-content phase):
 
 Header nav carries seven items in this order: **Home / Process / Services / Portfolio / Journal / FAQ / About**. "Contact" is intentionally NOT in the primary nav — the "Book a consultation" CTA pill at the right of the nav row handles that conversion, and the mobile drawer surfaces the CTA at the top of the menu. The list is defined as `NAV_LINKS` in `src/components/Header.astro` and shared with `MobileNav.tsx` so desktop + mobile stay in sync.
 
-Mobile header also carries an **availability indicator pill** on the left side (mirroring the hamburger menu's absolute-right placement) — a pulsing green dot + "Open" label that links straight to `/contact`. Renders only when `siteSettings.availabilityStatus` is set, and the label hides on the tightest mobile widths so it doesn't collide with the centered logo.
+**Header breakpoint is `lg:` (1024 px), not `md:` (768 px).** Between md and lg the desktop nav + Book a Consultation CTA cram the seven nav items against the logo and visibly squish the wordmark. Bumping the breakpoint means tablet / narrow-laptop widths see the centered-logo + hamburger layout, and the desktop layout only appears once there's actual room for it. Affects every `md:`/`lg:` toggle in Header.astro and MobileNav.tsx's hamburger wrapper.
+
+Mobile header also carries an **availability indicator pill** on the left side (mirroring the hamburger menu's absolute-right placement) — a pulsing green dot + "Open" label that links straight to `/contact`. Renders only when `siteSettings.availabilityStatus` is set. The pill stays visible at every mobile width because its h-9 compact size doesn't collide with the centered logo even at 320 px.
 
 ---
 
@@ -116,9 +125,49 @@ Three-state toggle (light / dark / system), persisted to `localStorage["reid-des
 
 The wiring, in order of execution:
 
-1. **Anti-FOUC script in `BaseLayout.astro`** runs inline in `<head>` before first paint. Reads the localStorage key and `prefers-color-scheme`, applies the `.dark` class on `<html>` plus an inline `color-scheme` style so native widgets (scrollbars, form controls) follow. No flash of the wrong theme on initial paint or after View Transitions.
-2. **`ThemeToggle.tsx`** (React island in Header and the mobile nav drawer) cycles light → dark → system on click, writes to the same localStorage key, and re-binds the matchMedia listener whenever the chosen theme changes.
+1. **Anti-FOUC script in `BaseLayout.astro`** runs inline in `<head>` before first paint. The script does three things every time it fires (initial load, `astro:after-swap` on View Transitions, and `DOMContentLoaded` after body parses):
+   - Reads the localStorage key and `prefers-color-scheme`
+   - Applies the `.dark` class on `<html>` plus an inline `color-scheme` style so native widgets (scrollbars, form controls) follow
+   - Walks every `<img data-theme-logo>` and assigns the matching variant's `src` + `srcset` (theme-aware logo, see below)
+2. **`ThemeToggle.tsx`** (React island, single instance in Header eyebrow strip) cycles light → dark → system on click, writes to the same localStorage key, and re-binds the matchMedia listener whenever the chosen theme changes. Its `applyTheme()` function ALSO walks the `[data-theme-logo]` images and swaps their srcs, so toggling the theme doesn't leave a Charcoal-ink logo on a Charcoal-Dark background.
 3. **`globals.css`** defines color tokens for both modes. `:root` carries light; `.dark` carries the overrides. Brand Warm Bronze and Charcoal Dark keep their visual identity in both modes; only surface and muted-text tokens flip.
+
+### View Transitions persistence (the gotcha)
+
+Astro's View Transitions runtime swaps the document `<head>` and `<body>` between navigations but **resets `<html>`'s className** to whatever the new page's source HTML had (empty — `.dark` is applied at runtime). Without intervention, a user who set dark mode would see the next page render in light despite `localStorage` still holding `"dark"`. This was an actual bug we fixed.
+
+The fix lives in the anti-FOUC script and has three triggers:
+- **Initial inline call** — runs in `<head>` before body parses. Catches the first paint.
+- **`DOMContentLoaded` listener** — re-runs after the body is in the DOM. Required so theme-aware imgs that appear below the first parsed scripts (notably the footer logo) get their `src` set. Bound with `{ once: true }`.
+- **`astro:after-swap` listener** — re-runs after every View Transitions navigation. Re-applies the `.dark` class and re-sets the logo `src` because both get reset by the swap.
+
+A `__themeBootstrapBound` flag on `window` guards against double-binding if the script ever runs twice. If you touch this script, preserve all three triggers.
+
+### Theme-aware single-img logo pattern
+
+Header and Footer each render ONE `<img>` for the logo, with no `src` attribute in the HTML. Four data attributes carry the URLs:
+
+```html
+<img
+  alt="Reid Design LLC"
+  width="100" height="106"
+  class="h-[6.25rem] w-auto"
+  loading="eager"
+  data-theme-logo
+  data-logo-light-src="/_astro/logo-light.{hash}.webp"
+  data-logo-light-srcset="/_astro/logo-light.{1xhash}.webp 1x, /_astro/logo-light.{2xhash}.webp 2x"
+  data-logo-dark-src="/_astro/logo-dark.{hash}.webp"
+  data-logo-dark-srcset="/_astro/logo-dark.{1xhash}.webp 1x, /_astro/logo-dark.{2xhash}.webp 2x"
+>
+```
+
+The URLs come from `getImage()` calls at build time (Astro's image pipeline pre-renders the four variants). The src is set by:
+- An inline `<script is:inline>` immediately after the header img (runs synchronously, before browser begins fetching).
+- BaseLayout's anti-FOUC script for the footer img (runs on `DOMContentLoaded` since the footer doesn't exist when the head script first fires).
+
+Net effect: **only one logo file is ever fetched per page load**, regardless of theme. Lighthouse's "Properly size images" and "Improve image delivery" audits no longer see an inactive variant in the DOM. Toggling the theme via `ThemeToggle` swaps the src in place; navigating via View Transitions re-applies via `astro:after-swap`.
+
+**Don't revert to two img tags with CSS hide/show.** Modern browsers usually skip `display:none + loading="lazy"` fetches, but Lighthouse still analyses the DOM and counts the inactive variant against the score.
 
 Reid Design is primarily a light-toned warm brand. Dark mode is supported because it's standard infrastructure and a small audience subset prefers it, but the site is designed and tested first in light mode. Don't optimize dark mode at the expense of light.
 
@@ -166,14 +215,20 @@ The primary hover state on CTAs goes to `bg-accent-dark` (Charcoal Dark) — eve
 
 ### Eyebrow contrast lesson (post-audit)
 
-Warm Taupe `#B8A99A` at 12px on Cream / Soft Linen lands at **2.02:1** — fails WCAG AA. Every uppercase eyebrow label site-wide was migrated from `text-secondary` to `text-foreground/65` (4.77:1 on Cream, 6+:1 in dark). The brand `--secondary` token still exists and is fine for **borders, dividers, larger decorative ornaments** — just not for body-size text.
+Warm Taupe `#B8A99A` at 12px on Cream / Soft Linen lands at **2.02:1** — fails WCAG AA. The original sweep migrated `text-secondary` → `text-foreground/65`, which improved dark mode but still failed AA in light mode (~3.57:1 on Soft Linen).
+
+A second sweep bumped the opacity tier:
+- `text-foreground/65` → `text-foreground/80` (52 occurrences across 25 files) — gets to **~5.4:1 on Soft Linen, passes AA**.
+- `text-foreground/70` → `text-foreground/85` (7 occurrences) — for small italic body text, **~6.1:1, passes AAA**.
+
+The brand `--secondary` token still exists and is fine for **borders, dividers, larger decorative ornaments** — just not for body-size text.
 
 If you add a new eyebrow label, the pattern is:
 ```html
-<p class="text-xs uppercase tracking-eyebrow text-foreground/65">Eyebrow text</p>
+<p class="text-xs uppercase tracking-eyebrow text-foreground/80">Eyebrow text</p>
 ```
 
-There's a one-off sweep script at `scripts/sweep-eyebrow-contrast.mjs` that catches new occurrences of `tracking-* text-secondary` and migrates them. Re-run after big copy edits if you suspect drift.
+`scripts/sweep-eyebrow-contrast.mjs` originally caught `text-secondary` → `text-foreground/65`. Inline ad-hoc scripts handled the `/65` → `/80` and `/70` → `/85` follow-up sweeps. If you spot any new `text-foreground/65` or `/70` on `bg-muted`/`bg-background` surfaces, bump them.
 
 ### `text-primary-dark` is light-mode-only
 
@@ -437,7 +492,32 @@ The current component set, by role. All in `src/components/` unless noted.
 - `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.
 - `BeforeAfterSlider.tsx` — drag-to-reveal with cream-mat framing + opacity-tracking Before/After pills.
 - `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox.
-- `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy.
+- `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy. Returns `null` when `headings.length === 0` so the slot collapses gracefully.
+
+### Long-read layout (shared by portfolio + journal detail)
+
+Both `/portfolio/[slug]` and `/journal/[slug]` use the same long-read structure so the two surfaces feel like one publication:
+
+1. **Article header** — eyebrow line, h1, excerpt/subtitle, optional meta (date, reading time, categories). Lives in a `max-w-3xl mx-auto` block on journal; portfolio uses `max-w-content` with left-aligned text.
+2. **Cover/hero image** — `max-w-4xl mx-auto px-m` (~896 px), `<SanityImage width={1800} loading="eager" sizes="(min-width: 920px) 896px, 100vw">`. Reads as an editorial feature, not a billboard.
+3. **Body grid with optional TOC** — extract h2/h3/h4 headings via `extractHeadings(body)`, set `hasToc = headings.length > 0`, then use this grid template:
+   ```astro
+   <div class:list={[
+     'mx-auto max-w-content px-m py-section-lg grid grid-cols-1 gap-section-md lg:justify-center',
+     hasToc
+       ? 'lg:grid-cols-[260px_minmax(0,65ch)]'   // portfolio
+       : 'lg:grid-cols-[minmax(0,65ch)]',
+   ]}>
+     {hasToc && <CaseStudyTOC client:idle headings={headings} />}
+     <article>...</article>
+   </div>
+   ```
+   Journal uses `minmax(0,48rem)` instead of `65ch` to match Staci's existing posts' reading width (slightly wider). `lg:justify-center` is the critical bit — without it the grid left-aligns within the section and leaves all the empty space on the right (was a real visual bug).
+4. **Related** — portfolio shows `relatedTestimonial` + services-used chips. Journal shows `relatedProject` link + related-posts grid.
+5. **Prev/next nav** — wraps the rest in a `border-t` strip.
+6. **Sticky CTA chip** — per-surface label from Sanity (`project.stickyCtaLabel` / `journalPage.stickyCtaLabel`).
+
+The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortableText.tsx` for journal posts) detect image orientation from the Sanity asset `_ref` and apply different figure widths — portrait shots cap at `max-w-[600px] mx-auto`, landscape shots fill or extend the column per the editor's chosen size variant. See the [Portrait orientation caps](#portrait-orientation-caps) note in Image handling.
 
 **Process page pieces:**
 - `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage).
@@ -539,27 +619,73 @@ During the launch window, some `siteSettings` or page fields may be empty while 
 
 ## Image handling
 
-Reid Design has two image sources: local assets bundled with the build, and Sanity-hosted images that change over time.
+Reid Design has two image sources, each with its own pipeline:
 
-### Local assets (logo, OG image, brand graphics)
+1. **Local assets** — files committed to the repo. Optimized by Astro's `<Image>` / `getImage()` at build time (Sharp under the hood). Output is content-hashed WebP/AVIF in `/_astro/`.
+2. **Sanity-hosted images** — uploaded by editors. Optimized on the fly by Sanity's CDN (`cdn.sanity.io`) at request time. The `<SanityImage />` wrapper builds the URL with the right transform params and srcset.
 
-- Source files live in `src/assets/` so Astro can optimize at build time.
-- Use the `<Picture />` component for art-directed images at different breakpoints.
-- Always include `alt` text. `alt=""` is acceptable for purely decorative images.
+The two pipelines never mix. Don't reach for Astro `<Image>` on a Sanity URL — `image.domains` in `astro.config.mjs` is intentionally NOT configured, because Sanity's CDN is already excellent and we don't want to pay the build-time hit of pulling every remote image through Sharp.
 
-### Sanity-hosted images (testimonials with photos, service icons, project galleries, hero backgrounds, Staci's portrait)
+### Local assets (`src/assets/`)
 
-Sanity serves images through its CDN with on-the-fly transformations (resize, crop, format). The project provides a `<SanityImage />` wrapper at `src/components/SanityImage.astro` that:
+Files live in `src/assets/` (NOT `public/`). The `src/assets/` location is what lets Astro's pipeline see them.
 
-1. Reads the Sanity image object (URL + hotspot + crop + alt text)
-2. Calls Sanity's `image()` URL builder with appropriate width and format
-3. Renders an `<img>` (or `<picture>` for art-direction) with `loading="lazy"`, `decoding="async"`, and the alt text from Sanity
+- **Logo**: `logo-light.png` + `logo-dark.png`. Both at 378×400 source. Astro's `<Image>` (in Footer.astro) or `getImage()` (in Header.astro, for the theme-aware `<img>` data-attribute URLs) emits hashed WebPs at the right dimensions. See the Theme-aware single-img logo pattern in the Theme system section.
+- **Regenerating logos**: `scripts/generate-logo-variants.mjs` produces both variants from the source JPG in `09-Logos/`. After regeneration, run `scripts/optimize-logo-files.mjs` to shrink the source PNGs to ≤400 px tall before Astro emits them (large source = large Astro output).
 
-Always pull alt text from the Sanity image field, not from page-level fields. Editors set alt text once on the image and it carries everywhere the image is used.
+### Sanity-hosted images (everything from Studio)
+
+`src/components/SanityImage.astro` is the wrapper. Reads the Sanity image object (asset ref + alt text + optional hotspot/crop), builds the URL via Sanity's `image()` builder, and renders an `<img>` with a real responsive srcset.
+
+**Always pull alt text from the Sanity image field**, not from page-level fields. Editors set alt text once on the image and it carries everywhere the image is used.
+
+**Props:**
+- `width` (required) — maximum width the image will ever render at. Caps the srcset ladder. Don't request larger than the slot displays at — that's wasted bytes.
+- `height` (optional) — only set when you need a specific aspect-ratio crop. Otherwise the wrapper derives height from the asset's intrinsic dimensions via `parseSanityAssetDimensions()` and writes both width + height to the `<img>` (kills CLS).
+- `sizes` (recommended) — the `sizes` attribute. If omitted, defaults to `(max-width: {width}px) 100vw, {width}px`. Pass an accurate value for layouts where the image doesn't fill the viewport on mobile (e.g., a 2-column layout would want `(min-width: 768px) 45vw, 100vw`).
+- `quality` (default 75) — drop to 65 for big hero photos where every byte matters more than micro-detail.
+- `format` (default `'auto'`) — Sanity serves AVIF on supporting browsers (~25% smaller than WebP), WebP elsewhere, JPEG as final fallback. Force `'webp'` only if you have a reason to bypass AVIF.
+- `loading` (default `'lazy'`) — set to `'eager'` for above-the-fold hero images.
+- `fetchpriority` — pass `"high"` on the page's LCP image so the browser fetches it ahead of other resources. Hero.astro does this on the eager background image.
+
+**Responsive srcset ladder** (hardcoded in SanityImage.astro):
+```
+[400, 600, 700, 800, 900, 1200, 1600, 2400]
+```
+Each entry is a width. The wrapper filters this down to entries ≤ requested `width` and always includes the explicit `width` as the largest. The mobile-retina gap (DPR 1.875 needs ~713 effective px) is what motivated the 700 entry — without it, mobile would round up to 800 unnecessarily.
+
+**Hotspot and crop.** Enable `hotspot: true` on every Sanity image field. Staci can then click to set the focal point, and the URL builder passes that hotspot to Sanity so crops at smaller sizes keep the right part of the image in frame. Faces, key visual elements, anything that matters when the image gets cropped down.
 
 For project galleries (case studies), pass the Sanity image array to `ProjectGallery.tsx`, which composes `react-photo-album` for the justified grid and `yet-another-react-lightbox` (Zoom + Thumbnails plugins) for the fullscreen viewer.
 
 For before/after pairs on project pages, use `BeforeAfterSlider.tsx` (React island). It accepts two Sanity image references and renders a drag-handle slider that reveals the after image as the user drags.
+
+### Portrait orientation caps
+
+Portfolio + journal inline images detect orientation from the Sanity asset `_ref` (it encodes `{W}x{H}` in the filename) via `parseSanityAssetDimensions()`. When `height > width`:
+
+- `PortableText.tsx` (`image` block, case-study intro story): figure wrapper becomes `my-section-md mx-auto max-w-[600px]`. Landscape shots keep the original `-mx-m md:mx-0` (full column, edge-to-edge on mobile).
+- `JournalPortableText.tsx` (`inlineImage` block): same `mx-auto max-w-[600px]`, overrides the editor's `standard`/`wide`/`full` size choice. Landscape shots get the chosen size treatment.
+
+Why: portrait shots blown out to full column width are taller than the viewport, which is hostile. ~600 px is the readable inset for an editorial portrait.
+
+### Hero / cover image cap
+
+The portfolio (`/portfolio/[slug]`) and journal (`/journal/[slug]`) detail pages cap their hero image at `max-w-4xl` (~896 px), with `<SanityImage width={1800}>` and `sizes="(min-width: 920px) 896px, 100vw"`. Reads as an editorial feature, not a billboard. Sanity request stops at 1800 so we're not pulling a 1920 px file for a slot that maxes around 900 px even at 2× retina.
+
+### Image guidelines for editors
+
+When Staci uploads images via Sanity:
+
+- **Source size:** at least 2000px on the longest edge for hero and project images. Sanity downsizes; it can't upsize without losing quality.
+- **Format:** JPEG for photos (Sanity converts to AVIF/WebP on delivery), PNG for graphics with transparency, SVG for logos.
+- **Color profile:** sRGB. Some pro cameras shoot Adobe RGB by default; convert before upload or browsers will shift the colors.
+- **File size:** original up to 5MB is fine. Sanity optimizes on the way out.
+- **Alt text:** required on every image. Describe the image like a friend describing it to someone who can't see. Include location if relevant ("Living room redesign in Fishers, Indiana"). Skip "Photo of..." or "Image of..." since screen readers already announce that.
+- **Filename:** matters less than alt text but still matters. Upload `fishers-living-room-after.jpg` instead of `IMG_4827.jpg`. The Sanity asset filename is preserved in the CDN URL and contributes a tiny bit to image search.
+- **Hotspot:** click the image after upload to set the focal point. The site crops around it at smaller sizes. Set it on faces, lamp focal points, sofa centerpieces, anything that matters at thumbnail size.
+
+For project before/after pairs: shoot from the same angle, same lens, same lighting, ideally same time of day. The slider only works when the geometry matches. If they don't, use a captioned pair in the `gallery` array instead of the before/after slider.
 
 ### Hotspot and crop
 
@@ -832,21 +958,47 @@ If a new dependency pushes a budget, that's a discussion before merging. Some ar
 
 ### Image weight by slot
 
-| Slot | Max delivered weight | Sanity url params |
-|---|---|---|
-| Hero (full-bleed) | 200KB | `w=1920&fm=webp&q=70` desktop, `w=750&fm=webp&q=65` mobile |
-| Project gallery thumbnail | 60KB | `w=600&fm=webp&q=70` |
-| Project gallery fullscreen | 250KB | `w=2000&fm=webp&q=80` |
-| Testimonial avatar | 20KB | `w=120&h=120&fit=crop&fm=webp` |
-| OG image (committed) | 100KB | n/a, generated once via `npm run og` |
+| Slot | Display max | SanityImage props | Notes |
+|---|---|---|---|
+| Home hero (full-bleed) | viewport | `width={2400} sizes="100vw" loading="eager" fetchpriority="high" quality={70}` | LCP element |
+| Portfolio/Journal cover | ~896px | `width={1800} sizes="(min-width: 920px) 896px, 100vw" loading="eager"` | Capped at `max-w-4xl` |
+| Project gallery thumbnail | viewport-dependent | `width={900} quality={75}` (via `urlFor`) | Lightbox loads larger on tap |
+| Project gallery fullscreen | viewport | passed to `yet-another-react-lightbox` directly | |
+| Testimonial avatar | 120×120 | `urlFor(...).width(120).height(120).fit('crop')` | Static thumbnail |
+| OG image (committed) | 1200×630 | n/a, generated once via `npm run og` | Per-page via `scripts/generate-og-pages.mjs` |
 
-Use `<SanityImage />`'s `width` prop to drive these. Never request larger than the slot renders at.
+Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than the slot renders at.** Format defaults to `auto` (AVIF / WebP / JPEG fallback), quality to 75 — drop to 65 for big hero photos.
 
 ### Font loading
 
-- Cormorant Garamond: self-hosted via `@fontsource/cormorant-garamond` (400, 500, 600). Loaded via CSS `@import` in globals.css. `font-display: swap` (fontsource default), which is what we want.
-- Source Sans 3 Variable: same pattern, single file covers all weights.
+- **Cormorant Garamond** (display serif): self-hosted via `@fontsource/cormorant-garamond` weights 400 + 600. Weight 500 was previously loaded but never selected anywhere; removing it saved ~50 KB across latin + latin-ext woff/woff2 with zero visual change. Don't add back without a real usage.
+- **Source Sans 3 Variable** (body sans): self-hosted via `@fontsource-variable/source-sans-3`. Single file covers all weights.
+- **Pinyon Script** (one-word editorial accent): self-hosted via `@fontsource/pinyon-script`. Used ONLY on hero `scriptAccent` words. Loaded after the primary fonts with `font-display: swap` (fontsource default) so it never blocks first paint. If a hero has no `scriptAccent` set, the file is still fetched but doesn't render anything — small price for the option.
 - No `<link rel="preload">` on font URLs. Vite hashes the filenames at build time, so a static preload tag would 404. The cost is one extra paint; the benefit is no broken preload (and Lighthouse stays at 100 Best Practices).
+
+### Current Lighthouse scorecard (May 2026)
+
+Measured on the deployed Cloudflare URL (`reid-design-site.nathanjnixon86.workers.dev`) via Chrome DevTools' bundled Lighthouse:
+
+| Page (mobile, Moto G4 1.875 DPR) | A11y | BP | SEO | Agentic | LCP | CLS |
+|---|---|---|---|---|---|---|
+| `/` | 100 | 100 | 100 | 100 | ~180 ms | 0.00 |
+| `/services` | 100 | 100 | 100 | 100 | — | 0.04 |
+| `/portfolio/[slug]` | 100 | 100 | 100 | 100 | ~142 ms | 0.02 |
+
+Desktop scores match (also 100s across the board). Remaining `ImageDelivery` "Est savings" numbers in the Lighthouse diagnostics tab are unscored and theoretical (would require infinitely-granular srcset breakpoints).
+
+**Levers that got us here — preserve unless you have a stronger reason than "I want to simplify":**
+- All islands hydrate at `client:idle` or `client:visible` except `MobileNav` (Radix Sheet portal requires `client:only="react"`)
+- Lenis init wrapped in `requestIdleCallback`
+- Logo PNGs moved from `public/` to `src/assets/` so Astro emits WebPs
+- Single-img theme-aware logo (one fetch per page load instead of two)
+- SanityImage emits real width-descriptor srcset with 8 breakpoints (400–2400)
+- AVIF as default format (`'auto'`) — Sanity picks AVIF on supporting browsers
+- `fetchpriority="high"` on hero LCP image
+- Portrait inline images capped to `max-w-[600px]` (smaller files at the smaller cap)
+- Cloudflare adapter `imageService: 'compile'` (build-time Sharp, no runtime image binding)
+- Cormorant Garamond weight 500 dropped from globals.css imports
 
 ### Hydration strategy
 
@@ -1324,4 +1476,6 @@ If a full-field annotation is the entire content (like `faqItem.background` was 
 
 ---
 
-*Last updated: May 27, 2026 (late afternoon — script accent + services TOC + mobile alignment audit + Sanity webhook + logo swap)*
+*Last updated: May 28, 2026 — performance polish (Lighthouse 100s mobile + desktop), single-img theme-aware logo with View Transitions persistence, SanityImage AVIF + 8-width responsive ladder + fetchpriority + orientation caps, portfolio + journal long-read layout with TOC sidebar + max-w-4xl hero cap, header breakpoint md→lg, light-mode contrast sweep `/65 → /80`.*
+
+See `OPERATIONS.md` for tactical playbook (deploy, patch content, run audits, common gotchas).
