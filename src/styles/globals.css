@@ -178,8 +178,14 @@
     --muted: #F5F0EB;               /* Cream */
     --muted-foreground: #6B6B6B;    /* Mid-gray — passes AA on Soft Linen */
 
-    /* Accent (used by shadcn primitives like hover backgrounds) */
-    --accent: #F5F0EB;              /* Cream — soft hover surface */
+    /* Accent (used by shadcn primitives like hover backgrounds).
+       Visibly darker than --muted (`#F5F0EB` Cream) so hover/focus states
+       actually read on the header eyebrow strip and every other muted-on-
+       muted surface. The previous identical value (#F5F0EB) made
+       hover:bg-accent invisible whenever the parent was bg-muted (which
+       includes the header eyebrow row, footer, and every surface-warm
+       section). Audit-flagged. */
+    --accent: #ECE5DB;              /* Warm Cream Dark — soft hover surface */
     --accent-foreground: #3D3D3D;
 
     /* States */

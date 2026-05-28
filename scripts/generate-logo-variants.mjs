@@ -24,14 +24,19 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const publicDir = resolve(root, 'public');
+// Source logo variant. The 09-Logos folder ships with several iterations
+// (reid-design-logo.jpg, -logo-2.jpg, etc.) — point this at whichever is the
+// current published mark. Override via CLI arg: `node generate-logo-variants.mjs reid-design-logo-3.jpg`
+const sourceFile = process.argv[2] ?? 'reid-design-logo-2.jpg';
 const src = resolve(
   root,
   '..',
   'Reid Design Pictures',
   'Reid Design Pictures',
   '09-Logos',
-  'reid-design-logo.jpg',
+  sourceFile,
 );
+console.log(`Source logo: ${sourceFile}`);
 
 if (!existsSync(src)) {
   console.error('Source logo not found:', src);

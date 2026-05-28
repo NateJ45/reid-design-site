@@ -1013,6 +1013,38 @@ The copy hits this tone: warm, plain-spoken, slightly informal, quietly confiden
 
 As of early 2026, Cloudflare merged Pages into Workers. Pages is in maintenance mode; Workers gets all new investment. New Astro projects should use Workers via the `@astrojs/cloudflare` adapter and `wrangler deploy`. The NCS portfolio template still references Pages because it predates the merger; Reid Design uses Workers from day one.
 
+### Sanity → live site rebuild model (READ THIS BEFORE CHANGING CONTENT EXPECTATIONS)
+
+The site is `output: 'static'` — every page is **pre-rendered to HTML at build time, not fetched at runtime**. Practical implication: when Staci edits a field in Sanity and clicks Publish, **the change does NOT appear on the live site until the site rebuilds**. The Sanity dataset updates instantly, but the live HTML is whatever was generated at the last build.
+
+There are two ways the site rebuilds:
+1. **`git push origin main`** → Cloudflare detects the push → triggers `npm run build` → site updates in ~1-3 min.
+2. **Cloudflare deploy hook** → an HTTP POST to a private Cloudflare URL triggers the same build.
+
+Without a webhook, every Sanity edit waits until the next code push. That's not a sustainable editor experience for Staci.
+
+**The recommended setup is a Sanity webhook that hits a Cloudflare deploy hook on publish:**
+
+1. **Create the Cloudflare deploy hook** at Cloudflare dashboard → Workers & Pages → reid-design-site → Settings → Build hooks. Name it `Sanity content publish`, branch `main`. Copy the generated URL (looks like `https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/<token>`).
+
+2. **Create the Sanity webhook** at manage.sanity.io → project → API → Webhooks. Name it `Rebuild live site`, dataset `production`, trigger on Create + Update + Delete, HTTP method POST, paste the Cloudflare URL. Optionally filter via GROQ to skip rebuilds on non-content changes:
+   ```
+   _type in [
+     "homePage", "aboutPage", "processPage", "servicesPage",
+     "faqPage", "contactPage", "journalPage", "siteSettings",
+     "service", "testimonial", "faqItem", "philosophyPoint",
+     "processStep", "project", "journalEntry", "journalCategory"
+   ]
+   ```
+
+3. **Test:** edit `siteSettings.tagline` → publish → watch Cloudflare's Deployments tab → new build kicks off within ~10 seconds → live in ~1-3 min total.
+
+**Trade-offs to know:**
+- Every publish triggers a full ~45 second build. Reasonable for a marketing site. If Staci batch-edits 20 testimonials, save the publish click until the end to consolidate one build instead of 20.
+- There's always a 1-3 minute delay between publish and live render. Acceptable for an interior design portfolio; would NOT be for breaking news.
+- Cloudflare's free tier covers 500 builds/month — well clear of expected publish cadence.
+- If we ever want near-instant updates, the alternative is moving to Incremental Static Regeneration or runtime-fetching from Sanity for specific pages. Both are larger architecture changes; the webhook is the right answer for now.
+
 ### Environment variables
 
 Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variables** (Build section):

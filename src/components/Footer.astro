@@ -64,27 +64,36 @@ const latestProjects = allProjects.slice(0, 3);
   {/* Brand accent stripe — matches header + mobile drawer. */}
   <div class="h-1 bg-primary" aria-hidden="true"></div>
 
-  {/* 1. Brand block — logo + tagline + personal blurb. Centered. */}
+  {/* 1. Brand block — logo + tagline + personal blurb. Centered.
+       Logo wraps in an anchor that returns to home (mirrors the header logo's
+       behavior). The two img tags swap via Tailwind dark: modifier — only one
+       renders at a time, so the anchor still has a single visible image. */}
   <div class="mx-auto max-w-content px-m pt-section-md pb-l text-center">
-    <img
-      src={site.assets.logoLight}
-      alt={brandName}
-      width={319}
-      height={357}
-      class="block dark:hidden mx-auto h-24 w-auto"
-      loading="lazy"
-      decoding="async"
-    />
-    <img
-      src={site.assets.logoDark}
-      alt=""
-      aria-hidden="true"
-      width={319}
-      height={357}
-      class="hidden dark:block mx-auto h-24 w-auto"
-      loading="lazy"
-      decoding="async"
-    />
+    <a
+      href="/"
+      aria-label={`${brandName} home`}
+      class="inline-block hover:opacity-80 transition-opacity"
+    >
+      <img
+        src={site.assets.logoLight}
+        alt={brandName}
+        width={798}
+        height={844}
+        class="block dark:hidden mx-auto h-24 w-auto"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src={site.assets.logoDark}
+        alt=""
+        aria-hidden="true"
+        width={798}
+        height={844}
+        class="hidden dark:block mx-auto h-24 w-auto"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
 
     <p class="mt-l mx-auto max-w-2xl font-display italic text-h4 text-foreground/90 leading-snug">
       {tagline}

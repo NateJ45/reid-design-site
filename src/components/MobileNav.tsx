@@ -164,8 +164,8 @@ export default function MobileNav({ links, siteSettings }: Props) {
             <img
               src={site.assets.logoLight}
               alt="Reid Design"
-              width={319}
-              height={357}
+              width={798}
+              height={844}
               className="block dark:hidden h-16 w-auto"
               loading="lazy"
               decoding="async"
@@ -174,8 +174,8 @@ export default function MobileNav({ links, siteSettings }: Props) {
               src={site.assets.logoDark}
               alt=""
               aria-hidden="true"
-              width={319}
-              height={357}
+              width={798}
+              height={844}
               className="hidden dark:block h-16 w-auto"
               loading="lazy"
               decoding="async"
