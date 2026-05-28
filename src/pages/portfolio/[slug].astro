@@ -62,6 +62,11 @@ const heroOg = project.heroImage?.asset
 
 const headings = extractHeadings(project.introStory);
 const readMinutes = readingTimeFromPortableText(project.introStory);
+// When the intro story has no h2/h3/h4 headings, the TOC component returns
+// null. We still need to know that here so the grid template collapses to
+// a single column on lg+, otherwise the empty 260 px sidebar slot would
+// push the article off-center to the right.
+const hasToc = headings.length > 0;
 
 const schemas = [
   breadcrumbSchema([
@@ -125,12 +130,31 @@ const schemas = [
     designCall={project.designCall}
   />
 
-  {/* Body: TOC sidebar + story */}
+  {/* Body: TOC sidebar + story.
+
+      Grid layout:
+        - Mobile: single column.
+        - lg+ with TOC: 260 px TOC + article capped at 65ch (matches the
+          max-w-prose Tailwind sets on .prose), centered as a pair via
+          `lg:justify-center` so the empty space splits evenly on both
+          sides instead of stacking up on the right.
+        - lg+ without TOC: single article column, also centered. This
+          avoids the previous bug where an empty 260 px sidebar slot was
+          still reserved on stories that had no headings, pushing the
+          article off-center.
+      The article keeps `max-w-prose` for safety in case any case ever
+      ships outside this grid; the grid column cap is what does the work
+      in practice. */}
   <section
-    class="mx-auto max-w-content px-m py-section-md grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-section-md"
+    class:list={[
+      'mx-auto max-w-content px-m py-section-md grid grid-cols-1 gap-section-md lg:justify-center',
+      hasToc
+        ? 'lg:grid-cols-[260px_minmax(0,65ch)]'
+        : 'lg:grid-cols-[minmax(0,65ch)]',
+    ]}
     aria-label="Project story"
   >
-    <CaseStudyTOC client:idle headings={headings} />
+    {hasToc && <CaseStudyTOC client:idle headings={headings} />}
 
     <article class="max-w-prose">
       {/* `client:visible` defers the 94KB Sanity client bundle that PortableText
