@@ -56,12 +56,16 @@ Lock in the home page sections in render order. Don't reorder. Don't drop. If a 
 **Home page** (in render order):
 1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
 2. Meet Staci (photo, intro copy, CTA to About)
-3. How It Works (4-step process preview, CTA to Process)
-4. Kind Words (1 featured testimonial + 6 grid testimonials from Sanity)
-5. How Reid Design Can Help (4 services with prices, CTA to Contact)
-6. Service area cue line (Plainfield-first)
-7. Final CTA (full-bleed)
-8. Footer
+3. Featured Work (auto-populated — hero project + companions from Sanity)
+4. Featured Journal (auto-populated — hero entry + companions from Sanity)
+5. How It Works (4-step process preview, CTA to Process)
+6. Kind Words (1 featured testimonial + 6 grid testimonials from Sanity)
+7. How Reid Design Can Help (4 services with prices, CTA to Contact)
+8. Service area cue line (Plainfield-first)
+9. Final CTA (full-bleed)
+10. Footer
+
+Sections 3 and 4 are the front-of-house hook — Staci's work and her thinking land before visitors hit the process explainer. They pull the most-relevant 4 projects + 4 journal entries from Sanity, ordered featured-first (`featured: true` pinned to the top) then by publish date. Both sections suppress entirely when the collection is empty, and the layout degrades to a centered single-hero spread when there's only one item — see `FeaturedWork.astro` + `FeaturedJournal.astro` for the asymmetric-grid logic and adaptive hero aspect (2:1 alone → 4:3 with 1-2 companions → 4:5 with 3 companions). Editor controls the eyebrow / headline / subhead / CTA via the `homePage` singleton's `featuredWork*` + `featuredJournal*` field groups.
 
 **Site-wide pages** (6 total, all linked from the primary nav):
 - Home (`/`)
@@ -487,6 +491,12 @@ The current component set, by role. All in `src/components/` unless noted.
 - `JournalCard.astro` — journal index card (featured variant spans 2 cols).
 - `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
 - `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
+
+**Home page Featured sections (auto-from-Sanity hero + companions):**
+- `FeaturedWork.astro` — large editorial hero project (cover image with title + brief overlaid on a dark gradient) + up to 3 compact horizontal companion cards stacked beside it. Hero aspect adapts to companion count (2:1 alone → 4:3 with 1-2 → 4:5 with 3) so the column heights roughly match. Mobile always uses portrait (4:5) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below.
+- `FeaturedJournal.astro` — mirrors `FeaturedWork`'s asymmetric grid with cover image + category chip + date + title + lede excerpt overlaid. Same hero-aspect adaptation. Title uses `text-h3 md:text-h2 line-clamp-3` because journal titles run long; mobile excerpt is `line-clamp-3`.
+
+Both sections feed off the new `featured: boolean` on `project` and `journalEntry`. Queries (`getHomePage()` → `featuredProjects` + `featuredJournalEntries`) order `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot.
 
 **Project detail page pieces:**
 - `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.

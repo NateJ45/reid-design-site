@@ -214,6 +214,10 @@ For full-field annotations (where the entire field IS the bracketed placeholder)
 | Eyebrow text fails Lighthouse contrast on light mode | `text-foreground/65` on Soft Linen = ~3.6:1 (fails AA) | Bump to `text-foreground/80` (~5.4:1, passes). The codebase has been swept; don't add new `/65` instances on muted/background surfaces. |
 | TOC sidebar empty on portfolio/journal post | No h2/h3/h4 in the body | Add headings in Sanity. `extractHeadings()` only sees those three levels. |
 | Hero image takes up "more than the viewport" | Portrait image rendering at full column width | Portrait detection in `PortableText.tsx` + `JournalPortableText.tsx` should cap at `max-w-[600px]`. Verify the asset `_ref` includes the `{W}x{H}` segment so `parseSanityAssetDimensions` can read it. |
+| Playwright `fullPage` screenshot of home page is mostly blank | `[data-reveal]` elements start at `opacity: 0` until the IntersectionObserver fires; headless captures them mid-state | `page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-visible')))` before screenshot. |
+| Hero overlay text on FeaturedWork / FeaturedJournal title cut off at top of image on mobile | Bottom-anchored absolute overlay is taller than a wide-aspect image; `overflow-hidden` clips the overflow above the image | Use a portrait aspect (4/5 or taller) on mobile for any image with bottom-anchored overlay text. See `heroAspectClass` in `FeaturedWork.astro` / `FeaturedJournal.astro`. |
+| First page load after `npm run dev` blows up with "Invalid hook call" + 404s on `/node_modules/.vite/deps/audit-...js` | Vite mid-re-optimizing dependencies on first navigation; React SSR runs against a stale deps cache | Reload once. Subsequent navigations work. Not a code bug. |
+| Featured Work / Journal section shows wrong project as the hero | Falling back to date-based default | Toggle `featured: true` on the project / journal entry Staci wants pinned. Sections sort `featured desc, publishedAt desc`. |
 
 ---
 
@@ -250,4 +254,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-*Last updated: May 28, 2026 — initial creation, scoped to operational tasks recurring through the Lighthouse + image-pipeline + theme-persistence work.*
+*Last updated: May 28, 2026 — added the home page Featured Work + Featured Journal sections and the gotchas hit while iterating them with Playwright (overlay + portrait aspect, `data-reveal` blank-screenshot trap, transient Vite first-load SSR errors).*
