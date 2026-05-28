@@ -113,7 +113,14 @@ export default function StickyCTAChip({
       ].join(' ')}
       aria-hidden={!visible}
     >
-      <div className="relative flex items-center gap-1 bg-primary-dark text-white pl-l pr-s py-s rounded-full shadow-lg shadow-foreground/15 max-w-[min(90vw,22rem)]">
+      {/* Width sizing:
+           - mobile: cap at 92vw so the chip never blows past the viewport
+             (the previous 90vw + pl-l was so tight it truncated common labels)
+           - desktop: 28rem cap, enough for ~30-character uppercase tracking
+             labels. Past that, truncate kicks in as a safety net.
+          Left padding reduced from pl-l to pl-m so more room goes to the
+          label text instead of the bronze gutter. */}
+      <div className="relative flex items-center gap-1 bg-primary-dark text-white pl-m pr-s py-s rounded-full shadow-lg shadow-foreground/15 max-w-[min(92vw,28rem)]">
         <a
           href={href}
           tabIndex={visible ? 0 : -1}
