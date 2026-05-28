@@ -56,9 +56,13 @@ const hasCompanions = companions.length > 0;
 // Mobile always stays in the portrait band (4/5) so the bottom-overlay text
 // fits inside the image area — wide mobile aspect would push the title +
 // excerpt above the image and the overflow:hidden card clips them off.
+// On lg, the no-companions case uses 16/10 (not 2/1) so the long-form
+// overlay content — chips row + multi-line title + excerpt + CTA — has
+// enough vertical room. With 2/1 the chips row was being clipped above the
+// image top edge whenever the title wrapped to 3 lines.
 // Mirrors FeaturedWork.
 const heroAspectClass = !hasCompanions
-  ? 'aspect-[4/5] lg:aspect-[2/1]'
+  ? 'aspect-[4/5] lg:aspect-[16/10]'
   : companions.length >= 3
   ? 'aspect-[4/5] lg:aspect-[4/5]'
   : 'aspect-[4/5] lg:aspect-[4/3]';
@@ -169,7 +173,7 @@ const heroDate = formatDate(hero?.publishedAt);
               </h3>
 
               {hero?.excerpt && (
-                <p class="mt-s text-white/90 text-sm md:text-base leading-relaxed max-w-prose line-clamp-3 md:line-clamp-none">
+                <p class="mt-s text-white/90 text-sm md:text-base leading-relaxed max-w-prose line-clamp-3">
                   {hero.excerpt}
                 </p>
               )}

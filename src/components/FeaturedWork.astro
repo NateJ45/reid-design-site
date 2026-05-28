@@ -57,11 +57,13 @@ const hasCompanions = companions.length > 0;
 // the portrait band (4/5) so the bottom-overlay text fits inside the image
 // area — wide mobile aspect would push the title above the image and the
 // overflow:hidden card would clip it.
-//   0 companions → wide editorial spread on desktop (full row, 2:1)
+//   0 companions → wide editorial spread on desktop (16/10, leaves room
+//                  for the multi-line overlay content without clipping the
+//                  chips row at the top)
 //   1-2 companions → landscape 4:3, roughly matches 1-2 stacked compact cards
 //   3 companions → portrait 4:5, matches the taller companion column
 const heroAspectClass = !hasCompanions
-  ? 'aspect-[4/5] lg:aspect-[2/1]'
+  ? 'aspect-[4/5] lg:aspect-[16/10]'
   : companions.length >= 3
   ? 'aspect-[4/5] lg:aspect-[4/5]'
   : 'aspect-[4/5] lg:aspect-[4/3]';
