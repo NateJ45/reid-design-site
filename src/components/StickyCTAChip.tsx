@@ -102,14 +102,27 @@ export default function StickyCTAChip({
       //
       // Sizing note: the inner pill carries the max-width + min-w-0 + truncate
       // so a long label can't push the dismiss button off-screen on mobile.
+      //
+      // Positioning:
+      //   - Always sit at bottom-[5.5rem] so it clears the BackToTop button
+      //     (which lives at bottom-6 right-6, so its top edge is ~68px from
+      //     the bottom — bottom-[5.5rem] = 88px gives ~20px breathing room).
+      //   - Mobile: center horizontally via left-1/2 + -translate-x-1/2 so
+      //     the chip becomes a "look at this" centered element instead of
+      //     colliding with the BackToTop button in the bottom-right corner.
+      //   - Desktop (sm+): right-aligned so it doesn't dominate the
+      //     reading column.
+      // Tailwind composes translate-x + translate-y utilities into a single
+      // transform, so combining -translate-x-1/2 with the show/hide
+      // translate-y states works correctly.
       className={[
-        'fixed bottom-m right-m z-40',
+        'fixed z-40 bottom-[5.5rem]',
+        'left-1/2 -translate-x-1/2',
+        'sm:left-auto sm:translate-x-0 sm:right-m',
         'transition-all duration-300 ease-out',
         visible
           ? 'opacity-100 translate-y-0'
           : 'opacity-0 translate-y-4 pointer-events-none',
-        // Sit above the global BackToTop button (which lives bottom-right too)
-        'sm:bottom-[5.5rem]',
       ].join(' ')}
       aria-hidden={!visible}
     >
