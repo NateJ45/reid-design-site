@@ -44,6 +44,13 @@ interface Props {
    * WebP elsewhere, JPEG/PNG as final fallback. Pass 'webp' to force WebP.
    */
   format?: 'auto' | 'webp';
+  /**
+   * Network-priority hint. Pass "high" on the page's LCP image so the
+   * browser fetches it ahead of other resources in the queue (Lighthouse
+   * flags this on hero photos). Defaults to undefined so the browser uses
+   * its own heuristics for everything else.
+   */
+  fetchpriority?: 'high' | 'low' | 'auto';
 }
 
 const {
@@ -56,6 +63,7 @@ const {
   class: className,
   quality = 75,
   format = 'auto',
+  fetchpriority,
 } = Astro.props;
 
 // Build the URL. If source is null/undefined we render nothing — pages should handle absence explicitly.
@@ -87,8 +95,9 @@ function buildUrl(targetWidth: number) {
 // Responsive srcset ladder. Capped at the requested width so we never ask
 // Sanity for more than what the layout will display at full-bleed. The fixed
 // breakpoints map to common viewport widths: phones (400), small tablets (600),
+// mobile retina (800 — bridges the 600→900 gap Lighthouse complained about),
 // laptops (900), large screens (1200), retina-laptop (1600), retina-desktop (2400).
-const BREAKPOINTS = [400, 600, 900, 1200, 1600, 2400];
+const BREAKPOINTS = [400, 600, 800, 900, 1200, 1600, 2400];
 const widths = BREAKPOINTS.filter((w) => w <= width);
 // Always include the explicit width so the largest srcset slot matches it.
 if (widths[widths.length - 1] !== width) widths.push(width);
@@ -109,6 +118,7 @@ const resolvedAlt = alt !== undefined ? alt : (source.alt ?? '');
   alt={resolvedAlt}
   loading={loading}
   decoding="async"
+  fetchpriority={fetchpriority}
   sizes={sizes ?? `(max-width: ${width}px) 100vw, ${width}px`}
   class={className}
 />

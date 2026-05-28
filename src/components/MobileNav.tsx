@@ -174,11 +174,16 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
               as the desktop header logo (free cache hit). */}
           {logoLightUrl && (
             <div className="border-t border-border-soft px-l py-l flex justify-center">
+              {/* Drawer logo display is h-16 (64 px tall) with w-auto, so
+                  rendered size is ~61×64 px. width={64} height={68} matches
+                  the source aspect ratio. URLs come from Header.astro's
+                  getImage() at width=128 — a 2× retina file with no
+                  oversize waste. */}
               <img
                 src={logoLightUrl}
                 alt="Reid Design"
-                width={378}
-                height={400}
+                width={64}
+                height={68}
                 className="block dark:hidden h-16 w-auto"
                 loading="lazy"
                 decoding="async"
@@ -188,8 +193,8 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
                   src={logoDarkUrl}
                   alt=""
                   aria-hidden="true"
-                  width={378}
-                  height={400}
+                  width={64}
+                  height={68}
                   className="hidden dark:block h-16 w-auto"
                   loading="lazy"
                   decoding="async"

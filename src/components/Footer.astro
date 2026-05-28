@@ -77,14 +77,16 @@ const latestProjects = allProjects.slice(0, 3);
       aria-label={`${brandName} home`}
       class="inline-block hover:opacity-80 transition-opacity"
     >
-      {/* Footer logo is below the fold on every page — lazy + WebP via
-          Astro's <Image>. Same asset hash as the header logo so the
-          browser cache hit is automatic on the second use. */}
+      {/* Footer logo display is h-24 (96 px tall) with w-auto, so rendered
+          size is ~91×96 px. width={96} height={102} matches the source
+          aspect ratio and `densities={[1, 2]}` produces 96w + 192w —
+          tightly sized to display, no oversized PNG bytes. Lazy because
+          the footer is below the fold on every page. */}
       <Image
         src={logoLightAsset}
         alt={brandName}
-        width={378}
-        height={400}
+        width={96}
+        height={102}
         format="webp"
         densities={[1, 2]}
         class="block dark:hidden mx-auto h-24 w-auto"
@@ -95,8 +97,8 @@ const latestProjects = allProjects.slice(0, 3);
         src={logoDarkAsset}
         alt=""
         aria-hidden="true"
-        width={378}
-        height={400}
+        width={96}
+        height={102}
         format="webp"
         densities={[1, 2]}
         class="hidden dark:block mx-auto h-24 w-auto"

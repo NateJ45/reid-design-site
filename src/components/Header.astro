@@ -23,13 +23,14 @@ import MobileNav from './MobileNav';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 
-// Pre-render the logo variants through Astro's image pipeline once, then
-// reuse the resulting WebP URLs in both the desktop <Image> tags and the
-// MobileNav drawer. getImage() returns the same hashed/optimized file the
-// <Image> component would emit, which means there's only one WebP per
-// logo on disk no matter how many times it's referenced.
-const logoLightWebp = await getImage({ src: logoLightAsset, format: 'webp', width: 378 });
-const logoDarkWebp = await getImage({ src: logoDarkAsset, format: 'webp', width: 378 });
+// Pre-render the logo variants through Astro's image pipeline at the
+// dimensions the MobileNav drawer actually displays (h-16 = 64 px tall,
+// so 128 px wide source covers 2x retina with zero waste). The desktop
+// header uses a separate <Image> call below with its own dimensions —
+// keeping the mobile-drawer file small means the drawer doesn't pull
+// down a 378 px logo just to render at 64 px.
+const logoLightWebpMobile = await getImage({ src: logoLightAsset, format: 'webp', width: 128 });
+const logoDarkWebpMobile = await getImage({ src: logoDarkAsset, format: 'webp', width: 128 });
 
 interface Props {
   siteSettings?: {
@@ -190,11 +191,16 @@ function isActive(href: string) {
         page; the dark variant is `loading="lazy"` since most visitors
         see the light variant first.
       */}
+      {/* Header logo display is h-[6.25rem] (100 px tall) with w-auto, so the
+          rendered size is ~95×100 px. width={100} height={106} matches the
+          source aspect ratio (378:400) and `densities={[1, 2]}` gives a
+          100w + 200w pair — enough for retina without serving the full
+          378×400 source like before (Lighthouse: "image larger than needed"). */}
       <Image
         src={logoLightAsset}
         alt={brandName}
-        width={378}
-        height={400}
+        width={100}
+        height={106}
         format="webp"
         densities={[1, 2]}
         class="block dark:hidden h-[6.25rem] w-auto"
@@ -205,8 +211,8 @@ function isActive(href: string) {
         src={logoDarkAsset}
         alt=""
         aria-hidden="true"
-        width={378}
-        height={400}
+        width={100}
+        height={106}
         format="webp"
         densities={[1, 2]}
         class="hidden dark:block h-[6.25rem] w-auto"
@@ -251,8 +257,8 @@ function isActive(href: string) {
       client:only="react"
       links={NAV_LINKS}
       siteSettings={mobileNavSettings}
-      logoLightUrl={logoLightWebp.src}
-      logoDarkUrl={logoDarkWebp.src}
+      logoLightUrl={logoLightWebpMobile.src}
+      logoDarkUrl={logoDarkWebpMobile.src}
     />
   </div>
 </header>

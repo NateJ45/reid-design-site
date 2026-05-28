@@ -175,12 +175,15 @@ const wrapperHeight =
     ]}
     aria-labelledby={headingId}
   >
-    {/* Background image — eager loaded; two layered overlays handle readability. */}
+    {/* Background image — eager loaded; two layered overlays handle readability.
+        fetchpriority="high" tells the browser this is the LCP image so it
+        races to the front of the network queue ahead of other resources. */}
     <SanityImage
       source={backgroundImage}
       width={2400}
       sizes="100vw"
       loading="eager"
+      fetchpriority="high"
       quality={70}
       class="absolute inset-0 w-full h-full object-cover"
     />

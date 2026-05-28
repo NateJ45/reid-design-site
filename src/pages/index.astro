@@ -97,9 +97,14 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     <div data-reveal class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-center">
       {page?.meetStaciPhoto?.asset ? (
         <div class="order-1 md:order-1">
+          {/* width=800 caps the responsive ladder at 800w — the column
+              never exceeds ~648 px (45vw of a 1440 px viewport) and
+              mobile only needs ~750 px even at high DPR. The previous
+              900 px cap was triggering Lighthouse's "image larger than
+              displayed" warning by ~112 KB on the Meet Staci photo. */}
           <SanityImage
             source={page.meetStaciPhoto}
-            width={900}
+            width={800}
             sizes="(min-width: 768px) 45vw, 100vw"
             quality={75}
             class="w-full h-auto rounded-md"
