@@ -181,6 +181,18 @@ There's a one-off sweep script at `scripts/sweep-eyebrow-contrast.mjs` that catc
 
 The same audit-driven sweep already migrated `text-primary-dark` → `text-link` in ServiceCard prices, ServiceAreaCue Plainfield highlight, ProcessStep / about philosophy numerals, journal pull-quote glyph + price inline, and CaseStudyTOC active state.
 
+### Server-only console warnings
+
+`src/lib/sanity.ts` warns about missing env vars (project ID, read token). These warnings are wrapped in `if (import.meta.env.SSR)` so they only fire during the build / SSR pass, not in the browser. Why: the Sanity client module gets imported by React components (PortableText, ProjectGallery, etc.) for the `urlFor` image helper. Without the SSR guard, every browser session would see the "SANITY_API_READ_TOKEN is not set" warning, even though the token is irrelevant in the browser (it's a server-only env var).
+
+Use this pattern for any future console.* call in code that gets imported by client components:
+
+```ts
+if (import.meta.env.SSR) {
+  console.warn('[some-module] build-only warning…');
+}
+```
+
 ### Tailwind v4 cascade gotcha: className overrides usually lose
 
 Tailwind v4 generates utilities **alphabetically** in the stylesheet. Two utilities affecting the same property fight at the CSS layer, not at the order they appear in your `class:list`. So:
@@ -285,6 +297,32 @@ document.addEventListener('astro:page-load', initThing);
 
 Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations.
 
+### Hero accents (three flourishes — pick at most one per hero)
+
+The image-variant Hero supports three optional editorial flourishes on the headline + subhead. Each is independent; pick at most one for any given page so they don't compete.
+
+1. **`rotatingWords` prop** — array of words that cycle through in place of the headline's FIRST word, once per session. Honors prefers-reduced-motion. Currently used on `/` (home): `['Lived-in', 'Considered', 'Quiet']`. Hardcoded in the page's Hero call. The animation drops the trailing redundant cycle (was a fencepost bug at first — see the 2026-05-27 commit for the trace).
+
+2. **`scriptAccent` prop** — a single word/phrase in the headline that renders in Pinyon Script via the `.font-script` utility (which handles font-family + 1.25em scale + baseline tweak to match Cormorant visual weight). The first occurrence is wrapped. Falls back to plain rendering if the word isn't found in the current headline copy (so Staci can edit copy without breaking anything). Currently wired:
+   - `/services` → `"reveal"`
+   - `/portfolio` → `"Plainfield"`
+   - `/journal` → `"studio"`
+   - `/faq` → `"Know"`
+   
+   Don't combine with `rotatingWords` (they may target the same first word). The Hero component enforces this — `rotatingWords` wins if both are passed.
+
+3. **Subhead italic emphasis via markdown `_word_`** — the Hero subhead parses `_…_` markers into italic Cormorant `<em>` spans. Editor-friendly: Staci can write "Pick the tier that fits _where you are_." in Sanity and the wrapped phrase renders in italic Cormorant. No HTML in the field. This is the ONE flourish that's editor-controlled rather than hardcoded — works passively via the existing `heroSubhead` field on every page singleton.
+
+### Hero staggered entry animation (`.hero-entry-stagger`)
+
+The image-variant Hero's content column wraps in `<div class="hero-entry-stagger">`. Each direct child fades up with a 120ms staggered delay on first paint (eyebrow → cream hairline → h1 → subhead → CTAs). Animation lives in globals.css. Reduced-motion users get the final composition instantly via the global media-query reset.
+
+Don't apply this class to other components — the per-child delays are tuned for the hero's specific 4-5-element composition.
+
+### Cream hairline under hero eyebrow
+
+The image-variant Hero now renders a 12-pixel-wide cream hairline (`bg-bg/40`) beneath the eyebrow, mirroring the SectionHeading inverse-tone treatment so heroes carry the same editorial signature as every interior section heading. No prop — automatic whenever an eyebrow is set on an image hero.
+
 ---
 
 ## Build pipeline
@@ -309,6 +347,7 @@ Standalone scripts:
 
 - Headings (h1 through h6): **Cormorant Garamond**. Self-hosted via `@fontsource/cormorant-garamond`. Editorial serif that carries the premium-but-warm tone the audit landed on.
 - Body, UI, buttons: **Source Sans 3** (variable). Self-hosted via `@fontsource-variable/source-sans-3`.
+- Script accent on ONE word per hero: **Pinyon Script**. Self-hosted via `@fontsource/pinyon-script`. Used ONLY via the `font-script` utility for the editorial-signature flourish (see Polish layer → Hero accents). Don't use this font for body, buttons, or anywhere outside the explicit accent slot — it'd read flashy fast.
 - Labels, eyebrows, monospace numerals: `ui-monospace, 'SF Mono', monospace` (system, no file).
 
 Font families are declared in the `@theme` block in `src/styles/globals.css` as `--font-display`, `--font-body`, `--font-mono`, which Tailwind exposes automatically as `font-display`, `font-body`, `font-mono` utility classes. Give Cormorant Garamond a `<link rel="preload">` hint in `BaseLayout.astro` if the homepage hero h1 is the LCP element.
@@ -377,8 +416,8 @@ shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with por
 The current component set, by role. All in `src/components/` unless noted.
 
 **Page chrome:**
-- `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer).
-- `Footer.astro` — bronze stripe, brand block, 4-column link grid, latest projects from Sanity, auto-year copyright + "Site by …" credit under the socials.
+- `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer). New logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`.
+- `Footer.astro` — bronze stripe, brand block (logo wraps in `<a href="/">` so click returns home), 4-column link grid, latest projects from Sanity, auto-year copyright + "Site by …" credit under the socials.
 - `MobileNav.tsx` — shadcn Sheet drawer (`client:only="react"` — Radix portal can't SSR). Bronze stripe top, primary CTA, tagline, nav links, email + socials + theme toggle, logo at bottom.
 - `BaseLayout.astro` — anti-FOUC theme bootstrap, View Transitions, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**.
 
@@ -425,6 +464,25 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Utility / lower-level:**
 - `JournalCategoryChip.astro`, `JournalCard.astro`, `TestimonialGrid.astro`, etc.
+
+### Mobile-only alignment pattern
+
+Four sections center on mobile but stay left-aligned on desktop. Pattern is `class="text-center md:text-left"` on the text container, plus `class="justify-center md:justify-start"` on any CTA `<div>` underneath. Sections that use this:
+
+- `/404` text block + 3-CTA row
+- `/services` "Discuss a Partnership" primary CTA
+- `/` (home) "Meet Staci" CTA
+- `/journal/[slug]` Related Project aside
+
+Audit basis: a 390×844 walk found exactly four "orphan-left" CTAs that benefit from mobile centering. Everything else (heroes, story sections, forms, body copy, ProjectMetaBand, article headers, card content) stays left-aligned because left is genuinely correct for reading content. Don't add mobile-center on sections that already have visual neighbors anchoring them.
+
+### Sticky CTA chip behavior
+
+`StickyCTAChip.tsx` is a bottom-floating bronze pill that appears past 50% scroll on long pages (portfolio detail, services, journal post). Behavior is now simple threshold-based visibility with a 2% hysteresis band — past 50% it shows, above 48% it hides. **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
+
+Positioning: always `bottom-[5.5rem]` (above the BackToTop button which lives at `bottom-6`). On mobile centered via `left-1/2 -translate-x-1/2`; on `sm+` returns to right-aligned via `sm:left-auto sm:translate-x-0 sm:right-m` so it doesn't dominate the reading column on wider viewports.
+
+Labels are hardcoded per page in each `<StickyCTAChip>` call. Keep them short (under ~25 chars) — the chip has a 28rem desktop / 92vw mobile max-width and an internal `truncate` safety net.
 
 ### CtaLink `onDark` prop
 
@@ -550,7 +608,7 @@ Target: WCAG 2.1 AA in both light and dark modes. Aim for 100 Lighthouse Accessi
 - `--primary` (Warm Bronze): buttons, focus rings, CTA backgrounds at large size, **brand-stripe rhythm**. Paired with white foreground.
 - `--primary-dark` (Bronze Dark): hover state on bronze CTAs only — use `--link` for theme-aware always-on text.
 - `--link`: theme-aware bronze (Bronze Dark in light, lifted Bronze in dark). Use for inline links, anchor-style body text, ServiceCard prices, ProcessStep numerals, any always-on text that needs to read in both modes.
-- `--accent` (theme-aware via shadcn mapping): hover surfaces only — NOT body text.
+- `--accent` (theme-aware via shadcn mapping): hover surfaces only — NOT body text. Light-mode value bumped to `#ECE5DB` (Warm Cream Dark, slightly darker than `--muted`) so `hover:bg-accent` on the header eyebrow strip is actually visible (when `--accent` matched `--muted`, hovers were invisible).
 - `--foreground` (Charcoal in light, Cream in dark): headings and body text.
 - `--secondary` (Warm Taupe): borders, dividers, decorative ornaments. **NOT eyebrow labels** — those use `text-foreground/65` (see Eyebrow contrast lesson above).
 
@@ -1220,6 +1278,36 @@ Things to configure before or during the public launch. Everything below should 
 
 ---
 
+## What's editor-driven vs hardcoded
+
+A reference for what Staci can change in Studio vs what requires a code edit.
+
+### Editor-driven (Sanity)
+
+- **All page copy** — eyebrows, headlines, subheads, body Portable Text, CTA labels (when the CTA uses a `ctaBlock` reference) on every page singleton.
+- **All page hero images** — every `*Page` singleton has a `heroImage` field with caption support.
+- **All collection content** — services, testimonials, FAQs, philosophy points, process steps, projects (case studies), journal entries, journal categories.
+- **Site-wide identity** — siteSettings (email, socials, service areas, travel fees, availability status, footer credit).
+- **Project-detail fields** — `briefLine` + `designCall` for the ProjectMetaBand; `decisionLine` + `caption` on intro-story images; `sourcedFrom` annotation marks in intro story.
+- **Journal post extras** — coverImage caption, `sourcedFrom` annotation in body, related project reference.
+- **Testimonial extras** — photo, location, relatedProject reference.
+- **Hero subhead italic emphasis** — Staci can write `_word_` in any subhead and the parser renders the wrapped text in italic Cormorant. Editor-controlled, no code change needed.
+- **Contact form project-type dropdown** — `contactPage.formProjectTypeOptions`.
+
+### Hardcoded in code (intentional)
+
+These are stable design / system decisions that don't belong in editorial:
+
+- **Hero `rotatingWords` on /** — `['Lived-in', 'Considered', 'Quiet']` in `src/pages/index.astro`. The cycle words are part of the brand vocabulary; editorial drift here would weaken the home page identity.
+- **Hero `scriptAccent` word per page** — `"reveal"` / `"Plainfield"` / `"studio"` / `"Know"` in each page's Hero call. Stable per-page design decisions.
+- **StickyCTAChip labels** — `"Ready to talk it through?"` / `"Want a room like this?"` / `"Have a room in mind?"` hardcoded per page. Stable conversion-pattern copy.
+- **Contact form Location / Budget / Timeline / Source dropdowns** — hardcoded in `ContactForm.tsx`. These mirror Reid Design's actual pricing + service area + lead-source taxonomy and shouldn't drift away from the rest of the site.
+- **Process step illustrations** — inline SVG line drawings in `ProcessStepIllustration.astro`. Placeholder until / unless a real illustrator delivers final art.
+- **404 page text + photo** — hardcoded in `src/pages/404.astro`. Asset ref to a Sanity image is hardcoded.
+- **Portfolio index hero copy** — hardcoded in `src/pages/portfolio/index.astro` (no `portfolioPage` Sanity singleton exists yet). Asset ref hardcoded for the hero image.
+
+If you ever want to flip one of these to editor-driven, the pattern is: add a field to the appropriate Sanity schema, run `npm run typegen`, update the page to consume the new field, deploy Studio.
+
 ## Editor-meta annotation cleanup
 
 Sanity Canvas (AI-assisted drafting) sometimes lets prefix annotations like `[NEW per audit, softer framing] …` or full-field placeholders like `[TODO: Staci to write …]` slip into published content. `scripts/strip-editor-annotations.mjs` scans every Sanity doc for those bracketed prefixes:
@@ -1235,4 +1323,4 @@ If a full-field annotation is the entire content (like `faqItem.background` was 
 
 ---
 
-*Last updated: May 27, 2026*
+*Last updated: May 27, 2026 (late afternoon — script accent + services TOC + mobile alignment audit + Sanity webhook + logo swap)*
