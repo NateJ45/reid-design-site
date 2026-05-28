@@ -246,6 +246,17 @@ export default function ContactForm({
           // Lead source is optional; omit from the payload when blank so it
           // doesn't add a "Source: " line to Staci's email for no reason.
           source: draft.source || undefined,
+          // Web3Forms autoresponder fields. When these are set, Web3Forms
+          // sends a confirmation email to the visitor in addition to the
+          // notification email to Staci. The reply-to_email key is
+          // documented at https://docs.web3forms.com/#autoresponder.
+          // The autoresponder must be enabled in the Web3Forms dashboard
+          // for this project's access key.
+          replyto: draft.email,
+          autoresponse: true,
+          autoresponse_from: 'Reid Design LLC <noreply@reiddesignllc.com>',
+          autoresponse_subject: 'Got your note — Staci will be in touch soon.',
+          autoresponse_message: `Hi ${draft.name},\n\nThank you for reaching out! Staci reads every inquiry personally and will get back to you within a couple of business days.\n\nIf your project is time-sensitive, just mention that in your reply to this email and she'll prioritize accordingly.\n\n— Reid Design LLC\nreiddesignllc.com`,
         }),
       });
       const json = await res.json().catch(() => ({}));

@@ -13,6 +13,7 @@ import CopyEmailButton from '@/components/CopyEmailButton';
 import CalendlyInline from '@/components/CalendlyInline';
 import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
 import { Mail } from 'lucide-react';
+import PostInquiryRoadmap from '@/components/PostInquiryRoadmap.astro';
 
 const [page, siteSettings] = await Promise.all([
   getContactPage().catch(() => null),
@@ -32,6 +33,16 @@ const schedulingLinkLabel = page?.schedulingLinkLabel ?? 'Schedule a 20-minute d
 
 const availability = page?.availabilityNote ?? siteSettings?.availabilityStatus;
 const email        = siteSettings?.email;
+
+// Satisfaction guarantee — renders near the form CTA when set in siteSettings.
+const satisfactionGuarantee = siteSettings?.satisfactionGuarantee;
+
+// Post-inquiry roadmap — prefer the structured steps when present;
+// fall through to the legacy whatToExpectContent when the array is empty.
+const roadmapSteps = (page?.postInquiryRoadmap ?? []).filter(
+  (s: any) => s?.title?.trim()
+);
+const hasRoadmap = roadmapSteps.length > 0;
 
 const schemas = [
   breadcrumbSchema([
@@ -60,6 +71,14 @@ const schemas = [
         <p class="mb-m text-foreground/80 text-base">{formIntroNote}</p>
       )}
 
+      {/* Satisfaction guarantee line — renders above the form when set in
+          siteSettings so it reassures visitors before they fill anything in. */}
+      {satisfactionGuarantee && (
+        <p class="mb-m flex items-start gap-xs text-sm text-foreground/80 border-l-2 border-primary pl-s py-px">
+          {satisfactionGuarantee}
+        </p>
+      )}
+
       <ContactForm
         client:visible
         projectTypes={page?.formProjectTypeOptions}
@@ -85,7 +104,16 @@ const schemas = [
         <CalendlyInline client:visible url={schedulingLink} loadLabel={schedulingLinkLabel} />
       )}
 
-      {page?.whatToExpectContent && (
+      {/* Post-inquiry roadmap — structured steps when present.
+          Falls back to the legacy whatToExpectContent when the roadmap array
+          is empty so the page degrades gracefully before Staci fills it in. */}
+      {hasRoadmap ? (
+        <PostInquiryRoadmap
+          steps={roadmapSteps}
+          eyebrow={page?.whatToExpectEyebrow}
+          headline={page?.whatToExpectHeadline}
+        />
+      ) : page?.whatToExpectContent && (
         <div class="mt-section-lg border-t border-border-soft pt-l">
           {page.whatToExpectEyebrow && (
             <p class="text-xs uppercase tracking-[0.22em] text-foreground/80 mb-s">{page.whatToExpectEyebrow}</p>
