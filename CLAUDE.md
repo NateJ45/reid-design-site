@@ -51,21 +51,25 @@ A few `astro.config.mjs` levers that look tempting but break things — left doc
 
 ## Page architecture
 
-Lock in the home page sections in render order. Don't reorder. Don't drop. If a section's content isn't ready yet, build a placeholder block in the right slot.
+The home page section order is conversion-tuned (reordered 2026-05): visual proof and social proof come early, price transparency mid-funnel, the long-read journal sits late for visitors in research mode. Don't reorder without a conversion reason. If a section's content isn't ready yet, build a placeholder block in the right slot.
 
 **Home page** (in render order):
 1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
 2. Meet Staci (photo, intro copy, CTA to About)
-3. Featured Work (auto-populated — hero project + companions from Sanity)
-4. Featured Journal (auto-populated — hero entry + companions from Sanity)
+3. Featured Work (auto-populated — hero project + companion panel; visual proof, the hook)
+4. Kind Words (1 featured testimonial + 6 grid testimonials; social proof, early)
 5. How It Works (4-step process preview, CTA to Process)
-6. Kind Words (1 featured testimonial + 6 grid testimonials from Sanity)
-7. How Reid Design Can Help (4 services with prices, CTA to Contact)
+6. How Reid Design Can Help (4 services with prices, CTA to Contact)
+7. Featured Journal (auto-populated — hero entry + companion panel; depth for considerers)
 8. Service area cue line (Plainfield-first)
 9. Final CTA (full-bleed)
 10. Footer
 
-Sections 3 and 4 are the front-of-house hook — Staci's work and her thinking land before visitors hit the process explainer. They pull the most-relevant 4 projects + 4 journal entries from Sanity, ordered featured-first (`featured: true` pinned to the top) then by publish date. Both sections suppress entirely when the collection is empty, and the layout degrades to a centered single-hero spread when there's only one item — see `FeaturedWork.astro` + `FeaturedJournal.astro` for the asymmetric-grid logic and adaptive hero aspect (2:1 alone → 4:3 with 1-2 companions → 4:5 with 3 companions). Editor controls the eyebrow / headline / subhead / CTA via the `homePage` singleton's `featuredWork*` + `featuredJournal*` field groups.
+**Why this order** (the conversion logic, so a future edit doesn't "tidy" it back): Staci is a solo practitioner in a small market with a $150 entry point, so trust is the friction, not price. Lead with the work (visual proof) and testimonials (social proof) while intent is forming; put process + pricing once they're warm; hold the journal for last as the "this designer thinks deeply" signal for research-mode visitors. Kind Words sits directly after Featured Work on purpose — "here's the work / here's what clients said" reads as one persuasive beat.
+
+**Background cadence**: sections alternate `bg-background` / `bg-muted` so no two adjacent sections share a surface. Featured Work and Featured Journal are both `surface-warm bg-muted`; the one unavoidable muted/muted seam (Featured Journal into the Service-area cue) is bridged by the bronze `SectionDivider`. If you reorder, re-check the cadence — the `bg-background` on the Services section exists specifically to keep the alternation clean after Kind Words moved above How It Works.
+
+**Featured Work + Featured Journal** pull the most-relevant 4 projects + 4 journal entries from Sanity, ordered featured-first (`featured: true` pinned to the top) then by publish date. Both suppress entirely when the collection is empty, and degrade to a centered single-hero spread (`max-w-4xl`, wide `16/10` aspect) when there's only one item. With companions they render as a two-column grid: a full-bleed hero card (image fills via `lg:h-full` + a `min-h` floor so it's always flush with the right column, never leaving a `bg-card` strip) beside a single **cohesive companion panel** — one card, one bronze stripe, one shadow, with each project/post as a row split by hairline dividers and a per-row hover tint. The panel fills the column (`lg:h-full`) and distributes rows with `flex-1` so its bottom lines up with the hero. Editor controls eyebrow / headline / subhead / CTA via the `homePage` singleton's `featuredWork*` + `featuredJournal*` field groups; section headings are center-aligned to match the rest of the page.
 
 **Site-wide pages** (6 total, all linked from the primary nav):
 - Home (`/`)
@@ -492,11 +496,13 @@ The current component set, by role. All in `src/components/` unless noted.
 - `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
 - `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
 
-**Home page Featured sections (auto-from-Sanity hero + companions):**
-- `FeaturedWork.astro` — large editorial hero project (cover image with title + brief overlaid on a dark gradient) + up to 3 compact horizontal companion cards stacked beside it. Hero aspect adapts to companion count (2:1 alone → 4:3 with 1-2 → 4:5 with 3) so the column heights roughly match. Mobile always uses portrait (4:5) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below.
-- `FeaturedJournal.astro` — mirrors `FeaturedWork`'s asymmetric grid with cover image + category chip + date + title + lede excerpt overlaid. Same hero-aspect adaptation. Title uses `text-h3 md:text-h2 line-clamp-3` because journal titles run long; mobile excerpt is `line-clamp-3`.
+**Home page Featured sections (auto-from-Sanity hero + companion panel):**
+- `FeaturedWork.astro` — large editorial hero project (cover image with room chip + title + brief overlaid on a full-height dark gradient) beside a single cohesive companion panel (one card / one bronze stripe / one shadow; each project a row split by hairline dividers with a per-row `hover:bg-muted/60` tint). With companions the hero image fills the grid-stretched card (`lg:h-full` + `lg:min-h-[28rem]` floor) so it's always flush with the panel — no `bg-card` strip below an aspect-locked image. With no companions it degrades to a centered `max-w-4xl` single hero at `lg:aspect-[16/10]`. Mobile always uses portrait (`aspect-[4/5]`) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below.
+- `FeaturedJournal.astro` — mirrors `FeaturedWork` exactly (same hero-fill + cohesive panel + no-companions degrade) with cover image + category chip + date + title + lede excerpt overlaid. Title uses `text-h3 md:text-h2 line-clamp-3` because journal titles run long; excerpt is `line-clamp-3`.
 
-Both sections feed off the new `featured: boolean` on `project` and `journalEntry`. Queries (`getHomePage()` → `featuredProjects` + `featuredJournalEntries`) order `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot.
+Both sections feed off the `featured: boolean` on `project` and `journalEntry`. Queries (`getHomePage()` → `featuredProjects` + `featuredJournalEntries`) order `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot. The overlay text reserves a right corridor (`pr-28 md:pr-36`) so a long title never wraps under the ★ Featured pill at top-right.
+
+**Gotcha — bottom-anchored overlay vs. image height.** Both hero cards pin the title block to `absolute bottom-0` of the image. If the overlay content is taller than the image, `overflow-hidden` clips the *top* of it (the chips row disappears). Two levers keep it safe: a portrait mobile aspect (`4/5`, never wide) and capping the no-companions desktop case at `16/10` (not `2/1`). If you make a hero image wider/shorter and the eyebrow chips vanish, this is why.
 
 **Project detail page pieces:**
 - `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.

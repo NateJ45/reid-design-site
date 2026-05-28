@@ -109,6 +109,10 @@ Then `node scripts/your-script.mjs`.
 - `scripts/patch-hero-accents-and-sticky-cta.mjs` — backfills new Sanity-editable fields on existing docs without overwriting customized values.
 - `scripts/patch-project-introstory-headings.mjs` — walks every project, inserts h2 blocks, skips any that already have headings.
 - `scripts/seed-portfolio-and-404-singletons.mjs` — `createOrReplace` if doc doesn't exist, `setIfMissing` if it does.
+- `scripts/inspect-homepage-copy.mjs` — read-only audit that prints which `homePage` copy fields are populated vs. empty (i.e. which render live Sanity content vs. fall back to the code defaults in `index.astro`). Run this *first* before changing home page copy, so you know whether an edit needs a Sanity patch or just a code fallback change.
+- `scripts/patch-homepage-conversion-copy.mjs` — the home page copy enrichment pass. Mixes `set()` (overwrite genuinely-thin existing fields like the Services + Final CTA subheads) with `setIfMissing()` (seed new/empty fields like the Process + Testimonials subheads and the Featured Work/Journal copy). Dry-run by default; `--apply` to write. A good template for "rewrite some live copy, seed the rest" jobs.
+
+**Key gotcha when editing existing page copy:** most `homePage` fields already have Sanity content, so changing a code fallback in `index.astro` does NOT change the live site — the Sanity value wins. To change displayed copy on a populated field you must patch Sanity (see the script above). Only genuinely-empty fields render their code fallback. `inspect-homepage-copy.mjs` tells you which is which.
 
 **Portable Text blocks** need `_key` (use `randomUUID()`), `_type: 'block'`, `style` (e.g. `'normal'`, `'h2'`), `markDefs: []`, and `children` with their own `_key`. See the `heading()` helper in `patch-project-introstory-headings.mjs`.
 
@@ -254,4 +258,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-*Last updated: May 28, 2026 — added the home page Featured Work + Featured Journal sections and the gotchas hit while iterating them with Playwright (overlay + portrait aspect, `data-reveal` blank-screenshot trap, transient Vite first-load SSR errors).*
+*Last updated: May 28, 2026 — home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; documented the copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier the same day: added the Featured Work + Featured Journal sections (cohesive companion panel, flush hero image) and the Playwright iteration gotchas (overlay + portrait aspect, `data-reveal` blank-screenshot trap, transient Vite first-load SSR errors).*
