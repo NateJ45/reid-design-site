@@ -109,17 +109,19 @@ function makeComponents(): PortableTextComponents {
       if (!value?.asset) return null;
       const url = urlFor(value).width(1600).quality(75).format('webp').url();
       const url2x = urlFor(value).width(3200).quality(75).format('webp').url();
-      // Intrinsic dimensions from the asset _ref let the browser reserve
-      // aspect-ratio space before the image loads — kills the CLS hit
-      // Lighthouse was flagging on portfolio + journal detail pages where
-      // inline images previously had no width/height.
+      // Intrinsic dimensions from the asset _ref serve two purposes:
+      // (1) the browser reserves aspect-ratio space before the image lands
+      //     (kills CLS), and (2) we can detect orientation to choose a
+      //     sensible figure width — portrait shots blown out to full column
+      //     width are taller than the viewport, so we cap them ~600 px wide
+      //     and center. Landscape shots keep the editorial full-bleed.
       const dims = parseSanityAssetDimensions(value);
-      // Case-study image treatment. When decisionLine is set, the image reads
-      // like an editorial spread: uppercase eyebrow above the caption, both
-      // tucked under a full-width photograph. This is the "show the thinking"
-      // moment — the editor is telling the reader why this image is here.
+      const isPortrait = dims ? dims.height > dims.width : false;
+      const figClass = isPortrait
+        ? 'my-section-md mx-auto max-w-[600px]'
+        : 'my-section-md -mx-m md:mx-0';
       return (
-        <figure className="my-section-md -mx-m md:mx-0">
+        <figure className={figClass}>
           <img
             src={url}
             srcSet={`${url} 1x, ${url2x} 2x`}
