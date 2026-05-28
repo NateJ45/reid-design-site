@@ -41,8 +41,17 @@ export default function StickyCTAChip({
       /* sessionStorage unavailable — fall through */
     }
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let lastY = window.scrollY;
+    // Simple show/hide: visible whenever scroll progress is past the
+    // threshold, hidden when above it. A small 2% hysteresis band prevents
+    // jitter right at the line (would otherwise toggle on every micro-scroll).
+    //
+    // The earlier "hide on scroll-down, reveal on scroll-up" behavior was
+    // ported from the sticky-header pattern, but it doesn't translate to a
+    // small bottom-right chip — the chip isn't blocking reading the way a
+    // full-width header is, and any scroll-direction toggle produced a
+    // distracting flicker every time the visitor paused-then-resumed
+    // scrolling. Once revealed, the chip just stays put until dismissed
+    // or scrolled back above threshold.
     let ticking = false;
 
     const onScroll = () => {
@@ -50,26 +59,17 @@ export default function StickyCTAChip({
       ticking = true;
       requestAnimationFrame(() => {
         const y = window.scrollY;
-        const dy = y - lastY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const progress = docHeight > 0 ? y / docHeight : 0;
 
-        // Reduced motion: skip the slide-in transition (CSS already kills it
-        // globally, but we also don't toggle the chip's mounted state since
-        // there's no transition to wait on).
-        if (reduceMotion) {
-          setVisible(progress >= threshold);
-        } else if (progress >= threshold && dy < 4) {
-          // Scrolling stops or scrolls up past threshold → reveal.
-          setVisible(true);
-        } else if (dy > 8 && progress >= threshold) {
-          // Sustained scroll-down → hide so we don't block reading.
-          setVisible(false);
-        } else if (progress < threshold - 0.02) {
-          // Scrolled back above threshold → hide.
-          setVisible(false);
-        }
-        lastY = y;
+        setVisible((current) => {
+          // Hysteresis: require crossing slightly above the threshold to hide,
+          // so a hover right at 50% doesn't flicker.
+          if (current) {
+            return progress >= threshold - 0.02;
+          }
+          return progress >= threshold;
+        });
         ticking = false;
       });
     };
