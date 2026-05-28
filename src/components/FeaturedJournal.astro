@@ -1,0 +1,238 @@
+---
+// Safe to edit by hand
+// Home page Featured Journal section.
+//
+// Layout mirrors FeaturedWork so the two sections read as a paired editorial
+// rhythm: 1 large image-overlay hero card + up to 3 compact companion entries
+// stacked beside it. Journal cover images tend to read as wider editorial
+// scenes, so the hero aspect is slightly more landscape than the Work hero.
+//
+// Degrades to a centered single-card layout when only the hero entry exists
+// (early days of the journal).
+//
+// Data: featured-then-newest journal entries, capped at 4. Section is
+// suppressed entirely when no entries exist.
+
+import SanityImage from '@/components/SanityImage.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import CtaLink from '@/components/CtaLink.astro';
+import JournalCategoryChip from '@/components/JournalCategoryChip.astro';
+
+interface JournalLite {
+  _id?: string;
+  title?: string;
+  slug?: { current?: string };
+  excerpt?: string;
+  publishedAt?: string;
+  coverImage?: any;
+  categories?: Array<{ title?: string; slug?: { current?: string }; description?: string }>;
+  featured?: boolean;
+}
+
+interface Props {
+  entries?: JournalLite[];
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
+  cta?: any;
+  headingId?: string;
+}
+
+const {
+  entries = [],
+  eyebrow,
+  headline,
+  subhead,
+  cta,
+  headingId = 'featured-journal-heading',
+} = Astro.props as Props;
+
+const hasEntries = Array.isArray(entries) && entries.length > 0;
+const [hero, ...rest] = entries;
+const companions = rest.slice(0, 3);
+const hasCompanions = companions.length > 0;
+
+// Hero aspect adapts to companion count so column heights roughly match.
+// Mobile always stays in the portrait band (4/5) so the bottom-overlay text
+// fits inside the image area — wide mobile aspect would push the title +
+// excerpt above the image and the overflow:hidden card clips them off.
+// Mirrors FeaturedWork.
+const heroAspectClass = !hasCompanions
+  ? 'aspect-[4/5] lg:aspect-[2/1]'
+  : companions.length >= 3
+  ? 'aspect-[4/5] lg:aspect-[4/5]'
+  : 'aspect-[4/5] lg:aspect-[4/3]';
+
+const heroHref = hero?.slug?.current ? `/journal/${hero.slug.current}` : '#';
+const heroPrimaryCategory = hero?.categories?.[0];
+
+function formatDate(d?: string): string {
+  if (!d) return '';
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+const heroDate = formatDate(hero?.publishedAt);
+---
+
+{hasEntries && (
+  <section class="bg-background" aria-labelledby={headingId}>
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
+      <SectionHeading
+        eyebrow={eyebrow}
+        headline={headline}
+        subhead={subhead}
+        headingId={headingId}
+        align="left"
+      />
+
+      <div
+        class:list={[
+          'mt-section-lg',
+          hasCompanions
+            ? 'grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-l lg:gap-section-md'
+            : 'mx-auto max-w-4xl',
+        ]}
+      >
+        {/* ------- Hero entry — full-bleed editorial card ------------------ */}
+        {/* Cover image fills the card with a bottom gradient. Category +
+            date eyebrow, title, and lede excerpt overlay on the gradient.
+            Same treatment as the Work hero so the two sections feel paired. */}
+        <a
+          href={heroHref}
+          class="card-lift group relative block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+        >
+          <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-20" aria-hidden="true"></div>
+
+          <div
+            class:list={[
+              'overflow-hidden bg-muted relative',
+              heroAspectClass,
+            ]}
+          >
+            {hero?.coverImage?.asset ? (
+              <SanityImage
+                source={hero.coverImage}
+                width={1600}
+                sizes={hasCompanions ? '(min-width: 1024px) 60vw, 100vw' : '(min-width: 1024px) 56rem, 100vw'}
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              />
+            ) : (
+              <div class="w-full h-full" aria-hidden="true"></div>
+            )}
+
+            {/* Bottom gradient so overlay text reads on any image. */}
+            <div
+              class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none"
+              aria-hidden="true"
+            ></div>
+
+            {hero?.featured && (
+              <span
+                class="absolute top-m right-m inline-flex items-center gap-1 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-primary-dark text-white"
+                aria-hidden="true"
+              >
+                ★ Featured
+              </span>
+            )}
+
+            {/* Editorial text overlay — pinned to bottom. Cream chip styles
+                are inverted on the dark gradient to preserve legibility. */}
+            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md">
+              <div class="flex flex-wrap items-center gap-x-m gap-y-xs">
+                {heroPrimaryCategory?.title && (
+                  <span class="inline-flex items-center px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-bg/85 text-primary-dark backdrop-blur-sm">
+                    {heroPrimaryCategory.title}
+                  </span>
+                )}
+                {heroDate && (
+                  <time datetime={hero?.publishedAt} class="text-xs uppercase tracking-widest text-white/85">
+                    {heroDate}
+                  </time>
+                )}
+              </div>
+
+              {/* Mobile uses h3 sizing because journal titles can run long;
+                  desktop steps up to h2 for editorial impact. line-clamp-3
+                  is a safety net so unusually long titles never blow out
+                  the overlay area on small viewports. */}
+              <h3 class="mt-s font-display text-h3 md:text-h2 leading-tight text-white drop-shadow-sm max-w-3xl line-clamp-3">
+                {hero?.title}
+              </h3>
+
+              {hero?.excerpt && (
+                <p class="mt-s text-white/90 text-sm md:text-base leading-relaxed max-w-prose line-clamp-3 md:line-clamp-none">
+                  {hero.excerpt}
+                </p>
+              )}
+
+              <span class="mt-m inline-flex items-center text-sm font-semibold uppercase tracking-eyebrow text-white group-hover:text-primary transition-colors">
+                Read the article
+                <span class="ml-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+              </span>
+            </div>
+          </div>
+        </a>
+
+        {/* ------- Companion entries — compact stacked cards --------------- */}
+        {hasCompanions && (
+          <ul class="flex flex-col gap-m list-none p-0 m-0">
+            {companions.map((p) => {
+              const cHref = p.slug?.current ? `/journal/${p.slug.current}` : '#';
+              const cCat = p.categories?.[0];
+              const cDate = formatDate(p.publishedAt);
+              return (
+                <li>
+                  <a
+                    href={cHref}
+                    class="card-lift group flex items-stretch gap-m rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+                  >
+                    <div class="relative w-32 sm:w-40 lg:w-44 xl:w-52 aspect-square shrink-0 overflow-hidden bg-muted">
+                      <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" aria-hidden="true"></div>
+                      {p.coverImage?.asset ? (
+                        <SanityImage
+                          source={p.coverImage}
+                          width={500}
+                          sizes="(min-width: 1280px) 208px, (min-width: 1024px) 176px, (min-width: 640px) 160px, 128px"
+                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div class="w-full h-full" aria-hidden="true"></div>
+                      )}
+                    </div>
+
+                    <div class="flex-1 min-w-0 py-m pr-m flex flex-col justify-center">
+                      {cCat?.title && (
+                        <p class="text-[0.65rem] font-semibold uppercase tracking-eyebrow text-link truncate">
+                          {cCat.title}
+                        </p>
+                      )}
+                      <h4 class="mt-1 font-display text-h4 leading-tight text-foreground group-hover:text-primary-dark transition-colors line-clamp-2">
+                        {p.title}
+                      </h4>
+                      {cDate && (
+                        <p class="mt-1 text-xs uppercase tracking-widest text-foreground/80 truncate">
+                          {cDate}
+                        </p>
+                      )}
+                    </div>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      <div class="mt-section-lg flex justify-center lg:justify-start">
+        <CtaLink
+          cta={cta}
+          variant="secondary"
+          fallbackHref="/journal"
+          fallbackLabel="Read more from the journal"
+        />
+      </div>
+    </div>
+  </section>
+)}

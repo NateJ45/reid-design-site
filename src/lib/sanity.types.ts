@@ -820,6 +820,14 @@ export type HomePage = {
     _key: string;
   }>;
   meetStaciCta?: CtaBlock;
+  featuredWorkEyebrow?: string;
+  featuredWorkHeadline?: string;
+  featuredWorkSubhead?: string;
+  featuredWorkCta?: CtaBlock;
+  featuredJournalEyebrow?: string;
+  featuredJournalHeadline?: string;
+  featuredJournalSubhead?: string;
+  featuredJournalCta?: CtaBlock;
   processPreviewEyebrow?: string;
   processPreviewHeadline?: string;
   processPreviewCta?: CtaBlock;
@@ -987,6 +995,7 @@ export type Project = {
   >;
   relatedTestimonial?: TestimonialReference;
   displayOrder?: number;
+  featured?: boolean;
   stickyCtaLabel?: string;
   publishedAt?: string;
   orderRank?: string;

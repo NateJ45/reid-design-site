@@ -1,0 +1,231 @@
+---
+// Safe to edit by hand
+// Home page Featured Work section.
+//
+// Layout:
+//   - 1 large editorial "hero" project card on the left (image + title + brief +
+//     location/year meta) at ~60% width on desktop.
+//   - Up to 3 compact horizontal companion cards stacked on the right (~40%).
+//   - Stacks vertically on mobile: hero, then companions in a 1-col list.
+//
+// Data is auto-populated by the home page query — featured-then-newest, capped
+// at 4 (1 hero + 3 companions). Staci pins one via the `featured` boolean on
+// the project doc; otherwise the section just shows latest 4 in publish order.
+// Section is render-suppressed entirely when no projects exist.
+
+import SanityImage from '@/components/SanityImage.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import CtaLink from '@/components/CtaLink.astro';
+
+interface ProjectLite {
+  _id?: string;
+  title?: string;
+  slug?: { current?: string };
+  location?: string;
+  year?: number;
+  roomType?: string;
+  briefSummary?: string;
+  heroImage?: any;
+  featured?: boolean;
+}
+
+interface Props {
+  projects?: ProjectLite[];
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
+  cta?: any;
+  headingId?: string;
+}
+
+const {
+  projects = [],
+  eyebrow,
+  headline,
+  subhead,
+  cta,
+  headingId = 'featured-work-heading',
+} = Astro.props as Props;
+
+const hasProjects = Array.isArray(projects) && projects.length > 0;
+const [hero, ...rest] = projects;
+const companions = rest.slice(0, 3);
+const hasCompanions = companions.length > 0;
+
+// Hero card aspect ratio adapts to how many companions stack alongside it,
+// so the right column doesn't end with a big void. Mobile always stays in
+// the portrait band (4/5) so the bottom-overlay text fits inside the image
+// area — wide mobile aspect would push the title above the image and the
+// overflow:hidden card would clip it.
+//   0 companions → wide editorial spread on desktop (full row, 2:1)
+//   1-2 companions → landscape 4:3, roughly matches 1-2 stacked compact cards
+//   3 companions → portrait 4:5, matches the taller companion column
+const heroAspectClass = !hasCompanions
+  ? 'aspect-[4/5] lg:aspect-[2/1]'
+  : companions.length >= 3
+  ? 'aspect-[4/5] lg:aspect-[4/5]'
+  : 'aspect-[4/5] lg:aspect-[4/3]';
+
+// Humanize the camelCase room-type enum value ("modernCoastal" → "Modern coastal").
+function humanizeRoom(value?: string): string {
+  if (!value) return '';
+  return value.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()).trim();
+}
+
+const heroRoomLabel = humanizeRoom(hero?.roomType);
+const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
+---
+
+{hasProjects && (
+  <section class="surface-warm bg-muted" aria-labelledby={headingId}>
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
+      <SectionHeading
+        eyebrow={eyebrow}
+        headline={headline}
+        subhead={subhead}
+        headingId={headingId}
+        align="left"
+      />
+
+      <div
+        class:list={[
+          'mt-section-lg',
+          hasCompanions
+            ? 'grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-l lg:gap-section-md'
+            : 'mx-auto max-w-4xl',
+        ]}
+      >
+        {/* ------- Hero project — full-bleed editorial card ---------------- */}
+        {/* Image fills the card; title + brief overlay on a dark gradient so
+            the card stays compact and reads as a single editorial spread. */}
+        <a
+          href={heroHref}
+          class="card-lift group relative block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+        >
+          {/* Brand accent stripe — matches the card grammar across the site. */}
+          <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-20" aria-hidden="true"></div>
+
+          <div
+            class:list={[
+              'overflow-hidden bg-muted relative',
+              heroAspectClass,
+            ]}
+          >
+            {hero?.heroImage?.asset ? (
+              <SanityImage
+                source={hero.heroImage}
+                width={1400}
+                sizes="(min-width: 1024px) 60vw, 100vw"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              />
+            ) : (
+              <div class="w-full h-full" aria-hidden="true"></div>
+            )}
+
+            {/* Bottom gradient so the title + brief read on any image. */}
+            <div
+              class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none"
+              aria-hidden="true"
+            ></div>
+
+            {/* Room-type chip top-left — same chip pattern as ProjectCard. */}
+            {heroRoomLabel && (
+              <span
+                class="absolute top-m left-m inline-flex items-center px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-bg/85 text-primary-dark backdrop-blur-sm"
+                aria-hidden="true"
+              >
+                {heroRoomLabel}
+              </span>
+            )}
+
+            {/* Featured pin — only when Staci flagged this project. */}
+            {hero?.featured && (
+              <span
+                class="absolute top-m right-m inline-flex items-center gap-1 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-primary-dark text-white"
+                aria-hidden="true"
+              >
+                ★ Featured
+              </span>
+            )}
+
+            {/* Editorial text overlay — pinned to the bottom of the image. */}
+            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md">
+              <p class="text-xs uppercase tracking-widest text-white/80">
+                {hero?.location}{hero?.location && hero?.year ? ' · ' : ''}{hero?.year}
+              </p>
+              <h3 class="mt-s font-display text-h2 leading-tight text-white drop-shadow-sm">
+                {hero?.title}
+              </h3>
+              {hero?.briefSummary && (
+                <p class="mt-s text-white/90 text-base leading-relaxed max-w-prose">
+                  {hero.briefSummary}
+                </p>
+              )}
+              <span class="mt-m inline-flex items-center text-sm font-semibold uppercase tracking-eyebrow text-white group-hover:text-primary transition-colors">
+                See the project
+                <span class="ml-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+              </span>
+            </div>
+          </div>
+        </a>
+
+        {/* ------- Companion projects — compact stacked cards -------------- */}
+        {hasCompanions && (
+          <ul class="flex flex-col gap-m list-none p-0 m-0">
+            {companions.map((p) => {
+              const cHref = p.slug?.current ? `/portfolio/${p.slug.current}` : '#';
+              const cRoom = humanizeRoom(p.roomType);
+              return (
+                <li>
+                  <a
+                    href={cHref}
+                    class="card-lift group flex items-stretch gap-m rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+                  >
+                    {/* Square thumb on the left — keeps the row compact. */}
+                    <div class="relative w-32 sm:w-40 lg:w-44 xl:w-52 aspect-square shrink-0 overflow-hidden bg-muted">
+                      {/* Bronze stripe along the top of the thumb area. */}
+                      <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" aria-hidden="true"></div>
+                      {p.heroImage?.asset ? (
+                        <SanityImage
+                          source={p.heroImage}
+                          width={500}
+                          sizes="(min-width: 1280px) 208px, (min-width: 1024px) 176px, (min-width: 640px) 160px, 128px"
+                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div class="w-full h-full" aria-hidden="true"></div>
+                      )}
+                    </div>
+
+                    <div class="flex-1 min-w-0 py-m pr-m flex flex-col justify-center">
+                      {cRoom && (
+                        <p class="text-[0.65rem] font-semibold uppercase tracking-eyebrow text-link">
+                          {cRoom}
+                        </p>
+                      )}
+                      <h4 class="mt-1 font-display text-h4 leading-tight text-foreground group-hover:text-primary-dark transition-colors line-clamp-2">
+                        {p.title}
+                      </h4>
+                      <p class="mt-1 text-xs uppercase tracking-widest text-foreground/80 truncate">
+                        {p.location}{p.location && p.year ? ' · ' : ''}{p.year}
+                      </p>
+                    </div>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      <div class="mt-section-lg flex justify-center lg:justify-start">
+        <CtaLink
+          cta={cta}
+          variant="secondary"
+          fallbackHref="/portfolio"
+          fallbackLabel="See all work"
+        />
+      </div>
+    </div>
+  </section>
+)}

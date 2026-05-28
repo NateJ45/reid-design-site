@@ -313,6 +313,13 @@ export const project = defineType({
       description: 'Lower numbers show first in the portfolio. Leave blank to sort by year.',
     }),
     defineField({
+      name: 'featured',
+      title: 'Featured (pin to home page)',
+      type: 'boolean',
+      description: 'If checked, this project is pinned to the homepage Featured Work section regardless of publish date. Use sparingly — the section shows the most recent 4 projects by default.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'stickyCtaLabel',
       title: 'Sticky CTA label (optional)',
       type: 'string',
@@ -331,14 +338,22 @@ export const project = defineType({
     orderRankField({ type: 'project' }),
   ],
   preview: {
-    select: { title: 'title', location: 'location', year: 'year', media: 'heroImage' },
-    prepare: ({ title, location, year, media }) => ({
+    select: { title: 'title', location: 'location', year: 'year', featured: 'featured', media: 'heroImage' },
+    prepare: ({ title, location, year, featured, media }) => ({
       title,
-      subtitle: `${location ?? ''} · ${year ?? ''}`,
+      subtitle: `${featured ? '★ ' : ''}${location ?? ''} · ${year ?? ''}`,
       media,
     }),
   },
   orderings: [
+    {
+      title: 'Featured then newest',
+      name: 'featuredThenDate',
+      by: [
+        { field: 'featured', direction: 'desc' },
+        { field: 'publishedAt', direction: 'desc' },
+      ],
+    },
     {
       title: 'Newest first',
       name: 'publishedDesc',

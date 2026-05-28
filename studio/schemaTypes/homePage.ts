@@ -14,6 +14,8 @@ export const homePage = defineType({
     { name: 'seo', title: 'SEO' },
     { name: 'hero', title: 'Hero', default: true },
     { name: 'meetStaci', title: 'Meet Staci' },
+    { name: 'featuredWork', title: 'Featured Work' },
+    { name: 'featuredJournal', title: 'Featured Journal' },
     { name: 'process', title: 'Process preview' },
     { name: 'testimonials', title: 'Testimonials' },
     { name: 'services', title: 'Services grid' },
@@ -104,6 +106,66 @@ export const homePage = defineType({
       ],
     }),
     defineField({ name: 'meetStaciCta', title: '"Get to Know Me" CTA', type: 'ctaBlock', group: 'meetStaci' }),
+
+    // Featured Work (auto-populates with featured-then-newest projects from the Project collection)
+    defineField({
+      name: 'featuredWorkEyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'featuredWork',
+      initialValue: 'Recent Work.',
+    }),
+    defineField({
+      name: 'featuredWorkHeadline',
+      title: 'Headline',
+      type: 'string',
+      group: 'featuredWork',
+      initialValue: 'Rooms that feel finished.',
+    }),
+    defineField({
+      name: 'featuredWorkSubhead',
+      title: 'Subhead',
+      type: 'text',
+      rows: 2,
+      group: 'featuredWork',
+      description: 'Short line under the headline. Sets up what the visitor is about to see.',
+    }),
+    defineField({
+      name: 'featuredWorkCta',
+      title: '"See all work" CTA',
+      type: 'ctaBlock',
+      group: 'featuredWork',
+    }),
+
+    // Featured Journal (auto-populates with featured-then-newest journal entries)
+    defineField({
+      name: 'featuredJournalEyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'featuredJournal',
+      initialValue: 'From the Journal.',
+    }),
+    defineField({
+      name: 'featuredJournalHeadline',
+      title: 'Headline',
+      type: 'string',
+      group: 'featuredJournal',
+      initialValue: 'How I think about design.',
+    }),
+    defineField({
+      name: 'featuredJournalSubhead',
+      title: 'Subhead',
+      type: 'text',
+      rows: 2,
+      group: 'featuredJournal',
+      description: 'Short line under the headline.',
+    }),
+    defineField({
+      name: 'featuredJournalCta',
+      title: '"Read more" CTA',
+      type: 'ctaBlock',
+      group: 'featuredJournal',
+    }),
 
     // Process preview
     defineField({ name: 'processPreviewEyebrow', title: 'Eyebrow', type: 'string', group: 'process', initialValue: 'How It Works.' }),

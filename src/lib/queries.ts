@@ -57,6 +57,14 @@ export async function getHomePage() {
     meetStaciHeadline,
     meetStaciContent,
     meetStaciCta${CTA_PROJECTION},
+    featuredWorkEyebrow,
+    featuredWorkHeadline,
+    featuredWorkSubhead,
+    featuredWorkCta${CTA_PROJECTION},
+    featuredJournalEyebrow,
+    featuredJournalHeadline,
+    featuredJournalSubhead,
+    featuredJournalCta${CTA_PROJECTION},
     processPreviewEyebrow,
     processPreviewHeadline,
     processPreviewCta${CTA_PROJECTION},
@@ -79,6 +87,15 @@ export async function getHomePage() {
     "services": *[_type == "service" && showOnHomepage == true] | order(orderRank asc, displayOrder asc),
     "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc){
       stepNumber, title, timeEstimate, shortDescription, features, tierNote
+    },
+    "featuredProjects": *[_type == "project"] | order(featured desc, publishedAt desc)[0..3]{
+      _id, title, slug, location, year, roomType, designStyle, briefSummary, featured,
+      heroImage${IMAGE_PROJECTION}
+    },
+    "featuredJournalEntries": *[_type == "journalEntry"] | order(featured desc, publishedAt desc)[0..3]{
+      _id, title, slug, excerpt, publishedAt, featured,
+      coverImage${IMAGE_PROJECTION},
+      "categories": categories[]->{ _id, title, slug, description }
     },
     serviceAreaCue,
     finalCtaEyebrow,
