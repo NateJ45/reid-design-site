@@ -141,8 +141,11 @@ const heroDate = formatDate(hero?.publishedAt);
             )}
 
             {/* Editorial text overlay — pinned to bottom. Cream chip styles
-                are inverted on the dark gradient to preserve legibility. */}
-            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md">
+                are inverted on the dark gradient to preserve legibility.
+                Right padding (`pr-28 md:pr-36`) reserves a corridor for the
+                ★ Featured pill at top-right so a long title never wraps
+                into the pill's column. */}
+            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md pr-28 md:pr-36">
               <div class="flex flex-wrap items-center gap-x-m gap-y-xs">
                 {heroPrimaryCategory?.title && (
                   <span class="inline-flex items-center px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-bg/85 text-primary-dark backdrop-blur-sm">
@@ -160,7 +163,7 @@ const heroDate = formatDate(hero?.publishedAt);
                   desktop steps up to h2 for editorial impact. line-clamp-3
                   is a safety net so unusually long titles never blow out
                   the overlay area on small viewports. */}
-              <h3 class="mt-s font-display text-h3 md:text-h2 leading-tight text-white drop-shadow-sm max-w-3xl line-clamp-3">
+              <h3 class="mt-s font-display text-h3 md:text-h2 leading-tight text-white drop-shadow-sm max-w-2xl line-clamp-3">
                 {hero?.title}
               </h3>
 

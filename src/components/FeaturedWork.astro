@@ -151,12 +151,15 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
               </span>
             )}
 
-            {/* Editorial text overlay — pinned to the bottom of the image. */}
-            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md">
+            {/* Editorial text overlay — pinned to the bottom of the image.
+                Right padding (`pr-28 md:pr-36`) reserves a corridor for the
+                ★ Featured pill at top-right so a long title never wraps
+                into the pill's column. */}
+            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md pr-28 md:pr-36">
               <p class="text-xs uppercase tracking-widest text-white/80">
                 {hero?.location}{hero?.location && hero?.year ? ' · ' : ''}{hero?.year}
               </p>
-              <h3 class="mt-s font-display text-h2 leading-tight text-white drop-shadow-sm">
+              <h3 class="mt-s font-display text-h2 leading-tight text-white drop-shadow-sm max-w-2xl">
                 {hero?.title}
               </h3>
               {hero?.briefSummary && (
