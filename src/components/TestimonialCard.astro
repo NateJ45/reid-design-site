@@ -51,7 +51,13 @@ const hasPhoto = !!testimonial.photo?.asset;
 // We render the full quote (no truncation in markup), but apply line-clamp for layout.
 ---
 
-<figure class="card-lift flex flex-col h-full p-l bg-card text-card-foreground border border-border-soft rounded-md">
+<figure class="card-lift flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
+  {/* Brand accent stripe — matches ServiceCard / ProjectCard / JournalCard.
+      Padding moved from <figure> to an inner div so the stripe can sit flush
+      to the rounded corners (figure has overflow-hidden). */}
+  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+
+  <div class="flex flex-col flex-1 p-l">
   {/* Small bronze quote mark above the quote text. Soft brand cue without
       shouting; absent when there's no photo to give the card a single anchor. */}
   <span
@@ -102,4 +108,5 @@ const hasPhoto = !!testimonial.photo?.asset;
       See this project <span aria-hidden="true">→</span>
     </a>
   )}
+  </div>
 </figure>

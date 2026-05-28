@@ -37,8 +37,12 @@ const roomLabel = humanizeRoom(project.roomType);
 
 <a
   href={href}
-  class="card-lift group block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors"
+  class="card-lift group block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
 >
+  {/* Brand accent stripe — matches ServiceCard / JournalCard / TestimonialCard
+      so the marketing-card grammar reads as one brand across the site. */}
+  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+
   <div class="aspect-[4/3] overflow-hidden bg-muted relative">
     {project.heroImage?.asset ? (
       <SanityImage

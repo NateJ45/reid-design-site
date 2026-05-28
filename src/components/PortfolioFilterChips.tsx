@@ -75,7 +75,11 @@ export default function PortfolioFilterChips({ rooms, styles }: Props) {
   }
 
   return (
-    <div className="border-y border-border-soft py-l space-y-m">
+    // Lighter framing — single top rule + bottom padding, no bracketing
+    // border-y. Audit feedback: the original border-y read as a cage around
+    // the chips; a single hairline above gives "section start" without
+    // boxing the filter row in.
+    <div className="border-t border-border-soft pt-l pb-s space-y-m">
       {rooms.length >= 2 && (
         <FilterRow
           eyebrow="Room"

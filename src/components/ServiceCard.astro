@@ -48,8 +48,13 @@ const hasImage = !!service.featuredImage?.asset;
 
 <article
   id={id}
-  class="card-lift group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden transition-colors hover:border-primary/40 scroll-mt-24"
+  class="card-lift group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden transition-colors hover:border-primary/40 scroll-mt-24 shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
 >
+  {/* Brand accent stripe — same 2px Warm Bronze signature used at the top of
+      the site header, mobile menu, and footer. Gives each service card a
+      distinct "spine" + reinforces brand presence without dominating. */}
+  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+
   {hasImage && (
     <div class="aspect-[4/3] overflow-hidden bg-muted">
       <SanityImage

@@ -392,10 +392,31 @@
 }
 .card-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px -18px rgba(61, 61, 61, 0.18);
+  box-shadow: 0 16px 34px -18px rgba(61, 61, 61, 0.22);
 }
 .dark .card-lift:hover {
-  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 16px 34px -18px rgba(0, 0, 0, 0.6);
+}
+
+/* Warm-textured surface. An opt-in utility for sections that need a hint of
+   dimensional warmth on top of bg-muted — a very low-intensity bronze radial
+   glow at the top of the section that fades to the muted base. Adds depth
+   without becoming a pattern (which would clash with the photography).
+   Pairs with the global body::before paper-grain rather than replacing it.
+   Apply to `<section>` wrappers via `class="surface-warm bg-muted ...">`. */
+.surface-warm {
+  background-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    rgba(156, 118, 97, 0.07),
+    transparent 70%
+  );
+}
+.dark .surface-warm {
+  background-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    rgba(184, 146, 116, 0.10),
+    transparent 70%
+  );
 }
 
 /* Tactile press on primary CTAs. Tap/click depresses ~1px so the press

@@ -27,6 +27,7 @@ import FeaturedTestimonial from '@/components/FeaturedTestimonial.astro';
 import TestimonialGrid from '@/components/TestimonialGrid.astro';
 import ServiceCard from '@/components/ServiceCard.astro';
 import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
+import SectionDivider from '@/components/SectionDivider.astro';
 import FinalCta from '@/components/FinalCta.astro';
 
 const [page, siteSettings] = await Promise.all([
@@ -169,7 +170,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
   {/* ------- 4. Kind Words --------------------------------------------------- */}
   {(featuredQuote || gridQuotes.length > 0) && (
     <section
-      class="bg-background"
+      class="surface-warm bg-background"
       aria-labelledby="testimonials-heading"
     >
       <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
@@ -204,7 +205,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
 
   {/* ------- 5. How Reid Design Can Help (services grid) -------------------- */}
   <section
-    class="bg-muted"
+    class="surface-warm bg-muted"
     aria-labelledby="services-heading"
   >
     <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
@@ -241,6 +242,13 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       )}
     </div>
   </section>
+
+  {/* Bronze ornament between the services grid and the service-area cue.
+      Both sit on muted-toned backgrounds, so the alternating color cadence
+      isn't doing the work — this is the case the ornament was built for. */}
+  <div class="bg-muted">
+    <SectionDivider variant="ornament" />
+  </div>
 
   {/* ------- 6. Service area cue line --------------------------------------- */}
   <ServiceAreaCue

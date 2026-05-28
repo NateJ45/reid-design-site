@@ -46,9 +46,21 @@ const {
   class="bg-accent-dark text-bg"
   aria-labelledby={headingId}
 >
+  {/* Bronze accent stripe — same 2px brand signature used at the top of the
+      site header, mobile menu, footer, and every marketing card. Softens the
+      transition from the previous (usually light) section into this dark
+      panel and ties the close-of-page back into the brand vocabulary. */}
+  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+
   <div class="mx-auto max-w-content px-m py-section-lg text-center">
     {eyebrow && (
-      <p class="text-xs uppercase tracking-[0.22em] text-bg/70 mb-s">{eyebrow}</p>
+      <p class="text-xs uppercase tracking-[0.22em] text-bg/75">{eyebrow}</p>
+    )}
+    {/* Cream hairline accent beneath the eyebrow — matches SectionHeading's
+        inverse-tone treatment so headings carry the same editorial signature
+        on both light and dark surfaces. */}
+    {eyebrow && (
+      <div class="mt-s mb-m h-px w-12 bg-bg/40 mx-auto" aria-hidden="true"></div>
     )}
     <h2 id={headingId} class="font-display text-h1 leading-tight text-bg">
       {headline}

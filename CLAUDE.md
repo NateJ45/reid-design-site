@@ -71,7 +71,9 @@ Now also live (built during placeholder-content phase):
 - Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
 - E-Design — seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
 
-Header nav now carries seven items: Home / Process / Services / Journal / FAQ / About / Contact. Portfolio is reachable from its own `/portfolio` URL and the prev/next nav on each post; it's intentionally not in the top nav (visitors come to projects from search and case studies, not browsing).
+Header nav carries seven items in this order: **Home / Process / Services / Portfolio / Journal / FAQ / About**. "Contact" is intentionally NOT in the primary nav — the "Book a consultation" CTA pill at the right of the nav row handles that conversion, and the mobile drawer surfaces the CTA at the top of the menu. The list is defined as `NAV_LINKS` in `src/components/Header.astro` and shared with `MobileNav.tsx` so desktop + mobile stay in sync.
+
+Mobile header also carries an **availability indicator pill** on the left side (mirroring the hamburger menu's absolute-right placement) — a pulsing green dot + "Open" label that links straight to `/contact`. Renders only when `siteSettings.availabilityStatus` is set, and the label hides on the tightest mobile widths so it doesn't collide with the centered logo.
 
 ---
 
@@ -158,9 +160,130 @@ The primary hover state on CTAs goes to `bg-accent-dark` (Charcoal Dark) — eve
 
 **Quick checklist before adding a color class:**
 1. Does this text or surface need to be readable in BOTH modes? → semantic token (`text-foreground`, `bg-background`, `bg-muted`, etc.)
-2. Is this a brand-color CTA, footer panel, or eyebrow that should hold its hue in both modes? → brand token (`bg-primary`, `bg-accent-dark`, `text-secondary`)
+2. Is this a brand-color CTA, footer panel, or eyebrow that should hold its hue in both modes? → brand token (`bg-primary`, `bg-accent-dark`) — note `text-secondary` is reserved for borders + dividers; eyebrow LABELS use `text-foreground/65` (see Eyebrow contrast lesson below).
 3. Adding opacity? → `text-foreground/80`, not `text-accent/80`
 4. Not sure? → render it in both modes via the Playwright MCP before merging. See the [Visual verification workflow](#visual-verification-workflow) section.
+
+### Eyebrow contrast lesson (post-audit)
+
+Warm Taupe `#B8A99A` at 12px on Cream / Soft Linen lands at **2.02:1** — fails WCAG AA. Every uppercase eyebrow label site-wide was migrated from `text-secondary` to `text-foreground/65` (4.77:1 on Cream, 6+:1 in dark). The brand `--secondary` token still exists and is fine for **borders, dividers, larger decorative ornaments** — just not for body-size text.
+
+If you add a new eyebrow label, the pattern is:
+```html
+<p class="text-xs uppercase tracking-eyebrow text-foreground/65">Eyebrow text</p>
+```
+
+There's a one-off sweep script at `scripts/sweep-eyebrow-contrast.mjs` that catches new occurrences of `tracking-* text-secondary` and migrates them. Re-run after big copy edits if you suspect drift.
+
+### `text-primary-dark` is light-mode-only
+
+`text-primary-dark` (Bronze Dark `#7A5D4C`) is a **static brand token**. It reads at 5+:1 on Cream but only 2.53:1 on the dark-mode background. For any always-on text (prices, headings, accent body), use `text-link` instead — that's the theme-aware bronze (Bronze Dark in light, lifted Bronze `#B89274` in dark). Hover states using `hover:text-primary-dark` are fine since they're momentary.
+
+The same audit-driven sweep already migrated `text-primary-dark` → `text-link` in ServiceCard prices, ServiceAreaCue Plainfield highlight, ProcessStep / about philosophy numerals, journal pull-quote glyph + price inline, and CaseStudyTOC active state.
+
+### Tailwind v4 cascade gotcha: className overrides usually lose
+
+Tailwind v4 generates utilities **alphabetically** in the stylesheet. Two utilities affecting the same property fight at the CSS layer, not at the order they appear in your `class:list`. So:
+
+- `text-link` (variant) + `text-bg` (override) → `text-link` wins (later in alphabetical sort).
+- `text-sm` (base) + `text-h3` (override) → `text-sm` wins.
+
+Solutions:
+1. **Add a variant prop instead of overriding via className.** This is why CtaLink got an `onDark` prop and shadcn's `accordion.tsx` had its base font-size removed (so consumer `text-h3` actually wins).
+2. **Drop the conflicting base class.** If you control the base component, remove the class that's interfering.
+3. **Use `!important`** as last resort (`!text-bg`). Rare in this codebase.
+
+If a class isn't taking effect, inspect the computed CSS — usually the issue is another utility further down the alphabet beating it.
+
+---
+
+## Polish layer
+
+Custom CSS utilities and JS behaviors layered on top of Tailwind + shadcn. All declared in `src/styles/globals.css` and (where JS is needed) initialized in `BaseLayout.astro` with re-init on `astro:page-load` so they survive View Transitions.
+
+### Brand-stripe rhythm (THE primary visual signature)
+
+A 2px Warm Bronze line — `<div class="h-0.5 bg-primary" aria-hidden="true"></div>` — is the brand's repeating visual signature. It appears at the top of:
+
+- The site header (above the eyebrow strip)
+- The mobile menu drawer (`border-t-4 border-t-primary` on SheetContent)
+- The footer (above the brand block)
+- Every marketing card (ServiceCard, ProjectCard, JournalCard, TestimonialCard)
+- The FinalCta dark panel
+
+If you add a new card-like component or section that should feel part of the brand, include this stripe at the top edge. The repetition is what makes the site read as one designed object.
+
+### Card resting + hover shadow
+
+All marketing cards share a soft warm resting shadow that deepens on hover via `.card-lift`:
+
+```html
+<article class="card-lift ... shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
+```
+
+The `card-lift` utility class lives in `globals.css`. Defines `:hover { translateY(-2px); box-shadow: 0 16px 34px -18px ... }`. Always-on-card components opt in via the class.
+
+### Tactile button press
+
+`.press-tactile` adds a 1px depress on `:active` so CTAs feel physical:
+
+```html
+<a class="press-tactile bg-primary-dark text-white ...">Book a consultation</a>
+```
+
+Applied to CtaLink, header consultation pill, contact form submit, sticky CTA chip, filter chips. Honors reduced-motion via the global transition kill.
+
+### Animated nav underline (`.nav-underline`)
+
+Bronze underline that slides in from the center on hover and locks full-width on `[aria-current="page"]`. Applied to every link in the primary nav. Defined in globals.css.
+
+### Sticky header behavior (`.site-header`)
+
+The header has `position: sticky; top: 0`. A scroll listener in BaseLayout sets `data-state="hidden"` on it when the user scrolls down past 120px, which CSS translates to `translateY(-100%)`. Scroll up = the header reveals. Pinned permanently under reduced-motion.
+
+### Scroll-triggered reveals (`[data-reveal]`)
+
+Any element marked `data-reveal` starts at `opacity: 0; transform: translateY(0.75rem)`. An IntersectionObserver in BaseLayout adds `.is-visible` when the element crosses the viewport edge, transitioning to opacity 1 + no translate. Reduced-motion users get content immediately (the global reset short-circuits the start-hidden state).
+
+Applied selectively to four section blocks on the home page (Meet Staci grid, Process preview, Testimonials block, Services grid). Don't add `data-reveal` to above-the-fold content — defeats the purpose.
+
+### Reading progress (`.reading-progress`)
+
+3px bronze track at the top of journal posts. Inner div `scaleX`'s from 0 → 1 as the reader scrolls through `<article>`. GPU-only animation (transform), throttled via requestAnimationFrame. Reduced-motion users get a static full bar so the affordance remains.
+
+Lives in `ReadingProgress.astro` (rendered inside `BaseLayout`'s slot on journal post pages).
+
+### Surface-warm (`.surface-warm`)
+
+A bronze-tinted radial gradient overlay for sections that want dimensional warmth. ~7% opacity in light, ~10% in dark. Apply alongside `bg-muted` or `bg-background`:
+
+```html
+<section class="surface-warm bg-muted">…</section>
+```
+
+Currently applied to: home Kind Words section, home Services grid, /services Services list. Pairs with the global `body::before` 4% paper-grain.
+
+### Paper grain (`body::before`)
+
+A faint SVG noise tile at 4% opacity sits behind everything via `body::before`. Adds tactile warmth across all surfaces. Multiply blend in light, screen blend in dark. Pointer-events none, z-index 0.
+
+### Section dividers (when to use)
+
+`SectionDivider.astro` renders a bronze ornament (✺ glyph by default, with `line` and `dots` variants) for the specific case where two adjacent sections share a background color and need a visual break. **Don't sprinkle between every section** — the alternating `bg-background` / `bg-muted` cadence already does that work. Reserve dividers for the edge case.
+
+Current usage: between the home page services grid (bg-muted) and the service area cue (also bg-muted) — without the ornament, the two sections would blur together.
+
+### View Transitions discipline
+
+Astro View Transitions are wired via `<ClientRouter />` in BaseLayout. Any client-side script that needs to re-run on every navigation must listen to `astro:page-load`:
+
+```js
+function initThing() { /* … */ }
+initThing();
+document.addEventListener('astro:page-load', initThing);
+```
+
+Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations.
 
 ---
 
@@ -249,18 +372,67 @@ Reid Design's primary CTA (Warm Bronze background, white text, generous uppercas
 
 shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with portal positioning) don't SSR cleanly inside Astro. The portal hook calls during server render throw "Invalid hook call" and blank the page. When a new component leans on those, hydrate it with `client:only="react"` instead of `client:load`. The mobile nav is the existing reference.
 
-### Reid Design specific components likely to exist
+### Reid Design specific components
 
-- `Hero.astro` (homepage hero)
-- `ServiceCard.astro` (service tier card, with price + features + best-for + CTA)
-- `ProcessStep.astro` (numbered step block, used on home preview and full Process page)
-- `TestimonialCard.astro` and `TestimonialGrid.astro`
-- `FaqAccordion.tsx` (React island, uses shadcn Accordion)
-- `ContactForm.tsx` (React island, posts to Web3Forms)
-- `BeforeAfterSlider.tsx` (React island, drag-to-reveal, for project case studies)
-- `ProjectGallery.tsx` (React island wrapping react-photo-album + yet-another-react-lightbox)
-- `ServiceAreaCue.astro` (the slim Plainfield-first line)
-- `MobileNav.tsx`, `ThemeToggle.tsx`, `BackToTop.tsx` (carried from NCS pattern)
+The current component set, by role. All in `src/components/` unless noted.
+
+**Page chrome:**
+- `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer).
+- `Footer.astro` — bronze stripe, brand block, 4-column link grid, latest projects from Sanity, auto-year copyright + "Site by …" credit under the socials.
+- `MobileNav.tsx` — shadcn Sheet drawer (`client:only="react"` — Radix portal can't SSR). Bronze stripe top, primary CTA, tagline, nav links, email + socials + theme toggle, logo at bottom.
+- `BaseLayout.astro` — anti-FOUC theme bootstrap, View Transitions, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**.
+
+**Hero + page-top:**
+- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap. Image variant passes `onDark` to its CTAs automatically.
+- `SectionHeading.astro` — eyebrow + bronze hairline accent + headline + subhead. Used by text-variant Hero and every interior section heading. Supports `tone="inverse"` for dark FinalCta panels.
+- `ReadingProgress.astro` — fixed 3px bronze track at the top of `<article>`-wrapped pages. Used on journal posts.
+
+**Marketing cards (all share the brand-stripe + resting-shadow rhythm):**
+- `ServiceCard.astro` — service tier (price + features + best-for + CTA).
+- `ProjectCard.astro` — portfolio grid card. Includes humanized roomType chip top-left on the hero image.
+- `JournalCard.astro` — journal index card (featured variant spans 2 cols).
+- `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
+- `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
+
+**Project detail page pieces:**
+- `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.
+- `BeforeAfterSlider.tsx` — drag-to-reveal with cream-mat framing + opacity-tracking Before/After pills.
+- `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox.
+- `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy.
+
+**Process page pieces:**
+- `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage).
+- `ProcessStepIllustration.astro` — inline SVG line illustrations in Soft Sage above each numeral (1-4).
+
+**Portfolio index pieces:**
+- `PortfolioFilterChips.tsx` — Room × Style filter chips. Filters via data attributes; persists in URL hash. Auto-hides when fewer than 2 values exist in either axis.
+- `PortfolioCursor.tsx` — bronze "View →" custom cursor over portfolio grid on desktop hover-capable devices. Bails out on touch + reduced-motion.
+
+**Contact page pieces:**
+- `ContactForm.tsx` — Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source. See Form section for full field list.
+- `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in Footer, Contact sidebar, and Contact-page failsafe paragraph.
+- `CalendlyInline.tsx` — click-to-load Calendly iframe placeholder. Heavy widget stays off the budget until visitor opts in.
+- `ServiceAreaMap.astro` — small map for the contact sidebar.
+
+**Site-wide affordances:**
+- `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
+- `SectionDivider.astro` — bronze ornament between sections that share a background color (variants: `ornament` (default ✺) / `line` / `dots`).
+- `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Falls back to italic single line when no `cities` array passed.
+- `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline.
+- `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` eyebrow above the caption.
+- `FaqAccordion.tsx` — shadcn Accordion wrapper. **Note:** `src/components/ui/accordion.tsx` has been customized — the original `h-(--radix-accordion-content-height)` lock on the inner content div was removed (caused a big empty-space bug after expand), and the trigger no longer carries `text-sm font-medium` so consumer typography wins the cascade.
+- `ThemeToggle.tsx`, `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
+
+**Utility / lower-level:**
+- `JournalCategoryChip.astro`, `JournalCard.astro`, `TestimonialGrid.astro`, etc.
+
+### CtaLink `onDark` prop
+
+`src/components/CtaLink.astro` accepts an `onDark?: boolean` prop. When true:
+- **Secondary variant** swaps from `border-primary text-link` (bronze on light) to `border-white/70 text-white hover:bg-white/10` (cream on dark).
+- **Focus ring** offsets against `transparent` instead of `--background` so the ring still reads on photographic surfaces.
+
+Use it on any CTA over a hero image, the Charcoal Dark `FinalCta` panel, or any other dark surface. `Hero.astro` (image variant) and `FinalCta.astro` set it automatically. Do NOT try to override secondary-variant colors via `class="text-bg ..."` — Tailwind v4 generates utilities alphabetically and `text-link` beats `text-bg` in the cascade. Use the prop instead.
 
 ---
 
@@ -270,7 +442,7 @@ Patterns for the moments when things go sideways or content hasn't landed yet.
 
 ### 404
 
-`src/pages/404.astro` uses BaseLayout, sets a clear "We can't find that page" headline, and gives the visitor two paths: back to Home, or to Contact. Don't link "Search" (there isn't one). Don't dump a list of random pages. Two clear choices.
+`src/pages/404.astro` uses BaseLayout, sets a clear "That page wandered off." headline, and gives the visitor three paths: back to Home, browse the Portfolio, or Contact. Two-column editorial layout — text on the left, a styled vignette photograph on the right (currently Staci's studio-dogs shot, asset ref hardcoded in the file). Don't link "Search" (there isn't one). Don't dump a list of random pages.
 
 ### Form submission failure
 
@@ -375,10 +547,12 @@ Target: WCAG 2.1 AA in both light and dark modes. Aim for 100 Lighthouse Accessi
 - The before/after slider needs keyboard support: arrow keys move the divider, the handle is focusable, and the focus indicator is visible.
 
 **Color tokens by responsibility** (definitions and contrast math in `globals.css`):
-- `--primary` (Warm Bronze): buttons, focus rings, CTA backgrounds at large size. Paired with white foreground.
-- `--primary-dark` (Bronze Dark): anchor-style body-size text in prose, where Warm Bronze fails contrast.
-- `--accent` (Charcoal): headings and body text on light surfaces.
-- `--secondary` (Warm Taupe): borders, dividers, eyebrow labels, muted meta text.
+- `--primary` (Warm Bronze): buttons, focus rings, CTA backgrounds at large size, **brand-stripe rhythm**. Paired with white foreground.
+- `--primary-dark` (Bronze Dark): hover state on bronze CTAs only — use `--link` for theme-aware always-on text.
+- `--link`: theme-aware bronze (Bronze Dark in light, lifted Bronze in dark). Use for inline links, anchor-style body text, ServiceCard prices, ProcessStep numerals, any always-on text that needs to read in both modes.
+- `--accent` (theme-aware via shadcn mapping): hover surfaces only — NOT body text.
+- `--foreground` (Charcoal in light, Cream in dark): headings and body text.
+- `--secondary` (Warm Taupe): borders, dividers, decorative ornaments. **NOT eyebrow labels** — those use `text-foreground/65` (see Eyebrow contrast lesson above).
 
 **Motion.** `globals.css` disables animations and transitions globally under `prefers-reduced-motion: reduce`, and Lenis smooth scroll becomes a no-op. The before/after slider falls back to a tap-to-toggle behavior. View Transitions become instant cross-fades. New animations inherit this; no per-component handling needed.
 
@@ -621,13 +795,20 @@ Use `<SanityImage />`'s `width` prop to drive these. Never request larger than t
 | Component | Directive | Why |
 |---|---|---|
 | `ThemeToggle` | `client:load` | Must flip class before user can interact |
-| `MobileNav` | `client:only="react"` | Radix portal can't SSR |
+| `MobileNav` | `client:only="react"` | Radix Sheet portal can't SSR |
 | `ContactForm` | `client:visible` | Below the fold on most pages |
 | `BackToTop` | `client:load` | Listens to scroll immediately |
+| `Toaster` (Sonner) | `client:load` | Used by CopyEmailButton + ContactForm |
 | `ProjectGallery` | `client:visible` | Always below fold |
 | `BeforeAfterSlider` | `client:visible` | Always below fold |
-| `FaqAccordion` | `client:idle` | Interactive but not critical-path |
-| `AnimatedBeam` / `Spotlight` (visual flourish) | `client:visible` | Decorative |
+| `FaqAccordion` | `client:visible` | Interactive but not critical-path |
+| `StickyCTAChip` | `client:idle` | Doesn't fire until 50% scroll anyway |
+| `PortfolioCursor` | `client:idle` | Decorative, desktop-only |
+| `PortfolioFilterChips` | `client:visible` | Above-fold but not critical-path |
+| `CalendlyInline` | `client:visible` | Click-to-load, no widget code until tap |
+| `CaseStudyTOC` | `client:idle` | Sidebar scrollspy, not critical |
+| `CopyEmailButton` | `client:visible` | Used in footer + contact + email failsafe |
+| `PortableText` / `JournalPortableText` | `client:load` or `client:visible` | Renders body content; `client:load` on journal posts (above fold once cover image loads), `client:visible` elsewhere |
 
 Default to `client:visible` or `client:idle` for anything not immediately above the fold. Astro ships less JS up front.
 
@@ -668,14 +849,19 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 
 **Reusable content collections (6):**
 - `service` — In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder & Realtor Partnerships, plus E-Design. Optional `featuredImage` renders a small visual at the top of each pricing card (`ServiceCard.astro` falls back gracefully when absent).
-- `testimonial` — Client testimonials with attribution, source, date. Optional `photo` (circular avatar) and `location` (e.g., "Fishers, IN") are real trust-currency for a local studio; both `TestimonialCard.astro` and `FeaturedTestimonial.astro` render them when present and skip cleanly when not.
+- `testimonial` — Client testimonials with attribution, source, date. Optional `photo` (circular avatar), `location` (e.g., "Fishers, IN"), and `relatedProject` (reference) are real trust-currency for a local studio. When `relatedProject` is set, both `TestimonialCard.astro` and `FeaturedTestimonial.astro` render a "See this project →" link that jumps to the case study.
 - `faqItem` — FAQ questions with category, displayed on both FAQ page and (selectively) Process page
 - `philosophyPoint` — The 3 values on the About page
 - `processStep` — The 4 numbered steps in Staci's process
-- `project` — Case studies (launches with 1-2, grows over time). Optional `metaTitle` / `metaDescription` override the default SEO fields per-project (fall back to title + briefSummary when blank). Optional `designStyle` enum (transitional, modern coastal, modern organic, etc.) wired through `getAllProjects` for future portfolio filtering on a Room × Style axis.
+- `project` — Case studies. Optional `metaTitle` / `metaDescription` override the default SEO fields per-project. `roomType` + `designStyle` enums drive portfolio filtering. **Project page extra fields (post-polish):**
+  - `briefLine` — one-sentence client situation, e.g. "Beautiful reno but the family room felt unfinished." Renders in the ProjectMetaBand.
+  - `designCall` — one-sentence Staci response, e.g. "Edit, don't add. Source vintage. Anchor seating." Renders in the ProjectMetaBand.
+  - `heroImage.caption` — optional italic caption beneath the hero image.
+  - **introStory** Portable Text accepts an inline image with `caption` + `decisionLine` (optional uppercase eyebrow above the caption — for "the decision that drove this image" moments).
+  - **introStory** accepts a `sourcedFrom` annotation mark — wrap any text inline and pair with vendor + optional URL. Renders as italic small-caps with the vendor as a trailing eyebrow, becomes a quiet bronze link when URL set.
 
-**Page singletons (6):**
-- `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage` — One document per page, with the structured fields each page needs. Hero copy, section headlines, CTAs, etc.
+**Page singletons (7):**
+- `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage` — One document per page. All seven page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`. Journal posts (`journalEntry`) have a `coverImage` with optional caption + a `sourcedFrom` annotation in the body marks.
 
 **Reusable object types (embedded, not standalone documents):**
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
@@ -725,7 +911,26 @@ This trades a small amount of flexibility for a much simpler editor experience. 
 
 ### Form submissions
 
-The contact form posts to Web3Forms (see Deployment section for env vars). On submit, the form sends a structured email to `staci@reiddesignllc.com` with all fields. The Project Type dropdown values are hardcoded in `ContactForm.tsx` (not Sanity) because they need to match the actual services exactly and shouldn't drift; if Staci adds a new service in Sanity, Nathan updates the dropdown in code.
+The contact form posts to Web3Forms (see Deployment section for env vars). On submit, the form sends a structured email to `staci@reiddesignllc.com` with all fields.
+
+**Current form fields (in order):**
+
+1. **Name** (required)
+2. **Email** (required) + **Phone** (optional) — side-by-side row
+3. **Where's the project?** (required) — dropdown of service-area cities + "Outside the area"
+4. **Project type** (required) — dropdown sourced from `contactPage.formProjectTypeOptions` in Sanity, falls back to `DEFAULT_PROJECT_TYPES` hardcoded in the component
+5. **Rough budget range** (required) — dropdown of 6 brackets sized to Reid Design's actual pricing
+6. **Timeline** (required) — dropdown of 5 buckets
+7. **Tell us about the space** (required, textarea)
+8. **How did you hear about Reid Design?** (optional) — dropdown of 9 source options
+
+The **email subject line** front-loads project type + location for inbox triage: `"Inquiry: Full Room Design in Carmel (Sarah Hooker)"`. Staci can sort and prioritize from her inbox without opening.
+
+**Why most dropdowns are hardcoded:** project type, budget brackets, timeline, source, location options are all stable structural enums that mirror Reid Design's actual pricing + service area. They're hardcoded in `ContactForm.tsx` so they don't drift away from the rest of the site. Only `formProjectTypeOptions` is Sanity-driven, and that's because Staci might want to refine the dropdown labels without touching code.
+
+**Form a11y:** every input has an associated `<label>`. Error `<p>` containers all carry `role="alert" aria-live="polite"`. `aria-describedby` includes both the error AND the hint when both are present. Focus moves to the first invalid field on submit. Honeypot field (`zip`) catches bots silently.
+
+Draft autosave persists to `localStorage["reid-design-contact-draft"]` so a long message survives accidental navigation.
 
 ### Form spam protection
 
@@ -748,10 +953,12 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 | `/services` | `src/pages/services.astro` | Services page + service collection |
 | `/faq` | `src/pages/faq.astro` | FAQ page + faqItem collection grouped by category |
 | `/contact` | `src/pages/contact.astro` | Contact page + Web3Forms form + Calendly embed |
-| `/portfolio` | `src/pages/portfolio.astro` (post-launch) | Index of `project` collection |
-| `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` (post-launch) | Individual case study |
+| `/portfolio` | `src/pages/portfolio/index.astro` | Project grid with Room × Style filter chips |
+| `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` | Project detail: hero + meta band + intro story + before/after + gallery + sticky chip |
+| `/journal` | `src/pages/journal/index.astro` | Post grid with category chips |
+| `/journal/[slug]` | `src/pages/journal/[slug].astro` | Post detail: reading progress + header + cover + body (7 custom block types) + related |
 | `/sitemap-index.xml` | `@astrojs/sitemap` (auto) | Production sitemap |
-| `/404` | `src/pages/404.astro` | Custom 404 |
+| `/404` | `src/pages/404.astro` | Custom 404 (two-column with photograph) |
 
 ---
 
@@ -767,17 +974,18 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 
 ## Foundation, edit with care (route through a planned Claude session)
 
-- `src/styles/globals.css` (Tailwind 4 `@theme` block, shadcn `:root` / `.dark` overrides, base resets, site-wide utility classes, print stylesheet)
+- `src/styles/globals.css` (Tailwind 4 `@theme` block, shadcn `:root` / `.dark` overrides, **polish-layer utilities** — `.card-lift`, `.press-tactile`, `.nav-underline`, `.site-header`, `.reading-progress`, `.surface-warm`, `[data-reveal]` — base resets, paper-grain `body::before`, print stylesheet)
 - `studio/schemaTypes/*.ts` (Sanity schemas — changing fields can break existing content)
 - `src/lib/sanity.ts`, `src/lib/queries.ts`, `src/lib/sanity.types.ts` (Sanity client, GROQ queries, generated types)
-- `src/layouts/BaseLayout.astro` (anti-FOUC theme bootstrap, skip link, header/main/footer wiring, View Transitions ClientRouter, Lenis script tag, Cloudflare Analytics, font preload, OG meta, JSON-LD)
-- `src/components/ui/` shadcn primitives (installed via shadcn CLI; document any project-specific extensions)
-- React islands: `MobileNav.tsx`, `ThemeToggle.tsx`, `BackToTop.tsx`, `ContactForm.tsx`, `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `FaqAccordion.tsx`
-- Astro wrappers: `SanityImage.astro`, `StructuredData.astro`, `SectionHeading.astro`, `ServiceAreaCue.astro`
-- `scripts/generate-og-default.mjs`
+- `src/layouts/BaseLayout.astro` (anti-FOUC theme bootstrap, skip link, header/main/footer wiring, View Transitions ClientRouter, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**, Cloudflare Analytics, OG meta, JSON-LD, title-suffix-doubling guard)
+- `src/components/ui/` shadcn primitives — **note: `accordion.tsx` is customized** (removed `h-(--radix-accordion-content-height)` lock + dropped `text-sm font-medium` from trigger). If you reinstall via `npx shadcn add` it will revert; reapply the changes.
+- React islands: `MobileNav.tsx`, `ThemeToggle.tsx`, `BackToTop.tsx`, `ContactForm.tsx`, `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `FaqAccordion.tsx`, `CalendlyInline.tsx`, `CaseStudyTOC.tsx`, `StickyCTAChip.tsx`, `PortfolioCursor.tsx`, `PortfolioFilterChips.tsx`, `CopyEmailButton.tsx`, `PortableText.tsx`, `JournalPortableText.tsx`
+- Astro wrappers: `SanityImage.astro`, `StructuredData.astro`, `SectionHeading.astro`, `SectionDivider.astro`, `ServiceAreaCue.astro`, `ReadingProgress.astro`, `ProjectMetaBand.astro`, `ProcessStepIllustration.astro`, `Hero.astro`, `FinalCta.astro`, `CtaLink.astro`
+- `scripts/generate-og-default.mjs`, `scripts/strip-editor-annotations.mjs`, `scripts/sweep-eyebrow-contrast.mjs` (reusable for future drift detection)
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
 - `public/_headers` (security response headers shipped with the deploy)
 - `public/og-default.png` (regenerate via `npm run og`)
+- `public/favicon.svg` (RD monogram on Warm Bronze disc, `prefers-color-scheme`-aware)
 - `public/robots.txt`
 
 If a change requires editing the foundation set, do it in a Claude session, write the change deliberately, and update this doc when the architecture shifts.
@@ -976,4 +1184,19 @@ Things to configure before or during the public launch. Everything below should 
 
 ---
 
-*Last updated: May 26, 2026*
+## Editor-meta annotation cleanup
+
+Sanity Canvas (AI-assisted drafting) sometimes lets prefix annotations like `[NEW per audit, softer framing] …` or full-field placeholders like `[TODO: Staci to write …]` slip into published content. `scripts/strip-editor-annotations.mjs` scans every Sanity doc for those bracketed prefixes:
+
+```
+[NEW …]   [per audit …]   [TODO …]   [DRAFT …]   [WIP …]
+[v2 …]    [softer framing]   [audit: …]   [note: …]
+```
+
+Default mode is dry-run; pass `--apply` to actually patch. Re-run after large Canvas batches to catch drift.
+
+If a full-field annotation is the entire content (like `faqItem.background` was when it shipped), don't blindly strip — that leaves the field empty. Replace with a brand-voice placeholder instead (see `scripts/patch-editor-annotation-cleanups.mjs` for the pattern).
+
+---
+
+*Last updated: May 27, 2026*

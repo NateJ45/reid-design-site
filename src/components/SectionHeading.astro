@@ -40,13 +40,29 @@ const headingClass =
 
 const wrapperAlign = align === 'center' ? 'text-center mx-auto' : 'text-left';
 const toneHeadline = tone === 'inverse' ? 'text-bg' : 'text-foreground';
-const toneEyebrow = tone === 'inverse' ? 'text-bg/70' : 'text-secondary';
+// Default tone swapped from text-secondary (Warm Taupe, fails AA at 12px) to
+// text-foreground/65 (4.77:1 on Cream). Inverse tone (used on FinalCta's
+// dark Charcoal panel) keeps cream-on-dark.
+const toneEyebrow = tone === 'inverse' ? 'text-bg/75' : 'text-foreground/65';
 const toneSub = tone === 'inverse' ? 'text-bg/80' : 'text-foreground/80';
+
+// Bronze hairline accent beneath the eyebrow. Matches the brand-stripe
+// signature now repeating on every marketing card so section headings read
+// with the same editorial vocabulary. On inverse tone (dark FinalCta panel)
+// the hairline switches to lifted cream so it stays visible.
+const accentColor = tone === 'inverse' ? 'bg-bg/40' : 'bg-primary/60';
+const accentAlign = align === 'center' ? 'mx-auto' : '';
 ---
 
 <div class:list={[wrapperAlign, 'max-w-3xl', extraClass]}>
   {eyebrow && (
-    <p class:list={['text-xs uppercase tracking-eyebrow mb-s', toneEyebrow]}>{eyebrow}</p>
+    <>
+      <p class:list={['text-xs uppercase tracking-eyebrow', toneEyebrow]}>{eyebrow}</p>
+      <div
+        class:list={['mt-s mb-m h-px w-12', accentAlign, accentColor]}
+        aria-hidden="true"
+      ></div>
+    </>
   )}
   {headline && (
     level === 'h1' ? (

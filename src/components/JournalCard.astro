@@ -35,14 +35,19 @@ function formatDate(d?: string): string {
 const dateLabel = formatDate(entry.publishedAt);
 
 // Featured card spans 2 columns on lg and uses a wider hero aspect.
+// Resting shadow matches the rest of the card grammar (ServiceCard,
+// ProjectCard, TestimonialCard) — soft warm 4px ambient depth.
 const wrapperClass = featured
-  ? 'card-lift group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors lg:col-span-2'
-  : 'card-lift group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors';
+  ? 'card-lift group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors lg:col-span-2 shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]'
+  : 'card-lift group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]';
 const aspectClass = featured ? 'aspect-[16/9]' : 'aspect-[4/3]';
 const titleClass = featured ? 'font-display text-h2 text-foreground' : 'font-display text-h3 text-foreground';
 ---
 
 <a href={href} class:list={[wrapperClass]}>
+  {/* Brand accent stripe — matches every other marketing card. */}
+  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+
   <div class:list={[aspectClass, 'overflow-hidden bg-muted relative']}>
     {entry.coverImage?.asset ? (
       <SanityImage
