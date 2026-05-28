@@ -61,13 +61,13 @@ export default function CalendlyInline({
           onClick={() => setLoaded(true)}
           className="press-tactile w-full rounded-md border border-border-soft bg-muted/60 hover:bg-muted px-l py-section-md text-left transition-colors group"
         >
-          <p className="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
+          <p className="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
             Or pick a time directly
           </p>
           <p className="font-display text-h3 text-foreground group-hover:text-primary-dark transition-colors">
             {loadLabel} <span aria-hidden="true" className="ml-xs transition-transform group-hover:translate-x-1 inline-block">→</span>
           </p>
-          <p className="mt-xs text-sm text-foreground/65">
+          <p className="mt-xs text-sm text-foreground/80">
             Opens the 20-minute discovery call calendar in place. We don't load it until you ask.
           </p>
         </button>

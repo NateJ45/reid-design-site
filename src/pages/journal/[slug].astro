@@ -109,7 +109,7 @@ const schemas = [
   <article>
     <header class="bg-background">
       <div class="mx-auto max-w-3xl px-m pt-section-lg pb-l">
-        <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">
+        <p class="text-xs uppercase tracking-widest text-foreground/80 mb-s">
           <a href="/journal" class="hover:text-primary-dark transition-colors">Journal</a>
           {dateLabel && <span class="mx-xs">·</span>}
           {dateLabel && <time datetime={entry.publishedAt}>{dateLabel}</time>}
@@ -149,7 +149,7 @@ const schemas = [
           class="w-full h-auto rounded-md"
         />
         {entry.coverImage.caption && (
-          <figcaption class="mt-s text-sm text-foreground/65 italic text-center">
+          <figcaption class="mt-s text-sm text-foreground/80 italic text-center">
             {entry.coverImage.caption}
           </figcaption>
         )}
@@ -171,7 +171,7 @@ const schemas = [
           article column). */}
       {entry.relatedProject?.slug?.current && (
         <aside class="mt-section-lg pt-l border-t border-border-soft text-center md:text-left">
-          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">Related project</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/80 mb-s">Related project</p>
           <a
             href={`/portfolio/${entry.relatedProject.slug.current}`}
             class="group inline-flex items-baseline gap-s text-foreground hover:text-primary-dark transition-colors"
@@ -213,13 +213,13 @@ const schemas = [
       <div class="mx-auto max-w-content px-m py-l grid grid-cols-1 md:grid-cols-2 gap-m">
         {prev ? (
           <a href={`/journal/${prev.slug}`} class="group">
-            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Newer post</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Newer post</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">← {prev.title}</p>
           </a>
         ) : <div></div>}
         {next ? (
           <a href={`/journal/${next.slug}`} class="group md:text-right">
-            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Older post</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Older post</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">{next.title} →</p>
           </a>
         ) : <div></div>}

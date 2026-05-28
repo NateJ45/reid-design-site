@@ -29,7 +29,7 @@ const cue = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subur
   <div class="mx-auto max-w-content px-m py-section-md text-center">
     {cityList.length > 0 ? (
       <>
-        <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-m">{eyebrow}</p>
+        <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-m">{eyebrow}</p>
         <p
           class="font-display text-h3 leading-snug flex flex-wrap items-baseline justify-center gap-x-s gap-y-xs"
           aria-label={`Reid Design serves ${cityList.join(', ')}`}
@@ -40,7 +40,7 @@ const cue = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subur
                 class:list={[
                   i === 0
                     ? 'text-link font-medium'
-                    : 'text-foreground/70 font-normal',
+                    : 'text-foreground/85 font-normal',
                 ]}
               >
                 {city}
@@ -52,7 +52,7 @@ const cue = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subur
           ))}
         </p>
         {text && (
-          <p class="mt-m text-sm text-foreground/70 italic max-w-2xl mx-auto">{text}</p>
+          <p class="mt-m text-sm text-foreground/85 italic max-w-2xl mx-auto">{text}</p>
         )}
       </>
     ) : (

@@ -94,7 +94,7 @@ const schemas = [
           enough services to justify the navigation. */}
       {services.length >= 3 && (
         <nav class="mt-m flex flex-col items-center gap-s" aria-label="On this page">
-          <p class="text-xs uppercase tracking-eyebrow text-foreground/65">On this page</p>
+          <p class="text-xs uppercase tracking-eyebrow text-foreground/80">On this page</p>
           <ul class="flex flex-wrap justify-center gap-xs list-none p-0">
             {services.map((service: any) => (
               service.slug?.current && (
@@ -174,19 +174,19 @@ const schemas = [
           <div class="mt-section-md grid grid-cols-1 md:grid-cols-3 gap-l">
             {builders.forBuildersText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
-                <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">For Builders</p>
+                <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">For Builders</p>
                 <p class="text-foreground/85 leading-relaxed">{builders.forBuildersText}</p>
               </article>
             )}
             {builders.forRealtorsText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
-                <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">For Realtors</p>
+                <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">For Realtors</p>
                 <p class="text-foreground/85 leading-relaxed">{builders.forRealtorsText}</p>
               </article>
             )}
             {builders.forContractorsText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
-                <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">For Contractors</p>
+                <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">For Contractors</p>
                 <p class="text-foreground/85 leading-relaxed">{builders.forContractorsText}</p>
               </article>
             )}
@@ -228,7 +228,7 @@ const schemas = [
 
         {travelFees.length > 0 && (
           <div class="bg-muted p-l rounded-md">
-            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-m">Travel fee tiers</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/80 mb-m">Travel fee tiers</p>
             <dl class="divide-y divide-border-soft">
               {travelFees.map((tier: any) => (
                 <div class="flex items-baseline justify-between py-s gap-m">

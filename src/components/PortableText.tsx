@@ -133,7 +133,7 @@ function makeComponents(): PortableTextComponents {
           {(value.decisionLine || value.caption) && (
             <figcaption className="mt-s px-m md:px-0">
               {value.decisionLine && (
-                <span className="block text-xs uppercase tracking-eyebrow text-foreground/65 mb-xs">
+                <span className="block text-xs uppercase tracking-eyebrow text-foreground/80 mb-xs">
                   {value.decisionLine}
                 </span>
               )}

@@ -85,7 +85,7 @@ const schemas = [
     class="mx-auto max-w-content px-m pt-section-md pb-l"
     aria-labelledby="project-hero-heading"
   >
-    <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">
+    <p class="text-xs uppercase tracking-widest text-foreground/80 mb-s">
       <a href="/portfolio" class="hover:text-primary transition-colors">Portfolio</a> · {project.roomType?.replace(/([A-Z])/g, ' $1').toLowerCase()}
     </p>
     <h1 id="project-hero-heading" class="font-display text-h1 text-foreground">{project.title}</h1>
@@ -110,7 +110,7 @@ const schemas = [
           class="w-full h-auto rounded-md"
         />
         {project.heroImage.caption && (
-          <figcaption class="mt-s text-sm text-foreground/65 italic text-center">
+          <figcaption class="mt-s text-sm text-foreground/80 italic text-center">
             {project.heroImage.caption}
           </figcaption>
         )}
@@ -196,13 +196,13 @@ const schemas = [
       <div class="mx-auto max-w-content px-m py-l grid grid-cols-1 md:grid-cols-2 gap-m">
         {prev ? (
           <a href={`/portfolio/${prev.slug}`} class="group">
-            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Previous project</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Previous project</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">← {prev.title}</p>
           </a>
         ) : <div></div>}
         {next ? (
           <a href={`/portfolio/${next.slug}`} class="group md:text-right">
-            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Next project</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Next project</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">{next.title} →</p>
           </a>
         ) : <div></div>}

@@ -124,7 +124,7 @@ interface FilterRowProps {
 function FilterRow({ eyebrow, options, active, onSelect }: FilterRowProps) {
   return (
     <div className="flex flex-wrap items-center gap-x-m gap-y-s justify-center">
-      <p className="text-xs uppercase tracking-eyebrow text-foreground/65 w-full text-center sm:w-auto sm:text-left">
+      <p className="text-xs uppercase tracking-eyebrow text-foreground/80 w-full text-center sm:w-auto sm:text-left">
         {eyebrow}
       </p>
       <ul className="flex flex-wrap justify-center gap-xs list-none p-0">

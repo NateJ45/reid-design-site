@@ -233,7 +233,7 @@ function makeComponents(): PortableTextComponents {
               {value.quote}
             </blockquote>
             {value.attribution && (
-              <figcaption className="mt-l text-xs uppercase tracking-widest text-foreground/65">
+              <figcaption className="mt-l text-xs uppercase tracking-widest text-foreground/80">
                 — {value.attribution}
               </figcaption>
             )}
@@ -275,7 +275,7 @@ function makeComponents(): PortableTextComponents {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-widest text-foreground/65 mb-xs">
+              <p className="text-xs uppercase tracking-widest text-foreground/80 mb-xs">
                 Source
               </p>
               <p className="font-display text-h4 text-foreground leading-tight">{value.itemName}</p>
@@ -287,7 +287,7 @@ function makeComponents(): PortableTextComponents {
                 </p>
               )}
               {value.notes && (
-                <p className="mt-s text-sm text-foreground/70 italic">{value.notes}</p>
+                <p className="mt-s text-sm text-foreground/85 italic">{value.notes}</p>
               )}
               {value.url && (
                 <p className="mt-s">
@@ -315,7 +315,7 @@ function makeComponents(): PortableTextComponents {
             className="my-section-md p-l border-l-4 border-tertiary bg-muted/70 rounded-r-md"
             aria-label={value.label ?? 'Note'}
           >
-            <p className="text-xs uppercase tracking-widest text-foreground/65 font-semibold mb-s">
+            <p className="text-xs uppercase tracking-widest text-foreground/80 font-semibold mb-s">
               {value.label ?? "Designer's note"}
             </p>
             <div className="text-foreground/90 [&_p]:my-s [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-s [&_ul]:pl-l [&_ul]:list-disc [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2">

@@ -90,10 +90,13 @@ function isActive(href: string) {
 
   {/* Eyebrow strip (desktop only). Carries the locked positioning line and
       utility controls (email + social icons + theme toggle). Mobile gets
-      the same info through the MobileNav drawer. */}
-  <div class="hidden md:block bg-muted border-b border-border-soft">
+      the same info through the MobileNav drawer. Breakpoint bumped from
+      md (768 px) to lg (1024 px) so the eyebrow strip + nav row only
+      appear once there's room for the full nav + CTA without squishing
+      the logo. */}
+  <div class="hidden lg:block bg-muted border-b border-border-soft">
     <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
-      <p class="text-xs uppercase tracking-eyebrow text-foreground/65">
+      <p class="text-xs uppercase tracking-eyebrow text-foreground/80">
         Plainfield Interior Design · Serving Greater Indianapolis
       </p>
       <div class="flex items-center gap-m">
@@ -142,11 +145,11 @@ function isActive(href: string) {
     </div>
   </div>
 
-  {/* Main nav row. Mobile centers the logo; desktop justifies logo left,
-      nav+CTA grouped right. px-l gives the logo and CTA breathing room
-      when the viewport is narrower than max-w-content so neither element
-      kisses the edge of the page. */}
-  <div class="relative mx-auto flex max-w-content items-center justify-center md:justify-between px-l py-m border-b border-border">
+  {/* Main nav row. Mobile (and tablet) center the logo; desktop ≥1024 px
+      justifies logo left, nav+CTA grouped right. Breakpoint matches the
+      eyebrow strip above — at viewports between md and lg the desktop
+      layout would squish, so mobile-style header stays in use. */}
+  <div class="relative mx-auto flex max-w-content items-center justify-center lg:justify-between px-l py-m border-b border-border">
     {/* Mobile-only availability pill, mirroring the hamburger menu's
         absolute-right placement. Gives mobile visitors an at-a-glance trust
         signal ("Open / accepting new clients") and a single-tap path to
@@ -156,7 +159,7 @@ function isActive(href: string) {
     {availability && (
       <a
         href="/contact"
-        class="md:hidden absolute left-m top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 h-9 pl-2 pr-2.5 rounded-full bg-muted border border-border-soft text-foreground hover:border-primary hover:text-primary-dark transition-colors"
+        class="lg:hidden absolute left-m top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 h-9 pl-2 pr-2.5 rounded-full bg-muted border border-border-soft text-foreground hover:border-primary hover:text-primary-dark transition-colors"
         aria-label={`Open — ${availability}. Tap to start a conversation.`}
       >
         <span
@@ -221,8 +224,8 @@ function isActive(href: string) {
       />
     </a>
 
-    {/* Nav + CTA grouped on the right (desktop only). */}
-    <div class="hidden md:flex items-center gap-l">
+    {/* Nav + CTA grouped on the right (lg+ only). */}
+    <div class="hidden lg:flex items-center gap-l">
       <nav class="flex items-center gap-l" aria-label="Primary">
         {NAV_LINKS.map((link) => (
           <a

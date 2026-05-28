@@ -131,7 +131,7 @@ const latestProjects = allProjects.slice(0, 3);
     <div class="mx-auto max-w-content px-m py-section-md grid gap-l md:grid-cols-4 text-center">
       {/* STUDIO */}
       <nav aria-labelledby="footer-studio">
-        <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
+        <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
           Studio
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
@@ -144,7 +144,7 @@ const latestProjects = allProjects.slice(0, 3);
 
       {/* WORK */}
       <nav aria-labelledby="footer-work">
-        <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
+        <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
           Work
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
@@ -156,7 +156,7 @@ const latestProjects = allProjects.slice(0, 3);
 
       {/* LATEST PROJECTS — dynamic from Sanity, falls back gracefully when empty. */}
       <nav aria-labelledby="footer-latest">
-        <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
+        <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
           Latest projects
         </p>
         {latestProjects.length > 0 ? (
@@ -168,7 +168,7 @@ const latestProjects = allProjects.slice(0, 3);
                   class="text-foreground/85 hover:text-link transition-colors"
                 >
                   {p.title}
-                  {p.location && <span class="text-foreground/65"> · {p.location}</span>}
+                  {p.location && <span class="text-foreground/80"> · {p.location}</span>}
                 </a>
               </li>
             ))}
@@ -182,7 +182,7 @@ const latestProjects = allProjects.slice(0, 3);
             </li>
           </ul>
         ) : (
-          <p class="text-sm text-foreground/70 italic">
+          <p class="text-sm text-foreground/85 italic">
             Case studies are coming soon. <a href="/portfolio" class="text-link hover:text-primary-dark underline underline-offset-2">See the portfolio →</a>
           </p>
         )}
@@ -190,7 +190,7 @@ const latestProjects = allProjects.slice(0, 3);
 
       {/* GET IN TOUCH */}
       <div>
-        <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
+        <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
           Get in touch
         </p>
         {email && (
@@ -198,7 +198,7 @@ const latestProjects = allProjects.slice(0, 3);
             <CopyEmailButton client:visible email={email} variant="link" />
           </p>
         )}
-        <p class="mt-s text-sm text-foreground/70">
+        <p class="mt-s text-sm text-foreground/85">
           Plainfield, IN<br />
           Serving Greater Indianapolis
         </p>
@@ -237,7 +237,7 @@ const latestProjects = allProjects.slice(0, 3);
             Stacked tight under the socials so the column reads top-to-bottom:
             email · location · socials · credit. No more standalone bar at the
             page bottom. */}
-        <div class="mt-l space-y-1 text-xs text-foreground/65">
+        <div class="mt-l space-y-1 text-xs text-foreground/80">
           <p>© {currentYear} {brandName}</p>
           {siteCredit && (
             siteCreditUrl ? (

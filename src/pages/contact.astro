@@ -88,7 +88,7 @@ const schemas = [
       {page?.whatToExpectContent && (
         <div class="mt-section-lg border-t border-border-soft pt-l">
           {page.whatToExpectEyebrow && (
-            <p class="text-xs uppercase tracking-[0.22em] text-foreground/65 mb-s">{page.whatToExpectEyebrow}</p>
+            <p class="text-xs uppercase tracking-[0.22em] text-foreground/80 mb-s">{page.whatToExpectEyebrow}</p>
           )}
           {page.whatToExpectHeadline && (
             <h2 class="font-display text-h3 text-foreground">{page.whatToExpectHeadline}</h2>
@@ -114,14 +114,14 @@ const schemas = [
 
       {email && (
         <div>
-          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Email</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Email</p>
           <CopyEmailButton client:visible email={email} variant="link" />
         </div>
       )}
 
       {schedulingLink && (
         <div>
-          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Prefer to schedule?</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Prefer to schedule?</p>
           <a
             href={schedulingLink}
             target="_blank"
@@ -135,7 +135,7 @@ const schemas = [
 
       {siteSettings?.serviceAreas && siteSettings.serviceAreas.length > 0 && (
         <div>
-          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Service area</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Service area</p>
           <ul class="text-sm text-foreground space-y-0.5">
             {siteSettings.serviceAreas.slice(0, 8).map((area: string) => <li>{area}</li>)}
           </ul>
@@ -143,7 +143,7 @@ const schemas = [
       )}
 
       <div>
-        <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Where Reid Design is</p>
+        <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Where Reid Design is</p>
         <ServiceAreaMap height={280} />
       </div>
     </aside>

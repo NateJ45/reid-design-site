@@ -69,7 +69,7 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
   const close = () => setOpen(false);
 
   return (
-    <div className="md:hidden absolute right-m top-1/2 -translate-y-1/2">
+    <div className="lg:hidden absolute right-m top-1/2 -translate-y-1/2">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
@@ -86,7 +86,7 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
         >
           {/* Eyebrow header. Override SheetTitle's default font/size to render as a small label. */}
           <SheetHeader className="px-l pt-xl pb-m">
-            <SheetTitle className="text-xs uppercase tracking-eyebrow text-foreground/65 font-body font-normal">
+            <SheetTitle className="text-xs uppercase tracking-eyebrow text-foreground/80 font-body font-normal">
               Menu
             </SheetTitle>
           </SheetHeader>
@@ -126,7 +126,7 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
 
           {/* Contact + socials + theme. */}
           <div className="border-t border-border-soft px-l pt-m pb-s">
-            <p className="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
+            <p className="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
               Get in touch
             </p>
             {email && (
