@@ -35,6 +35,22 @@ export const servicesPage = defineType({
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
     }),
+    defineField({
+      name: 'heroScriptAccent',
+      title: 'Script-font accent word (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+    }),
+    defineField({
+      name: 'stickyCtaLabel',
+      title: 'Sticky CTA label',
+      type: 'string',
+      group: 'hero',
+      description:
+        'Short label for the floating sticky CTA chip that appears after the visitor scrolls 50% of the page. Example: "Ready to talk it through?". Leave blank to hide the sticky chip.',
+    }),
 
     defineField({ name: 'servicesListEyebrow', title: 'Services list eyebrow', type: 'string', group: 'list', initialValue: 'The Tiers.' }),
     defineField({ name: 'servicesListHeadline', title: 'Services list headline', type: 'string', group: 'list' }),

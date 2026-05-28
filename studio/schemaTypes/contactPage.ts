@@ -33,6 +33,14 @@ export const contactPage = defineType({
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
     }),
+    defineField({
+      name: 'heroScriptAccent',
+      title: 'Script-font accent word (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+    }),
 
     defineField({
       name: 'formIntroNote',
@@ -48,6 +56,42 @@ export const contactPage = defineType({
       type: 'array',
       group: 'form',
       description: 'The options shown in the "Project type" dropdown on the contact form. Order matters. Examples: "Single room", "Whole home", "Builder/realtor partnership".',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'formLocationOptions',
+      title: 'Location dropdown options',
+      type: 'array',
+      group: 'form',
+      description:
+        'Cities shown in the "Location" dropdown. Plainfield-first per brand positioning. Leave blank to use the built-in defaults (Plainfield, Indianapolis, Carmel, Fishers, Westfield, Zionsville, Noblesville, Other Greater Indianapolis, Outside the area).',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'formBudgetOptions',
+      title: 'Budget dropdown options',
+      type: 'array',
+      group: 'form',
+      description:
+        'Budget brackets shown on the form. The wording matters — keep the "Not sure yet" option so the form stays approachable. Leave blank to use the built-in defaults.',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'formTimelineOptions',
+      title: 'Timeline dropdown options',
+      type: 'array',
+      group: 'form',
+      description:
+        'Timeline buckets shown on the form. Leave blank to use the built-in defaults (ASAP, 1–3 months, 3–6 months, 6+ months, Flexible).',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'formSourceOptions',
+      title: '"How did you hear about us?" dropdown options',
+      type: 'array',
+      group: 'form',
+      description:
+        'Optional lead-source dropdown options. Useful for understanding where good leads come from over time. Leave blank to use the built-in defaults (Google, Instagram, Facebook, Houzz, referrals, journal, project in person, Other).',
       of: [defineArrayMember({ type: 'string' })],
     }),
     defineField({

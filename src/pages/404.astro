@@ -9,22 +9,42 @@
 // SanityImage CDN/transform pipeline as every other photo on the site.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getSiteSettings } from '@/lib/queries';
+import { getNotFoundPage, getSiteSettings } from '@/lib/queries';
 import SanityImage from '@/components/SanityImage.astro';
 
-const siteSettings = await getSiteSettings().catch(() => null);
+const [notFoundPage, siteSettings] = await Promise.all([
+  getNotFoundPage().catch(() => null),
+  getSiteSettings().catch(() => null),
+]);
 
-// Studio dogs on the sofa — friendly, on-brand vignette that turns the 404 from
-// "site chrome" into "Reid Design moment." Change the _ref to swap the photo.
-const photo = {
+// Fallback photo — Studio dogs on the sofa, in case the singleton hasn't been
+// populated. Sanity singleton always wins if its image field is set.
+const fallbackPhoto = {
   asset: { _ref: 'image-ce9be41407b946b7453724575c3cfd7aec2f7c4c-3024x4032-jpg' },
   alt: 'Reid Design studio dogs resting on a sofa.',
 };
+
+const seoTitle       = notFoundPage?.seoTitle       ?? 'Page not found';
+const seoDescription = notFoundPage?.seoDescription ?? 'That page wandered off. Head back to the homepage or get in touch.';
+
+const eyebrow  = notFoundPage?.eyebrow  ?? '404';
+const headline = notFoundPage?.headline ?? 'That page wandered off.';
+const body     = notFoundPage?.body     ?? "It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.";
+
+const primaryLabel    = notFoundPage?.primaryCtaLabel    ?? 'Back home';
+const primaryHref     = notFoundPage?.primaryCtaHref     ?? '/';
+const secondaryLabel  = notFoundPage?.secondaryCtaLabel  ?? 'Browse the portfolio';
+const secondaryHref   = notFoundPage?.secondaryCtaHref   ?? '/portfolio';
+const tertiaryLabel   = notFoundPage?.tertiaryCtaLabel   ?? 'Get in touch';
+const tertiaryHref    = notFoundPage?.tertiaryCtaHref    ?? '/contact';
+
+const photo   = notFoundPage?.heroImage ?? fallbackPhoto;
+const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
 ---
 
 <BaseLayout
-  title="Page not found"
-  description="That page wandered off. Head back to the homepage or get in touch."
+  title={seoTitle}
+  description={seoDescription}
   siteSettings={siteSettings}
 >
   <section
@@ -36,32 +56,32 @@ const photo = {
         "you're off-path" moment; left-aligned on desktop where the
         two-column layout needs the text anchored beside the photo column. */}
     <div class="text-center md:text-left">
-      <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">404</p>
+      <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">{eyebrow}</p>
       <h1 id="not-found-heading" class="font-display text-h1 text-foreground leading-headline-tight">
-        That page wandered off.
+        {headline}
       </h1>
       <p class="mt-m max-w-xl mx-auto md:mx-0 text-lg text-foreground/80 leading-relaxed">
-        It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.
+        {body}
       </p>
 
       <div class="mt-l flex flex-wrap gap-m justify-center md:justify-start">
         <a
-          href="/"
+          href={primaryHref}
           class="press-tactile inline-flex items-center px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:bg-accent-dark"
         >
-          Back home
+          {primaryLabel}
         </a>
         <a
-          href="/portfolio"
+          href={secondaryHref}
           class="press-tactile inline-flex items-center px-l py-s border border-primary text-link font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:bg-accent"
         >
-          Browse the portfolio
+          {secondaryLabel}
         </a>
         <a
-          href="/contact"
+          href={tertiaryHref}
           class="press-tactile inline-flex items-center px-l py-s border border-border-soft text-foreground/85 font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:border-primary hover:text-primary-dark"
         >
-          Get in touch
+          {tertiaryLabel}
         </a>
       </div>
     </div>
@@ -77,7 +97,7 @@ const photo = {
         class="w-full h-auto rounded-md"
       />
       <figcaption class="mt-s text-xs uppercase tracking-eyebrow text-foreground/65 text-right">
-        From the studio
+        {caption}
       </figcaption>
     </figure>
   </section>

@@ -17,10 +17,10 @@
 // service-area + travel-fee bucket, ballpark tier, urgency, and a lightweight
 // lead-source signal for marketing decisions later.
 //
-// Project type options come from Sanity (contactPage.formProjectTypeOptions)
-// when the page passes `projectTypes` in. Other dropdowns are hardcoded here
-// because they don't change between projects (they reflect Reid Design's
-// service area and pricing brackets, both of which live in code already).
+// All five dropdowns (project type, location, budget, timeline, source) accept
+// Sanity-driven overrides via props (passed from contact.astro). The constants
+// below remain the fallback so the form renders cleanly even before
+// contactPage.form*Options are set in Studio.
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { site } from '@/data/site';
@@ -91,6 +91,14 @@ const SOURCE_OPTIONS = [
 interface ContactFormProps {
   /** Optional. Override the default project-type dropdown options (from contactPage.formProjectTypeOptions). */
   projectTypes?: string[];
+  /** Optional. Override the default location dropdown options (from contactPage.formLocationOptions). */
+  locations?: string[];
+  /** Optional. Override the default budget dropdown options (from contactPage.formBudgetOptions). */
+  budgets?: string[];
+  /** Optional. Override the default timeline dropdown options (from contactPage.formTimelineOptions). */
+  timelines?: string[];
+  /** Optional. Override the default "how did you hear" dropdown options (from contactPage.formSourceOptions). */
+  sources?: string[];
 }
 
 interface Draft {
@@ -121,13 +129,22 @@ const EMPTY: Draft = {
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
-export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
-  // Use Sanity-driven options when provided; fall back to defaults so the form is
-  // still usable when contactPage.formProjectTypeOptions hasn't been filled in.
-  const projectTypeOptions =
-    Array.isArray(projectTypes) && projectTypes.length > 0
-      ? projectTypes
-      : [...DEFAULT_PROJECT_TYPES];
+export default function ContactForm({
+  projectTypes,
+  locations,
+  budgets,
+  timelines,
+  sources,
+}: ContactFormProps = {}) {
+  // Use Sanity-driven options when provided; fall back to defaults so the form
+  // is still usable when contactPage.form*Options haven't been filled in.
+  const pick = (override?: string[], fallback?: readonly string[]) =>
+    Array.isArray(override) && override.length > 0 ? override : [...(fallback ?? [])];
+  const projectTypeOptions = pick(projectTypes, DEFAULT_PROJECT_TYPES);
+  const locationOptions = pick(locations, LOCATION_OPTIONS);
+  const budgetOptions = pick(budgets, BUDGET_OPTIONS);
+  const timelineOptions = pick(timelines, TIMELINE_OPTIONS);
+  const sourceOptions = pick(sources, SOURCE_OPTIONS);
 
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [status, setStatus] = useState<Status>('idle');
@@ -359,7 +376,7 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
             className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Pick the closest area</option>
-            {LOCATION_OPTIONS.map((opt) => (
+            {locationOptions.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
@@ -413,7 +430,7 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
             className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Pick a bracket</option>
-            {BUDGET_OPTIONS.map((opt) => (
+            {budgetOptions.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
@@ -441,7 +458,7 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
             className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">When do you want to start?</option>
-            {TIMELINE_OPTIONS.map((opt) => (
+            {timelineOptions.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
@@ -486,7 +503,7 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
           className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">Skip if you'd rather not say</option>
-          {SOURCE_OPTIONS.map((opt) => (
+          {sourceOptions.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
         </select>

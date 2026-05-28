@@ -13,6 +13,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import {
   getAllJournalEntries,
   getJournalEntryBySlug,
+  getJournalPage,
   getSiteSettings,
 } from '@/lib/queries';
 import { breadcrumbSchema, blogPostingSchema } from '@/lib/schemas';
@@ -54,9 +55,13 @@ const { prev, next } = Astro.props as {
   next: { title?: string; slug?: string } | null;
 };
 
-const [entry, siteSettings] = await Promise.all([
+const [entry, siteSettings, journalPage] = await Promise.all([
   getJournalEntryBySlug(slug as string),
   getSiteSettings().catch(() => null),
+  // Pulled here purely so the sticky CTA chip label can come from
+  // journalPage.stickyCtaLabel without doubling up the singleton fetch
+  // elsewhere. Cached by the GROQ layer across getStaticPaths.
+  getJournalPage().catch(() => null),
 ]);
 
 if (!entry) {
@@ -225,10 +230,14 @@ const schemas = [
     fallbackCtaLabel="Start a Conversation"
   />
 
-  {/* Sticky contextual CTA — appears past 50% scroll on long posts. */}
-  <StickyCTAChip
-    client:idle
-    label="Have a room in mind?"
-    href="/contact"
-  />
+  {/* Sticky contextual CTA — appears past 50% scroll on long posts.
+      Label is Sanity-editable on journalPage; clearing the field hides the
+      chip across every journal post. */}
+  {journalPage?.stickyCtaLabel !== '' && (
+    <StickyCTAChip
+      client:idle
+      label={journalPage?.stickyCtaLabel ?? 'Have a room in mind?'}
+      href="/contact"
+    />
+  )}
 </BaseLayout>

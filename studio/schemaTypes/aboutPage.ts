@@ -33,6 +33,14 @@ export const aboutPage = defineType({
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
     }),
+    defineField({
+      name: 'heroScriptAccent',
+      title: 'Script-font accent word (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+    }),
 
     defineField({ name: 'storyEyebrow', title: 'Story eyebrow', type: 'string', group: 'story', initialValue: 'My Story.' }),
     defineField({ name: 'storyHeadline', title: 'Story headline', type: 'string', group: 'story', initialValue: 'Why I Started Reid Design.' }),

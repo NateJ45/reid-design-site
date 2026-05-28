@@ -313,6 +313,13 @@ export const project = defineType({
       description: 'Lower numbers show first in the portfolio. Leave blank to sort by year.',
     }),
     defineField({
+      name: 'stickyCtaLabel',
+      title: 'Sticky CTA label (optional)',
+      type: 'string',
+      description:
+        'Short label for the floating sticky CTA chip that appears once a visitor scrolls 50% of this project page. Example: "Want a room like this?". Leave blank to use the project default or hide the chip.',
+    }),
+    defineField({
       name: 'publishedAt',
       title: 'Published at',
       type: 'datetime',

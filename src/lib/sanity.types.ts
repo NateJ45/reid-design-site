@@ -185,6 +185,56 @@ export type FaqItem = {
   alsoShowOnProcessPage?: boolean;
 };
 
+export type NotFoundPage = {
+  _id: string;
+  _type: "notFoundPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  eyebrow?: string;
+  headline?: string;
+  body?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    _type: "image";
+  };
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+  tertiaryCtaLabel?: string;
+  tertiaryCtaHref?: string;
+};
+
+export type PortfolioPage = {
+  _id: string;
+  _type: "portfolioPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroSubhead?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  heroScriptAccent?: string;
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -489,6 +539,8 @@ export type JournalPage = {
     alt?: string;
     _type: "image";
   };
+  heroScriptAccent?: string;
+  stickyCtaLabel?: string;
   finalCtaHeadline?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
@@ -513,8 +565,13 @@ export type ContactPage = {
     alt?: string;
     _type: "image";
   };
+  heroScriptAccent?: string;
   formIntroNote?: string;
   formProjectTypeOptions?: Array<string>;
+  formLocationOptions?: Array<string>;
+  formBudgetOptions?: Array<string>;
+  formTimelineOptions?: Array<string>;
+  formSourceOptions?: Array<string>;
   whatToExpectEyebrow?: string;
   whatToExpectHeadline?: string;
   whatToExpectContent?: Array<{
@@ -556,6 +613,7 @@ export type FaqPage = {
     alt?: string;
     _type: "image";
   };
+  heroScriptAccent?: string;
   categoryOrder?: Array<string>;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
@@ -584,6 +642,8 @@ export type ServicesPage = {
     alt?: string;
     _type: "image";
   };
+  heroScriptAccent?: string;
+  stickyCtaLabel?: string;
   servicesListEyebrow?: string;
   servicesListHeadline?: string;
   servicesListSubhead?: string;
@@ -640,6 +700,7 @@ export type ProcessPage = {
     alt?: string;
     _type: "image";
   };
+  heroScriptAccent?: string;
   faqSectionEyebrow?: string;
   faqSectionHeadline?: string;
   finalCtaEyebrow?: string;
@@ -668,6 +729,7 @@ export type AboutPage = {
     alt?: string;
     _type: "image";
   };
+  heroScriptAccent?: string;
   storyEyebrow?: string;
   storyHeadline?: string;
   storyContent?: Array<{
@@ -731,6 +793,8 @@ export type HomePage = {
   };
   heroPrimaryCta?: CtaBlock;
   heroSecondaryCta?: CtaBlock;
+  heroRotatingWords?: Array<string>;
+  heroScriptAccent?: string;
   meetStaciPhoto?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -923,6 +987,7 @@ export type Project = {
   >;
   relatedTestimonial?: TestimonialReference;
   displayOrder?: number;
+  stickyCtaLabel?: string;
   publishedAt?: string;
   orderRank?: string;
 };
@@ -1044,6 +1109,8 @@ export type AllSanitySchemaTypes =
   | SanityImageHotspot
   | PhilosophyPoint
   | FaqItem
+  | NotFoundPage
+  | PortfolioPage
   | SiteSettings
   | HomePageReference
   | AboutPageReference

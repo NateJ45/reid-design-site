@@ -39,9 +39,11 @@ const SINGLETON_TYPES = [
   'aboutPage',
   'processPage',
   'servicesPage',
+  'portfolioPage',
   'faqPage',
   'contactPage',
   'journalPage',
+  'notFoundPage',
 ] as const;
 
 const ORDERABLE_TYPES = ['service', 'processStep', 'philosophyPoint', 'project'] as const;
@@ -118,9 +120,11 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               singletonWithPreview(S, 'aboutPage', 'About', UserIcon),
               singletonWithPreview(S, 'processPage', 'Process', TrendUpwardIcon),
               singletonWithPreview(S, 'servicesPage', 'Services', PackageIcon),
+              singletonWithPreview(S, 'portfolioPage', 'Portfolio (index page)', ImagesIcon),
               singletonWithPreview(S, 'faqPage', 'FAQ', HelpCircleIcon),
               singletonWithPreview(S, 'contactPage', 'Contact', EnvelopeIcon),
               singletonWithPreview(S, 'journalPage', 'Journal (index page)', BookIcon),
+              singletonWithPreview(S, 'notFoundPage', '404 Page', DocumentTextIcon),
             ]),
         ),
 

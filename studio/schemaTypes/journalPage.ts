@@ -39,6 +39,22 @@ export const journalPage = defineType({
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
     }),
+    defineField({
+      name: 'heroScriptAccent',
+      title: 'Script-font accent word (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+    }),
+    defineField({
+      name: 'stickyCtaLabel',
+      title: 'Sticky CTA label (post detail pages)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'Short label for the floating sticky CTA chip that appears on every journal post detail page after the visitor scrolls 50%. Example: "Have a room in mind?". Leave blank to hide the chip on journal posts.',
+    }),
 
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Got a project of your own?' }),
     defineField({ name: 'finalCtaSubhead',  title: 'Final CTA subhead',  type: 'text', rows: 2, group: 'final' }),

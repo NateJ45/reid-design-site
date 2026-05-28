@@ -50,6 +50,7 @@ const schemas = [
     backgroundImage={page?.heroImage}
     headingId="contact-hero-heading"
     size="short"
+    scriptAccent={page?.heroScriptAccent}
   />
 
   <section class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 lg:grid-cols-3 gap-section-md">
@@ -59,7 +60,14 @@ const schemas = [
         <p class="mb-m text-foreground/80 text-base">{formIntroNote}</p>
       )}
 
-      <ContactForm client:visible projectTypes={page?.formProjectTypeOptions} />
+      <ContactForm
+        client:visible
+        projectTypes={page?.formProjectTypeOptions}
+        locations={page?.formLocationOptions}
+        budgets={page?.formBudgetOptions}
+        timelines={page?.formTimelineOptions}
+        sources={page?.formSourceOptions}
+      />
 
       {/* Email failsafe — surfaced right after the form so visitors who hit
           a submission error or just prefer email have a clear alternate path

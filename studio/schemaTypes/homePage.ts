@@ -53,6 +53,23 @@ export const homePage = defineType({
     }),
     defineField({ name: 'heroPrimaryCta', title: 'Primary CTA', type: 'ctaBlock', group: 'hero' }),
     defineField({ name: 'heroSecondaryCta', title: 'Secondary CTA', type: 'ctaBlock', group: 'hero' }),
+    defineField({
+      name: 'heroRotatingWords',
+      title: 'Rotating first-word swap (optional)',
+      type: 'array',
+      group: 'hero',
+      description:
+        'On the first visit per session, the FIRST word of the headline cycles through this list once before locking back to the original. Leave empty (or with fewer than 2 alternates) to skip the effect. Example: ["Lived-in", "Considered", "Quiet"]. Honors prefers-reduced-motion.',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'heroScriptAccent',
+      title: 'Script-font accent word (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'A single word from the headline to render in handwritten Pinyon Script for editorial flourish. Must match the word exactly (case-sensitive). The first occurrence wins. Leave blank to skip. Note: when "rotating words" is also set, the rotation wins and this is ignored.',
+    }),
 
     // Meet Staci
     defineField({

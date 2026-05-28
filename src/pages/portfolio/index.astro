@@ -4,7 +4,7 @@
 // Renders an empty state when no projects exist yet (launch state).
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getAllProjects, getSiteSettings } from '@/lib/queries';
+import { getAllProjects, getPortfolioPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
@@ -12,13 +12,18 @@ import ProjectCard from '@/components/ProjectCard.astro';
 import PortfolioFilterChips from '@/components/PortfolioFilterChips';
 import PortfolioCursor from '@/components/PortfolioCursor';
 
-const [projects, siteSettings] = await Promise.all([
+const [projects, page, siteSettings] = await Promise.all([
   getAllProjects().catch(() => []),
+  getPortfolioPage().catch(() => null),
   getSiteSettings().catch(() => null),
 ]);
 
-const title = 'Portfolio';
-const description = 'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';
+const title       = page?.seoTitle       ?? 'Portfolio';
+const description = page?.seoDescription ?? 'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';
+
+const heroEyebrow  = page?.heroEyebrow  ?? 'Recent work';
+const heroHeadline = page?.heroHeadline ?? 'Projects across Plainfield and Indianapolis.';
+const heroSubhead  = page?.heroSubhead  ?? 'A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there.';
 
 const schemas = [
   breadcrumbSchema([
@@ -55,24 +60,26 @@ const styleOptions = [
   ).values(),
 ];
 
-// Portfolio doesn't have a Sanity singleton (just a hardcoded landing). The hero
-// background is referenced by asset _ref so it pipes through the same SanityImage
-// CDN/transform path as the other page heros. To swap the image, change the _ref.
-const heroBackground = {
+// Portfolio index now backed by the portfolioPage singleton. The fallback
+// asset _ref preserves the previous hero image for any environment where the
+// singleton hasn't been populated yet — defensive only; the patch script
+// backfills the field on launch.
+const fallbackHeroImage = {
   asset: { _ref: 'image-95cf8e9cffed47a11f9f74386dc1659d3b45ffba-4736x4280-jpg' },
   alt: 'Reid Design kitchen with island and woven counter stools.',
 };
+const heroBackground = page?.heroImage ?? fallbackHeroImage;
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
   <Hero
-    eyebrow="Recent work"
-    headline="Projects across Plainfield and Indianapolis."
-    subhead="A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there."
+    eyebrow={heroEyebrow}
+    headline={heroHeadline}
+    subhead={heroSubhead}
     backgroundImage={heroBackground}
     headingId="portfolio-hero-heading"
     size="short"
-    scriptAccent="Plainfield"
+    scriptAccent={page?.heroScriptAccent ?? 'Plainfield'}
   />
 
   {hasProjects ? (

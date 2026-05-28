@@ -80,7 +80,7 @@ function isActive(href: string) {
       utility controls (email + social icons + theme toggle). Mobile gets
       the same info through the MobileNav drawer. */}
   <div class="hidden md:block bg-muted border-b border-border-soft">
-    <div class="mx-auto flex max-w-content items-center justify-between px-m py-2">
+    <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
       <p class="text-xs uppercase tracking-eyebrow text-foreground/65">
         Plainfield Interior Design · Serving Greater Indianapolis
       </p>
@@ -126,8 +126,10 @@ function isActive(href: string) {
   </div>
 
   {/* Main nav row. Mobile centers the logo; desktop justifies logo left,
-      nav+CTA grouped right. */}
-  <div class="relative mx-auto flex max-w-content items-center justify-center md:justify-between px-m py-m border-b border-border">
+      nav+CTA grouped right. px-l gives the logo and CTA breathing room
+      when the viewport is narrower than max-w-content so neither element
+      kisses the edge of the page. */}
+  <div class="relative mx-auto flex max-w-content items-center justify-center md:justify-between px-l py-m border-b border-border">
     {/* Mobile-only availability pill, mirroring the hamburger menu's
         absolute-right placement. Gives mobile visitors an at-a-glance trust
         signal ("Open / accepting new clients") and a single-tap path to
@@ -137,7 +139,7 @@ function isActive(href: string) {
     {availability && (
       <a
         href="/contact"
-        class="md:hidden absolute left-m top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 h-11 pl-2.5 pr-3 rounded-full bg-muted border border-border-soft text-foreground hover:border-primary hover:text-primary-dark transition-colors"
+        class="md:hidden absolute left-m top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 h-9 pl-2 pr-2.5 rounded-full bg-muted border border-border-soft text-foreground hover:border-primary hover:text-primary-dark transition-colors"
         aria-label={`Availability: ${availability}. Tap to start a conversation.`}
       >
         <span
@@ -149,10 +151,10 @@ function isActive(href: string) {
           <span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-60 animate-ping"></span>
           <span class="relative inline-flex w-2 h-2 rounded-full bg-tertiary"></span>
         </span>
-        {/* Label hides on the tightest mobile widths (<640px) so the
-            centered logo never collides with the pill. Pulsing dot still
-            communicates "available now" on its own. */}
-        <span class="hidden sm:inline text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
+        {/* Full pill — visible at every mobile width. The h-9 pill is
+            compact enough that even at 320px it doesn't collide with the
+            centered logo. */}
+        <span class="text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
           Open
         </span>
       </a>

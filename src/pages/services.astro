@@ -58,10 +58,10 @@ const schemas = [
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
   {/* ------- 1. Hero --------------------------------------------------------- */}
-  {/* scriptAccent script-emphasizes "reveal" in the headline ("From a $150
-      consultation to a full room reveal"). Editorial-signature flourish.
-      Falls back gracefully if Staci ever changes the headline and the word
-      no longer appears. */}
+  {/* scriptAccent script-emphasizes one word in the headline (default "reveal"
+      from "...a full room reveal"). Sanity-editable so Staci can change the
+      headline + the accent word together. Falls back gracefully if she clears
+      it or changes the headline so the word no longer appears. */}
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}
@@ -69,7 +69,7 @@ const schemas = [
     backgroundImage={page?.heroImage}
     headingId="services-hero-heading"
     size="short"
-    scriptAccent="reveal"
+    scriptAccent={page?.heroScriptAccent ?? 'reveal'}
   />
 
   {/* ------- 2. Services list ----------------------------------------------- */}
@@ -253,10 +253,14 @@ const schemas = [
     cta={page?.finalCta}
   />
 
-  {/* Sticky contextual CTA — appears past 50% scroll on this long page. */}
-  <StickyCTAChip
-    client:idle
-    label="Ready to talk it through?"
-    href="/contact"
-  />
+  {/* Sticky contextual CTA — appears past 50% scroll on this long page.
+      Label is Sanity-editable on servicesPage; clearing the field hides the
+      chip altogether. */}
+  {page?.stickyCtaLabel !== '' && (
+    <StickyCTAChip
+      client:idle
+      label={page?.stickyCtaLabel ?? 'Ready to talk it through?'}
+      href="/contact"
+    />
+  )}
 </BaseLayout>

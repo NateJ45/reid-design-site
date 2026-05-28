@@ -25,15 +25,17 @@ export function urlForDoc(schemaType: string, doc: any): string | null {
   const SITE_URL = SITE_URL_FOR_PREVIEW;
   const slug = doc?.slug?.current;
   switch (schemaType) {
-    case 'homePage':     return `${SITE_URL}/`;
-    case 'aboutPage':    return `${SITE_URL}/about`;
-    case 'processPage':  return `${SITE_URL}/process`;
-    case 'servicesPage': return `${SITE_URL}/services`;
-    case 'faqPage':      return `${SITE_URL}/faq`;
-    case 'contactPage':  return `${SITE_URL}/contact`;
-    case 'journalPage':  return `${SITE_URL}/journal`;
-    case 'journalEntry': return slug ? `${SITE_URL}/journal/${slug}` : `${SITE_URL}/journal`;
-    case 'project':      return slug ? `${SITE_URL}/portfolio/${slug}` : `${SITE_URL}/portfolio`;
+    case 'homePage':      return `${SITE_URL}/`;
+    case 'aboutPage':     return `${SITE_URL}/about`;
+    case 'processPage':   return `${SITE_URL}/process`;
+    case 'servicesPage':  return `${SITE_URL}/services`;
+    case 'portfolioPage': return `${SITE_URL}/portfolio`;
+    case 'faqPage':       return `${SITE_URL}/faq`;
+    case 'contactPage':   return `${SITE_URL}/contact`;
+    case 'journalPage':   return `${SITE_URL}/journal`;
+    case 'notFoundPage':  return `${SITE_URL}/404`;
+    case 'journalEntry':  return slug ? `${SITE_URL}/journal/${slug}` : `${SITE_URL}/journal`;
+    case 'project':       return slug ? `${SITE_URL}/portfolio/${slug}` : `${SITE_URL}/portfolio`;
     // service/processStep/etc don't have individual pages; preview their parent
     case 'service':      return `${SITE_URL}/services`;
     case 'processStep':  return `${SITE_URL}/process`;

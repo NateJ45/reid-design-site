@@ -50,6 +50,8 @@ export async function getHomePage() {
     heroImage${IMAGE_PROJECTION},
     heroPrimaryCta${CTA_PROJECTION},
     heroSecondaryCta${CTA_PROJECTION},
+    heroRotatingWords,
+    heroScriptAccent,
     meetStaciPhoto${IMAGE_PROJECTION},
     meetStaciEyebrow,
     meetStaciHeadline,
@@ -94,6 +96,7 @@ export async function getAboutPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
     storyEyebrow, storyHeadline, storyContent,
     staciPhoto${IMAGE_PROJECTION},
     staciAttribution,
@@ -116,6 +119,7 @@ export async function getProcessPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
     faqSectionEyebrow, faqSectionHeadline,
     "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc),
     "faqs": *[_type == "faqItem" && alsoShowOnProcessPage == true] | order(category asc, displayOrder asc),
@@ -132,6 +136,8 @@ export async function getServicesPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    stickyCtaLabel,
     servicesListEyebrow, servicesListHeadline, servicesListSubhead,
     "services": *[_type == "service"] | order(orderRank asc, displayOrder asc),
     builderRealtorSection{
@@ -153,6 +159,7 @@ export async function getFaqPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
     categoryOrder,
     "faqs": *[_type == "faqItem"] | order(category asc, displayOrder asc){
       question, answer, category, displayOrder
@@ -171,14 +178,47 @@ export async function getContactPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
     formIntroNote,
     formProjectTypeOptions,
+    formLocationOptions,
+    formBudgetOptions,
+    formTimelineOptions,
+    formSourceOptions,
     whatToExpectEyebrow,
     whatToExpectHeadline,
     whatToExpectContent,
     schedulingLink,
     schedulingLinkLabel,
     availabilityNote
+  }`);
+}
+
+// ---- Portfolio index page -------------------------------------------------
+
+export async function getPortfolioPage() {
+  return client.fetch(`*[_type == "portfolioPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent
+  }`);
+}
+
+// ---- 404 page -------------------------------------------------------------
+
+export async function getNotFoundPage() {
+  return client.fetch(`*[_type == "notFoundPage"][0]{
+    seoTitle,
+    seoDescription,
+    eyebrow,
+    headline,
+    body,
+    heroImage${IMAGE_PROJECTION},
+    primaryCtaLabel, primaryCtaHref,
+    secondaryCtaLabel, secondaryCtaHref,
+    tertiaryCtaLabel, tertiaryCtaHref
   }`);
 }
 
@@ -192,6 +232,10 @@ export async function getAllProjects() {
 }
 
 export async function getProjectBySlug(slug: string) {
+  // Note: stickyCtaLabel is spread in via `...` since the schema field is on
+  // the project doc itself. journalPage's stickyCtaLabel is passed in
+  // separately so `journalPageStickyCta` from journal/[slug].astro is keyed
+  // to the right source.
   return client.fetch(
     `*[_type == "project" && slug.current == $slug][0]{
       ...,
@@ -229,6 +273,8 @@ export async function getJournalPage() {
     seoDescription,
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    stickyCtaLabel,
     finalCtaHeadline, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);

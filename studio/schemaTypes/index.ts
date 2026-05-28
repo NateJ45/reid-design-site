@@ -10,7 +10,9 @@ import { homePage } from './homePage';
 import { journalCategory } from './journalCategory';
 import { journalEntry } from './journalEntry';
 import { journalPage } from './journalPage';
+import { notFoundPage } from './notFoundPage';
 import { philosophyPoint } from './philosophyPoint';
+import { portfolioPage } from './portfolioPage';
 import { processPage } from './processPage';
 import { processStep } from './processStep';
 import { project } from './project';
@@ -29,9 +31,11 @@ export const schemaTypes = [
   aboutPage,
   processPage,
   servicesPage,
+  portfolioPage,
   faqPage,
   contactPage,
   journalPage,
+  notFoundPage,
 
   // Reusable content collections
   testimonial,

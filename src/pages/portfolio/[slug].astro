@@ -205,10 +205,15 @@ const schemas = [
     </nav>
   )}
 
-  {/* Sticky contextual CTA — appears past 50% scroll, hides on scroll-up. */}
-  <StickyCTAChip
-    client:idle
-    label="Want a room like this?"
-    href="/contact"
-  />
+  {/* Sticky contextual CTA — appears past 50% scroll, hides on scroll-up.
+      Label is Sanity-editable per-project (project.stickyCtaLabel); clearing
+      the field hides the chip for that project. The fallback keeps existing
+      projects looking identical. */}
+  {project?.stickyCtaLabel !== '' && (
+    <StickyCTAChip
+      client:idle
+      label={project?.stickyCtaLabel ?? 'Want a room like this?'}
+      href="/contact"
+    />
+  )}
 </BaseLayout>

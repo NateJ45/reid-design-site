@@ -32,6 +32,14 @@ export const processPage = defineType({
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
     }),
+    defineField({
+      name: 'heroScriptAccent',
+      title: 'Script-font accent word (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+    }),
 
     defineField({ name: 'faqSectionEyebrow', title: 'FAQ section eyebrow', type: 'string', group: 'faqSection', initialValue: 'Common Questions.' }),
     defineField({
