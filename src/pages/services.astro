@@ -47,6 +47,10 @@ const builders   = page?.builderRealtorSection;
 const areaSec    = page?.serviceAreaSection;
 const travelFees = page?.travelFees ?? [];
 
+// Satisfaction guarantee — sourced from siteSettings. Renders near the final
+// CTA so it lands just as the visitor is deciding whether to reach out.
+const satisfactionGuarantee = siteSettings?.satisfactionGuarantee;
+
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
@@ -245,7 +249,20 @@ const schemas = [
     </section>
   )}
 
-  {/* ------- 5. Final CTA ---------------------------------------------------- */}
+  {/* ------- 5. Satisfaction guarantee + Final CTA -------------------------- */}
+  {/* The guarantee line sits in its own band just above the dark FinalCta
+      panel so it reads as a final reassurance before the ask. Renders
+      nothing when the siteSettings field is blank. */}
+  {satisfactionGuarantee && (
+    <section class="bg-background" aria-label="Satisfaction guarantee">
+      <div class="mx-auto max-w-content px-m py-l">
+        <p class="text-center text-foreground/80 text-sm border border-border-soft rounded-md py-m px-l bg-muted">
+          {satisfactionGuarantee}
+        </p>
+      </div>
+    </section>
+  )}
+
   <FinalCta
     eyebrow={page?.finalCtaEyebrow}
     headline={page?.finalCtaHeadline}
