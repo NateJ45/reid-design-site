@@ -3,9 +3,24 @@
 // Autosaves draft to localStorage so a long message survives accidental navigation.
 // Honeypot included. Accessible focus management on error.
 //
-// Project type options come from Sanity (contactPage.formProjectTypeOptions) when
-// the page passes `projectTypes` in. Falls back to DEFAULT_PROJECT_TYPES when the
-// prop is missing or empty so the form still works during local-dev sanity checks.
+// Form scope (in order):
+//   1. Name (required)
+//   2. Email + Phone (email required, phone optional)
+//   3. Location + Project type (both required) — paired row
+//   4. Budget range + Timeline (both required) — paired row
+//   5. Tell us about the space (required, textarea)
+//   6. How did you hear about Reid Design? (optional, dropdown) — marketing intel
+//
+// Why these fields and not more: every additional field costs conversion.
+// These four added fields (location, budget, timeline, source) cover what
+// Staci genuinely needs to scope a project and prep for the first call —
+// service-area + travel-fee bucket, ballpark tier, urgency, and a lightweight
+// lead-source signal for marketing decisions later.
+//
+// Project type options come from Sanity (contactPage.formProjectTypeOptions)
+// when the page passes `projectTypes` in. Other dropdowns are hardcoded here
+// because they don't change between projects (they reflect Reid Design's
+// service area and pricing brackets, both of which live in code already).
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { site } from '@/data/site';
@@ -23,6 +38,56 @@ const DEFAULT_PROJECT_TYPES = [
   "Not sure yet — let's chat",
 ] as const;
 
+// Service-area cities, ordered Plainfield-first per brand positioning. "Other"
+// catches anyone outside the standard area — Staci can decide whether to travel.
+const LOCATION_OPTIONS = [
+  'Plainfield',
+  'Indianapolis',
+  'Carmel',
+  'Fishers',
+  'Westfield',
+  'Zionsville',
+  'Noblesville',
+  'Other (Greater Indianapolis)',
+  'Outside the area',
+] as const;
+
+// Budget brackets sized to Reid Design's actual price points: $150 consultation
+// at the low end through whole-home projects at the high end. The "Not sure"
+// option keeps the form approachable — many homeowners genuinely don't know
+// what room design costs and the question shouldn't gate them out.
+const BUDGET_OPTIONS = [
+  'Under $2K (just a consultation or quick advice)',
+  '$2K – $10K (a single room or two)',
+  '$10K – $30K (multiple rooms or styling)',
+  '$30K – $75K (whole-home design)',
+  '$75K+ (major project)',
+  "Not sure yet — happy to talk it through",
+] as const;
+
+// Timeline buckets cover the realistic spread for residential design work.
+const TIMELINE_OPTIONS = [
+  'ASAP — within the next month',
+  '1–3 months out',
+  '3–6 months out',
+  'More than 6 months',
+  "Flexible — I'm just exploring",
+] as const;
+
+// Lead-source options. Optional field; helps Staci understand where good leads
+// come from over time without forcing the question.
+const SOURCE_OPTIONS = [
+  'Google search',
+  'Instagram',
+  'Facebook',
+  'Houzz',
+  'Friend or family referral',
+  'Builder or realtor referral',
+  'Reading the journal',
+  'Saw a project in person',
+  'Other',
+] as const;
+
 interface ContactFormProps {
   /** Optional. Override the default project-type dropdown options (from contactPage.formProjectTypeOptions). */
   projectTypes?: string[];
@@ -32,12 +97,27 @@ interface Draft {
   name: string;
   email: string;
   phone: string;
+  location: string;
   projectType: string;
+  budget: string;
+  timeline: string;
   message: string;
+  source: string;
   zip: string;
 }
 
-const EMPTY: Draft = { name: '', email: '', phone: '', projectType: '', message: '', zip: '' };
+const EMPTY: Draft = {
+  name: '',
+  email: '',
+  phone: '',
+  location: '',
+  projectType: '',
+  budget: '',
+  timeline: '',
+  message: '',
+  source: '',
+  zip: '',
+};
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -90,7 +170,10 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
     if (!d.name.trim()) errs.name = 'Please enter your name.';
     if (!d.email.trim()) errs.email = 'Please enter an email address.';
     else if (!/.+@.+\..+/.test(d.email)) errs.email = 'That email address looks off.';
+    if (!d.location) errs.location = "Pick the closest area — even if it's 'outside.'";
     if (!d.projectType) errs.projectType = 'Pick the closest match — we can sort the rest later.';
+    if (!d.budget) errs.budget = 'A rough range helps Staci suggest the right tier.';
+    if (!d.timeline) errs.timeline = 'A timeline helps Staci know if she can take this on.';
     if (!d.message.trim()) errs.message = 'A sentence or two helps us prep.';
     return errs;
   }
@@ -131,13 +214,21 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: ACCESS_KEY,
-          subject: `New inquiry from ${draft.name} via reiddesignllc.com`,
+          // Subject line front-loads project type + location so Staci can
+          // triage from her inbox before opening the email.
+          subject: `Inquiry: ${draft.projectType} in ${draft.location} (${draft.name})`,
           from_name: 'Reid Design LLC website',
           name: draft.name,
           email: draft.email,
           phone: draft.phone || undefined,
+          location: draft.location,
           project_type: draft.projectType,
+          budget_range: draft.budget,
+          timeline: draft.timeline,
           message: draft.message,
+          // Lead source is optional; omit from the payload when blank so it
+          // doesn't add a "Source: " line to Staci's email for no reason.
+          source: draft.source || undefined,
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -213,7 +304,7 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
           aria-describedby={errors.name ? 'name-error' : undefined}
           className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
         />
-        {errors.name && <p id="name-error" className="mt-xs text-sm text-destructive">{errors.name}</p>}
+        {errors.name && <p id="name-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.name}</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-m">
@@ -231,7 +322,7 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
             aria-describedby={errors.email ? 'email-error' : undefined}
             className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          {errors.email && <p id="email-error" className="mt-xs text-sm text-destructive">{errors.email}</p>}
+          {errors.email && <p id="email-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.email}</p>}
         </div>
 
         <div>
@@ -250,24 +341,112 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
         </div>
       </div>
 
-      <div>
-        <label htmlFor="projectType" className="block text-sm font-semibold text-foreground mb-1">Project type</label>
-        <select
-          id="projectType"
-          name="projectType"
-          required
-          value={draft.projectType}
-          onChange={(e) => update('projectType', e.target.value)}
-          aria-invalid={!!errors.projectType}
-          aria-describedby={errors.projectType ? 'projectType-error' : undefined}
-          className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="">Pick the closest match</option>
-          {projectTypeOptions.map((opt) => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
-        </select>
-        {errors.projectType && <p id="projectType-error" className="mt-xs text-sm text-destructive">{errors.projectType}</p>}
+      {/* Location + project type — paired row. Location is asked first so Staci
+          can mentally bucket the lead before reading the rest. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-m">
+        <div>
+          <label htmlFor="location" className="block text-sm font-semibold text-foreground mb-1">
+            Where's the project?
+          </label>
+          <select
+            id="location"
+            name="location"
+            required
+            value={draft.location}
+            onChange={(e) => update('location', e.target.value)}
+            aria-invalid={!!errors.location}
+            aria-describedby={errors.location ? 'location-error location-hint' : 'location-hint'}
+            className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Pick the closest area</option>
+            {LOCATION_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+          {errors.location ? (
+            <p id="location-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.location}</p>
+          ) : (
+            <p id="location-hint" className="mt-xs text-sm text-muted-foreground">
+              Reid Design works across Plainfield + Greater Indianapolis.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="projectType" className="block text-sm font-semibold text-foreground mb-1">Project type</label>
+          <select
+            id="projectType"
+            name="projectType"
+            required
+            value={draft.projectType}
+            onChange={(e) => update('projectType', e.target.value)}
+            aria-invalid={!!errors.projectType}
+            aria-describedby={errors.projectType ? 'projectType-error' : undefined}
+            className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Pick the closest match</option>
+            {projectTypeOptions.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+          {errors.projectType && <p id="projectType-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.projectType}</p>}
+        </div>
+      </div>
+
+      {/* Budget + timeline — paired row. Budget phrasing is deliberate ("rough"
+          + "no judgment" hint) so the question doesn't feel transactional. The
+          "Not sure yet" option in BUDGET_OPTIONS keeps the form approachable
+          for people who genuinely don't know what room design costs. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-m">
+        <div>
+          <label htmlFor="budget" className="block text-sm font-semibold text-foreground mb-1">
+            Rough budget range
+          </label>
+          <select
+            id="budget"
+            name="budget"
+            required
+            value={draft.budget}
+            onChange={(e) => update('budget', e.target.value)}
+            aria-invalid={!!errors.budget}
+            aria-describedby={errors.budget ? 'budget-error budget-hint' : 'budget-hint'}
+            className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Pick a bracket</option>
+            {BUDGET_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+          {errors.budget ? (
+            <p id="budget-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.budget}</p>
+          ) : (
+            <p id="budget-hint" className="mt-xs text-sm text-muted-foreground">
+              No judgment — this helps Staci suggest the right tier.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="timeline" className="block text-sm font-semibold text-foreground mb-1">
+            Timeline
+          </label>
+          <select
+            id="timeline"
+            name="timeline"
+            required
+            value={draft.timeline}
+            onChange={(e) => update('timeline', e.target.value)}
+            aria-invalid={!!errors.timeline}
+            aria-describedby={errors.timeline ? 'timeline-error' : undefined}
+            className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">When do you want to start?</option>
+            {TIMELINE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+          {errors.timeline && <p id="timeline-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.timeline}</p>}
+        </div>
       </div>
 
       <div>
@@ -280,16 +459,37 @@ export default function ContactForm({ projectTypes }: ContactFormProps = {}) {
           value={draft.message}
           onChange={(e) => update('message', e.target.value)}
           aria-invalid={!!errors.message}
-          aria-describedby={errors.message ? 'message-error' : 'message-hint'}
+          aria-describedby={errors.message ? 'message-error message-hint' : 'message-hint'}
           className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
         />
         {errors.message ? (
-          <p id="message-error" className="mt-xs text-sm text-destructive">{errors.message}</p>
+          <p id="message-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errors.message}</p>
         ) : (
           <p id="message-hint" className="mt-xs text-sm text-muted-foreground">
-            What room or rooms? What's the deadline if any? Any photos you can describe in words?
+            What room or rooms? What's not working? Any photos you can describe in words?
           </p>
         )}
+      </div>
+
+      {/* Optional lead-source. Quiet UI — small, no error state, no hint text.
+          Marketing intelligence accrues over time without making the form
+          longer to fill out. */}
+      <div>
+        <label htmlFor="source" className="block text-sm font-semibold text-foreground mb-1">
+          How did you hear about Reid Design? <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <select
+          id="source"
+          name="source"
+          value={draft.source}
+          onChange={(e) => update('source', e.target.value)}
+          className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="">Skip if you'd rather not say</option>
+          {SOURCE_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
       </div>
 
       <button

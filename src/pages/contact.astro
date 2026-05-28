@@ -10,7 +10,9 @@ import Hero from '@/components/Hero.astro';
 import PortableText from '@/components/PortableText';
 import ContactForm from '@/components/ContactForm';
 import CopyEmailButton from '@/components/CopyEmailButton';
+import CalendlyInline from '@/components/CalendlyInline';
 import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
+import { Mail } from 'lucide-react';
 
 const [page, siteSettings] = await Promise.all([
   getContactPage().catch(() => null),
@@ -59,10 +61,26 @@ const schemas = [
 
       <ContactForm client:visible projectTypes={page?.formProjectTypeOptions} />
 
+      {/* Email failsafe — surfaced right after the form so visitors who hit
+          a submission error or just prefer email have a clear alternate path
+          without scrolling away to the sidebar. The widget itself opens a
+          mail draft on click and has a small copy button beside it. */}
+      {email && (
+        <p class="mt-m flex flex-wrap items-center gap-xs text-sm text-foreground/75">
+          <Mail size={14} aria-hidden="true" className="text-secondary" />
+          <span>Prefer email? Reach Staci directly at</span>
+          <CopyEmailButton client:visible email={email} variant="link" />
+        </p>
+      )}
+
+      {schedulingLink && (
+        <CalendlyInline client:visible url={schedulingLink} loadLabel={schedulingLinkLabel} />
+      )}
+
       {page?.whatToExpectContent && (
         <div class="mt-section-lg border-t border-border-soft pt-l">
           {page.whatToExpectEyebrow && (
-            <p class="text-xs uppercase tracking-[0.22em] text-secondary mb-s">{page.whatToExpectEyebrow}</p>
+            <p class="text-xs uppercase tracking-[0.22em] text-foreground/65 mb-s">{page.whatToExpectEyebrow}</p>
           )}
           {page.whatToExpectHeadline && (
             <h2 class="font-display text-h3 text-foreground">{page.whatToExpectHeadline}</h2>
@@ -73,7 +91,12 @@ const schemas = [
     </div>
 
     {/* Sidebar */}
-    <aside class="space-y-l">
+    {/* Sticky on lg+ so the email + service area + map ride along while the
+        visitor reads/fills the form. top-24 (6rem) gives clearance under the
+        site header when it's revealed via scroll-up. self-start prevents the
+        aside from stretching to fill the grid row, which would otherwise
+        defeat the sticky positioning. */}
+    <aside class="space-y-l lg:sticky lg:top-24 lg:self-start">
       {availability && (
         <div class="flex items-center gap-2 text-sm text-foreground">
           <span class="inline-block w-2 h-2 rounded-full bg-tertiary" aria-hidden="true"></span>
@@ -83,14 +106,14 @@ const schemas = [
 
       {email && (
         <div>
-          <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Email</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Email</p>
           <CopyEmailButton client:visible email={email} variant="link" />
         </div>
       )}
 
       {schedulingLink && (
         <div>
-          <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Prefer to schedule?</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Prefer to schedule?</p>
           <a
             href={schedulingLink}
             target="_blank"
@@ -104,7 +127,7 @@ const schemas = [
 
       {siteSettings?.serviceAreas && siteSettings.serviceAreas.length > 0 && (
         <div>
-          <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Service area</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Service area</p>
           <ul class="text-sm text-foreground space-y-0.5">
             {siteSettings.serviceAreas.slice(0, 8).map((area: string) => <li>{area}</li>)}
           </ul>
@@ -112,7 +135,7 @@ const schemas = [
       )}
 
       <div>
-        <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Where Reid Design is</p>
+        <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Where Reid Design is</p>
         <ServiceAreaMap height={280} />
       </div>
     </aside>

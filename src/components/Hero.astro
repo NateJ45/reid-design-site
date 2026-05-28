@@ -41,6 +41,12 @@ interface Props {
   headingId: string;
   /** "tall" = ~85vh on desktop (homepage), "short" = generous but not full screen (interior pages). */
   size?: 'tall' | 'short';
+  /**
+   * Optional list of words to cycle through in place of the FIRST word of the
+   * headline. Animates once on first visit per session, then locks back to
+   * the original. Honors prefers-reduced-motion. Pass undefined to skip.
+   */
+  rotatingWords?: string[];
 }
 
 const {
@@ -52,7 +58,18 @@ const {
   secondaryCta,
   headingId,
   size = 'short',
+  rotatingWords,
 } = Astro.props as Props;
+
+// Split the headline into a first word + the rest, so the rotator can swap
+// the first word in place without touching the rest of the line. Matches
+// alphanumerics + apostrophes; falls back to the whole headline if the regex
+// doesn't catch (e.g., headline starts with punctuation).
+const rotateEnabled = Array.isArray(rotatingWords) && rotatingWords.length > 1;
+const firstWordMatch = rotateEnabled ? headline.match(/^([\w'’]+)(.*)$/s) : null;
+const headlineFirst = firstWordMatch ? firstWordMatch[1] : headline;
+const headlineRest = firstWordMatch ? firstWordMatch[2] : '';
+const rotatingPayload = rotateEnabled ? JSON.stringify([headlineFirst, ...rotatingWords!]) : '';
 
 const hasImage = !!backgroundImage?.asset;
 
@@ -61,6 +78,55 @@ const wrapperHeight =
     ? 'min-h-[78svh] md:min-h-[85svh]'
     : 'min-h-[42svh] md:min-h-[52svh]';
 ---
+
+{/* Rotating-word animator. Runs once per session: cycles the wrapped word
+    through alternates every 850ms for ~5 seconds, then locks back to the
+    original. Skipped under prefers-reduced-motion or when sessionStorage
+    already holds the seen flag. Inline + idempotent so View Transitions
+    don't re-trigger on every navigation. */}
+{rotateEnabled && (
+  <script is:inline>
+    (function () {
+      try {
+        if (sessionStorage.getItem('reid-design-hero-rotated') === '1') return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      } catch (_) { /* ignore */ }
+
+      function init() {
+        const el = document.querySelector('[data-rotating-word]');
+        if (!el || el.dataset.rotated === '1') return;
+        el.dataset.rotated = '1';
+        let words;
+        try { words = JSON.parse(el.dataset.rotatingWords || '[]'); } catch (_) { return; }
+        if (!Array.isArray(words) || words.length < 2) return;
+
+        const original = words[0];
+        let idx = 1;
+        const intervalMs = 850;
+        const totalCycles = words.length + 1; // cycle through alternates, end on original
+        let count = 0;
+
+        const id = setInterval(() => {
+          count += 1;
+          el.style.transition = 'opacity 200ms ease-out';
+          el.style.opacity = '0';
+          setTimeout(() => {
+            el.textContent = count >= totalCycles ? original : words[idx % words.length];
+            el.style.opacity = '1';
+            idx += 1;
+          }, 200);
+
+          if (count >= totalCycles) {
+            clearInterval(id);
+            try { sessionStorage.setItem('reid-design-hero-rotated', '1'); } catch (_) {}
+          }
+        }, intervalMs);
+      }
+      init();
+      document.addEventListener('astro:page-load', init);
+    })();
+  </script>
+)}
 
 {hasImage ? (
   <section
@@ -96,21 +162,23 @@ const wrapperHeight =
           <p class="text-xs uppercase tracking-eyebrow text-bg/85 mb-s">{eyebrow}</p>
         )}
         <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
-          {headline}
+          {rotateEnabled ? (
+            <>
+              <span data-rotating-word data-rotating-words={rotatingPayload}>
+                {headlineFirst}
+              </span>{headlineRest}
+            </>
+          ) : (
+            headline
+          )}
         </h1>
         {subhead && (
           <p class="mt-m max-w-2xl text-lg text-bg/90">{subhead}</p>
         )}
         {(primaryCta || secondaryCta) && (
           <div class="mt-l flex flex-wrap gap-s">
-            {primaryCta && <CtaLink cta={primaryCta} variant="primary" />}
-            {secondaryCta && (
-              <CtaLink
-                cta={secondaryCta}
-                variant="secondary"
-                class="text-bg border-bg/70 hover:bg-bg/10"
-              />
-            )}
+            {primaryCta && <CtaLink cta={primaryCta} variant="primary" onDark />}
+            {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" onDark />}
           </div>
         )}
       </div>

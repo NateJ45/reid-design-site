@@ -70,6 +70,12 @@ export const journalEntry = defineType({
       options: { hotspot: true },
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'caption',
+          title: 'Caption (optional)',
+          type: 'string',
+          description: 'Italic line under the cover image. Sourcing or location detail works well.',
+        }),
       ],
     }),
     defineField({
@@ -158,6 +164,18 @@ export const journalEntry = defineType({
                 fields: [
                   { name: 'href',         type: 'url',     title: 'URL' },
                   { name: 'openInNewTab', type: 'boolean', title: 'Open in new tab', initialValue: false },
+                ],
+              },
+              {
+                // Inline "Sourced from" annotation — italic small-caps treatment
+                // for vendor mentions in prose. Pair with sourceCard block when
+                // the item deserves a full card with image + price.
+                name: 'sourcedFrom',
+                type: 'object',
+                title: 'Sourced from',
+                fields: [
+                  { name: 'vendor', type: 'string', title: 'Vendor / source name', validation: (R) => R.required() },
+                  { name: 'url',    type: 'url',    title: 'Vendor URL (optional)' },
                 ],
               },
             ],

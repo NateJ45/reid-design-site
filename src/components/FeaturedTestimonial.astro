@@ -22,6 +22,13 @@ interface Props {
     source?: string;
     location?: string;
     photo?: SanityImageObject | null;
+    /** Optional reference to a project case study. When set, the pull-quote
+        gets a "See this project →" link beneath the attribution so the
+        social proof leads straight into the work that earned it. */
+    relatedProject?: {
+      title?: string;
+      slug?: string;
+    } | null;
   } | null;
 }
 
@@ -42,30 +49,50 @@ const attributionMeta = [testimonial.location, dateLabel, sourceLabel].filter(Bo
 const hasPhoto = !!testimonial.photo?.asset;
 ---
 
-<figure class="mx-auto max-w-3xl text-center">
+<figure class="mx-auto max-w-3xl text-center relative">
+  {/* Opening quote — large editorial display mark in Warm Bronze. Negative
+      bottom margin lets the quote text rise into the visual space the mark
+      defines, like an editorial pull quote on a magazine spread. */}
   <span
     aria-hidden="true"
-    class="block font-display text-[clamp(4rem,8vw,7rem)] leading-none text-primary-dark/30 select-none mb-[-1rem]"
+    class="block font-display text-[clamp(5rem,10vw,9rem)] leading-[0.8] text-primary/35 select-none mb-[-1.5rem]"
   >
     “
   </span>
-  <blockquote class="font-display text-[clamp(1.5rem,2.5vw,2.25rem)] leading-snug text-foreground">
+  <blockquote class="font-display italic text-[clamp(1.75rem,3vw,2.75rem)] leading-snug text-foreground">
     {testimonial.quote}
   </blockquote>
+  {/* Closing quote mark — quieter, off-axis. Read as a deliberate flourish. */}
+  <span
+    aria-hidden="true"
+    class="block font-display text-[clamp(2.5rem,5vw,4rem)] leading-none text-primary/25 select-none mt-s"
+  >
+    ”
+  </span>
   <figcaption class="mt-l flex flex-col items-center gap-s">
     {hasPhoto && (
       <SanityImage
         source={testimonial.photo}
-        width={144}
-        height={144}
-        sizes="72px"
-        class="w-18 h-18 rounded-full object-cover"
+        width={160}
+        height={160}
+        sizes="80px"
+        class="w-20 h-20 rounded-full object-cover ring-2 ring-bg shadow-[0_8px_20px_-12px_rgba(61,61,61,0.35)]"
       />
     )}
     <div>
-      <p class="font-display text-h4 text-foreground">{testimonial.attribution}</p>
+      <p class="font-display text-h3 text-foreground">{testimonial.attribution}</p>
       {attributionMeta && (
-        <p class="mt-xs text-xs uppercase tracking-eyebrow text-secondary">{attributionMeta}</p>
+        <p class="mt-xs text-xs uppercase tracking-eyebrow text-foreground/65">{attributionMeta}</p>
+      )}
+      {testimonial.relatedProject?.slug && (
+        <p class="mt-m">
+          <a
+            href={`/portfolio/${testimonial.relatedProject.slug}`}
+            class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+          >
+            See this project <span aria-hidden="true">→</span>
+          </a>
+        </p>
       )}
     </div>
   </figcaption>

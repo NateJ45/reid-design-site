@@ -69,6 +69,10 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
 
 <BaseLayout {title} {description} {siteSettings}>
   {/* ------- 1. Hero --------------------------------------------------------- */}
+  {/* rotatingWords cycles the first word of the headline once on first visit
+      per session, then settles back to the original. Tasteful flourish that
+      hints at the design vocabulary without becoming a marquee. Honors
+      prefers-reduced-motion. */}
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}
@@ -78,6 +82,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     secondaryCta={page?.heroSecondaryCta}
     headingId="hero-heading"
     size="tall"
+    rotatingWords={['Lived-in', 'Considered', 'Quiet']}
   />
 
   {/* ------- 2. Meet Staci --------------------------------------------------- */}
@@ -85,7 +90,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     class="bg-background"
     aria-labelledby="meet-staci-heading"
   >
-    <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-center">
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-center">
       {page?.meetStaciPhoto?.asset ? (
         <div class="order-1 md:order-1">
           <SanityImage
@@ -101,7 +106,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       )}
 
       <div class="order-2 md:order-2">
-        <p class="text-xs uppercase tracking-[0.22em] text-secondary mb-s">{meetStaciEyebrow}</p>
+        <p class="text-xs uppercase tracking-[0.22em] text-foreground/65 mb-s">{meetStaciEyebrow}</p>
         <h2 id="meet-staci-heading" class="font-display text-h2 text-foreground">
           {meetStaciHeadline}
         </h2>
@@ -133,7 +138,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     class="bg-muted"
     aria-labelledby="process-preview-heading"
   >
-    <div class="mx-auto max-w-content px-m py-section-lg">
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
       <SectionHeading
         eyebrow={processPreviewEyebrow}
         headline={processPreviewHeadline}
@@ -167,7 +172,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
       class="bg-background"
       aria-labelledby="testimonials-heading"
     >
-      <div class="mx-auto max-w-content px-m py-section-lg">
+      <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
         <SectionHeading
           eyebrow={testimonialsEyebrow}
           headline={testimonialsHeadline}
@@ -202,7 +207,7 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
     class="bg-muted"
     aria-labelledby="services-heading"
   >
-    <div class="mx-auto max-w-content px-m py-section-lg">
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
       <SectionHeading
         eyebrow={servicesGridEyebrow}
         headline={servicesGridHeadline}
@@ -238,7 +243,11 @@ const servicesGridFootnote  = page?.servicesGridFootnote;
   </section>
 
   {/* ------- 6. Service area cue line --------------------------------------- */}
-  <ServiceAreaCue text={page?.serviceAreaCue} />
+  <ServiceAreaCue
+    text={page?.serviceAreaCue}
+    cities={siteSettings?.serviceAreas}
+    eyebrow="Where Reid Design works"
+  />
 
   {/* ------- 7. Final CTA --------------------------------------------------- */}
   <FinalCta

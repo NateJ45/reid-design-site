@@ -80,15 +80,29 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
         const sectionId = section.category
           ? `${idPrefix}-${slugify(section.category)}`
           : `${idPrefix}-section-${sectionIdx}`;
+        // A11y notes:
+        //   1. When section.category exists we render a visible H2 (one level
+        //      below the page H1 — these category labels ARE major page
+        //      sections, e.g. "Pricing & Cost", "The Process"). The audit
+        //      caught the previous H1→H3 jump.
+        //   2. When there's no category (e.g. /process FAQ section) the
+        //      heading isn't rendered, so we switch from aria-labelledby
+        //      (which would point at a non-existent id) to aria-label. This
+        //      fixes the dangling reference the audit flagged on /process.
         return (
-          <section key={sectionId} aria-labelledby={`${sectionId}-heading`}>
+          <section
+            key={sectionId}
+            {...(section.category
+              ? { 'aria-labelledby': `${sectionId}-heading` }
+              : { 'aria-label': 'Common questions' })}
+          >
             {section.category && (
-              <h3
+              <h2
                 id={`${sectionId}-heading`}
                 className="font-display text-h3 text-foreground mb-m"
               >
                 {section.category}
-              </h3>
+              </h2>
             )}
             <Accordion
               type="multiple"
@@ -98,7 +112,10 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
                 const itemId = `${sectionId}-item-${i}`;
                 return (
                   <AccordionItem key={itemId} value={itemId} className="border-b border-border-soft">
-                    <AccordionTrigger className="py-m text-left font-display text-h4 text-foreground hover:no-underline hover:text-primary-dark">
+                    {/* Question text — bumped to h3 scale (Cormorant) so the
+                        question reads as the structural heading it is, not as
+                        a button label. Hover stays bronze for affordance. */}
+                    <AccordionTrigger className="py-m text-left font-display text-h3 text-foreground hover:no-underline hover:text-link">
                       {item.question}
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/85 text-base leading-relaxed">

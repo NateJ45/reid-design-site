@@ -110,7 +110,7 @@ const latestProjects = allProjects.slice(0, 3);
     <div class="mx-auto max-w-content px-m py-section-md grid gap-l md:grid-cols-4 text-center">
       {/* STUDIO */}
       <nav aria-labelledby="footer-studio">
-        <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-secondary mb-s">
+        <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
           Studio
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
@@ -123,7 +123,7 @@ const latestProjects = allProjects.slice(0, 3);
 
       {/* WORK */}
       <nav aria-labelledby="footer-work">
-        <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-secondary mb-s">
+        <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
           Work
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
@@ -135,7 +135,7 @@ const latestProjects = allProjects.slice(0, 3);
 
       {/* LATEST PROJECTS — dynamic from Sanity, falls back gracefully when empty. */}
       <nav aria-labelledby="footer-latest">
-        <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-secondary mb-s">
+        <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
           Latest projects
         </p>
         {latestProjects.length > 0 ? (
@@ -147,7 +147,7 @@ const latestProjects = allProjects.slice(0, 3);
                   class="text-foreground/85 hover:text-link transition-colors"
                 >
                   {p.title}
-                  {p.location && <span class="text-foreground/55"> · {p.location}</span>}
+                  {p.location && <span class="text-foreground/65"> · {p.location}</span>}
                 </a>
               </li>
             ))}
@@ -169,7 +169,7 @@ const latestProjects = allProjects.slice(0, 3);
 
       {/* GET IN TOUCH */}
       <div>
-        <p class="text-xs uppercase tracking-eyebrow text-secondary mb-s">
+        <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
           Get in touch
         </p>
         {email && (
@@ -216,7 +216,7 @@ const latestProjects = allProjects.slice(0, 3);
             Stacked tight under the socials so the column reads top-to-bottom:
             email · location · socials · credit. No more standalone bar at the
             page bottom. */}
-        <div class="mt-l space-y-1 text-xs text-foreground/55">
+        <div class="mt-l space-y-1 text-xs text-foreground/65">
           <p>© {currentYear} {brandName}</p>
           {siteCredit && (
             siteCreditUrl ? (

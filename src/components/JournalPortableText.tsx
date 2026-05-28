@@ -149,6 +149,33 @@ function makeComponents(): PortableTextComponents {
           </a>
         );
       },
+      // Sourced-from annotation. Italic with a vendor eyebrow trailing. With
+      // a URL, becomes a quiet bronze underlined link — pair this with
+      // sourceCard when the item deserves a full card with image + price.
+      sourcedFrom: ({ children, value }) => {
+        const label = value?.vendor ?? '';
+        const inner = (
+          <span className="italic text-foreground/90">
+            {children}
+            {label && (
+              <span className="ml-1 text-[0.72em] uppercase tracking-[0.15em] text-secondary not-italic align-baseline">
+                · {label}
+              </span>
+            )}
+          </span>
+        );
+        if (!value?.url) return inner;
+        return (
+          <a
+            href={value.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-link decoration-primary/30 underline underline-offset-4 hover:decoration-primary transition-colors"
+          >
+            {inner}
+          </a>
+        );
+      },
     },
 
     // Custom inline types — one renderer per schema's `type`/`name`.
@@ -192,7 +219,7 @@ function makeComponents(): PortableTextComponents {
           <figure className="my-section-lg py-section-md border-y border-border-soft text-center">
             <span
               aria-hidden="true"
-              className="block font-display text-[clamp(3rem,6vw,5rem)] leading-none text-primary-dark/40 select-none mb-[-1.5rem]"
+              className="block font-display text-[clamp(3rem,6vw,5rem)] leading-none text-link/45 select-none mb-[-1.5rem]"
             >
               "
             </span>
@@ -200,7 +227,7 @@ function makeComponents(): PortableTextComponents {
               {value.quote}
             </blockquote>
             {value.attribution && (
-              <figcaption className="mt-l text-xs uppercase tracking-widest text-secondary">
+              <figcaption className="mt-l text-xs uppercase tracking-widest text-foreground/65">
                 — {value.attribution}
               </figcaption>
             )}
@@ -240,7 +267,7 @@ function makeComponents(): PortableTextComponents {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-widest text-secondary mb-xs">
+              <p className="text-xs uppercase tracking-widest text-foreground/65 mb-xs">
                 Source
               </p>
               <p className="font-display text-h4 text-foreground leading-tight">{value.itemName}</p>
@@ -248,7 +275,7 @@ function makeComponents(): PortableTextComponents {
                 <p className="mt-xs text-sm text-foreground/80">
                   {value.vendor}
                   {value.vendor && value.price && <span className="mx-xs text-muted-foreground">·</span>}
-                  {value.price && <span className="font-mono text-primary-dark">{value.price}</span>}
+                  {value.price && <span className="font-mono text-link">{value.price}</span>}
                 </p>
               )}
               {value.notes && (
@@ -280,7 +307,7 @@ function makeComponents(): PortableTextComponents {
             className="my-section-md p-l border-l-4 border-tertiary bg-muted/70 rounded-r-md"
             aria-label={value.label ?? 'Note'}
           >
-            <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-s">
+            <p className="text-xs uppercase tracking-widest text-foreground/65 font-semibold mb-s">
               {value.label ?? "Designer's note"}
             </p>
             <div className="text-foreground/90 [&_p]:my-s [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-s [&_ul]:pl-l [&_ul]:list-disc [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2">

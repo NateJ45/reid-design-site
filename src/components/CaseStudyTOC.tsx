@@ -50,7 +50,7 @@ export default function CaseStudyTOC({ headings }: Props) {
 
   return (
     <nav aria-label="Table of contents" className="hidden lg:block sticky top-24 self-start">
-      <p className="text-xs uppercase tracking-widest text-secondary mb-s">On this page</p>
+      <p className="text-xs uppercase tracking-widest text-foreground/65 mb-s">On this page</p>
       <ul className="space-y-1 text-sm border-l border-border-soft">
         {headings.map((h) => {
           const isActive = h.id === activeId;
@@ -63,7 +63,7 @@ export default function CaseStudyTOC({ headings }: Props) {
                   'block py-1 pr-s -ml-px border-l-2 transition-colors',
                   indent,
                   isActive
-                    ? 'border-primary text-primary-dark font-semibold'
+                    ? 'border-primary text-link font-semibold'
                     : 'border-transparent text-foreground/70 hover:text-foreground',
                 ].join(' ')}
                 aria-current={isActive ? 'location' : undefined}

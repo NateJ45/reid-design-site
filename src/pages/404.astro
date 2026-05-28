@@ -1,11 +1,25 @@
 ---
 // Safe to edit by hand
 // Custom 404. Warm, on-brand, two clear paths back. No search (there isn't one).
+//
+// Layout: two-column on desktop (text + photograph), stacked on mobile. The
+// photo grounds the page as Reid Design — using a styled vignette from the
+// media library (Staci's dogs on the studio sofa) reads as "smart friend, not
+// 404 chrome." Asset is referenced by _ref so it pipes through the same
+// SanityImage CDN/transform pipeline as every other photo on the site.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getSiteSettings } from '@/lib/queries';
+import SanityImage from '@/components/SanityImage.astro';
 
 const siteSettings = await getSiteSettings().catch(() => null);
+
+// Studio dogs on the sofa — friendly, on-brand vignette that turns the 404 from
+// "site chrome" into "Reid Design moment." Change the _ref to swap the photo.
+const photo = {
+  asset: { _ref: 'image-ce9be41407b946b7453724575c3cfd7aec2f7c4c-3024x4032-jpg' },
+  alt: 'Reid Design studio dogs resting on a sofa.',
+};
 ---
 
 <BaseLayout
@@ -13,26 +27,55 @@ const siteSettings = await getSiteSettings().catch(() => null);
   description="That page wandered off. Head back to the homepage or get in touch."
   siteSettings={siteSettings}
 >
-  <section class="mx-auto max-w-content px-m py-section-lg">
-    <p class="text-xs uppercase tracking-widest text-secondary mb-s">404</p>
-    <h1 class="font-display text-h1 text-foreground">That page wandered off.</h1>
-    <p class="mt-m max-w-xl text-lg text-foreground/80">
-      It happens. Maybe a link was old, maybe the URL has a typo. Either way, here's where to head next.
-    </p>
+  <section
+    class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-[1fr_1.1fr] gap-section-md items-center"
+    aria-labelledby="not-found-heading"
+  >
+    {/* Text column. Two clear paths back — no search (there isn't one). */}
+    <div>
+      <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">404</p>
+      <h1 id="not-found-heading" class="font-display text-h1 text-foreground leading-headline-tight">
+        That page wandered off.
+      </h1>
+      <p class="mt-m max-w-xl text-lg text-foreground/80 leading-relaxed">
+        It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.
+      </p>
 
-    <div class="mt-l flex flex-wrap gap-m">
-      <a
-        href="/"
-        class="inline-flex items-center px-m py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-sm hover:bg-accent-dark transition-colors"
-      >
-        Back home
-      </a>
-      <a
-        href="/contact"
-        class="inline-flex items-center px-m py-s border border-primary text-link font-semibold uppercase tracking-widest text-sm hover:bg-accent transition-colors"
-      >
-        Get in touch
-      </a>
+      <div class="mt-l flex flex-wrap gap-m">
+        <a
+          href="/"
+          class="press-tactile inline-flex items-center px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:bg-accent-dark"
+        >
+          Back home
+        </a>
+        <a
+          href="/portfolio"
+          class="press-tactile inline-flex items-center px-l py-s border border-primary text-link font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:bg-accent"
+        >
+          Browse the portfolio
+        </a>
+        <a
+          href="/contact"
+          class="press-tactile inline-flex items-center px-l py-s border border-border-soft text-foreground/85 font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:border-primary hover:text-primary-dark"
+        >
+          Get in touch
+        </a>
+      </div>
     </div>
+
+    {/* Photo column. Stacks above the text on mobile (md:order-2 swaps it on
+        desktop so the eye lands on text first, photo balances right). */}
+    <figure class="order-first md:order-2">
+      <SanityImage
+        source={photo}
+        width={1200}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        quality={75}
+        class="w-full h-auto rounded-md"
+      />
+      <figcaption class="mt-s text-xs uppercase tracking-eyebrow text-foreground/65 text-right">
+        From the studio
+      </figcaption>
+    </figure>
   </section>
 </BaseLayout>

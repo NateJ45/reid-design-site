@@ -9,6 +9,7 @@
 // number plays against Charcoal text.
 
 import PortableText from '@/components/PortableText';
+import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
 
 interface PortableTextBlock {
   _type?: string;
@@ -34,15 +35,28 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
 ---
 
 <article class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-m md:gap-l items-start">
-  <div class="font-display text-[clamp(3rem,8vw,5.5rem)] leading-none text-primary-dark/70 select-none">
-    {padNum(step.stepNumber)}
+  <div class="flex flex-col items-start gap-s">
+    {/* Soft-sage line illustration above the step numeral. Renders nothing for
+        steps outside 1-4 so the numeral-only treatment still works. */}
+    <ProcessStepIllustration stepNumber={step.stepNumber} />
+    <div class="font-display text-[clamp(3rem,8vw,5.5rem)] leading-none text-link/85 select-none">
+      {padNum(step.stepNumber)}
+    </div>
   </div>
 
   <div>
+    {/* A11y: step title bumps up to H2 in the "full" variant because on the
+        Process page each step IS a major page section beneath the H1. In the
+        homepage "preview" variant the steps are nested under a "How It Works"
+        section H2, so H3 is the correct relative level there. */}
     <header class="flex flex-wrap items-baseline gap-x-m gap-y-xs">
-      <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
+      {variant === 'full' ? (
+        <h2 class="font-display text-h3 text-foreground">{step.title}</h2>
+      ) : (
+        <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
+      )}
       {step.timeEstimate && (
-        <p class="text-xs uppercase tracking-widest text-secondary">{step.timeEstimate}</p>
+        <p class="text-xs uppercase tracking-widest text-foreground/65">{step.timeEstimate}</p>
       )}
     </header>
 

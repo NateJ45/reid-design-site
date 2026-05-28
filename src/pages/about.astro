@@ -80,7 +80,7 @@ const schemas = [
           <div class="aspect-[4/5] bg-muted rounded-md" aria-hidden="true"></div>
         )}
         {page?.staciAttribution && (
-          <p class="mt-s text-xs uppercase tracking-widest text-secondary">
+          <p class="mt-s text-xs uppercase tracking-widest text-foreground/65">
             {page.staciAttribution}
           </p>
         )}
@@ -104,13 +104,13 @@ const schemas = [
           <div class="mt-section-md pt-l border-t border-border-soft space-y-m text-foreground/80">
             {page?.backgroundLine && (
               <p>
-                <span class="block text-xs uppercase tracking-widest text-secondary mb-xs">Background</span>
+                <span class="block text-xs uppercase tracking-widest text-foreground/65 mb-xs">Background</span>
                 {page.backgroundLine}
               </p>
             )}
             {page?.serviceAreaMention && (
               <p>
-                <span class="block text-xs uppercase tracking-widest text-secondary mb-xs">Service area</span>
+                <span class="block text-xs uppercase tracking-widest text-foreground/65 mb-xs">Service area</span>
                 {page.serviceAreaMention}
               </p>
             )}
@@ -139,7 +139,7 @@ const schemas = [
           {philosophyPoints.map((point: any, idx: number) => (
             <article class="bg-card p-l rounded-md border border-border-soft">
               <p
-                class="font-display text-h2 text-primary-dark/70 leading-none mb-s"
+                class="font-display text-h2 text-link/85 leading-none mb-s"
                 aria-hidden="true"
               >
                 {String((point.displayOrder ?? idx + 1)).padStart(2, '0')}

@@ -24,6 +24,7 @@ import ServiceCard from '@/components/ServiceCard.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import PortableText from '@/components/PortableText';
 import FinalCta from '@/components/FinalCta.astro';
+import StickyCTAChip from '@/components/StickyCTAChip';
 
 const [page, siteSettings] = await Promise.all([
   getServicesPage().catch(() => null),
@@ -122,19 +123,19 @@ const schemas = [
           <div class="mt-section-md grid grid-cols-1 md:grid-cols-3 gap-l">
             {builders.forBuildersText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
-                <p class="text-xs uppercase tracking-widest text-secondary mb-xs">For Builders</p>
+                <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">For Builders</p>
                 <p class="text-foreground/85 leading-relaxed">{builders.forBuildersText}</p>
               </article>
             )}
             {builders.forRealtorsText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
-                <p class="text-xs uppercase tracking-widest text-secondary mb-xs">For Realtors</p>
+                <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">For Realtors</p>
                 <p class="text-foreground/85 leading-relaxed">{builders.forRealtorsText}</p>
               </article>
             )}
             {builders.forContractorsText && (
               <article class="bg-card p-l rounded-md border border-border-soft">
-                <p class="text-xs uppercase tracking-widest text-secondary mb-xs">For Contractors</p>
+                <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">For Contractors</p>
                 <p class="text-foreground/85 leading-relaxed">{builders.forContractorsText}</p>
               </article>
             )}
@@ -175,12 +176,12 @@ const schemas = [
 
         {travelFees.length > 0 && (
           <div class="bg-muted p-l rounded-md">
-            <p class="text-xs uppercase tracking-widest text-secondary mb-m">Travel fee tiers</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-m">Travel fee tiers</p>
             <dl class="divide-y divide-border-soft">
               {travelFees.map((tier: any) => (
                 <div class="flex items-baseline justify-between py-s gap-m">
                   <dt class="text-foreground/85">{tier.distanceLabel}</dt>
-                  <dd class="font-mono text-sm font-semibold text-primary-dark whitespace-nowrap">
+                  <dd class="font-mono text-sm font-semibold text-link whitespace-nowrap">
                     {tier.fee}
                   </dd>
                 </div>
@@ -198,5 +199,12 @@ const schemas = [
     headline={page?.finalCtaHeadline}
     subhead={page?.finalCtaSubhead}
     cta={page?.finalCta}
+  />
+
+  {/* Sticky contextual CTA — appears past 50% scroll on this long page. */}
+  <StickyCTAChip
+    client:idle
+    label="Ready to talk through your project?"
+    href="/contact"
   />
 </BaseLayout>

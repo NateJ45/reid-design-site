@@ -313,6 +313,7 @@ export type JournalEntry = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
+    caption?: string;
     _type: "image";
   };
   categories?: Array<
@@ -334,12 +335,20 @@ export type JournalEntry = {
         }>;
         style?: "normal" | "lead" | "h2" | "h3" | "h4" | "blockquote";
         listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          openInNewTab?: boolean;
-          _type: "link";
-          _key: string;
-        }>;
+        markDefs?: Array<
+          | {
+              href?: string;
+              openInNewTab?: boolean;
+              _type: "link";
+              _key: string;
+            }
+          | {
+              vendor?: string;
+              url?: string;
+              _type: "sourcedFrom";
+              _key: string;
+            }
+        >;
         level?: number;
         _type: "block";
         _key: string;
@@ -830,9 +839,12 @@ export type Project = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
+    caption?: string;
     _type: "image";
   };
   briefSummary?: string;
+  briefLine?: string;
+  designCall?: string;
   introStory?: Array<
     | {
         children?: Array<{
@@ -843,12 +855,20 @@ export type Project = {
         }>;
         style?: "normal" | "h3" | "blockquote";
         listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          openInNewTab?: boolean;
-          _type: "link";
-          _key: string;
-        }>;
+        markDefs?: Array<
+          | {
+              href?: string;
+              openInNewTab?: boolean;
+              _type: "link";
+              _key: string;
+            }
+          | {
+              vendor?: string;
+              url?: string;
+              _type: "sourcedFrom";
+              _key: string;
+            }
+        >;
         level?: number;
         _type: "block";
         _key: string;
@@ -860,6 +880,7 @@ export type Project = {
         crop?: SanityImageCrop;
         alt?: string;
         caption?: string;
+        decisionLine?: string;
         _type: "image";
         _key: string;
       }

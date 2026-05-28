@@ -61,8 +61,14 @@ export async function getHomePage() {
     testimonialsEyebrow,
     testimonialsHeadline,
     testimonialsAttribution,
-    "featuredTestimonial": featuredTestimonial->,
-    "testimonialsToShow": testimonialsToShow[]->,
+    "featuredTestimonial": featuredTestimonial->{
+      ...,
+      "relatedProject": relatedProject->{ title, "slug": slug.current }
+    },
+    "testimonialsToShow": testimonialsToShow[]->{
+      ...,
+      "relatedProject": relatedProject->{ title, "slug": slug.current }
+    },
     servicesGridEyebrow,
     servicesGridHeadline,
     servicesGridSubhead,

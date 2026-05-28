@@ -16,6 +16,8 @@ import PortableText from '@/components/PortableText';
 import CaseStudyTOC from '@/components/CaseStudyTOC';
 import ProjectGallery from '@/components/ProjectGallery';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
+import ProjectMetaBand from '@/components/ProjectMetaBand.astro';
+import StickyCTAChip from '@/components/StickyCTAChip';
 
 // Static site: enumerate all project slugs at build time.
 export async function getStaticPaths() {
@@ -79,11 +81,14 @@ const schemas = [
   {siteSettings}
 >
   {/* Hero */}
-  <section class="mx-auto max-w-content px-m pt-section-md pb-l">
-    <p class="text-xs uppercase tracking-widest text-secondary mb-s">
+  <section
+    class="mx-auto max-w-content px-m pt-section-md pb-l"
+    aria-labelledby="project-hero-heading"
+  >
+    <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">
       <a href="/portfolio" class="hover:text-primary transition-colors">Portfolio</a> · {project.roomType?.replace(/([A-Z])/g, ' $1').toLowerCase()}
     </p>
-    <h1 class="font-display text-h1 text-foreground">{project.title}</h1>
+    <h1 id="project-hero-heading" class="font-display text-h1 text-foreground">{project.title}</h1>
     <p class="mt-s text-foreground/80 text-lg">{project.briefSummary}</p>
     <div class="mt-m flex flex-wrap items-center gap-m text-sm text-muted-foreground">
       {project.location && <span>{project.location}</span>}
@@ -95,19 +100,36 @@ const schemas = [
   </section>
 
   {project.heroImage?.asset && (
-    <section class="mx-auto max-w-content px-m">
-      <SanityImage
-        source={project.heroImage}
-        width={1920}
-        loading="eager"
-        sizes="(min-width: 1320px) 1280px, 100vw"
-        class="w-full h-auto rounded-md"
-      />
+    <section class="mx-auto max-w-content px-m" aria-label="Project hero image">
+      <figure>
+        <SanityImage
+          source={project.heroImage}
+          width={1920}
+          loading="eager"
+          sizes="(min-width: 1320px) 1280px, 100vw"
+          class="w-full h-auto rounded-md"
+        />
+        {project.heroImage.caption && (
+          <figcaption class="mt-s text-sm text-foreground/65 italic text-center">
+            {project.heroImage.caption}
+          </figcaption>
+        )}
+      </figure>
     </section>
   )}
 
+  {/* Project metadata band — "the room / the brief / the call" */}
+  <ProjectMetaBand
+    roomType={project.roomType}
+    briefLine={project.briefLine}
+    designCall={project.designCall}
+  />
+
   {/* Body: TOC sidebar + story */}
-  <section class="mx-auto max-w-content px-m py-section-md grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-section-md">
+  <section
+    class="mx-auto max-w-content px-m py-section-md grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-section-md"
+    aria-label="Project story"
+  >
     <CaseStudyTOC client:idle headings={headings} />
 
     <article class="max-w-prose">
@@ -169,17 +191,24 @@ const schemas = [
       <div class="mx-auto max-w-content px-m py-l grid grid-cols-1 md:grid-cols-2 gap-m">
         {prev ? (
           <a href={`/portfolio/${prev.slug}`} class="group">
-            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Previous project</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Previous project</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">← {prev.title}</p>
           </a>
         ) : <div></div>}
         {next ? (
           <a href={`/portfolio/${next.slug}`} class="group md:text-right">
-            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Next project</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Next project</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">{next.title} →</p>
           </a>
         ) : <div></div>}
       </div>
     </nav>
   )}
+
+  {/* Sticky contextual CTA — appears past 50% scroll, hides on scroll-up. */}
+  <StickyCTAChip
+    client:idle
+    label="Working on something like this? Let's talk"
+    href="/contact"
+  />
 </BaseLayout>

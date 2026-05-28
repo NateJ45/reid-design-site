@@ -24,6 +24,8 @@ import SanityImage from '@/components/SanityImage.astro';
 import JournalPortableText from '@/components/JournalPortableText';
 import JournalCard from '@/components/JournalCard.astro';
 import JournalCategoryChip from '@/components/JournalCategoryChip.astro';
+import ReadingProgress from '@/components/ReadingProgress.astro';
+import StickyCTAChip from '@/components/StickyCTAChip';
 import FinalCta from '@/components/FinalCta.astro';
 
 // Enumerate slugs + carry prev/next refs (newest-first iteration).
@@ -95,11 +97,14 @@ const schemas = [
   {schemas}
   {siteSettings}
 >
+  {/* Thin bronze progress bar tracking scroll through the article. */}
+  <ReadingProgress />
+
   {/* ------- 1. Article header --------------------------------------------- */}
   <article>
     <header class="bg-background">
       <div class="mx-auto max-w-3xl px-m pt-section-lg pb-l">
-        <p class="text-xs uppercase tracking-widest text-secondary mb-s">
+        <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">
           <a href="/journal" class="hover:text-primary-dark transition-colors">Journal</a>
           {dateLabel && <span class="mx-xs">·</span>}
           {dateLabel && <time datetime={entry.publishedAt}>{dateLabel}</time>}
@@ -130,7 +135,7 @@ const schemas = [
 
     {/* ------- 2. Cover image ---------------------------------------------- */}
     {entry.coverImage?.asset && (
-      <div class="mx-auto max-w-content px-m">
+      <figure class="mx-auto max-w-content px-m">
         <SanityImage
           source={entry.coverImage}
           width={1920}
@@ -138,7 +143,12 @@ const schemas = [
           sizes="(min-width: 1320px) 1280px, 100vw"
           class="w-full h-auto rounded-md"
         />
-      </div>
+        {entry.coverImage.caption && (
+          <figcaption class="mt-s text-sm text-foreground/65 italic text-center">
+            {entry.coverImage.caption}
+          </figcaption>
+        )}
+      </figure>
     )}
 
     {/* ------- 3. Body ------------------------------------------------------ */}
@@ -148,7 +158,7 @@ const schemas = [
       {/* Related project link (if this post walks through a specific portfolio piece) */}
       {entry.relatedProject?.slug?.current && (
         <aside class="mt-section-lg pt-l border-t border-border-soft">
-          <p class="text-xs uppercase tracking-widest text-secondary mb-s">Related project</p>
+          <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">Related project</p>
           <a
             href={`/portfolio/${entry.relatedProject.slug.current}`}
             class="group inline-flex items-baseline gap-s text-foreground hover:text-primary-dark transition-colors"
@@ -190,13 +200,13 @@ const schemas = [
       <div class="mx-auto max-w-content px-m py-l grid grid-cols-1 md:grid-cols-2 gap-m">
         {prev ? (
           <a href={`/journal/${prev.slug}`} class="group">
-            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Newer post</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Newer post</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">← {prev.title}</p>
           </a>
         ) : <div></div>}
         {next ? (
           <a href={`/journal/${next.slug}`} class="group md:text-right">
-            <p class="text-xs uppercase tracking-widest text-secondary mb-xs">Older post</p>
+            <p class="text-xs uppercase tracking-widest text-foreground/65 mb-xs">Older post</p>
             <p class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">{next.title} →</p>
           </a>
         ) : <div></div>}
@@ -209,5 +219,12 @@ const schemas = [
     headline="Working on a project of your own?"
     subhead="Reid Design takes on a small handful of projects at a time. Get in touch and let's see if we're a fit."
     fallbackCtaLabel="Start a Conversation"
+  />
+
+  {/* Sticky contextual CTA — appears past 50% scroll on long posts. */}
+  <StickyCTAChip
+    client:idle
+    label="Working on a room of your own?"
+    href="/contact"
   />
 </BaseLayout>

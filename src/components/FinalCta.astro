@@ -60,6 +60,7 @@ const {
       <CtaLink
         cta={cta}
         variant="primary"
+        onDark
         fallbackHref="/contact"
         fallbackLabel={fallbackCtaLabel}
       />
@@ -67,7 +68,7 @@ const {
         <CtaLink
           cta={secondaryCta}
           variant="secondary"
-          class="text-bg border-bg/70 hover:bg-bg/10"
+          onDark
         />
       )}
     </div>

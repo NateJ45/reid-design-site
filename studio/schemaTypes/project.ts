@@ -114,6 +114,12 @@ export const project = defineType({
       options: { hotspot: true },
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'caption',
+          title: 'Caption (optional)',
+          type: 'string',
+          description: 'Small italic line under the hero. Sourcing or sizing detail works well ("Oak floor, brass pendants, soapstone counters").',
+        }),
       ],
       validation: (Rule) => Rule.required(),
     }),
@@ -130,6 +136,34 @@ export const project = defineType({
         },
       },
       validation: (Rule) => Rule.required().max(200),
+    }),
+    // Project metadata band fields. Two one-sentence lines that read as
+    // "the issue / the response" above the long intro story.
+    defineField({
+      name: 'briefLine',
+      title: 'The brief (one sentence)',
+      type: 'string',
+      description: 'What the client came in with. Example: "Beautiful reno but the family room felt unfinished."',
+      options: {
+        canvasApp: {
+          purpose:
+            'One sentence stating the design problem the homeowner brought in. Voice: smart friend describing a situation. Plain English. Examples: "Beautiful reno but the family room felt unfinished." / "Open-concept kitchen with great bones but everything floated."',
+        },
+      },
+      validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: 'designCall',
+      title: 'The call (one sentence)',
+      type: 'string',
+      description: 'Staci\'s design move in response. Example: "Edit, don\'t add. Source one vintage piece. Anchor the seating."',
+      options: {
+        canvasApp: {
+          purpose:
+            'One sentence stating the design decision in response to the brief. First-person Staci voice OK. The "show the thinking, not the credentials" rule made visible. Examples: "Edit, don\'t add. Source one vintage piece. Anchor the seating." / "Move the sofa off the wall. Re-light from a single warm source."',
+        },
+      },
+      validation: (Rule) => Rule.max(160),
     }),
     defineField({
       name: 'introStory',
@@ -169,6 +203,17 @@ export const project = defineType({
                   { name: 'openInNewTab', type: 'boolean', title: 'Open in new tab', initialValue: false },
                 ],
               },
+              {
+                // Inline "Sourced from" annotation. Renders the wrapped text in
+                // italic small-caps with an optional link to the vendor.
+                name: 'sourcedFrom',
+                type: 'object',
+                title: 'Sourced from',
+                fields: [
+                  { name: 'vendor', type: 'string', title: 'Vendor / source name', validation: (R) => R.required() },
+                  { name: 'url', type: 'url', title: 'Vendor URL (optional)' },
+                ],
+              },
             ],
           },
         }),
@@ -177,7 +222,13 @@ export const project = defineType({
           options: { hotspot: true },
           fields: [
             defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
+            defineField({ name: 'caption', title: 'Caption', type: 'string', description: 'Brief italic line under the image. Sourcing, materials, or what to notice.' }),
+            defineField({
+              name: 'decisionLine',
+              title: 'The decision (optional)',
+              type: 'string',
+              description: 'Optional second line above the caption, rendered as a small uppercase eyebrow. Use for the "why this image is here" moment ("Why we layered three rugs", "The mirror that fixed the proportion").',
+            }),
           ],
         }),
       ],

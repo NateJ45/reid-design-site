@@ -81,8 +81,12 @@ const schemas = [
   )}
 
   {/* ------- 3. Post grid --------------------------------------------------- */}
-  <section class="bg-background" aria-label="Journal posts">
+  <section class="bg-background" aria-labelledby="journal-posts-heading">
     <div class="mx-auto max-w-content px-m py-section-md">
+      {/* Visually-hidden H2 — same reason as the portfolio grid: keeps the
+          heading hierarchy from skipping H1 directly to each card's H3. */}
+      <h2 id="journal-posts-heading" class="sr-only">Recent posts</h2>
+
       {list.length > 0 ? (
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
           {list.map((entry: any, i: number) => (

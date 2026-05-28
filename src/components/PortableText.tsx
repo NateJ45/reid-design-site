@@ -77,14 +77,44 @@ function makeComponents(): PortableTextComponents {
         </a>
       );
     },
+    // Sourced-from annotation. Italic small-caps treatment inline; when a URL
+    // is provided, becomes a quiet bronze underlined link.
+    sourcedFrom: ({ children, value }) => {
+      const label = value?.vendor ?? '';
+      const inner = (
+        <span className="italic text-foreground/85">
+          {children}
+          {label && (
+            <span className="ml-1 text-[0.72em] uppercase tracking-[0.15em] text-secondary not-italic align-baseline">
+              · {label}
+            </span>
+          )}
+        </span>
+      );
+      if (!value?.url) return inner;
+      return (
+        <a
+          href={value.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-link decoration-primary/30 underline underline-offset-2 hover:decoration-primary transition-colors"
+        >
+          {inner}
+        </a>
+      );
+    },
   },
   types: {
     image: ({ value }) => {
       if (!value?.asset) return null;
-      const url = urlFor(value).width(1200).quality(75).format('webp').url();
-      const url2x = urlFor(value).width(2400).quality(75).format('webp').url();
+      const url = urlFor(value).width(1600).quality(75).format('webp').url();
+      const url2x = urlFor(value).width(3200).quality(75).format('webp').url();
+      // Case-study image treatment. When decisionLine is set, the image reads
+      // like an editorial spread: uppercase eyebrow above the caption, both
+      // tucked under a full-width photograph. This is the "show the thinking"
+      // moment — the editor is telling the reader why this image is here.
       return (
-        <figure className="my-l">
+        <figure className="my-section-md -mx-m md:mx-0">
           <img
             src={url}
             srcSet={`${url} 1x, ${url2x} 2x`}
@@ -93,9 +123,18 @@ function makeComponents(): PortableTextComponents {
             decoding="async"
             className="w-full h-auto rounded-md"
           />
-          {value.caption && (
-            <figcaption className="mt-xs text-sm text-muted-foreground italic">
-              {value.caption}
+          {(value.decisionLine || value.caption) && (
+            <figcaption className="mt-s px-m md:px-0">
+              {value.decisionLine && (
+                <span className="block text-xs uppercase tracking-eyebrow text-foreground/65 mb-xs">
+                  {value.decisionLine}
+                </span>
+              )}
+              {value.caption && (
+                <span className="block text-sm md:text-base text-foreground/75 italic leading-relaxed">
+                  {value.caption}
+                </span>
+              )}
             </figcaption>
           )}
         </figure>

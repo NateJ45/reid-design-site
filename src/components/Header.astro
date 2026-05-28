@@ -28,11 +28,13 @@ interface Props {
     email?: string;
     socialInstagram?: string;
     socialFacebook?: string;
+    availabilityStatus?: string;
   } | null;
 }
 
 const { siteSettings } = Astro.props as Props;
 const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
+const availability = siteSettings?.availabilityStatus ?? '';
 
 // Subset of siteSettings the mobile menu needs. Pass as a plain object so the
 // React island doesn't try to serialize the whole Sanity document graph.
@@ -69,7 +71,7 @@ function isActive(href: string) {
 }
 ---
 
-<header class="bg-background">
+<header class="site-header bg-background">
   {/* Brand accent stripe — same visual signature used at the top of the
       mobile menu drawer. Visible on every viewport. */}
   <div class="h-1 bg-primary" aria-hidden="true"></div>
@@ -79,7 +81,7 @@ function isActive(href: string) {
       the same info through the MobileNav drawer. */}
   <div class="hidden md:block bg-muted border-b border-border-soft">
     <div class="mx-auto flex max-w-content items-center justify-between px-m py-2">
-      <p class="text-xs uppercase tracking-eyebrow text-secondary">
+      <p class="text-xs uppercase tracking-eyebrow text-foreground/65">
         Plainfield Interior Design · Serving Greater Indianapolis
       </p>
       <div class="flex items-center gap-m">
@@ -126,6 +128,36 @@ function isActive(href: string) {
   {/* Main nav row. Mobile centers the logo; desktop justifies logo left,
       nav+CTA grouped right. */}
   <div class="relative mx-auto flex max-w-content items-center justify-center md:justify-between px-m py-m border-b border-border">
+    {/* Mobile-only availability pill, mirroring the hamburger menu's
+        absolute-right placement. Gives mobile visitors an at-a-glance trust
+        signal ("Open / accepting new clients") and a single-tap path to
+        /contact — meaningfully conversion-positive in a tiny footprint. Renders
+        nothing when siteSettings.availabilityStatus is empty so the slot just
+        stays empty negative space. */}
+    {availability && (
+      <a
+        href="/contact"
+        class="md:hidden absolute left-m top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 h-11 pl-2.5 pr-3 rounded-full bg-muted border border-border-soft text-foreground hover:border-primary hover:text-primary-dark transition-colors"
+        aria-label={`Availability: ${availability}. Tap to start a conversation.`}
+      >
+        <span
+          class="relative flex w-2 h-2 shrink-0"
+          aria-hidden="true"
+        >
+          {/* Soft pulsing halo — kills under prefers-reduced-motion via the
+              global rule that flattens all animations. */}
+          <span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-60 animate-ping"></span>
+          <span class="relative inline-flex w-2 h-2 rounded-full bg-tertiary"></span>
+        </span>
+        {/* Label hides on the tightest mobile widths (<640px) so the
+            centered logo never collides with the pill. Pulsing dot still
+            communicates "available now" on its own. */}
+        <span class="hidden sm:inline text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
+          Open
+        </span>
+      </a>
+    )}
+
     <a
       href="/"
       class="inline-flex items-center hover:opacity-80 transition-opacity"
@@ -160,7 +192,7 @@ function isActive(href: string) {
           <a
             href={link.href}
             class:list={[
-              'text-sm tracking-wide transition-colors',
+              'nav-underline text-sm tracking-wide transition-colors',
               isActive(link.href)
                 ? 'text-link font-semibold'
                 : 'text-foreground hover:text-link',
@@ -175,7 +207,7 @@ function isActive(href: string) {
       <a
         href="/contact"
         class:list={[
-          'inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold transition-colors',
+          'press-tactile inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold',
           isActive('/contact')
             ? 'bg-accent-dark text-white'
             : 'bg-primary-dark text-white hover:bg-accent-dark',

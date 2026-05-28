@@ -36,8 +36,8 @@ const dateLabel = formatDate(entry.publishedAt);
 
 // Featured card spans 2 columns on lg and uses a wider hero aspect.
 const wrapperClass = featured
-  ? 'group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors lg:col-span-2'
-  : 'group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors';
+  ? 'card-lift group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors lg:col-span-2'
+  : 'card-lift group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors';
 const aspectClass = featured ? 'aspect-[16/9]' : 'aspect-[4/3]';
 const titleClass = featured ? 'font-display text-h2 text-foreground' : 'font-display text-h3 text-foreground';
 ---
@@ -66,7 +66,7 @@ const titleClass = featured ? 'font-display text-h2 text-foreground' : 'font-dis
         <JournalCategoryChip title={primaryCategory.title} tooltip={primaryCategory.description} />
       )}
       {dateLabel && (
-        <time datetime={entry.publishedAt} class="text-xs uppercase tracking-widest text-secondary">
+        <time datetime={entry.publishedAt} class="text-xs uppercase tracking-widest text-foreground/65">
           {dateLabel}
         </time>
       )}

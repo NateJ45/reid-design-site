@@ -9,6 +9,8 @@ import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
+import PortfolioFilterChips from '@/components/PortfolioFilterChips';
+import PortfolioCursor from '@/components/PortfolioCursor';
 
 const [projects, siteSettings] = await Promise.all([
   getAllProjects().catch(() => []),
@@ -26,6 +28,32 @@ const schemas = [
 ];
 
 const hasProjects = Array.isArray(projects) && projects.length > 0;
+
+// Compute unique room types + design styles present in the actual content so
+// the filter chips don't offer values that won't match anything. Humanize the
+// camelCase enum values for display.
+function humanize(value: string): string {
+  return value
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (c) => c.toUpperCase())
+    .trim();
+}
+
+const projectsArr: any[] = Array.isArray(projects) ? projects : [];
+const roomOptions = [
+  ...new Map(
+    projectsArr
+      .filter((p) => p.roomType)
+      .map((p) => [p.roomType, { value: p.roomType, label: humanize(p.roomType) }]),
+  ).values(),
+];
+const styleOptions = [
+  ...new Map(
+    projectsArr
+      .filter((p) => p.designStyle)
+      .map((p) => [p.designStyle, { value: p.designStyle, label: humanize(p.designStyle) }]),
+  ).values(),
+];
 
 // Portfolio doesn't have a Sanity singleton (just a hardcoded landing). The hero
 // background is referenced by asset _ref so it pipes through the same SanityImage
@@ -47,12 +75,47 @@ const heroBackground = {
   />
 
   {hasProjects ? (
-    <section class="mx-auto max-w-content px-m pb-section-lg">
-      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l list-none p-0">
+    <section class="mx-auto max-w-content px-m pb-section-lg" aria-labelledby="portfolio-projects-heading">
+      {/* Visually-hidden H2 — gives the project grid a proper heading-level
+          parent so screen-reader navigation goes H1 → H2 → H3 (each card)
+          instead of skipping straight to H3. Audit-caught regression. */}
+      <h2 id="portfolio-projects-heading" class="sr-only">Projects</h2>
+
+      {/* Filter chips — only render if there are 2+ values in either axis. */}
+      <div class="mb-l">
+        <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
+      </div>
+
+      {/* Grid. data-* attributes drive the client-side filter; the
+          is-filtered-out class is added by the chips island to fade-and-scale
+          non-matching items. */}
+      <ul
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l list-none p-0"
+        data-portfolio-cursor-zone
+      >
         {projects.map((p: any) => (
-          <li><ProjectCard project={p} /></li>
+          <li
+            data-project-item
+            data-roomtype={p.roomType ?? ''}
+            data-designstyle={p.designStyle ?? ''}
+            class="transition-all duration-300 ease-out"
+          >
+            <ProjectCard project={p} />
+          </li>
         ))}
       </ul>
+
+      {/* Empty state when filters match nothing. The island toggles
+          display:none/block on this element. */}
+      <p
+        data-portfolio-empty-filter
+        class="hidden mt-section-md text-center text-foreground/70 italic"
+      >
+        No projects match those filters yet. <a href="#" onclick="event.preventDefault(); document.querySelectorAll('[data-project-item]').forEach(el => el.classList.remove('is-filtered-out')); history.replaceState(null, '', window.location.pathname); window.location.reload();" class="text-link underline underline-offset-2">Clear filters</a> to see everything.
+      </p>
+
+      {/* Bronze "View →" custom cursor — desktop only, hover-aware. */}
+      <PortfolioCursor client:idle />
     </section>
   ) : (
     <section class="mx-auto max-w-content px-m pb-section-lg">

@@ -290,8 +290,11 @@
   top: 0;
   z-index: 100;
   padding: 0.75rem 1.25rem;
-  background: var(--primary);
-  color: var(--primary-foreground);
+  /* Use --primary-dark (Bronze Dark) instead of --primary (Warm Bronze) so
+     white-on-bronze contrast lands at 5.5:1 instead of 4.06:1. The skip-link
+     is small semibold text, which falls under the AA 4.5:1 body-text rule. */
+  background: var(--primary-dark, #7A5D4C);
+  color: #FFFFFF;
   text-decoration: none;
   font-weight: 600;
 }
@@ -300,6 +303,155 @@
   top: 0.5rem;
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* ---------- Polish layer ---------------------------------------------- */
+/* Small motion + interaction utilities used site-wide. All of these honor
+   prefers-reduced-motion via the global reset further down. */
+
+/* Scroll-triggered reveal. Pair with the IntersectionObserver in
+   BaseLayout.astro — elements with [data-reveal] start hidden and gain
+   .is-visible when they enter the viewport. Optional [data-reveal-delay]
+   takes ms via inline style on the element itself. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animated active-link underline. Used in the primary nav: an underline that
+   slides in from the center on hover and stays full-width when the link is
+   the active page. */
+.nav-underline {
+  position: relative;
+}
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.35rem;
+  height: 2px;
+  width: 100%;
+  background-color: var(--primary);
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-underline:hover::after,
+.nav-underline:focus-visible::after,
+.nav-underline[aria-current="page"]::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Reading progress bar. Fixed thin bronze track + an inner fill that scales
+   horizontally with the article's scroll progress (driven by the script in
+   ReadingProgress.astro). Sits above the header so it never gets clipped. */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: transparent;
+  z-index: 60;
+  pointer-events: none;
+}
+.reading-progress__bar {
+  height: 100%;
+  width: 100%;
+  background-color: var(--primary);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 80ms linear;
+}
+
+/* Sticky header behavior. The hide-on-scroll-down / show-on-scroll-up state
+   is toggled by the script in BaseLayout via data-state. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.site-header[data-state="hidden"] {
+  transform: translateY(-100%);
+}
+
+/* Card lift on hover. Marketing cards (project, journal, service) opt in via
+   .card-lift; pairs with the existing border + image scale transitions. */
+.card-lift {
+  transition: box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -18px rgba(61, 61, 61, 0.18);
+}
+.dark .card-lift:hover {
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* Tactile press on primary CTAs. Tap/click depresses ~1px so the press
+   registers physically — common Apple-Material trick. */
+.press-tactile {
+  transition-property: background-color, color, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 220ms;
+}
+.press-tactile:active {
+  transform: translateY(1px);
+  transition-duration: 60ms;
+}
+
+/* Portfolio filter visibility. The chips island toggles .is-filtered-out on
+   non-matching items; CSS handles the fade-and-shrink so the grid stays
+   considered while items leave or rejoin. */
+.is-filtered-out {
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Custom portfolio cursor zone. Hide the native cursor on desktop+hover
+   devices while the bronze chip stands in. Touch and reduced-motion users
+   keep the native cursor (the chip bails out in JS for them). */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  [data-portfolio-cursor-zone],
+  [data-portfolio-cursor-zone] a,
+  [data-portfolio-cursor-zone] a * {
+    cursor: none;
+  }
+}
+
+/* Reading-room paper grain. A very subtle SVG noise tile at ~3% opacity over
+   the Soft Linen surface. Sits below content via pointer-events:none and a
+   negative z-index inside the page wrapper. Visible enough to add tactile
+   warmth to large flat surfaces, quiet enough not to read as a pattern. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+}
+.dark body::before {
+  opacity: 0.06;
+  mix-blend-mode: screen;
 }
 
 /* ---------- Reduced motion -------------------------------------------- */
@@ -316,17 +468,87 @@
     scroll-behavior: auto !important;
   }
   html { scroll-behavior: auto !important; }
+  /* Polish layer: kill the start-hidden state so content stays visible without
+     waiting on the reveal animation. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* ---------- Print stylesheet ------------------------------------------ */
+/* Realtors and builders sometimes print project pages to send to clients.
+   The print sheet strips chrome (header, footer, sticky CTAs, BackToTop,
+   reading progress, View-Transitions artifacts) so the case study reads as
+   a clean editorial document with a small wordmark + URL on every page. */
 
 @media print {
-  body {
-    background: white;
-    color: black;
+  /* Reset to print-safe colors regardless of theme. */
+  :root,
+  .dark {
+    --background: white;
+    --foreground: black;
+    --muted: white;
+    --border: #d4d4d4;
+  }
+  html, body {
+    background: white !important;
+    color: black !important;
     font-size: 11pt;
   }
-  header, footer, nav, .no-print { display: none !important; }
-  a::after { content: " (" attr(href) ")"; font-size: 9pt; color: #666; }
-  h1, h2, h3 { page-break-after: avoid; }
+  body::before { display: none !important; } /* kill the paper-grain overlay */
+
+  /* Hide site chrome + interactive elements that don't translate to paper. */
+  .site-header,
+  footer,
+  nav[aria-label="More projects"],
+  nav[aria-label="More journal posts"],
+  .reading-progress,
+  [data-back-to-top],
+  [data-portfolio-cursor-zone] ~ * [aria-label="View →"],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Sticky CTA chip, BackToTop button, custom cursor — all fixed elements. */
+  [class*="fixed"] {
+    display: none !important;
+  }
+
+  /* Make links typographic, not colored. Append URL only for external. */
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+    text-decoration: none;
+  }
+  /* Don't print appended URLs on internal anchors or mailto/tel — too noisy. */
+  a[href^="/"]::after,
+  a[href^="#"]::after,
+  a[href^="mailto:"]::after,
+  a[href^="tel:"]::after { content: ""; }
+
+  /* Headings shouldn't break across pages. */
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  figure, .card-lift { page-break-inside: avoid; }
+
+  /* Images — preserve aspect ratio, cap height so they fit on a printed page. */
+  img { max-width: 100%; max-height: 8in; height: auto; }
+
+  /* Print-only header + footer injected into every page. */
+  body::after {
+    content: "Reid Design LLC · reiddesignllc.com · Plainfield, IN";
+    display: block;
+    margin-top: 0.5in;
+    padding-top: 0.25in;
+    border-top: 1px solid #d4d4d4;
+    font-size: 9pt;
+    color: #666;
+    text-align: center;
+    font-family: var(--font-body);
+  }
 }

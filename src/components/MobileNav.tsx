@@ -77,7 +77,7 @@ export default function MobileNav({ links, siteSettings }: Props) {
         >
           {/* Eyebrow header. Override SheetTitle's default font/size to render as a small label. */}
           <SheetHeader className="px-l pt-xl pb-m">
-            <SheetTitle className="text-xs uppercase tracking-eyebrow text-secondary font-body font-normal">
+            <SheetTitle className="text-xs uppercase tracking-eyebrow text-foreground/65 font-body font-normal">
               Menu
             </SheetTitle>
           </SheetHeader>
@@ -117,7 +117,7 @@ export default function MobileNav({ links, siteSettings }: Props) {
 
           {/* Contact + socials + theme. */}
           <div className="border-t border-border-soft px-l pt-m pb-s">
-            <p className="text-xs uppercase tracking-eyebrow text-secondary mb-s">
+            <p className="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">
               Get in touch
             </p>
             {email && (
