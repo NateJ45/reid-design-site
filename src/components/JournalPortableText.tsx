@@ -207,7 +207,6 @@ function makeComponents(): PortableTextComponents {
               alt={value.alt ?? ''}
               loading="lazy"
               decoding="async"
-              crossOrigin="anonymous"
               className="w-full h-auto rounded-md"
             />
             {value.caption && (
@@ -271,8 +270,7 @@ function makeComponents(): PortableTextComponents {
                   alt={value.image.alt ?? ''}
                   loading="lazy"
                   decoding="async"
-                  crossOrigin="anonymous"
-                  className="w-full h-full object-cover"
+                      className="w-full h-full object-cover"
                 />
               </div>
             )}
@@ -359,8 +357,7 @@ function makeComponents(): PortableTextComponents {
                       alt={img.alt ?? ''}
                       loading="lazy"
                       decoding="async"
-                      crossOrigin="anonymous"
-                      className="w-full h-full object-cover rounded-md aspect-[4/3]"
+                              className="w-full h-full object-cover rounded-md aspect-[4/3]"
                     />
                     {img.caption && (
                       <p className="mt-xs text-xs text-muted-foreground italic">{img.caption}</p>

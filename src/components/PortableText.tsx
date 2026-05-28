@@ -128,7 +128,6 @@ function makeComponents(): PortableTextComponents {
             alt={value.alt ?? ''}
             loading="lazy"
             decoding="async"
-            crossOrigin="anonymous"
             className="w-full h-auto rounded-md"
           />
           {(value.decisionLine || value.caption) && (
