@@ -84,7 +84,8 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
         headline={headline}
         subhead={subhead}
         headingId={headingId}
-        align="left"
+        align="center"
+        class="mx-auto"
       />
 
       <div
@@ -224,7 +225,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
         )}
       </div>
 
-      <div class="mt-section-lg flex justify-center lg:justify-start">
+      <div class="mt-section-lg flex justify-center">
         <CtaLink
           cta={cta}
           variant="secondary"

@@ -126,9 +126,12 @@ export const homePage = defineType({
       name: 'featuredWorkSubhead',
       title: 'Subhead',
       type: 'text',
-      rows: 2,
+      rows: 3,
       group: 'featuredWork',
-      description: 'Short line under the headline. Sets up what the visitor is about to see.',
+      description:
+        'Conversion-oriented paragraph under the headline. Tell visitors what a click reveals — the brief, the design thinking, the result — so the section sells the case-study depth, not just the photos.',
+      initialValue:
+        'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.',
     }),
     defineField({
       name: 'featuredWorkCta',
@@ -156,9 +159,12 @@ export const homePage = defineType({
       name: 'featuredJournalSubhead',
       title: 'Subhead',
       type: 'text',
-      rows: 2,
+      rows: 3,
       group: 'featuredJournal',
-      description: 'Short line under the headline.',
+      description:
+        'Conversion-oriented paragraph under the headline. Hint at the kinds of posts Staci writes — project walkthroughs, source roundups, design moves — so the section reads as the thinking behind every consultation, not just a blog.',
+      initialValue:
+        'Posts on the design moves that change a room, source roundups behind specific projects, and the occasional honest note about what I would do differently. The thinking that informs every consultation.',
     }),
     defineField({
       name: 'featuredJournalCta',
