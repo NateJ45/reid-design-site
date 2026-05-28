@@ -60,12 +60,12 @@ const hasCompanions = companions.length > 0;
 // overlay content — chips row + multi-line title + excerpt + CTA — has
 // enough vertical room. With 2/1 the chips row was being clipped above the
 // image top edge whenever the title wrapped to 3 lines.
-// Mirrors FeaturedWork.
+// With companions, the hero image FILLS the grid-stretched card (lg:h-full
+// + min-height floor) so it always matches the companion panel exactly and
+// never leaves a bg-card strip below the image. Mirrors FeaturedWork.
 const heroAspectClass = !hasCompanions
   ? 'aspect-[4/5] lg:aspect-[16/10]'
-  : companions.length >= 3
-  ? 'aspect-[4/5] lg:aspect-[4/5]'
-  : 'aspect-[4/5] lg:aspect-[4/3]';
+  : 'aspect-[4/5] lg:aspect-auto lg:h-full lg:min-h-[28rem]';
 
 const heroHref = hero?.slug?.current ? `/journal/${hero.slug.current}` : '#';
 const heroPrimaryCategory = hero?.categories?.[0];
@@ -106,7 +106,7 @@ const heroDate = formatDate(hero?.publishedAt);
             Same treatment as the Work hero so the two sections feel paired. */}
         <a
           href={heroHref}
-          class="card-lift group relative block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+          class="card-lift group relative block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full"
         >
           <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-20" aria-hidden="true"></div>
 
@@ -186,56 +186,61 @@ const heroDate = formatDate(hero?.publishedAt);
           </div>
         </a>
 
-        {/* ------- Companion entries — compact stacked cards ---------------
-            On lg+ the list fills the column height (`lg:h-full`) and each
-            card uses `lg:flex-1` so 2-3 companions distribute the available
-            space evenly. Mirrors FeaturedWork. */}
+        {/* ------- Companion entries — one cohesive panel -----------------
+            Same pattern as FeaturedWork: the companions share a SINGLE card
+            (one bronze stripe, one border, one shadow) with each entry as a
+            row split by hairline dividers, so the right column reads as one
+            held-together unit. Fills the grid-stretched column on lg+ and
+            distributes rows with `lg:flex-1` so it lines up with the hero. */}
         {hasCompanions && (
-          <ul class="flex flex-col gap-m list-none p-0 m-0 lg:h-full">
-            {companions.map((p) => {
+          <div class="card-lift flex flex-col rounded-md overflow-hidden bg-card border border-border-soft shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full">
+            {/* One brand accent stripe for the whole panel. */}
+            <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+
+            {companions.map((p, i) => {
               const cHref = p.slug?.current ? `/journal/${p.slug.current}` : '#';
               const cCat = p.categories?.[0];
               const cDate = formatDate(p.publishedAt);
               return (
-                <li class="lg:flex-1 lg:min-h-[10rem]">
-                  <a
-                    href={cHref}
-                    class="card-lift group flex items-stretch gap-m rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full"
-                  >
-                    <div class="relative w-32 sm:w-40 lg:w-44 xl:w-52 aspect-square lg:aspect-auto lg:h-full shrink-0 overflow-hidden bg-muted">
-                      <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" aria-hidden="true"></div>
-                      {p.coverImage?.asset ? (
-                        <SanityImage
-                          source={p.coverImage}
-                          width={500}
-                          sizes="(min-width: 1280px) 208px, (min-width: 1024px) 176px, (min-width: 640px) 160px, 128px"
-                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                        />
-                      ) : (
-                        <div class="w-full h-full" aria-hidden="true"></div>
-                      )}
-                    </div>
+                <a
+                  href={cHref}
+                  class:list={[
+                    'group/row flex items-stretch gap-m flex-1 min-h-[8.5rem] transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none',
+                    i > 0 && 'border-t border-border-soft',
+                  ]}
+                >
+                  <div class="relative w-28 sm:w-36 lg:w-40 xl:w-44 aspect-square lg:aspect-auto shrink-0 overflow-hidden bg-muted self-stretch">
+                    {p.coverImage?.asset ? (
+                      <SanityImage
+                        source={p.coverImage}
+                        width={500}
+                        sizes="(min-width: 1280px) 176px, (min-width: 1024px) 160px, (min-width: 640px) 144px, 112px"
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover/row:scale-[1.04]"
+                      />
+                    ) : (
+                      <div class="w-full h-full" aria-hidden="true"></div>
+                    )}
+                  </div>
 
-                    <div class="flex-1 min-w-0 py-m pr-m flex flex-col justify-center">
-                      {cCat?.title && (
-                        <p class="text-[0.65rem] font-semibold uppercase tracking-eyebrow text-link truncate">
-                          {cCat.title}
-                        </p>
-                      )}
-                      <h4 class="mt-1 font-display text-h4 leading-tight text-foreground group-hover:text-primary-dark transition-colors line-clamp-2">
-                        {p.title}
-                      </h4>
-                      {cDate && (
-                        <p class="mt-1 text-xs uppercase tracking-widest text-foreground/80 truncate">
-                          {cDate}
-                        </p>
-                      )}
-                    </div>
-                  </a>
-                </li>
+                  <div class="flex-1 min-w-0 py-m pr-m flex flex-col justify-center">
+                    {cCat?.title && (
+                      <p class="text-[0.65rem] font-semibold uppercase tracking-eyebrow text-link truncate">
+                        {cCat.title}
+                      </p>
+                    )}
+                    <h4 class="mt-1 font-display text-h4 leading-tight text-foreground group-hover/row:text-primary-dark transition-colors line-clamp-2">
+                      {p.title}
+                    </h4>
+                    {cDate && (
+                      <p class="mt-1 text-xs uppercase tracking-widest text-foreground/80 truncate">
+                        {cDate}
+                      </p>
+                    )}
+                  </div>
+                </a>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
 
