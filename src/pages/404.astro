@@ -31,17 +31,20 @@ const photo = {
     class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-[1fr_1.1fr] gap-section-md items-center"
     aria-labelledby="not-found-heading"
   >
-    {/* Text column. Two clear paths back — no search (there isn't one). */}
-    <div>
+    {/* Text column. Two clear paths back — no search (there isn't one).
+        Centered on mobile so the lone-element page reads as a sympathetic
+        "you're off-path" moment; left-aligned on desktop where the
+        two-column layout needs the text anchored beside the photo column. */}
+    <div class="text-center md:text-left">
       <p class="text-xs uppercase tracking-eyebrow text-foreground/65 mb-s">404</p>
       <h1 id="not-found-heading" class="font-display text-h1 text-foreground leading-headline-tight">
         That page wandered off.
       </h1>
-      <p class="mt-m max-w-xl text-lg text-foreground/80 leading-relaxed">
+      <p class="mt-m max-w-xl mx-auto md:mx-0 text-lg text-foreground/80 leading-relaxed">
         It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.
       </p>
 
-      <div class="mt-l flex flex-wrap gap-m">
+      <div class="mt-l flex flex-wrap gap-m justify-center md:justify-start">
         <a
           href="/"
           class="press-tactile inline-flex items-center px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-eyebrow text-xs rounded-sm hover:bg-accent-dark"

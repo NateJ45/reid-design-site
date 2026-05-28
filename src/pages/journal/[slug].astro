@@ -155,9 +155,13 @@ const schemas = [
     <div class="mx-auto max-w-3xl px-m py-section-lg">
       <JournalPortableText client:load value={entry.body} />
 
-      {/* Related project link (if this post walks through a specific portfolio piece) */}
+      {/* Related project link (if this post walks through a specific portfolio piece).
+          Centered on mobile so the cross-link reads as a deliberate "go see
+          this project" affordance instead of a stray paragraph clinging to
+          the left edge. Desktop keeps left-aligned (still inside the
+          article column). */}
       {entry.relatedProject?.slug?.current && (
-        <aside class="mt-section-lg pt-l border-t border-border-soft">
+        <aside class="mt-section-lg pt-l border-t border-border-soft text-center md:text-left">
           <p class="text-xs uppercase tracking-widest text-foreground/65 mb-s">Related project</p>
           <a
             href={`/portfolio/${entry.relatedProject.slug.current}`}
