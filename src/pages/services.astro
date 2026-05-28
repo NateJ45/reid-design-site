@@ -58,6 +58,10 @@ const schemas = [
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
   {/* ------- 1. Hero --------------------------------------------------------- */}
+  {/* scriptAccent script-emphasizes "reveal" in the headline ("From a $150
+      consultation to a full room reveal"). Editorial-signature flourish.
+      Falls back gracefully if Staci ever changes the headline and the word
+      no longer appears. */}
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}
@@ -65,6 +69,7 @@ const schemas = [
     backgroundImage={page?.heroImage}
     headingId="services-hero-heading"
     size="short"
+    scriptAccent="reveal"
   />
 
   {/* ------- 2. Services list ----------------------------------------------- */}
@@ -81,6 +86,51 @@ const schemas = [
         align="center"
         class="mx-auto"
       />
+
+      {/* On-this-page TOC — small anchor-chip row beneath the section heading.
+          Each chip jumps to the corresponding service anchor (ServiceCard
+          already renders an id={slug} when withAnchor=true) or to one of
+          the two later sections on the page. Only renders when there are
+          enough services to justify the navigation. */}
+      {services.length >= 3 && (
+        <nav class="mt-m flex flex-col items-center gap-s" aria-label="On this page">
+          <p class="text-xs uppercase tracking-eyebrow text-foreground/65">On this page</p>
+          <ul class="flex flex-wrap justify-center gap-xs list-none p-0">
+            {services.map((service: any) => (
+              service.slug?.current && (
+                <li>
+                  <a
+                    href={`#${service.slug.current}`}
+                    class="press-tactile inline-flex items-center min-h-[36px] px-s py-1.5 text-xs uppercase tracking-eyebrow text-foreground/85 border border-border-soft rounded-full hover:border-primary hover:text-link transition-colors"
+                  >
+                    {service.name}
+                  </a>
+                </li>
+              )
+            ))}
+            {builders && (builders.headline || builders.description) && (
+              <li>
+                <a
+                  href="#builders"
+                  class="press-tactile inline-flex items-center min-h-[36px] px-s py-1.5 text-xs uppercase tracking-eyebrow text-foreground/85 border border-border-soft rounded-full hover:border-primary hover:text-link transition-colors"
+                >
+                  Builders &amp; Realtors
+                </a>
+              </li>
+            )}
+            {(areaSec?.headline || travelFees.length > 0) && (
+              <li>
+                <a
+                  href="#service-area"
+                  class="press-tactile inline-flex items-center min-h-[36px] px-s py-1.5 text-xs uppercase tracking-eyebrow text-foreground/85 border border-border-soft rounded-full hover:border-primary hover:text-link transition-colors"
+                >
+                  Service area
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
 
       {services.length > 0 ? (
         <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
@@ -99,7 +149,8 @@ const schemas = [
   {/* ------- 3. Builders & Realtors ----------------------------------------- */}
   {builders && (builders.headline || builders.description) && (
     <section
-      class="bg-muted"
+      id="builders"
+      class="bg-muted scroll-mt-24"
       aria-labelledby="builders-realtors-heading"
     >
       <div class="mx-auto max-w-content px-m py-section-lg">
@@ -159,7 +210,8 @@ const schemas = [
   {/* ------- 4. Service area + travel fees ---------------------------------- */}
   {(areaSec?.headline || travelFees.length > 0) && (
     <section
-      class="bg-background"
+      id="service-area"
+      class="bg-background scroll-mt-24"
       aria-labelledby="service-area-heading"
     >
       <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-start">

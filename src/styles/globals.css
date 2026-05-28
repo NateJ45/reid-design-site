@@ -10,6 +10,11 @@
 @import "@fontsource/cormorant-garamond/500.css";
 @import "@fontsource/cormorant-garamond/600.css";
 @import "@fontsource-variable/source-sans-3";
+/* Pinyon Script — calligraphic single-weight script used for ONE accent
+   word per hero (the editorial-signature flourish). Pairs warm with
+   Cormorant Garamond without becoming a marquee. Use sparingly via the
+   `font-script` utility — designed for headlines, not body copy. */
+@import "@fontsource/pinyon-script/400.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -37,6 +42,7 @@
   --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-body:    "Source Sans 3 Variable", "Helvetica Neue", system-ui, sans-serif;
   --font-mono:    ui-monospace, "SF Mono", Consolas, monospace;
+  --font-script:  "Pinyon Script", "Snell Roundhand", "Apple Chancery", cursive;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;
@@ -155,6 +161,23 @@
 
 @utility tracking-eyebrow {
   letter-spacing: var(--tracking-eyebrow);
+}
+
+/* Script accent — for ONE word per hero, paired with Cormorant. Pinyon
+   Script has a much smaller x-height than Cormorant, so we scale up to
+   ~1.25em to match visual weight and shift the baseline a touch so the
+   accent word sits in the same optical line as the rest of the headline.
+   `.font-script` swaps the font; the size + leading + baseline tweaks
+   live here so a single class swap produces the editorial signature
+   look without per-use fiddling. */
+@utility font-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.25em;
+  line-height: 0.9;
+  vertical-align: -0.1em;
+  letter-spacing: 0;
 }
 
 /* ---------- Light mode (Reid Design overrides shadcn defaults) -------- */

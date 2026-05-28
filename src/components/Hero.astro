@@ -47,6 +47,16 @@ interface Props {
    * the original. Honors prefers-reduced-motion. Pass undefined to skip.
    */
   rotatingWords?: string[];
+  /**
+   * Optional single word/phrase in the headline to render in script
+   * (Pinyon Script). One per hero — the editorial-signature flourish.
+   * The first occurrence in the headline string is wrapped. If the word
+   * isn't found, the headline renders unchanged.
+   *
+   * Don't combine with `rotatingWords` — they may target the same first
+   * word; pick one effect per hero. If both are passed, rotatingWords wins.
+   */
+  scriptAccent?: string;
 }
 
 const {
@@ -59,6 +69,7 @@ const {
   headingId,
   size = 'short',
   rotatingWords,
+  scriptAccent,
 } = Astro.props as Props;
 
 // Split the headline into a first word + the rest, so the rotator can swap
@@ -70,6 +81,31 @@ const firstWordMatch = rotateEnabled ? headline.match(/^([\w'’]+)(.*)$/s) : nu
 const headlineFirst = firstWordMatch ? firstWordMatch[1] : headline;
 const headlineRest = firstWordMatch ? firstWordMatch[2] : '';
 const rotatingPayload = rotateEnabled ? JSON.stringify([headlineFirst, ...rotatingWords!]) : '';
+
+// Script accent: split the headline around the accent word so it can be
+// rendered in three pieces (before / accent-span / after). Only fires when
+// rotatingWords isn't active — the two flourishes shouldn't compete.
+const scriptEnabled = !rotateEnabled && typeof scriptAccent === 'string' && scriptAccent.length > 0;
+const scriptIdx = scriptEnabled ? headline.indexOf(scriptAccent!) : -1;
+const scriptBefore = scriptIdx >= 0 ? headline.slice(0, scriptIdx) : '';
+const scriptWord = scriptIdx >= 0 ? headline.slice(scriptIdx, scriptIdx + scriptAccent!.length) : '';
+const scriptAfter = scriptIdx >= 0 ? headline.slice(scriptIdx + scriptAccent!.length) : '';
+const scriptFound = scriptIdx >= 0;
+
+// Subhead emphasis: parse markdown-style _word_ markers into <em> spans so
+// editors can italicize a key word in the Sanity subhead without HTML.
+// Example: "Pick the tier that fits _where you are_." → italic on "where you are".
+// Falls back to plain text when no markers are present.
+function parseSubhead(s?: string): Array<{ type: 'text' | 'em'; value: string }> {
+  if (!s) return [];
+  const parts = s.split(/(_[^_]+_)/g);
+  return parts.map((part) =>
+    part.startsWith('_') && part.endsWith('_') && part.length > 2
+      ? { type: 'em' as const, value: part.slice(1, -1) }
+      : { type: 'text' as const, value: part },
+  );
+}
+const subheadParts = parseSubhead(subhead);
 
 const hasImage = !!backgroundImage?.asset;
 
@@ -181,12 +217,22 @@ const wrapperHeight =
                 {headlineFirst}
               </span>{headlineRest}
             </>
+          ) : scriptFound ? (
+            <>
+              {scriptBefore}<span class="font-script">{scriptWord}</span>{scriptAfter}
+            </>
           ) : (
             headline
           )}
         </h1>
         {subhead && (
-          <p class="mt-m max-w-2xl text-lg text-bg/90">{subhead}</p>
+          <p class="mt-m max-w-2xl text-lg text-bg/90">
+            {subheadParts.map((part) =>
+              part.type === 'em'
+                ? <em class="italic font-display text-bg/95">{part.value}</em>
+                : part.value
+            )}
+          </p>
         )}
         {(primaryCta || secondaryCta) && (
           <div class="mt-l flex flex-wrap gap-s">

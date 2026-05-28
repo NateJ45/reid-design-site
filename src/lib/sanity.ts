@@ -28,21 +28,29 @@ const dataset = import.meta.env.PUBLIC_SANITY_DATASET ?? 'production';
 const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01';
 const readToken = import.meta.env.SANITY_API_READ_TOKEN as string | undefined;
 
-if (!projectId) {
-  // Surface a clear build-time error rather than letting requests fail at runtime.
-  // The site still scaffold-builds without env vars set, but any page that calls
-  // a query will hit this guard.
-  console.warn(
-    '[sanity] PUBLIC_SANITY_PROJECT_ID is not set. Sanity queries will fail until it is configured in .env and Cloudflare → Workers → Variables.',
-  );
-}
+// Warnings below are scoped to server-only (build + SSR pass) so they don't
+// leak into the browser console. The Sanity client module gets imported by
+// React components (PortableText, ProjectGallery, etc) for the `urlFor`
+// helper, which means the module evaluates client-side too — without this
+// guard, every browser session would see the readToken warning, even though
+// the token is irrelevant in the browser (it's a server-only env var).
+if (import.meta.env.SSR) {
+  if (!projectId) {
+    // Surface a clear build-time error rather than letting requests fail at runtime.
+    // The site still scaffold-builds without env vars set, but any page that calls
+    // a query will hit this guard.
+    console.warn(
+      '[sanity] PUBLIC_SANITY_PROJECT_ID is not set. Sanity queries will fail until it is configured in .env and Cloudflare → Workers → Variables.',
+    );
+  }
 
-if (!readToken) {
-  // Soft warning — pages still render via fallback copy when the token is missing,
-  // but collections (services, testimonials, etc.) won't populate.
-  console.warn(
-    '[sanity] SANITY_API_READ_TOKEN is not set. Build-time reads will use the anonymous API; collection content (services, testimonials, processSteps, faqs, projects) may render empty. Set it in .env locally and in Cloudflare → Workers → Variables (as Secret) for production builds.',
-  );
+  if (!readToken) {
+    // Soft warning — pages still render via fallback copy when the token is missing,
+    // but collections (services, testimonials, etc.) won't populate.
+    console.warn(
+      '[sanity] SANITY_API_READ_TOKEN is not set. Build-time reads will use the anonymous API; collection content (services, testimonials, processSteps, faqs, projects) may render empty. Set it in .env locally and in Cloudflare → Workers → Variables (as Secret) for production builds.',
+    );
+  }
 }
 
 export const client: SanityClient = createClient({
