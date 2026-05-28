@@ -1023,7 +1023,11 @@ There are two ways the site rebuilds:
 
 Without a webhook, every Sanity edit waits until the next code push. That's not a sustainable editor experience for Staci.
 
-**The recommended setup is a Sanity webhook that hits a Cloudflare deploy hook on publish:**
+**Status:** the webhook IS set up and live as of May 27, 2026. Sanity is configured with no GROQ filter, so every published change in the dataset triggers a rebuild. Cloudflare coalesces back-to-back triggers into a single build when they arrive during an in-progress build, so bulk asset uploads don't actually produce dozens of builds — typically 2-3.
+
+If build-minute usage ever becomes a concern (very unlikely at current cadence), add the GROQ filter shown below to skip rebuilds on non-content document types (image asset metadata, etc).
+
+**The setup pattern (for reference / if it ever needs to be re-created):**
 
 1. **Create the Cloudflare deploy hook** at Cloudflare dashboard → Workers & Pages → reid-design-site → Settings → Build hooks. Name it `Sanity content publish`, branch `main`. Copy the generated URL (looks like `https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/<token>`).
 
