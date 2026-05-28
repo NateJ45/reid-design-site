@@ -109,6 +109,102 @@ export const siteSettings = defineType({
       type: 'url',
       description: 'Optional. When set, the footer credit becomes a link to this URL (opens in a new tab).',
     }),
+
+    // ── Newsletter ──────────────────────────────────────────────────────────
+    defineField({
+      name: 'newsletter',
+      title: 'Newsletter signup',
+      type: 'object',
+      description:
+        'Connect an email provider (MailerLite, Buttondown, Mailchimp). Paste the embedded-form action URL and list ID; the secret key goes in env as NEWSLETTER_API_KEY.',
+      fields: [
+        defineField({
+          name: 'enabled',
+          title: 'Enable newsletter signup',
+          type: 'boolean',
+          description: 'When off, the newsletter block does not render anywhere on the site.',
+          initialValue: false,
+        }),
+        defineField({
+          name: 'providerLabel',
+          title: 'Provider label',
+          type: 'string',
+          description: 'Internal label only. Example: "MailerLite" or "Buttondown". Not shown to visitors.',
+        }),
+        defineField({
+          name: 'formActionUrl',
+          title: 'Form action URL',
+          type: 'url',
+          description: "The embedded-form POST endpoint from your email provider's dashboard.",
+        }),
+        defineField({
+          name: 'audienceId',
+          title: 'Audience / list ID',
+          type: 'string',
+          description: 'Your provider list or audience ID. Used when the provider needs it in the POST body.',
+        }),
+        defineField({
+          name: 'heading',
+          title: 'Heading',
+          type: 'string',
+          description: 'Headline above the signup form. Example: "Get the free design checklist."',
+        }),
+        defineField({
+          name: 'blurb',
+          title: 'Blurb',
+          type: 'text',
+          rows: 3,
+          description: 'One or two sentences under the heading explaining what subscribers get.',
+        }),
+        defineField({
+          name: 'buttonLabel',
+          title: 'Button label',
+          type: 'string',
+          description: 'Text on the subscribe button.',
+          initialValue: 'Subscribe',
+        }),
+        defineField({
+          name: 'successMessage',
+          title: 'Success message',
+          type: 'text',
+          rows: 2,
+          description: 'Message shown after a successful signup. Example: "You\'re in. Check your inbox."',
+        }),
+        defineField({
+          name: 'consentNote',
+          title: 'Consent note',
+          type: 'text',
+          rows: 2,
+          description: 'Small-print consent line near the submit button. Link to /privacy included automatically.',
+        }),
+      ],
+    }),
+
+    // ── Reviews ──────────────────────────────────────────────────────────────
+    defineField({
+      name: 'googleBusinessUrl',
+      title: 'Google Business Profile URL',
+      type: 'url',
+      description:
+        'Link to the Reid Design Google Business listing. When set, a "Read more on Google" link appears in the testimonials section.',
+    }),
+    defineField({
+      name: 'reviewsNote',
+      title: 'Reviews note',
+      type: 'string',
+      description:
+        'Optional small-print line near the reviews section. Example: "Reviews from Google, Facebook, and Houzz."',
+    }),
+
+    // ── Satisfaction guarantee ────────────────────────────────────────────────
+    defineField({
+      name: 'satisfactionGuarantee',
+      title: 'Satisfaction guarantee line',
+      type: 'text',
+      rows: 2,
+      description:
+        'In-scope satisfaction guarantee shown near CTAs on the Services and Contact pages. Leave blank to hide.',
+    }),
   ],
   preview: {
     prepare: () => ({ title: 'Site Settings' }),

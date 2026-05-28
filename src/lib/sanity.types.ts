@@ -257,6 +257,20 @@ export type SiteSettings = {
   socialFacebook?: string;
   footerCredit?: string;
   footerCreditUrl?: string;
+  newsletter?: {
+    enabled?: boolean;
+    providerLabel?: string;
+    formActionUrl?: string;
+    audienceId?: string;
+    heading?: string;
+    blurb?: string;
+    buttonLabel?: string;
+    successMessage?: string;
+    consentNote?: string;
+  };
+  googleBusinessUrl?: string;
+  reviewsNote?: string;
+  satisfactionGuarantee?: string;
 };
 
 export type HomePageReference = {
@@ -588,6 +602,13 @@ export type ContactPage = {
     _type: "block";
     _key: string;
   }>;
+  postInquiryRoadmap?: Array<{
+    title?: string;
+    body?: string;
+    timeEstimate?: string;
+    _type: "roadmapStep";
+    _key: string;
+  }>;
   schedulingLink?: string;
   schedulingLinkLabel?: string;
   availabilityNote?: string;
@@ -875,6 +896,8 @@ export type Testimonial = {
   };
   featured?: boolean;
   relatedProject?: ProjectReference;
+  sourceType?: "Google" | "Facebook" | "Houzz" | "Direct";
+  reviewUrl?: string;
 };
 
 export type Project = {
