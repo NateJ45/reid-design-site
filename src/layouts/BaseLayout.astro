@@ -152,6 +152,14 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
         applyTheme();
         if (!window.__themeBootstrapBound) {
           window.__themeBootstrapBound = true;
+          // The first applyTheme() runs in <head> before the body is
+          // parsed, so theme-aware imgs below the fold (footer logo) don't
+          // exist yet and never get their src set. Run once more after the
+          // body is in the DOM. (Header logo is handled by its own inline
+          // script directly after the img, so it's already set by here.)
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyTheme, { once: true });
+          }
           // View Transitions: html className gets reset on every swap, so
           // re-apply the persisted theme after each navigation.
           document.addEventListener('astro:after-swap', applyTheme);
