@@ -187,12 +187,19 @@ function makeComponents(): PortableTextComponents {
         const targetWidth = size === 'full' ? 2400 : size === 'wide' ? 1600 : 800;
         const url = urlFor(value).width(targetWidth).quality(75).format('webp').url();
         const url2x = urlFor(value).width(targetWidth * 2).quality(75).format('webp').url();
-        // Intrinsic dimensions from the Sanity asset _ref reserve the right
-        // aspect-ratio box before the file lands, eliminating the CLS hit
-        // that Lighthouse flagged on journal post detail pages.
+        // Intrinsic dimensions from the Sanity asset _ref do two jobs:
+        // (1) reserve the aspect-ratio box before the file lands (kills the
+        //     CLS Lighthouse used to flag), and (2) let us detect portrait
+        //     orientation so vertical photos don't stretch the page taller
+        //     than the viewport. Portrait shots always cap at ~600 px wide
+        //     centered, regardless of the editor's chosen size (standard /
+        //     wide / full) — width-bleed treatments only make sense for
+        //     landscape compositions.
         const dims = parseSanityAssetDimensions(value);
-        const wrapperClass =
-          size === 'full'
+        const isPortrait = dims ? dims.height > dims.width : false;
+        const wrapperClass = isPortrait
+          ? 'my-section-md mx-auto max-w-[600px]'
+          : size === 'full'
             ? '-mx-m md:-mx-section-lg lg:-mx-[8vw] my-section-md'
             : size === 'wide'
             ? 'my-section-md'
