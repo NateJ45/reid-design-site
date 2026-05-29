@@ -141,9 +141,11 @@ const SINGLETON_TYPES = new Set<string>([
   'aboutPage',
   'processPage',
   'servicesPage',
+  'portfolioPage',
   'faqPage',
   'contactPage',
   'journalPage',
+  'notFoundPage',
   // New singletons (Phase 1)
   'eDesignPage',
   'shopPage',

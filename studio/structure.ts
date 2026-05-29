@@ -1,16 +1,22 @@
-// Studio Desk structure. Pins Site Settings at the top, then page singletons
-// (one document each), then the reusable content collections. Hides the schemas
-// that have custom singleton list items from the default document-type list
-// so editors don't see them twice.
+// Studio Desk structure. Pins Site Settings at the top, then ALL page singletons
+// (one document each) under "Pages", then the reusable content collections under
+// "Content", then "Journal". Every document type is placed explicitly so nothing
+// floats loose at the desk root. The trailing default-list filter is a safety net
+// for any future type that hasn't been placed (and hides sanity-plugin-media's
+// media.tag type, which would otherwise show at the root).
 //
-// Orderable lists: service / processStep / philosophyPoint / project use the
-// orderable-document-list plugin. Editors drag rows to reorder; the plugin
-// writes an `orderRank` string to each doc. GROQ queries order by orderRank
-// (with displayOrder fallback) so the rendered site mirrors Studio order.
+// "Pages" is one list (so the rule for Staci is simple: every page lives here),
+// visually grouped with dividers: core pages, then offerings, then resources +
+// interactive tools, then the remaining pages.
 //
-// Preview pane: singletons explicitly attach a form + preview iframe view
-// via the singletonWithPreview helper. Other types pick up preview from
-// defaultDocumentNode in sanity.config.ts.
+// Orderable lists: service / processStep / philosophyPoint / project / leadMagnet /
+// shopCollection / shopItem / pressItem use the orderable-document-list plugin.
+// Editors drag rows to reorder; the plugin writes an `orderRank` string. GROQ
+// queries order by orderRank (with displayOrder fallback) so the site mirrors Studio.
+//
+// Preview pane: singletons explicitly attach a form + preview iframe view via the
+// singletonWithPreview helper. Other types pick up preview from defaultDocumentNode
+// in sanity.config.ts.
 
 import type { StructureBuilder, StructureResolverContext } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
@@ -31,10 +37,19 @@ import {
   EditIcon,
   TagIcon,
   BookIcon,
+  DesktopIcon,
+  BasketIcon,
+  CreditCardIcon,
+  BillIcon,
+  BulbOutlineIcon,
+  SearchIcon,
+  LockIcon,
+  CaseIcon,
 } from '@sanity/icons';
 
 const SINGLETON_TYPES = [
   'siteSettings',
+  // Core pages
   'homePage',
   'aboutPage',
   'processPage',
@@ -44,9 +59,28 @@ const SINGLETON_TYPES = [
   'contactPage',
   'journalPage',
   'notFoundPage',
+  // Conversion-build page singletons
+  'eDesignPage',
+  'shopPage',
+  'giftPage',
+  'resourcesPage',
+  'pressPage',
+  'privacyPage',
+  'styleQuiz',
+  'budgetCalculator',
 ] as const;
 
-const ORDERABLE_TYPES = ['service', 'processStep', 'philosophyPoint', 'project'] as const;
+const ORDERABLE_TYPES = [
+  'service',
+  'processStep',
+  'philosophyPoint',
+  'project',
+  // Conversion-build collections (all carry orderRankField)
+  'leadMagnet',
+  'shopCollection',
+  'shopItem',
+  'pressItem',
+] as const;
 
 const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...SINGLETON_TYPES,
@@ -55,6 +89,9 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'faqItem',
   'journalEntry',
   'journalCategory',
+  // sanity-plugin-media registers this tag type; keep it out of the desk root
+  // (the "Media" tool in the top sidebar is where tags belong).
+  'media.tag',
 ]);
 
 /**
@@ -108,7 +145,8 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Pages — each a singleton with form + preview tabs
+      // Pages — every page singleton lives here, grouped with dividers so the
+      // list stays scannable: core pages, offerings, resources + tools, other.
       S.listItem()
         .title('Pages')
         .icon(DocumentTextIcon)
@@ -116,6 +154,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
           S.list()
             .title('Pages')
             .items([
+              // Core pages
               singletonWithPreview(S, 'homePage', 'Home', HomeIcon),
               singletonWithPreview(S, 'aboutPage', 'About', UserIcon),
               singletonWithPreview(S, 'processPage', 'Process', TrendUpwardIcon),
@@ -125,13 +164,34 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               singletonWithPreview(S, 'contactPage', 'Contact', EnvelopeIcon),
               singletonWithPreview(S, 'journalPage', 'Journal (index page)', BookIcon),
               singletonWithPreview(S, 'notFoundPage', '404 Page', DocumentTextIcon),
+
+              S.divider(),
+
+              // Offerings
+              singletonWithPreview(S, 'eDesignPage', 'E-Design Page', DesktopIcon),
+              singletonWithPreview(S, 'shopPage', 'Shop Page', BasketIcon),
+              singletonWithPreview(S, 'giftPage', 'Gift Certificates Page', CreditCardIcon),
+
+              S.divider(),
+
+              // Resources + interactive tools
+              singletonWithPreview(S, 'resourcesPage', 'Resources Page', BulbOutlineIcon),
+              singletonWithPreview(S, 'styleQuiz', 'Style Quiz', SearchIcon),
+              singletonWithPreview(S, 'budgetCalculator', 'Budget Calculator', BillIcon),
+
+              S.divider(),
+
+              // Other
+              singletonWithPreview(S, 'pressPage', 'Press Page', CaseIcon),
+              singletonWithPreview(S, 'privacyPage', 'Privacy Policy Page', LockIcon),
             ]),
         ),
 
       S.divider(),
 
       // Content — reusable collections. Orderable types get drag-and-drop;
-      // non-orderable use standard lists.
+      // non-orderable use standard lists. Divider splits the original
+      // page-building content from the conversion-build collections.
       S.listItem()
         .title('Content')
         .icon(ThListIcon)
@@ -169,6 +229,37 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               }),
               S.documentTypeListItem('testimonial').title('Testimonials').icon(StarIcon),
               S.documentTypeListItem('faqItem').title('FAQ Items').icon(HelpCircleIcon),
+
+              S.divider(),
+
+              orderableDocumentListDeskItem({
+                type: 'leadMagnet',
+                title: 'Guides (lead magnets)',
+                icon: BookIcon,
+                S,
+                context,
+              }),
+              orderableDocumentListDeskItem({
+                type: 'shopCollection',
+                title: 'Shop Collections',
+                icon: ThListIcon,
+                S,
+                context,
+              }),
+              orderableDocumentListDeskItem({
+                type: 'shopItem',
+                title: 'Shop Items',
+                icon: BasketIcon,
+                S,
+                context,
+              }),
+              orderableDocumentListDeskItem({
+                type: 'pressItem',
+                title: 'Press Items',
+                icon: CaseIcon,
+                S,
+                context,
+              }),
             ]),
         ),
 
@@ -187,6 +278,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
             ]),
         ),
 
-      // Hide everything we've already pinned above from the default list.
+      // Safety net: surface any document type we have NOT explicitly placed above
+      // (and keep the hidden set, including media.tag, out of the desk root).
       ...S.documentTypeListItems().filter((item) => !HIDDEN_FROM_DEFAULT.has(item.getId() as string)),
     ]);
