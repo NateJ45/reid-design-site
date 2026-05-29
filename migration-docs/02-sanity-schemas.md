@@ -203,16 +203,21 @@ Reusable shapes (like a final CTA block that appears on multiple pages) become *
 | `slug` | slug | yes | "URL-friendly version (auto-generated)" | Generated from `title`, editable |
 | `location` | string | yes | "Where the project was. Example: 'Fishers, IN'" | |
 | `roomType` | string with options | yes | "Type of space" | Options: "Living room", "Bedroom", "Kitchen", "Dining room", "Office", "Whole home", "Multiple rooms", "Other" |
+| `designStyle` | string with options | yes | "Primary style of the finished space" | Second portfolio filter axis. Options: Modern traditional, Transitional, Modern coastal, Modern farmhouse, Modern organic, Eclectic, Mid-century, Other |
 | `year` | number | yes | "Year the project was completed" | Validation: 4-digit year, min 2024 |
 | `heroImage` | image (hotspot enabled) | yes | "Main project photo. This is what shows on the portfolio grid." | Hotspot/crop enabled |
-| `briefSummary` | text | yes | "One-sentence summary for the portfolio grid card (max ~200 characters)" | Validation: max 200 |
+| `briefSummary` | text | yes | "One-sentence summary for the portfolio grid card (max ~200 characters)" | Validation: 60 to 200 characters |
+| `briefLine` | string | yes | "What the client came in with. Example: 'Beautiful reno but the family room felt unfinished.'" | Validation: max 160. Renders in the ProjectMetaBand |
+| `designCall` | string | yes | "Staci's design move in response." | Validation: max 160. Renders in the ProjectMetaBand |
 | `introStory` | Portable Text | yes | "Tell the story of the project: the brief, the approach, the result." | Portable Text config: paragraphs, H3, lists, bold, italic, blockquote, inline images. |
-| `gallery` | array of images (hotspot) | no | "Additional project photos. Drag to reorder. Add captions if helpful." | Each image has optional `caption` field |
+| `gallery` | array of images (hotspot) | yes (min 3) | "The main set of project photos, beyond the cover. Add at least 3, ideally 4 to 8." Labeled **Project photos** in Studio | Validation: min 3. Sits directly under the hero. Each image has required `alt` + optional `caption` |
 | `beforeAfters` | array of `beforeAfterPair` objects | no | "Optional before/after image pairs" | See `beforeAfterPair` below |
 | `servicesUsed` | array of refs to `service` | no | "Which services were used on this project" | |
 | `relatedTestimonial` | reference to `testimonial` | no | "If a client testimonial relates to this project, link it" | |
 | `displayOrder` | number | no | "Lower numbers show first in the portfolio. Leave blank to sort by year." | |
-| `publishedAt` | datetime | yes | "When this project goes live. Set to a future date to schedule." | Default: now |
+| `publishedAt` | datetime | yes | "The date shown on the project and the portfolio sort key. To publish later, use the Schedule publish action." | Default: now. The field does not gate go-live; scheduling is via Sanity's Schedule publish action |
+
+_Core authoring fields shown above. The live schema in `studio/schemaTypes/project.ts` is authoritative and also includes optional `metaTitle`, `metaDescription`, `featured`, and `stickyCtaLabel`._
 
 **Embedded object: `beforeAfterPair`**
 | Field | Type | Required | Description |
