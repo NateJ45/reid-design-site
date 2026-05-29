@@ -430,7 +430,7 @@ Standalone scripts:
 - `npm run typegen` to regenerate Sanity TypeScript types after editing schemas (run this after any schema change before testing locally).
 - `npm run og` to re-run `scripts/generate-og-default.mjs` and regenerate `public/og-default.png` (after changing brand colors, the tagline, or the wordmark in the script's inputs block).
 - `npm run studio:dev` to start the Sanity Studio locally for content editing.
-- `npm run studio:deploy` to deploy the Sanity Studio (publishes to `studio.reiddesignllc.com` or a Sanity-hosted URL).
+- `npm run studio:deploy` to deploy the Sanity Studio (publishes to `studio.reiddesignllc.com` or a Sanity-hosted URL). **Run this after every schema change.** If you skip it, the hosted Studio shows "unknown fields" warnings next to any data in new fields, and Staci will see a prompt to "Remove field." Do NOT click "Remove field" in Studio: it deletes the Sanity document data for every document with that field populated, and it cannot be undone without a dataset restore. The correct sequence is: edit schema, `npm run typegen`, `npm run studio:deploy`, commit.
 
 `public/og-default.png` is committed to the repo because it's a real asset shipped to visitors. `src/lib/sanity.types.ts` is also committed so other contributors (or future Claude sessions) don't need to run typegen to see what the schemas look like in code.
 
@@ -1265,6 +1265,7 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 - React islands: `MobileNav.tsx`, `ThemeToggle.tsx`, `BackToTop.tsx`, `ContactForm.tsx`, `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `FaqAccordion.tsx`, `CalendlyInline.tsx`, `CaseStudyTOC.tsx`, `StickyCTAChip.tsx`, `PortfolioCursor.tsx`, `PortfolioFilterChips.tsx`, `CopyEmailButton.tsx`, `PortableText.tsx`, `JournalPortableText.tsx`
 - Astro wrappers: `SanityImage.astro`, `StructuredData.astro`, `SectionHeading.astro` (accepts optional `scriptAccent?: string`), `SectionDivider.astro`, `ServiceAreaCue.astro`, `ReadingProgress.astro`, `ProjectMetaBand.astro`, `ProcessStepIllustration.astro`, `Hero.astro` (refactored to use `splitScriptAccent`, behavior unchanged), `FinalCta.astro` (accepts optional `scriptAccent?: string`), `CtaLink.astro`
 - `scripts/generate-og-default.mjs`, `scripts/strip-editor-annotations.mjs`, `scripts/sweep-eyebrow-contrast.mjs` (reusable for future drift detection)
+- `scripts/seed-conversion-content.mjs` + `scripts/seed-script-accents.mjs` — idempotent seeders for the conversion-build document types (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, resources, post-inquiry roadmap) and section/finalCta scriptAccent fields. Seeded content is placeholder; see OPERATIONS.md for what must be replaced before DNS cutover.
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
 - `public/_headers` (security response headers shipped with the deploy)
 - `public/og-default.png` (regenerate via `npm run og`)

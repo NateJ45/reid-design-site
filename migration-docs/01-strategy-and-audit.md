@@ -8,6 +8,26 @@
 
 ---
 
+### Update log: shipped since initial strategy
+
+**May 2026 — Conversion and confidence build (main branch)**
+
+All "what's missing" audit items from Phase 2 are now largely addressed. Specifically:
+
+- Portfolio landed with project detail pages (`/portfolio`, `/portfolio/[slug]`), Room x Style filter chips, before/after slider, and a `/portfolio/before-after` gallery page.
+- Journal/blog landed with seven custom Portable Text block types.
+- New revenue surfaces: E-Design (`/e-design`), affiliate shop (`/shop`) with FTC disclosure, gift certificates (`/gift-certificates`).
+- New capture tools: newsletter signup in footer, lead-magnet guides with gated download (`/guides`, `/guides/[slug]`), multi-step style quiz (`/quiz`), budget estimate calculator (`/calculator`).
+- Confidence features: post-inquiry roadmap on `/contact`, Web3Forms autoresponder, Google Business link + reviews line, before/after view, satisfaction guarantee, press strip + `/press` page.
+- Grouped dropdown nav (Services and Resources menus) without pulling Contact out of the primary CTA position.
+- Section-heading script accents: shared `splitScriptAccent()` helper in `src/lib/scriptAccent.ts`; `SectionHeading.astro` and `FinalCta.astro` accept `scriptAccent` prop; editor fields on every page singleton.
+- Privacy posture: consent banner removed (site is effectively zero-cookie for a US local business); `/privacy` page kept; `public/robots.txt` and `public/llms.txt` added.
+- All new pages and document types are Sanity-editable; schemas cover styleQuiz, budgetCalculator, leadMagnet, shopCollection, shopItem, eDesignPage, giftPage, pressPage, pressItem, resourcesPage, privacyPage, and more.
+
+Note: the seed content produced by `scripts/seed-conversion-content.mjs` is placeholder (fabricated press items, placeholder pricing, dummy affiliate URLs, no uploaded guide PDFs). It must be replaced before DNS cutover. See OPERATIONS.md for the full before-cutover checklist.
+
+---
+
 ## Project context
 
 Reid Design LLC is an Indianapolis-area residential interior design studio. The live Squarespace site at reiddesignllc.com works but reads thin: there is no portfolio, the About page is light, and the platform is friction-heavy enough that case studies don't get added. The migration to Astro + Sanity is in service of two outcomes: more local recognition for Staci and more booked interior design clients. Every structural decision should pass one of those two tests.
