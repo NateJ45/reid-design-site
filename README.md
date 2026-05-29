@@ -10,7 +10,7 @@ Full architecture reference: `CLAUDE.md`. Operational playbook: `OPERATIONS.md`.
 
 - **Astro 6** (static output) + TypeScript strict mode
 - **Sanity v5** headless CMS (schemas in `studio/schemaTypes/`, Studio at `studio.reiddesignllc.com`)
-- **Tailwind 4** via `@astrojs/tailwind` (brand tokens in `src/styles/globals.css`)
+- **Tailwind 4** via `@tailwindcss/vite` (brand tokens in `src/styles/globals.css`, no `tailwind.config`)
 - **React 19** islands for interactive components (nav drawer, contact form, quiz, calculator, galleries)
 - **Cloudflare Workers** for hosting via `wrangler deploy`; GitHub pushes to `main` auto-deploy via Cloudflare's CI
 
@@ -47,13 +47,14 @@ Full architecture reference: `CLAUDE.md`. Operational playbook: `OPERATIONS.md`.
 
 ## Features
 
-- All content editable in Sanity Studio by Staci
+- All content editable in Sanity Studio by Staci, including an editable in-Studio "Start Here" guide and business notes (`studioGuide` + `studioNotes` singletons; Brand Kit stays code-driven)
 - Grouped dropdown nav: Services (Services, E-Design, Process, Gift Certificates) and Resources (Style Quiz, Cost Calculator, Guides, FAQ, Journal)
 - Email capture: newsletter signup, lead-magnet gated downloads, style quiz email gate, budget calculator optional email
 - Contact form via Web3Forms with autoresponder, post-inquiry roadmap, Calendly embed
 - Affiliate shop with FTC disclosure
 - Press strip ("As Seen In") on home, about, and press pages
 - Before/after slider on project pages and `/portfolio/before-after`
+- About page "off the clock" personal section (currently reading/listening, rapid-fire Q&A, favorite local spots, beyond design), each module self-hiding when empty
 - Style quiz with archetype results and service recommendations
 - Budget calculator with room/scope/add-on estimate ranges
 - Pinyon Script section-heading accents, editor-controlled via Sanity
