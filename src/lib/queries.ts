@@ -283,6 +283,11 @@ export async function getProjectBySlug(slug: string) {
   // the project doc itself. journalPage's stickyCtaLabel is passed in
   // separately so `journalPageStickyCta` from journal/[slug].astro is keyed
   // to the right source.
+  //
+  // relatedJournalEntries is a reverse reference: journal posts whose "Related
+  // project" field points at this project. Deriving it here means the link is
+  // kept only on the journal side, so there is nothing for an editor to
+  // maintain on the project, and the project page surfaces coverage on its own.
   return client.fetch(
     `*[_type == "project" && slug.current == $slug][0]{
       ...,
@@ -294,7 +299,17 @@ export async function getProjectBySlug(slug: string) {
         afterImage${IMAGE_PROJECTION}
       },
       "servicesUsed": servicesUsed[]->{ name, slug, price },
-      "relatedTestimonial": relatedTestimonial->
+      "relatedTestimonial": relatedTestimonial->,
+      "relatedJournalEntries": *[_type == "journalEntry" && relatedProject._ref == ^._id] | order(publishedAt desc){
+        _id,
+        title,
+        slug,
+        excerpt,
+        publishedAt,
+        featured,
+        coverImage${IMAGE_PROJECTION},
+        "categories": categories[]->{ _id, title, slug, description }
+      }
     }`,
     { slug },
   );

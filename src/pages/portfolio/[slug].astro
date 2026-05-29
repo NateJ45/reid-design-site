@@ -19,6 +19,7 @@ import ProjectGallery from '@/components/ProjectGallery';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import ProjectMetaBand from '@/components/ProjectMetaBand.astro';
 import StickyCTAChip from '@/components/StickyCTAChip';
+import JournalCard from '@/components/JournalCard.astro';
 
 // Static site: enumerate all project slugs at build time.
 // Returns [] when portfolio is off — no detail pages build and they 404.
@@ -230,6 +231,24 @@ const schemas = [
       )}
     </article>
   </section>
+
+  {/* Featured in the journal — journal posts whose "Related project" points at
+      this project. Derived by reverse query in getProjectBySlug, so the link is
+      maintained only on the journal side. Section hides when there are none. */}
+  {Array.isArray(project.relatedJournalEntries) && project.relatedJournalEntries.length > 0 && (
+    <section class="bg-muted" aria-labelledby="project-journal-heading">
+      <div class="mx-auto max-w-content px-m py-section-lg">
+        <h2 id="project-journal-heading" class="font-display text-h2 text-foreground mb-l">
+          Featured in the journal
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-l">
+          {project.relatedJournalEntries.slice(0, 3).map((post: any) => (
+            <JournalCard entry={post} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   {/* Next / previous */}
   {(prev || next) && (
