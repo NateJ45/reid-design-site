@@ -74,7 +74,7 @@ export default function ConsentNotice({ newsletterEnabled }: Props) {
           tracking. Read the{' '}
           <a
             href="/privacy"
-            className="text-link underline underline-offset-2 hover:text-primary transition-colors"
+            className="inline-block py-1 text-link underline underline-offset-2 hover:text-primary transition-colors"
           >
             privacy policy
           </a>{' '}

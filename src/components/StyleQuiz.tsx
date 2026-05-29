@@ -718,15 +718,14 @@ export default function StyleQuiz({ config }: Props) {
                 'transition-all duration-150 ease-out press-tactile card-lift',
                 'min-h-[44px]',
               ].join(' ')}
-              aria-label={answer.label}
             >
-              {/* Answer image */}
+              {/* Answer image — decorative; the visible label below is the accessible name */}
               {answer.image ? (
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
                     src={answer.image.url}
                     srcSet={`${answer.image.url} 1x, ${answer.image.url2x} 2x`}
-                    alt={answer.image.alt}
+                    alt=""
                     width={400}
                     height={300}
                     loading={i < 4 ? 'eager' : 'lazy'}
