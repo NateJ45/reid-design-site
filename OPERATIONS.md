@@ -68,6 +68,27 @@ This filter skips rebuilds triggered by draft saves and internal Sanity asset-ma
 
 If the webhook currently has no filter or uses an allow-list, replace the filter with the deny-list above and save. No other webhook config changes are needed.
 
+### Phased launch: turning sections on and off
+
+The site has a section visibility system that lets you launch now and finish sections like the shop, portfolio, or press page later, without leaving half-built pages on the live site.
+
+**How to turn a section off:**
+
+1. Open the Studio and click "Site Settings" in the left sidebar.
+2. Click the "Section visibility" tab at the top of the document.
+3. Find the toggle for the section you want to hide (Portfolio, Journal, Shop, E-Design, Gift Certificates, Press, Resources, Guides, Style Quiz, Budget Calculator).
+4. Flip it off.
+5. Click the blue Publish button.
+6. The site rebuilds in about 1 to 3 minutes. Once live, the section disappears from the menu, footer, homepage, and its own page, which redirects visitors to the home page instead.
+
+**Important notes:**
+- An unset toggle is the same as ON. The system was designed this way so the live site is completely unaffected when the feature was first deployed. You only see a change when you explicitly flip something to off and publish.
+- Turning a section off does not delete or unpublish any content. All your drafts and published documents are untouched. Turn the toggle back on and everything reappears after the next rebuild.
+- Core pages (Home, About, Process, Services, FAQ, Contact, Privacy, 404) are not toggleable and are always live.
+- The individual item detail pages (like `/portfolio/someproject`) also disappear when the parent section is off. The build skips generating those pages entirely, so they 404 cleanly.
+
+**Why this is useful:** it lets you launch the site while a section is still being built, without pressure to finish everything at once. Common patterns: launch with portfolio off while Staci photographs the first projects, turn on shop once affiliate links are confirmed, hide press until there are real press items.
+
 ### Scheduled publishing (for Staci)
 
 Sanity supports scheduling a document to go live at a future date and time. Use this for journal posts or projects you want to publish during business hours, or to line up content in advance.
@@ -414,4 +435,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-*Last updated: May 28, 2026 — studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas.*
+*Last updated: May 29, 2026 — documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas.*

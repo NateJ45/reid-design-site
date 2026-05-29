@@ -86,6 +86,26 @@ Now also live (built during placeholder-content phase):
 - Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
 - E-Design — seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
 
+### Section visibility
+
+Optional sections of the site can be turned on or off without touching code. The system is designed so the live site is completely unchanged until a toggle is explicitly set to off.
+
+**Schema.** `siteSettings` has a `sectionVisibility` object field in a dedicated `'visibility'` field group. It contains ten boolean fields with `initialValue: true`: `showPortfolio`, `showJournal`, `showShop`, `showEDesign`, `showGiftCertificates`, `showPress`, `showResources`, `showGuides`, `showStyleQuiz`, `showBudgetCalculator`.
+
+**Helper.** `src/lib/sectionVisibility.ts` exports `getSectionVisibility(raw)`, which converts the raw Sanity object into a flat `SectionVisibility` map of plain booleans. The critical rule is `value !== false`: undefined, null, or true all produce `true` (visible). Only an explicit `false` produces `false` (hidden). This rule is what makes new sites safe to deploy before content is ready.
+
+**What "off" does.** When a toggle is off, the section disappears everywhere simultaneously:
+- Removed from the desktop nav (`Header.astro`) and mobile drawer (`MobileNav.tsx`)
+- Removed from the footer link columns (`Footer.astro`)
+- Removed from the homepage: Featured Work block (portfolio), Featured Journal block (journal), PressStrip (press)
+- Removed from the About page PressStrip (press)
+- The section's own index page (`/portfolio`, `/journal`, `/shop`, `/e-design`, `/gift-certificates`, `/press`, `/resources`, `/guides`, `/quiz`, `/calculator`) redirects home via `return Astro.redirect('/')` at the top of the page
+- Dynamic detail routes (`/portfolio/[slug]`, `/journal/[slug]`, `/guides/[slug]`) return an empty array from `getStaticPaths()` so they build zero pages and 404
+
+**What stays on always.** Home, About, Process, Services, FAQ, Contact, Privacy, and 404 are not gated by visibility toggles. They are always built and always accessible.
+
+**Draft safety.** Turning a section off does not delete or unpublish any content in Sanity. Drafts and published documents are untouched. Turning it back on makes everything reappear after the next rebuild (roughly 1 to 3 minutes).
+
 Header nav uses a grouped structure (reorganized in the conversion build to hold the new offerings + capture tools without crowding the row). Flat links plus two dropdown groups, left to right: **Home / Portfolio / Services ▾ / Shop / Resources ▾ / About**.
 - **Services ▾** → Services, E-Design, Process, Gift Certificates
 - **Resources ▾** → Style Quiz, Cost Calculator, Guides, FAQ, Journal
@@ -597,6 +617,14 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `PressStrip.astro` — "As Seen In" press-logo row. Suppresses itself when no `pressItem` has a logo. Used on `/`, `/about`, and `/press`.
 - `ShopGrid.astro` + `ShopItemCard.astro` — affiliate shop collections + item cards for `/shop`. Cards carry brand stripe + `rel="sponsored nofollow noopener"` + `target="_blank"` and an `aria-label` noting "opens in new tab".
 - `subscribeEmail()` in `src/lib/subscribe.ts` — shared client-safe capture helper for the four forms above. Posts to the ESP form-action URL when configured, else falls back to Web3Forms. The form component owns the honeypot; this helper only does the network call.
+
+**Sanity Studio components (in `studio/components/`):**
+- `StudioLogo.tsx` — replaces the default Sanity wordmark in the Studio header with the Reid Design logo. Wired via `studio.components.logo` in `studio/sanity.config.ts`.
+- `StudioGuide.tsx` — Panel 1 of the "Start Here" handbook in the Studio sidebar. Plain-language orientation: how the Studio works, map of where things live, step-by-step how-tos for every common editing task, photo tips, SEO hints, scheduling, field comments. Static content, no data fetching.
+- `BusinessOverview.tsx` — Panel 2 of the "Start Here" handbook. Fetches live business facts from Sanity via `useClient` (contact info, service areas, availability) alongside static positioning/voice notes. Shows Staci current live values without her having to navigate to Site Settings.
+- `BrandKit.tsx` — Panel 3 of the "Start Here" handbook. Displays the brand color palette (hex values) and font names in a format Staci can reference while building content in Canva or other tools.
+
+All three panels are wired in `studio/structure.ts` under a "Start Here" parent list item at the top of the Studio sidebar.
 
 The desktop nav dropdowns live directly in `Header.astro` as SSR'd `<details>` (see Page architecture → Header nav), not as a React island.
 
@@ -1137,6 +1165,18 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 **Reusable object types (embedded, not standalone documents):**
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
 
+### Studio configuration notes
+
+**All-fields default.** The `default: true` property has been removed from every schema field group definition across all schemas. Without it, Sanity Studio opens documents on the "All fields" tab instead of a single group. This gives Staci a complete view of a document without needing to know which group a field lives in.
+
+**Studio branding.** `studio/sanity.config.ts` configures the Studio with `title: 'Reid Design'` (shown in the browser tab when editing), a `buildLegacyTheme` bronze theme that maps `--brand-primary` to Warm Bronze (`#9C7661`) and uses the Soft Linen background color, and a custom `StudioLogo` component (at `studio/components/StudioLogo.tsx`, using `studio/reid-logo.png`) wired via `studio.components.logo`. The Studio UI reads as the Reid Design brand rather than the default Sanity chrome.
+
+**SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons, `journalEntry`, `leadMagnet`, and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
+
+**Vision/GROQ plugin gating.** The `visionTool()` plugin (the in-Studio GROQ query runner) is conditionally registered only when `process.env.NODE_ENV !== 'production'`. This means the Vision tab appears for Nathan in the local dev Studio but does not clutter Staci's deployed Studio at `reid-design.sanity.studio`.
+
+**`studio/global.d.ts`.** Contains ambient module declarations for `*.png`, `*.jpg`, and `*.svg` imports, so TypeScript does not complain when Studio components import the `reid-logo.png` asset.
+
 ### Canvas (AI-assisted writing)
 
 [Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio — an AI-assisted free-form drafting tool that creates `journalEntry` (and other) drafts in the production dataset. Staci uses it for longer blog work; the drafts flow into Studio for review and publish.
@@ -1260,6 +1300,7 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 - `studio/schemaTypes/*.ts` (Sanity schemas — changing fields can break existing content)
 - `src/lib/sanity.ts`, `src/lib/queries.ts`, `src/lib/sanity.types.ts` (Sanity client, GROQ queries, generated types)
 - `src/lib/scriptAccent.ts` — shared helper `splitScriptAccent(headline, accent)` used by `Hero.astro`, `SectionHeading.astro`, and `FinalCta.astro` to split a headline around the accent word for Pinyon Script wrapping
+- `src/lib/sectionVisibility.ts` — `getSectionVisibility(raw)` converts the raw `siteSettings.sectionVisibility` Sanity object into a flat boolean map. Rule: `value !== false` (unset/null/true = visible; only explicit false = hidden). Every toggleable page imports this and redirects home when its flag is false. See [Section visibility](#section-visibility) in the Page architecture section.
 - `src/layouts/BaseLayout.astro` (anti-FOUC theme bootstrap, skip link, header/main/footer wiring, View Transitions ClientRouter, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**, Cloudflare Analytics, OG meta, JSON-LD, title-suffix-doubling guard)
 - `src/components/ui/` shadcn primitives — **note: `accordion.tsx` is customized** (removed `h-(--radix-accordion-content-height)` lock + dropped `text-sm font-medium` from trigger). If you reinstall via `npx shadcn add` it will revert; reapply the changes.
 - React islands: `MobileNav.tsx`, `ThemeToggle.tsx`, `BackToTop.tsx`, `ContactForm.tsx`, `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `FaqAccordion.tsx`, `CalendlyInline.tsx`, `CaseStudyTOC.tsx`, `StickyCTAChip.tsx`, `PortfolioCursor.tsx`, `PortfolioFilterChips.tsx`, `CopyEmailButton.tsx`, `PortableText.tsx`, `JournalPortableText.tsx`
@@ -1555,6 +1596,8 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 - **Satisfaction guarantee** — `siteSettings.satisfactionGuarantee` renders near the form CTA on `/contact` and near the final CTA on `/services`.
 - **Testimonial `sourceType`** — `testimonial.sourceType` (`google` / `houzz` / `facebook` / `direct` / `other`) drives the small platform badge on `TestimonialCard` + `FeaturedTestimonial`. Renders nothing for `direct` / `other` / unset.
 
+- **Section visibility** — `siteSettings.sectionVisibility` object field (ten boolean toggles: Portfolio, Journal, Shop, E-Design, Gift Certificates, Press, Resources, Guides, Style Quiz, Budget Calculator). Toggling any one off removes that section from the nav, footer, homepage, and its own page simultaneously. Core pages are always on. See [Section visibility](#section-visibility) in Page architecture for the full behavior.
+
 ### Hardcoded in code (intentional)
 
 These are stable design / system decisions that don't belong in editorial:
@@ -1580,6 +1623,6 @@ If a full-field annotation is the entire content (like `faqItem.background` was 
 
 ---
 
-*Last updated: May 28, 2026 — consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
+*Last updated: May 29, 2026 — section visibility system added: `siteSettings.sectionVisibility` schema object with ten boolean toggles, `src/lib/sectionVisibility.ts` helper (`value !== false` rule), and off-behavior across nav/footer/homepage/pages documented; Studio defaults changed to All-fields tab (removed `default: true` from all field groups); Studio branding documented (`title: 'Reid Design'`, bronze `buildLegacyTheme`, `StudioLogo` component, `studio/global.d.ts`); SEO `.warning()` validations on seoTitle/seoDescription across all page schemas documented; Vision/GROQ plugin gated to non-production documented; Start Here handbook updated to three panels (StudioGuide / BusinessOverview / BrandKit, replacing the removed single-file StartHere). Earlier: consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
 
 See `OPERATIONS.md` for tactical playbook (deploy, patch content, run audits, common gotchas).
