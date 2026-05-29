@@ -677,6 +677,7 @@ export type EDesignPage = {
   >;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
 };
@@ -1052,6 +1053,7 @@ export type JournalPage = {
   heroScriptAccent?: string;
   stickyCtaLabel?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
 };
@@ -1134,6 +1136,7 @@ export type FaqPage = {
   categoryOrder?: Array<string>;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
   secondaryCta?: CtaBlock;
@@ -1193,6 +1196,7 @@ export type ServicesPage = {
   };
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
   note?: string;
@@ -1222,6 +1226,7 @@ export type ProcessPage = {
   faqSectionHeadline?: string;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
   note?: string;
@@ -1278,6 +1283,7 @@ export type AboutPage = {
   philosophyHeadline?: string;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
 };
@@ -1352,6 +1358,7 @@ export type HomePage = {
   featuredTestimonial?: TestimonialReference;
   testimonialsEyebrow?: string;
   testimonialsHeadline?: string;
+  testimonialsScriptAccent?: string;
   testimonialsSubhead?: string;
   testimonialsToShow?: Array<
     {
@@ -1361,12 +1368,14 @@ export type HomePage = {
   testimonialsAttribution?: string;
   servicesGridEyebrow?: string;
   servicesGridHeadline?: string;
+  servicesGridScriptAccent?: string;
   servicesGridSubhead?: string;
   servicesGridCta?: CtaBlock;
   servicesGridFootnote?: string;
   serviceAreaCue?: string;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
+  finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
 };

@@ -75,6 +75,7 @@ export async function getHomePage() {
     processPreviewCta${CTA_PROJECTION},
     testimonialsEyebrow,
     testimonialsHeadline,
+    testimonialsScriptAccent,
     testimonialsSubhead,
     testimonialsAttribution,
     "featuredTestimonial": featuredTestimonial->{
@@ -87,6 +88,7 @@ export async function getHomePage() {
     },
     servicesGridEyebrow,
     servicesGridHeadline,
+    servicesGridScriptAccent,
     servicesGridSubhead,
     servicesGridCta${CTA_PROJECTION},
     servicesGridFootnote,
@@ -106,6 +108,7 @@ export async function getHomePage() {
     serviceAreaCue,
     finalCtaEyebrow,
     finalCtaHeadline,
+    finalCtaScriptAccent,
     finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
@@ -129,7 +132,7 @@ export async function getAboutPage() {
     "philosophyPoints": *[_type == "philosophyPoint"] | order(orderRank asc, displayOrder asc){
       title, description, displayOrder
     },
-    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -146,7 +149,7 @@ export async function getProcessPage() {
     faqSectionEyebrow, faqSectionHeadline,
     "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc),
     "faqs": *[_type == "faqItem" && alsoShowOnProcessPage == true] | order(category asc, displayOrder asc),
-    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -169,7 +172,7 @@ export async function getServicesPage() {
     },
     serviceAreaSection,
     "travelFees": *[_type == "siteSettings"][0].travelFees,
-    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -187,7 +190,7 @@ export async function getFaqPage() {
     "faqs": *[_type == "faqItem"] | order(category asc, displayOrder asc){
       question, answer, category, displayOrder
     },
-    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION},
     secondaryCta${CTA_PROJECTION}
   }`);
@@ -301,7 +304,7 @@ export async function getJournalPage() {
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
     stickyCtaLabel,
-    finalCtaHeadline, finalCtaSubhead,
+    finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -387,7 +390,7 @@ export async function getEDesignPage() {
     "faqRefs": faqRefs[]->{
       question, answer, category
     },
-    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
 }

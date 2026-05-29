@@ -16,7 +16,6 @@ import { localBusinessSchema } from '@/lib/schemas';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
-import ConsentNotice from '@/components/ConsentNotice';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
 
@@ -200,14 +199,6 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
       the critical path on mobile.
     */}
     <BackToTop client:idle />
-
-    {/* Consent notice — only mounts when the newsletter ESP is enabled.
-        Uses client:idle so it doesn't compete with the hero's LCP paint.
-        Stores dismissal in localStorage["reid-design-consent"] and links to /privacy. */}
-    <ConsentNotice
-      client:idle
-      newsletterEnabled={siteSettings?.newsletter?.enabled === true}
-    />
 
     {/* Sonner toast region. Used by CopyEmailButton and ContactForm. Position bottom-right by default. */}
     <Toaster client:idle position="bottom-right" />

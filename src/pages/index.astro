@@ -83,13 +83,15 @@ const processPreviewSubhead  = page?.processPreviewSubhead  ??
 
 const testimonialsEyebrow      = page?.testimonialsEyebrow      ?? 'Kind Words.';
 const testimonialsHeadline     = page?.testimonialsHeadline     ?? 'Words from real homes.';
+const testimonialsScriptAccent = page?.testimonialsScriptAccent;
 const testimonialsSubhead      = page?.testimonialsSubhead      ??
   'The part that matters most: how it felt to work together, and how each space holds up to everyday life long after the last pillow is placed.';
 const testimonialsAttribution  = page?.testimonialsAttribution;
 
-const servicesGridEyebrow   = page?.servicesGridEyebrow   ?? 'Reid Design.';
-const servicesGridHeadline  = page?.servicesGridHeadline  ?? 'How we can help your home.';
-const servicesGridSubhead   = page?.servicesGridSubhead;
+const servicesGridEyebrow        = page?.servicesGridEyebrow        ?? 'Reid Design.';
+const servicesGridHeadline       = page?.servicesGridHeadline       ?? 'How we can help your home.';
+const servicesGridScriptAccent   = page?.servicesGridScriptAccent;
+const servicesGridSubhead        = page?.servicesGridSubhead;
 const servicesGridFootnote  = page?.servicesGridFootnote;
 
 // Featured Work section. Auto-fetches the 4 most-relevant projects
@@ -211,6 +213,7 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
           headingId="testimonials-heading"
           align="center"
           class="mx-auto"
+          scriptAccent={testimonialsScriptAccent}
         />
 
         {featuredQuote && (
@@ -304,6 +307,7 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
         headingId="services-heading"
         align="center"
         class="mx-auto"
+        scriptAccent={servicesGridScriptAccent}
       />
 
       {services.length > 0 && (
@@ -369,5 +373,6 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
     headline={page?.finalCtaHeadline}
     subhead={page?.finalCtaSubhead}
     cta={page?.finalCta}
+    scriptAccent={page?.finalCtaScriptAccent}
   />
 </BaseLayout>
