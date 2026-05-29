@@ -86,17 +86,18 @@ const cardClass =
               <article class={cardClass}>
                 <div class="h-0.5 bg-primary" aria-hidden="true"></div>
                 <div class="p-l">
+                  <h3 class="font-display text-h3 text-foreground">Beyond design</h3>
                   {candidPhoto?.asset && (
                     <SanityImage
                       source={candidPhoto}
                       width={900}
                       sizes="(min-width: 1024px) 40vw, 100vw"
                       quality={75}
-                      class="w-full h-auto rounded-md mb-m"
+                      class="w-full h-auto rounded-md mt-m"
                     />
                   )}
                   {beyondDesign && (
-                    <p class="text-foreground/85 leading-relaxed whitespace-pre-line">{beyondDesign}</p>
+                    <p class="mt-m text-foreground/85 leading-relaxed whitespace-pre-line">{beyondDesign}</p>
                   )}
                 </div>
               </article>
