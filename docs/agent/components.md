@@ -30,13 +30,13 @@ shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with por
 The current component set, by role. All in `src/components/` unless noted.
 
 **Page chrome:**
-- `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer). New logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`.
-- `Footer.astro` — bronze stripe, brand block (logo wraps in `<a href="/">` so click returns home), 4-column link grid, latest projects from Sanity, auto-year copyright + "Site by …" credit under the socials.
-- `MobileNav.tsx` — shadcn Sheet drawer (`client:only="react"` — Radix portal can't SSR). Bronze stripe top, primary CTA, tagline, nav links, email + socials + theme toggle, logo at bottom.
+- `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer). New logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`. The eyebrow strip carries the availability status (also a compact pill on the mobile row), email, and phone; on mobile the availability shows a compact "Open" that expands to the full status from md up.
+- `Footer.astro` — bronze stripe, a compact brand bar (logo + tagline on one row; the logo wraps in `<a href="/">` so click returns home), a five-column link grid, latest projects from Sanity, auto-year copyright + "Site by …" credit now on a thin bottom bar (not stacked in a column). The fifth grid column (Get in touch) lists email + phone (`tel:` via `telHref`) + socials. The compact brand bar instead of the old tall stacked block keeps the footer to roughly half its previous height (~half the viewport on desktop).
+- `MobileNav.tsx` — shadcn Sheet drawer (`client:only="react"` — Radix portal can't SSR). Bronze stripe top, primary CTA, tagline, nav links, email + phone (`tel:` via `telHref`) + socials + theme toggle, logo at bottom.
 - `BaseLayout.astro` — anti-FOUC theme bootstrap, View Transitions, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**.
 
 **Hero + page-top:**
-- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap. Image variant passes `onDark` to its CTAs automatically.
+- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap. Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
 - `SectionHeading.astro` — eyebrow + bronze hairline accent + headline + subhead. Used by text-variant Hero and every interior section heading. Supports `tone="inverse"` for dark FinalCta panels.
 - `ReadingProgress.astro` — fixed 3px bronze track at the top of `<article>`-wrapped pages. Used on journal posts.
 
@@ -60,6 +60,7 @@ Both sections feed off the `featured: boolean` on `project` and `journalEntry`. 
 - `BeforeAfterSlider.tsx` — drag-to-reveal with cream-mat framing + opacity-tracking Before/After pills.
 - `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox.
 - `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy. Returns `null` when `headings.length === 0` so the slot collapses gracefully.
+- **Featured in the journal** — a `JournalCard` grid of journal posts whose `relatedProject` points at this project (reverse query in `getProjectBySlug`, not a dedicated component). Hidden when none reference it.
 
 ### Long-read layout (shared by portfolio + journal detail)
 

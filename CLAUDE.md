@@ -79,7 +79,7 @@ Standalone scripts:
 | `/faq` | `src/pages/faq.astro` | FAQ page + faqItem collection grouped by category |
 | `/contact` | `src/pages/contact.astro` | Contact page + Web3Forms form + Calendly embed |
 | `/portfolio` | `src/pages/portfolio/index.astro` | Project grid with Room × Style filter chips |
-| `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` | Project detail: hero + meta band + intro story + before/after + gallery + sticky chip |
+| `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` | Project detail: hero + meta band + intro story + before/after + gallery + featured-in-journal + sticky chip |
 | `/journal` | `src/pages/journal/index.astro` | Post grid with category chips |
 | `/journal/[slug]` | `src/pages/journal/[slug].astro` | Post detail: reading progress + header + cover + body (7 custom block types) + related |
 | `/portfolio/before-after` | `src/pages/portfolio/before-after.astro` | All projects with before/after pairs, each a `BeforeAfterSlider`. Suppresses to an empty state when no project has pairs |

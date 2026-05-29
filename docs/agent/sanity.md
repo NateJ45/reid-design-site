@@ -27,7 +27,7 @@ All publicly-visible content lives in Sanity, not in code or markdown files. Thi
 Sanity content types (full spec in `02-sanity-schemas.md` from the migration planning docs):
 
 **Settings & globals (1):**
-- `siteSettings` (singleton) — email, social links, service areas, travel fees, availability status, footer tagline. Most user-visible identity text comes from here.
+- `siteSettings` (singleton) — email, phone (shown site-wide as a tap-to-call link in the header, footer, mobile menu, and contact page), social links, service areas, availability status (header pill + eyebrow strip), travel fees, footer tagline. Most user-visible identity text comes from here.
 
 **Reusable content collections (6):**
 - `service` — In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder & Realtor Partnerships, plus E-Design. Optional `featuredImage` renders a small visual at the top of each pricing card (`ServiceCard.astro` falls back gracefully when absent).
@@ -41,6 +41,8 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
   - `heroImage.caption` — optional italic caption beneath the hero image.
   - **introStory** Portable Text accepts an inline image with `caption` + `decisionLine` (optional uppercase eyebrow above the caption — for "the decision that drove this image" moments).
   - **introStory** accepts a `sourcedFrom` annotation mark — wrap any text inline and pair with vendor + optional URL. Renders as italic small-caps with the vendor as a trailing eyebrow, becomes a quiet bronze link when URL set.
+  - **Featured in the journal** — the project page automatically lists any journal post whose `relatedProject` points at it (reverse GROQ in `getProjectBySlug`; there is no field on the project, so the link is maintained only on the journal side).
+  - Journal cross-link is automatic: any journal post that sets its **Related project** is surfaced in a "Featured in the journal" section on the project page (reverse GROQ in `getProjectBySlug`, no field on the project, so the link is maintained only on the journal side).
 
 **Page singletons (7):**
 - `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage` — One document per page. All seven page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`. Journal posts (`journalEntry`) have a `coverImage` with optional caption + a `sourcedFrom` annotation in the body marks.

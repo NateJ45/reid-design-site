@@ -88,7 +88,7 @@ initThing();
 document.addEventListener('astro:page-load', initThing);
 ```
 
-Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations.
+Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations. That single instance is exposed as `window.lenis`, so in-page controls (e.g. the home hero scroll cue) can trigger a smooth programmatic scroll via `window.lenis.scrollTo(top)` instead of fighting it with a native `scrollTo`.
 
 **Lenis scroll-on-navigation reset (do not remove):** because that single Lenis instance persists, any in-flight momentum carries across a swap. While Lenis is actively smoothing it ignores the router's scroll-to-top reset, so a link clicked mid-scroll would open the next page at its bottom (the stale scroll target clamps to the new, often shorter, page's maximum). The fix lives in the Lenis init block: an `astro:after-swap` listener calls `lenis.scrollTo(0, { immediate: true, force: true })` (which also cancels the in-flight momentum) plus `lenis.resize()`. It runs on forward navigations only: it reads `navigationType` off the `astro:before-swap` event and skips the reset when that is `traverse`, so browser back/forward keeps Astro's built-in scroll restoration. Caveat for testing: Astro dev full-reloads on back/forward, so the traverse (restore-position) behavior can only be verified against the production build via `npm run preview`, not `npm run dev`.
 
@@ -141,3 +141,9 @@ Don't apply this class to other components — the per-child delays are tuned fo
 ### Cream hairline under hero eyebrow
 
 The image-variant Hero now renders a 12-pixel-wide cream hairline (`bg-bg/40`) beneath the eyebrow, mirroring the SectionHeading inverse-tone treatment so heroes carry the same editorial signature as every interior section heading. No prop — automatic whenever an eyebrow is set on an image hero.
+
+### Full-viewport home hero + scroll cue
+
+The home hero (`size="tall"`, the only `tall` usage) fills the screen below the sticky header on first load. `Hero.astro` applies a `.hero-fill` class = `min-height: calc(100svh - var(--header-h))`, where `--header-h` is measured from the live header by an inline script that runs synchronously on parse (so the height is set before first paint — no layout shift) and refreshes on load / resize / `astro:page-load`. `svh` keeps the hero within the initially-visible viewport on mobile (browser chrome shown) so it never forces an immediate scroll; a `vh` line precedes it as the pre-`svh` fallback, and a per-breakpoint fallback header height covers the no-JS / pre-measure window.
+
+A bottom-center chevron button (`[data-scroll-cue]`) softly bobs and pulses (`scroll-cue-bob`, 2.4s; static under reduced-motion) to signal there is more below. Clicking it scrolls just past the hero, preferring `window.lenis.scrollTo()` when Lenis has loaded and falling back to native smooth `scrollTo`. Both the fill and the cue are scoped to `size="tall"`, so interior-page heroes are unaffected.

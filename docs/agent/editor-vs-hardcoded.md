@@ -11,7 +11,7 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 - **All page copy** — eyebrows, headlines, subheads, body Portable Text, CTA labels (when the CTA uses a `ctaBlock` reference) on every page singleton.
 - **All page hero images** — every `*Page` singleton has a `heroImage` field with caption support.
 - **All collection content** — services, testimonials, FAQs, philosophy points, process steps, projects (case studies), journal entries, journal categories.
-- **Site-wide identity** — siteSettings (email, socials, service areas, travel fees, availability status, footer credit).
+- **Site-wide identity** — siteSettings (email, phone, socials, service areas, travel fees, availability status, footer credit). Phone shows site-wide as a tap-to-call link (header, footer, mobile menu, contact page) and feeds the LocalBusiness JSON-LD; clearing it hides every instance.
 - **Project-detail fields** — `briefLine` + `designCall` for the ProjectMetaBand; `decisionLine` + `caption` on intro-story images; `sourcedFrom` annotation marks in intro story.
 - **Journal post extras** — coverImage caption, `sourcedFrom` annotation in body, related project reference.
 - **Testimonial extras** — photo, location, relatedProject reference.

@@ -27,7 +27,7 @@ Full architecture reference: `CLAUDE.md`. Operational playbook: `OPERATIONS.md`.
 | `/faq` | FAQ grouped by category |
 | `/contact` | Contact form + Calendly embed |
 | `/portfolio` | Project grid with Room x Style filter chips |
-| `/portfolio/[slug]` | Project detail (before/after slider, gallery, TOC) |
+| `/portfolio/[slug]` | Project detail (before/after slider, gallery, TOC, featured-in-journal) |
 | `/portfolio/before-after` | All projects with before/after pairs |
 | `/journal` | Blog/journal index |
 | `/journal/[slug]` | Journal post detail |
@@ -54,6 +54,9 @@ Full architecture reference: `CLAUDE.md`. Operational playbook: `OPERATIONS.md`.
 - Affiliate shop with FTC disclosure
 - Press strip ("As Seen In") on home, about, and press pages
 - Before/after slider on project pages and `/portfolio/before-after`
+- Full-viewport home hero with a soft pulsing scroll cue
+- Phone number and availability status surfaced site-wide from Sanity (tap-to-call in the header, footer, mobile menu, and contact page)
+- Project pages auto-surface journal posts that reference them ("Featured in the journal")
 - About page "off the clock" personal section (currently reading/listening, rapid-fire Q&A, favorite local spots, beyond design), each module self-hiding when empty
 - Style quiz with archetype results and service recommendations
 - Budget calculator with room/scope/add-on estimate ranges
