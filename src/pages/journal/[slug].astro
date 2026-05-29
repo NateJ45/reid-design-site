@@ -16,6 +16,7 @@ import {
   getJournalPage,
   getSiteSettings,
 } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema, blogPostingSchema } from '@/lib/schemas';
 import { readingTimeFromPortableText, formatReadingTime } from '@/lib/reading-time';
 import { extractHeadings } from '@/lib/portable-text-headings';
@@ -32,8 +33,15 @@ import CaseStudyTOC from '@/components/CaseStudyTOC';
 import FinalCta from '@/components/FinalCta.astro';
 
 // Enumerate slugs + carry prev/next refs (newest-first iteration).
+// Returns [] when journal is off — no detail pages build and they 404.
 export async function getStaticPaths() {
-  const entries: any[] = await getAllJournalEntries().catch(() => []);
+  const [entries, settings] = await Promise.all([
+    getAllJournalEntries().catch(() => []),
+    getSiteSettings().catch(() => null),
+  ]);
+  const visible = getSectionVisibility(settings?.sectionVisibility);
+  if (!visible.journal) return [];
+
   if (!Array.isArray(entries) || entries.length === 0) return [];
 
   return entries

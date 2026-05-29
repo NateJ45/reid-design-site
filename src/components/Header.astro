@@ -23,6 +23,7 @@ import MobileNav from './MobileNav';
 import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
+import { getSectionVisibility, type SectionVisibility } from '@/lib/sectionVisibility';
 
 // Pre-render every logo variant we'll need via Astro's image pipeline so we
 // have the hashed WebP URLs available at build time. The header displays at
@@ -55,10 +56,25 @@ interface Props {
     socialInstagram?: string;
     socialFacebook?: string;
     availabilityStatus?: string;
+    sectionVisibility?: {
+      showPortfolio?: boolean | null;
+      showJournal?: boolean | null;
+      showShop?: boolean | null;
+      showEDesign?: boolean | null;
+      showGiftCertificates?: boolean | null;
+      showPress?: boolean | null;
+      showResources?: boolean | null;
+      showGuides?: boolean | null;
+      showStyleQuiz?: boolean | null;
+      showBudgetCalculator?: boolean | null;
+    } | null;
   } | null;
 }
 
 const { siteSettings } = Astro.props as Props;
+
+// Normalize section visibility from siteSettings. Unset => visible.
+const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
 const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
 const availability = siteSettings?.availabilityStatus ?? '';
 
@@ -93,31 +109,40 @@ const fb = siteSettings?.socialFacebook ?? '';
 // "Contact" is intentionally NOT in the primary nav — the "Book a consultation"
 // CTA at the right of the nav row does that job, and the MobileNav drawer also
 // surfaces the CTA at the top.
+// Build Services dropdown children. Services and Process are always shown;
+// E-Design and Gift Certificates are gated by visibility.
+const servicesDropdownItems = [
+  { label: 'Services',          href: '/services' },
+  ...(visible.eDesign          ? [{ label: 'E-Design',          href: '/e-design' }]          : []),
+  { label: 'Process',           href: '/process' },
+  ...(visible.giftCertificates ? [{ label: 'Gift Certificates', href: '/gift-certificates' }] : []),
+];
+
+// Build Resources dropdown children. FAQ is always shown; the rest are gated.
+const resourcesDropdownItems = [
+  ...(visible.styleQuiz        ? [{ label: 'Style Quiz',      href: '/quiz' }]        : []),
+  ...(visible.budgetCalculator ? [{ label: 'Cost Calculator', href: '/calculator' }]  : []),
+  ...(visible.guides           ? [{ label: 'Guides',          href: '/guides' }]      : []),
+  { label: 'FAQ',              href: '/faq' },
+  ...(visible.journal          ? [{ label: 'Journal',         href: '/journal' }]     : []),
+];
+
+// Assemble the full nav. Flat items Portfolio and Shop are gated by visibility.
+// Dropdown groups are omitted entirely when their children list ends up empty.
 const NAV_ITEMS = [
-  { kind: 'flat' as const,     label: 'Home',      href: '/' },
-  { kind: 'flat' as const,     label: 'Portfolio', href: '/portfolio' },
+  { kind: 'flat' as const,     label: 'Home',  href: '/' },
+  ...(visible.portfolio ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio' }] : []),
+  // Services dropdown — always present (Services + Process are core).
   {
     kind: 'dropdown' as const,
     label: 'Services',
-    items: [
-      { label: 'Services',          href: '/services' },
-      { label: 'E-Design',          href: '/e-design' },
-      { label: 'Process',           href: '/process' },
-      { label: 'Gift Certificates', href: '/gift-certificates' },
-    ],
+    items: servicesDropdownItems,
   },
-  { kind: 'flat' as const,     label: 'Shop',  href: '/shop' },
-  {
-    kind: 'dropdown' as const,
-    label: 'Resources',
-    items: [
-      { label: 'Style Quiz',       href: '/quiz' },
-      { label: 'Cost Calculator',  href: '/calculator' },
-      { label: 'Guides',           href: '/guides' },
-      { label: 'FAQ',              href: '/faq' },
-      { label: 'Journal',          href: '/journal' },
-    ],
-  },
+  ...(visible.shop ? [{ kind: 'flat' as const, label: 'Shop', href: '/shop' }] : []),
+  // Resources dropdown — only show when at least one child is visible (FAQ always is).
+  ...(resourcesDropdownItems.length > 0
+    ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]
+    : []),
   { kind: 'flat' as const,     label: 'About', href: '/about' },
 ];
 

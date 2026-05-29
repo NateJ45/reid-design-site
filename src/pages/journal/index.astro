@@ -15,6 +15,7 @@ import {
   getAllJournalCategories,
   getSiteSettings,
 } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -30,6 +31,10 @@ const [page, entries, categories, siteSettings] = await Promise.all([
   getAllJournalCategories().catch(() => []),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.journal) return Astro.redirect('/');
 
 const title       = page?.seoTitle       ?? 'Journal · Reid Design';
 const description = page?.seoDescription ?? 'Notes from a Plainfield interior designer — project walkthroughs, style thinking, and the occasional opinion.';

@@ -38,7 +38,19 @@ export async function getSiteSettings() {
     newsletter,
     googleBusinessUrl,
     reviewsNote,
-    satisfactionGuarantee
+    satisfactionGuarantee,
+    sectionVisibility{
+      showPortfolio,
+      showJournal,
+      showShop,
+      showEDesign,
+      showGiftCertificates,
+      showPress,
+      showResources,
+      showGuides,
+      showStyleQuiz,
+      showBudgetCalculator
+    }
   }`);
 }
 

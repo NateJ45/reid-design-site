@@ -16,6 +16,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getEDesignPage, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -29,6 +30,10 @@ const [page, siteSettings] = await Promise.all([
   getEDesignPage().catch(() => null),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.eDesign) return Astro.redirect('/');
 
 const title       = page?.seoTitle       ?? 'E-Design · Online Interior Design · Reid Design';
 const description = page?.seoDescription ?? 'Professional interior design delivered remotely. Flat-fee pricing, digital mood boards, and a complete room plan, no travel required.';

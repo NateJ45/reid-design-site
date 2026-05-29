@@ -18,6 +18,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getShopPage, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -29,6 +30,10 @@ const [page, siteSettings] = await Promise.all([
   getShopPage().catch(() => null),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.shop) return Astro.redirect('/');
 
 const title       = page?.seoTitle       ?? 'Shop My Favorites · Reid Design';
 const description = page?.seoDescription ?? 'Staci\'s hand-picked home decor and furniture finds. Affiliate links, and she only shares things she would actually use.';

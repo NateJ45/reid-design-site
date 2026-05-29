@@ -13,6 +13,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getAboutPage, getSiteSettings, getPressItems } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -28,6 +29,8 @@ const [page, siteSettings, pressItems] = await Promise.all([
   getSiteSettings().catch(() => null),
   getPressItems().catch(() => []),
 ]);
+
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 const title       = page?.seoTitle       ?? 'About Staci · Reid Design';
 const description = page?.seoDescription ?? 'Meet Staci Perkins, founder of Reid Design — a Plainfield-based interior designer working across Greater Indianapolis.';
@@ -158,8 +161,8 @@ const schemas = [
 
   {/* ------- 4. Press strip (as seen in) ------------------------------------- */}
   {/* Sits between the philosophy grid and the final CTA. Suppresses itself
-      when the pressItem collection is empty — no conditional needed here. */}
-  <PressStrip items={pressItems} />
+      when the pressItem collection is empty, and also when press is off. */}
+  {visible.press && <PressStrip items={pressItems} />}
 
   {/* ------- 5. Final CTA ---------------------------------------------------- */}
   <FinalCta

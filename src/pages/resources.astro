@@ -16,6 +16,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import { getResourcesPage, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -23,6 +24,10 @@ const [page, siteSettings] = await Promise.all([
   getResourcesPage().catch(() => null),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.resources) return Astro.redirect('/');
 
 const title       = page?.seoTitle       ?? 'Free Resources · Reid Design';
 const description = page?.seoDescription ?? 'Planning tools and guides from Reid Design: the style quiz, budget calculator, free guides, FAQ, and more.';
@@ -72,9 +77,22 @@ const FALLBACK_CARDS: ResourceCard[] = [
   },
 ];
 
-// Use Sanity cards when they exist; fall back to the defaults.
+// Map a card's link to the section it belongs to, so we can hide it when that
+// section is off. Cards pointing at core pages (FAQ) always show.
+function isCardVisible(link: string): boolean {
+  if (link === '/quiz')        return visible.styleQuiz;
+  if (link === '/calculator')  return visible.budgetCalculator;
+  if (link === '/guides')      return visible.guides;
+  if (link === '/journal')     return visible.journal;
+  // All other links (including /faq, /services, external) are always visible.
+  return true;
+}
+
+// Use Sanity cards when they exist; fall back to the defaults. Filter both sets
+// by visibility so off-section cards don't appear in the resources hub.
 const hasSanityCards = Array.isArray(page?.cards) && page.cards.length > 0;
-const cards = hasSanityCards ? page.cards : FALLBACK_CARDS;
+const rawCards = hasSanityCards ? page.cards : FALLBACK_CARDS;
+const cards = rawCards.filter((card: any) => isCardVisible(card.link ?? '/'));
 
 const schemas = [
   breadcrumbSchema([

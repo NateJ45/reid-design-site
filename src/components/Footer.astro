@@ -28,6 +28,7 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 import { getAllProjects } from '@/lib/queries';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 
 // Pre-render the four footer-logo variants (1x + 2x for each theme) so we
 // can ship ONE img tag with data-attribute URLs and let the BaseLayout
@@ -62,10 +63,25 @@ interface Props {
     footerCredit?: string;
     footerCreditUrl?: string;
     newsletter?: NewsletterConfig | null;
+    sectionVisibility?: {
+      showPortfolio?: boolean | null;
+      showJournal?: boolean | null;
+      showShop?: boolean | null;
+      showEDesign?: boolean | null;
+      showGiftCertificates?: boolean | null;
+      showPress?: boolean | null;
+      showResources?: boolean | null;
+      showGuides?: boolean | null;
+      showStyleQuiz?: boolean | null;
+      showBudgetCalculator?: boolean | null;
+    } | null;
   } | null;
 }
 
 const { siteSettings } = Astro.props as Props;
+
+// Normalize section visibility. Unset => visible (safe default for live site).
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 const brandName = siteSettings?.title ?? site.name;
 const email = siteSettings?.email ?? '';
@@ -175,7 +191,9 @@ const latestProjects = allProjects.slice(0, 3);
           <li><a href="/process" class="text-foreground/85 hover:text-link transition-colors">Process</a></li>
           <li><a href="/services" class="text-foreground/85 hover:text-link transition-colors">Services &amp; Pricing</a></li>
           <li><a href="/faq" class="text-foreground/85 hover:text-link transition-colors">FAQ</a></li>
-          <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
+          {visible.press && (
+            <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
+          )}
         </ul>
       </nav>
 
@@ -185,11 +203,21 @@ const latestProjects = allProjects.slice(0, 3);
           Work
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
-          <li><a href="/portfolio" class="text-foreground/85 hover:text-link transition-colors">Portfolio</a></li>
-          <li><a href="/portfolio/before-after" class="text-foreground/85 hover:text-link transition-colors">Before &amp; After</a></li>
-          <li><a href="/journal" class="text-foreground/85 hover:text-link transition-colors">Journal</a></li>
-          <li><a href="/shop" class="text-foreground/85 hover:text-link transition-colors">Shop</a></li>
-          <li><a href="/gift-certificates" class="text-foreground/85 hover:text-link transition-colors">Gift Certificates</a></li>
+          {visible.portfolio && (
+            <li><a href="/portfolio" class="text-foreground/85 hover:text-link transition-colors">Portfolio</a></li>
+          )}
+          {visible.portfolio && (
+            <li><a href="/portfolio/before-after" class="text-foreground/85 hover:text-link transition-colors">Before &amp; After</a></li>
+          )}
+          {visible.journal && (
+            <li><a href="/journal" class="text-foreground/85 hover:text-link transition-colors">Journal</a></li>
+          )}
+          {visible.shop && (
+            <li><a href="/shop" class="text-foreground/85 hover:text-link transition-colors">Shop</a></li>
+          )}
+          {visible.giftCertificates && (
+            <li><a href="/gift-certificates" class="text-foreground/85 hover:text-link transition-colors">Gift Certificates</a></li>
+          )}
         </ul>
       </nav>
 
@@ -199,46 +227,59 @@ const latestProjects = allProjects.slice(0, 3);
           Free tools &amp; guides
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
-          <li><a href="/quiz" class="text-foreground/85 hover:text-link transition-colors">Style Quiz</a></li>
-          <li><a href="/calculator" class="text-foreground/85 hover:text-link transition-colors">Cost Calculator</a></li>
-          <li><a href="/guides" class="text-foreground/85 hover:text-link transition-colors">Guides</a></li>
-          <li><a href="/resources" class="text-foreground/85 hover:text-link transition-colors">Resources</a></li>
+          {visible.styleQuiz && (
+            <li><a href="/quiz" class="text-foreground/85 hover:text-link transition-colors">Style Quiz</a></li>
+          )}
+          {visible.budgetCalculator && (
+            <li><a href="/calculator" class="text-foreground/85 hover:text-link transition-colors">Cost Calculator</a></li>
+          )}
+          {visible.guides && (
+            <li><a href="/guides" class="text-foreground/85 hover:text-link transition-colors">Guides</a></li>
+          )}
+          {visible.resources && (
+            <li><a href="/resources" class="text-foreground/85 hover:text-link transition-colors">Resources</a></li>
+          )}
         </ul>
       </nav>
 
-      {/* LATEST PROJECTS — dynamic from Sanity, falls back gracefully when empty. */}
-      <nav aria-labelledby="footer-latest">
-        <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          Latest projects
-        </p>
-        {latestProjects.length > 0 ? (
-          <ul class="text-sm space-y-2 list-none p-0">
-            {latestProjects.map((p: any) => (
-              <li>
+      {/* LATEST PROJECTS — only shown when portfolio is visible. Falls back
+           gracefully when empty or when the portfolio section is hidden. */}
+      {visible.portfolio ? (
+        <nav aria-labelledby="footer-latest">
+          <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            Latest projects
+          </p>
+          {latestProjects.length > 0 ? (
+            <ul class="text-sm space-y-2 list-none p-0">
+              {latestProjects.map((p: any) => (
+                <li>
+                  <a
+                    href={`/portfolio/${p.slug?.current ?? ''}`}
+                    class="text-foreground/85 hover:text-link transition-colors"
+                  >
+                    {p.title}
+                    {p.location && <span class="text-foreground/80"> · {p.location}</span>}
+                  </a>
+                </li>
+              ))}
+              <li class="pt-xs">
                 <a
-                  href={`/portfolio/${p.slug?.current ?? ''}`}
-                  class="text-foreground/85 hover:text-link transition-colors"
+                  href="/portfolio"
+                  class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
                 >
-                  {p.title}
-                  {p.location && <span class="text-foreground/80"> · {p.location}</span>}
+                  View all <span aria-hidden="true">→</span>
                 </a>
               </li>
-            ))}
-            <li class="pt-xs">
-              <a
-                href="/portfolio"
-                class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
-              >
-                View all <span aria-hidden="true">→</span>
-              </a>
-            </li>
-          </ul>
-        ) : (
-          <p class="text-sm text-foreground/85 italic">
-            Case studies are coming soon. <a href="/portfolio" class="text-link hover:text-primary-dark underline underline-offset-2">See the portfolio →</a>
-          </p>
-        )}
-      </nav>
+            </ul>
+          ) : (
+            <p class="text-sm text-foreground/85 italic">
+              Case studies are coming soon. <a href="/portfolio" class="text-link hover:text-primary-dark underline underline-offset-2">See the portfolio →</a>
+            </p>
+          )}
+        </nav>
+      ) : (
+        <div aria-hidden="true" />
+      )}
 
       {/* GET IN TOUCH */}
       <div>

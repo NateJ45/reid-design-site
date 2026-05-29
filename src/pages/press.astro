@@ -10,6 +10,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getPressPage, getPressItems, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
@@ -22,6 +23,10 @@ const [page, pressItems, siteSettings] = await Promise.all([
   getPressItems().catch(() => []),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.press) return Astro.redirect('/');
 
 const pressArr: any[] = Array.isArray(pressItems) ? pressItems : [];
 

@@ -13,6 +13,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import BudgetCalculator from '@/components/BudgetCalculator';
 import { getBudgetCalculator, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -20,6 +21,10 @@ const [calc, siteSettings] = await Promise.all([
   getBudgetCalculator().catch(() => null),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.budgetCalculator) return Astro.redirect('/');
 
 const title       = 'Budget Calculator · Reid Design';
 const description = 'Get a rough idea of what a design project costs before reaching out. Use the Reid Design budget calculator to build your estimate by room, scope, and add-ons.';

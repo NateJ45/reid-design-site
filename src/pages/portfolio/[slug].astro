@@ -6,6 +6,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getAllProjects, getProjectBySlug, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema, projectSchema } from '@/lib/schemas';
 import { extractHeadings } from '@/lib/portable-text-headings';
 import { readingTimeFromPortableText, formatReadingTime } from '@/lib/reading-time';
@@ -20,8 +21,15 @@ import ProjectMetaBand from '@/components/ProjectMetaBand.astro';
 import StickyCTAChip from '@/components/StickyCTAChip';
 
 // Static site: enumerate all project slugs at build time.
+// Returns [] when portfolio is off — no detail pages build and they 404.
 export async function getStaticPaths() {
-  const projects: any[] = await getAllProjects().catch(() => []);
+  const [projects, settings] = await Promise.all([
+    getAllProjects().catch(() => []),
+    getSiteSettings().catch(() => null),
+  ]);
+  const visible = getSectionVisibility(settings?.sectionVisibility);
+  if (!visible.portfolio) return [];
+
   if (!Array.isArray(projects) || projects.length === 0) return [];
 
   return projects.map((p, i) => {

@@ -5,6 +5,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getAllProjects, getPortfolioPage, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
@@ -17,6 +18,10 @@ const [projects, page, siteSettings] = await Promise.all([
   getPortfolioPage().catch(() => null),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard. Redirect home when portfolio is explicitly off.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.portfolio) return Astro.redirect('/');
 
 const title       = page?.seoTitle       ?? 'Portfolio';
 const description = page?.seoDescription ?? 'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';

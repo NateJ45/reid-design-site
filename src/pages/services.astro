@@ -15,6 +15,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getServicesPage, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema, serviceListSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -50,6 +51,9 @@ const travelFees = page?.travelFees ?? [];
 // Satisfaction guarantee — sourced from siteSettings. Renders near the final
 // CTA so it lands just as the visitor is deciding whether to reach out.
 const satisfactionGuarantee = siteSettings?.satisfactionGuarantee;
+
+// Section visibility — used to gate the E-Design cross-link.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 const schemas = [
   breadcrumbSchema([
@@ -145,11 +149,12 @@ const schemas = [
       ) : null}
 
       {/* Cross-link to the dedicated E-Design landing page.
-          Renders beneath the services grid when the E-Design service exists
-          (slug "e-design"). The link is deliberately subtle — a chip-style
+          Renders beneath the services grid only when both the E-Design service
+          exists (slug "e-design") AND the eDesign section is on. The link is
+          deliberately subtle — a chip-style
           note rather than a full section — so it doesn't compete visually
           with the service cards above. */}
-      {services.some((s: any) => s.slug?.current === 'e-design') && (
+      {visible.eDesign && services.some((s: any) => s.slug?.current === 'e-design') && (
         <div class="mt-section-md flex justify-center">
           <a
             href="/e-design"

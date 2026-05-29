@@ -842,6 +842,18 @@ export type SiteSettings = {
   };
   googleBusinessUrl?: string;
   reviewsNote?: string;
+  sectionVisibility?: {
+    showPortfolio?: boolean;
+    showJournal?: boolean;
+    showShop?: boolean;
+    showEDesign?: boolean;
+    showGiftCertificates?: boolean;
+    showPress?: boolean;
+    showResources?: boolean;
+    showGuides?: boolean;
+    showStyleQuiz?: boolean;
+    showBudgetCalculator?: boolean;
+  };
   satisfactionGuarantee?: string;
 };
 

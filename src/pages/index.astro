@@ -27,6 +27,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getHomePage, getSiteSettings, getPressItems } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { site } from '@/data/site';
 
 import Hero from '@/components/Hero.astro';
@@ -50,6 +51,10 @@ const [page, siteSettings, pressItems] = await Promise.all([
   getSiteSettings().catch(() => null),
   getPressItems().catch(() => []),
 ]);
+
+// Derive section visibility. Unset fields count as visible so the live site
+// is unchanged until Staci explicitly turns something off in Studio.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 // Top-level SEO meta. Fall back to site identity when Sanity is empty (e.g., before content seed).
 const title       = page?.seoTitle       ?? site.name;
@@ -190,14 +195,16 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
   {/* ------- 3. Featured Work (visual proof, the hook) ---------------------- */}
   {/* Auto-populated by query: 1 hero + up to 3 companion cards, ordered
       featured-then-newest. Section is render-suppressed when there are no
-      projects yet. surface-warm bg-muted. Editor controls copy via homePage. */}
-  <FeaturedWork
-    projects={featuredProjects}
-    eyebrow={featuredWorkEyebrow}
-    headline={featuredWorkHeadline}
-    subhead={featuredWorkSubhead}
-    cta={page?.featuredWorkCta}
-  />
+      projects yet or when portfolio is off. surface-warm bg-muted. */}
+  {visible.portfolio && (
+    <FeaturedWork
+      projects={featuredProjects}
+      eyebrow={featuredWorkEyebrow}
+      headline={featuredWorkHeadline}
+      subhead={featuredWorkSubhead}
+      cta={page?.featuredWorkCta}
+    />
+  )}
 
   {/* ------- 4. Kind Words (social proof, early) ---------------------------- */}
   {(featuredQuote || gridQuotes.length > 0) && (
@@ -338,20 +345,22 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
   {/* ------- 7. Featured Journal (depth for considerers) -------------------- */}
   {/* Moved late in the funnel: the long-read journal speaks to visitors in
       research mode, after Work + testimonials + services have warmed them.
-      surface-warm bg-muted (set in the component). */}
-  <FeaturedJournal
-    entries={featuredJournalEntries}
-    eyebrow={featuredJournalEyebrow}
-    headline={featuredJournalHeadline}
-    subhead={featuredJournalSubhead}
-    cta={page?.featuredJournalCta}
-  />
+      surface-warm bg-muted (set in the component). Hidden when journal is off. */}
+  {visible.journal && (
+    <FeaturedJournal
+      entries={featuredJournalEntries}
+      eyebrow={featuredJournalEyebrow}
+      headline={featuredJournalHeadline}
+      subhead={featuredJournalSubhead}
+      cta={page?.featuredJournalCta}
+    />
+  )}
 
   {/* ------- Press strip (as seen in) --------------------------------------- */}
   {/* Sits between Featured Journal and the service-area cue. PressStrip
-      suppresses itself when the pressItem collection is empty so this
-      block is safe to include unconditionally. */}
-  <PressStrip items={pressItems} />
+      suppresses itself when the pressItem collection is empty; also hidden
+      when the press section is turned off in siteSettings. */}
+  {visible.press && <PressStrip items={pressItems} />}
 
   {/* Bronze ornament between Featured Journal and the service-area cue.
       Both sit on muted-toned backgrounds, so the alternating color cadence

@@ -11,6 +11,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getLeadMagnets, getSiteSettings } from '@/lib/queries';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -22,6 +23,10 @@ const [magnets, siteSettings] = await Promise.all([
   getLeadMagnets().catch(() => []),
   getSiteSettings().catch(() => null),
 ]);
+
+// Section visibility guard.
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+if (!visible.guides) return Astro.redirect('/');
 
 const list = magnets ?? [];
 

@@ -9,6 +9,13 @@ export const siteSettings = defineType({
   type: 'document',
   // Configuration, not prose — don't surface in Canvas's AI-assisted writing UI.
   options: { canvasApp: { exclude: true } },
+  groups: [
+    { name: 'identity', title: 'Identity & contact' },
+    { name: 'visibility', title: 'Section visibility' },
+    { name: 'social', title: 'Social & footer' },
+    { name: 'newsletter', title: 'Newsletter' },
+    { name: 'reviews', title: 'Reviews' },
+  ],
   fields: [
     defineField({
       name: 'title',
@@ -194,6 +201,101 @@ export const siteSettings = defineType({
       type: 'string',
       description:
         'Optional small-print line near the reviews section. Example: "Reviews from Google, Facebook, and Houzz."',
+    }),
+
+    // ── Section visibility ────────────────────────────────────────────────────
+    // Controls which optional sections appear on the live site.
+    // IMPORTANT: an unset field (undefined/null) counts as VISIBLE — only an
+    // explicit `false` hides a section. This means the existing live site is
+    // completely unaffected until Staci intentionally turns something off.
+    defineField({
+      name: 'sectionVisibility',
+      title: 'Section visibility',
+      type: 'object',
+      group: 'visibility',
+      description: 'Turn optional sections on or off. An unset toggle counts as ON.',
+      fields: [
+        defineField({
+          name: 'showPortfolio',
+          title: 'Portfolio',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showJournal',
+          title: 'Journal',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showShop',
+          title: 'Shop',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showEDesign',
+          title: 'E-Design',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showGiftCertificates',
+          title: 'Gift Certificates',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showPress',
+          title: 'Press',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showResources',
+          title: 'Resources hub',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showGuides',
+          title: 'Guides',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showStyleQuiz',
+          title: 'Style Quiz',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+        defineField({
+          name: 'showBudgetCalculator',
+          title: 'Budget Calculator',
+          type: 'boolean',
+          initialValue: true,
+          description:
+            'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
+        }),
+      ],
     }),
 
     // ── Satisfaction guarantee ────────────────────────────────────────────────
