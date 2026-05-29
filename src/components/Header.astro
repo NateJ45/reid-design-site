@@ -176,9 +176,30 @@ function isGroupActive(items: { href: string }[]) {
       the logo. */}
   <div class="hidden lg:block bg-muted border-b border-border-soft">
     <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
-      <p class="text-xs uppercase tracking-eyebrow text-foreground/80">
-        Plainfield Interior Design · Serving Greater Indianapolis
-      </p>
+      <div class="flex items-center gap-m">
+        <p class="text-xs uppercase tracking-eyebrow text-foreground/80">
+          Plainfield Interior Design · Serving Greater Indianapolis
+        </p>
+        {/* Availability status, mirroring the mobile pill. Same pulsing dot
+            and link to /contact, so the trust signal is consistent at every
+            width (compact "Open" on phones, full status from md up). */}
+        {availability && (
+          <>
+            <span class="h-3 w-px bg-border-soft" aria-hidden="true"></span>
+            <a
+              href="/contact"
+              class="inline-flex items-center gap-1.5 text-xs uppercase tracking-eyebrow font-semibold text-foreground hover:text-link transition-colors"
+              aria-label={`${availability}. Get in touch.`}
+            >
+              <span class="relative flex w-2 h-2 shrink-0" aria-hidden="true">
+                <span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-60 animate-ping"></span>
+                <span class="relative inline-flex w-2 h-2 rounded-full bg-tertiary"></span>
+              </span>
+              {availability}
+            </a>
+          </>
+        )}
+      </div>
       <div class="flex items-center gap-m">
         {email && (
           <a
@@ -240,7 +261,7 @@ function isGroupActive(items: { href: string }[]) {
       <a
         href="/contact"
         class="lg:hidden absolute left-m top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 h-9 pl-2 pr-2.5 rounded-full bg-muted border border-border-soft text-foreground hover:border-primary hover:text-primary-dark transition-colors"
-        aria-label={`Open — ${availability}. Tap to start a conversation.`}
+        aria-label={`${availability}. Tap to start a conversation.`}
       >
         <span
           class="relative flex w-2 h-2 shrink-0"
@@ -251,11 +272,16 @@ function isGroupActive(items: { href: string }[]) {
           <span class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-60 animate-ping"></span>
           <span class="relative inline-flex w-2 h-2 rounded-full bg-tertiary"></span>
         </span>
-        {/* Full pill — visible at every mobile width. The h-9 pill is
-            compact enough that even at 320px it doesn't collide with the
-            centered logo. */}
-        <span class="text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
+        {/* On the narrowest phones the centered logo leaves room only for a
+            compact "Open". From md up, where the pill has space before the
+            logo, show the full availabilityStatus so the roomy header doesn't
+            read as half-empty. The complete status is always in the aria-label
+            and on the Contact page. */}
+        <span class="md:hidden text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
           Open
+        </span>
+        <span class="hidden md:inline text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
+          {availability}
         </span>
       </a>
     )}
