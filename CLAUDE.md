@@ -366,13 +366,19 @@ document.addEventListener('astro:page-load', initThing);
 
 Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations.
 
-### Hero accents (three flourishes — pick at most one per hero)
+### Script accents (Pinyon Script flourish)
+
+The Pinyon Script accent now works in two places: hero headlines and section headings. The shared logic lives in `src/lib/scriptAccent.ts` (`splitScriptAccent(headline, accent)`), which splits a headline string around the matching accent word and returns the before/after fragments for the template to wrap in `<span class="font-script">`. The `.font-script` utility handles font-family + 1.25em scale + baseline tweak to match Cormorant visual weight. If the accent word is not found in the current headline, the heading renders plain — Staci can edit copy without breaking anything.
+
+**Discipline:** use at most one script accent per heading. Over-use dilutes the effect. The accent word must match the headline text exactly (case-sensitive). Think of it as an editorial signature, not decoration.
+
+#### Hero accents (three flourishes — pick at most one per hero)
 
 The image-variant Hero supports three optional editorial flourishes on the headline + subhead. Each is independent; pick at most one for any given page so they don't compete.
 
 1. **`rotatingWords` prop** — array of words that cycle through in place of the headline's FIRST word, once per session. Honors prefers-reduced-motion. Currently used on `/` (home): `['Lived-in', 'Considered', 'Quiet']`. Hardcoded in the page's Hero call. The animation drops the trailing redundant cycle (was a fencepost bug at first — see the 2026-05-27 commit for the trace).
 
-2. **`scriptAccent` prop** — a single word/phrase in the headline that renders in Pinyon Script via the `.font-script` utility (which handles font-family + 1.25em scale + baseline tweak to match Cormorant visual weight). The first occurrence is wrapped. Falls back to plain rendering if the word isn't found in the current headline copy (so Staci can edit copy without breaking anything). Currently wired:
+2. **`scriptAccent` prop** — passes through to `splitScriptAccent()`. The first matching occurrence is wrapped. Behavior is unchanged from before; Hero was refactored to use `src/lib/scriptAccent.ts` internally but renders identically. Currently wired:
    - `/services` → `"reveal"`
    - `/portfolio` → `"Plainfield"`
    - `/journal` → `"studio"`
@@ -381,6 +387,24 @@ The image-variant Hero supports three optional editorial flourishes on the headl
    Don't combine with `rotatingWords` (they may target the same first word). The Hero component enforces this — `rotatingWords` wins if both are passed.
 
 3. **Subhead italic emphasis via markdown `_word_`** — the Hero subhead parses `_…_` markers into italic Cormorant `<em>` spans. Editor-friendly: Staci can write "Pick the tier that fits _where you are_." in Sanity and the wrapped phrase renders in italic Cormorant. No HTML in the field. This is the ONE flourish that's editor-controlled rather than hardcoded — works passively via the existing `heroSubhead` field on every page singleton.
+
+#### Section heading and final CTA accents
+
+`SectionHeading.astro` and `FinalCta.astro` each accept an optional `scriptAccent?: string` prop. When set, the matching word in the heading renders in `<span class="font-script">` via `splitScriptAccent()`. Same fallback behavior as hero: no match = plain text.
+
+Editor-driven Sanity fields that control these:
+
+- `homePage.servicesGridScriptAccent` — the Services section heading on `/`
+- `homePage.testimonialsScriptAccent` — the Testimonials section heading on `/`
+- `homePage.finalCtaScriptAccent` — the Final CTA heading on `/`
+- `aboutPage.finalCtaScriptAccent` — the Final CTA heading on `/about`
+- `processPage.finalCtaScriptAccent` — the Final CTA heading on `/process`
+- `servicesPage.finalCtaScriptAccent` — the Final CTA heading on `/services`
+- `faqPage.finalCtaScriptAccent` — the Final CTA heading on `/faq`
+- `journalPage.finalCtaScriptAccent` — the Final CTA heading on journal listing + posts
+- `eDesignPage.finalCtaScriptAccent` — the Final CTA heading on `/e-design`
+
+Leave a field empty to render the heading without a script accent. One accent per heading — set only one at a time across any given page's sections.
 
 ### Hero staggered entry animation (`.hero-entry-stagger`)
 
@@ -416,7 +440,7 @@ Standalone scripts:
 
 - Headings (h1 through h6): **Cormorant Garamond**. Self-hosted via `@fontsource/cormorant-garamond`. Editorial serif that carries the premium-but-warm tone the audit landed on.
 - Body, UI, buttons: **Source Sans 3** (variable). Self-hosted via `@fontsource-variable/source-sans-3`.
-- Script accent on ONE word per hero: **Pinyon Script**. Self-hosted via `@fontsource/pinyon-script`. Used ONLY via the `font-script` utility for the editorial-signature flourish (see Polish layer → Hero accents). Don't use this font for body, buttons, or anywhere outside the explicit accent slot — it'd read flashy fast.
+- Script accent on ONE word per hero or section heading: **Pinyon Script**. Self-hosted via `@fontsource/pinyon-script`. Used ONLY via the `font-script` utility for the editorial-signature flourish (see Polish layer → Script accents). Don't use this font for body, buttons, or anywhere outside the explicit accent slot — it'd read flashy fast.
 - Labels, eyebrows, monospace numerals: `ui-monospace, 'SF Mono', monospace` (system, no file).
 
 Font families are declared in the `@theme` block in `src/styles/globals.css` as `--font-display`, `--font-body`, `--font-mono`, which Tailwind exposes automatically as `font-display`, `font-body`, `font-mono` utility classes. Give Cormorant Garamond a `<link rel="preload">` hint in `BaseLayout.astro` if the homepage hero h1 is the LCP element.
@@ -569,7 +593,6 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `LeadMagnetForm.tsx` (`client:visible`) — gated guide download on `/guides/[slug]`. Reveals the download link on successful email capture. Honeypot + optional first-name field.
 - `StyleQuiz.tsx` (`client:visible`) — multi-step archetype quiz on `/quiz`: questions → optional qualifiers → email gate (mode from Sanity) → result screen with recommendation + CTA. Page pre-builds Sanity image URLs so the island carries no Sanity client.
 - `BudgetCalculator.tsx` (`client:visible`) — room/scope/add-on estimate on `/calculator`. Estimate always shows without an email; optional "email me this estimate" capture. Ranges read "$500 to $1,000" (no en-dash).
-- `ConsentNotice.tsx` (`client:idle`) — dismissible bottom consent bar. Mounts only when `siteSettings.newsletter.enabled` is true (no ESP = no cookies = no bar). Dismissal persists to `localStorage["reid-design-consent"]`.
 - `PostInquiryRoadmap.astro` — numbered "what happens after you hit Send" steps on `/contact`, from `contactPage.postInquiryRoadmap`. Falls back to the legacy `whatToExpectContent` block when the array is empty.
 - `PressStrip.astro` — "As Seen In" press-logo row. Suppresses itself when no `pressItem` has a logo. Used on `/`, `/about`, and `/press`.
 - `ShopGrid.astro` + `ShopItemCard.astro` — affiliate shop collections + item cards for `/shop`. Cards carry brand stripe + `rel="sponsored nofollow noopener"` + `target="_blank"` and an `aria-label` noting "opens in new tab".
@@ -941,9 +964,9 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 
 ### Sitemap and robots
 
-`@astrojs/sitemap` generates `sitemap-index.xml` automatically from every prerendered page on `astro build`. The default `<priority>` and `<changefreq>` are fine for a marketing site of this size.
+`@astrojs/sitemap` generates `sitemap-index.xml` + `sitemap-0.xml` automatically from every prerendered page on `astro build`. The default `<priority>` and `<changefreq>` are fine for a marketing site of this size.
 
-`public/robots.txt` content:
+`public/robots.txt` ships with the build (allow-all):
 
 ```
 User-agent: *
@@ -951,6 +974,8 @@ Allow: /
 
 Sitemap: https://reiddesignllc.com/sitemap-index.xml
 ```
+
+`public/llms.txt` also ships — an AI/LLM crawler index of the site for tools that follow the emerging llms.txt convention. Keep it updated if major pages are added or removed.
 
 After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify the property via DNS TXT record (preferred — survives redeploys) or HTML file upload.
 
@@ -965,7 +990,8 @@ After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify t
 - [ ] Google Business Profile NAP matches `siteSettings` NAP exactly
 - [ ] All Sanity image alt text is meaningful (no "image1" placeholders, no empty strings)
 - [ ] Sitemap submitted to Google Search Console
-- [ ] `robots.txt` allows crawling
+- [ ] `robots.txt` ships (allow-all + sitemap reference)
+- [ ] `llms.txt` is accurate for current page set
 - [ ] Canonical URL points at the production domain on every page
 
 ---
@@ -1008,7 +1034,7 @@ Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than
 
 - **Cormorant Garamond** (display serif): self-hosted via `@fontsource/cormorant-garamond` weights 400 + 600. Weight 500 was previously loaded but never selected anywhere; removing it saved ~50 KB across latin + latin-ext woff/woff2 with zero visual change. Don't add back without a real usage.
 - **Source Sans 3 Variable** (body sans): self-hosted via `@fontsource-variable/source-sans-3`. Single file covers all weights.
-- **Pinyon Script** (one-word editorial accent): self-hosted via `@fontsource/pinyon-script`. Used ONLY on hero `scriptAccent` words. Loaded after the primary fonts with `font-display: swap` (fontsource default) so it never blocks first paint. If a hero has no `scriptAccent` set, the file is still fetched but doesn't render anything — small price for the option.
+- **Pinyon Script** (one-word editorial accent): self-hosted via `@fontsource/pinyon-script`. Used on hero `scriptAccent` words and on `SectionHeading` / `FinalCta` `scriptAccent` props. Loaded after the primary fonts with `font-display: swap` (fontsource default) so it never blocks first paint. If no accent is set on a given page, the file is still fetched but doesn't render anything — small price for the option.
 - No `<link rel="preload">` on font URLs. Vite hashes the filenames at build time, so a static preload tag would 404. The cost is one extra paint; the benefit is no broken preload (and Lighthouse stays at 100 Best Practices).
 
 ### Current Lighthouse scorecard (May 2026)
@@ -1233,16 +1259,18 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 - `src/styles/globals.css` (Tailwind 4 `@theme` block, shadcn `:root` / `.dark` overrides, **polish-layer utilities** — `.card-lift`, `.press-tactile`, `.nav-underline`, `.site-header`, `.reading-progress`, `.surface-warm`, `[data-reveal]` — base resets, paper-grain `body::before`, print stylesheet)
 - `studio/schemaTypes/*.ts` (Sanity schemas — changing fields can break existing content)
 - `src/lib/sanity.ts`, `src/lib/queries.ts`, `src/lib/sanity.types.ts` (Sanity client, GROQ queries, generated types)
+- `src/lib/scriptAccent.ts` — shared helper `splitScriptAccent(headline, accent)` used by `Hero.astro`, `SectionHeading.astro`, and `FinalCta.astro` to split a headline around the accent word for Pinyon Script wrapping
 - `src/layouts/BaseLayout.astro` (anti-FOUC theme bootstrap, skip link, header/main/footer wiring, View Transitions ClientRouter, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**, Cloudflare Analytics, OG meta, JSON-LD, title-suffix-doubling guard)
 - `src/components/ui/` shadcn primitives — **note: `accordion.tsx` is customized** (removed `h-(--radix-accordion-content-height)` lock + dropped `text-sm font-medium` from trigger). If you reinstall via `npx shadcn add` it will revert; reapply the changes.
 - React islands: `MobileNav.tsx`, `ThemeToggle.tsx`, `BackToTop.tsx`, `ContactForm.tsx`, `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `FaqAccordion.tsx`, `CalendlyInline.tsx`, `CaseStudyTOC.tsx`, `StickyCTAChip.tsx`, `PortfolioCursor.tsx`, `PortfolioFilterChips.tsx`, `CopyEmailButton.tsx`, `PortableText.tsx`, `JournalPortableText.tsx`
-- Astro wrappers: `SanityImage.astro`, `StructuredData.astro`, `SectionHeading.astro`, `SectionDivider.astro`, `ServiceAreaCue.astro`, `ReadingProgress.astro`, `ProjectMetaBand.astro`, `ProcessStepIllustration.astro`, `Hero.astro`, `FinalCta.astro`, `CtaLink.astro`
+- Astro wrappers: `SanityImage.astro`, `StructuredData.astro`, `SectionHeading.astro` (accepts optional `scriptAccent?: string`), `SectionDivider.astro`, `ServiceAreaCue.astro`, `ReadingProgress.astro`, `ProjectMetaBand.astro`, `ProcessStepIllustration.astro`, `Hero.astro` (refactored to use `splitScriptAccent`, behavior unchanged), `FinalCta.astro` (accepts optional `scriptAccent?: string`), `CtaLink.astro`
 - `scripts/generate-og-default.mjs`, `scripts/strip-editor-annotations.mjs`, `scripts/sweep-eyebrow-contrast.mjs` (reusable for future drift detection)
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
 - `public/_headers` (security response headers shipped with the deploy)
 - `public/og-default.png` (regenerate via `npm run og`)
 - `public/favicon.svg` (RD monogram on Warm Bronze disc, `prefers-color-scheme`-aware)
-- `public/robots.txt`
+- `public/robots.txt` (allow-all + sitemap reference)
+- `public/llms.txt` (AI/LLM crawler index — update if major pages change)
 
 If a change requires editing the foundation set, do it in a Claude session, write the change deliberately, and update this doc when the architecture shifts.
 
@@ -1335,17 +1363,15 @@ Content-Security-Policy is intentionally not included; doing it right requires t
 
 ### Privacy and analytics
 
-The original zero-cookie / no-banner stance has been RELAXED by the conversion build, which added email capture (newsletter + lead magnets + quiz/calculator gates) routed through an ESP. The current, accurate posture:
+The site is effectively zero-cookie. No consent banner is mounted — `ConsentNotice.tsx` was removed as unnecessary: the newsletter posts via `fetch` (no vendor script), analytics is cookieless Cloudflare, and a US-based local business with no ad tracking does not need a cookie-consent banner. The current, accurate posture:
 
-- **Cloudflare Web Analytics** still uses no cookies and stores no personal data.
-- **Still no Google Analytics, no Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker — don't bolt it on.
+- **Cloudflare Web Analytics** uses no cookies and stores no personal data.
+- **No Google Analytics, no Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker — don't bolt it on.
 - **Sanity client** reads public published content, no auth cookies.
-- **Web3Forms** contact-form submissions go server-side via `fetch`; no cookies set. The contact form also now triggers a Web3Forms autoresponder (visitor confirmation email) when that's enabled on the access key.
-- **Email capture (new):** `subscribeEmail()` posts to the ESP form-action URL in `siteSettings.newsletter.formActionUrl` (ConvertKit / MailerLite / Kit), falling back to Web3Forms when unset. The ESP may set its own cookies on subscribe. This is the reason the banner + policy below now exist.
+- **Web3Forms** contact-form submissions go server-side via `fetch`; no cookies set. The contact form also triggers a Web3Forms autoresponder (visitor confirmation email) when that's enabled on the access key.
+- **Email capture:** `subscribeEmail()` posts to the ESP form-action URL in `siteSettings.newsletter.formActionUrl` (ConvertKit / MailerLite / Kit), falling back to Web3Forms when unset. The ESP may set its own cookies on subscribe.
 
-**`/privacy` page (new):** a real privacy policy now ships, driven by the `privacyPage` singleton with a plain-voice static fallback (covers what's collected, what doesn't happen, unsubscribe, data requests). Linked from the footer on every page and from every capture form's consent note.
-
-**`ConsentNotice` (new):** a dismissible bottom consent bar (`ConsentNotice.tsx`, `client:idle`) that mounts ONLY when `siteSettings.newsletter.enabled` is true — when the ESP isn't active, no email cookies are set and no bar shows. Dismissal persists to `localStorage["reid-design-consent"]`. It is wired in `BaseLayout` and gated on the newsletter flag, so flipping `newsletter.enabled` off restores the original no-banner experience. It is a lightweight acknowledgment notice, not a full GDPR consent-management gate; if EU/CCPA obligations grow, replace it with a proper CMP (Cookiebot, OneTrust, Osano).
+**`/privacy` page:** a real privacy policy ships, driven by the `privacyPage` singleton with a plain-voice static fallback (covers what's collected, what doesn't happen, unsubscribe, data requests). Linked from the footer on every page and from every capture form's consent note. This is the privacy surface for the site — no consent banner needed alongside it.
 
 ---
 
@@ -1462,7 +1488,7 @@ Things to configure before or during the public launch. Everything below should 
 
 ### Conversion-build external setup (capture tools + offerings)
 
-- [ ] **ESP account** created (ConvertKit / MailerLite / Kit) and the embeddable form-action URL set on `siteSettings.newsletter.formActionUrl`, then `siteSettings.newsletter.enabled` flipped on. Until enabled, the newsletter card + `ConsentNotice` stay hidden.
+- [ ] **ESP account** created (ConvertKit / MailerLite / Kit) and the embeddable form-action URL set on `siteSettings.newsletter.formActionUrl`, then `siteSettings.newsletter.enabled` flipped on. Until enabled, the newsletter card stays hidden. (No consent banner — the site sets no cookies that require one.)
 - [ ] **Web3Forms autoresponder** enabled on the access key in the Web3Forms dashboard (the contact form now sends `autoresponse: true` — without the dashboard toggle, no confirmation email goes out).
 - [ ] **Shop affiliate links** (ShopMy / LTK / direct) added to `shopItem.affiliateUrl`, and `shopPage.enabled` set. Confirm the FTC disclosure copy reads right.
 - [ ] **Google Business URL** set on `siteSettings.googleBusinessUrl` (powers the "Read more on Google" link) + a short `siteSettings.reviewsNote`.
@@ -1509,12 +1535,13 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 - **Testimonial extras** — photo, location, relatedProject reference.
 - **Hero subhead italic emphasis** — Staci can write `_word_` in any subhead and the parser renders the wrapped text in italic Cormorant. Editor-controlled, no code change needed.
 - **Hero `heroRotatingWords` array on `homePage`** — the once-per-session first-word swap is now editor-driven. Set to 2+ strings to enable, clear/empty to disable.
-- **Hero `heroScriptAccent` string on every `*Page` singleton + `portfolioPage`** — the Pinyon Script accent word. Each page reads its own; defaults preserve the original feel ("reveal" on services, "Plainfield" on portfolio, "studio" on journal, "Know" on faq) only if the field is unset.
+- **Hero `heroScriptAccent` string on every `*Page` singleton + `portfolioPage`** — the Pinyon Script accent word for the page hero. Each page reads its own; defaults preserve the original feel ("reveal" on services, "Plainfield" on portfolio, "studio" on journal, "Know" on faq) only if the field is unset.
+- **Section heading script accents** — `homePage.servicesGridScriptAccent`, `homePage.testimonialsScriptAccent`, `homePage.finalCtaScriptAccent`, and `finalCtaScriptAccent` on `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `journalPage`, `eDesignPage`. Each renders that word in Pinyon Script on the matching `SectionHeading` or `FinalCta`. At most one per heading; the accent word must match the heading text exactly. Leave empty for no accent.
 - **`stickyCtaLabel`** — `servicesPage.stickyCtaLabel` covers /services; `journalPage.stickyCtaLabel` covers every journal post; `project.stickyCtaLabel` covers individual portfolio pages. Clearing any one hides the chip on that surface. Empty string = chip hidden; unset = falls back to the original copy.
 - **Contact form all four dropdowns** — `contactPage.form{ProjectType,Location,Budget,Timeline,Source}Options` arrays. Falls back to the hardcoded defaults in `ContactForm.tsx` when empty.
 - **Portfolio index page copy** — `portfolioPage` singleton (eyebrow, headline, subhead, hero image, scriptAccent).
 - **404 page** — `notFoundPage` singleton (eyebrow, headline, body, hero photo, the three CTA labels + hrefs). Lives next to the other page singletons in Studio.
-- **Newsletter config** — `siteSettings.newsletter` (enabled toggle, heading, blurb, button label, success message, consent note, form-action URL, audience ID). Drives `NewsletterSignup` + whether `ConsentNotice` shows.
+- **Newsletter config** — `siteSettings.newsletter` (enabled toggle, heading, blurb, button label, success message, consent note, form-action URL, audience ID). Drives `NewsletterSignup`. No consent banner — the site remains effectively zero-cookie; the `/privacy` page is the privacy surface.
 - **Style quiz** — `styleQuiz` singleton (intro copy, questions + image answers + archetype weights, optional qualifiers, archetypes with images + recommended-service reference, email gate mode/copy, result routing). Powers `/quiz`.
 - **Budget calculator** — `budgetCalculator` singleton (intro copy, rooms, scope options, add-ons, result copy with `{{low}}`/`{{high}}` placeholders, disclaimer, CTA label, consult-price note). Powers `/calculator`.
 - **Lead magnets** — `leadMagnet` documents (title, slug, summary, cover image, downloadable file, gate copy, ESP tag, `published` toggle, SEO). Power `/guides` + `/guides/[slug]`.
@@ -1554,6 +1581,6 @@ If a full-field annotation is the entire content (like `faqItem.background` was 
 
 ---
 
-*Last updated: May 28, 2026 — conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav now SERVER-RENDERED via `<details>` in `Header.astro` (was a `client:only` island that dropped the whole desktop nav from server HTML), email capture (newsletter + lead magnets + quiz/calculator gates) via `subscribeEmail()` → ESP/Web3Forms, relaxed privacy stance (`/privacy` page + `ConsentNotice` gated on `newsletter.enabled`), new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
+*Last updated: May 28, 2026 — consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
 
 See `OPERATIONS.md` for tactical playbook (deploy, patch content, run audits, common gotchas).
