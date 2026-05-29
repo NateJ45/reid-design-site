@@ -127,37 +127,9 @@ const latestProjects = allProjects.slice(0, 3);
     </div>
   )}
 
-  {/* Compact brand bar — just the studio logo anchoring the footer, no tall
-       stacked block. */}
-  <div class="mx-auto max-w-content px-m pt-l">
-    <div class="flex flex-col items-center gap-s text-center md:flex-row md:items-center md:gap-m md:text-left">
-      <a
-        href="/"
-        aria-label={`${brandName} home`}
-        class="inline-block shrink-0 hover:opacity-80 transition-opacity"
-      >
-        {/* Single theme-aware footer logo — no src in the HTML; BaseLayout's
-            anti-FOUC script sets the right variant from the data attributes. */}
-        <img
-          alt={brandName}
-          width={96}
-          height={102}
-          class="h-16 w-auto"
-          loading="lazy"
-          decoding="async"
-          data-theme-logo
-          data-logo-light-src={footerLogoLight1x.src}
-          data-logo-light-srcset={footerLogoLightSrcset}
-          data-logo-dark-src={footerLogoDark1x.src}
-          data-logo-dark-srcset={footerLogoDarkSrcset}
-        />
-      </a>
-    </div>
-  </div>
-
   {/* Five-column link grid. Single centered column on mobile, five columns
        at md+ (left-aligned). The fifth column carries contact details. */}
-  <div class="mx-auto max-w-content px-m py-l grid gap-l grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 text-center md:text-left">
+  <div class="mx-auto max-w-content px-m pt-l pb-m grid gap-l grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 text-center md:text-left">
     {/* STUDIO */}
     <nav aria-labelledby="footer-studio">
       <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
@@ -310,6 +282,32 @@ const latestProjects = allProjects.slice(0, 3);
         </ul>
       )}
     </div>
+  </div>
+
+  {/* Logo + tagline — sits below the nav grid as a centered brand signature. */}
+  <div class="mx-auto max-w-content px-m pb-l flex flex-col items-center gap-s text-center">
+    <a
+      href="/"
+      aria-label={`${brandName} home`}
+      class="inline-block hover:opacity-80 transition-opacity"
+    >
+      <img
+        alt={brandName}
+        width={96}
+        height={102}
+        class="h-20 w-auto"
+        loading="lazy"
+        decoding="async"
+        data-theme-logo
+        data-logo-light-src={footerLogoLight1x.src}
+        data-logo-light-srcset={footerLogoLightSrcset}
+        data-logo-dark-src={footerLogoDark1x.src}
+        data-logo-dark-srcset={footerLogoDarkSrcset}
+      />
+    </a>
+    {siteSettings?.tagline && (
+      <p class="text-sm text-foreground/60 italic max-w-[28rem]">{siteSettings.tagline}</p>
+    )}
   </div>
 
   {/* Thin bottom bar — copyright, privacy, optional "Site by..." credit on one
