@@ -26,7 +26,7 @@ const [page, pressItems, siteSettings] = await Promise.all([
 const pressArr: any[] = Array.isArray(pressItems) ? pressItems : [];
 
 const title       = page?.seoTitle       ?? 'Press · Reid Design';
-const description = page?.seoDescription ?? 'Reid Design in the media — features, mentions, and coverage from publications across Indiana.';
+const description = page?.seoDescription ?? 'Reid Design in the media: features, mentions, and coverage from publications across Indiana.';
 
 const heroEyebrow  = page?.heroEyebrow  ?? 'In the Press.';
 const heroHeadline = page?.heroHeadline ?? "Where Reid Design's work has been featured.";

@@ -20,7 +20,7 @@ const [page, siteSettings] = await Promise.all([
   getSiteSettings().catch(() => null),
 ]);
 
-const title       = page?.seoTitle       ?? 'Privacy Policy — Reid Design LLC';
+const title       = page?.seoTitle       ?? 'Privacy Policy · Reid Design';
 const description = page?.seoDescription ?? 'How Reid Design handles the information you share when you reach out or subscribe.';
 
 const heroEyebrow  = page?.heroEyebrow  ?? 'Transparency first.';

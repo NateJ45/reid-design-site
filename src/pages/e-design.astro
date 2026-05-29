@@ -31,7 +31,7 @@ const [page, siteSettings] = await Promise.all([
 ]);
 
 const title       = page?.seoTitle       ?? 'E-Design · Online Interior Design · Reid Design';
-const description = page?.seoDescription ?? 'Professional interior design delivered remotely. Flat-fee pricing, digital mood boards, and a complete room plan — no travel required.';
+const description = page?.seoDescription ?? 'Professional interior design delivered remotely. Flat-fee pricing, digital mood boards, and a complete room plan, no travel required.';
 
 const heroEyebrow  = page?.heroEyebrow  ?? 'Online Design.';
 const heroHeadline = page?.heroHeadline ?? 'Beautiful Rooms, No Matter Where You Are.';
@@ -72,7 +72,7 @@ const CONTACT_HREF = '/contact?type=e-design';
         <SectionHeading
           eyebrow="Coming Soon."
           headline="E-Design details are on the way."
-          subhead="We're pulling together the full overview. In the meantime, reach out — we're happy to walk you through the remote design process directly."
+          subhead="We're pulling together the full overview. In the meantime, reach out. We're happy to walk you through the remote design process directly."
           headingId="edesign-coming-soon"
           align="center"
           class="mx-auto"

@@ -31,7 +31,7 @@ const [page, siteSettings] = await Promise.all([
 ]);
 
 const title       = page?.seoTitle       ?? 'Shop My Favorites · Reid Design';
-const description = page?.seoDescription ?? 'Staci\'s hand-picked home decor and furniture finds. Affiliate links — she only shares things she would actually use.';
+const description = page?.seoDescription ?? 'Staci\'s hand-picked home decor and furniture finds. Affiliate links, and she only shares things she would actually use.';
 
 const heroEyebrow  = page?.heroEyebrow  ?? 'Shop My Favorites.';
 const heroHeadline = page?.heroHeadline ?? 'Things Worth Having in Your Home.';
@@ -40,7 +40,7 @@ const heroSubhead  = page?.heroSubhead  ?? '';
 // FTC disclosure: use Sanity content when present; always have a fallback so
 // the legal requirement is met even before the doc is published.
 const FTC_DISCLOSURE_FALLBACK =
-  "Some links on this page are affiliate links. If you purchase through a link, I may earn a small commission — at no extra cost to you. I only share things I would use or genuinely recommend.";
+  "Some links on this page are affiliate links. If you purchase through a link, I may earn a small commission, at no extra cost to you. I only share things I would use or genuinely recommend.";
 const disclosure = page?.disclosure ?? FTC_DISCLOSURE_FALLBACK;
 
 const collections = page?.collections ?? [];

@@ -60,7 +60,7 @@ export default function NewsletterSignup({ newsletter, source = 'newsletter' }: 
     "You're on the list. Good things incoming.";
   const consentNote =
     newsletter.consentNote ??
-    'No spam. Unsubscribe any time. Read the ​privacy policy.';
+    'No spam. Unsubscribe any time. Read the privacy policy.';
 
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState(''); // honeypot

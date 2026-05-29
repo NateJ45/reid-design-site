@@ -37,7 +37,7 @@ const DEFAULT_PROJECT_TYPES = [
   'Shopping & Sourcing',
   'Builder or Realtor Partnership',
   'Gift Certificate',
-  "Not sure yet — let's chat",
+  "Not sure yet, let's chat",
 ] as const;
 
 // Map ?type= URL param values to dropdown option labels.
@@ -51,7 +51,7 @@ const TYPE_PARAM_MAP: Record<string, string> = {
   'builder-realtor': 'Builder or Realtor Partnership',
   'gift-certificate': 'Gift Certificate',
   // quiz: map to the catch-all so the user sees a reasonable default
-  'quiz':         "Not sure yet — let's chat",
+  'quiz':         "Not sure yet, let's chat",
 };
 
 // Service-area cities, ordered Plainfield-first per brand positioning. "Other"
@@ -300,8 +300,8 @@ export default function ContactForm({
           replyto: draft.email,
           autoresponse: true,
           autoresponse_from: 'Reid Design LLC <noreply@reiddesignllc.com>',
-          autoresponse_subject: 'Got your note — Staci will be in touch soon.',
-          autoresponse_message: `Hi ${draft.name},\n\nThank you for reaching out! Staci reads every inquiry personally and will get back to you within a couple of business days.\n\nIf your project is time-sensitive, just mention that in your reply to this email and she'll prioritize accordingly.\n\n— Reid Design LLC\nreiddesignllc.com`,
+          autoresponse_subject: 'Got your note. Staci will be in touch soon.',
+          autoresponse_message: `Hi ${draft.name},\n\nThank you for reaching out! Staci reads every inquiry personally and will get back to you within a couple of business days.\n\nIf your project is time-sensitive, just mention that in your reply to this email and she'll prioritize accordingly.\n\nReid Design LLC\nreiddesignllc.com`,
         }),
       });
       const json = await res.json().catch(() => ({}));

@@ -25,7 +25,7 @@ const [page, siteSettings] = await Promise.all([
 ]);
 
 const title       = page?.seoTitle       ?? 'Free Resources · Reid Design';
-const description = page?.seoDescription ?? 'Planning tools and guides from Reid Design — the style quiz, budget calculator, free guides, FAQ, and more.';
+const description = page?.seoDescription ?? 'Planning tools and guides from Reid Design: the style quiz, budget calculator, free guides, FAQ, and more.';
 
 const heroEyebrow  = page?.heroEyebrow  ?? 'Free tools + guides';
 const heroHeadline = page?.heroHeadline ?? 'Start here before you call';
@@ -62,7 +62,7 @@ const FALLBACK_CARDS: ResourceCard[] = [
   },
   {
     title: 'FAQ',
-    blurb: 'Pricing, process, logistics, and service area — all in one place.',
+    blurb: 'Pricing, process, logistics, and service area, all in one place.',
     link: '/faq',
   },
   {

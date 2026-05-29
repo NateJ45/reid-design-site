@@ -201,7 +201,7 @@ export default function BudgetCalculator({ config }: Props) {
                     </span>
                     {opt.addLow > 0 && (
                       <span className="text-xs text-muted-foreground ml-auto shrink-0">
-                        +{fmt(opt.addLow)}&ndash;{fmt(opt.addHigh)}
+                        +{fmt(opt.addLow)} to {fmt(opt.addHigh)}
                       </span>
                     )}
                   </label>
@@ -234,7 +234,7 @@ export default function BudgetCalculator({ config }: Props) {
                         {addon.label}
                       </span>
                       <span className="text-xs text-muted-foreground ml-auto shrink-0">
-                        +{fmt(addon.low)}&ndash;{fmt(addon.high)}
+                        +{fmt(addon.low)} to {fmt(addon.high)}
                       </span>
                     </label>
                   ))}
