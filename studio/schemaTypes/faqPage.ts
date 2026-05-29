@@ -11,7 +11,7 @@ export const faqPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
-    { name: 'hero', title: 'Hero', default: true },
+    { name: 'hero', title: 'Hero' },
     { name: 'list', title: 'Category order' },
     { name: 'final', title: 'Final CTA' },
   ],

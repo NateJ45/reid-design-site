@@ -11,7 +11,7 @@ export const notFoundPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
-    { name: 'content', title: 'Content', default: true },
+    { name: 'content', title: 'Content' },
     { name: 'ctas', title: 'CTAs' },
   ],
   fields: [

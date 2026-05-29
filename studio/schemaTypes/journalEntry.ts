@@ -16,7 +16,7 @@ export const journalEntry = defineType({
   title: 'Journal Entry',
   type: 'document',
   groups: [
-    { name: 'meta',    title: 'Meta',    default: true },
+    { name: 'meta',    title: 'Meta' },
     { name: 'content', title: 'Content' },
     { name: 'seo',     title: 'SEO' },
     { name: 'related', title: 'Related' },

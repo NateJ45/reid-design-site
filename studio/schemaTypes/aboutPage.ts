@@ -10,7 +10,7 @@ export const aboutPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
-    { name: 'hero', title: 'Hero', default: true },
+    { name: 'hero', title: 'Hero' },
     { name: 'story', title: 'Story' },
     { name: 'philosophy', title: 'Philosophy' },
     { name: 'final', title: 'Final CTA' },

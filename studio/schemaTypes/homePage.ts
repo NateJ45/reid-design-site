@@ -12,7 +12,7 @@ export const homePage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
-    { name: 'hero', title: 'Hero', default: true },
+    { name: 'hero', title: 'Hero' },
     { name: 'meetStaci', title: 'Meet Staci' },
     { name: 'featuredWork', title: 'Featured Work' },
     { name: 'featuredJournal', title: 'Featured Journal' },

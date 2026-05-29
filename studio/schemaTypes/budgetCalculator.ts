@@ -13,7 +13,7 @@ export const budgetCalculator = defineType({
   // Configuration singleton — exclude from Canvas.
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'intro', title: 'Intro', default: true },
+    { name: 'intro', title: 'Intro' },
     { name: 'rooms', title: 'Rooms' },
     { name: 'scope', title: 'Scope options' },
     { name: 'addons', title: 'Add-ons' },

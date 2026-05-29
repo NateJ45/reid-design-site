@@ -12,7 +12,7 @@ export const eDesignPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
-    { name: 'hero', title: 'Hero', default: true },
+    { name: 'hero', title: 'Hero' },
     { name: 'intro', title: 'Intro' },
     { name: 'how', title: 'How It Works' },
     { name: 'included', title: "What's Included" },

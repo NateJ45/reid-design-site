@@ -14,7 +14,7 @@ export const styleQuiz = defineType({
   // Individual archetype descriptions get their own canvasApp.purpose below.
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'intro', title: 'Intro', default: true },
+    { name: 'intro', title: 'Intro' },
     { name: 'questions', title: 'Questions' },
     { name: 'qualifiers', title: 'Qualifiers' },
     { name: 'archetypes', title: 'Archetypes' },

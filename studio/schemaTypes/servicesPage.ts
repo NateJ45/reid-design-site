@@ -11,7 +11,7 @@ export const servicesPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
-    { name: 'hero', title: 'Hero', default: true },
+    { name: 'hero', title: 'Hero' },
     { name: 'list', title: 'Services list' },
     { name: 'builders', title: 'Builders & Realtors' },
     { name: 'area', title: 'Service area' },
