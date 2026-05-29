@@ -336,7 +336,7 @@ export const project = defineType({
       name: 'publishedAt',
       title: 'Published at',
       type: 'datetime',
-      description: 'The date shown on the project and used to order the portfolio, newest first. Heads up: the project goes live on the next site build no matter what this is set to, so a future date will not hide it.',
+      description: 'The date shown on the project, and the sort key for the portfolio (newest first). Setting it in the future does not delay go-live on its own. To publish a project later, use the Schedule publish action (the arrow beside the Publish button), which Sanity runs and rebuilds the site at that time.',
       initialValue: () => new Date().toISOString(),
       validation: (Rule) => Rule.required(),
     }),

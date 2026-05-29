@@ -232,6 +232,7 @@ Set it in Cloudflare Workers settings under Variables if needed for a staging br
 Everything below must be done before flipping DNS from Squarespace to the Cloudflare Workers URL.
 
 **Replace placeholder content (seeded during build):**
+- [ ] **Delete the three sample projects** (`project.plainfieldFamilyRoom`, `project.fishersKitchenStyling`, `project.zionsvilleMasterBedroom`) from Studio, or replace them with real case studies. Seeded by `scripts/seed-placeholder-content.mjs`, they ship with no photos and read like real Plainfield-area work, so they become the live portfolio by default if left in. They are now prefixed `[SAMPLE: delete before launch]` in the seeder, and after the schema guardrails deploy they also fail validation (no photos, blank brief/call), which makes them easy to spot.
 - [ ] Replace fabricated press items with real outlets, real quotes, real logo images
 - [ ] Fill `eDesignPage` pricing tiers with Staci's actual numbers and what's-included copy
 - [ ] Replace dummy shop affiliate URLs with real ShopMy / LTK / direct vendor links; confirm FTC disclosure copy reads correctly
