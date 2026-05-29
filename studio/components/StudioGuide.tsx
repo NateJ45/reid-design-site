@@ -116,6 +116,18 @@ const howTos: HowTo[] = [
       'Make the change and click Publish.',
     ],
   },
+  {
+    number: 10,
+    title: 'Turn a section on or off',
+    steps: [
+      'Click "Site Settings" in the left sidebar.',
+      'Click the "Section visibility" tab at the top of the form.',
+      'Find the toggle for the section you want to hide or show (Portfolio, Journal, Shop, E-Design, Gift Certificates, Press, Resources, Guides, Style Quiz, Budget Calculator).',
+      'Flip it off (or back on) and click Publish.',
+      'The site rebuilds in about 1 to 3 minutes. When a section is off it disappears from the menu, footer, and homepage, and its own page redirects visitors to the home page instead.',
+      'Turning a section off does not delete anything. All your drafts and published content stay right where they are. Turn it back on when you are ready and everything reappears.',
+    ],
+  },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -258,6 +270,35 @@ export default function StudioGuide() {
             ))}
           </Stack>
         </Box>
+
+        {/* Section visibility */}
+        <Card padding={4} radius={2} shadow={1} tone="default">
+          <Stack space={3}>
+            <Heading as="h2" size={1}>
+              Launching in stages? Turn a section on or off
+            </Heading>
+            <Text size={1}>
+              You do not have to launch every section of the site at the same time. If the shop
+              is not ready, or you are still photographing projects for the portfolio, you can
+              hide those sections completely until they are ready.
+            </Text>
+            <Text size={1}>
+              Go to Site Settings, click the "Section visibility" tab, and flip the toggle off
+              for whatever you want to hide. Click Publish. After about a minute or two, that
+              section disappears from the menu, the footer, and the home page, and its own page
+              quietly redirects visitors to the home page instead of showing a half-built page.
+            </Text>
+            <Text size={1}>
+              When the section is ready, come back to Site Settings, flip the toggle back on,
+              and publish again. Everything reappears. Your drafts and published content are
+              completely safe the whole time.
+            </Text>
+            <Text size={1}>
+              This is great for launching now and finishing things like the portfolio, shop, or
+              press section on your own timeline.
+            </Text>
+          </Stack>
+        </Card>
 
         {/* Schedule a publish */}
         <Card padding={4} radius={2} shadow={1} tone="default">
