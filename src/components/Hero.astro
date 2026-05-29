@@ -14,6 +14,7 @@ import SanityImage from '@/components/SanityImage.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import { splitScriptAccent } from '@/lib/scriptAccent';
+import { ChevronDown } from 'lucide-react';
 
 interface CtaBlock {
   label?: string;
@@ -40,7 +41,7 @@ interface Props {
   primaryCta?: CtaBlock | null;
   secondaryCta?: CtaBlock | null;
   headingId: string;
-  /** "tall" = ~85vh on desktop (homepage), "short" = generous but not full screen (interior pages). */
+  /** "tall" = fills the viewport below the header on first load (homepage), "short" = generous but not full screen (interior pages). */
   size?: 'tall' | 'short';
   /**
    * Optional list of words to cycle through in place of the FIRST word of the
@@ -112,11 +113,57 @@ const subheadParts = parseSubhead(subhead);
 
 const hasImage = !!backgroundImage?.asset;
 
+// "tall" (homepage) fills the screen below the sticky header on first load.
+// The exact fill height comes from the .hero-fill class plus the measured
+// --header-h variable (see the inline script and scoped <style> below).
+// "short" stays a generous editorial band for interior pages.
 const wrapperHeight =
   size === 'tall'
-    ? 'min-h-[78svh] md:min-h-[85svh]'
+    ? 'hero-fill'
     : 'min-h-[42svh] md:min-h-[52svh]';
 ---
+
+{/* Full-viewport home hero plumbing (size="tall" only): measure the sticky
+    header into --header-h so the hero fills exactly the space below it, and
+    wire the scroll cue to glide past the hero. Runs synchronously so the
+    height is set before first paint (no layout shift), then refreshes on
+    load, resize, and View Transitions navigations. */}
+{size === 'tall' && (
+  <script is:inline>
+    (function () {
+      function setHeaderH() {
+        var header = document.querySelector('header.site-header');
+        if (header) {
+          document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        }
+      }
+      function wireCue() {
+        var cue = document.querySelector('[data-scroll-cue]');
+        if (!cue || cue.dataset.wired === '1') return;
+        cue.dataset.wired = '1';
+        cue.addEventListener('click', function () {
+          var hero = cue.closest('section');
+          if (!hero) return;
+          var hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
+          var top = hero.offsetTop + hero.offsetHeight - hh;
+          if (window.lenis && typeof window.lenis.scrollTo === 'function') {
+            window.lenis.scrollTo(top);
+          } else {
+            window.scrollTo({ top: top, behavior: 'smooth' });
+          }
+        });
+      }
+      setHeaderH();
+      wireCue();
+      if (!window.__reidHeroBound) {
+        window.__reidHeroBound = true;
+        window.addEventListener('resize', setHeaderH, { passive: true });
+        window.addEventListener('load', setHeaderH);
+        document.addEventListener('astro:page-load', function () { setHeaderH(); wireCue(); });
+      }
+    })();
+  </script>
+)}
 
 {/* Rotating-word animator. Runs once per session: cycles the wrapped word
     through alternates every 850ms for ~5 seconds, then locks back to the
@@ -251,6 +298,20 @@ const wrapperHeight =
         )}
       </div>
     </div>
+
+    {/* Soft pulsing scroll cue at the bottom-center of the hero. Tells
+        visitors there is more below; clicking it glides past the hero.
+        Static under prefers-reduced-motion (see the scoped <style>). */}
+    {size === 'tall' && (
+      <button
+        type="button"
+        data-scroll-cue
+        aria-label="Scroll down to see more"
+        class="scroll-cue absolute bottom-4 left-1/2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full text-bg/85 hover:text-bg hover:bg-bg/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bg/70"
+      >
+        <ChevronDown size={28} strokeWidth={1.5} aria-hidden="true" />
+      </button>
+    )}
   </section>
 ) : (
   <section class="bg-background" aria-labelledby={headingId}>
@@ -265,3 +326,42 @@ const wrapperHeight =
     </div>
   </section>
 )}
+
+<style>
+  /* Full-viewport home hero. Fill the screen below the sticky header on first
+     load. --header-h is measured by the inline script above; the per-breakpoint
+     fallback covers the brief pre-measure window and the no-JS case (mobile
+     header ~7rem, desktop with the eyebrow strip ~9.5rem). svh keeps the hero
+     within the initially-visible viewport on mobile (address bar shown) so it
+     never forces an immediate scroll; the vh line is the pre-svh fallback. */
+  .hero-fill {
+    min-height: calc(100vh - var(--header-h, 7rem));
+    min-height: calc(100svh - var(--header-h, 7rem));
+  }
+  @media (min-width: 1024px) {
+    .hero-fill {
+      min-height: calc(100vh - var(--header-h, 9.5rem));
+      min-height: calc(100svh - var(--header-h, 9.5rem));
+    }
+  }
+
+  /* Scroll cue: a soft down-bob plus opacity pulse so it reads as "there is
+     more below" without shouting. Centered with translateX(-50%) (the keyframe
+     re-applies it each step). Reduced-motion users get a static, clearly
+     visible chevron instead. */
+  .scroll-cue {
+    transform: translateX(-50%);
+    animation: scroll-cue-bob 2.4s ease-in-out infinite;
+  }
+  @keyframes scroll-cue-bob {
+    0%, 100% { transform: translate(-50%, 0); opacity: 0.55; }
+    50%      { transform: translate(-50%, 0.4rem); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue {
+      animation: none;
+      opacity: 0.85;
+      transform: translateX(-50%);
+    }
+  }
+</style>

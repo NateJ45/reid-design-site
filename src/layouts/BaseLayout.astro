@@ -216,6 +216,10 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         import('lenis').then(({ default: Lenis }) => {
           const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
+          // Expose the instance so in-page controls (e.g. the homepage hero
+          // scroll cue) can trigger a smooth programmatic scroll through Lenis
+          // instead of fighting it with a native scrollTo.
+          (window as Window & { lenis?: typeof lenis }).lenis = lenis;
           function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
           requestAnimationFrame(raf);
 
