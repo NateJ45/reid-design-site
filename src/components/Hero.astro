@@ -13,6 +13,7 @@
 import SanityImage from '@/components/SanityImage.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
+import { splitScriptAccent } from '@/lib/scriptAccent';
 
 interface CtaBlock {
   label?: string;
@@ -85,12 +86,14 @@ const rotatingPayload = rotateEnabled ? JSON.stringify([headlineFirst, ...rotati
 // Script accent: split the headline around the accent word so it can be
 // rendered in three pieces (before / accent-span / after). Only fires when
 // rotatingWords isn't active — the two flourishes shouldn't compete.
-const scriptEnabled = !rotateEnabled && typeof scriptAccent === 'string' && scriptAccent.length > 0;
-const scriptIdx = scriptEnabled ? headline.indexOf(scriptAccent!) : -1;
-const scriptBefore = scriptIdx >= 0 ? headline.slice(0, scriptIdx) : '';
-const scriptWord = scriptIdx >= 0 ? headline.slice(scriptIdx, scriptIdx + scriptAccent!.length) : '';
-const scriptAfter = scriptIdx >= 0 ? headline.slice(scriptIdx + scriptAccent!.length) : '';
-const scriptFound = scriptIdx >= 0;
+// Delegates to the shared splitScriptAccent helper so Hero and SectionHeading
+// use identical logic.
+const {
+  found: scriptFound,
+  before: scriptBefore,
+  word: scriptWord,
+  after: scriptAfter,
+} = splitScriptAccent(rotateEnabled ? headline : headline, rotateEnabled ? undefined : scriptAccent);
 
 // Subhead emphasis: parse markdown-style _word_ markers into <em> spans so
 // editors can italicize a key word in the Sanity subhead without HTML.

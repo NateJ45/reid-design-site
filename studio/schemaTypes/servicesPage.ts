@@ -114,6 +114,14 @@ export const servicesPage = defineType({
 
     defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: "Let's Talk." }),
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final' }),
+    defineField({
+      name: 'finalCtaScriptAccent',
+      title: 'Final CTA heading script accent (optional)',
+      type: 'string',
+      group: 'final',
+      description:
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+    }),
     defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final' }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
 

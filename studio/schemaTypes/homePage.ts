@@ -201,6 +201,14 @@ export const homePage = defineType({
     defineField({ name: 'testimonialsEyebrow', title: 'Eyebrow', type: 'string', group: 'testimonials', initialValue: 'Kind Words.' }),
     defineField({ name: 'testimonialsHeadline', title: 'Headline', type: 'string', group: 'testimonials', initialValue: 'Words from real homes.' }),
     defineField({
+      name: 'testimonialsScriptAccent',
+      title: 'Testimonials heading script accent (optional)',
+      type: 'string',
+      group: 'testimonials',
+      description:
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+    }),
+    defineField({
       name: 'testimonialsSubhead',
       title: 'Subhead',
       type: 'text',
@@ -229,6 +237,14 @@ export const homePage = defineType({
     // Services grid
     defineField({ name: 'servicesGridEyebrow', title: 'Eyebrow', type: 'string', group: 'services', initialValue: 'Reid Design.' }),
     defineField({ name: 'servicesGridHeadline', title: 'Headline', type: 'string', group: 'services' }),
+    defineField({
+      name: 'servicesGridScriptAccent',
+      title: 'Services heading script accent (optional)',
+      type: 'string',
+      group: 'services',
+      description:
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+    }),
     defineField({ name: 'servicesGridSubhead', title: 'Subhead', type: 'text', rows: 2, group: 'services' }),
     defineField({ name: 'servicesGridCta', title: 'Services grid CTA', type: 'ctaBlock', group: 'services' }),
     defineField({
@@ -249,6 +265,14 @@ export const homePage = defineType({
     }),
     defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: 'Ready to Begin?' }),
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Ready to Love Your Space?' }),
+    defineField({
+      name: 'finalCtaScriptAccent',
+      title: 'Final CTA heading script accent (optional)',
+      type: 'string',
+      group: 'final',
+      description:
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+    }),
     defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final', initialValue: "Let's start with a conversation." }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
   ],
