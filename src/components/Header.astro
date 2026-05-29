@@ -20,7 +20,7 @@ import { Mail } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
-import NavDropdowns from './NavDropdowns';
+import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 
@@ -77,9 +77,19 @@ const email = siteSettings?.email ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
 
-// Grouped nav structure. Flat items render as plain anchor links;
-// dropdown items render as Radix DropdownMenu in the desktop NavDropdowns
-// island and as indented expandable groups in MobileNav.
+// Grouped nav structure. Flat items render as plain anchor links; dropdown
+// items render as native <details>/<summary> disclosure groups on desktop
+// (server-rendered, see the nav markup below) and as indented expandable
+// groups in MobileNav.
+//
+// Why <details> and not a React island: the desktop nav must exist in the
+// server-rendered HTML so search-engine crawlers see every internal link and
+// so there is no flash-of-missing-nav (or CLS) before hydration. A native
+// <details> disclosure is crawlable, keyboard-accessible, and works with zero
+// JS. A tiny progressive-enhancement script (further down) adds the niceties
+// browsers don't give us for free: open-on-hover, close-on-outside-click,
+// close-on-Escape, and close-on-navigation. The links work without it.
+//
 // "Contact" is intentionally NOT in the primary nav — the "Book a consultation"
 // CTA at the right of the nav row does that job, and the MobileNav drawer also
 // surfaces the CTA at the top.
@@ -120,6 +130,11 @@ const pathname = Astro.url.pathname;
 function isActive(href: string) {
   if (href === '/') return pathname === '/';
   return pathname.startsWith(href);
+}
+// A dropdown group is "active" (its trigger underline locks wide + aria-current
+// is set) when the current route matches any of its child links.
+function isGroupActive(items: { href: string }[]) {
+  return items.some((item) => isActive(item.href));
 }
 ---
 
@@ -268,13 +283,80 @@ function isActive(href: string) {
     </script>
 
     {/* Nav + CTA grouped on the right (lg+ only).
-        NavDropdowns is a React island (client:only="react") because
-        Radix DropdownMenu uses a portal that can't SSR inside Astro.
-        The pathname is passed so the island can render correct
-        aria-current and active-state styles without client-side
-        location detection. */}
+
+        The desktop nav is server-rendered as real <a> tags (flat links) plus
+        native <details> disclosure groups (the two dropdowns). Everything is in
+        the HTML at build time — crawlable, keyboard-usable, and present before
+        any JS runs (no flash, no CLS). The progressive-enhancement script at the
+        bottom of this file layers on hover-to-open + outside-click/Escape/
+        navigation close; the nav is fully functional without it. */}
     <div class="hidden lg:flex items-center gap-l">
-      <NavDropdowns client:only="react" pathname={pathname} />
+      <nav class="site-nav flex items-center gap-l" aria-label="Primary">
+        {NAV_ITEMS.map((item) =>
+          item.kind === 'flat' ? (
+            <a
+              href={item.href}
+              class:list={[
+                'nav-underline text-sm tracking-wide transition-colors',
+                isActive(item.href)
+                  ? 'text-link font-semibold'
+                  : 'text-foreground hover:text-link',
+              ]}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <details class="site-nav__group relative">
+              {/* <summary> is the disclosure toggle. It carries .nav-underline
+                  so it gets the same bronze underline as flat links, and
+                  aria-current="page" (which locks the underline wide) when one
+                  of its children is the active route. role/aria-expanded are
+                  managed natively by <details>. */}
+              <summary
+                class:list={[
+                  'nav-underline text-sm tracking-wide transition-colors',
+                  'inline-flex items-center gap-0.5 cursor-pointer select-none list-none',
+                  'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm',
+                  isGroupActive(item.items)
+                    ? 'text-link font-semibold'
+                    : 'text-foreground hover:text-link',
+                ]}
+                aria-current={isGroupActive(item.items) ? 'page' : undefined}
+              >
+                {item.label}
+                <ChevronDown
+                  size={14}
+                  className="site-nav__chevron mt-px transition-transform duration-150"
+                  aria-hidden="true"
+                />
+              </summary>
+
+              {/* Menu panel. Absolutely positioned under the summary so it
+                  doesn't shift layout. Uses popover tokens to match the mobile
+                  drawer + shadcn dropdowns, and the bronze ring + shadow of the
+                  card rhythm. */}
+              <div
+                class="site-nav__menu absolute left-0 top-full mt-2 min-w-[200px] rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 z-50"
+              >
+                {item.items.map((sub) => (
+                  <a
+                    href={sub.href}
+                    class:list={[
+                      'block rounded-md px-2.5 py-1.5 text-sm transition-colors',
+                      'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground outline-none',
+                      isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
+                    ]}
+                    aria-current={isActive(sub.href) ? 'page' : undefined}
+                  >
+                    {sub.label}
+                  </a>
+                ))}
+              </div>
+            </details>
+          )
+        )}
+      </nav>
       <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
       <a
         href="/contact"
@@ -298,3 +380,133 @@ function isActive(href: string) {
     />
   </div>
 </header>
+
+<style>
+  /* Desktop dropdown groups (native <details>). The links are server-rendered
+     and fully usable with no JS; these styles + the script below add the
+     dropdown affordances. */
+
+  /* Hide the default disclosure triangle in every engine. */
+  .site-nav__group > summary {
+    list-style: none;
+  }
+  .site-nav__group > summary::-webkit-details-marker,
+  .site-nav__group > summary::marker {
+    display: none;
+    content: "";
+  }
+
+  /* Rotate the chevron when the group is open. */
+  .site-nav__group[open] > summary .site-nav__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* The menu panel starts hidden until the <details> is open. <details>
+     natively hides non-summary children when closed, but we keep an explicit
+     rule so the absolutely-positioned panel never flashes during hydration. */
+  .site-nav__menu {
+    display: none;
+  }
+  .site-nav__group[open] > .site-nav__menu {
+    display: block;
+  }
+</style>
+
+{/* Progressive enhancement for the desktop dropdown nav. Everything still
+    works without this (native <details> toggles on click/Enter/Space, links
+    are real <a> tags). This adds: open-on-hover with a small close delay,
+    close-on-outside-click, close-on-Escape, and close-when-a-link-is-followed.
+    Re-binds on astro:page-load so it survives View Transitions navigations. */}
+<script>
+  // Query groups fresh each call — the nav DOM is replaced on every View
+  // Transitions navigation, so a captured list would go stale.
+  function currentGroups() {
+    return Array.from(
+      document.querySelectorAll<HTMLDetailsElement>('.site-nav__group'),
+    );
+  }
+
+  function closeAllGroups(except?: HTMLDetailsElement) {
+    for (const g of currentGroups()) {
+      if (g !== except) g.open = false;
+    }
+  }
+
+  function initHeaderNav() {
+    const groups = currentGroups();
+    if (groups.length === 0) return;
+
+    const closeAll = closeAllGroups;
+
+    for (const group of groups) {
+      const summary = group.querySelector('summary');
+      let closeTimer: number | undefined;
+
+      const cancelClose = () => {
+        if (closeTimer) {
+          window.clearTimeout(closeTimer);
+          closeTimer = undefined;
+        }
+      };
+
+      // Hover intent: open immediately on enter, close after a short delay on
+      // leave so a diagonal mouse path to the menu doesn't snap it shut. Only
+      // engages on pointers that can actually hover (skips touch).
+      group.addEventListener('pointerenter', (e) => {
+        if (e.pointerType === 'touch') return;
+        cancelClose();
+        closeAll(group);
+        group.open = true;
+      });
+      group.addEventListener('pointerleave', (e) => {
+        if (e.pointerType === 'touch') return;
+        cancelClose();
+        closeTimer = window.setTimeout(() => {
+          group.open = false;
+        }, 140);
+      });
+
+      // When opened via keyboard/click, make sure the others close.
+      summary?.addEventListener('click', () => {
+        // <details> toggles AFTER this handler, so the post-toggle state is the
+        // inverse of the current one. If it's about to open, close the rest.
+        if (!group.open) closeAll(group);
+      });
+
+      // Following a link inside the menu should close the group (so it isn't
+      // left open behind the next page during a View Transitions swap).
+      group.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          group.open = false;
+        });
+      });
+    }
+  }
+
+  // Document-level listeners bind ONCE (guarded by a window flag), so they
+  // don't stack up across View Transitions navigations. They query the nav
+  // groups fresh each time they fire, so the swapped-in DOM is always covered.
+  const w = window as typeof window & { __headerNavBound?: boolean };
+  if (!w.__headerNavBound) {
+    w.__headerNavBound = true;
+
+    // Close any open group when clicking outside the nav.
+    document.addEventListener('pointerdown', (e) => {
+      const target = e.target as Node;
+      if (!currentGroups().some((g) => g.contains(target))) closeAllGroups();
+    });
+
+    // Escape closes the open group and returns focus to its summary.
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const openGroup = currentGroups().find((g) => g.open);
+      if (openGroup) {
+        openGroup.open = false;
+        openGroup.querySelector('summary')?.focus();
+      }
+    });
+  }
+
+  initHeaderNav();
+  document.addEventListener('astro:page-load', initHeaderNav);
+</script>
