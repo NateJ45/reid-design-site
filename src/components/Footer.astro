@@ -96,9 +96,6 @@ const email = siteSettings?.email ?? '';
 const phone = siteSettings?.phone ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
-const tagline =
-  siteSettings?.tagline ??
-  'Plainfield interior design for homes that feel genuinely yours.';
 // Copyright auto-updates every build via new Date(). The "Site by..." line
 // (siteCredit + siteCreditUrl) is a SEPARATE concept that sits next to the
 // auto-year copyright in the thin bottom bar.
@@ -130,9 +127,8 @@ const latestProjects = allProjects.slice(0, 3);
     </div>
   )}
 
-  {/* Compact brand bar — logo + tagline on one short row (stacks on mobile)
-       instead of a tall centered block, which is what kept the footer at over
-       half the viewport. */}
+  {/* Compact brand bar — just the studio logo anchoring the footer, no tall
+       stacked block. */}
   <div class="mx-auto max-w-content px-m pt-l">
     <div class="flex flex-col items-center gap-s text-center md:flex-row md:items-center md:gap-m md:text-left">
       <a
@@ -156,15 +152,12 @@ const latestProjects = allProjects.slice(0, 3);
           data-logo-dark-srcset={footerLogoDarkSrcset}
         />
       </a>
-      <p class="max-w-[28rem] font-display italic text-lg text-foreground/90 leading-snug">
-        {tagline}
-      </p>
     </div>
   </div>
 
   {/* Five-column link grid. Single centered column on mobile, five columns
        at md+ (left-aligned). The fifth column carries contact details. */}
-  <div class="mx-auto max-w-content px-m py-l grid gap-l md:grid-cols-5 text-center md:text-left">
+  <div class="mx-auto max-w-content px-m py-l grid gap-l grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 text-center md:text-left">
     {/* STUDIO */}
     <nav aria-labelledby="footer-studio">
       <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
