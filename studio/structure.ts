@@ -46,8 +46,13 @@ import {
   SearchIcon,
   LockIcon,
   CaseIcon,
+  PresentationIcon,
+  ThumbsUpIcon,
+  ColorWheelIcon,
 } from '@sanity/icons';
-import StartHere from './components/StartHere';
+import StudioGuide from './components/StudioGuide';
+import BusinessOverview from './components/BusinessOverview';
+import BrandKit from './components/BrandKit';
 
 const SINGLETON_TYPES = [
   'siteSettings',
@@ -142,11 +147,31 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
   S.list()
     .title('Reid Design')
     .items([
-      // Start Here — plain-language guide for Staci. First item so it's always visible.
+      // Start Here — three-panel handbook for Staci. First item so it is always visible.
+      // Panel 1: how the Studio works and step-by-step how-tos (static).
+      // Panel 2: live business overview (services + site settings fetched from Sanity).
+      // Panel 3: brand kit — colors + fonts for Canva (static).
       S.listItem()
         .title('Start Here')
         .icon(InfoOutlineIcon)
-        .child(S.component(StartHere).title('Start Here')),
+        .child(
+          S.list()
+            .title('Start Here')
+            .items([
+              S.listItem()
+                .title('How the website works')
+                .icon(PresentationIcon)
+                .child(S.component(StudioGuide).title('How the website works')),
+              S.listItem()
+                .title('Your business at a glance')
+                .icon(ThumbsUpIcon)
+                .child(S.component(BusinessOverview).title('Your business at a glance')),
+              S.listItem()
+                .title('Brand kit')
+                .icon(ColorWheelIcon)
+                .child(S.component(BrandKit).title('Brand kit')),
+            ])
+        ),
 
       S.divider(),
 
