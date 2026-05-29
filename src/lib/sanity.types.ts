@@ -1527,6 +1527,37 @@ export type Project = {
     caption?: string;
     _type: "image";
   };
+  gallery?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    _type: "image";
+    _key: string;
+  }>;
+  beforeAfters?: Array<{
+    beforeImage?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+    };
+    afterImage?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+    };
+    caption?: string;
+    _type: "beforeAfterPair";
+    _key: string;
+  }>;
   briefSummary?: string;
   briefLine?: string;
   designCall?: string;
@@ -1570,37 +1601,6 @@ export type Project = {
         _key: string;
       }
   >;
-  gallery?: Array<{
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    caption?: string;
-    _type: "image";
-    _key: string;
-  }>;
-  beforeAfters?: Array<{
-    beforeImage?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      alt?: string;
-      _type: "image";
-    };
-    afterImage?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      alt?: string;
-      _type: "image";
-    };
-    caption?: string;
-    _type: "beforeAfterPair";
-    _key: string;
-  }>;
   servicesUsed?: Array<
     {
       _key: string;

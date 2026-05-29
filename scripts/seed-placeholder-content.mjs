@@ -111,11 +111,15 @@ const eDesignService = {
   ctaLabel: 'Start an E-Design',
 };
 
-// ---------- Placeholder projects (no heroImage — Staci adds real photos) ----------
+// ---------- Placeholder projects (DELETE BEFORE LAUNCH) ----------
 //
-// Project schema requires heroImage (Studio validation warning shown until added),
-// but ProjectCard handles missing image gracefully. These three placeholder projects
-// preview the portfolio layout + filter behavior with realistic narrative copy.
+// IMPORTANT: these three are SAMPLE projects, not real content. They ship with no
+// images and exist only to preview the portfolio layout and filter behavior. They
+// are PUBLISHED docs with realistic, Plainfield-area copy, so in the Studio they
+// look just like real projects. Delete all three (or replace them with real case
+// studies) before the DNS cutover, or they silently become Staci's live portfolio.
+// The titles below are prefixed "[SAMPLE: delete before launch]" so they are
+// unmistakable in the Studio document list and on any build that includes them.
 
 function pt(key, ...spans) {
   return {
@@ -134,7 +138,7 @@ const placeholderProjects = [
   {
     _type: 'project',
     _id: 'project.plainfieldFamilyRoom',
-    title: 'Plainfield Family Room Refresh',
+    title: '[SAMPLE: delete before launch] Plainfield Family Room Refresh',
     slug: { _type: 'slug', current: 'plainfield-family-room-refresh' },
     location: 'Plainfield, IN',
     roomType: 'livingRoom',
@@ -161,7 +165,7 @@ const placeholderProjects = [
   {
     _type: 'project',
     _id: 'project.fishersKitchenStyling',
-    title: 'Fishers Kitchen Styling',
+    title: '[SAMPLE: delete before launch] Fishers Kitchen Styling',
     slug: { _type: 'slug', current: 'fishers-kitchen-styling' },
     location: 'Fishers, IN',
     roomType: 'kitchen',
@@ -188,7 +192,7 @@ const placeholderProjects = [
   {
     _type: 'project',
     _id: 'project.zionsvilleMasterBedroom',
-    title: 'Zionsville Primary Bedroom',
+    title: '[SAMPLE: delete before launch] Zionsville Primary Bedroom',
     slug: { _type: 'slug', current: 'zionsville-primary-bedroom' },
     location: 'Zionsville, IN',
     roomType: 'bedroom',

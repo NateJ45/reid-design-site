@@ -99,6 +99,7 @@ export const project = defineType({
           { title: 'Other',              value: 'other' },
         ],
       },
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'year',
@@ -111,7 +112,7 @@ export const project = defineType({
       name: 'heroImage',
       title: 'Hero image',
       type: 'image',
-      description: 'Main project photo. Shows on the portfolio grid.',
+      description: 'The cover photo. Shows on the portfolio grid and at the top of the project page. Add the rest of the photos in Project photos below.',
       options: { hotspot: true },
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
@@ -125,6 +126,70 @@ export const project = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'gallery',
+      title: 'Project photos',
+      type: 'array',
+      description:
+        'The main set of project photos, beyond the cover. Add at least 3, ideally 4 to 8: wide shots, details, and a couple of different angles. Drag to reorder. These show as a gallery on the project page, and they are what make a project look like a finished story instead of a single snapshot.',
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
+          ],
+        }),
+      ],
+      validation: (Rule) =>
+        Rule.min(3).error('Add at least 3 photos so the project shows more than a single cover shot.'),
+    }),
+    defineField({
+      name: 'beforeAfters',
+      title: 'Before / after pairs',
+      type: 'array',
+      description:
+        'Optional, but high impact. Each pair becomes a draggable slider on the project page and feeds the Before & After page in the nav. Use the same room from the same angle, before and after. Leave this empty if you do not have a clean pair yet.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'beforeAfterPair',
+          fields: [
+            defineField({
+              name: 'beforeImage',
+              title: 'Before',
+              type: 'image',
+              options: { hotspot: true },
+              fields: [
+                defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+              ],
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'afterImage',
+              title: 'After',
+              type: 'image',
+              options: { hotspot: true },
+              fields: [
+                defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+              ],
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'caption',
+              title: 'Caption',
+              type: 'string',
+              description: 'Optional explanation of what changed.',
+            }),
+          ],
+          preview: {
+            select: { caption: 'caption', media: 'afterImage' },
+            prepare: ({ caption, media }) => ({ title: caption ?? 'Before / After', media }),
+          },
+        }),
+      ],
+    }),
+    defineField({
       name: 'briefSummary',
       title: 'Brief summary',
       type: 'text',
@@ -136,7 +201,7 @@ export const project = defineType({
             'One-sentence summary on the portfolio grid card, max 200 chars. Voice: smart friend, not brochure. Hint at the design problem and the move. Banned: transformative, curated, elevated, tailored, sanctuary.',
         },
       },
-      validation: (Rule) => Rule.required().max(200),
+      validation: (Rule) => Rule.required().min(60).max(200),
     }),
     // Project metadata band fields. Two one-sentence lines that read as
     // "the issue / the response" above the long intro story.
@@ -151,7 +216,7 @@ export const project = defineType({
             'One sentence stating the design problem the homeowner brought in. Voice: smart friend describing a situation. Plain English. Examples: "Beautiful reno but the family room felt unfinished." / "Open-concept kitchen with great bones but everything floated."',
         },
       },
-      validation: (Rule) => Rule.max(160),
+      validation: (Rule) => Rule.required().max(160),
     }),
     defineField({
       name: 'designCall',
@@ -164,13 +229,13 @@ export const project = defineType({
             'One sentence stating the design decision in response to the brief. First-person Staci voice OK. The "show the thinking, not the credentials" rule made visible. Examples: "Edit, don\'t add. Source one vintage piece. Anchor the seating." / "Move the sofa off the wall. Re-light from a single warm source."',
         },
       },
-      validation: (Rule) => Rule.max(160),
+      validation: (Rule) => Rule.required().max(160),
     }),
     defineField({
       name: 'introStory',
       title: 'Intro story',
       type: 'array',
-      description: 'The brief, the approach, the result.',
+      description: 'The brief, the approach, the result. Aim for at least three or four short paragraphs, and drop photos in between them where they help. This is the main story of the project.',
       options: {
         canvasApp: {
           purpose:
@@ -236,66 +301,6 @@ export const project = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'gallery',
-      title: 'Gallery',
-      type: 'array',
-      description: 'Additional project photos. Drag to reorder.',
-      of: [
-        defineArrayMember({
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
-          ],
-        }),
-      ],
-    }),
-    defineField({
-      name: 'beforeAfters',
-      title: 'Before/After pairs',
-      type: 'array',
-      description: 'Optional before/after image pairs.',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'beforeAfterPair',
-          fields: [
-            defineField({
-              name: 'beforeImage',
-              title: 'Before',
-              type: 'image',
-              options: { hotspot: true },
-              fields: [
-                defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
-              ],
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'afterImage',
-              title: 'After',
-              type: 'image',
-              options: { hotspot: true },
-              fields: [
-                defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
-              ],
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'caption',
-              title: 'Caption',
-              type: 'string',
-              description: 'Optional explanation of what changed.',
-            }),
-          ],
-          preview: {
-            select: { caption: 'caption', media: 'afterImage' },
-            prepare: ({ caption, media }) => ({ title: caption ?? 'Before / After', media }),
-          },
-        }),
-      ],
-    }),
-    defineField({
       name: 'servicesUsed',
       title: 'Services used',
       type: 'array',
@@ -331,7 +336,7 @@ export const project = defineType({
       name: 'publishedAt',
       title: 'Published at',
       type: 'datetime',
-      description: 'When this project goes live. Set to a future date to schedule.',
+      description: 'The date shown on the project and used to order the portfolio, newest first. Heads up: the project goes live on the next site build no matter what this is set to, so a future date will not hide it.',
       initialValue: () => new Date().toISOString(),
       validation: (Rule) => Rule.required(),
     }),
