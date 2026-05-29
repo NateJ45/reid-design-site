@@ -129,6 +129,7 @@ const resourcesDropdownItems = [
   ...(visible.guides           ? [{ label: 'Guides',          href: '/guides' }]      : []),
   { label: 'FAQ',              href: '/faq' },
   ...(visible.journal          ? [{ label: 'Journal',         href: '/journal' }]     : []),
+  ...(visible.portfolio        ? [{ label: 'Before & After',  href: '/portfolio/before-after' }] : []),
 ];
 
 // Assemble the full nav. Flat items Portfolio and Shop are gated by visibility.
