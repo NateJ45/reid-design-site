@@ -55,9 +55,9 @@ const hasImage = !!item.image?.asset;
       <p class="text-xs uppercase tracking-eyebrow text-foreground/80">{item.vendor}</p>
     )}
 
-    <h4 class="font-display text-h4 text-foreground leading-snug">
+    <h3 class="font-display text-h4 text-foreground leading-snug">
       {item.title ?? 'Untitled item'}
-    </h4>
+    </h3>
 
     {item.note && (
       <p class="text-sm text-foreground/75 leading-relaxed italic">
@@ -76,7 +76,7 @@ const hasImage = !!item.image?.asset;
           target="_blank"
           rel="sponsored nofollow noopener"
           class="inline-flex items-center min-h-[44px] py-xs text-xs font-semibold uppercase tracking-eyebrow text-link hover:text-primary-dark transition-colors"
-          aria-label={`Shop ${item.title ?? 'this item'} (opens in new tab)`}
+          aria-label={`Shop this, ${item.title ?? 'this item'}, opens in new tab`}
         >
           Shop this <span aria-hidden="true" class="ml-xs">→</span>
         </a>
