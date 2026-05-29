@@ -43,7 +43,7 @@ Only needed if you're testing a config change locally before committing, or if t
 
 ### Sanity → Cloudflare deploy hook
 
-The site is fully prerendered, so a Sanity content edit doesn't change the live HTML until a rebuild. A Sanity webhook is already configured (no GROQ filter — every publish triggers) and hits a Cloudflare deploy hook. The flow:
+The site is fully prerendered, so a Sanity content edit doesn't change the live HTML until a rebuild. A Sanity webhook is already configured and hits a Cloudflare deploy hook. The flow:
 
 1. Staci edits in `reid-design.sanity.studio`
 2. Clicks Publish
@@ -55,6 +55,48 @@ If a content change isn't appearing on the live site after a few minutes:
 - Check the webhook fired (Sanity Studio → Manage → API → Webhooks)
 - Check the Cloudflare deploy hook is configured (Workers → Settings → Triggers → Deploy hooks)
 - Try a manual `git push` to force a rebuild
+
+### Rebuild webhook filter (recommended)
+
+The webhook lives at manage.sanity.io → API → Webhooks → "Rebuild live site". The recommended GROQ filter is a deny-list:
+
+```
+!(_id in path("drafts.**")) && !(_type in ["media.tag", "sanity.imageAsset", "sanity.fileAsset", "sanity.assetSourceData"])
+```
+
+This filter skips rebuilds triggered by draft saves and internal Sanity asset-management events (tagging an uploaded photo, rotating an image, etc.), which don't affect live HTML. **Critically, new content types are covered automatically** because the filter excludes only the named system types and lets everything else through. The old hand-maintained allow-list approach (explicitly listing every `_type` that should trigger a rebuild) silently dropped new types until a developer remembered to add them. The deny-list is safer: add a new schema type and it triggers rebuilds out of the box.
+
+If the webhook currently has no filter or uses an allow-list, replace the filter with the deny-list above and save. No other webhook config changes are needed.
+
+### Scheduled publishing (for Staci)
+
+Sanity supports scheduling a document to go live at a future date and time. Use this for journal posts or projects you want to publish during business hours, or to line up content in advance.
+
+**How to schedule a publish:**
+
+1. Open the project or journal post you want to schedule.
+2. Click the small arrow (chevron) to the right of the blue Publish button in the bottom bar.
+3. Choose "Schedule publish" from the menu that appears.
+4. Pick the date and time you want the document to go live. Times are local to your browser.
+5. Click "Schedule." The document moves to a "Scheduled" state and will publish automatically at the chosen time.
+
+You can see, edit, or cancel scheduled items by going back to that document before the time fires.
+
+**Notes:**
+- The live site rebuilds automatically when the scheduled publish fires. No manual action needed.
+- If the scheduled-publishing plugin is not active in this Studio version, the "Schedule publish" option will not appear. Contact Nathan. As of May 2026, the official `@sanity/scheduled-publishing` plugin is incompatible with this Studio's React 19 dependency, so the standard Sanity scheduling feature built into the document actions is the intended path until the plugin is updated.
+
+### Field comments
+
+Sanity Studio includes a built-in Comments feature (the speech-bubble icon that appears next to field labels when you hover). This is available by default in Sanity v5 and requires no plugin or config flag to enable.
+
+**How Staci can use it:**
+
+1. Hover over any field label in a document.
+2. Click the speech-bubble icon that appears.
+3. Type a question or note and click Submit.
+
+Nathan sees the comment the next time he opens the Studio. Comments stay attached to the specific field until resolved, so they don't get lost in a text thread. Good uses: "Not sure what to put here," "Is this the right photo?", "This copy feels off — can you rewrite?" Comments do not affect published content in any way.
 
 ### Studio deploy
 
@@ -372,4 +414,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-*Last updated: May 28, 2026 — conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas.*
+*Last updated: May 28, 2026 — studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas.*

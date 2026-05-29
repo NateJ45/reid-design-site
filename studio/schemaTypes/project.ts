@@ -104,6 +104,7 @@ export const project = defineType({
       name: 'year',
       title: 'Year completed',
       type: 'number',
+      initialValue: () => new Date().getFullYear(),
       validation: (Rule) => Rule.required().integer().min(2024).max(2099),
     }),
     defineField({
@@ -340,7 +341,7 @@ export const project = defineType({
   preview: {
     select: { title: 'title', location: 'location', year: 'year', featured: 'featured', media: 'heroImage' },
     prepare: ({ title, location, year, featured, media }) => ({
-      title,
+      title: title ?? 'Untitled project',
       subtitle: `${featured ? '★ ' : ''}${location ?? ''} · ${year ?? ''}`,
       media,
     }),

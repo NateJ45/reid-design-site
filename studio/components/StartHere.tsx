@@ -56,6 +56,22 @@ const sections: Section[] = [
     ],
   },
   {
+    heading: 'Schedule a post for later',
+    body: [
+      'Open a project or journal post and look for the arrow next to the Publish button. Click it to find the "Schedule publish" option.',
+      'Pick the date and time you want the post to go live. Once scheduled, the site rebuilds automatically at that time and the content appears on reiddesignllc.com.',
+      'You can change or cancel the scheduled time any time before it fires.',
+    ],
+  },
+  {
+    heading: 'Ask a question on any field',
+    body: [
+      'You can leave notes on specific fields without touching the content. Hover over a field and click the speech-bubble icon that appears next to the label.',
+      'Type your question or note and click Submit. Nathan sees it the next time he opens the Studio. This is the best way to flag something like "not sure what to put here" or "is this the right photo?" without sending a separate message.',
+      'Comments stay attached to the field until they are resolved, so nothing gets lost.',
+    ],
+  },
+  {
     heading: 'Preview',
     body: 'Most pages have a Preview tab next to the form. Click it to see how the page looks on the live site before you publish.',
   },

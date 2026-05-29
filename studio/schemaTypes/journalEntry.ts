@@ -544,7 +544,7 @@ export const journalEntry = defineType({
   preview: {
     select: { title: 'title', publishedAt: 'publishedAt', featured: 'featured', media: 'coverImage' },
     prepare: ({ title, publishedAt, featured, media }) => ({
-      title,
+      title: title ?? 'Untitled post',
       subtitle: `${featured ? '★ ' : ''}${publishedAt ? new Date(publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}`,
       media,
     }),

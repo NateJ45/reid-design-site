@@ -1308,23 +1308,21 @@ There are two ways the site rebuilds:
 
 Without a webhook, every Sanity edit waits until the next code push. That's not a sustainable editor experience for Staci.
 
-**Status:** the webhook IS set up and live as of May 27, 2026. Sanity is configured with no GROQ filter, so every published change in the dataset triggers a rebuild. Cloudflare coalesces back-to-back triggers into a single build when they arrive during an in-progress build, so bulk asset uploads don't actually produce dozens of builds — typically 2-3.
+**Status:** the webhook IS set up and live as of May 27, 2026. Cloudflare coalesces back-to-back triggers into a single build when they arrive during an in-progress build, so bulk asset uploads don't actually produce dozens of builds — typically 2-3.
 
-If build-minute usage ever becomes a concern (very unlikely at current cadence), add the GROQ filter shown below to skip rebuilds on non-content document types (image asset metadata, etc).
+**Recommended GROQ filter (deny-list):** apply this at manage.sanity.io → API → Webhooks → "Rebuild live site". It skips draft saves and internal Sanity asset-management events, and covers new content types automatically:
+
+```
+!(_id in path("drafts.**")) && !(_type in ["media.tag", "sanity.imageAsset", "sanity.fileAsset", "sanity.assetSourceData"])
+```
+
+The old allow-list approach (listing every `_type` that should trigger a rebuild) silently dropped new types until a developer remembered to add them. The deny-list is safer. See OPERATIONS.md for the full note.
 
 **The setup pattern (for reference / if it ever needs to be re-created):**
 
 1. **Create the Cloudflare deploy hook** at Cloudflare dashboard → Workers & Pages → reid-design-site → Settings → Build hooks. Name it `Sanity content publish`, branch `main`. Copy the generated URL (looks like `https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/<token>`).
 
-2. **Create the Sanity webhook** at manage.sanity.io → project → API → Webhooks. Name it `Rebuild live site`, dataset `production`, trigger on Create + Update + Delete, HTTP method POST, paste the Cloudflare URL. Optionally filter via GROQ to skip rebuilds on non-content changes:
-   ```
-   _type in [
-     "homePage", "aboutPage", "processPage", "servicesPage",
-     "faqPage", "contactPage", "journalPage", "siteSettings",
-     "service", "testimonial", "faqItem", "philosophyPoint",
-     "processStep", "project", "journalEntry", "journalCategory"
-   ]
-   ```
+2. **Create the Sanity webhook** at manage.sanity.io → project → API → Webhooks. Name it `Rebuild live site`, dataset `production`, trigger on Create + Update + Delete, HTTP method POST, paste the Cloudflare URL. Apply the deny-list GROQ filter above.
 
 3. **Test:** edit `siteSettings.tagline` → publish → watch Cloudflare's Deployments tab → new build kicks off within ~10 seconds → live in ~1-3 min total.
 
