@@ -22,13 +22,14 @@
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
-import { Mail } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import CopyEmailButton from '@/components/CopyEmailButton';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { getAllProjects } from '@/lib/queries';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
+import { telHref } from '@/lib/phone';
 
 // Pre-render the four footer-logo variants (1x + 2x for each theme) so we
 // can ship ONE img tag with data-attribute URLs and let the BaseLayout
@@ -56,6 +57,7 @@ interface Props {
   siteSettings?: {
     title?: string;
     email?: string;
+    phone?: string;
     socialInstagram?: string;
     socialFacebook?: string;
     serviceAreas?: string[];
@@ -85,6 +87,7 @@ const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 const brandName = siteSettings?.title ?? site.name;
 const email = siteSettings?.email ?? '';
+const phone = siteSettings?.phone ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
 const tagline =
@@ -289,6 +292,17 @@ const latestProjects = allProjects.slice(0, 3);
         {email && (
           <p class="text-sm">
             <CopyEmailButton client:visible email={email} variant="link" />
+          </p>
+        )}
+        {phone && (
+          <p class="mt-xs text-sm">
+            <a
+              href={telHref(phone)}
+              class="inline-flex items-center gap-xs text-link hover:text-primary-dark transition-colors"
+            >
+              <Phone size={14} aria-hidden="true" />
+              {phone}
+            </a>
           </p>
         )}
         <p class="mt-s text-sm text-foreground/85">

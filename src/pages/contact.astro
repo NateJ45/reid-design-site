@@ -5,6 +5,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getContactPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
+import { telHref } from '@/lib/phone';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
 import PortableText from '@/components/PortableText';
@@ -12,7 +13,7 @@ import ContactForm from '@/components/ContactForm';
 import CopyEmailButton from '@/components/CopyEmailButton';
 import CalendlyInline from '@/components/CalendlyInline';
 import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
-import { Mail } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import PostInquiryRoadmap from '@/components/PostInquiryRoadmap.astro';
 
 const [page, siteSettings] = await Promise.all([
@@ -33,6 +34,7 @@ const schedulingLinkLabel = page?.schedulingLinkLabel ?? 'Schedule a 20-minute d
 
 const availability = page?.availabilityNote ?? siteSettings?.availabilityStatus;
 const email        = siteSettings?.email;
+const phone        = siteSettings?.phone;
 
 // Satisfaction guarantee — renders near the form CTA when set in siteSettings.
 const satisfactionGuarantee = siteSettings?.satisfactionGuarantee;
@@ -99,6 +101,13 @@ const schemas = [
           <CopyEmailButton client:visible email={email} variant="link" />
         </p>
       )}
+      {phone && (
+        <p class="mt-s flex flex-wrap items-center gap-xs text-sm text-foreground/75">
+          <Phone size={14} aria-hidden="true" className="text-secondary" />
+          <span>Or call</span>
+          <a href={telHref(phone)} class="text-link hover:text-primary-dark underline underline-offset-2 font-medium">{phone}</a>
+        </p>
+      )}
 
       {schedulingLink && (
         <CalendlyInline client:visible url={schedulingLink} loadLabel={schedulingLinkLabel} />
@@ -144,6 +153,19 @@ const schemas = [
         <div>
           <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Email</p>
           <CopyEmailButton client:visible email={email} variant="link" />
+        </div>
+      )}
+
+      {phone && (
+        <div>
+          <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">Call</p>
+          <a
+            href={telHref(phone)}
+            class="inline-flex items-center gap-xs text-sm text-link hover:text-primary-dark transition-colors"
+          >
+            <Phone size={14} aria-hidden="true" />
+            {phone}
+          </a>
         </div>
       )}
 

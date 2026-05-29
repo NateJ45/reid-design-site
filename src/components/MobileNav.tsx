@@ -20,7 +20,7 @@
 // content is wired up.
 
 import { useState } from 'react';
-import { Menu, Mail, ChevronRight } from 'lucide-react';
+import { Menu, Mail, Phone, ChevronRight } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import {
   Sheet,
@@ -30,6 +30,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import ThemeToggle from './ThemeToggle';
+import { telHref } from '@/lib/phone';
 
 // ---- Types ------------------------------------------------------------------
 
@@ -50,6 +51,7 @@ type NavItem = FlatNavLink | DropdownNavGroup;
 interface MobileNavSiteSettings {
   tagline?: string;
   email?: string;
+  phone?: string;
   socialInstagram?: string;
   socialFacebook?: string;
 }
@@ -76,6 +78,7 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
     siteSettings?.tagline ??
     'Plainfield interior design for homes that feel genuinely yours.';
   const email = siteSettings?.email;
+  const phone = siteSettings?.phone;
   const ig = siteSettings?.socialInstagram;
   const fb = siteSettings?.socialFacebook;
 
@@ -176,6 +179,15 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
               >
                 <Mail size={16} aria-hidden="true" />
                 {email}
+              </a>
+            )}
+            {phone && (
+              <a
+                href={telHref(phone)}
+                className="mt-s flex items-center gap-s text-sm text-link hover:underline"
+              >
+                <Phone size={16} aria-hidden="true" />
+                {phone}
               </a>
             )}
 

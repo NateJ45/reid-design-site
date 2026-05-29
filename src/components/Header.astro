@@ -16,7 +16,7 @@
 
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
-import { Mail } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
@@ -24,6 +24,7 @@ import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 import { getSectionVisibility, type SectionVisibility } from '@/lib/sectionVisibility';
+import { telHref } from '@/lib/phone';
 
 // Pre-render every logo variant we'll need via Astro's image pipeline so we
 // have the hashed WebP URLs available at build time. The header displays at
@@ -53,6 +54,7 @@ interface Props {
     title?: string;
     tagline?: string;
     email?: string;
+    phone?: string;
     socialInstagram?: string;
     socialFacebook?: string;
     availabilityStatus?: string;
@@ -84,12 +86,14 @@ const mobileNavSettings = siteSettings
   ? {
       tagline: siteSettings.tagline,
       email: siteSettings.email,
+      phone: siteSettings.phone,
       socialInstagram: siteSettings.socialInstagram,
       socialFacebook: siteSettings.socialFacebook,
     }
   : null;
 
 const email = siteSettings?.email ?? '';
+const phone = siteSettings?.phone ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
 
@@ -208,6 +212,15 @@ function isGroupActive(items: { href: string }[]) {
           >
             <Mail size={12} aria-hidden="true" />
             {email}
+          </a>
+        )}
+        {phone && (
+          <a
+            href={telHref(phone)}
+            class="inline-flex items-center gap-xs text-xs text-foreground hover:text-link transition-colors"
+          >
+            <Phone size={12} aria-hidden="true" />
+            {phone}
           </a>
         )}
         {(ig || fb) && (
