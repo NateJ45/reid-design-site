@@ -81,6 +81,14 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 
 Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus auto-populated content from reusable collections (services, testimonials, FAQs, process steps, philosophy points). The structure of each page is fixed in code; the content within each section is editable in Sanity.
 
+**About page** (in render order):
+1. Hero
+2. Story
+3. Philosophy cards
+4. Personal ("off the clock" section from `AboutPersonal.astro`; hides when all modules are empty)
+5. Press strip
+6. Final CTA
+
 Now also live (built during placeholder-content phase):
 - Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`) — schema + 3 placeholder projects; Staci adds real photos
 - Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
@@ -589,6 +597,9 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage).
 - `ProcessStepIllustration.astro` — inline SVG line illustrations in Soft Sage above each numeral (1-4).
 
+**About page pieces:**
+- `AboutPersonal.astro` — renders the "off the clock" personal section on `/about`. Four modules, each self-hides when its content is empty: "Currently" (label/value list), "Rapid fire" (prompt/answer pairs), "Favorite local spots" (name + optional note), and "Beyond design" (casual paragraph + optional candid photo). The whole section renders nothing when all modules are empty. Follows the brand card pattern (bronze top stripe, card-lift shadow). Content comes from the `personal` field group on `aboutPage` (see editor-driven fields below).
+
 **Portfolio index pieces:**
 - `PortfolioFilterChips.tsx` — Room × Style filter chips. Filters via data attributes; persists in URL hash. Auto-hides when fewer than 2 values exist in either axis.
 - `PortfolioCursor.tsx` — bronze "View →" custom cursor over portfolio grid on desktop hover-capable devices. Bails out on touch + reduced-motion.
@@ -620,11 +631,11 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 
 **Sanity Studio components (in `studio/components/`):**
 - `StudioLogo.tsx` — replaces the default Sanity wordmark in the Studio header with the Reid Design logo. Wired via `studio.components.logo` in `studio/sanity.config.ts`.
-- `StudioGuide.tsx` — Panel 1 of the "Start Here" handbook in the Studio sidebar. Plain-language orientation: how the Studio works, map of where things live, step-by-step how-tos for every common editing task, photo tips, SEO hints, scheduling, field comments. Static content, no data fetching.
-- `BusinessOverview.tsx` — Panel 2 of the "Start Here" handbook. Fetches live business facts from Sanity via `useClient` (contact info, service areas, availability) alongside static positioning/voice notes. Shows Staci current live values without her having to navigate to Site Settings.
-- `BrandKit.tsx` — Panel 3 of the "Start Here" handbook. Displays the brand color palette (hex values) and font names in a format Staci can reference while building content in Canva or other tools.
+- `StudioGuide.tsx` — Panel 1 of the "Start Here" handbook. Fetches its content from the `studioGuide` singleton via `useClient` and renders the guide title, intro, site map, how-tos, and tips. The guide is now editor-driven: Staci (or Nathan) can update the handbook text directly in Studio without a code change.
+- `BusinessOverview.tsx` — Panel 2 of the "Start Here" handbook. Fetches live business facts from Sanity via `useClient` (contact info, service areas, availability, plus the three static sections now read from the `studioNotes` singleton: business summary, ideal client, voice summary + words to avoid).
+- `BrandKit.tsx` — Panel 3 of the "Start Here" handbook. Displays the brand color palette (hex values) and font names. **Hardcoded on purpose:** the colors and fonts mirror the real `globals.css` design tokens, so putting them in Sanity would create a second source of truth that can drift from the live site without anyone noticing.
 
-All three panels are wired in `studio/structure.ts` under a "Start Here" parent list item at the top of the Studio sidebar.
+All three panels are wired in `studio/structure.ts` under a "Start Here" parent list item at the top of the Studio sidebar. The `studioGuide` and `studioNotes` singletons each have two views in structure: a rendered component view (read) and an Edit form view, matching the form-plus-preview pattern used by page singletons. Both are added to `SINGLETON_TYPES` in `structure.ts` and `sanity.config.ts` (delete/duplicate/unpublish protection). Both use plain text fields throughout (no Portable Text) to avoid a Studio renderer dependency, and are excluded from Canvas.
 
 The desktop nav dropdowns live directly in `Header.astro` as SSR'd `<details>` (see Page architecture → Header nav), not as a React island.
 
@@ -1161,6 +1172,11 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 
 **Page singletons (7):**
 - `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage` — One document per page. All seven page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`. Journal posts (`journalEntry`) have a `coverImage` with optional caption + a `sourcedFrom` annotation in the body marks.
+- `aboutPage` has a `personal` field group with: `personalEyebrow`, `personalHeadline`, `personalIntro`, `currentlyList[]` (label + value pairs), `rapidFire[]` (prompt + answer pairs), `localSpots[]` (name + optional note), `beyondDesign` (text paragraph), `candidPhoto` (image with required alt). All of these are projected in `getAboutPage()` in `src/lib/queries.ts` via the shared `IMAGE_PROJECTION`. The whole section self-suppresses when `personalHeadline` is not set and all list fields are empty.
+
+**Studio guide singletons (2, protected):**
+- `studioGuide` — drives the "How the website works" panel (StudioGuide.tsx). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]` (with a tone enum). Plain text throughout (no Portable Text).
+- `studioNotes` — drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout. Both singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
 
 **Reusable object types (embedded, not standalone documents):**
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
@@ -1186,6 +1202,7 @@ Two schema-level controls govern what Canvas sees, both expressed as `options.ca
 **Excluded from Canvas entirely** (`options.canvasApp.exclude: true` at the type level):
 - All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage`) — marketing copy is structural and locked; edit fields directly in Studio.
 - `siteSettings` — configuration, not prose.
+- `studioGuide`, `studioNotes` — Studio handbook content; edit directly in Studio (both excluded by design to avoid a renderer dependency).
 - `testimonial` — verbatim client quotes; AI must not "improve" them.
 - `philosophyPoint`, `processStep` — short, locked structural content.
 - `journalCategory` — taxonomy, not content.
@@ -1216,7 +1233,7 @@ Several pages pull their content from collections automatically rather than requ
 - Process steps everywhere: all `processStep` documents in `stepNumber` order.
 - FAQs on the FAQ page: grouped by `category`, in the order defined in `faqPage.categoryOrder`.
 - FAQs on the Process page: only those with `alsoShowOnProcessPage: true`.
-- Philosophy points on About: all `philosophyPoint` documents in `displayOrder`.
+- Philosophy points on About: all `philosophyPoint` documents in `orderRank` (drag order). The visible card numbers (01 / 02 / 03) are assigned by render position (`idx + 1`), not by the `displayOrder` field. Do not restore `displayOrder`-based numbering: the numbers are always sequential and always match what the editor sees on screen. `displayOrder` on `philosophyPoint` is now optional and serves only as a backup sort key when `orderRank` is absent.
 
 This trades a small amount of flexibility for a much simpler editor experience. Staci adds a service in Sanity, sets `showOnHomepage: true`, and it appears on both the Services page and the homepage without touching any other document.
 
@@ -1233,11 +1250,13 @@ The contact form posts to Web3Forms (see Deployment section for env vars). On su
 5. **Rough budget range** (required) — dropdown of 6 brackets sized to Reid Design's actual pricing
 6. **Timeline** (required) — dropdown of 5 buckets
 7. **Tell us about the space** (required, textarea)
-8. **How did you hear about Reid Design?** (optional) — dropdown of 9 source options
+8. **How did you hear about Reid Design?** (optional) — dropdown of 11 source options, including "Took the style quiz" and "Downloaded a free guide" (added to encourage tracking of capture-tool leads)
 
 The **email subject line** front-loads project type + location for inbox triage: `"Inquiry: Full Room Design in Carmel (Sarah Hooker)"`. Staci can sort and prioritize from her inbox without opening.
 
 **Why every dropdown stays in code as a fallback:** project type, budget brackets, timeline, source, location options are stable structural enums that mirror Reid Design's actual pricing + service area. The five `pick(override, FALLBACK)` calls at the top of `ContactForm.tsx` use the Sanity override when populated, otherwise the in-code list. That keeps the form usable even if Staci empties a field by accident, and gives her a single Studio panel to edit any dropdown if she wants to.
+
+`scripts/patch-contact-form-options.mjs` keeps `formProjectTypeOptions` and `formSourceOptions` force-set (not set-if-missing) on every run, because a stale Sanity value for either can silently override the correct in-code default without Staci realizing it. Location, budget, and timeline options keep the set-if-missing guard since Staci may have customized them.
 
 **Form a11y:** every input has an associated `<label>`. Error `<p>` containers all carry `role="alert" aria-live="polite"`. `aria-describedby` includes both the error AND the hint when both are present. Focus moves to the first invalid field on submit. Honeypot field (`zip`) catches bots silently.
 
@@ -1307,6 +1326,8 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 - Astro wrappers: `SanityImage.astro`, `StructuredData.astro`, `SectionHeading.astro` (accepts optional `scriptAccent?: string`), `SectionDivider.astro`, `ServiceAreaCue.astro`, `ReadingProgress.astro`, `ProjectMetaBand.astro`, `ProcessStepIllustration.astro`, `Hero.astro` (refactored to use `splitScriptAccent`, behavior unchanged), `FinalCta.astro` (accepts optional `scriptAccent?: string`), `CtaLink.astro`
 - `scripts/generate-og-default.mjs`, `scripts/strip-editor-annotations.mjs`, `scripts/sweep-eyebrow-contrast.mjs` (reusable for future drift detection)
 - `scripts/seed-conversion-content.mjs` + `scripts/seed-script-accents.mjs` — idempotent seeders for the conversion-build document types (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, resources, post-inquiry roadmap) and section/finalCta scriptAccent fields. Seeded content is placeholder; see OPERATIONS.md for what must be replaced before DNS cutover.
+- `scripts/seed-about-personal.mjs` — idempotent seeder for the About personal section. Seeds placeholder text into `aboutPage.personal*` fields only when `personalHeadline` has not been customized. Safe to re-run.
+- `scripts/seed-studio-guide.mjs` — idempotent seeder (`createOrReplace`) for the `studioGuide` and `studioNotes` singletons. Seeds both from the previously hardcoded content in the Studio components. Run once on a fresh dataset, or after adding a new how-to/tip to the seed file.
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
 - `public/_headers` (security response headers shipped with the deploy)
 - `public/og-default.png` (regenerate via `npm run og`)
@@ -1596,6 +1617,9 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 - **Satisfaction guarantee** — `siteSettings.satisfactionGuarantee` renders near the form CTA on `/contact` and near the final CTA on `/services`.
 - **Testimonial `sourceType`** — `testimonial.sourceType` (`google` / `houzz` / `facebook` / `direct` / `other`) drives the small platform badge on `TestimonialCard` + `FeaturedTestimonial`. Renders nothing for `direct` / `other` / unset.
 
+- **About personal section** — `aboutPage.personal*` field group: eyebrow, headline, intro, `currentlyList[]`, `rapidFire[]`, `localSpots[]`, `beyondDesign`, `candidPhoto`. Drives `AboutPersonal.astro` on `/about`. The section self-hides when all modules are empty, so Staci can fill it in gradually without anything looking broken.
+- **Start Here guide** — `studioGuide` singleton: the "How the website works" handbook panel is now editable in Studio. Nathan or Staci can update the site map, how-tos, and tips without a code change.
+- **Start Here business notes** — `studioNotes` singleton: the three static positioning sections in the "Your business at a glance" panel (business summary, ideal client, voice summary + words to avoid) are now editable in Studio.
 - **Section visibility** — `siteSettings.sectionVisibility` object field (ten boolean toggles: Portfolio, Journal, Shop, E-Design, Gift Certificates, Press, Resources, Guides, Style Quiz, Budget Calculator). Toggling any one off removes that section from the nav, footer, homepage, and its own page simultaneously. Core pages are always on. See [Section visibility](#section-visibility) in Page architecture for the full behavior.
 
 ### Hardcoded in code (intentional)
@@ -1623,6 +1647,6 @@ If a full-field annotation is the entire content (like `faqItem.background` was 
 
 ---
 
-*Last updated: May 29, 2026 — section visibility system added: `siteSettings.sectionVisibility` schema object with ten boolean toggles, `src/lib/sectionVisibility.ts` helper (`value !== false` rule), and off-behavior across nav/footer/homepage/pages documented; Studio defaults changed to All-fields tab (removed `default: true` from all field groups); Studio branding documented (`title: 'Reid Design'`, bronze `buildLegacyTheme`, `StudioLogo` component, `studio/global.d.ts`); SEO `.warning()` validations on seoTitle/seoDescription across all page schemas documented; Vision/GROQ plugin gated to non-production documented; Start Here handbook updated to three panels (StudioGuide / BusinessOverview / BrandKit, replacing the removed single-file StartHere). Earlier: consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
+*Last updated: May 29, 2026 — About personal section: new `AboutPersonal.astro` component + `aboutPage.personal*` field group (currently list, rapid fire, local spots, beyond design + candid photo); all content self-hides when empty. Editable Start Here guide: `studioGuide` and `studioNotes` singletons now drive StudioGuide.tsx and the static sections of BusinessOverview.tsx; BrandKit.tsx stays hardcoded to stay in sync with globals.css tokens. Philosophy card numbering: visible numbers (01/02/03) now assigned by render position, not displayOrder; displayOrder is optional and backup-only. Contact lead sources: source dropdown now has 11 options (added "Took the style quiz" + "Downloaded a free guide"); patch script force-sets formProjectTypeOptions and formSourceOptions to keep Sanity in sync. New seed scripts: seed-about-personal.mjs + seed-studio-guide.mjs. Earlier: section visibility system added: `siteSettings.sectionVisibility` schema object with ten boolean toggles, `src/lib/sectionVisibility.ts` helper (`value !== false` rule), and off-behavior across nav/footer/homepage/pages documented; Studio defaults changed to All-fields tab (removed `default: true` from all field groups); Studio branding documented (`title: 'Reid Design'`, bronze `buildLegacyTheme`, `StudioLogo` component, `studio/global.d.ts`); SEO `.warning()` validations on seoTitle/seoDescription across all page schemas documented; Vision/GROQ plugin gated to non-production documented; Start Here handbook updated to three panels (StudioGuide / BusinessOverview / BrandKit, replacing the removed single-file StartHere). Earlier: consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
 
 See `OPERATIONS.md` for tactical playbook (deploy, patch content, run audits, common gotchas).

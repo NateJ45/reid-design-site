@@ -144,6 +144,12 @@ export async function getAboutPage() {
     "philosophyPoints": *[_type == "philosophyPoint"] | order(orderRank asc, displayOrder asc){
       title, description, displayOrder
     },
+    personalEyebrow, personalHeadline, personalIntro,
+    currentlyList[]{label, value},
+    rapidFire[]{prompt, answer},
+    localSpots[]{name, note},
+    beyondDesign,
+    candidPhoto${IMAGE_PROJECTION},
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);

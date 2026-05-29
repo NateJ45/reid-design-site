@@ -27,10 +27,11 @@ export const philosophyPoint = defineType({
     }),
     defineField({
       name: 'displayOrder',
-      title: 'Display order',
+      title: 'Display order (optional)',
       type: 'number',
-      description: '1, 2, 3 for left-to-right order on the About page.',
-      validation: (Rule) => Rule.required().integer().min(1),
+      description:
+        'Optional. The cards are ordered by dragging them in the Philosophy Values list, and the 01/02/03 numbers on the page are automatic. This field is just a backup sort key.',
+      validation: (Rule) => Rule.integer().min(1),
     }),
     // Hidden field managed by the orderable-document-list plugin.
     orderRankField({ type: 'philosophyPoint' }),

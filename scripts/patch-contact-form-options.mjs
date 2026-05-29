@@ -57,15 +57,15 @@ const formBudgetOptions = [
   '$10K – $30K (multiple rooms or styling)',
   '$30K – $75K (whole-home design)',
   '$75K+ (major project)',
-  "Not sure yet — happy to talk it through",
+  "Not sure yet, happy to talk it through",
 ];
 
 const formTimelineOptions = [
-  'ASAP — within the next month',
+  'ASAP, within the next month',
   '1–3 months out',
   '3–6 months out',
   'More than 6 months',
-  "Flexible — I'm just exploring",
+  "Flexible, I'm just exploring",
 ];
 
 const formSourceOptions = [
@@ -75,9 +75,23 @@ const formSourceOptions = [
   'Houzz',
   'Friend or family referral',
   'Builder or realtor referral',
+  'Took the style quiz',
+  'Downloaded a free guide',
   'Reading the journal',
   'Saw a project in person',
   'Other',
+];
+
+// Canonical project-type list. Mirrors DEFAULT_PROJECT_TYPES in ContactForm.tsx.
+const formProjectTypeOptions = [
+  'In-Home Consultation',
+  'E-Design',
+  'Full Room Design',
+  'Full Room Design + Styling',
+  'Shopping & Sourcing',
+  'Builder or Realtor Partnership',
+  'Gift Certificate',
+  "Not sure yet, let's chat",
 ];
 
 async function run() {
@@ -89,26 +103,26 @@ async function run() {
 
   const existing = await client.getDocument(contactDoc._id);
 
-  const setIfMissing = {};
-  const pairs = [
+  // These two must always reflect current offerings/funnel. Force-set them.
+  const patch = {
+    formProjectTypeOptions,
+    formSourceOptions,
+  };
+
+  // These keep the set-if-missing guard (Staci may have customized them).
+  const setIfMissing = [
     ['formLocationOptions', formLocationOptions],
     ['formBudgetOptions', formBudgetOptions],
     ['formTimelineOptions', formTimelineOptions],
-    ['formSourceOptions', formSourceOptions],
   ];
-  for (const [key, value] of pairs) {
+  for (const [key, value] of setIfMissing) {
     if (!Array.isArray(existing?.[key]) || existing[key].length === 0) {
-      setIfMissing[key] = value;
+      patch[key] = value;
     }
   }
 
-  if (Object.keys(setIfMissing).length === 0) {
-    console.log('All four option arrays are already populated. No changes made.');
-    return;
-  }
-
-  await client.patch(contactDoc._id).set(setIfMissing).commit();
-  console.log(`[ok] contactPage: set ${Object.keys(setIfMissing).join(', ')}`);
+  await client.patch(contactDoc._id).set(patch).commit();
+  console.log(`[ok] contactPage: set ${Object.keys(patch).join(', ')}`);
 }
 
 run().catch((err) => {

@@ -78,16 +78,16 @@ const BUDGET_OPTIONS = [
   '$10K – $30K (multiple rooms or styling)',
   '$30K – $75K (whole-home design)',
   '$75K+ (major project)',
-  "Not sure yet — happy to talk it through",
+  "Not sure yet, happy to talk it through",
 ] as const;
 
 // Timeline buckets cover the realistic spread for residential design work.
 const TIMELINE_OPTIONS = [
-  'ASAP — within the next month',
+  'ASAP, within the next month',
   '1–3 months out',
   '3–6 months out',
   'More than 6 months',
-  "Flexible — I'm just exploring",
+  "Flexible, I'm just exploring",
 ] as const;
 
 // Lead-source options. Optional field; helps Staci understand where good leads
@@ -99,6 +99,8 @@ const SOURCE_OPTIONS = [
   'Houzz',
   'Friend or family referral',
   'Builder or realtor referral',
+  'Took the style quiz',
+  'Downloaded a free guide',
   'Reading the journal',
   'Saw a project in person',
   'Other',

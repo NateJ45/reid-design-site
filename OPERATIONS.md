@@ -149,7 +149,7 @@ The site build can run any time after step 1. The Studio deploy (step 3) is what
 
 ## Seed placeholder content (conversion build)
 
-Two seed scripts were created during the conversion build to bootstrap the new document types with placeholder content. Run them any time you need to re-seed a blank dataset or reset a field group to starters.
+Seed scripts bootstrap document types with placeholder content. Run them any time you need to re-seed a blank dataset or reset a field group to starters.
 
 ```bash
 # Seeds: styleQuiz config, budgetCalculator config, leadMagnet docs,
@@ -159,9 +159,17 @@ node scripts/seed-conversion-content.mjs
 
 # Seeds: section-heading and finalCta scriptAccent fields on all page singletons
 node scripts/seed-script-accents.mjs
+
+# Seeds: aboutPage personal section (currently list, rapid fire, local spots,
+#        beyond design). Only seeds when personalHeadline has not been customized.
+node scripts/seed-about-personal.mjs
+
+# Seeds: studioGuide + studioNotes singletons (uses createOrReplace).
+#        Run on a fresh dataset, or after updating the seed file with new how-tos/tips.
+node scripts/seed-studio-guide.mjs
 ```
 
-Both scripts are idempotent: they use `setIfMissing` so they will not overwrite content Staci has already edited. Run with `--dry-run` to preview; pass `--apply` to write (check the script's own flag-handling comment at the top).
+All four scripts are idempotent. `seed-conversion-content.mjs` and `seed-script-accents.mjs` use `setIfMissing`. `seed-about-personal.mjs` checks `personalHeadline` before writing. `seed-studio-guide.mjs` uses `createOrReplace` (always writes the canonical guide content, so re-running after a code update to the seed file will overwrite any in-Studio edits to those singletons).
 
 **Important: the seeded content is placeholder.** Before DNS cutover, replace:
 - Press items (outlet names, quotes, logo images, URLs) — fabricated in the seed
@@ -169,6 +177,8 @@ Both scripts are idempotent: they use `setIfMissing` so they will not overwrite 
 - Shop affiliate URLs — dummy links; replace with real ShopMy/LTK/direct URLs
 - Testimonials tagged `sourceType: 'google'` in the seed — verify these are real reviews from Google
 - Guide PDFs on each `leadMagnet.file` — upload the real downloadable files
+- About personal section (`seed-about-personal.mjs`): placeholder text. Staci should fill in her real "Currently," rapid fire answers, local spots, and beyond-design paragraph in Studio
+- Start Here guide and business notes (`seed-studio-guide.mjs`): seeded from the original hardcoded content. Staci or Nathan can update them in Studio at any time without a code change
 
 ---
 
@@ -227,6 +237,8 @@ Everything below must be done before flipping DNS from Squarespace to the Cloudf
 - [ ] Replace dummy shop affiliate URLs with real ShopMy / LTK / direct vendor links; confirm FTC disclosure copy reads correctly
 - [ ] Upload real guide PDFs to each `leadMagnet.file` and toggle `published` on
 - [ ] Verify Google-tagged testimonials are pulled from Staci's real Google Business reviews
+- [ ] **About personal section**: Staci fills in her real content via Studio (currently list, rapid fire answers, local spots, beyond-design paragraph, candid photo). Section self-hides if left empty, so this is not a blocker, but it's a nice human touch early.
+- [ ] **Start Here guide + business notes**: review the seeded `studioGuide` and `studioNotes` content in Studio and update any copy that no longer matches the real site or Staci's current workflow. Nathan edits these directly in Studio. No code change needed.
 
 **Wire external services:**
 - [ ] ESP account created; set `siteSettings.newsletter.formActionUrl` and flip `siteSettings.newsletter.enabled` on
@@ -290,6 +302,8 @@ Then `node scripts/your-script.mjs`.
 - `scripts/patch-homepage-conversion-copy.mjs` — the home page copy enrichment pass. Mixes `set()` (overwrite genuinely-thin existing fields like the Services + Final CTA subheads) with `setIfMissing()` (seed new/empty fields like the Process + Testimonials subheads and the Featured Work/Journal copy). Dry-run by default; `--apply` to write. A good template for "rewrite some live copy, seed the rest" jobs.
 
 **Key gotcha when editing existing page copy:** most `homePage` fields already have Sanity content, so changing a code fallback in `index.astro` does NOT change the live site — the Sanity value wins. To change displayed copy on a populated field you must patch Sanity (see the script above). Only genuinely-empty fields render their code fallback. `inspect-homepage-copy.mjs` tells you which is which.
+
+**Contact form dropdown options:** `scripts/patch-contact-form-options.mjs` force-sets `formProjectTypeOptions` and `formSourceOptions` on every run (not set-if-missing). This is intentional: a stale Sanity value for either silently overrides the correct in-code default. Re-run the script any time those two lists change in `ContactForm.tsx`. The other three dropdowns (location, budget, timeline) still use set-if-missing because Staci may customize them.
 
 **Portable Text blocks** need `_key` (use `randomUUID()`), `_type: 'block'`, `style` (e.g. `'normal'`, `'h2'`), `markDefs: []`, and `children` with their own `_key`. See the `heading()` helper in `patch-project-introstory-headings.mjs`.
 
@@ -435,4 +449,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-*Last updated: May 29, 2026 — documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas.*
+*Last updated: May 29, 2026 — added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas.*

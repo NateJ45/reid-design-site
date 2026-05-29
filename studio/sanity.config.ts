@@ -187,4 +187,6 @@ const SINGLETON_TYPES = new Set<string>([
   'pressPage',
   'styleQuiz',
   'budgetCalculator',
+  'studioGuide',
+  'studioNotes',
 ]);

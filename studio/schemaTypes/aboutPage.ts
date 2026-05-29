@@ -13,6 +13,7 @@ export const aboutPage = defineType({
     { name: 'hero', title: 'Hero' },
     { name: 'story', title: 'Story' },
     { name: 'philosophy', title: 'Philosophy' },
+    { name: 'personal', title: 'Personal' },
     { name: 'final', title: 'Final CTA' },
   ],
   fields: [
@@ -113,6 +114,102 @@ export const aboutPage = defineType({
 
     defineField({ name: 'philosophyEyebrow', title: 'Philosophy eyebrow', type: 'string', group: 'philosophy' }),
     defineField({ name: 'philosophyHeadline', title: 'Philosophy headline', type: 'string', group: 'philosophy' }),
+
+    defineField({
+      name: 'personalEyebrow',
+      title: 'Personal section eyebrow',
+      type: 'string',
+      group: 'personal',
+      initialValue: 'Off the Clock.',
+    }),
+    defineField({
+      name: 'personalHeadline',
+      title: 'Personal section headline',
+      type: 'string',
+      group: 'personal',
+      initialValue: 'A little more about me.',
+    }),
+    defineField({
+      name: 'personalIntro',
+      title: 'Personal section intro (optional)',
+      type: 'text',
+      rows: 2,
+      group: 'personal',
+      description: 'One friendly sentence under the headline. Optional.',
+    }),
+    defineField({
+      name: 'currentlyList',
+      title: 'Currently',
+      type: 'array',
+      group: 'personal',
+      description: 'A short "what I am into right now" list. Refresh it anytime. Example label "Reading", value "the book title".',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'currentlyRow',
+          fields: [
+            defineField({ name: 'label', title: 'Label', type: 'string', description: 'e.g. Reading, Listening to, Loving right now', validation: (R) => R.required() }),
+            defineField({ name: 'value', title: 'Value', type: 'string', validation: (R) => R.required() }),
+          ],
+          preview: { select: { title: 'label', subtitle: 'value' } },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'rapidFire',
+      title: 'Rapid fire',
+      type: 'array',
+      group: 'personal',
+      description: 'Short prompt-and-answer pairs. Example prompt "Coffee order", answer "Oat latte, extra hot".',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'rapidFireRow',
+          fields: [
+            defineField({ name: 'prompt', title: 'Prompt', type: 'string', validation: (R) => R.required() }),
+            defineField({ name: 'answer', title: 'Answer', type: 'string', validation: (R) => R.required() }),
+          ],
+          preview: { select: { title: 'prompt', subtitle: 'answer' } },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'localSpots',
+      title: 'Favorite local spots',
+      type: 'array',
+      group: 'personal',
+      description: 'Go-to places around Plainfield and Indy. Name plus an optional short note.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'localSpotRow',
+          fields: [
+            defineField({ name: 'name', title: 'Name', type: 'string', validation: (R) => R.required() }),
+            defineField({ name: 'note', title: 'Short note (optional)', type: 'string' }),
+          ],
+          preview: { select: { title: 'name', subtitle: 'note' } },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'beyondDesign',
+      title: 'Beyond design',
+      type: 'text',
+      rows: 4,
+      group: 'personal',
+      description: 'A short, casual paragraph or two about life outside work: family, the dogs, hobbies. Write the way you talk.',
+    }),
+    defineField({
+      name: 'candidPhoto',
+      title: 'Candid photo (optional)',
+      type: 'image',
+      group: 'personal',
+      description: 'A relaxed, non-portrait photo. Skip the polished headshot here; warmth beats polish.',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+      ],
+    }),
 
     defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: "Let's Work Together." }),
     defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Ready to Start?' }),

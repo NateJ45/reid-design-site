@@ -75,6 +75,8 @@ const SINGLETON_TYPES = [
   'privacyPage',
   'styleQuiz',
   'budgetCalculator',
+  'studioGuide',
+  'studioNotes',
 ] as const;
 
 const ORDERABLE_TYPES = [
@@ -161,11 +163,27 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               S.listItem()
                 .title('How the website works')
                 .icon(PresentationIcon)
-                .child(S.component(StudioGuide).title('How the website works')),
+                .child(
+                  S.document()
+                    .schemaType('studioGuide')
+                    .documentId('studioGuide')
+                    .views([
+                      S.view.component(StudioGuide).title('Guide'),
+                      S.view.form().title('Edit'),
+                    ]),
+                ),
               S.listItem()
                 .title('Your business at a glance')
                 .icon(ThumbsUpIcon)
-                .child(S.component(BusinessOverview).title('Your business at a glance')),
+                .child(
+                  S.document()
+                    .schemaType('studioNotes')
+                    .documentId('studioNotes')
+                    .views([
+                      S.view.component(BusinessOverview).title('Overview'),
+                      S.view.form().title('Edit notes'),
+                    ]),
+                ),
               S.listItem()
                 .title('Brand kit')
                 .icon(ColorWheelIcon)

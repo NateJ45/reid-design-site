@@ -40,6 +40,19 @@ interface LiveData {
 const SERVICES_QUERY = `*[_type=="service"]|order(orderRank asc){name,price,bestFor}`;
 const SETTINGS_QUERY = `*[_type=="siteSettings"][0]{email,phone,availabilityStatus,serviceAreas,travelFees,socialInstagram,socialFacebook}`;
 
+interface NotesData {
+  businessSummary: string | null;
+  idealClient: string | null;
+  voiceSummary: string | null;
+  wordsToAvoid: string[] | null;
+}
+const NOTES_QUERY = `*[_type=="studioNotes"][0]{businessSummary, idealClient, voiceSummary, wordsToAvoid}`;
+
+/** Split a text field on blank lines into paragraphs. */
+function paragraphs(text?: string | null): string[] {
+  return (text ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+}
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 /** Loading skeleton shown while fetch is in progress. */
@@ -69,6 +82,7 @@ export default function BusinessOverview() {
 
   const [services, setServices] = useState<ServiceRow[] | null>(null);
   const [settings, setSettings] = useState<SiteSettingsData | null>(null);
+  const [notes, setNotes] = useState<NotesData | null>(null);
   const [servicesError, setServicesError] = useState(false);
   const [settingsError, setSettingsError] = useState(false);
 
@@ -84,6 +98,12 @@ export default function BusinessOverview() {
       .fetch<SiteSettingsData | null>(SETTINGS_QUERY)
       .then((data) => setSettings(data ?? null))
       .catch(() => setSettingsError(true));
+
+    // Fetch business notes (optional — a failure does not break the live sections)
+    client
+      .fetch<NotesData | null>(NOTES_QUERY)
+      .then((data) => setNotes(data ?? null))
+      .catch(() => { /* notes are optional; the live sections still render */ });
   }, [client]);
 
   return (
@@ -239,81 +259,41 @@ export default function BusinessOverview() {
           </Stack>
         </Card>
 
-        {/* ── STATIC: Who you are ─────────────────────────────────────────── */}
-        <Card padding={4} radius={2} shadow={1} tone="default">
-          <Stack space={3}>
-            <Heading as="h2" size={1}>
-              Who you are
-            </Heading>
-            <Text size={1}>
-              Reid Design LLC is a residential interior design studio based in Plainfield,
-              Indiana. You serve Plainfield, Indianapolis, and the surrounding suburbs:
-              Carmel, Fishers, Westfield, Zionsville, and Noblesville.
-            </Text>
-            <Text size={1}>
-              The studio is warm and approachable. You show prices openly. You are
-              mid-market, not white-glove. Your entry point is a $150 in-home consultation,
-              which keeps the door low enough for homeowners who are not sure yet.
-            </Text>
-          </Stack>
-        </Card>
+        {/* ── EDITABLE: Who you are ───────────────────────────────────────── */}
+        {notes?.businessSummary && (
+          <Card padding={4} radius={2} shadow={1} tone="default">
+            <Stack space={3}>
+              <Heading as="h2" size={1}>Who you are</Heading>
+              {paragraphs(notes.businessSummary).map((p, i) => (<Text key={i} size={1}>{p}</Text>))}
+            </Stack>
+          </Card>
+        )}
 
-        {/* ── STATIC: Your ideal client ────────────────────────────────────── */}
-        <Card padding={4} radius={2} shadow={1} tone="default">
-          <Stack space={3}>
-            <Heading as="h2" size={1}>
-              Your ideal client
-            </Heading>
-            <Text size={1}>
-              A homeowner in Plainfield or the Indy suburbs. Their home feels off, and they
-              do not know where to start. They have the budget for design help but are not
-              shopping at the luxury tier. They usually find you on Instagram or through a
-              referral from a friend or neighbor.
-            </Text>
-            <Text size={1}>
-              They are not looking for a high-end showroom experience. They want a smart
-              friend who happens to be a designer, someone who will be honest with them,
-              knows what works in real houses, and will not make them feel bad about their
-              current furniture.
-            </Text>
-          </Stack>
-        </Card>
+        {/* ── EDITABLE: Your ideal client ─────────────────────────────────── */}
+        {notes?.idealClient && (
+          <Card padding={4} radius={2} shadow={1} tone="default">
+            <Stack space={3}>
+              <Heading as="h2" size={1}>Your ideal client</Heading>
+              {paragraphs(notes.idealClient).map((p, i) => (<Text key={i} size={1}>{p}</Text>))}
+            </Stack>
+          </Card>
+        )}
 
-        {/* ── STATIC: Your voice ────────────────────────────────────────────── */}
-        <Card padding={4} radius={2} shadow={1} tone="default">
-          <Stack space={3}>
-            <Heading as="h2" size={1}>
-              Your voice (how you sound in writing)
-            </Heading>
-            <Text size={1}>
-              Warm, plain-spoken, like a smart friend who happens to be a designer. Say
-              prices plainly, no hedging. Be specific about real rooms and real situations.
-              Write the way you talk.
-            </Text>
-            <Text size={1} weight="semibold">
-              Words to skip:
-            </Text>
-            <Text size={1}>
-              "Transformative," "curated," "elevated," "tailored," "investment in your
-              space." These read as designer-speak. Replace them with plain descriptions
-              of what actually happens.
-            </Text>
-            <Text size={1} weight="semibold">
-              No em-dashes:
-            </Text>
-            <Text size={1}>
-              That is the long dash that looks like this: . Use a comma or period instead.
-              The website's style guide skips them entirely.
-            </Text>
-            <Text size={1} weight="semibold">
-              Stop when you are done:
-            </Text>
-            <Text size={1}>
-              End the paragraph. Do not add a closing sentence that restates the point.
-              Two sentences that say the same thing is one sentence too many.
-            </Text>
-          </Stack>
-        </Card>
+        {/* ── EDITABLE: Your voice ────────────────────────────────────────── */}
+        {(notes?.voiceSummary || (notes?.wordsToAvoid && notes.wordsToAvoid.length > 0)) && (
+          <Card padding={4} radius={2} shadow={1} tone="default">
+            <Stack space={3}>
+              <Heading as="h2" size={1}>Your voice (how you sound in writing)</Heading>
+              {paragraphs(notes?.voiceSummary).map((p, i) => (<Text key={i} size={1}>{p}</Text>))}
+              {notes?.wordsToAvoid && notes.wordsToAvoid.length > 0 && (
+                <>
+                  <Text size={1} weight="semibold">Words to skip:</Text>
+                  <Text size={1}>{notes.wordsToAvoid.join(', ')}.</Text>
+                </>
+              )}
+            </Stack>
+          </Card>
+        )}
 
       </Stack>
     </Container>

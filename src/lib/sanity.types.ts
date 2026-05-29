@@ -206,6 +206,47 @@ export type FaqItem = {
   alsoShowOnProcessPage?: boolean;
 };
 
+export type StudioNotes = {
+  _id: string;
+  _type: "studioNotes";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  businessSummary?: string;
+  idealClient?: string;
+  voiceSummary?: string;
+  wordsToAvoid?: Array<string>;
+};
+
+export type StudioGuide = {
+  _id: string;
+  _type: "studioGuide";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  guideTitle?: string;
+  guideIntro?: string;
+  studioMap?: Array<{
+    area?: string;
+    description?: string;
+    _type: "mapRow";
+    _key: string;
+  }>;
+  howTos?: Array<{
+    title?: string;
+    steps?: Array<string>;
+    _type: "howTo";
+    _key: string;
+  }>;
+  tips?: Array<{
+    heading?: string;
+    tone?: "default" | "primary" | "caution" | "positive";
+    body?: string;
+    _type: "tip";
+    _key: string;
+  }>;
+};
+
 export type BudgetCalculator = {
   _id: string;
   _type: "budgetCalculator";
@@ -1293,6 +1334,36 @@ export type AboutPage = {
   serviceAreaMention?: string;
   philosophyEyebrow?: string;
   philosophyHeadline?: string;
+  personalEyebrow?: string;
+  personalHeadline?: string;
+  personalIntro?: string;
+  currentlyList?: Array<{
+    label?: string;
+    value?: string;
+    _type: "currentlyRow";
+    _key: string;
+  }>;
+  rapidFire?: Array<{
+    prompt?: string;
+    answer?: string;
+    _type: "rapidFireRow";
+    _key: string;
+  }>;
+  localSpots?: Array<{
+    name?: string;
+    note?: string;
+    _type: "localSpotRow";
+    _key: string;
+  }>;
+  beyondDesign?: string;
+  candidPhoto?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaScriptAccent?: string;
@@ -1663,6 +1734,8 @@ export type AllSanitySchemaTypes =
   | ProcessStep
   | PhilosophyPoint
   | FaqItem
+  | StudioNotes
+  | StudioGuide
   | BudgetCalculator
   | LeadMagnetReference
   | StyleQuiz

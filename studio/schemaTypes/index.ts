@@ -30,6 +30,8 @@ import { shopCollection } from './shopCollection';
 import { shopItem } from './shopItem';
 import { shopPage } from './shopPage';
 import { siteSettings } from './siteSettings';
+import { studioGuide } from './studioGuide';
+import { studioNotes } from './studioNotes';
 import { styleQuiz } from './styleQuiz';
 import { testimonial } from './testimonial';
 
@@ -57,6 +59,9 @@ export const schemaTypes = [
   pressPage,
   styleQuiz,
   budgetCalculator,
+  // Start Here editable singletons
+  studioGuide,
+  studioNotes,
 
   // Reusable content collections
   testimonial,

@@ -23,6 +23,7 @@ import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import FinalCta from '@/components/FinalCta.astro';
 import PressStrip from '@/components/PressStrip.astro';
+import AboutPersonal from '@/components/AboutPersonal.astro';
 
 const [page, siteSettings, pressItems] = await Promise.all([
   getAboutPage().catch(() => null),
@@ -148,7 +149,7 @@ const schemas = [
                 class="font-display text-h2 text-link/85 leading-none mb-s"
                 aria-hidden="true"
               >
-                {String((point.displayOrder ?? idx + 1)).padStart(2, '0')}
+                {String(idx + 1).padStart(2, '0')}
               </p>
               <h3 class="font-display text-h3 text-foreground">{point.title}</h3>
               <p class="mt-s text-foreground/85 leading-relaxed">{point.description}</p>
@@ -158,6 +159,18 @@ const schemas = [
       </div>
     </section>
   )}
+
+  {/* ------- 3b. Personal ("Off the clock") ------------------------------- */}
+  <AboutPersonal
+    eyebrow={page?.personalEyebrow}
+    headline={page?.personalHeadline}
+    intro={page?.personalIntro}
+    currentlyList={page?.currentlyList}
+    rapidFire={page?.rapidFire}
+    localSpots={page?.localSpots}
+    beyondDesign={page?.beyondDesign}
+    candidPhoto={page?.candidPhoto}
+  />
 
   {/* ------- 4. Press strip (as seen in) ------------------------------------- */}
   {/* Sits between the philosophy grid and the final CTA. Suppresses itself
