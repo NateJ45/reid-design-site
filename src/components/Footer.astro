@@ -158,9 +158,13 @@ const latestProjects = allProjects.slice(0, 3);
     </div>
   )}
 
-  {/* 2. Four-column links grid. */}
+  {/* 2. Five-column links grid.
+       Columns: Studio | Work | Free tools & guides | Shop | Get in touch
+       On small screens (<md) the grid collapses to a single centered column;
+       at md+ it spreads across 5 columns. The fifth "Get in touch" column
+       also carries copyright and site credit. */}
   <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-section-md grid gap-l md:grid-cols-4 text-center">
+    <div class="mx-auto max-w-content px-m py-section-md grid gap-l md:grid-cols-5 text-center">
       {/* STUDIO */}
       <nav aria-labelledby="footer-studio">
         <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
@@ -169,8 +173,9 @@ const latestProjects = allProjects.slice(0, 3);
         <ul class="text-sm space-y-2 list-none p-0">
           <li><a href="/about" class="text-foreground/85 hover:text-link transition-colors">About Staci</a></li>
           <li><a href="/process" class="text-foreground/85 hover:text-link transition-colors">Process</a></li>
-          <li><a href="/services" class="text-foreground/85 hover:text-link transition-colors">Services & Pricing</a></li>
+          <li><a href="/services" class="text-foreground/85 hover:text-link transition-colors">Services &amp; Pricing</a></li>
           <li><a href="/faq" class="text-foreground/85 hover:text-link transition-colors">FAQ</a></li>
+          <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
         </ul>
       </nav>
 
@@ -181,8 +186,23 @@ const latestProjects = allProjects.slice(0, 3);
         </p>
         <ul class="text-sm space-y-2 list-none p-0">
           <li><a href="/portfolio" class="text-foreground/85 hover:text-link transition-colors">Portfolio</a></li>
+          <li><a href="/portfolio/before-after" class="text-foreground/85 hover:text-link transition-colors">Before &amp; After</a></li>
           <li><a href="/journal" class="text-foreground/85 hover:text-link transition-colors">Journal</a></li>
-          <li><a href={`mailto:${email}`} class="text-foreground/85 hover:text-link transition-colors">Press inquiries</a></li>
+          <li><a href="/shop" class="text-foreground/85 hover:text-link transition-colors">Shop</a></li>
+          <li><a href="/gift-certificates" class="text-foreground/85 hover:text-link transition-colors">Gift Certificates</a></li>
+        </ul>
+      </nav>
+
+      {/* FREE TOOLS & GUIDES */}
+      <nav aria-labelledby="footer-tools">
+        <p id="footer-tools" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          Free tools &amp; guides
+        </p>
+        <ul class="text-sm space-y-2 list-none p-0">
+          <li><a href="/quiz" class="text-foreground/85 hover:text-link transition-colors">Style Quiz</a></li>
+          <li><a href="/calculator" class="text-foreground/85 hover:text-link transition-colors">Cost Calculator</a></li>
+          <li><a href="/guides" class="text-foreground/85 hover:text-link transition-colors">Guides</a></li>
+          <li><a href="/resources" class="text-foreground/85 hover:text-link transition-colors">Resources</a></li>
         </ul>
       </nav>
 
@@ -266,11 +286,15 @@ const latestProjects = allProjects.slice(0, 3);
         )}
 
         {/* Auto-year copyright + optional "Site by..." link from Sanity.
-            Stacked tight under the socials so the column reads top-to-bottom:
-            email · location · socials · credit. No more standalone bar at the
-            page bottom. */}
+            Privacy link lives here so it's reachable from every page
+            without occupying its own nav slot. */}
         <div class="mt-l space-y-1 text-xs text-foreground/80">
           <p>© {currentYear} {brandName}</p>
+          <p>
+            <a href="/privacy" class="underline underline-offset-2 hover:text-link transition-colors">
+              Privacy policy
+            </a>
+          </p>
           {siteCredit && (
             siteCreditUrl ? (
               <p>

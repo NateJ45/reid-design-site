@@ -20,6 +20,7 @@ import { Mail } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
+import NavDropdowns from './NavDropdowns';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 
@@ -76,18 +77,44 @@ const email = siteSettings?.email ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
 
-const NAV_LINKS = [
-  { label: 'Home',      href: '/' },
-  { label: 'Process',   href: '/process' },
-  { label: 'Services',  href: '/services' },
-  { label: 'Portfolio', href: '/portfolio' },
-  { label: 'Journal',   href: '/journal' },
-  { label: 'FAQ',       href: '/faq' },
-  { label: 'About',     href: '/about' },
-];
+// Grouped nav structure. Flat items render as plain anchor links;
+// dropdown items render as Radix DropdownMenu in the desktop NavDropdowns
+// island and as indented expandable groups in MobileNav.
 // "Contact" is intentionally NOT in the primary nav — the "Book a consultation"
 // CTA at the right of the nav row does that job, and the MobileNav drawer also
 // surfaces the CTA at the top.
+const NAV_ITEMS = [
+  { kind: 'flat' as const,     label: 'Home',      href: '/' },
+  { kind: 'flat' as const,     label: 'Portfolio', href: '/portfolio' },
+  {
+    kind: 'dropdown' as const,
+    label: 'Services',
+    items: [
+      { label: 'Services',          href: '/services' },
+      { label: 'E-Design',          href: '/e-design' },
+      { label: 'Process',           href: '/process' },
+      { label: 'Gift Certificates', href: '/gift-certificates' },
+    ],
+  },
+  { kind: 'flat' as const,     label: 'Shop',  href: '/shop' },
+  {
+    kind: 'dropdown' as const,
+    label: 'Resources',
+    items: [
+      { label: 'Style Quiz',       href: '/quiz' },
+      { label: 'Cost Calculator',  href: '/calculator' },
+      { label: 'Guides',           href: '/guides' },
+      { label: 'FAQ',              href: '/faq' },
+      { label: 'Journal',          href: '/journal' },
+    ],
+  },
+  { kind: 'flat' as const,     label: 'About', href: '/about' },
+];
+
+// Flatten NAV_ITEMS into the shape MobileNav expects (a list of NavLink[]
+// with optional sub-items for the groups). MobileNav already handles both
+// shapes via its updated interface.
+const NAV_LINKS = NAV_ITEMS;
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {
@@ -240,24 +267,14 @@ function isActive(href: string) {
       })();
     </script>
 
-    {/* Nav + CTA grouped on the right (lg+ only). */}
+    {/* Nav + CTA grouped on the right (lg+ only).
+        NavDropdowns is a React island (client:only="react") because
+        Radix DropdownMenu uses a portal that can't SSR inside Astro.
+        The pathname is passed so the island can render correct
+        aria-current and active-state styles without client-side
+        location detection. */}
     <div class="hidden lg:flex items-center gap-l">
-      <nav class="flex items-center gap-l" aria-label="Primary">
-        {NAV_LINKS.map((link) => (
-          <a
-            href={link.href}
-            class:list={[
-              'nav-underline text-sm tracking-wide transition-colors',
-              isActive(link.href)
-                ? 'text-link font-semibold'
-                : 'text-foreground hover:text-link',
-            ]}
-            aria-current={isActive(link.href) ? 'page' : undefined}
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
+      <NavDropdowns client:only="react" pathname={pathname} />
       <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
       <a
         href="/contact"
