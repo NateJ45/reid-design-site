@@ -4,8 +4,8 @@
 // Safe to edit by hand.
 
 import React from 'react';
-// Vite resolves this PNG import to its bundled URL string at build time.
-// @ts-ignore — PNG module type is handled by Vite, not TypeScript.
+// Vite resolves this PNG import to a URL string at build time; the *.png
+// ambient declaration in studio/global.d.ts types it, so no @ts-ignore needed.
 import logoUrl from '../reid-logo.png';
 
 export default function StudioLogo() {
