@@ -218,6 +218,32 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
           const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
           function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
           requestAnimationFrame(raf);
+
+          // Astro View Transitions reuse this single Lenis instance across
+          // navigations. If a link is clicked mid-scroll, Lenis is still
+          // smoothing toward the PREVIOUS page's scroll target and, while it is
+          // smoothing, it ignores the router's scroll-to-top reset. The new
+          // (often shorter) page then inherits that stale target, clamped to
+          // its own maximum, so it opens at the bottom.
+          //
+          // Fix: on a forward navigation (a link/button click, navigationType
+          // "push" or "replace") snap Lenis to the top instantly, which kills
+          // the in-flight momentum and cancels any active scrollTo animation.
+          // On history traversal (browser back/forward, navigationType
+          // "traverse") leave the scroll position alone so the browser's scroll
+          // restoration still works. navigationType is only carried on the
+          // before-swap event, so capture it there and read it in after-swap.
+          // resize() re-reads the new page's scroll height either way.
+          let lastNavType = 'push';
+          document.addEventListener('astro:before-swap', (e) => {
+            lastNavType = (e as any).navigationType;
+          });
+          document.addEventListener('astro:after-swap', () => {
+            if (lastNavType !== 'traverse') {
+              lenis.scrollTo(0, { immediate: true, force: true });
+            }
+            lenis.resize();
+          });
         });
       }
       if ('requestIdleCallback' in window) {
