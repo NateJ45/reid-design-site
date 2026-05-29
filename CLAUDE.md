@@ -86,7 +86,13 @@ Now also live (built during placeholder-content phase):
 - Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
 - E-Design — seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
 
-Header nav carries seven items in this order: **Home / Process / Services / Portfolio / Journal / FAQ / About**. "Contact" is intentionally NOT in the primary nav — the "Book a consultation" CTA pill at the right of the nav row handles that conversion, and the mobile drawer surfaces the CTA at the top of the menu. The list is defined as `NAV_LINKS` in `src/components/Header.astro` and shared with `MobileNav.tsx` so desktop + mobile stay in sync.
+Header nav uses a grouped structure (reorganized in the conversion build to hold the new offerings + capture tools without crowding the row). Flat links plus two dropdown groups, left to right: **Home / Portfolio / Services ▾ / Shop / Resources ▾ / About**.
+- **Services ▾** → Services, E-Design, Process, Gift Certificates
+- **Resources ▾** → Style Quiz, Cost Calculator, Guides, FAQ, Journal
+
+"Contact" is intentionally NOT in the primary nav — the "Book a consultation" CTA pill at the right of the nav row handles that conversion, and the mobile drawer surfaces the CTA at the top of the menu. The structure is defined once as `NAV_ITEMS` in `src/components/Header.astro` (each item is `{ kind: 'flat' }` or `{ kind: 'dropdown', items: [...] }`) and shared with `MobileNav.tsx` so desktop + mobile stay in sync.
+
+**Desktop nav is server-rendered (do NOT regress this).** The desktop nav renders entirely in `Header.astro` as Astro/SSR markup: flat items are real `<a>` tags, dropdown groups are native `<details>`/`<summary>` disclosures with the child links as real `<a>` tags inside. Everything is present in the server HTML at build time, so search-engine crawlers see every internal link and there is no flash-of-missing-nav (or CLS) before any JS runs. A small progressive-enhancement `<script>` at the bottom of `Header.astro` layers on open-on-hover, close-on-outside-click, close-on-Escape, and close-on-navigation (re-bound on `astro:page-load`, document-level listeners guarded by a `window.__headerNavBound` flag so they don't stack across View Transitions). The nav is fully functional with JS disabled. An earlier version hydrated a `NavDropdowns.tsx` React island with `client:only="react"`, which left the ENTIRE desktop nav (including the flat links) out of the server HTML — bad for SEO and CLS. That island was removed; if a future change reintroduces a Radix dropdown island here, keep the flat links and the group structure SSR'd and use the island only for the open/close interaction. The `<summary>` triggers carry `.nav-underline` and get `aria-current="page"` (which locks the underline wide) when one of their children is the active route, matching the flat-link pattern.
 
 **Header breakpoint is `lg:` (1024 px), not `md:` (768 px).** Between md and lg the desktop nav + Book a Consultation CTA cram the seven nav items against the logo and visibly squish the wordmark. Bumping the breakpoint means tablet / narrow-laptop widths see the centered-logo + hamburger layout, and the desktop layout only appears once there's actual room for it. Affects every `md:`/`lg:` toggle in Header.astro and MobileNav.tsx's hamburger wrapper.
 
@@ -557,6 +563,19 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` eyebrow above the caption.
 - `FaqAccordion.tsx` — shadcn Accordion wrapper. **Note:** `src/components/ui/accordion.tsx` has been customized — the original `h-(--radix-accordion-content-height)` lock on the inner content div was removed (caused a big empty-space bug after expand), and the trigger no longer carries `text-sm font-medium` so consumer typography wins the cascade.
 - `ThemeToggle.tsx`, `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
+
+**Capture tools + offerings (conversion build):**
+- `NewsletterSignup.tsx` (`client:visible`) — email-capture card. Renders `null` when `siteSettings.newsletter.enabled` is false or no form-action / Web3Forms key exists. Honeypot + focus-on-error. Used in the footer.
+- `LeadMagnetForm.tsx` (`client:visible`) — gated guide download on `/guides/[slug]`. Reveals the download link on successful email capture. Honeypot + optional first-name field.
+- `StyleQuiz.tsx` (`client:visible`) — multi-step archetype quiz on `/quiz`: questions → optional qualifiers → email gate (mode from Sanity) → result screen with recommendation + CTA. Page pre-builds Sanity image URLs so the island carries no Sanity client.
+- `BudgetCalculator.tsx` (`client:visible`) — room/scope/add-on estimate on `/calculator`. Estimate always shows without an email; optional "email me this estimate" capture. Ranges read "$500 to $1,000" (no en-dash).
+- `ConsentNotice.tsx` (`client:idle`) — dismissible bottom consent bar. Mounts only when `siteSettings.newsletter.enabled` is true (no ESP = no cookies = no bar). Dismissal persists to `localStorage["reid-design-consent"]`.
+- `PostInquiryRoadmap.astro` — numbered "what happens after you hit Send" steps on `/contact`, from `contactPage.postInquiryRoadmap`. Falls back to the legacy `whatToExpectContent` block when the array is empty.
+- `PressStrip.astro` — "As Seen In" press-logo row. Suppresses itself when no `pressItem` has a logo. Used on `/`, `/about`, and `/press`.
+- `ShopGrid.astro` + `ShopItemCard.astro` — affiliate shop collections + item cards for `/shop`. Cards carry brand stripe + `rel="sponsored nofollow noopener"` + `target="_blank"` and an `aria-label` noting "opens in new tab".
+- `subscribeEmail()` in `src/lib/subscribe.ts` — shared client-safe capture helper for the four forms above. Posts to the ESP form-action URL when configured, else falls back to Web3Forms. The form component owns the honeypot; this helper only does the network call.
+
+The desktop nav dropdowns live directly in `Header.astro` as SSR'd `<details>` (see Page architecture → Header nav), not as a React island.
 
 **Utility / lower-level:**
 - `JournalCategoryChip.astro`, `JournalCard.astro`, `TestimonialGrid.astro`, etc.
@@ -1183,6 +1202,17 @@ Don't add custom client-side spam guards (timing checks, IP rate limits, charact
 | `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` | Project detail: hero + meta band + intro story + before/after + gallery + sticky chip |
 | `/journal` | `src/pages/journal/index.astro` | Post grid with category chips |
 | `/journal/[slug]` | `src/pages/journal/[slug].astro` | Post detail: reading progress + header + cover + body (7 custom block types) + related |
+| `/portfolio/before-after` | `src/pages/portfolio/before-after.astro` | All projects with before/after pairs, each a `BeforeAfterSlider`. Suppresses to an empty state when no project has pairs |
+| `/e-design` | `src/pages/e-design.astro` | E-Design offering: intro + how-it-works + what's-included + pricing tiers + FAQ refs + final CTA. Coming-soon state when `eDesignPage` doc absent. CTAs route to `/contact?type=e-design` |
+| `/shop` | `src/pages/shop.astro` | Affiliate "Shop My Favorites" page. Prominent FTC disclosure band above collections; items via `ShopGrid`/`ShopItemCard` with `rel="sponsored nofollow noopener"`. Honors `shopPage.enabled` |
+| `/gift-certificates` | `src/pages/gift-certificates.astro` | Gift certificate info (no payment processing): options + how-it-works + fine print. CTAs route to `/contact?type=gift-certificate` |
+| `/quiz` | `src/pages/quiz.astro` | Style quiz. Passes the `styleQuiz` config to the `StyleQuiz` island. Coming-soon state when fewer than 2 questions/archetypes |
+| `/calculator` | `src/pages/calculator.astro` | Budget calculator. Passes the `budgetCalculator` config to the `BudgetCalculator` island. Coming-soon state when no rooms configured |
+| `/resources` | `src/pages/resources.astro` | Resources hub: ordered card grid linking to quiz, calculator, guides, FAQ, journal. Falls back to hardcoded nav-style cards when `resourcesPage.cards` empty |
+| `/guides` | `src/pages/guides/index.astro` | Lead-magnet index. Lists published `leadMagnet` docs |
+| `/guides/[slug]` | `src/pages/guides/[slug].astro` | Lead-magnet landing + gated download via `LeadMagnetForm`. Generates 0 paths when no magnets published |
+| `/press` | `src/pages/press.astro` | Press coverage list (outlet, date, quote, link) + `PressStrip` logo row. Suppresses list to an empty state when no `pressItem` docs |
+| `/privacy` | `src/pages/privacy.astro` | Privacy policy from `privacyPage` singleton, with a plain-voice static fallback when the doc is absent |
 | `/sitemap-index.xml` | `@astrojs/sitemap` (auto) | Production sitemap |
 | `/404` | `src/pages/404.astro` | Custom 404 (two-column with photograph) |
 
@@ -1286,6 +1316,8 @@ Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variabl
 - `PUBLIC_WEB3FORMS_KEY` — contact form access key from [web3forms.com](https://web3forms.com/). Without it the contact form falls back to a no-op action and shows an inline notice.
 - `PUBLIC_CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token. Without it the analytics beacon doesn't render.
 - `PUBLIC_CALENDLY_URL` — Staci's public Calendly URL.
+- `PUBLIC_NEWSLETTER_FORM_ACTION` — optional. Build-time override for the ESP form-action endpoint, for environments where the URL can't live in Sanity (e.g. staging). `siteSettings.newsletter.formActionUrl` takes precedence; the newsletter only renders at all when `siteSettings.newsletter.enabled` is true.
+- `NEWSLETTER_API_KEY` — optional, server-side only (never a `PUBLIC_` var). Only needed if you add a Cloudflare Worker route that proxies subscribe calls server-side. The current `subscribeEmail()` helper posts directly to the ESP form-action / Web3Forms and does not need it.
 
 All documented in `.env.example`; copy to `.env` and fill in real values for local dev.
 
@@ -1303,16 +1335,17 @@ Content-Security-Policy is intentionally not included; doing it right requires t
 
 ### Privacy and analytics
 
-Reid Design ships with zero cookies and no cookie banner. The deliberate stance:
+The original zero-cookie / no-banner stance has been RELAXED by the conversion build, which added email capture (newsletter + lead magnets + quiz/calculator gates) routed through an ESP. The current, accurate posture:
 
-- **Cloudflare Web Analytics** uses no cookies and stores no personal data. No GDPR/CCPA banner required.
-- **No Google Analytics, no Facebook Pixel, no Meta Pixel, no LinkedIn Insight Tag.** Adding any of these requires a cookie banner. Don't.
+- **Cloudflare Web Analytics** still uses no cookies and stores no personal data.
+- **Still no Google Analytics, no Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker — don't bolt it on.
 - **Sanity client** reads public published content, no auth cookies.
-- **Web3Forms** form submissions go server-side via `fetch`; no cookies set.
+- **Web3Forms** contact-form submissions go server-side via `fetch`; no cookies set. The contact form also now triggers a Web3Forms autoresponder (visitor confirmation email) when that's enabled on the access key.
+- **Email capture (new):** `subscribeEmail()` posts to the ESP form-action URL in `siteSettings.newsletter.formActionUrl` (ConvertKit / MailerLite / Kit), falling back to Web3Forms when unset. The ESP may set its own cookies on subscribe. This is the reason the banner + policy below now exist.
 
-If a future need arises (richer analytics, ad retargeting, A/B testing), revisit the privacy stance deliberately and add a consent management platform (Cookiebot, OneTrust, Osano) BEFORE adding the tracker. Don't bolt a banner onto the current setup — design it in.
+**`/privacy` page (new):** a real privacy policy now ships, driven by the `privacyPage` singleton with a plain-voice static fallback (covers what's collected, what doesn't happen, unsubscribe, data requests). Linked from the footer on every page and from every capture form's consent note.
 
-Privacy policy: not required at launch given zero tracking. If regulations later require one (EU traffic under GDPR, California under CCPA), add `/privacy` as a new page singleton in Sanity. The current "no cookies, no tracking" posture makes the policy short and honest.
+**`ConsentNotice` (new):** a dismissible bottom consent bar (`ConsentNotice.tsx`, `client:idle`) that mounts ONLY when `siteSettings.newsletter.enabled` is true — when the ESP isn't active, no email cookies are set and no bar shows. Dismissal persists to `localStorage["reid-design-consent"]`. It is wired in `BaseLayout` and gated on the newsletter flag, so flipping `newsletter.enabled` off restores the original no-banner experience. It is a lightweight acknowledgment notice, not a full GDPR consent-management gate; if EU/CCPA obligations grow, replace it with a proper CMP (Cookiebot, OneTrust, Osano).
 
 ---
 
@@ -1427,6 +1460,21 @@ Things to configure before or during the public launch. Everything below should 
 - [ ] Staci's one-sentence credentials line written (`aboutPage.backgroundLine`)
 - [ ] Calendly URL set on `contactPage.schedulingLink`
 
+### Conversion-build external setup (capture tools + offerings)
+
+- [ ] **ESP account** created (ConvertKit / MailerLite / Kit) and the embeddable form-action URL set on `siteSettings.newsletter.formActionUrl`, then `siteSettings.newsletter.enabled` flipped on. Until enabled, the newsletter card + `ConsentNotice` stay hidden.
+- [ ] **Web3Forms autoresponder** enabled on the access key in the Web3Forms dashboard (the contact form now sends `autoresponse: true` — without the dashboard toggle, no confirmation email goes out).
+- [ ] **Shop affiliate links** (ShopMy / LTK / direct) added to `shopItem.affiliateUrl`, and `shopPage.enabled` set. Confirm the FTC disclosure copy reads right.
+- [ ] **Google Business URL** set on `siteSettings.googleBusinessUrl` (powers the "Read more on Google" link) + a short `siteSettings.reviewsNote`.
+- [ ] **Guide PDFs** uploaded to each `leadMagnet.file` and `published` toggled on (otherwise `/guides/[slug]` 404s and the index hides them).
+- [ ] **E-Design pricing** filled on `eDesignPage` (tiers, what's-included, how-it-works) — until then `/e-design` shows a coming-soon state.
+- [ ] **Gift fulfillment** flow decided + `giftPage` filled (the page is informational only; there's no payment processing — CTAs route to `/contact?type=gift-certificate`).
+- [ ] **Seed `styleQuiz`** (2+ questions, 2+ archetypes with images + recommended-service refs, gate mode/copy) — `/quiz` shows coming-soon until valid.
+- [ ] **Seed `budgetCalculator`** (rooms + scope options at minimum) — `/calculator` shows coming-soon until valid.
+- [ ] **Seed `leadMagnet` documents** for the guides you want live at launch.
+- [ ] **Privacy policy** reviewed: either fill `privacyPage.body` or confirm the static fallback copy is accurate for the ESP you chose.
+- [ ] Run `npm run studio:deploy` after the schema additions so Studio shows the new document types.
+
 ### Pre-launch validation
 
 - [ ] Contact form submits cleanly to Web3Forms (test with a real submission)
@@ -1466,6 +1514,20 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 - **Contact form all four dropdowns** — `contactPage.form{ProjectType,Location,Budget,Timeline,Source}Options` arrays. Falls back to the hardcoded defaults in `ContactForm.tsx` when empty.
 - **Portfolio index page copy** — `portfolioPage` singleton (eyebrow, headline, subhead, hero image, scriptAccent).
 - **404 page** — `notFoundPage` singleton (eyebrow, headline, body, hero photo, the three CTA labels + hrefs). Lives next to the other page singletons in Studio.
+- **Newsletter config** — `siteSettings.newsletter` (enabled toggle, heading, blurb, button label, success message, consent note, form-action URL, audience ID). Drives `NewsletterSignup` + whether `ConsentNotice` shows.
+- **Style quiz** — `styleQuiz` singleton (intro copy, questions + image answers + archetype weights, optional qualifiers, archetypes with images + recommended-service reference, email gate mode/copy, result routing). Powers `/quiz`.
+- **Budget calculator** — `budgetCalculator` singleton (intro copy, rooms, scope options, add-ons, result copy with `{{low}}`/`{{high}}` placeholders, disclaimer, CTA label, consult-price note). Powers `/calculator`.
+- **Lead magnets** — `leadMagnet` documents (title, slug, summary, cover image, downloadable file, gate copy, ESP tag, `published` toggle, SEO). Power `/guides` + `/guides/[slug]`.
+- **Shop** — `shopPage` singleton (`enabled`, intro, FTC disclosure, collections) + `shopCollection` + `shopItem` (vendor, affiliate URL, note, image). Powers `/shop`.
+- **E-Design** — `eDesignPage` singleton (intro, how-it-works steps, what's-included list, pricing tiers, FAQ references, final CTA). Powers `/e-design`.
+- **Gift certificates** — `giftPage` singleton (intro, options with amount + blurb, how-it-works steps, fine print, CTA label). Powers `/gift-certificates`.
+- **Press** — `pressPage` singleton (intro) + `pressItem` documents (outlet, logo, quote, URL, date, orderRank). Power `/press` + the `PressStrip` on `/` and `/about`.
+- **Privacy** — `privacyPage` singleton (body Portable Text, lastUpdated). Powers `/privacy`; a plain-voice static fallback renders before the doc exists.
+- **Resources hub** — `resourcesPage` singleton (intro + cards). Falls back to hardcoded nav-style cards when empty.
+- **Post-inquiry roadmap** — `contactPage.postInquiryRoadmap` array (title, body, time estimate) drives `PostInquiryRoadmap` on `/contact`.
+- **Reviews + Google link** — `siteSettings.googleBusinessUrl` + `siteSettings.reviewsNote` render the "Read more on Google" link + reviews line under the home Kind Words block (each suppresses when unset).
+- **Satisfaction guarantee** — `siteSettings.satisfactionGuarantee` renders near the form CTA on `/contact` and near the final CTA on `/services`.
+- **Testimonial `sourceType`** — `testimonial.sourceType` (`google` / `houzz` / `facebook` / `direct` / `other`) drives the small platform badge on `TestimonialCard` + `FeaturedTestimonial`. Renders nothing for `direct` / `other` / unset.
 
 ### Hardcoded in code (intentional)
 
@@ -1492,6 +1554,6 @@ If a full-field annotation is the entire content (like `faqItem.background` was 
 
 ---
 
-*Last updated: May 28, 2026 — performance polish (Lighthouse 100s mobile + desktop), single-img theme-aware logo with View Transitions persistence, SanityImage AVIF + 8-width responsive ladder + fetchpriority + orientation caps, portfolio + journal long-read layout with TOC sidebar + max-w-4xl hero cap, header breakpoint md→lg, light-mode contrast sweep `/65 → /80`.*
+*Last updated: May 28, 2026 — conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav now SERVER-RENDERED via `<details>` in `Header.astro` (was a `client:only` island that dropped the whole desktop nav from server HTML), email capture (newsletter + lead magnets + quiz/calculator gates) via `subscribeEmail()` → ESP/Web3Forms, relaxed privacy stance (`/privacy` page + `ConsentNotice` gated on `newsletter.enabled`), new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep.*
 
 See `OPERATIONS.md` for tactical playbook (deploy, patch content, run audits, common gotchas).
