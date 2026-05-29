@@ -20,6 +20,10 @@ interface Props {
     attribution?: string;
     date?: string;
     source?: string;
+    /** sourceType drives the small badge on the card footer:
+        'google' | 'houzz' | 'facebook' | 'direct' | 'other'.
+        Renders nothing when absent so existing cards are unaffected. */
+    sourceType?: string;
     location?: string;
     photo?: SanityImageObject | null;
     /** Optional reference to a project case study. When set, the card renders
@@ -46,6 +50,15 @@ const sourceLabel = testimonial.source && testimonial.source !== 'Other' ? testi
 // Location + date + source — location leads when present (local trust signal).
 const attributionMeta = [testimonial.location, dateLabel, sourceLabel].filter(Boolean).join(' · ');
 const hasPhoto = !!testimonial.photo?.asset;
+
+// sourceType badge label map — only the platform-specific values get a label.
+// 'direct' and 'other' and missing values silently produce nothing.
+const SOURCE_LABELS: Record<string, string> = {
+  google: 'Google',
+  houzz: 'Houzz',
+  facebook: 'Facebook',
+};
+const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceType] : undefined;
 
 // Cap card quote at ~3 lines worth so cards stay visually consistent in the grid.
 // We render the full quote (no truncation in markup), but apply line-clamp for layout.
@@ -107,6 +120,14 @@ const hasPhoto = !!testimonial.photo?.asset;
     >
       See this project <span aria-hidden="true">→</span>
     </a>
+  )}
+
+  {/* Source platform badge — shows which review platform the quote came from.
+      Omitted when sourceType is absent, 'direct', or 'other'. */}
+  {sourceBadge && (
+    <p class="mt-s inline-flex items-center text-xs text-foreground/75 bg-muted px-s py-0.5 rounded-full border border-border-soft">
+      {sourceBadge}
+    </p>
   )}
   </div>
 </figure>

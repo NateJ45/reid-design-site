@@ -128,6 +128,49 @@ export const contactPage = defineType({
         }),
       ],
     }),
+    defineField({
+      name: 'postInquiryRoadmap',
+      title: 'Post-inquiry roadmap',
+      type: 'array',
+      group: 'form',
+      description:
+        'Numbered "what happens after you reach out" steps — the scannable version of the What to Expect content. Each step shows as a numbered item on the Contact page.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'roadmapStep',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Step title',
+              type: 'string',
+              description: 'Short heading for this step. Example: "Staci reviews your inquiry within 48 hours."',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'body',
+              title: 'Step detail',
+              type: 'text',
+              rows: 3,
+              description: 'A sentence or two with more detail about what happens in this step. Optional.',
+            }),
+            defineField({
+              name: 'timeEstimate',
+              title: 'Time estimate (optional)',
+              type: 'string',
+              description: 'How long this step typically takes. Example: "Within 48 hours" or "1–2 weeks".',
+            }),
+          ],
+          preview: {
+            select: { title: 'title', timeEstimate: 'timeEstimate' },
+            prepare: ({ title, timeEstimate }) => ({
+              title: title ?? '(untitled step)',
+              subtitle: timeEstimate ?? '',
+            }),
+          },
+        }),
+      ],
+    }),
 
     defineField({
       name: 'schedulingLink',

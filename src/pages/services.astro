@@ -47,6 +47,10 @@ const builders   = page?.builderRealtorSection;
 const areaSec    = page?.serviceAreaSection;
 const travelFees = page?.travelFees ?? [];
 
+// Satisfaction guarantee — sourced from siteSettings. Renders near the final
+// CTA so it lands just as the visitor is deciding whether to reach out.
+const satisfactionGuarantee = siteSettings?.satisfactionGuarantee;
+
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
@@ -138,7 +142,25 @@ const schemas = [
             <ServiceCard service={service} withAnchor={true} />
           ))}
         </div>
-      ) : (
+      ) : null}
+
+      {/* Cross-link to the dedicated E-Design landing page.
+          Renders beneath the services grid when the E-Design service exists
+          (slug "e-design"). The link is deliberately subtle — a chip-style
+          note rather than a full section — so it doesn't compete visually
+          with the service cards above. */}
+      {services.some((s: any) => s.slug?.current === 'e-design') && (
+        <div class="mt-section-md flex justify-center">
+          <a
+            href="/e-design"
+            class="press-tactile inline-flex items-center gap-xs min-h-[36px] px-m py-1.5 text-xs uppercase tracking-eyebrow text-link border border-border-soft rounded-full hover:border-primary hover:text-primary-dark transition-colors"
+          >
+            See the full E-Design overview <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      )}
+
+      {services.length === 0 && (
         <p class="mt-section-lg text-center text-muted-foreground italic">
           Services are being updated. <a href="/contact" class="text-link underline underline-offset-2">Get in touch</a> and we'll talk through what you need.
         </p>
@@ -245,7 +267,20 @@ const schemas = [
     </section>
   )}
 
-  {/* ------- 5. Final CTA ---------------------------------------------------- */}
+  {/* ------- 5. Satisfaction guarantee + Final CTA -------------------------- */}
+  {/* The guarantee line sits in its own band just above the dark FinalCta
+      panel so it reads as a final reassurance before the ask. Renders
+      nothing when the siteSettings field is blank. */}
+  {satisfactionGuarantee && (
+    <section class="bg-background" aria-label="Satisfaction guarantee">
+      <div class="mx-auto max-w-content px-m py-l">
+        <p class="text-center text-foreground/80 text-sm border border-border-soft rounded-md py-m px-l bg-muted">
+          {satisfactionGuarantee}
+        </p>
+      </div>
+    </section>
+  )}
+
   <FinalCta
     eyebrow={page?.finalCtaEyebrow}
     headline={page?.finalCtaHeadline}

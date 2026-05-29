@@ -36,10 +36,26 @@ export function urlForDoc(schemaType: string, doc: any): string | null {
     case 'notFoundPage':  return `${SITE_URL}/404`;
     case 'journalEntry':  return slug ? `${SITE_URL}/journal/${slug}` : `${SITE_URL}/journal`;
     case 'project':       return slug ? `${SITE_URL}/portfolio/${slug}` : `${SITE_URL}/portfolio`;
+    // New page singletons (Phase 1)
+    case 'eDesignPage':   return `${SITE_URL}/e-design`;
+    case 'shopPage':      return `${SITE_URL}/shop`;
+    case 'giftPage':      return `${SITE_URL}/gift-certificates`;
+    case 'resourcesPage': return `${SITE_URL}/resources`;
+    case 'privacyPage':   return `${SITE_URL}/privacy`;
+    case 'pressPage':     return `${SITE_URL}/press`;
+    case 'styleQuiz':     return `${SITE_URL}/quiz`;
+    case 'budgetCalculator': return `${SITE_URL}/calculator`;
     // service/processStep/etc don't have individual pages; preview their parent
     case 'service':      return `${SITE_URL}/services`;
     case 'processStep':  return `${SITE_URL}/process`;
     case 'faqItem':      return `${SITE_URL}/faq`;
+    // Press items list on /press page
+    case 'pressItem':    return `${SITE_URL}/press`;
+    // Shop collections/items list on /shop page
+    case 'shopCollection': return `${SITE_URL}/shop`;
+    case 'shopItem':       return `${SITE_URL}/shop`;
+    // Lead magnets preview at /guides/[slug]
+    case 'leadMagnet':   return slug ? `${SITE_URL}/guides/${slug}` : `${SITE_URL}/guides`;
     default:             return null;
   }
 }
@@ -128,4 +144,13 @@ const SINGLETON_TYPES = new Set<string>([
   'faqPage',
   'contactPage',
   'journalPage',
+  // New singletons (Phase 1)
+  'eDesignPage',
+  'shopPage',
+  'giftPage',
+  'resourcesPage',
+  'privacyPage',
+  'pressPage',
+  'styleQuiz',
+  'budgetCalculator',
 ]);

@@ -79,6 +79,28 @@ export const testimonial = defineType({
       to: [{ type: 'project' }],
       description: 'If this testimonial is about a specific project, link it here.',
     }),
+    defineField({
+      name: 'sourceType',
+      title: 'Source type',
+      type: 'string',
+      description: 'Where this review was originally posted. Used to show a source badge on the testimonial card.',
+      options: {
+        list: [
+          { title: 'Google', value: 'Google' },
+          { title: 'Facebook', value: 'Facebook' },
+          { title: 'Houzz', value: 'Houzz' },
+          { title: 'Direct', value: 'Direct' },
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
+      name: 'reviewUrl',
+      title: 'Review URL (optional)',
+      type: 'url',
+      description:
+        'Direct link to the original review on Google, Facebook, or Houzz. When set, the testimonial card can link out to the original.',
+    }),
   ],
   preview: {
     select: { quote: 'quote', attribution: 'attribution', date: 'date' },

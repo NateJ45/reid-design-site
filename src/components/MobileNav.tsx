@@ -7,7 +7,9 @@
 //   1. Brand accent stripe (4px Warm Bronze) + "Menu" eyebrow
 //   2. Primary CTA — Book a consultation
 //   3. Tagline in display serif italic
-//   4. Nav links (one per row, full-width hover)
+//   4. Nav links — flat items are single rows; dropdown groups are a heading
+//      row with indented sub-items underneath (always expanded on mobile,
+//      no accordion needed — full-height drawers have plenty of room)
 //   5. Spacer pushes the rest to the bottom
 //   6. Email link with Mail icon
 //   7. Social icons row (Instagram, Facebook) + ThemeToggle on the right
@@ -18,7 +20,7 @@
 // content is wired up.
 
 import { useState } from 'react';
-import { Menu, Mail } from 'lucide-react';
+import { Menu, Mail, ChevronRight } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import {
   Sheet,
@@ -29,10 +31,21 @@ import {
 } from '@/components/ui/sheet';
 import ThemeToggle from './ThemeToggle';
 
-interface NavLink {
+// ---- Types ------------------------------------------------------------------
+
+interface FlatNavLink {
+  kind: 'flat';
   label: string;
   href: string;
 }
+
+interface DropdownNavGroup {
+  kind: 'dropdown';
+  label: string;
+  items: { label: string; href: string }[];
+}
+
+type NavItem = FlatNavLink | DropdownNavGroup;
 
 interface MobileNavSiteSettings {
   tagline?: string;
@@ -42,19 +55,19 @@ interface MobileNavSiteSettings {
 }
 
 interface Props {
-  links: NavLink[];
+  links: NavItem[];
   siteSettings?: MobileNavSiteSettings | null;
   /**
    * Optimized logo URLs pre-rendered by Astro's getImage() in the parent
    * Header.astro. We can't import the asset directly in a React component
    * because client:only skips SSR entirely — so the parent does the work
    * once at build time and passes the resulting WebP URLs in as strings.
-   * Both logos share the same on-disk WebP file as the header's <Image>,
-   * so this is effectively cache-free.
    */
   logoLightUrl?: string;
   logoDarkUrl?: string;
 }
+
+// ---- Component --------------------------------------------------------------
 
 export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkUrl }: Props) {
   const [open, setOpen] = useState(false);
@@ -82,9 +95,9 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="w-[min(380px,90vw)] sm:max-w-none bg-background border-t-4 border-t-primary p-0 gap-0 flex flex-col"
+          className="w-[min(380px,90vw)] sm:max-w-none bg-background border-t-4 border-t-primary p-0 gap-0 flex flex-col overflow-y-auto"
         >
-          {/* Eyebrow header. Override SheetTitle's default font/size to render as a small label. */}
+          {/* Eyebrow header. */}
           <SheetHeader className="px-l pt-xl pb-m">
             <SheetTitle className="text-xs uppercase tracking-eyebrow text-foreground/80 font-body font-normal">
               Menu
@@ -107,18 +120,45 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
             {tagline}
           </p>
 
-          {/* Primary nav — full-width tappable rows. */}
+          {/* Primary nav — flat items + group headers with indented sub-items. */}
           <nav className="border-t border-border-soft py-s" aria-label="Primary mobile">
-            {links.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={close}
-                className="block px-l py-s text-lg font-display text-foreground hover:bg-muted hover:text-link transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
+            {links.map((item) => {
+              if (item.kind === 'flat') {
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={close}
+                    className="flex items-center px-l py-s text-lg font-display text-foreground hover:bg-muted hover:text-link transition-colors"
+                  >
+                    {item.label}
+                  </a>
+                );
+              }
+
+              // Dropdown group — always expanded in the drawer (no accordion
+              // needed; the drawer has scroll and the groups are small).
+              return (
+                <div key={item.label}>
+                  {/* Group heading — visually distinct from flat items. Not
+                      a link itself; the sub-items carry the real hrefs. */}
+                  <p className="px-l pt-m pb-xs text-xs uppercase tracking-eyebrow text-foreground/80">
+                    {item.label}
+                  </p>
+                  {item.items.map((sub) => (
+                    <a
+                      key={sub.href}
+                      href={sub.href}
+                      onClick={close}
+                      className="flex items-center gap-xs pl-[calc(theme(spacing.l)+0.5rem)] pr-l py-xs text-base font-body text-foreground hover:bg-muted hover:text-link transition-colors"
+                    >
+                      <ChevronRight size={12} className="shrink-0 text-foreground/40" aria-hidden="true" />
+                      {sub.label}
+                    </a>
+                  ))}
+                </div>
+              );
+            })}
           </nav>
 
           {/* Spacer pushes the contact + logo block to the bottom. */}
@@ -174,11 +214,6 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
               as the desktop header logo (free cache hit). */}
           {logoLightUrl && (
             <div className="border-t border-border-soft px-l py-l flex justify-center">
-              {/* Drawer logo display is h-16 (64 px tall) with w-auto, so
-                  rendered size is ~61×64 px. width={64} height={68} matches
-                  the source aspect ratio. URLs come from Header.astro's
-                  getImage() at width=128 — a 2× retina file with no
-                  oversize waste. */}
               <img
                 src={logoLightUrl}
                 alt="Reid Design"

@@ -20,6 +20,10 @@ interface Props {
     attribution?: string;
     date?: string;
     source?: string;
+    /** sourceType drives the small badge on the featured pull-quote:
+        'google' | 'houzz' | 'facebook' | 'direct' | 'other'.
+        Renders nothing when absent so existing quotes are unaffected. */
+    sourceType?: string;
     location?: string;
     photo?: SanityImageObject | null;
     /** Optional reference to a project case study. When set, the pull-quote
@@ -47,6 +51,14 @@ const dateLabel = formatDate(testimonial.date);
 const sourceLabel = testimonial.source && testimonial.source !== 'Other' ? testimonial.source : '';
 const attributionMeta = [testimonial.location, dateLabel, sourceLabel].filter(Boolean).join(' · ');
 const hasPhoto = !!testimonial.photo?.asset;
+
+// sourceType badge — same mapping as TestimonialCard.
+const SOURCE_LABELS: Record<string, string> = {
+  google: 'Google',
+  houzz: 'Houzz',
+  facebook: 'Facebook',
+};
+const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceType] : undefined;
 ---
 
 <figure class="mx-auto max-w-3xl text-center relative">
@@ -92,6 +104,13 @@ const hasPhoto = !!testimonial.photo?.asset;
           >
             See this project <span aria-hidden="true">→</span>
           </a>
+        </p>
+      )}
+
+      {/* Source platform badge — same logic as TestimonialCard. */}
+      {sourceBadge && (
+        <p class="mt-m inline-flex items-center text-xs text-foreground/75 bg-muted px-s py-0.5 rounded-full border border-border-soft">
+          {sourceBadge}
         </p>
       )}
     </div>

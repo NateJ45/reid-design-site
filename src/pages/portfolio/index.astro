@@ -89,9 +89,19 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
           instead of skipping straight to H3. Audit-caught regression. */}
       <h2 id="portfolio-projects-heading" class="sr-only">Projects</h2>
 
-      {/* Filter chips — only render if there are 2+ values in either axis. */}
-      <div class="mb-l">
+      {/* Filter chips + before/after link in the same row. */}
+      <div class="mb-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-m">
         <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
+        {/* Before/after link — contextual shortcut for visitors who came
+            specifically to see transformation reveals. Hidden until there's
+            content at /portfolio/before-after, but safe to show preemptively
+            because that page has its own graceful empty state. */}
+        <a
+          href="/portfolio/before-after"
+          class="shrink-0 inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+        >
+          Before &amp; After <span aria-hidden="true">→</span>
+        </a>
       </div>
 
       {/* Grid. data-* attributes drive the client-side filter; the

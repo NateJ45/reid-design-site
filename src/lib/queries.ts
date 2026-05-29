@@ -34,7 +34,11 @@ export async function getSiteSettings() {
     socialInstagram,
     socialFacebook,
     footerCredit,
-    footerCreditUrl
+    footerCreditUrl,
+    newsletter,
+    googleBusinessUrl,
+    reviewsNote,
+    satisfactionGuarantee
   }`);
 }
 
@@ -207,6 +211,9 @@ export async function getContactPage() {
     whatToExpectEyebrow,
     whatToExpectHeadline,
     whatToExpectContent,
+    postInquiryRoadmap[]{
+      title, body, timeEstimate
+    },
     schedulingLink,
     schedulingLinkLabel,
     availabilityNote
@@ -358,4 +365,240 @@ export async function getAllJournalSlugs(): Promise<string[]> {
     `*[_type == "journalEntry" && defined(slug.current)]{ slug }`,
   );
   return list.map((e) => e.slug?.current).filter(Boolean);
+}
+
+// ---- E-Design page --------------------------------------------------------
+
+export async function getEDesignPage() {
+  return client.fetch(`*[_type == "eDesignPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    intro,
+    howItWorks[]{
+      stepNumber, title, body
+    },
+    whatsIncluded,
+    tiers[]{
+      name, price, priceNumeric, features, bestFor, ctaLabel
+    },
+    "faqRefs": faqRefs[]->{
+      question, answer, category
+    },
+    finalCtaEyebrow, finalCtaHeadline, finalCtaSubhead,
+    finalCta${CTA_PROJECTION}
+  }`);
+}
+
+// ---- Shop page + collections + items -------------------------------------
+
+export async function getShopPage() {
+  return client.fetch(`*[_type == "shopPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    enabled,
+    intro,
+    disclosure,
+    "collections": collections[]->{
+      _id,
+      title,
+      "slug": slug.current,
+      blurb,
+      orderRank,
+      "items": *[_type == "shopItem" && collection._ref == ^._id]
+        | order(orderRank asc){
+          _id, title,
+          image${IMAGE_PROJECTION},
+          vendor, affiliateUrl, note
+        }
+    }
+  }`);
+}
+
+// ---- Gift certificates page -----------------------------------------------
+
+export async function getGiftPage() {
+  return client.fetch(`*[_type == "giftPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    intro,
+    options[]{
+      label, amount, blurb
+    },
+    howItWorks[]{
+      stepNumber, title, body
+    },
+    finePrint,
+    ctaLabel
+  }`);
+}
+
+// ---- Resources hub page ---------------------------------------------------
+
+export async function getResourcesPage() {
+  return client.fetch(`*[_type == "resourcesPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    intro,
+    cards[]{
+      title, blurb,
+      icon${IMAGE_PROJECTION},
+      link
+    }
+  }`);
+}
+
+// ---- Privacy page ---------------------------------------------------------
+
+export async function getPrivacyPage() {
+  return client.fetch(`*[_type == "privacyPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    lastUpdated,
+    body
+  }`);
+}
+
+// ---- Press page + press items ---------------------------------------------
+
+export async function getPressPage() {
+  return client.fetch(`*[_type == "pressPage"][0]{
+    seoTitle,
+    seoDescription,
+    heroEyebrow, heroHeadline, heroSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    intro
+  }`);
+}
+
+// Press items ordered by orderRank for the strip + /press listing.
+export async function getPressItems() {
+  return client.fetch(`*[_type == "pressItem"] | order(orderRank asc){
+    _id, outlet,
+    logo${IMAGE_PROJECTION},
+    quote, url, date, orderRank
+  }`);
+}
+
+// ---- Style quiz config ----------------------------------------------------
+
+export async function getStyleQuiz() {
+  return client.fetch(`*[_type == "styleQuiz"][0]{
+    introEyebrow, introHeadline, introSubhead,
+    introImage${IMAGE_PROJECTION},
+    questions[]{
+      prompt, helpText,
+      answers[]{
+        label,
+        image${IMAGE_PROJECTION},
+        archetypeWeights[]{ archetypeSlug, weight }
+      }
+    },
+    qualifiers[]{
+      prompt, type,
+      options[]{ label, value }
+    },
+    archetypes[]{
+      name,
+      "slug": slug.current,
+      description,
+      images[]${IMAGE_PROJECTION},
+      "recommendedServiceRef": recommendedServiceRef->{ _id, name, "slug": slug.current },
+      resultCtaLabel
+    },
+    gate{ mode, heading, blurb, consentNote, espTag },
+    routing{
+      highIntentRule, bookCtaLabel, guideCtaLabel,
+      "guideRef": guideRef->{ _id, title, "slug": slug.current }
+    }
+  }`);
+}
+
+// ---- Budget calculator config ---------------------------------------------
+
+export async function getBudgetCalculator() {
+  return client.fetch(`*[_type == "budgetCalculator"][0]{
+    introEyebrow, introHeadline, introSubhead,
+    heroImage${IMAGE_PROJECTION},
+    heroScriptAccent,
+    rooms[]{ label, baseLow, baseHigh },
+    scopeOptions[]{ label, addLow, addHigh },
+    addOns[]{ label, low, high },
+    resultCopy,
+    disclaimer,
+    ctaLabel,
+    consultPriceNote
+  }`);
+}
+
+// ---- Lead magnets ---------------------------------------------------------
+
+// All published lead magnets ordered for /guides index.
+export async function getLeadMagnets() {
+  return client.fetch(`*[_type == "leadMagnet" && published == true]
+    | order(orderRank asc){
+      _id, title,
+      "slug": slug.current,
+      summary,
+      coverImage${IMAGE_PROJECTION},
+      gateHeading, gateBlurb, buttonLabel, successMessage, espTag,
+      seoTitle, seoDescription, orderRank
+    }`);
+}
+
+// Single published lead magnet by slug for /guides/[slug].
+export async function getLeadMagnet(slug: string) {
+  return client.fetch(
+    `*[_type == "leadMagnet" && slug.current == $slug && published == true][0]{
+      _id, title,
+      "slug": slug.current,
+      summary,
+      coverImage${IMAGE_PROJECTION},
+      file{ asset->{ url } },
+      gateHeading, gateBlurb, buttonLabel, successMessage, espTag,
+      seoTitle, seoDescription
+    }`,
+    { slug },
+  );
+}
+
+// Static path generation for /guides/[slug].
+export async function getAllLeadMagnetSlugs(): Promise<string[]> {
+  const list: Array<{ slug: { current: string } }> = await client.fetch(
+    `*[_type == "leadMagnet" && published == true && defined(slug.current)]{ slug }`,
+  );
+  return list.map((m) => m.slug?.current).filter(Boolean);
+}
+
+// ---- Projects with before/after pairs ------------------------------------
+
+// Projects that have at least one beforeAfter pair — for /portfolio/before-after.
+export async function getProjectsWithBeforeAfter() {
+  return client.fetch(`*[_type == "project" && count(beforeAfters) > 0]
+    | order(orderRank asc, coalesce(displayOrder, 999) asc, publishedAt desc){
+      _id, title,
+      "slug": slug.current,
+      location, year, roomType, designStyle, briefSummary,
+      heroImage${IMAGE_PROJECTION},
+      beforeAfters[]{
+        beforeImage${IMAGE_PROJECTION},
+        afterImage${IMAGE_PROJECTION},
+        caption
+      }
+    }`);
 }

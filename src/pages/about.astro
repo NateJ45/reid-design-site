@@ -12,7 +12,7 @@
 // philosophyPoint collection. Order in the grid follows philosophyPoint.displayOrder.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getAboutPage, getSiteSettings } from '@/lib/queries';
+import { getAboutPage, getSiteSettings, getPressItems } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -21,10 +21,12 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import FinalCta from '@/components/FinalCta.astro';
+import PressStrip from '@/components/PressStrip.astro';
 
-const [page, siteSettings] = await Promise.all([
+const [page, siteSettings, pressItems] = await Promise.all([
   getAboutPage().catch(() => null),
   getSiteSettings().catch(() => null),
+  getPressItems().catch(() => []),
 ]);
 
 const title       = page?.seoTitle       ?? 'About Staci · Reid Design';
@@ -154,7 +156,12 @@ const schemas = [
     </section>
   )}
 
-  {/* ------- 4. Final CTA ---------------------------------------------------- */}
+  {/* ------- 4. Press strip (as seen in) ------------------------------------- */}
+  {/* Sits between the philosophy grid and the final CTA. Suppresses itself
+      when the pressItem collection is empty — no conditional needed here. */}
+  <PressStrip items={pressItems} />
+
+  {/* ------- 5. Final CTA ---------------------------------------------------- */}
   <FinalCta
     eyebrow={page?.finalCtaEyebrow}
     headline={page?.finalCtaHeadline}

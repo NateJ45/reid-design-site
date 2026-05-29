@@ -26,7 +26,7 @@
 // service / testimonial / processStep / project / journalEntry collections.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getHomePage, getSiteSettings } from '@/lib/queries';
+import { getHomePage, getSiteSettings, getPressItems } from '@/lib/queries';
 import { site } from '@/data/site';
 
 import Hero from '@/components/Hero.astro';
@@ -43,10 +43,12 @@ import SectionDivider from '@/components/SectionDivider.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
 import FeaturedJournal from '@/components/FeaturedJournal.astro';
+import PressStrip from '@/components/PressStrip.astro';
 
-const [page, siteSettings] = await Promise.all([
+const [page, siteSettings, pressItems] = await Promise.all([
   getHomePage().catch(() => null),
   getSiteSettings().catch(() => null),
+  getPressItems().catch(() => []),
 ]);
 
 // Top-level SEO meta. Fall back to site identity when Sanity is empty (e.g., before content seed).
@@ -63,6 +65,11 @@ const services       = page?.services       ?? [];
 const processSteps   = page?.processSteps   ?? [];
 const featuredQuote  = page?.featuredTestimonial;
 const gridQuotes     = page?.testimonialsToShow ?? [];
+
+// Google Business URL for "Read more on Google" link + reviews note.
+// Both are sourced from siteSettings so one edit covers every surface.
+const googleBusinessUrl = siteSettings?.googleBusinessUrl;
+const reviewsNote       = siteSettings?.reviewsNote;
 
 // Section copy fallbacks (lock the home page in even before all Sanity copy lands).
 const meetStaciEyebrow  = page?.meetStaciEyebrow  ?? 'The Designer.';
@@ -223,6 +230,27 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
             {testimonialsAttribution}
           </p>
         )}
+
+        {/* reviewsNote + Google link — both suppress when unset.
+            reviewsNote is a short plain-text line from siteSettings
+            (e.g., "Rated 5 stars on Google."). The Google link renders
+            only when googleBusinessUrl is populated so there's never a
+            dead link. */}
+        {(reviewsNote || googleBusinessUrl) && (
+          <p class="mt-l text-center text-sm text-foreground/75 flex flex-wrap items-center justify-center gap-s">
+            {reviewsNote && <span>{reviewsNote}</span>}
+            {googleBusinessUrl && (
+              <a
+                href={googleBusinessUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-xs text-link underline underline-offset-2 hover:text-primary-dark transition-colors font-medium"
+              >
+                Read more on Google <span aria-hidden="true">↗</span>
+              </a>
+            )}
+          </p>
+        )}
       </div>
     </section>
   )}
@@ -314,6 +342,12 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
     subhead={featuredJournalSubhead}
     cta={page?.featuredJournalCta}
   />
+
+  {/* ------- Press strip (as seen in) --------------------------------------- */}
+  {/* Sits between Featured Journal and the service-area cue. PressStrip
+      suppresses itself when the pressItem collection is empty so this
+      block is safe to include unconditionally. */}
+  <PressStrip items={pressItems} />
 
   {/* Bronze ornament between Featured Journal and the service-area cue.
       Both sit on muted-toned backgrounds, so the alternating color cadence
