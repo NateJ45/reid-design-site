@@ -496,7 +496,7 @@ export const journalEntry = defineType({
       name: 'seoTitle',
       title: 'SEO title',
       type: 'string',
-      description: 'Optional. Overrides the <title> tag if set. Defaults to "{title} · Reid Design Journal".',
+      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Optional — defaults to the post title.',
       group: 'seo',
       options: {
         canvasApp: {
@@ -504,14 +504,14 @@ export const journalEntry = defineType({
             'Optional override for the HTML <title> tag. 50-60 chars. Front-load the keyword (location or topic). No marketing puffery.',
         },
       },
-      validation: (Rule) => Rule.max(70),
+      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
     }),
     defineField({
       name: 'seoDescription',
       title: 'SEO description',
       type: 'text',
       rows: 3,
-      description: 'Optional. Overrides the meta description if set. Defaults to the excerpt.',
+      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Optional — defaults to the excerpt.',
       group: 'seo',
       options: {
         canvasApp: {
@@ -519,7 +519,7 @@ export const journalEntry = defineType({
             'Optional override for the meta description. 150-160 chars. Written for a human about to click, not for a search engine. Don\'t restate the title.',
         },
       },
-      validation: (Rule) => Rule.max(220),
+      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
     }),
 
     // ---------- Related ----------

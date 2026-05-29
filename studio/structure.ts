@@ -28,6 +28,7 @@ import {
   TrendUpwardIcon,
   PackageIcon,
   HelpCircleIcon,
+  InfoOutlineIcon,
   EnvelopeIcon,
   DocumentTextIcon,
   StarIcon,
@@ -46,6 +47,7 @@ import {
   LockIcon,
   CaseIcon,
 } from '@sanity/icons';
+import StartHere from './components/StartHere';
 
 const SINGLETON_TYPES = [
   'siteSettings',
@@ -140,6 +142,14 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
   S.list()
     .title('Reid Design')
     .items([
+      // Start Here — plain-language guide for Staci. First item so it's always visible.
+      S.listItem()
+        .title('Start Here')
+        .icon(InfoOutlineIcon)
+        .child(S.component(StartHere).title('Start Here')),
+
+      S.divider(),
+
       // Site Settings — pinned singleton (no preview; not a page)
       singletonWithPreview(S, 'siteSettings', 'Site Settings', CogIcon),
 

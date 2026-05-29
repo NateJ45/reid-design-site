@@ -15,7 +15,15 @@ export const notFoundPage = defineType({
     { name: 'ctas', title: 'CTAs' },
   ],
   fields: [
-    defineField({ name: 'seoTitle', title: 'SEO title', type: 'string', group: 'seo', initialValue: 'Page not found' }),
+    defineField({
+      name: 'seoTitle',
+      title: 'SEO title',
+      type: 'string',
+      group: 'seo',
+      initialValue: 'Page not found',
+      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
+      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+    }),
     defineField({
       name: 'seoDescription',
       title: 'SEO description',
@@ -23,6 +31,8 @@ export const notFoundPage = defineType({
       rows: 2,
       group: 'seo',
       initialValue: 'That page wandered off. Head back to the homepage or get in touch.',
+      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
+      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
     }),
 
     defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', group: 'content', initialValue: '404' }),

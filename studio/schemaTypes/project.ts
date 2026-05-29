@@ -34,28 +34,28 @@ export const project = defineType({
       name: 'metaTitle',
       title: 'SEO title (optional)',
       type: 'string',
-      description: 'Browser tab + search result title. 50–60 chars. Leave blank to use the project title.',
+      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load location and room type. Leave blank to use the project title.',
       options: {
         canvasApp: {
           purpose:
             'Optional per-project SEO title override. 50-60 chars. Front-load location + room type for local search ("Plainfield Kitchen Refresh" beats "Beautiful Modern Kitchen Project").',
         },
       },
-      validation: (Rule) => Rule.max(70),
+      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
     }),
     defineField({
       name: 'metaDescription',
       title: 'SEO description (optional)',
       type: 'text',
       rows: 2,
-      description: 'Search result snippet. 150–160 chars. Leave blank to use the brief summary.',
+      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine. Leave blank to use the brief summary.',
       options: {
         canvasApp: {
           purpose:
             'Optional per-project SEO description. 150-160 chars. Written for a human about to click, not a search engine. Specific (location + room type + transformation) beats generic.',
         },
       },
-      validation: (Rule) => Rule.max(170),
+      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
     }),
     defineField({
       name: 'location',

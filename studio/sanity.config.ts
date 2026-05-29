@@ -4,7 +4,7 @@
 // (or after creating the project manually). Studio reads it via the cli
 // config — see sanity.cli.ts for runtime overrides.
 
-import { defineConfig } from 'sanity';
+import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { media } from 'sanity-plugin-media';
@@ -12,6 +12,25 @@ import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { Iframe } from 'sanity-plugin-iframe-pane';
 import { schemaTypes } from './schemaTypes';
 import { deskStructure } from './structure';
+import StudioLogo from './components/StudioLogo';
+
+// Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
+// maps CSS custom properties to the Studio's internal design system.
+// Bronze primary (#9C7661) matches reiddesignllc.com's primary action color.
+const reidTheme = buildLegacyTheme({
+  '--brand-primary': '#9C7661',
+  '--brand-primary--inverted': '#ffffff',
+  '--focus-color': '#9C7661',
+  '--input-bg': '#faf8f5',
+  '--component-bg': '#faf8f5',
+  '--component-text-color': '#3d3d3d',
+  '--default-button-color': '#9C7661',
+  '--default-button-primary-color': '#9C7661',
+  '--default-button-danger-color': '#e34141',
+  '--default-button-success-color': '#43a85e',
+  '--main-navigation-color': '#3d3d3d',
+  '--main-navigation-color--inverted': '#faf8f5',
+});
 
 // Re-export so structure.ts can attach the iframe view to every singleton.
 export { Iframe };
@@ -62,11 +81,22 @@ export function urlForDoc(schemaType: string, doc: any): string | null {
 
 export default defineConfig({
   name: 'reid-design',
-  title: 'Reid Design Studio',
+  // Short title shown in the browser tab when editing.
+  title: 'Reid Design',
 
   // Replace these after `sanity init` (or set via env at build time).
   projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'placeholder-project-id',
   dataset: process.env.SANITY_STUDIO_DATASET || 'production',
+
+  // Brand theme — bronze primary color + warm linen background.
+  theme: reidTheme,
+
+  // Studio chrome overrides. Logo replaces the default Sanity wordmark.
+  studio: {
+    components: {
+      logo: StudioLogo,
+    },
+  },
 
   plugins: [
     structureTool({
@@ -107,7 +137,9 @@ export default defineConfig({
     // for browsing every uploaded image at once with tag + filter + bulk-edit.
     // Much better than the inline image picker for "what's in our library".
     media(),
-    visionTool(),
+    // Vision (GROQ query runner) is a developer tool, not an editor tool.
+    // Gate it to local dev so it doesn't clutter Staci's deployed Studio.
+    ...(process.env.NODE_ENV !== 'production' ? [visionTool()] : []),
   ],
 
   schema: {

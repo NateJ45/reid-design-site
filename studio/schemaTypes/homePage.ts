@@ -23,14 +23,22 @@ export const homePage = defineType({
   ],
   fields: [
     // SEO
-    defineField({ name: 'seoTitle', title: 'SEO title', type: 'string', group: 'seo' }),
+    defineField({
+      name: 'seoTitle',
+      title: 'SEO title',
+      type: 'string',
+      group: 'seo',
+      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
+      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+    }),
     defineField({
       name: 'seoDescription',
       title: 'SEO description',
       type: 'text',
       rows: 3,
       group: 'seo',
-      description: '~155 characters.',
+      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
+      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
     }),
 
     // Hero
