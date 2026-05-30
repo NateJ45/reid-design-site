@@ -69,13 +69,20 @@ function videoEmbedSrc(url: string): string | null {
 
 function makeComponents(): PortableTextComponents {
   const seen = new Map<string, number>();
+  let firstNormalRendered = false;
 
   return {
     block: {
-      // Default paragraph — comfortable reading rhythm + foreground color.
-      normal: ({ children }) => (
-        <p className="my-m text-foreground/90 leading-relaxed text-lg">{children}</p>
-      ),
+      // Default paragraph — drop cap on the first paragraph only, via CSS ::first-letter.
+      normal: ({ children }) => {
+        const isFirst = !firstNormalRendered;
+        firstNormalRendered = true;
+        return (
+          <p className={`my-m text-foreground/90 leading-relaxed text-lg${isFirst ? ' prose-drop-cap' : ''}`}>
+            {children}
+          </p>
+        );
+      },
       // Lead paragraph — slightly larger, lighter weight, italic-feeling intro.
       lead: ({ children }) => (
         <p className="my-l text-foreground text-[1.35rem] leading-relaxed font-light first:mt-0">
@@ -107,7 +114,7 @@ function makeComponents(): PortableTextComponents {
         </h4>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="my-l border-l-4 border-primary pl-l italic text-foreground/90 text-lg">
+        <blockquote className="prose-blockquote">
           {children}
         </blockquote>
       ),
