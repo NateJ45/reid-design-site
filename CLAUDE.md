@@ -30,7 +30,7 @@ Full stack notes and the `astro.config.mjs` landmines are in `docs/agent/stack-a
 ### The rules that bite if you forget them
 
 1. **Run `npm run studio:deploy` after ANY schema change.** Skip it and the hosted Studio shows "unknown fields" next to a "Remove field" prompt. **Never click "Remove field":** it deletes that field's data across every document and cannot be undone without a dataset restore. Correct sequence: edit schema, `npm run typegen`, `npm run studio:deploy`, commit.
-2. **No em-dashes anywhere** (code, comments, copy, commit messages). Use commas, colons, or restructure.
+2. **No em-dashes in public-facing site copy** (the text visitors read: page copy, component text, Sanity content). Use commas, colons, or restructure. Code comments, commit messages, plans, specs, and internal docs are exempt.
 3. **Build in both light AND dark mode** on every UI change. Detail in `docs/agent/theme-and-color.md`.
 4. **Desktop nav is server-rendered** in `Header.astro`. Do not regress it to a client-only island. Detail in `docs/agent/page-architecture.md`.
 5. **The Lenis scroll reset on navigation** (forward goes to top, back/forward restores) lives in the BaseLayout Lenis init. Do not remove it. Detail in `docs/agent/polish-layer.md`.
@@ -195,7 +195,7 @@ These apply to everything written: code comments, PR descriptions, commit messag
 
 - Warm, conversational tone. Not stiff or corporate.
 - Step-by-step structure for any process or how-to.
-- No em-dashes. Use commas, periods, colons, or restructure the sentence.
+- No em-dashes in public-facing site copy. Use commas, periods, colons, or restructure the sentence. This rule is scoped to site copy only: code comments and commit messages may use em-dashes.
 - No AI-tell phrases: delve, navigate (as a verb), leverage, robust, seamless, meticulous, tapestry, realm, landscape, testament to, ever-evolving, crucial, pivotal.
 - No AI-tell sentence patterns: "It's not just X, it's Y," "Not only... but also," "It's important to note that," "When it comes to," "In the realm of," "That said" or "With that being said" as transitions.
 - Don't open replies with filler like "Certainly!", "Absolutely!", "Great question!", or "I'd be happy to help."
