@@ -574,11 +574,15 @@
   background: rgba(156, 118, 97, 0);
   pointer-events: none;
 }
+.group:hover .img-zoom img,
+.group:hover .img-zoom .img-zoom-target,
 .img-zoom:hover img,
 .img-zoom:hover .img-zoom-target {
   transform: scale(1.06);
 }
+.group:hover .img-zoom .img-tint,
 .img-zoom:hover .img-tint                  { background: rgba(156, 118, 97, 0.15); }
+.group:hover .img-zoom .img-tint.img-tint-light,
 .img-zoom:hover .img-tint.img-tint-light   { background: rgba(156, 118, 97, 0.08); }
 
 /* ---- Grid stagger entrance. Add data-stagger-grid to any card grid container.
@@ -598,6 +602,16 @@
 [data-stagger-grid].is-staggered > *:nth-child(3)   { transition-delay: 200ms; }
 [data-stagger-grid].is-staggered > *:nth-child(4)   { transition-delay: 300ms; }
 [data-stagger-grid].is-staggered > *:nth-child(n+5) { transition-delay: 400ms; }
+
+/* Portfolio filter override: re-assert .is-filtered-out at specificity (0,2,0)
+   so it beats the [data-stagger-grid].is-staggered > * rule (also 0,2,0 but
+   declared earlier). The !important guards prevent any future stagger rule
+   from silently winning again. pointer-events + display collapse are already
+   handled by .is-filtered-out itself and are not overridden here. */
+[data-stagger-grid] > .is-filtered-out {
+  opacity: 0 !important;
+  transform: scale(0.96) !important;
+}
 
 /* Reading-room paper grain. A very subtle SVG noise tile at ~3% opacity over
    the Soft Linen surface. Sits below content via pointer-events:none and a
