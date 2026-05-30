@@ -53,7 +53,7 @@ function formatDate(d?: string): string {
 }
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings}>
+<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
   {/* Hero — text variant (no image unless the pressPage singleton provides one). */}
   <Hero
     eyebrow={heroEyebrow}

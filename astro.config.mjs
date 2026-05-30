@@ -17,7 +17,7 @@ export default defineConfig({
   // The adapter's default would otherwise wire up the IMAGES binding which
   // is meant for SSR sites that want on-demand transforms (we don't).
   adapter: cloudflare({ imageService: 'compile' }),
-  integrations: [mdx(), sitemap(), react()],
+  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404') }), react()],
   vite: {
     plugins: [tailwindcss()],
   },

@@ -11,7 +11,7 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 - `<title>` — unique per page, 50–60 characters, brand name as suffix ("Services — Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
 - `<meta name="description">` — unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
 - `<link rel="canonical">` — absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
-- Open Graph + Twitter meta — set in BaseLayout with `og-default.png` as the fallback. Pages with hero images should override `ogImage` to point at their hero.
+- Open Graph + Twitter meta — set in BaseLayout. The OG image resolves in priority order: (1) the `ogImage` prop a page passes (project/journal detail pages pass their real hero/cover photo, served from cdn.sanity.io); (2) the page singleton's `seoImage` field — a per-page override Staci sets in that page's SEO section; (3) `siteSettings.seoImage` — the site-wide default social image Staci sets in Site Settings; (4) the auto-generated branded card at `/og/<route>.png` (from `npm run og:pages`); (5) `og-default.png`. Sanity images (2 and 3) run through `urlFor().width(1200).height(630).fit('crop')` via the `ogUrlFromImage` helper. BaseLayout also emits `og:locale`, `og:image:alt`, and a theme-aware `theme-color`.
 - `<html lang="en">`.
 
 ### JSON-LD schemas

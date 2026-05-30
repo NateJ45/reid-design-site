@@ -50,7 +50,7 @@ const contactEmail = siteSettings?.email ?? 'staci@reiddesignllc.com';
 const hasSanityBody = Boolean(page?.body);
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings}>
+<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
   {/* Hero — text variant, short height. */}
   <Hero
     eyebrow={heroEyebrow}

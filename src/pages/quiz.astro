@@ -156,7 +156,7 @@ const heroHeadline = quiz?.introHeadline ?? 'What Is Your Design Style?';
 const heroSubhead = quiz?.introSubhead ?? '';
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings}>
+<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={quiz?.seoImage}>
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}

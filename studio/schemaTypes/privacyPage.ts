@@ -35,6 +35,17 @@ export const privacyPage = defineType({
       description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
       validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
     }),
+    defineField({
+      name: 'seoImage',
+      title: 'Social share image (this page)',
+      type: 'image',
+      group: 'seo',
+      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
+      ],
+    }),
 
     // Hero
     defineField({

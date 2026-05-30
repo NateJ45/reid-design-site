@@ -105,6 +105,16 @@ export const siteSettings = defineType({
       type: 'url',
     }),
     defineField({
+      name: 'seoImage',
+      title: 'Default social share image',
+      type: 'image',
+      description: 'The image shown when any page of the site is shared on social media or in a text message (the Open Graph image). Use a wide image, about 1200 by 630 pixels. Individual pages can override this in their own SEO section. Leave blank to use the auto-generated branded cards.',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
+      ],
+    }),
+    defineField({
       name: 'footerCredit',
       title: 'Footer credit',
       type: 'string',

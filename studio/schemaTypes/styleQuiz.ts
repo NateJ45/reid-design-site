@@ -14,6 +14,7 @@ export const styleQuiz = defineType({
   // Individual archetype descriptions get their own canvasApp.purpose below.
   options: { canvasApp: { exclude: true } },
   groups: [
+    { name: 'seo', title: 'SEO' },
     { name: 'intro', title: 'Intro' },
     { name: 'questions', title: 'Questions' },
     { name: 'qualifiers', title: 'Qualifiers' },
@@ -22,6 +23,17 @@ export const styleQuiz = defineType({
     { name: 'routing', title: 'Routing + CTAs' },
   ],
   fields: [
+    // ── SEO ────────────────────────────────────────────────────────────────
+    defineField({
+      name: 'seoImage',
+      title: 'Social share image (this page)',
+      type: 'image',
+      group: 'seo',
+      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      options: { hotspot: true },
+      fields: [ defineField({ name: 'alt', title: 'Alt text', type: 'string' }) ],
+    }),
+
     // ── Intro ──────────────────────────────────────────────────────────────
     defineField({ name: 'introEyebrow', title: 'Eyebrow', type: 'string', group: 'intro' }),
     defineField({

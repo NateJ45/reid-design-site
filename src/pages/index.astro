@@ -118,7 +118,7 @@ const featuredJournalSubhead  = page?.featuredJournalSubhead  ??
 const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
 ---
 
-<BaseLayout {title} {description} {siteSettings}>
+<BaseLayout {title} {description} {siteSettings} seoImage={page?.seoImage}>
   {/* ------- 1. Hero --------------------------------------------------------- */}
   {/* rotatingWords cycles the first word of the headline once on first visit
       per session, then settles back to the original. Tasteful flourish that

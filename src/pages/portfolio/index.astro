@@ -76,7 +76,7 @@ const fallbackHeroImage = {
 const heroBackground = page?.heroImage ?? fallbackHeroImage;
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings}>
+<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}

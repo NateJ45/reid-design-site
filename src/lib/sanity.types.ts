@@ -283,6 +283,14 @@ export type BudgetCalculator = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   introEyebrow?: string;
   introHeadline?: string;
   introSubhead?: string;
@@ -335,6 +343,14 @@ export type StyleQuiz = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   introEyebrow?: string;
   introHeadline?: string;
   introSubhead?: string;
@@ -518,6 +534,14 @@ export type PressPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -541,6 +565,14 @@ export type PrivacyPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -583,6 +615,14 @@ export type ResourcesPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -621,6 +661,14 @@ export type GiftPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -660,6 +708,14 @@ export type ShopPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -697,6 +753,14 @@ export type EDesignPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -871,6 +935,14 @@ export type PortfolioPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -905,6 +977,14 @@ export type SiteSettings = {
   }>;
   socialInstagram?: string;
   socialFacebook?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   footerCredit?: string;
   footerCreditUrl?: string;
   newsletter?: {
@@ -1129,6 +1209,14 @@ export type JournalPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1163,6 +1251,14 @@ export type ContactPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1218,6 +1314,14 @@ export type FaqPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1255,6 +1359,14 @@ export type ServicesPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1321,6 +1433,14 @@ export type ProcessPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1358,6 +1478,14 @@ export type AboutPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1465,6 +1593,14 @@ export type HomePage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;

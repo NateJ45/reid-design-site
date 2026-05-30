@@ -13,6 +13,7 @@ export const budgetCalculator = defineType({
   // Configuration singleton — exclude from Canvas.
   options: { canvasApp: { exclude: true } },
   groups: [
+    { name: 'seo', title: 'SEO' },
     { name: 'intro', title: 'Intro' },
     { name: 'rooms', title: 'Rooms' },
     { name: 'scope', title: 'Scope options' },
@@ -20,6 +21,17 @@ export const budgetCalculator = defineType({
     { name: 'output', title: 'Result copy + CTA' },
   ],
   fields: [
+    // ── SEO ────────────────────────────────────────────────────────────────
+    defineField({
+      name: 'seoImage',
+      title: 'Social share image (this page)',
+      type: 'image',
+      group: 'seo',
+      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      options: { hotspot: true },
+      fields: [ defineField({ name: 'alt', title: 'Alt text', type: 'string' }) ],
+    }),
+
     // ── Intro ──────────────────────────────────────────────────────────────
     defineField({
       name: 'introEyebrow',

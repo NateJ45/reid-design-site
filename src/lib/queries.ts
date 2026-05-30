@@ -33,6 +33,7 @@ export async function getSiteSettings() {
     travelFees,
     socialInstagram,
     socialFacebook,
+    seoImage${IMAGE_PROJECTION},
     footerCredit,
     footerCreditUrl,
     newsletter,
@@ -60,6 +61,7 @@ export async function getHomePage() {
   return client.fetch(`*[_type == "homePage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow,
     heroHeadline,
     heroSubhead,
@@ -134,6 +136,7 @@ export async function getAboutPage() {
   return client.fetch(`*[_type == "aboutPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -165,6 +168,7 @@ export async function getProcessPage() {
   return client.fetch(`*[_type == "processPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -183,6 +187,7 @@ export async function getServicesPage() {
   return client.fetch(`*[_type == "servicesPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -207,6 +212,7 @@ export async function getFaqPage() {
   return client.fetch(`*[_type == "faqPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -227,6 +233,7 @@ export async function getContactPage() {
   return client.fetch(`*[_type == "contactPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -254,6 +261,7 @@ export async function getPortfolioPage() {
   return client.fetch(`*[_type == "portfolioPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent
@@ -340,6 +348,7 @@ export async function getJournalPage() {
   return client.fetch(`*[_type == "journalPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -417,6 +426,7 @@ export async function getEDesignPage() {
   return client.fetch(`*[_type == "eDesignPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -443,6 +453,7 @@ export async function getShopPage() {
   return client.fetch(`*[_type == "shopPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -471,6 +482,7 @@ export async function getGiftPage() {
   return client.fetch(`*[_type == "giftPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -492,6 +504,7 @@ export async function getResourcesPage() {
   return client.fetch(`*[_type == "resourcesPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -510,6 +523,7 @@ export async function getPrivacyPage() {
   return client.fetch(`*[_type == "privacyPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -524,6 +538,7 @@ export async function getPressPage() {
   return client.fetch(`*[_type == "pressPage"][0]{
     seoTitle,
     seoDescription,
+    seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
@@ -544,6 +559,7 @@ export async function getPressItems() {
 
 export async function getStyleQuiz() {
   return client.fetch(`*[_type == "styleQuiz"][0]{
+    seoImage${IMAGE_PROJECTION},
     introEyebrow, introHeadline, introSubhead,
     introImage${IMAGE_PROJECTION},
     questions[]{
@@ -578,6 +594,7 @@ export async function getStyleQuiz() {
 
 export async function getBudgetCalculator() {
   return client.fetch(`*[_type == "budgetCalculator"][0]{
+    seoImage${IMAGE_PROJECTION},
     introEyebrow, introHeadline, introSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
