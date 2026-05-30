@@ -11,6 +11,7 @@
 // preloads inline. Don't add layout-shift animations to this section.
 
 import SanityImage from '@/components/SanityImage.astro';
+import HeroBackground from '@/components/HeroBackground.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import { splitScriptAccent } from '@/lib/scriptAccent';
@@ -38,6 +39,9 @@ interface Props {
   headline: string;
   subhead?: string;
   backgroundImage?: SanityImageObject | null;
+  /** Optional list of hero images. 2+ render a cross-fading slideshow; 1 (or
+      falling back to backgroundImage) renders a single static image. */
+  backgroundImages?: SanityImageObject[] | null;
   primaryCta?: CtaBlock | null;
   secondaryCta?: CtaBlock | null;
   headingId: string;
@@ -66,6 +70,7 @@ const {
   headline,
   subhead,
   backgroundImage,
+  backgroundImages,
   primaryCta,
   secondaryCta,
   headingId,
@@ -111,7 +116,15 @@ function parseSubhead(s?: string): Array<{ type: 'text' | 'em'; value: string }>
 }
 const subheadParts = parseSubhead(subhead);
 
-const hasImage = !!backgroundImage?.asset;
+// Prefer the slideshow array; fall back to the single backgroundImage so every
+// other page (which only passes backgroundImage) is unaffected.
+const heroImageList = (Array.isArray(backgroundImages) ? backgroundImages : []).filter(
+  (img) => !!img?.asset,
+);
+const effectiveImages = heroImageList.length > 0
+  ? heroImageList
+  : (backgroundImage?.asset ? [backgroundImage] : []);
+const hasImage = effectiveImages.length > 0;
 
 // "tall" (homepage) fills the screen below the sticky header on first load.
 // The exact fill height comes from the .hero-fill class plus the measured
@@ -225,25 +238,9 @@ const wrapperHeight =
     ]}
     aria-labelledby={headingId}
   >
-    {/* Background image — eager loaded; two layered overlays handle readability.
-        fetchpriority="high" tells the browser this is the LCP image so it
-        races to the front of the network queue ahead of other resources. */}
-    <SanityImage
-      source={backgroundImage}
-      width={2400}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-      quality={70}
-      class="absolute inset-0 w-full h-full object-cover"
-    />
-    {/* Uniform overlay — guarantees minimum readability across the whole image. */}
-    <div class="absolute inset-0 bg-accent-dark/25" aria-hidden="true"></div>
-    {/* Bottom-weighted gradient — adds extra darkening behind the text area at the bottom. */}
-    <div
-      class="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-accent-dark/45 to-transparent"
-      aria-hidden="true"
-    ></div>
+    {/* Background: single static image or a cross-fading slideshow (2+ images),
+        plus the readability overlays. See HeroBackground.astro. */}
+    <HeroBackground images={effectiveImages} />
 
     {/* Content sits at the bottom of the section thanks to justify-end on the
         section itself. Avoids the h-full-on-flex-item brittleness that left
