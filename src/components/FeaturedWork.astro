@@ -131,14 +131,14 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
                 ~20% wash across the rest of the image to handle bright
                 window light or pale wall tones intersecting the title. */}
             <div
-              class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/20 pointer-events-none"
+              class="absolute inset-0 z-[1] bg-gradient-to-t from-black/90 via-black/55 to-black/20 pointer-events-none"
               aria-hidden="true"
             ></div>
 
             {/* Room-type chip top-left — same chip pattern as ProjectCard. */}
             {heroRoomLabel && (
               <span
-                class="absolute top-m left-m inline-flex items-center px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-bg/85 text-primary-dark backdrop-blur-sm"
+                class="absolute top-m left-m z-[2] inline-flex items-center px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-bg/85 text-primary-dark backdrop-blur-sm"
                 aria-hidden="true"
               >
                 {heroRoomLabel}
@@ -148,7 +148,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
             {/* Featured pin — only when Staci flagged this project. */}
             {hero?.featured && (
               <span
-                class="absolute top-m right-m inline-flex items-center gap-1 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-primary-dark text-white"
+                class="absolute top-m right-m z-[2] inline-flex items-center gap-1 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-eyebrow rounded-full bg-primary-dark text-white"
                 aria-hidden="true"
               >
                 ★ Featured
@@ -159,7 +159,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
                 Right padding (`pr-28 md:pr-36`) reserves a corridor for the
                 ★ Featured pill at top-right so a long title never wraps
                 into the pill's column. */}
-            <div class="absolute inset-x-0 bottom-0 p-l md:p-section-md pr-28 md:pr-36">
+            <div class="absolute inset-x-0 bottom-0 z-[3] p-l md:p-section-md pr-28 md:pr-36">
               <p class="text-xs uppercase tracking-widest text-white/80">
                 {hero?.location}{hero?.location && hero?.year ? ' · ' : ''}{hero?.year}
               </p>
