@@ -72,34 +72,37 @@ const first = slides[0];
   <script is:inline>
     (function () {
       function initHeroSlideshow() {
+        // Tear down any timer from a previous page first. The tab and its
+        // document-level listeners persist across Astro View Transitions, so
+        // re-wiring without this would stack intervals on detached slides.
+        if (window.__reidHeroSlideshowTimer) {
+          clearInterval(window.__reidHeroSlideshowTimer);
+          window.__reidHeroSlideshowTimer = null;
+        }
         var box = document.querySelector('[data-hero-slideshow]');
-        if (!box || box.dataset.wired === '1') return;
+        if (!box) return;
         var slides = box.querySelectorAll('.hero-slide');
         if (slides.length < 2) return;
         var reduce = false;
         try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
-        if (reduce) return;
-        box.dataset.wired = '1';
+        if (reduce) return; // first slide stays visible, no motion
 
         var current = 0;
-        var STEP_MS = 4500;
-        var timer = null;
-
-        function advance() {
+        var STEP_MS = 4500; // 3s hold + 1.5s cross-fade
+        window.__reidHeroSlideshowTimer = setInterval(function () {
+          if (document.hidden) return; // pause while the tab is hidden
           slides[current].classList.remove('is-active');
           current = (current + 1) % slides.length;
           slides[current].classList.add('is-active');
-        }
-        function start() { if (!timer) timer = setInterval(advance, STEP_MS); }
-        function stop() { if (timer) { clearInterval(timer); timer = null; } }
-
-        start();
-        document.addEventListener('visibilitychange', function () {
-          if (document.hidden) stop(); else start();
-        });
+        }, STEP_MS);
       }
       initHeroSlideshow();
-      document.addEventListener('astro:page-load', initHeroSlideshow);
+      // Register the navigation re-init once (mirrors Hero.astro's
+      // window.__reidHeroBound guard) so the listener never stacks.
+      if (!window.__reidHeroSlideshowBound) {
+        window.__reidHeroSlideshowBound = true;
+        document.addEventListener('astro:page-load', initHeroSlideshow);
+      }
     })();
   </script>
 )}
