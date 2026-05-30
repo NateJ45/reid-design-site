@@ -48,17 +48,18 @@ const titleClass = featured ? 'font-display text-h2 text-foreground' : 'font-dis
   {/* Brand accent stripe — matches every other marketing card. */}
   <div class="h-0.5 bg-primary" aria-hidden="true"></div>
 
-  <div class:list={[aspectClass, 'overflow-hidden bg-muted relative']}>
+  <div class:list={[aspectClass, 'overflow-hidden bg-muted relative img-zoom']}>
     {entry.coverImage?.asset ? (
       <SanityImage
         source={entry.coverImage}
         width={featured ? 1400 : 800}
         sizes={featured ? '(min-width: 1024px) 66vw, 100vw' : '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'}
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        class="w-full h-full object-cover"
       />
     ) : (
       <div class="w-full h-full" aria-hidden="true"></div>
     )}
+    <div class="img-tint img-tint-light" aria-hidden="true"></div>
     {entry.featured && (
       <span class="absolute top-m left-m inline-flex items-center px-s py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] rounded-full bg-primary-dark text-white">
         ★ Featured
