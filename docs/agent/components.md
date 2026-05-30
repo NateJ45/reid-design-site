@@ -42,13 +42,13 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Marketing cards (all share the brand-stripe + resting-shadow rhythm):**
 - `ServiceCard.astro` — service tier (price + features + best-for + CTA).
-- `ProjectCard.astro` — portfolio grid card. Includes humanized roomType chip top-left on the hero image.
-- `JournalCard.astro` — journal index card (featured variant spans 2 cols).
+- `ProjectCard.astro` — portfolio grid card. Includes humanized roomType chip top-left on the hero image. Hero image uses the `.img-zoom` + `.img-tint` hover treatment (see Polish layer).
+- `JournalCard.astro` — journal index card (featured variant spans 2 cols). Hero image uses `.img-zoom` + `.img-tint.img-tint-light` (the lighter tint variant).
 - `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
 - `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
 
 **Home page Featured sections (auto-from-Sanity hero + companion panel):**
-- `FeaturedWork.astro` — large editorial hero project (cover image with room chip + title + brief overlaid on a full-height dark gradient) beside a single cohesive companion panel (one card / one bronze stripe / one shadow; each project a row split by hairline dividers with a per-row `hover:bg-muted/60` tint). With companions the hero image fills the grid-stretched card (`lg:h-full` + `lg:min-h-[28rem]` floor) so it's always flush with the panel — no `bg-card` strip below an aspect-locked image. With no companions it degrades to a centered `max-w-4xl` single hero at `lg:aspect-[16/10]`. Mobile always uses portrait (`aspect-[4/5]`) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below.
+- `FeaturedWork.astro` — large editorial hero project (cover image with room chip + title + brief overlaid on a full-height dark gradient) beside a single cohesive companion panel (one card / one bronze stripe / one shadow; each project a row split by hairline dividers with a per-row `hover:bg-muted/60` tint). With companions the hero image fills the grid-stretched card (`lg:h-full` + `lg:min-h-[28rem]` floor) so it's always flush with the panel — no `bg-card` strip below an aspect-locked image. With no companions it degrades to a centered `max-w-4xl` single hero at `lg:aspect-[16/10]`. Mobile always uses portrait (`aspect-[4/5]`) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below. The hero image carries the `.img-curtain` reveal as its last child; the gradient / chips / text overlay are pinned at `z-[1]` / `z-[2]` / `z-[3]` so the curtain (`z-10`) cleanly covers them during the reveal.
 - `FeaturedJournal.astro` — mirrors `FeaturedWork` exactly (same hero-fill + cohesive panel + no-companions degrade) with cover image + category chip + date + title + lede excerpt overlaid. Title uses `text-h3 md:text-h2 line-clamp-3` because journal titles run long; excerpt is `line-clamp-3`.
 
 Both sections feed off the `featured: boolean` on `project` and `journalEntry`. Queries (`getHomePage()` → `featuredProjects` + `featuredJournalEntries`) order `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot. The overlay text reserves a right corridor (`pr-28 md:pr-36`) so a long title never wraps under the ★ Featured pill at top-right.
@@ -59,7 +59,7 @@ Both sections feed off the `featured: boolean` on `project` and `journalEntry`. 
 - `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.
 - `BeforeAfterSlider.tsx` — drag-to-reveal with cream-mat framing + opacity-tracking Before/After pills.
 - `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox.
-- `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy. Returns `null` when `headings.length === 0` so the slot collapses gracefully.
+- `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy. Returns `null` when `headings.length === 0` so the slot collapses gracefully. Link clicks smooth-scroll through `window.lenis` (native-scroll fallback) and update the URL hash via `pushState` — see Polish layer → In-page smooth scroll. Shared by both portfolio and journal detail pages.
 - **Featured in the journal** — a `JournalCard` grid of journal posts whose `relatedProject` points at this project (reverse query in `getProjectBySlug`, not a dedicated component). Hidden when none reference it.
 
 ### Long-read layout (shared by portfolio + journal detail)
@@ -88,10 +88,11 @@ Both `/portfolio/[slug]` and `/journal/[slug]` use the same long-read structure 
 The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortableText.tsx` for journal posts) detect image orientation from the Sanity asset `_ref` and apply different figure widths — portrait shots cap at `max-w-[600px] mx-auto`, landscape shots fill or extend the column per the editor's chosen size variant. See the [Portrait orientation caps](#portrait-orientation-caps) note in Image handling.
 
 **Process page pieces:**
-- `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage).
+- `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage). Accepts `isLast?: boolean`; when false it renders a `.step-connector` thread in the left column (the article grid is `items-stretch` so it fills the step height). Pass `isLast={i === arr.length - 1}` at every call site.
 - `ProcessStepIllustration.astro` — inline SVG line illustrations in Soft Sage above each numeral (1-4).
 
 **About page pieces:**
+- `StatsRow.astro` + `StatsCounter.tsx` — the studio stat-counter row on `/about` (between PressStrip and FinalCta). `StatsRow.astro` is the server shell that suppresses the section when `aboutPage.stats` is empty; `StatsCounter.tsx` is a `client:visible` React island that counts each figure up from zero (easeOutQuart, 1.8s) once scrolled into view, via `requestAnimationFrame` (no animation library). Reduced-motion users get the final numbers immediately. See Polish layer → Studio stat counters.
 - `AboutPersonal.astro` — renders the "off the clock" personal section on `/about`. Four modules, each self-hides when its content is empty: "Currently" (label/value list), "Rapid fire" (prompt/answer pairs), "Favorite local spots" (name + optional note), and "Beyond design" (casual paragraph + optional candid photo). The whole section renders nothing when all modules are empty. Follows the brand card pattern (bronze top stripe, card-lift shadow). Content comes from the `personal` field group on `aboutPage` (see editor-driven fields below).
 
 **Portfolio index pieces:**
@@ -108,7 +109,7 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
 - `SectionDivider.astro` — bronze ornament between sections that share a background color (variants: `ornament` (default ✺) / `line` / `dots`).
 - `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Falls back to italic single line when no `cities` array passed.
-- `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline.
+- `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline. Adds the `.prose-drop-cap` float cap to the first paragraph and renders blockquotes as `.prose-blockquote` (see Polish layer → Editorial typography).
 - `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` eyebrow above the caption.
 - `FaqAccordion.tsx` — shadcn Accordion wrapper. **Note:** `src/components/ui/accordion.tsx` has been customized — the original `h-(--radix-accordion-content-height)` lock on the inner content div was removed (caused a big empty-space bug after expand), and the trigger no longer carries `text-sm font-medium` so consumer typography wins the cascade.
 - `ThemeToggle.tsx`, `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.

@@ -52,6 +52,30 @@ Any element marked `data-reveal` starts at `opacity: 0; transform: translateY(0.
 
 Applied selectively to four section blocks on the home page (Meet Staci grid, Process preview, Testimonials block, Services grid). Don't add `data-reveal` to above-the-fold content — defeats the purpose.
 
+### Grid stagger entrance (`[data-stagger-grid]` / `.is-staggered`)
+
+Card grids fade their children up in sequence as the grid crosses the viewport. Add `data-stagger-grid` to a grid container; the BaseLayout observer adds `.is-staggered` on intersection, and per-`nth-child` `transition-delay`s (0 / 100 / 200 / 300ms, capped at 400ms for item 5+) sequence the reveal. Applied to the portfolio, journal, home-services, about-philosophy, and services-page grids. Reduced-motion users get every child visible instantly. **Portfolio caveat:** the filter's `.is-filtered-out` is re-asserted at matching specificity (`[data-stagger-grid] > .is-filtered-out`, `!important`) so the stagger rules don't override the filter's hide state.
+
+### Image curtain reveal (`.img-curtain` / `.is-revealed`)
+
+A Soft Linen panel (color = `--background`) scales away from the top edge to reveal an image, so it reads as materialization rather than a sliding panel. Wrap the image in a `relative overflow-hidden` div and drop `<div class="img-curtain" aria-hidden="true">` in as the last child; the BaseLayout observer adds `.is-revealed` on intersection (`scaleY` 1→0, 900ms). The curtain sits at `z-index: 10` so it covers any in-wrapper overlays during the reveal — on `FeaturedWork.astro`'s hero the gradient / chips / text overlay are pinned at `z-[1]` / `z-[2]` / `z-[3]` to keep that stack explicit and future-proof. Used on the portfolio detail hero and the FeaturedWork home hero. Reduced-motion users never see the curtain (`display: none`).
+
+### Process connector lines (`.step-connector`)
+
+A 2px bronze thread draws downward from each step number badge toward the next step. `ProcessStep.astro` renders `<div class="step-connector">` in its left flex column when `!isLast`; the article grid is `items-stretch` so the connector's `flex: 1` fills the step height. The track rests in Light Gray and a `::after` fill animates to Warm Bronze (`scaleY` 0→1) when the BaseLayout observer adds `.is-visible`. Pass `isLast` on the final step in any sequence — both `process.astro` and the home process preview compute it. Reduced-motion users get the filled track instantly, no draw.
+
+### Editorial typography — drop cap + blockquote (`.prose-drop-cap` / `.prose-blockquote`)
+
+Journal posts open with a floated Cormorant drop cap on the first paragraph and render blockquotes with a 3px bronze left border in Cormorant italic. `JournalPortableText.tsx` adds `.prose-drop-cap` to the first `normal` block only (a `firstNormalRendered` flag in the `makeComponents()` closure, rebuilt per render) and sets `className="prose-blockquote"` on blockquotes. The drop cap is pure CSS (`::first-letter`) — nothing to gate for reduced motion. Don't apply `.prose-drop-cap` to short paragraphs; the floated cap needs a substantial opening paragraph to wrap against.
+
+### Image zoom + warm tint on hover (`.img-zoom` / `.img-tint` / `.img-tint-light`)
+
+Card hero images scale to 1.06 and gain a faint bronze wash on hover. Add `.img-zoom` to the `overflow-hidden` image wrapper and drop an `.img-tint` (project cards, 0.15 bronze) or `.img-tint.img-tint-light` (journal cards, 0.08) div inside it. The effect fires on the whole card — both `.group:hover .img-zoom` (the card `<a>` carries `group`) and direct `.img-zoom:hover` trigger it, so hovering the title below the image still zooms the image. Transitions are gated behind `prefers-reduced-motion: no-preference`. Used by `ProjectCard.astro` and `JournalCard.astro`.
+
+### Studio stat counters (`StatsRow` + `StatsCounter`)
+
+The About page can show up to four large Cormorant figures that count up from zero (easeOutQuart over 1.8s) when scrolled into view. `StatsRow.astro` is the server shell (renders nothing when `stats` is empty); `StatsCounter.tsx` is a `client:visible` React island driven by `requestAnimationFrame` — no animation library. Numbers come from the `aboutPage.stats` array in Sanity (suppresses until Staci fills it in). Reduced-motion users see the final values immediately.
+
 ### Reading progress (`.reading-progress`)
 
 3px bronze track at the top of journal posts. Inner div `scaleX`'s from 0 → 1 as the reader scrolls through `<article>`. GPU-only animation (transform), throttled via requestAnimationFrame. Reduced-motion users get a static full bar so the affordance remains.
@@ -91,6 +115,14 @@ document.addEventListener('astro:page-load', initThing);
 Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations. That single instance is exposed as `window.lenis`, so in-page controls (e.g. the home hero scroll cue) can trigger a smooth programmatic scroll via `window.lenis.scrollTo(top)` instead of fighting it with a native `scrollTo`.
 
 **Lenis scroll-on-navigation reset (do not remove):** because that single Lenis instance persists, any in-flight momentum carries across a swap. While Lenis is actively smoothing it ignores the router's scroll-to-top reset, so a link clicked mid-scroll would open the next page at its bottom (the stale scroll target clamps to the new, often shorter, page's maximum). The fix lives in the Lenis init block: an `astro:after-swap` listener calls `lenis.scrollTo(0, { immediate: true, force: true })` (which also cancels the in-flight momentum) plus `lenis.resize()`. It runs on forward navigations only: it reads `navigationType` off the `astro:before-swap` event and skips the reset when that is `traverse`, so browser back/forward keeps Astro's built-in scroll restoration. Caveat for testing: Astro dev full-reloads on back/forward, so the traverse (restore-position) behavior can only be verified against the production build via `npm run preview`, not `npm run dev`.
+
+### Page cross-fade (`view-transition-name`)
+
+`<main id="main">` carries `view-transition-name: main-content` and cross-fades on every navigation (`vt-fade-out` 150ms → `vt-fade-in` 200ms). The header and footer are named (`site-header` / `site-footer`) and pinned with `animation: none` so they stay put through the swap instead of flashing. Astro respects `prefers-reduced-motion` automatically — reduced-motion users get an instant cut. Pure CSS, no JS.
+
+### In-page smooth scroll through Lenis
+
+In-page anchor navigation routes through the persistent `window.lenis` instance so it glides instead of snapping. Both the home hero scroll cue and the case-study TOC (`CaseStudyTOC.tsx`) do this: intercept the click, call `window.lenis.scrollTo(target)`, and fall back to native scroll when Lenis hasn't loaded or the reader prefers reduced motion. Lenis honors the headings' `scroll-mt-24`, so TOC targets clear the sticky header **without** a manual offset — don't add one (it double-applies and lands the heading ~96px too low). The TOC click also updates the URL hash via `history.pushState` so the section stays shareable and the back button works.
 
 ### Script accents (Pinyon Script flourish)
 

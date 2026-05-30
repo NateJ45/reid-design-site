@@ -40,7 +40,8 @@ Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus 
 3. Philosophy cards
 4. Personal ("off the clock" section from `AboutPersonal.astro`; hides when all modules are empty)
 5. Press strip
-6. Final CTA
+6. Stats (count-up figures from `StatsRow.astro`; hides when `aboutPage.stats` is empty)
+7. Final CTA
 
 Now also live (built during placeholder-content phase):
 - Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`) — schema + 3 placeholder projects (now prefixed `[SAMPLE: delete before launch]` in the seeder, no photos; delete or replace before cutover). Real projects require at least 3 photos.
