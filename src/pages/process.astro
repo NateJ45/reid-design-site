@@ -69,7 +69,7 @@ const schemas = [
     <div class="mx-auto max-w-content px-m py-section-lg space-y-section-lg">
       {processSteps.map((step: any, i: number) => (
         <div class={i > 0 ? 'pt-section-lg border-t border-border-soft' : ''}>
-          <ProcessStep step={step} variant="full" />
+          <ProcessStep step={step} variant="full" isLast={i === processSteps.length - 1} />
         </div>
       ))}
     </div>

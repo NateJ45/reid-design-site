@@ -282,8 +282,8 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
 
       {processSteps.length > 0 && (
         <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 gap-section-md">
-          {processSteps.slice(0, 4).map((step: any) => (
-            <ProcessStep step={step} variant="preview" />
+          {processSteps.slice(0, 4).map((step: any, i: number, arr) => (
+            <ProcessStep step={step} variant="preview" isLast={i === arr.length - 1} />
           ))}
         </div>
       )}
