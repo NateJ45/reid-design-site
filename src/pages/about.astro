@@ -48,7 +48,11 @@ const philosophyEyebrow  = page?.philosophyEyebrow  ?? 'How I Work.';
 const philosophyHeadline = page?.philosophyHeadline ?? 'A philosophy that puts your home first.';
 
 const philosophyPoints = page?.philosophyPoints ?? [];
-const stats = page?.stats ?? [];
+const stats = (page?.stats ?? [])
+  .filter((s): s is { number: number; suffix?: string | undefined; label: string; _type: 'statItem'; _key: string } =>
+    typeof s.number === 'number' && typeof s.label === 'string'
+  )
+  .map(({ number, suffix, label }) => ({ number, suffix, label }));
 
 const schemas = [
   breadcrumbSchema([
