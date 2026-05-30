@@ -1446,6 +1446,15 @@ export type HomePage = {
     alt?: string;
     _type: "image";
   };
+  heroImages?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
   heroPrimaryCta?: CtaBlock;
   heroSecondaryCta?: CtaBlock;
   heroRotatingWords?: Array<string>;

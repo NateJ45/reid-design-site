@@ -53,12 +53,30 @@ export const homePage = defineType({
     defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', rows: 3, group: 'hero' }),
     defineField({
       name: 'heroImage',
-      title: 'Hero image',
+      title: 'Hero image (legacy)',
       type: 'image',
       group: 'hero',
+      hidden: true,
       options: { hotspot: true },
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+      ],
+    }),
+    defineField({
+      name: 'heroImages',
+      title: 'Hero images',
+      type: 'array',
+      group: 'hero',
+      description:
+        'The home hero. Add one photo for a single static hero. Add two or more for a slow cross-fading slideshow with a subtle zoom. Drag to set the order they appear in.',
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
+          ],
+        }),
       ],
     }),
     defineField({ name: 'heroPrimaryCta', title: 'Primary CTA', type: 'ctaBlock', group: 'hero' }),
