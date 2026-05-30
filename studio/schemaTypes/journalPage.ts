@@ -82,6 +82,15 @@ export const journalPage = defineType({
     }),
     defineField({ name: 'finalCtaSubhead',  title: 'Final CTA subhead',  type: 'text', rows: 2, group: 'final' }),
     defineField({ name: 'finalCta',         title: 'Final CTA button',   type: 'ctaBlock', group: 'final' }),
+    defineField({
+      name: 'finalCtaBackgroundImage',
+      title: 'Final CTA background image (optional)',
+      type: 'image',
+      group: 'final',
+      options: { hotspot: true },
+      description:
+        'Optional. A photo behind the closing call-to-action. The site automatically darkens it so the headline and button stay readable. Leave empty to keep the solid charcoal panel.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Journal Page' }) },
 });

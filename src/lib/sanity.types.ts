@@ -721,6 +721,13 @@ export type EDesignPage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
 };
 
 export type HomePageReference = {
@@ -1109,6 +1116,13 @@ export type JournalPage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
 };
 
 export type ContactPage = {
@@ -1192,6 +1206,13 @@ export type FaqPage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
   secondaryCta?: CtaBlock;
   note?: string;
 };
@@ -1252,6 +1273,13 @@ export type ServicesPage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
   note?: string;
 };
 
@@ -1282,6 +1310,13 @@ export type ProcessPage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
   note?: string;
 };
 
@@ -1376,6 +1411,13 @@ export type AboutPage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
 };
 
 export type TestimonialReference = {
@@ -1468,6 +1510,13 @@ export type HomePage = {
   finalCtaScriptAccent?: string;
   finalCtaSubhead?: string;
   finalCta?: CtaBlock;
+  finalCtaBackgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
 };
 
 export type Testimonial = {
