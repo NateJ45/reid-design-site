@@ -234,7 +234,7 @@ export const aboutPage = defineType({
           ],
           preview: {
             select: { title: 'label', subtitle: 'number' },
-            prepare: ({ title, subtitle }) => ({ title, subtitle: String(subtitle) }),
+            prepare: ({ title, subtitle }) => ({ title, subtitle: subtitle != null ? String(subtitle) : '' }),
           },
         }),
       ],
