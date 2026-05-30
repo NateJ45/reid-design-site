@@ -288,6 +288,29 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
           }
         }
 
+        // ---- Grid stagger entrance ------------------------------------------
+        // Adds .is-staggered to each [data-stagger-grid] container as it enters
+        // the viewport. The CSS transition-delay on nth-child handles sequencing.
+        const staggerGrids = document.querySelectorAll<HTMLElement>('[data-stagger-grid]:not(.is-staggered)');
+        if (staggerGrids.length > 0) {
+          if (reduceMotion || !('IntersectionObserver' in window)) {
+            staggerGrids.forEach((el) => el.classList.add('is-staggered'));
+          } else {
+            const staggerObserver = new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries) {
+                  if (entry.isIntersecting) {
+                    entry.target.classList.add('is-staggered');
+                    staggerObserver.unobserve(entry.target);
+                  }
+                }
+              },
+              { rootMargin: '0px 0px -60px 0px', threshold: 0.05 },
+            );
+            staggerGrids.forEach((el) => staggerObserver.observe(el));
+          }
+        }
+
         // ---- Sticky-header hide on scroll-down --------------------------
         // The header is position:sticky via .site-header. We swap a data-state
         // attribute that the CSS translates into a translateY(-100%) when the
