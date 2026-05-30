@@ -163,3 +163,5 @@ Labels are Sanity-editable now: `servicesPage.stickyCtaLabel` for /services, `jo
 - **Focus ring** offsets against `transparent` instead of `--background` so the ring still reads on photographic surfaces.
 
 Use it on any CTA over a hero image, the Charcoal Dark `FinalCta` panel, or any other dark surface. `Hero.astro` (image variant) and `FinalCta.astro` set it automatically. Do NOT try to override secondary-variant colors via `class="text-bg ..."` — Tailwind v4 generates utilities alphabetically and `text-link` beats `text-bg` in the cascade. Use the prop instead.
+
+`FinalCta.astro` accepts an optional `backgroundImage` (Sanity image). When set, the closing panel renders the photo full-bleed behind a `bg-accent-dark/70` scrim with the content lifted to `z-10`; the bronze stripe stays on top. Empty or missing asset falls back to the solid Charcoal Dark panel. The image is decorative (`aria-hidden`, empty alt).
