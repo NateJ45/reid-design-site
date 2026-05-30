@@ -14,6 +14,7 @@ export const aboutPage = defineType({
     { name: 'story', title: 'Story' },
     { name: 'philosophy', title: 'Philosophy' },
     { name: 'personal', title: 'Personal' },
+    { name: 'stats', title: 'Stats' },
     { name: 'final', title: 'Final CTA' },
   ],
   fields: [
@@ -209,6 +210,35 @@ export const aboutPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
+    }),
+
+    defineField({
+      name: 'stats',
+      title: 'Stats',
+      type: 'array',
+      group: 'stats',
+      description: 'Up to 4 numbers displayed as large display figures on the About page. Leave empty to hide the section.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'statItem',
+          fields: [
+            defineField({ name: 'number', title: 'Number', type: 'number', validation: (R) => R.required() }),
+            defineField({
+              name: 'suffix',
+              title: 'Suffix (optional)',
+              type: 'string',
+              description: 'e.g. + or k. Appended directly after the number.',
+            }),
+            defineField({ name: 'label', title: 'Label', type: 'string', description: 'e.g. Years in Business', validation: (R) => R.required() }),
+          ],
+          preview: {
+            select: { title: 'label', subtitle: 'number' },
+            prepare: ({ title, subtitle }) => ({ title, subtitle: String(subtitle) }),
+          },
+        }),
+      ],
+      validation: (Rule) => Rule.max(4),
     }),
 
     defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: "Let's Work Together." }),

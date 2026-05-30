@@ -1364,6 +1364,13 @@ export type AboutPage = {
     alt?: string;
     _type: "image";
   };
+  stats?: Array<{
+    number?: number;
+    suffix?: string;
+    label?: string;
+    _type: "statItem";
+    _key: string;
+  }>;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaScriptAccent?: string;
