@@ -150,6 +150,7 @@ export async function getAboutPage() {
     localSpots[]{name, note},
     beyondDesign,
     candidPhoto${IMAGE_PROJECTION},
+    stats[]{number, suffix, label},
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCta${CTA_PROJECTION}
   }`);
