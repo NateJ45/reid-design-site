@@ -87,7 +87,7 @@
      eases in and out on the same brand curve at the same speed site-wide.
      Per-element duration and ease utilities still override (image zoom, arrow
      nudges, and similar). */
-  --default-transition-duration: 220ms;
+  --default-transition-duration: 440ms;
   --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -365,7 +365,7 @@
      they ease the instant the element changes them. */
   translate: 0 0.75rem;
   transition-property: opacity, translate, transform, box-shadow, border-color;
-  transition-duration: 600ms, 600ms, 220ms, 220ms, 220ms;
+  transition-duration: 600ms, 600ms, 440ms, 440ms, 440ms;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, translate;
 }
@@ -442,7 +442,7 @@
      half-snaps (the border used to jump while the lift eased). */
   transition-property: box-shadow, transform, border-color, color, background-color;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  transition-duration: 220ms;
+  transition-duration: 440ms;
 }
 .card-lift:hover {
   transform: translateY(-2px);
@@ -450,6 +450,23 @@
 }
 .dark .card-lift:hover {
   box-shadow: 0 16px 34px -18px rgba(0, 0, 0, 0.6);
+}
+
+/* Slower lift for image cards. The home Featured Work / Featured Journal cards
+   pair the lift with a 1.5s image zoom; matching the lift, shadow, and border to
+   that duration keeps the whole hover one cohesive, unhurried motion instead of
+   a quick lift over a slow zoom. Opt in alongside .card-lift. */
+.card-lift-slow {
+  transition-duration: 1500ms;
+}
+
+/* Stagger-grid image cards (the portfolio + journal grids) get their hover
+   timing from the [data-stagger-grid] > * rule, which outranks .card-lift. Match
+   that rule's five-property shape so only the hover properties slow to 1.5s; the
+   entrance (opacity + translate) stays at 600ms. Order matches that rule:
+   opacity, translate, transform, box-shadow, border-color. */
+[data-stagger-grid] > .card-lift-slow {
+  transition-duration: 600ms, 600ms, 1500ms, 1500ms, 1500ms;
 }
 
 /* Warm-textured surface. An opt-in utility for sections that need a hint of
@@ -478,7 +495,7 @@
 .press-tactile {
   transition-property: background-color, color, border-color, outline-color, transform, box-shadow;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  transition-duration: 220ms;
+  transition-duration: 440ms;
 }
 .press-tactile:active {
   transform: translateY(1px);
@@ -503,7 +520,7 @@
     transition-property: color, background-color, border-color, outline-color,
       text-decoration-color, fill, stroke, box-shadow, transform, opacity;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    transition-duration: 220ms;
+    transition-duration: 440ms;
   }
 }
 
@@ -635,7 +652,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .img-zoom img,
   .img-zoom .img-zoom-target {
-    transition: transform 550ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   .img-tint {
     transition: background 400ms ease;
@@ -668,7 +685,7 @@
      below so a later card's hover never waits out its entrance delay. */
   translate: 0 14px;
   transition-property: opacity, translate, transform, box-shadow, border-color;
-  transition-duration: 600ms, 600ms, 220ms, 220ms, 220ms;
+  transition-duration: 600ms, 600ms, 440ms, 440ms, 440ms;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 [data-stagger-grid].is-staggered > * {

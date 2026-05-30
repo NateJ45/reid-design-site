@@ -104,7 +104,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
             the card stays compact and reads as a single editorial spread. */}
         <a
           href={heroHref}
-          class="card-lift group relative block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full"
+          class="card-lift card-lift-slow group relative block rounded-md overflow-hidden bg-card border border-border-soft hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full"
         >
           {/* Brand accent stripe — matches the card grammar across the site. */}
           <div class="absolute top-0 left-0 right-0 h-0.5 bg-primary z-20" aria-hidden="true"></div>
@@ -120,7 +120,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
                 source={hero.heroImage}
                 width={1400}
                 sizes="(min-width: 1024px) 60vw, 100vw"
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
               />
             ) : (
               <div class="w-full h-full" aria-hidden="true"></div>
@@ -189,7 +189,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
             `lg:flex-1` so the rows distribute the height evenly and the panel
             bottom lines up with the hero. Per-row hover tints the row. */}
         {hasCompanions && (
-          <div class="card-lift flex flex-col rounded-md overflow-hidden bg-card border border-border-soft shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full">
+          <div class="card-lift card-lift-slow flex flex-col rounded-md overflow-hidden bg-card border border-border-soft shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full">
             {/* One brand accent stripe for the whole panel. */}
             <div class="h-0.5 bg-primary" aria-hidden="true"></div>
 
@@ -211,7 +211,7 @@ const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
                         source={p.heroImage}
                         width={500}
                         sizes="(min-width: 1280px) 176px, (min-width: 1024px) 160px, (min-width: 640px) 144px, 112px"
-                        class="w-full h-full object-cover transition-transform duration-500 group-hover/row:scale-[1.04]"
+                        class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover/row:scale-[1.04]"
                       />
                     ) : (
                       <div class="w-full h-full" aria-hidden="true"></div>

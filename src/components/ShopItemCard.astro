@@ -33,7 +33,7 @@ const hasImage = !!item.image?.asset;
 ---
 
 <article
-  class="card-lift group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40"
+  class="card-lift card-lift-slow group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40"
 >
   {/* Brand-stripe — required on every marketing card */}
   <div class="h-0.5 bg-primary" aria-hidden="true"></div>
@@ -44,7 +44,7 @@ const hasImage = !!item.image?.asset;
         source={item.image}
         width={480}
         sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 100vw"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
         loading="lazy"
       />
     </div>
