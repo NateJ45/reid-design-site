@@ -417,6 +417,94 @@ const guideTrade = {
   ],
 };
 
+// ─── Guide 5: Write portfolio and journal posts ──────────────────────────────
+
+sectionCounter = 0;
+const guidePortfolioJournal = {
+  _key: 'g5',
+  _type: 'playbookGuide',
+  title: 'Portfolio and journal posts',
+  summary:
+    'Your portfolio and your journal are two different tools. The portfolio proves you can do the work. The journal shows how you think and pulls people in from search. And the strongest posts are not written at the end, they are gathered as you go. Here is how to think about both, when something belongs in one or the other, and what to capture during a project so you finish with something worth showing off.',
+  sections: [
+    section({
+      heading: 'What each one is for',
+      tone: 'primary',
+      body:
+        'Think of the portfolio as your proof and the journal as your voice.\n\nA portfolio project is a finished room told as a short case study: the problem the client had, the call you made, and the result, with photos. It exists to show a future client one simple thing, that you can do this for them too.\n\nThe journal is everything else: how you think, what you would do differently, where you found a piece, the answer to a question clients always ask. It builds trust, shows your personality, and brings in people from Google who are not ready to hire yet but will remember you when they are.',
+    }),
+    section({
+      heading: 'Which one is it? A quick rule',
+      body: 'Most of the time the choice is obvious once you ask one question: do I have a finished room with photos, or do I have something to say?',
+      bullets: [
+        'Portfolio: a real project you completed and photographed. One entry per project. The before and after, the room, the story of the work.',
+        'Journal: a lesson, a how-to, a source roundup, an opinion, a trend take, a personal note, or a question you answer. There is no finished-room requirement.',
+        'The part most people miss: one project usually gives you both. The project itself becomes the portfolio piece, and a single decision or lesson from it becomes a journal post that links back to it. One project, two pieces of content, twice the mileage.',
+        'When in doubt: if the point is the room, it is a portfolio project. If the point is the idea, it is a journal post.',
+      ],
+    }),
+    section({
+      heading: 'Document as you go (this is the real secret)',
+      tone: 'positive',
+      body: 'A strong post is almost never written from memory at the end. It is assembled from things you grab along the way. Build the habit of capturing these on every project and the writing at the end becomes easy.',
+      bullets: [
+        'Before photos, first thing, before you move anything. Shoot from the same spots and angles you will reshoot at the end so the pairs line up.',
+        'The brief in the words the client used: what was not working, and what they wanted. This becomes the one-line brief on the project page.',
+        'Your design call and why you made it, the pivotal decision in plain language. This is the part clients and other designers actually want to read.',
+        'Quick phone snaps of the process: the mood board, the samples taped to the wall, delivery day, the piece going into place.',
+        'The specific sources: the paint color, the light, the rug, and where each came from, so you can credit them later in a source card or a roundup post.',
+        'A short client reaction at the end. Even one honest sentence makes a great quote.',
+        'The after photos, reshot from the before angles. Then jot one line on how the room works now that it did not before.',
+      ],
+    }),
+    section({
+      heading: 'Write a portfolio project that sells',
+      body: 'Keep it short and let the photos carry it. The goal is for a future client to see their own house somewhere in the story.',
+      bullets: [
+        'Name it for the place, not the client: a title like Fishers ranch refresh, not the family name.',
+        'Lead with the transformation, then tell it simply: the problem, the call you made, the result.',
+        'Use the one-line brief and call fields to set it up fast. The brief is what they came in with. The call is your move in response.',
+        'Show the thinking, not your credentials. A line like, I started with the wall color because everything else has to answer to it, beats any list of qualifications.',
+        'Add four to eight photos: a couple of wide shots, a few details, and a before-and-after pair if you have a clean one.',
+        'Write captions like a person pointing something out, not a label. Skip the photo of openings.',
+        'Keep the voice warm and plain, and skip the brochure words like transformative, curated, elevated, and sanctuary.',
+      ],
+    }),
+    section({
+      heading: 'Write a journal post worth reading',
+      body: 'One post, one idea. If you are trying to say three things, that is three posts.',
+      bullets: [
+        'Pick a specific, useful headline. A 1970s ranch in Fishers beats a modern home. Specific gets clicked, and gets found in search.',
+        'Open with the point. Do not warm up for three paragraphs. Then use headings so the post can be skimmed.',
+        'Show real thinking and a little personality. The honest, here is what I would do differently, posts are often the best ones.',
+        'Use the building blocks in the editor: before and after, source cards for products, a tip callout, a small gallery.',
+        'If the post grew out of a project, link it as the related project so readers can go see the finished room.',
+        'End with a soft nudge, not a hard sell: a line inviting them to reach out if they want help with their own space.',
+      ],
+    }),
+    section({
+      heading: 'Post ideas you already have',
+      body: 'You are never really starting from a blank page. Almost every one of these comes straight out of work you have already done.',
+      bullets: [
+        'A walkthrough of a project you just finished.',
+        'The one decision that fixed a room, and why it worked.',
+        'Where I found it: a roundup of the sources from a single project.',
+        'The answer to a question clients ask you constantly.',
+        'A common mistake you see, and the simple fix for it.',
+        'A short list with a point of view: five paint colors I come back to, or five things I would skip.',
+        'A before and after with the reasoning behind each change.',
+        'A look behind the scenes at how you actually work with a client.',
+      ],
+    }),
+    section({
+      heading: 'A simple rhythm',
+      tone: 'primary',
+      body:
+        'You do not need to post constantly. You need to post consistently, and let each project do double duty.\n\nFor every finished project, publish one portfolio piece, then spin at least one journal post out of the notes and photos you already gathered. Aim for a new post every few weeks. The same set of photos and notes feeds the portfolio, the journal, and your Instagram, so work you did once shows up in three places.',
+    }),
+  ],
+};
+
 // ─── studioPlaybook document ─────────────────────────────────────────────────
 
 const studioPlaybookDoc = {
@@ -424,8 +512,8 @@ const studioPlaybookDoc = {
   _type: 'studioPlaybook',
   title: 'Grow your studio',
   intro:
-    'Four guides for leveling up as a designer, whenever you are ready for them. The website runs fine without any of this, so there is no rush. Come back when you want to photograph your work better, add the right tools, offer e-design, or start buying at trade prices. Everything here is editable, so add your own notes as you learn. Prices are rough and current as of 2026, worth a quick check before you commit to anything.',
-  guides: [guidePhotography, guideSoftware, guideEdesign, guideTrade],
+    'Five guides for leveling up as a designer, whenever you are ready for them. The website runs fine without any of this, so there is no rush. Come back when you want to photograph your work better, write up your projects so they shine on the site, add the right tools, offer e-design, or start buying at trade prices. Everything here is editable, so add your own notes as you learn. Prices are rough and current as of 2026, worth a quick check before you commit to anything.',
+  guides: [guidePhotography, guidePortfolioJournal, guideSoftware, guideEdesign, guideTrade],
 };
 
 // ─── write ───────────────────────────────────────────────────────────────────
