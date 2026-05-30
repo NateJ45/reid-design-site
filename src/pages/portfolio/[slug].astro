@@ -125,13 +125,16 @@ const schemas = [
     */
     <section class="mx-auto max-w-4xl px-m" aria-label="Project hero image">
       <figure>
-        <SanityImage
-          source={project.heroImage}
-          width={1800}
-          loading="eager"
-          sizes="(min-width: 920px) 896px, 100vw"
-          class="w-full h-auto rounded-md"
-        />
+        <div class="relative overflow-hidden rounded-md">
+          <SanityImage
+            source={project.heroImage}
+            width={1800}
+            loading="eager"
+            sizes="(min-width: 920px) 896px, 100vw"
+            class="w-full h-auto"
+          />
+          <div class="img-curtain" aria-hidden="true"></div>
+        </div>
         {project.heroImage.caption && (
           <figcaption class="mt-s text-sm text-foreground/80 italic text-center">
             {project.heroImage.caption}
