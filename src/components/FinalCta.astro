@@ -2,13 +2,13 @@
 // Safe to edit by hand
 // The full-bleed call-to-action section that closes every interior page (and the home page).
 // Charcoal Dark panel with editorial headline, optional subhead, and a Bronze CTA pill.
-// This is intentionally the only section on the page that uses the dark brand panel —
+// This is intentionally the only section on the page that uses the dark brand panel:
 // it punctuates the read and pushes toward booking a consultation.
 //
 // scriptAccent: optional single word/phrase from the headline to render in handwritten
 // Pinyon Script via the `.font-script` utility. Inherits the heading color (text-bg) so
 // it reads correctly on the Charcoal Dark surface in both light and dark theme.
-// Falls back silently when undefined, blank, or not found — no existing CTA is affected.
+// Falls back silently when undefined, blank, or not found. No existing CTA is affected.
 
 import CtaLink from '@/components/CtaLink.astro';
 import SanityImage from '@/components/SanityImage.astro';
@@ -39,7 +39,7 @@ interface Props {
   /**
    * Optional single word/phrase from the headline to render in handwritten
    * Pinyon Script. Must match the headline text exactly (case-sensitive). Leave
-   * blank to skip. Use sparingly — one accent per heading. The script word
+   * blank to skip. Use sparingly, one accent per heading. The script word
    * inherits the heading color (text-bg / cream) so contrast is correct on
    * the Charcoal Dark surface in both themes.
    */
@@ -112,7 +112,7 @@ const { found: scriptFound, before: scriptBefore, word: scriptWord, after: scrip
     {eyebrow && (
       <p class="text-xs uppercase tracking-[0.22em] text-bg/75">{eyebrow}</p>
     )}
-    {/* Cream hairline accent beneath the eyebrow — matches SectionHeading's
+    {/* Cream hairline accent beneath the eyebrow that matches SectionHeading's
         inverse-tone treatment so headings carry the same editorial signature
         on both light and dark surfaces. */}
     {eyebrow && (
