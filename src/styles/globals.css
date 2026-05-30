@@ -517,6 +517,37 @@
   }
 }
 
+/* ---- Home hero slideshow. HeroBackground.astro stacks 2+ .hero-slide images
+   inside [data-hero-slideshow] and cross-fades them via the .is-active toggle
+   (a small inline script advances the active slide every 4.5s). Each slide also
+   runs a subtle continuous Ken Burns zoom. Lives here (global), not in a scoped
+   component <style>, because the slides are rendered by the child SanityImage
+   component and would not carry HeroBackground's scope attribute. Reduced-motion
+   users keep the first slide static. ---- */
+.hero-slideshow { position: absolute; inset: 0; }
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  transform-origin: center;
+  animation: hero-kb 16s ease-in-out infinite alternate;
+  will-change: opacity, transform;
+}
+.hero-slide.is-active { opacity: 1; }
+.hero-slide:nth-child(3n + 2) { transform-origin: top left; animation-duration: 18s; }
+.hero-slide:nth-child(3n + 3) { transform-origin: bottom right; animation-duration: 20s; }
+@keyframes hero-kb {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide { transition: none; animation: none; transform: none; }
+}
+
 /* ---- Drop cap -- float cap on the first paragraph of every journal post.
    JournalPortableText.tsx adds .prose-drop-cap to the first <p> only. ---- */
 .prose-drop-cap::first-letter {
