@@ -80,6 +80,15 @@
   --spacing-section-lg:   clamp(4rem,    8vw,   7rem); /* was --spacing-2xl */
 
   --container-content: 82.5rem;
+
+  /* Default interaction motion. Tailwind transition utilities (transition,
+     transition-colors, transition-transform, etc.) read these when no explicit
+     duration or ease utility is set, so every hover, focus, and active state
+     eases in and out on the same brand curve at the same speed site-wide.
+     Per-element duration and ease utilities still override (image zoom, arrow
+     nudges, and similar). */
+  --default-transition-duration: 220ms;
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- shadcn semantic token map (added by CLI, preserved) ------- */
@@ -349,14 +358,20 @@
    takes ms via inline style on the element itself. */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(0.75rem);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  /* The entrance slide uses the `translate` property (not `transform`) so a
+     `transform`-based hover (e.g. a card lift) on the same element eases
+     independently at the standard hover speed instead of inheriting the 600ms
+     reveal timing. The hover properties are listed here too, at hover speed, so
+     they ease the instant the element changes them. */
+  translate: 0 0.75rem;
+  transition-property: opacity, translate, transform, box-shadow, border-color;
+  transition-duration: 600ms, 600ms, 220ms, 220ms, 220ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, translate;
 }
 [data-reveal].is-visible {
   opacity: 1;
-  transform: translateY(0);
+  translate: 0 0;
 }
 
 /* Animated active-link underline. Used in the primary nav: an underline that
@@ -421,8 +436,13 @@
 /* Card lift on hover. Marketing cards (project, journal, service) opt in via
    .card-lift; pairs with the existing border + image scale transitions. */
 .card-lift {
-  transition: box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Longhand (not the `transition` shorthand) so a co-located Tailwind utility
+     like `transition-colors` is not silently reset to a single property. The
+     border color, shadow, and lift all ease together, so the card never
+     half-snaps (the border used to jump while the lift eased). */
+  transition-property: box-shadow, transform, border-color, color, background-color;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 220ms;
 }
 .card-lift:hover {
   transform: translateY(-2px);
@@ -456,13 +476,35 @@
 /* Tactile press on primary CTAs. Tap/click depresses ~1px so the press
    registers physically — common Apple-Material trick. */
 .press-tactile {
-  transition-property: background-color, color, transform, box-shadow;
+  transition-property: background-color, color, border-color, outline-color, transform, box-shadow;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   transition-duration: 220ms;
 }
 .press-tactile:active {
   transform: translateY(1px);
   transition-duration: 60ms;
+}
+
+/* Baseline interaction easing for bare interactive elements. Anything that can
+   be hovered, focused, or pressed but carries no explicit `transition-*` utility
+   still eases its state changes instead of snapping. Scoped to the `base` layer
+   so any Tailwind transition utility, or the .card-lift / .press-tactile classes
+   above, takes precedence; this only fills the gap where nothing else applies.
+   prefers-reduced-motion zeroes it out via the global reset below. */
+@layer base {
+  a,
+  button,
+  summary,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="tab"] {
+    transition-property: color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke, box-shadow, transform, opacity;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transition-duration: 220ms;
+  }
 }
 
 /* Portfolio filter visibility. The chips island toggles .is-filtered-out on
@@ -620,19 +662,28 @@
    The BaseLayout observer adds .is-staggered on intersection. ---- */
 [data-stagger-grid] > * {
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Same translate-not-transform trick as [data-reveal]: the entrance uses
+     `translate` so a card's `transform` hover lift eases independently. The
+     hover properties ride along at hover speed; their stagger delay is zeroed
+     below so a later card's hover never waits out its entrance delay. */
+  translate: 0 14px;
+  transition-property: opacity, translate, transform, box-shadow, border-color;
+  transition-duration: 600ms, 600ms, 220ms, 220ms, 220ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 [data-stagger-grid].is-staggered > * {
   opacity: 1;
-  transform: none;
+  translate: 0;
 }
-[data-stagger-grid].is-staggered > *:nth-child(1)   { transition-delay:   0ms; }
-[data-stagger-grid].is-staggered > *:nth-child(2)   { transition-delay: 100ms; }
-[data-stagger-grid].is-staggered > *:nth-child(3)   { transition-delay: 200ms; }
-[data-stagger-grid].is-staggered > *:nth-child(4)   { transition-delay: 300ms; }
-[data-stagger-grid].is-staggered > *:nth-child(n+5) { transition-delay: 400ms; }
+/* Stagger delay applies ONLY to the entrance properties (opacity + translate).
+   The hover properties (transform, box-shadow, border-color) keep a 0ms delay,
+   so hovering a later card responds instantly instead of waiting out its
+   entrance stagger. The five values map to transition-property order above. */
+[data-stagger-grid].is-staggered > *:nth-child(1)   { transition-delay:   0ms,   0ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(2)   { transition-delay: 100ms, 100ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(3)   { transition-delay: 200ms, 200ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(4)   { transition-delay: 300ms, 300ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(n+5) { transition-delay: 400ms, 400ms, 0ms, 0ms, 0ms; }
 
 /* Portfolio filter override: re-assert .is-filtered-out at specificity (0,2,0)
    so it beats the [data-stagger-grid].is-staggered > * rule (also 0,2,0 but
@@ -642,6 +693,12 @@
 [data-stagger-grid] > .is-filtered-out {
   opacity: 0 !important;
   transform: scale(0.96) !important;
+  /* Filtering owns its timing so the fade and shrink stay in sync and are not
+     split by the per-property hover/entrance durations on the stagger rule
+     above. Zero delay so filtered items leave together, not in a stagger. */
+  transition-property: opacity, transform !important;
+  transition-duration: 360ms !important;
+  transition-delay: 0s !important;
 }
 
 /* ---- Image curtain reveal — a Soft Linen panel scales away from the top
@@ -755,10 +812,12 @@ body::before {
   [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
+    translate: none !important;
   }
   [data-stagger-grid] > * {
     opacity: 1 !important;
     transform: none !important;
+    translate: none !important;
   }
   /* Curtain: skip the reveal entirely — image always visible */
   .img-curtain { display: none !important; }
