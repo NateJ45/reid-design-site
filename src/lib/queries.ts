@@ -122,6 +122,7 @@ export async function getHomePage() {
     finalCtaHeadline,
     finalCtaScriptAccent,
     finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -152,6 +153,7 @@ export async function getAboutPage() {
     candidPhoto${IMAGE_PROJECTION},
     stats[]{number, suffix, label},
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -169,6 +171,7 @@ export async function getProcessPage() {
     "processSteps": *[_type == "processStep"] | order(orderRank asc, stepNumber asc),
     "faqs": *[_type == "faqItem" && alsoShowOnProcessPage == true] | order(category asc, displayOrder asc),
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -192,6 +195,7 @@ export async function getServicesPage() {
     serviceAreaSection,
     "travelFees": *[_type == "siteSettings"][0].travelFees,
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -210,6 +214,7 @@ export async function getFaqPage() {
       question, answer, category, displayOrder
     },
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION},
     secondaryCta${CTA_PROJECTION}
   }`);
@@ -339,6 +344,7 @@ export async function getJournalPage() {
     heroScriptAccent,
     stickyCtaLabel,
     finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
   }`);
 }
@@ -425,6 +431,7 @@ export async function getEDesignPage() {
       question, answer, category
     },
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
+    finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
   }`);
 }
