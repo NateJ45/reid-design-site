@@ -64,6 +64,7 @@ export async function getHomePage() {
     heroHeadline,
     heroSubhead,
     heroImage${IMAGE_PROJECTION},
+    heroImages[]${IMAGE_PROJECTION},
     heroPrimaryCta${CTA_PROJECTION},
     heroSecondaryCta${CTA_PROJECTION},
     heroRotatingWords,
