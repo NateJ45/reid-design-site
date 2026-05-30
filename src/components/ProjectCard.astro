@@ -43,13 +43,13 @@ const roomLabel = humanizeRoom(project.roomType);
       so the marketing-card grammar reads as one brand across the site. */}
   <div class="h-0.5 bg-primary" aria-hidden="true"></div>
 
-  <div class="aspect-[4/3] overflow-hidden bg-muted relative">
+  <div class="aspect-[4/3] overflow-hidden bg-muted relative img-zoom">
     {project.heroImage?.asset ? (
       <SanityImage
         source={project.heroImage}
         width={800}
         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        class="w-full h-full object-cover"
       />
     ) : (
       <div class="w-full h-full" aria-hidden="true"></div>
@@ -65,6 +65,7 @@ const roomLabel = humanizeRoom(project.roomType);
         {roomLabel}
       </span>
     )}
+    <div class="img-tint" aria-hidden="true"></div>
   </div>
   <div class="p-m">
     <h3 class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">
