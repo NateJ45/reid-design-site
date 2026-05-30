@@ -24,6 +24,7 @@ import PortableText from '@/components/PortableText';
 import FinalCta from '@/components/FinalCta.astro';
 import PressStrip from '@/components/PressStrip.astro';
 import AboutPersonal from '@/components/AboutPersonal.astro';
+import StatsRow from '@/components/StatsRow.astro';
 
 const [page, siteSettings, pressItems] = await Promise.all([
   getAboutPage().catch(() => null),
@@ -47,6 +48,7 @@ const philosophyEyebrow  = page?.philosophyEyebrow  ?? 'How I Work.';
 const philosophyHeadline = page?.philosophyHeadline ?? 'A philosophy that puts your home first.';
 
 const philosophyPoints = page?.philosophyPoints ?? [];
+const stats = page?.stats ?? [];
 
 const schemas = [
   breadcrumbSchema([
@@ -177,7 +179,10 @@ const schemas = [
       when the pressItem collection is empty, and also when press is off. */}
   {visible.press && <PressStrip items={pressItems} />}
 
-  {/* ------- 5. Final CTA ---------------------------------------------------- */}
+  {/* ------- 5. Stat counters ------------------------------------------------ */}
+  <StatsRow stats={stats} />
+
+  {/* ------- 6. Final CTA ---------------------------------------------------- */}
   <FinalCta
     eyebrow={page?.finalCtaEyebrow}
     headline={page?.finalCtaHeadline}
