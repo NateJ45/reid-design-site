@@ -37,7 +37,7 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Hero + page-top:**
 - `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap, and `backgroundImages?: SanityImageObject[]` for the home hero slideshow (falls back to the single `backgroundImage` for every other page). Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
-- `HeroBackground.astro` — the hero background layer. Renders a single static `SanityImage` (today's behavior) for 0-1 images, or a cross-fading Ken Burns slideshow for 2+ (see Polish layer, Home hero slideshow), plus the two readability overlays. The slide CSS lives in `globals.css`. Used only by `Hero.astro`.
+- `HeroBackground.astro` — the hero background layer. Renders a single static `SanityImage` for 0-1 images, or a cross-fading Ken Burns slideshow for 2+ (see Polish layer, Home hero slideshow), plus the two readability overlays. The slide CSS lives in `globals.css`. Used only by `Hero.astro`.
 - `SectionHeading.astro` — eyebrow + bronze hairline accent + headline + subhead. Used by text-variant Hero and every interior section heading. Supports `tone="inverse"` for dark FinalCta panels.
 - `ReadingProgress.astro` — fixed 3px bronze track at the top of `<article>`-wrapped pages. Used on journal posts.
 
