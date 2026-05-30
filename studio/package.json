@@ -21,7 +21,7 @@
     "@sanity/vision": "^4.10.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "sanity": "^5.27.0",
+    "sanity": "^5.28.0",
     "sanity-plugin-asset-source-unsplash": "^7.0.6",
     "sanity-plugin-iframe-pane": "^5.0.12",
     "sanity-plugin-media": "^4.3.0",
