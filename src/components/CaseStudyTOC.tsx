@@ -6,11 +6,34 @@
 // Hidden below lg breakpoint (mobile/tablet readers don't need it competing
 // with content for screen space).
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import type { Heading } from '@/lib/portable-text-headings';
 
 interface Props {
   headings: Heading[];
+}
+
+// Smooth-scroll the TOC link through Lenis instead of letting the browser snap
+// instantly to the anchor. Lenis honors the `scroll-mt-24` on the headings, so
+// the target clears the sticky header without a manual offset — matching where
+// a native anchor jump lands. Falls back to scrollIntoView (which also honors
+// scroll-mt-24) when Lenis hasn't loaded yet or the reader prefers reduced motion.
+function handleTocClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
+  const target = document.getElementById(id);
+  if (!target) return;
+
+  event.preventDefault();
+
+  const lenis = (window as Window & { lenis?: { scrollTo: (t: HTMLElement) => void } }).lenis;
+
+  if (lenis) {
+    lenis.scrollTo(target);
+  } else {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  history.pushState(null, '', `#${id}`);
 }
 
 export default function CaseStudyTOC({ headings }: Props) {
@@ -59,6 +82,7 @@ export default function CaseStudyTOC({ headings }: Props) {
             <li key={h.id}>
               <a
                 href={`#${h.id}`}
+                onClick={(e) => handleTocClick(e, h.id)}
                 className={[
                   'block py-1 pr-s -ml-px border-l-2 transition-colors',
                   indent,
