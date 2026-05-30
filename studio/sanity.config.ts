@@ -13,24 +13,59 @@ import { Iframe } from 'sanity-plugin-iframe-pane';
 import { schemaTypes } from './schemaTypes';
 import { deskStructure } from './structure';
 import StudioLogo from './components/StudioLogo';
+import { CharacterCountInput } from './components/CharacterCountInput';
+import { documentBadges } from './components/documentBadges';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
-// maps CSS custom properties to the Studio's internal design system.
+// maps a handful of CSS custom properties to the Studio's full internal design
+// system (it derives the complete light + dark palette from these inputs).
 // Bronze primary (#9C7661) matches reiddesignllc.com's primary action color.
-const reidTheme = buildLegacyTheme({
+//
+// The three "foundation" values do the heavy lifting: a warm near-black, a warm
+// white, and a warm taupe gray-base tint every neutral surface, border, and
+// muted label toward the site's linen-and-charcoal feel instead of Sanity's
+// stock cool gray. The state colors keep inline validation and the custom
+// document badges visually consistent (same amber for every warning).
+const reidThemeProps = {
+  // Foundation — warm neutrals everything else derives from.
+  '--black': '#2b2926',
+  '--white': '#fffdfa',
+  '--gray-base': '#6e6760',
+
+  // Brand accent.
   '--brand-primary': '#9C7661',
   '--brand-primary--inverted': '#ffffff',
   '--focus-color': '#9C7661',
+
+  // Warm linen surfaces for inputs and components.
   '--input-bg': '#faf8f5',
   '--component-bg': '#faf8f5',
   '--component-text-color': '#3d3d3d',
+
+  // Buttons.
   '--default-button-color': '#9C7661',
   '--default-button-primary-color': '#9C7661',
-  '--default-button-danger-color': '#e34141',
   '--default-button-success-color': '#43a85e',
+  '--default-button-warning-color': '#d99a3f',
+  '--default-button-danger-color': '#e34141',
+
+  // Validation + status states (warm amber warning matches the badges).
+  '--state-success-color': '#43a85e',
+  '--state-warning-color': '#d99a3f',
+  '--state-danger-color': '#e34141',
+
+  // Top navigation bar.
   '--main-navigation-color': '#3d3d3d',
   '--main-navigation-color--inverted': '#faf8f5',
-});
+};
+
+// Assign the props to a const before passing them so TypeScript skips
+// excess-property checking. The object keeps a couple of legacy `--*--inverted`
+// CSS-variable keys (notably --brand-primary--inverted, which sets white text on
+// the bronze primary button) that predate, and aren't included in, Sanity's
+// current LegacyThemeProps type. Passing a variable leaves the runtime object
+// byte-identical while keeping `tsc --noEmit` clean. Don't inline this back.
+const reidTheme = buildLegacyTheme(reidThemeProps);
 
 // Re-export so structure.ts can attach the iframe view to every singleton.
 export { Iframe };
@@ -98,6 +133,16 @@ export default defineConfig({
     },
   },
 
+  // Global form customization. Registering the character-count input once here
+  // applies it to every capped text field across all schemas. The component
+  // falls through to the default input for anything that isn't a string/text
+  // field with a max length, so it's safe as a global wrapper.
+  form: {
+    components: {
+      input: CharacterCountInput,
+    },
+  },
+
   plugins: [
     structureTool({
       structure: deskStructure,
@@ -149,6 +194,10 @@ export default defineConfig({
   // Singleton enforcement: hide these from the global "+" create menu so editors
   // can't make duplicates. Reusable content types stay available.
   document: {
+    // Custom at-a-glance status badges (Featured / Needs a photo / Add SEO)
+    // rendered next to the publish status. Keep Sanity's built-in badges and
+    // append ours.
+    badges: (prev) => [...prev, ...documentBadges],
     newDocumentOptions: (prev, { creationContext }) => {
       if (creationContext.type === 'global') {
         return prev.filter((option) => !SINGLETON_TYPES.has(option.templateId));

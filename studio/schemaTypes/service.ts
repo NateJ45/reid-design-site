@@ -141,10 +141,11 @@ export const service = defineType({
     orderRankField({ type: 'service' }),
   ],
   preview: {
-    select: { name: 'name', price: 'price', order: 'displayOrder' },
-    prepare: ({ name, price, order }) => ({
+    select: { name: 'name', price: 'price', order: 'displayOrder', media: 'featuredImage' },
+    prepare: ({ name, price, order, media }) => ({
       title: name,
       subtitle: `${price ?? ''} · #${order ?? '?'}`,
+      media,
     }),
   },
   orderings: [

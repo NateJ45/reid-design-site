@@ -103,10 +103,11 @@ export const testimonial = defineType({
     }),
   ],
   preview: {
-    select: { quote: 'quote', attribution: 'attribution', date: 'date' },
-    prepare: ({ quote, attribution, date }) => ({
+    select: { quote: 'quote', attribution: 'attribution', date: 'date', media: 'photo' },
+    prepare: ({ quote, attribution, date, media }) => ({
       title: quote ? (quote.length > 60 ? quote.slice(0, 60) + '…' : quote) : '(no quote)',
       subtitle: `${attribution ?? '?'} · ${date ?? ''}`,
+      media,
     }),
   },
   orderings: [
