@@ -32,6 +32,7 @@ import { shopPage } from './shopPage';
 import { siteSettings } from './siteSettings';
 import { studioGuide } from './studioGuide';
 import { studioNotes } from './studioNotes';
+import { studioPlaybook } from './studioPlaybook';
 import { styleQuiz } from './styleQuiz';
 import { testimonial } from './testimonial';
 
@@ -62,6 +63,7 @@ export const schemaTypes = [
   // Start Here editable singletons
   studioGuide,
   studioNotes,
+  studioPlaybook,
 
   // Reusable content collections
   testimonial,

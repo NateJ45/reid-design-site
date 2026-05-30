@@ -49,10 +49,12 @@ import {
   PresentationIcon,
   ThumbsUpIcon,
   ColorWheelIcon,
+  RocketIcon,
 } from '@sanity/icons';
 import StudioGuide from './components/StudioGuide';
 import BusinessOverview from './components/BusinessOverview';
 import BrandKit from './components/BrandKit';
+import StudioPlaybook from './components/StudioPlaybook';
 
 const SINGLETON_TYPES = [
   'siteSettings',
@@ -77,6 +79,7 @@ const SINGLETON_TYPES = [
   'budgetCalculator',
   'studioGuide',
   'studioNotes',
+  'studioPlaybook',
 ] as const;
 
 const ORDERABLE_TYPES = [
@@ -188,6 +191,18 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 .title('Brand kit')
                 .icon(ColorWheelIcon)
                 .child(S.component(BrandKit).title('Brand kit')),
+              S.listItem()
+                .title('Grow your studio')
+                .icon(RocketIcon)
+                .child(
+                  S.document()
+                    .schemaType('studioPlaybook')
+                    .documentId('studioPlaybook')
+                    .views([
+                      S.view.component(StudioPlaybook).title('Guides'),
+                      S.view.form().title('Edit'),
+                    ]),
+                ),
             ])
         ),
 

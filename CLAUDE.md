@@ -123,6 +123,7 @@ Standalone scripts:
 - `scripts/seed-conversion-content.mjs` + `scripts/seed-script-accents.mjs` — idempotent seeders for the conversion-build document types (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, resources, post-inquiry roadmap) and section/finalCta scriptAccent fields. Seeded content is placeholder; see OPERATIONS.md for what must be replaced before DNS cutover.
 - `scripts/seed-about-personal.mjs` — idempotent seeder for the About personal section. Seeds placeholder text into `aboutPage.personal*` fields only when `personalHeadline` has not been customized. Safe to re-run.
 - `scripts/seed-studio-guide.mjs` — idempotent seeder (`createOrReplace`) for the `studioGuide` and `studioNotes` singletons. Seeds both from the previously hardcoded content in the Studio components. Run once on a fresh dataset, or after adding a new how-to/tip to the seed file.
+- `scripts/seed-studio-playbook.mjs` — idempotent seeder (`createOrReplace`) for the `studioPlaybook` singleton (the "Grow your studio" panel: four researched professional-development guides — photography, software toolkit, e-design, trade sourcing). Re-run after editing the guide content in the seed file.
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
 - `public/_headers` (security response headers shipped with the deploy)
 - `public/og-default.png` (regenerate via `npm run og`)

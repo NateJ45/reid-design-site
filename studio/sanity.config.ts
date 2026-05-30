@@ -189,4 +189,5 @@ const SINGLETON_TYPES = new Set<string>([
   'budgetCalculator',
   'studioGuide',
   'studioNotes',
+  'studioPlaybook',
 ]);

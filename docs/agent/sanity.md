@@ -51,9 +51,10 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 - `aboutPage` also has a `stats` group/field — an array (max 4) of `statItem` objects (`number` required, `suffix` optional like "+" or "k", `label` required). It drives the count-up `StatsRow` section between PressStrip and FinalCta on `/about` (`getAboutPage()` projects `stats[]{number, suffix, label}`). The section hides entirely when the array is empty, so the page is unchanged until Staci fills in the Stats tab. The front-end filters the Sanity array down to fully-populated rows before rendering, so a half-filled stat never shows a `NaN`.
 - Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `journalPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a fixed `bg-accent-dark/70` charcoal scrim so the cream headline and bronze button stay readable; when empty, the Final CTA stays the solid Charcoal Dark panel. The journal image is shared across the journal index and every post (it lives on `journalPage`). Projected with `IMAGE_PROJECTION` in each page query.
 
-**Studio guide singletons (2, protected):**
+**Studio guide singletons (3, protected):**
 - `studioGuide` — drives the "How the website works" panel (StudioGuide.tsx). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]` (with a tone enum). Plain text throughout (no Portable Text).
-- `studioNotes` — drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout. Both singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
+- `studioNotes` — drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout.
+- `studioPlaybook` — drives the "Grow your studio" panel (StudioPlaybook.tsx). Fields: `title`, `intro`, `guides[]` (each `playbookGuide`: `title`, `summary`, `sections[]`; each `playbookSection`: `heading`, `tone` enum, `body`, `bullets[]`, `links[]` of label+url). Four researched professional-development guides (photography, software toolkit, e-design, trade sourcing), seeded by `scripts/seed-studio-playbook.mjs`. Plain text throughout. All three guide singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
 
 **Reusable object types (embedded, not standalone documents):**
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
@@ -79,7 +80,7 @@ Two schema-level controls govern what Canvas sees, both expressed as `options.ca
 **Excluded from Canvas entirely** (`options.canvasApp.exclude: true` at the type level):
 - All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage`) — marketing copy is structural and locked; edit fields directly in Studio.
 - `siteSettings` — configuration, not prose.
-- `studioGuide`, `studioNotes` — Studio handbook content; edit directly in Studio (both excluded by design to avoid a renderer dependency).
+- `studioGuide`, `studioNotes`, `studioPlaybook` — Studio handbook content; edit directly in Studio (all excluded by design to avoid a renderer dependency).
 - `testimonial` — verbatim client quotes; AI must not "improve" them.
 - `philosophyPoint`, `processStep` — short, locked structural content.
 - `journalCategory` — taxonomy, not content.
