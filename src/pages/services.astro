@@ -141,7 +141,7 @@ const schemas = [
       )}
 
       {services.length > 0 ? (
-        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
           {services.map((service: any) => (
             <ServiceCard service={service} withAnchor={true} />
           ))}

@@ -318,7 +318,7 @@ const featuredJournalEntries  = page?.featuredJournalEntries  ?? [];
       />
 
       {services.length > 0 && (
-        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-m">
+        <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-m" data-stagger-grid>
           {services.slice(0, 4).map((service: any) => (
             <ServiceCard service={service} compact={true} />
           ))}

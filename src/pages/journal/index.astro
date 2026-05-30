@@ -95,7 +95,7 @@ const schemas = [
       <h2 id="journal-posts-heading" class="sr-only">Recent posts</h2>
 
       {list.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
           {list.map((entry: any, i: number) => (
             <JournalCard entry={entry} featured={i === 0 && entry.featured} />
           ))}
