@@ -28,9 +28,15 @@ export async function getSiteSettings() {
     tagline,
     email,
     phone,
-    availabilityStatus,
-    serviceAreas,
-    travelFees,
+    // availabilityStatus, serviceAreas, travelFees, and the studio geo coords
+    // moved to the businessInfo singleton. Pulled in here under the same flat
+    // field names so Header / Footer / pages that read siteSettings.serviceAreas
+    // etc. keep working with no change; only the source document changed.
+    "availabilityStatus": *[_type == "businessInfo"][0].availabilityStatus,
+    "serviceAreas": *[_type == "businessInfo"][0].serviceAreas,
+    "travelFees": *[_type == "businessInfo"][0].travelFees,
+    "geoLat": *[_type == "businessInfo"][0].geoLat,
+    "geoLng": *[_type == "businessInfo"][0].geoLng,
     socialInstagram,
     socialFacebook,
     seoImage${IMAGE_PROJECTION},
@@ -52,6 +58,20 @@ export async function getSiteSettings() {
       showStyleQuiz,
       showBudgetCalculator
     }
+  }`);
+}
+
+// ---- Business info (service areas, travel, availability, geo) -------------
+// Content-side singleton. Most consumers read these fields through
+// getSiteSettings (which pulls them in under flat names), but pages or blocks
+// that need businessInfo directly can use this.
+export async function getBusinessInfo() {
+  return client.fetch(`*[_type == "businessInfo"][0]{
+    serviceAreas,
+    travelFees,
+    availabilityStatus,
+    geoLat,
+    geoLng
   }`);
 }
 
@@ -199,7 +219,7 @@ export async function getServicesPage() {
       cta${CTA_PROJECTION}
     },
     serviceAreaSection,
-    "travelFees": *[_type == "siteSettings"][0].travelFees,
+    "travelFees": *[_type == "businessInfo"][0].travelFees,
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}

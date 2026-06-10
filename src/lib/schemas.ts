@@ -16,6 +16,9 @@ interface SiteSettings {
   email?: string;
   phone?: string;
   serviceAreas?: string[];
+  // Studio coordinates, sourced from the businessInfo singleton via getSiteSettings.
+  geoLat?: number;
+  geoLng?: number;
   socialInstagram?: string;
   socialFacebook?: string;
 }
@@ -55,11 +58,12 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
       addressRegion: 'IN',
       addressCountry: 'US',
     },
-    // Approximate Plainfield, IN center. Update if Staci has a precise studio address.
+    // Studio coordinates from businessInfo (Staci-editable). Falls back to the
+    // approximate Plainfield, IN center when unset.
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 39.7042,
-      longitude: -86.3994,
+      latitude: s.geoLat ?? 39.7042,
+      longitude: s.geoLng ?? -86.3994,
     },
     areaServed: (s.serviceAreas ?? ['Plainfield', 'Indianapolis']).map((city) => ({
       '@type': 'City',

@@ -38,7 +38,17 @@ interface LiveData {
 // ─── Fetch ───────────────────────────────────────────────────────────────────
 
 const SERVICES_QUERY = `*[_type=="service"]|order(orderRank asc){name,price,bestFor}`;
-const SETTINGS_QUERY = `*[_type=="siteSettings"][0]{email,phone,availabilityStatus,serviceAreas,travelFees,socialInstagram,socialFacebook}`;
+// availabilityStatus, serviceAreas, and travelFees moved to the businessInfo
+// singleton; pulled in here under the same names so the panel renders unchanged.
+const SETTINGS_QUERY = `*[_type=="siteSettings"][0]{
+  email,
+  phone,
+  socialInstagram,
+  socialFacebook,
+  "availabilityStatus": *[_type=="businessInfo"][0].availabilityStatus,
+  "serviceAreas": *[_type=="businessInfo"][0].serviceAreas,
+  "travelFees": *[_type=="businessInfo"][0].travelFees
+}`;
 
 interface NotesData {
   businessSummary: string | null;

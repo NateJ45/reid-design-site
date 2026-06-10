@@ -46,27 +46,36 @@ export const siteSettings = defineType({
       type: 'string',
       description: 'Public phone number, if you want one shown. Leave blank to hide.',
     }),
+    // ── MOVED to Business info (Content tab) ────────────────────────────────
+    // availabilityStatus, serviceAreas, and travelFees now live on the
+    // businessInfo singleton so Settings stays identity + infrastructure. These
+    // definitions are kept hidden + read-only so the original data is preserved
+    // for rollback; the site reads the live values from businessInfo. Do NOT
+    // click "Remove field" on these in Studio.
     defineField({
       name: 'availabilityStatus',
-      title: 'Availability status',
+      title: 'Availability status (moved to Business info)',
       type: 'string',
-      description:
-        'Short status next to the green dot on the Contact page. Examples: "Accepting new clients" / "Booking for Fall 2026" / "Currently booked, accepting waitlist".',
-      validation: (Rule) => Rule.required().max(80),
+      hidden: true,
+      readOnly: true,
+      description: 'Moved to Content, Business info. This copy is kept only as a backup.',
     }),
     defineField({
       name: 'serviceAreas',
-      title: 'Service areas',
+      title: 'Service areas (moved to Business info)',
       type: 'array',
-      description: 'Cities and neighborhoods you serve, in display order. Plainfield should be first.',
+      hidden: true,
+      readOnly: true,
+      description: 'Moved to Content, Business info. This copy is kept only as a backup.',
       of: [defineArrayMember({ type: 'string' })],
-      validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
       name: 'travelFees',
-      title: 'Travel fee tiers',
+      title: 'Travel fee tiers (moved to Business info)',
       type: 'array',
-      description: 'Drive-time tiers and the travel fee for each. Always quoted upfront.',
+      hidden: true,
+      readOnly: true,
+      description: 'Moved to Content, Business info. This copy is kept only as a backup.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -77,14 +86,12 @@ export const siteSettings = defineType({
               title: 'Distance label',
               type: 'string',
               description: 'Like "45 to 75 minutes".',
-              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'fee',
               title: 'Fee',
               type: 'string',
               description: 'Like "$50" or "None".',
-              validation: (Rule) => Rule.required(),
             }),
           ],
           preview: {
@@ -92,7 +99,6 @@ export const siteSettings = defineType({
           },
         }),
       ],
-      validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
       name: 'socialInstagram',
