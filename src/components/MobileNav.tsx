@@ -54,6 +54,7 @@ interface MobileNavSiteSettings {
   phone?: string;
   socialInstagram?: string;
   socialFacebook?: string;
+  primaryCtaLabel?: string;
 }
 
 interface Props {
@@ -81,6 +82,7 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
   const phone = siteSettings?.phone;
   const ig = siteSettings?.socialInstagram;
   const fb = siteSettings?.socialFacebook;
+  const ctaLabel = siteSettings?.primaryCtaLabel ?? 'Book a consultation';
 
   const close = () => setOpen(false);
 
@@ -114,7 +116,7 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
               onClick={close}
               className="block w-full px-m py-m text-center rounded-md bg-primary-dark text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-accent-dark transition-colors"
             >
-              Book a consultation
+              {ctaLabel}
             </a>
           </div>
 

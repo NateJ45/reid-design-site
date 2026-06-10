@@ -8,7 +8,7 @@
 // Graceful empty state when no projects have pairs yet.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getProjectsWithBeforeAfter, getSiteSettings } from '@/lib/queries';
+import { getProjectsWithBeforeAfter, getSiteSettings, getPortfolioPage } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
@@ -16,17 +16,18 @@ import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import SectionHeading from '@/components/SectionHeading.astro';
 import CtaLink from '@/components/CtaLink.astro';
 
-const [projects, siteSettings] = await Promise.all([
+const [projects, siteSettings, page] = await Promise.all([
   getProjectsWithBeforeAfter().catch(() => []),
   getSiteSettings().catch(() => null),
+  getPortfolioPage().catch(() => null),
 ]);
 
 // Section visibility guard — before/after is part of the portfolio section.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.portfolio) return Astro.redirect('/');
 
-const title       = 'Before & After · Reid Design Portfolio';
-const description = 'Side-by-side before and after reveals from Reid Design projects across Plainfield and Indianapolis.';
+const title       = page?.beforeAfterSeoTitle ?? 'Before & After · Reid Design Portfolio';
+const description = page?.beforeAfterSeoDescription ?? 'Side-by-side before and after reveals from Reid Design projects across Plainfield and Indianapolis.';
 
 const schemas = [
   breadcrumbSchema([
@@ -54,9 +55,9 @@ function humanize(value: string): string {
   <section class="bg-background" aria-labelledby="before-after-heading">
     <div class="mx-auto max-w-content px-m py-section-lg">
       <SectionHeading
-        eyebrow="Before & After."
-        headline="See the difference."
-        subhead="Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle."
+        eyebrow={page?.beforeAfterEyebrow ?? 'Before & After.'}
+        headline={page?.beforeAfterHeadline ?? 'See the difference.'}
+        subhead={page?.beforeAfterSubhead ?? 'Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle.'}
         headingId="before-after-heading"
         level="h1"
         align="center"

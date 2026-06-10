@@ -53,6 +53,8 @@ interface Props {
     siteName?: string;
     title?: string;
     tagline?: string;
+    primaryCtaLabel?: string;
+    headerTagline?: string;
     email?: string;
     phone?: string;
     socialInstagram?: string;
@@ -79,6 +81,9 @@ const { siteSettings } = Astro.props as Props;
 const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
 const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
 const availability = siteSettings?.availabilityStatus ?? '';
+const ctaLabel = siteSettings?.primaryCtaLabel ?? 'Book a consultation';
+const headerTagline =
+  siteSettings?.headerTagline ?? 'Plainfield Interior Design · Serving Greater Indianapolis';
 
 // Subset of siteSettings the mobile menu needs. Pass as a plain object so the
 // React island doesn't try to serialize the whole Sanity document graph.
@@ -89,6 +94,7 @@ const mobileNavSettings = siteSettings
       phone: siteSettings.phone,
       socialInstagram: siteSettings.socialInstagram,
       socialFacebook: siteSettings.socialFacebook,
+      primaryCtaLabel: siteSettings.primaryCtaLabel,
     }
   : null;
 
@@ -183,7 +189,7 @@ function isGroupActive(items: { href: string }[]) {
     <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
       <div class="flex items-center gap-m">
         <p class="text-xs uppercase tracking-eyebrow text-foreground/80">
-          Plainfield Interior Design · Serving Greater Indianapolis
+          {headerTagline}
         </p>
         {/* Availability status, mirroring the mobile pill. Same pulsing dot
             and link to /contact, so the trust signal is consistent at every
@@ -432,7 +438,7 @@ function isGroupActive(items: { href: string }[]) {
             : 'bg-primary-dark text-white hover:bg-accent-dark',
         ]}
       >
-        Book a consultation
+        {ctaLabel}
       </a>
     </div>
 

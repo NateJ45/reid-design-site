@@ -13,6 +13,7 @@ export const portfolioPage = defineType({
   groups: [
     { name: 'seo', title: 'SEO' },
     { name: 'hero', title: 'Hero' },
+    { name: 'beforeAfter', title: 'Before & After page' },
   ],
   fields: [
     defineField({
@@ -86,6 +87,49 @@ export const portfolioPage = defineType({
       group: 'hero',
       description:
         'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+    }),
+
+    // ── Before & After sub-page (/portfolio/before-after) ──────────────────
+    // The heading and SEO copy for the side-by-side reveal page. Previously
+    // hardcoded in before-after.astro; now editable here.
+    defineField({
+      name: 'beforeAfterSeoTitle',
+      title: 'Before & After: SEO title',
+      type: 'string',
+      group: 'beforeAfter',
+      description: 'Browser tab and Google result title for the Before & After page.',
+      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+    }),
+    defineField({
+      name: 'beforeAfterSeoDescription',
+      title: 'Before & After: SEO description',
+      type: 'text',
+      rows: 3,
+      group: 'beforeAfter',
+      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+    }),
+    defineField({
+      name: 'beforeAfterEyebrow',
+      title: 'Before & After: eyebrow',
+      type: 'string',
+      group: 'beforeAfter',
+      initialValue: 'Before & After.',
+    }),
+    defineField({
+      name: 'beforeAfterHeadline',
+      title: 'Before & After: headline',
+      type: 'string',
+      group: 'beforeAfter',
+      initialValue: 'See the difference.',
+    }),
+    defineField({
+      name: 'beforeAfterSubhead',
+      title: 'Before & After: subhead',
+      type: 'text',
+      rows: 2,
+      group: 'beforeAfter',
+      initialValue:
+        'Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle.',
     }),
   ],
   preview: { prepare: () => ({ title: 'Portfolio Page' }) },

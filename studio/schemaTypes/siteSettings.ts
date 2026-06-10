@@ -33,6 +33,22 @@ export const siteSettings = defineType({
       validation: (Rule) => Rule.required().max(140),
     }),
     defineField({
+      name: 'primaryCtaLabel',
+      title: 'Main button label',
+      type: 'string',
+      description: 'The words on the main "Book a consultation" button in the header and the mobile menu. Keep it short, two to four words.',
+      initialValue: 'Book a consultation',
+      validation: (Rule) => Rule.max(40),
+    }),
+    defineField({
+      name: 'headerTagline',
+      title: 'Header tagline strip',
+      type: 'string',
+      description: 'The small line across the very top of the site on desktop. Currently "Plainfield Interior Design · Serving Greater Indianapolis".',
+      initialValue: 'Plainfield Interior Design · Serving Greater Indianapolis',
+      validation: (Rule) => Rule.max(90),
+    }),
+    defineField({
       name: 'email',
       title: 'Public email',
       type: 'string',

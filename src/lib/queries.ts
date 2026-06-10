@@ -26,6 +26,8 @@ export async function getSiteSettings() {
   return client.fetch(`*[_type == "siteSettings"][0]{
     title,
     tagline,
+    primaryCtaLabel,
+    headerTagline,
     email,
     phone,
     // availabilityStatus, serviceAreas, travelFees, and the studio geo coords
@@ -284,7 +286,9 @@ export async function getPortfolioPage() {
     seoImage${IMAGE_PROJECTION},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
-    heroScriptAccent
+    heroScriptAccent,
+    beforeAfterSeoTitle, beforeAfterSeoDescription,
+    beforeAfterEyebrow, beforeAfterHeadline, beforeAfterSubhead
   }`);
 }
 
