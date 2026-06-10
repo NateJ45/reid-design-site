@@ -23,6 +23,7 @@ import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import { Iframe, urlForDoc } from './sanity.config';
 import {
   CogIcon,
+  PinIcon,
   HomeIcon,
   UserIcon,
   TrendUpwardIcon,
@@ -58,6 +59,7 @@ import StudioPlaybook from './components/StudioPlaybook';
 
 const SINGLETON_TYPES = [
   'siteSettings',
+  'businessInfo',
   // Core pages
   'homePage',
   'aboutPage',
@@ -257,9 +259,10 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Content — reusable collections. Orderable types get drag-and-drop;
-      // non-orderable use standard lists. Divider splits the original
-      // page-building content from the conversion-build collections.
+      // Content — the business data and reusable building blocks Staci edits.
+      // Leads with Business info (areas / travel / availability) and a single
+      // Pricing & rates group, so the things she changes that populate many
+      // pages are findable in one spot. Orderable types keep drag-and-drop.
       S.listItem()
         .title('Content')
         .icon(ThListIcon)
@@ -267,10 +270,42 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
           S.list()
             .title('Content')
             .items([
+              // Business info — service areas, travel fees, availability, geo.
+              // Moved here from Site Settings so Settings is identity + infra only.
+              singletonWithPreview(S, 'businessInfo', 'Business info', PinIcon),
+
+              S.divider(),
+
+              // Pricing & rates — every place a price lives, in one spot. Services
+              // is the core list; the three offering pages keep their own pricing
+              // shape but are linked here too so Staci never hunts for a number.
+              S.listItem()
+                .title('Pricing & rates')
+                .icon(TagIcon)
+                .child(
+                  S.list()
+                    .title('Pricing & rates')
+                    .items([
+                      orderableDocumentListDeskItem({
+                        type: 'service',
+                        title: 'Services + prices',
+                        icon: PackageIcon,
+                        S,
+                        context,
+                      }),
+                      singletonWithPreview(S, 'eDesignPage', 'E-Design pricing', DesktopIcon),
+                      singletonWithPreview(S, 'giftPage', 'Gift certificate amounts', CreditCardIcon),
+                      singletonWithPreview(S, 'budgetCalculator', 'Budget calculator ranges', BillIcon),
+                    ]),
+                ),
+
+              S.divider(),
+
+              // Projects, people, process, FAQ.
               orderableDocumentListDeskItem({
-                type: 'service',
-                title: 'Services',
-                icon: PackageIcon,
+                type: 'project',
+                title: 'Projects',
+                icon: ImagesIcon,
                 S,
                 context,
               }),
@@ -278,13 +313,6 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 type: 'processStep',
                 title: 'Process Steps',
                 icon: TrendUpwardIcon,
-                S,
-                context,
-              }),
-              orderableDocumentListDeskItem({
-                type: 'project',
-                title: 'Projects',
-                icon: ImagesIcon,
                 S,
                 context,
               }),
@@ -300,6 +328,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
               S.divider(),
 
+              // Other collections.
               orderableDocumentListDeskItem({
                 type: 'leadMagnet',
                 title: 'Guides (lead magnets)',
