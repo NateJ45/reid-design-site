@@ -957,6 +957,24 @@ export type PortfolioPage = {
   heroScriptAccent?: string;
 };
 
+export type BusinessInfo = {
+  _id: string;
+  _type: "businessInfo";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  serviceAreas?: Array<string>;
+  travelFees?: Array<{
+    distanceLabel?: string;
+    fee?: string;
+    _type: "travelFeeTier";
+    _key: string;
+  }>;
+  availabilityStatus?: string;
+  geoLat?: number;
+  geoLng?: number;
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -1992,6 +2010,7 @@ export type AllSanitySchemaTypes =
   | CtaBlock
   | NotFoundPage
   | PortfolioPage
+  | BusinessInfo
   | SiteSettings
   | JournalCategoryReference
   | ProjectReference

@@ -3,6 +3,7 @@
 
 import { aboutPage } from './aboutPage';
 import { budgetCalculator } from './budgetCalculator';
+import { businessInfo } from './businessInfo';
 import { contactPage } from './contactPage';
 import { ctaBlock } from './ctaBlock';
 import { eDesignPage } from './eDesignPage';
@@ -42,6 +43,7 @@ export const schemaTypes = [
 
   // Singletons
   siteSettings,
+  businessInfo, // Content-side singleton: service areas, travel fees, availability, geo
   homePage,
   aboutPage,
   processPage,
