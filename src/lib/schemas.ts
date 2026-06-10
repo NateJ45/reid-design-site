@@ -88,9 +88,11 @@ export function serviceListSchema(services: Service[] | null | undefined): strin
       '@type': 'Service',
       position: i + 1,
       name: s.name,
+      serviceType: s.name,
       description: s.shortDescription,
       url: s.slug?.current ? `${site.url}/services#${s.slug.current}` : `${site.url}/services`,
       provider: { '@id': `${site.url}/#business` },
+      areaServed: 'Plainfield and Greater Indianapolis',
       ...(s.price ? { offers: { '@type': 'Offer', price: s.price, priceCurrency: 'USD' } } : {}),
     })),
   });

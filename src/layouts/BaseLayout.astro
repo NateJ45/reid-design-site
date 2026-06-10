@@ -90,6 +90,11 @@ const fullTitle = cleanTitle === site.name || hasBrandInline
   ? cleanTitle
   : `${cleanTitle} — ${site.name}`;
 
+// Alt text for the social-share image. Prefer the per-page seoImage's alt, then
+// the site default's alt, falling back to the page title. Describes the visible
+// image for assistive tech and link unfurls, instead of repeating the title.
+const ogImageAlt = seoImage?.alt ?? siteSettings?.seoImage?.alt ?? fullTitle;
+
 // Auto-inject LocalBusiness on every page when siteSettings is available.
 // Pages can still pass their own additional schemas (Service, FAQPage, BreadcrumbList).
 const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas] : schemas;
@@ -130,7 +135,7 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta property="og:image" content={absOg} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={fullTitle} />
+    <meta property="og:image:alt" content={ogImageAlt} />
 
     {/* Twitter */}
     <meta name="twitter:card" content="summary_large_image" />

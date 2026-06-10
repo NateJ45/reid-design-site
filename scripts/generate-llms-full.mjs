@@ -64,7 +64,7 @@ function ptToPlainText(blocks) {
 const SITE = 'https://reiddesignllc.com';
 
 const [settings, services, steps, faqs, projects, journal, guides] = await Promise.all([
-  client.fetch(`*[_type=="siteSettings"][0]{ email, phone, serviceAreas, availabilityStatus }`).catch(() => null),
+  client.fetch(`*[_type=="siteSettings"][0]{ email, phone, "serviceAreas": *[_type=="businessInfo"][0].serviceAreas, "availabilityStatus": *[_type=="businessInfo"][0].availabilityStatus }`).catch(() => null),
   client.fetch(`*[_type=="service"]|order(orderRank){ name, price, shortDescription, features, bestFor }`).catch(() => []),
   client.fetch(`*[_type=="processStep"]|order(stepNumber asc){ stepNumber, title, timeEstimate, shortDescription }`).catch(() => []),
   client.fetch(`*[_type=="faqItem"]{ question, answer }`).catch(() => []),

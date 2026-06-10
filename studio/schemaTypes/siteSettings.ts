@@ -60,7 +60,11 @@ export const siteSettings = defineType({
       name: 'phone',
       title: 'Phone (optional)',
       type: 'string',
-      description: 'Public phone number, if you want one shown. Leave blank to hide.',
+      description: 'Public phone number, if you want one shown. Leave blank to hide. Write it the way you want it read, for example "(317) 555-0142".',
+      validation: (Rule) =>
+        Rule.regex(/^[0-9+().\-\s]{7,}$/, { name: 'phone' }).warning(
+          'That does not look like a phone number. Use digits, spaces, and the symbols + ( ) - only.',
+        ),
     }),
     // ── MOVED to Business info (Content tab) ────────────────────────────────
     // availabilityStatus, serviceAreas, and travelFees now live on the
