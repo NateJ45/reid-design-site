@@ -45,8 +45,10 @@ await client.createOrReplace({
   _type: 'page',
   title: 'Studio Tour (demo)',
   slug: { _type: 'slug', current: 'studio-tour-demo' },
-  addToMainNav: false,
-  addToFooter: false,
+  addToMainNav: true,
+  navGroup: 'top',
+  navLabel: 'Studio Tour',
+  addToFooter: true,
   pageBuilder: [
     { _key: 's1', _type: 'heroSection', eyebrow: 'A peek behind the scenes', headline: 'A look inside the studio', subhead: 'How Reid Design works, room by room.', size: 'short' },
     { _key: 's2', _type: 'richTextSection', heading: 'Where it starts', body: [block('b1', 'Every project begins with a conversation about how the space actually needs to function. The design follows from there, not the other way around.')], width: 'narrow', align: 'center' },

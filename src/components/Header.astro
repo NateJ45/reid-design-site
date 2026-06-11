@@ -73,9 +73,19 @@ interface Props {
       showBudgetCalculator?: boolean | null;
     } | null;
   } | null;
+  navPages?: NavPage[];
 }
 
-const { siteSettings } = Astro.props as Props;
+interface NavPage {
+  title?: string;
+  slug?: string;
+  navLabel?: string;
+  addToMainNav?: boolean;
+  navGroup?: 'top' | 'services' | 'resources';
+  addToFooter?: boolean;
+}
+
+const { siteSettings, navPages } = Astro.props as Props;
 
 // Normalize section visibility from siteSettings. Unset => visible.
 const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -121,11 +131,19 @@ const fb = siteSettings?.socialFacebook ?? '';
 // surfaces the CTA at the top.
 // Build Services dropdown children. Services and Process are always shown;
 // E-Design and Gift Certificates are gated by visibility.
+// Custom pages flagged for the menu, split by where Staci placed each one.
+const customNav = (navPages ?? []).filter((p) => p.addToMainNav && p.slug);
+const toNavItem = (p: NavPage) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}` });
+const customTopItems = customNav.filter((p) => (p.navGroup ?? 'top') === 'top').map(toNavItem);
+const customServicesItems = customNav.filter((p) => p.navGroup === 'services').map(toNavItem);
+const customResourcesItems = customNav.filter((p) => p.navGroup === 'resources').map(toNavItem);
+
 const servicesDropdownItems = [
   { label: 'Services',          href: '/services' },
   ...(visible.eDesign          ? [{ label: 'E-Design',          href: '/e-design' }]          : []),
   { label: 'Process',           href: '/process' },
   ...(visible.giftCertificates ? [{ label: 'Gift Certificates', href: '/gift-certificates' }] : []),
+  ...customServicesItems,
 ];
 
 // Build Resources dropdown children. FAQ is always shown; the rest are gated.
@@ -136,6 +154,7 @@ const resourcesDropdownItems = [
   { label: 'FAQ',              href: '/faq' },
   ...(visible.journal          ? [{ label: 'Journal',         href: '/journal' }]     : []),
   ...(visible.portfolio        ? [{ label: 'Before & After',  href: '/portfolio/before-after' }] : []),
+  ...customResourcesItems,
 ];
 
 // Assemble the full nav. Flat items Portfolio and Shop are gated by visibility.
@@ -154,6 +173,8 @@ const NAV_ITEMS = [
   ...(resourcesDropdownItems.length > 0
     ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]
     : []),
+  // Custom pages Staci set to their own top-level menu item.
+  ...customTopItems.map((it) => ({ kind: 'flat' as const, label: it.label, href: it.href })),
   { kind: 'flat' as const,     label: 'About', href: '/about' },
 ];
 

@@ -84,9 +84,20 @@ interface Props {
       showBudgetCalculator?: boolean | null;
     } | null;
   } | null;
+  navPages?: NavPage[];
 }
 
-const { siteSettings } = Astro.props as Props;
+interface NavPage {
+  title?: string;
+  slug?: string;
+  navLabel?: string;
+  addToFooter?: boolean;
+}
+
+const { siteSettings, navPages } = Astro.props as Props;
+
+// Custom pages Staci flagged to appear in the footer.
+const footerPages = (navPages ?? []).filter((p) => p.addToFooter && p.slug);
 
 // Normalize section visibility. Unset => visible (safe default for live site).
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -143,6 +154,9 @@ const latestProjects = allProjects.slice(0, 3);
         {visible.press && (
           <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
         )}
+        {footerPages.map((p) => (
+          <li><a href={`/${p.slug}`} class="text-foreground/85 hover:text-link transition-colors">{p.navLabel || p.title}</a></li>
+        ))}
       </ul>
     </nav>
 
