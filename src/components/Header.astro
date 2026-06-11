@@ -318,10 +318,14 @@ function isGroupActive(items: { href: string }[]) {
             logo, show the full availabilityStatus so the roomy header doesn't
             read as half-empty. The complete status is always in the aria-label
             and on the Contact page. */}
-        <span class="md:hidden text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
+        {/* Visual status shorthand. Decorative (aria-hidden): the link's
+            accessible name comes from its aria-label, which carries the full
+            availability status. Keeps the visible "Open" / status from
+            mismatching the accessible name (WCAG Label in Name). */}
+        <span class="md:hidden text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap" aria-hidden="true">
           Open
         </span>
-        <span class="hidden md:inline text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap">
+        <span class="hidden md:inline text-[0.65rem] uppercase tracking-eyebrow font-semibold whitespace-nowrap" aria-hidden="true">
           {availability}
         </span>
       </a>
