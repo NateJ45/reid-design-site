@@ -1,0 +1,58 @@
+---
+// Foundation, edit with care
+// The footer brand signature: theme-aware logo + optional tagline, centered.
+//
+// Extracted from Footer.astro so it can be placed in one of two spots:
+//   1. Inline among the columns when only a couple of sections are enabled,
+//      so a sparse footer reads as a balanced "nav | brand | contact" row
+//      instead of two columns stranded with a big gap between them.
+//   2. As its own centered row below the columns (the default, fuller footer).
+//
+// The light/dark logo swap is handled by the BaseLayout anti-FOUC script via
+// the data-theme-logo attributes; this component only emits them.
+interface Props {
+  brandName: string;
+  tagline?: string | null;
+  logoLightSrc: string;
+  logoLightSrcset: string;
+  logoDarkSrc: string;
+  logoDarkSrcset: string;
+  /** Extra classes for the wrapper (e.g. width caps when rendered inline). */
+  class?: string;
+}
+
+const {
+  brandName,
+  tagline,
+  logoLightSrc,
+  logoLightSrcset,
+  logoDarkSrc,
+  logoDarkSrcset,
+  class: className,
+} = Astro.props as Props;
+---
+
+<div class:list={['flex flex-col items-center gap-s text-center', className]}>
+  <a
+    href="/"
+    aria-label={`${brandName} home`}
+    class="inline-block hover:opacity-80 transition-opacity"
+  >
+    <img
+      alt={brandName}
+      width={96}
+      height={102}
+      class="h-20 w-auto"
+      loading="lazy"
+      decoding="async"
+      data-theme-logo
+      data-logo-light-src={logoLightSrc}
+      data-logo-light-srcset={logoLightSrcset}
+      data-logo-dark-src={logoDarkSrc}
+      data-logo-dark-srcset={logoDarkSrcset}
+    />
+  </a>
+  {tagline && (
+    <p class="text-sm text-foreground/80 italic max-w-[28rem]">{tagline}</p>
+  )}
+</div>

@@ -31,6 +31,7 @@ import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import { Mail, Phone } from 'lucide-react';
 import CopyEmailButton from '@/components/CopyEmailButton';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import FooterBrand from '@/components/FooterBrand.astro';
 import { getAllProjects } from '@/lib/queries';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
@@ -119,6 +120,13 @@ const lgColsClass =
   ({ 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' })[colCount] ??
   'lg:grid-cols-5';
 
+// When only a couple of columns survive the visibility toggles, an even grid
+// strands them with a big empty gap. In that case lay the row out as a balanced
+// "nav | brand | contact" flex row (the logo moves up from its own line into
+// the row) so the footer stays full and intentional. With 4+ columns the grid
+// already fills nicely, so the logo keeps its own centered row below.
+const brandInline = colCount <= 3;
+
 const brandName = siteSettings?.title ?? site.name;
 const email = siteSettings?.email ?? '';
 const phone = siteSettings?.phone ?? '';
@@ -155,12 +163,17 @@ const latestProjects = allProjects.slice(0, 3);
     </div>
   )}
 
-  {/* Five-column link grid. Single centered column on mobile, five columns
-       at md+ (left-aligned). The fifth column carries contact details. */}
+  {/* Link columns. Up to five: Studio / Work / Free tools / Latest projects /
+       Get in touch (contact details). Single centered column on mobile.
+       With 4+ visible columns this is an even grid; when toggles leave only a
+       couple of columns it becomes a balanced "nav | brand | contact" flex row
+       (see brandInline) so it never strands two columns with a big gap. */}
   <div
     class:list={[
-      'mx-auto max-w-content px-m pt-l pb-m grid gap-l grid-cols-1 sm:grid-cols-2 md:grid-cols-3 text-center md:text-left',
-      lgColsClass,
+      'mx-auto max-w-content px-m pt-l pb-m gap-l text-center md:text-left',
+      brandInline
+        ? 'flex flex-col items-center md:flex-row md:items-start md:justify-between'
+        : ['grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3', lgColsClass],
     ]}
   >
     {/* STUDIO */}
@@ -266,6 +279,20 @@ const latestProjects = allProjects.slice(0, 3);
       </nav>
     )}
 
+    {/* Brand signature, pulled into the row when the footer is sparse so it
+        reads as nav | brand | contact instead of two stranded columns. */}
+    {brandInline && (
+      <FooterBrand
+        brandName={brandName}
+        tagline={siteSettings?.tagline}
+        logoLightSrc={footerLogoLight1x.src}
+        logoLightSrcset={footerLogoLightSrcset}
+        logoDarkSrc={footerLogoDark1x.src}
+        logoDarkSrcset={footerLogoDarkSrcset}
+        class="md:max-w-[22rem] md:self-center"
+      />
+    )}
+
     {/* GET IN TOUCH — email, phone, location, socials. */}
     <div>
       <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
@@ -322,31 +349,20 @@ const latestProjects = allProjects.slice(0, 3);
     </div>
   </div>
 
-  {/* Logo + tagline — sits below the nav grid as a centered brand signature. */}
-  <div class="mx-auto max-w-content px-m pb-l flex flex-col items-center gap-s text-center">
-    <a
-      href="/"
-      aria-label={`${brandName} home`}
-      class="inline-block hover:opacity-80 transition-opacity"
-    >
-      <img
-        alt={brandName}
-        width={96}
-        height={102}
-        class="h-20 w-auto"
-        loading="lazy"
-        decoding="async"
-        data-theme-logo
-        data-logo-light-src={footerLogoLight1x.src}
-        data-logo-light-srcset={footerLogoLightSrcset}
-        data-logo-dark-src={footerLogoDark1x.src}
-        data-logo-dark-srcset={footerLogoDarkSrcset}
+  {/* Logo + tagline — its own centered row below the columns when the footer is
+       full. When sparse it moves up into the row above instead (see brandInline). */}
+  {!brandInline && (
+    <div class="mx-auto max-w-content px-m pb-l">
+      <FooterBrand
+        brandName={brandName}
+        tagline={siteSettings?.tagline}
+        logoLightSrc={footerLogoLight1x.src}
+        logoLightSrcset={footerLogoLightSrcset}
+        logoDarkSrc={footerLogoDark1x.src}
+        logoDarkSrcset={footerLogoDarkSrcset}
       />
-    </a>
-    {siteSettings?.tagline && (
-      <p class="text-sm text-foreground/80 italic max-w-[28rem]">{siteSettings.tagline}</p>
-    )}
-  </div>
+    </div>
+  )}
 
   {/* Thin bottom bar — copyright, privacy, optional "Site by..." credit on one
        line so they don't add a tall block to a footer column. */}
