@@ -40,10 +40,10 @@ Full stack notes and the `astro.config.mjs` landmines are in `docs/agent/stack-a
 
 ## Build pipeline
 
-`npm run build` is a chain:
+Two scripts matter, and they are separate (a past version of this note wrongly said `build` chains typegen):
 
-1. `npm run typegen` runs `sanity typegen generate` against the schemas in `studio/schemaTypes/`. Writes `src/lib/sanity.types.ts` so Astro queries get full type safety on Sanity responses. Runs before `astro build` so the types exist when the prerender worker imports them.
-2. `astro build` runs as normal. Pages fetch content from Sanity at build time via the typed client in `src/lib/sanity.ts`.
+1. `npm run build` runs `astro build` **only**. It does NOT run typegen first; it consumes the already-committed `src/lib/sanity.types.ts`. Pages fetch content from Sanity at build time via the typed client in `src/lib/sanity.ts`. (`npm run build:full` = `npm run typegen && astro build` when you want a from-scratch, types-included build.)
+2. `npm run typegen` runs `sanity schema extract && sanity typegen generate` (in `studio/`) and rewrites `src/lib/sanity.types.ts` so Astro queries get full type safety on Sanity responses. **Run it after every schema change and commit the regenerated file**, because neither `npm run build` nor CI regenerates it for you. (`astro build` does not run `astro check`, so stale types won't fail the build; they just silently drift.)
 
 Standalone scripts:
 

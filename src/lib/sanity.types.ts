@@ -1211,6 +1211,9 @@ export type BusinessInfo = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  city?: string;
+  state?: string;
+  serviceRegion?: string;
   serviceAreas?: Array<string>;
   travelFees?: Array<{
     distanceLabel?: string;
