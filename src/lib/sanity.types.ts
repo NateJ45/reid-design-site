@@ -106,6 +106,59 @@ export type PressItem = {
   orderRank?: string;
 };
 
+export type Page = {
+  _id: string;
+  _type: "page";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
+  addToMainNav?: boolean;
+  navGroup?: "top" | "services" | "resources";
+  navLabel?: string;
+  addToFooter?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+};
+
 export type JournalCategory = {
   _id: string;
   _type: "journalCategory";
@@ -955,6 +1008,11 @@ export type PortfolioPage = {
     _type: "image";
   };
   heroScriptAccent?: string;
+  beforeAfterSeoTitle?: string;
+  beforeAfterSeoDescription?: string;
+  beforeAfterEyebrow?: string;
+  beforeAfterHeadline?: string;
+  beforeAfterSubhead?: string;
 };
 
 export type BusinessInfo = {
@@ -983,6 +1041,8 @@ export type SiteSettings = {
   _rev: string;
   title?: string;
   tagline?: string;
+  primaryCtaLabel?: string;
+  headerTagline?: string;
   email?: string;
   phone?: string;
   availabilityStatus?: string;
@@ -1031,6 +1091,150 @@ export type SiteSettings = {
     showBudgetCalculator?: boolean;
   };
   satisfactionGuarantee?: string;
+};
+
+export type SpacerSection = {
+  _type: "spacerSection";
+  variant?: "ornament" | "line" | "space";
+};
+
+export type VideoSection = {
+  _type: "videoSection";
+  url?: string;
+  heading?: string;
+  caption?: string;
+};
+
+export type CtaBandSection = {
+  _type: "ctaBandSection";
+  eyebrow?: string;
+  headline?: string;
+  scriptAccent?: string;
+  subhead?: string;
+  cta?: CtaBlock;
+  backgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+};
+
+export type StatSection = {
+  _type: "statSection";
+  heading?: string;
+  stats?: Array<{
+    number?: number;
+    suffix?: string;
+    label?: string;
+    _type: "statItem";
+    _key: string;
+  }>;
+};
+
+export type QuoteSection = {
+  _type: "quoteSection";
+  quote?: string;
+  attribution?: string;
+  detail?: string;
+};
+
+export type GallerySection = {
+  _type: "gallerySection";
+  heading?: string;
+  images?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    _type: "image";
+    _key: string;
+  }>;
+  columns?: 2 | 3 | 4;
+};
+
+export type ImageTextSection = {
+  _type: "imageTextSection";
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  imageSide?: "left" | "right";
+  eyebrow?: string;
+  heading?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  cta?: CtaBlock;
+};
+
+export type RichTextSection = {
+  _type: "richTextSection";
+  eyebrow?: string;
+  heading?: string;
+  scriptAccent?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  width?: "normal" | "narrow";
+  align?: "left" | "center";
+};
+
+export type HeroSection = {
+  _type: "heroSection";
+  eyebrow?: string;
+  headline?: string;
+  scriptAccent?: string;
+  subhead?: string;
+  backgroundImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  primaryCta?: CtaBlock;
+  secondaryCta?: CtaBlock;
+  size?: "tall" | "short";
 };
 
 export type JournalCategoryReference = {
@@ -1978,6 +2182,7 @@ export type AllSanitySchemaTypes =
   | ShopCollection
   | Slug
   | PressItem
+  | Page
   | JournalCategory
   | ServiceReference
   | ProcessStep
@@ -2012,6 +2217,15 @@ export type AllSanitySchemaTypes =
   | PortfolioPage
   | BusinessInfo
   | SiteSettings
+  | SpacerSection
+  | VideoSection
+  | CtaBandSection
+  | StatSection
+  | QuoteSection
+  | GallerySection
+  | ImageTextSection
+  | RichTextSection
+  | HeroSection
   | JournalCategoryReference
   | ProjectReference
   | JournalEntry

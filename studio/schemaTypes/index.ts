@@ -16,6 +16,7 @@ import { journalEntry } from './journalEntry';
 import { journalPage } from './journalPage';
 import { leadMagnet } from './leadMagnet';
 import { notFoundPage } from './notFoundPage';
+import { page } from './page';
 import { philosophyPoint } from './philosophyPoint';
 import { portfolioPage } from './portfolioPage';
 import { pressItem } from './pressItem';
@@ -24,6 +25,7 @@ import { privacyPage } from './privacyPage';
 import { processPage } from './processPage';
 import { processStep } from './processStep';
 import { project } from './project';
+import { pageSectionSchemas } from './sections';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -40,6 +42,9 @@ import { testimonial } from './testimonial';
 export const schemaTypes = [
   // Object types (embedded) first so they're defined before docs that reference them
   ctaBlock,
+  // Page-builder section blocks (objects). Registered before the documents
+  // whose pageBuilder arrays reference them.
+  ...pageSectionSchemas,
 
   // Singletons
   siteSettings,
@@ -76,6 +81,8 @@ export const schemaTypes = [
   project,
   journalCategory,
   journalEntry,
+  // Custom pages Staci builds from the section library (multi-instance, not a singleton)
+  page,
   // New collections (Phase 1)
   leadMagnet,
   pressItem,
