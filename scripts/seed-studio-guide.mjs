@@ -51,21 +51,21 @@ const studioGuideDoc = {
       _type: 'mapRow',
       area: 'Site Settings',
       description:
-        'Your contact info (email, phone), social links (Instagram, Facebook), the list of cities you serve, travel fee tiers, and your availability status. Think of this as your business card inside the Studio.',
+        'Your business identity and the behind-the-scenes wiring: business name, tagline, contact email and phone, social links, the main menu button label, the strip of text across the top, your newsletter and reviews setup, and which optional sections are turned on. This is the setup, not the day-to-day content. The cities you serve, your travel fees, and your availability moved out of here and into Content, Business info.',
     },
     {
       _key: 'm2',
       _type: 'mapRow',
       area: 'Pages',
       description:
-        'Every page on the site lives here. They are grouped into four buckets: core pages (Home, About, Services, Portfolio, FAQ, Contact, Journal), offerings (E-Design, Shop, Gift Certificates), resources and tools (Resources, Style Quiz, Budget Calculator), and other (Press, Privacy Policy, 404). If a visitor can click to a page, it is in here somewhere.',
+        'Every page on the site lives here, grouped into buckets: core pages (Home, About, Services, Portfolio, FAQ, Contact, Journal), offerings (E-Design, Shop, Gift Certificates), resources and tools (Resources, Style Quiz, Budget Calculator), and other (Press, Privacy Policy, 404). At the very bottom is Custom pages, where you can build brand-new pages yourself from a set of blocks. See "Build a brand-new page" below.',
     },
     {
       _key: 'm3',
       _type: 'mapRow',
       area: 'Content',
       description:
-        'The building blocks that fill pages: services and their prices, testimonials, projects (case studies), shop items and collections, guides (free PDFs), press mentions, FAQ items, and philosophy values. Most of the time, this is where you will be adding new things.',
+        'Your business facts and the building blocks that fill the site. Right at the top: Business info (the cities you serve, your travel fees, and your availability) and Pricing & rates (your services and their prices, plus E-Design, gift certificate, and calculator pricing gathered in one place). Below that: projects (case studies), testimonials, FAQ items, philosophy values, guides, shop items, and press mentions. Change a price or a service area here once and it updates everywhere it appears. This is where you will spend most of your time.',
     },
     {
       _key: 'm4',
@@ -177,11 +177,12 @@ const studioGuideDoc = {
     {
       _key: 'h9',
       _type: 'howTo',
-      title: 'Update your availability, contact info, or service area',
+      title: 'Update your availability, service areas, or travel fees',
       steps: [
-        'Click "Site Settings" in the left sidebar.',
-        'Find the field you want to update: Availability Status, Public Email, Phone, or Service Areas.',
-        'Make the change and click Publish.',
+        'These three live together now. Click "Content" in the left sidebar, then "Business info".',
+        'Update your Availability status (the line next to the green dot on Contact), add or remove a Service area, or edit a Travel fee tier.',
+        'Click Publish. Change it once here and it updates everywhere it shows up: the Contact page, the Services page, the footer, and the business listing that search engines read.',
+        'Your email and phone are separate. Those live in Site Settings, since they are part of your business identity.',
       ],
     },
     {
@@ -347,6 +348,43 @@ const studioGuideDoc = {
         'Click Publish on each thing you change.',
       ],
     },
+    {
+      _key: 'h22',
+      _type: 'howTo',
+      title: 'Build a brand-new page',
+      steps: [
+        'Click "Pages" in the left sidebar, scroll to the bottom, and click "Custom pages (you build these)".',
+        'Click the blue + button to start a new page.',
+        'Type a Page title, then click "Generate" next to the Web address to turn it into a link (like /studio-tour).',
+        'In the Sections area, click "Add item" and pick a block: a Hero to open the page, a Text block, an Image and text, a Photo gallery, a Quote, a Numbers row, a Video, a Call-to-action band, or a Spacer.',
+        'Fill in each block. Drag blocks up or down to reorder them. The site keeps the colors, spacing, and fonts looking right on its own, so you cannot make it look broken.',
+        'Click the "Preview" tab at the top to see the page as you build it.',
+        'When you want visitors to find it, open the "Menu placement" tab and turn on "Show in the top menu" (then pick where it goes) or "Show in the footer". Leave both off to keep the page private and just share its link.',
+        'Click Publish. The page goes live at its web address in a minute or two.',
+      ],
+    },
+    {
+      _key: 'h23',
+      _type: 'howTo',
+      title: 'Add, move, or remove a section on a page you built',
+      steps: [
+        'Open your page under "Pages", then "Custom pages".',
+        'In the Sections list, click "Add item" to drop in a new block, or click an existing block to edit it.',
+        'To reorder, drag a block up or down by the dotted handle on its left.',
+        'To delete a block, click the three dots on the right of it and choose Remove.',
+        'Click Publish when it looks right in the Preview tab.',
+      ],
+    },
+    {
+      _key: 'h24',
+      _type: 'howTo',
+      title: 'Change a photo, or add a video, on a page',
+      steps: [
+        'To swap a photo: open the page, click the photo field, and either pick an existing photo from your library or upload a new one. Set the focal point and fill in the Alt text. See the Photo tips below.',
+        'To add a video on a page you built: add a "Video" block, then paste the share link from YouTube or Vimeo. The site builds the player for you. Add a caption underneath if you want one.',
+        'Click Publish.',
+      ],
+    },
   ],
   tips: [
     {
@@ -411,6 +449,20 @@ const studioGuideDoc = {
       tone: 'default',
       heading: 'What Nathan handles (so you do not have to)',
       body: `A few launch pieces are purely technical, and Nathan takes care of all of them:\n\nPointing your domain and DNS at the new site, so reiddesignllc.com lands here. Setting the environment keys, which are the connection details for the services above. Deploying the site, which is the actual act of pushing it live. And setting up analytics so you can see your visitor numbers.\n\nThese are handled. None of them are your job, and there is nothing for you to set in this Studio for any of them.`,
+    },
+    {
+      _key: 't10',
+      _type: 'tip',
+      tone: 'primary',
+      heading: 'Meet the section blocks',
+      body: `When you build a page, you add it one block at a time. Here is what each block does:\n\nHero: the big opener at the top, with a headline and an optional background photo.\nText block: a heading and paragraphs. Good for explaining something.\nImage and text: a photo on one side, words on the other.\nPhoto gallery: a grid of photos, two to four across.\nQuote: a single client quote, centered and large.\nNumbers row: up to four numbers that count up, like "200 rooms designed".\nVideo: a YouTube or Vimeo video.\nCall-to-action band: the dark closing panel with a button, to point visitors toward booking.\nSpacer: a little breathing room or a small ornament between sections.\n\nUse each one as many times as you like, in any order. The site handles the alternating background colors and spacing for you, so the page always looks intentional.`,
+    },
+    {
+      _key: 't11',
+      _type: 'tip',
+      tone: 'caution',
+      heading: 'I published but I do not see it',
+      body: `First, give it a minute or two. After you Publish, the live site rebuilds itself, which usually takes 1 to 3 minutes. Then refresh the page in your browser. A hard refresh (hold Shift and click reload) clears any old cached copy.\n\nIf it has been more than five minutes and you still do not see it, check that you actually clicked the blue Publish button and not just left it as a draft. A draft never goes live. If you are sure you published and it is still missing, text Nathan.`,
     },
   ],
 };
