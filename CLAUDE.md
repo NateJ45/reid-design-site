@@ -20,7 +20,7 @@ Build for a future Nathan who hasn't touched the code in three months, and for a
 
 Full stack notes and the `astro.config.mjs` landmines are in `docs/agent/stack-and-config.md`. The must-knows:
 
-- **Astro 6.4.x**, TypeScript strict, `output: 'static'`. Node 22.12+.
+- **Astro 6.3.8** (pinned; the 6.4.6 bump was reverted 2026-06-11 because it broke `imageService: 'compile'` builds, see changelog + `stack-and-config.md`), TypeScript strict, `output: 'static'`. Node 22.12+.
 - **Sanity v6** is the CMS (schemas in `studio/schemaTypes/`). All editable content lives in Sanity. `npm run typegen` regenerates types from the schemas. (Upgraded from v5 on 2026-06-11; the `studio/` package owns the `sanity` dependency and the root delegates typegen to it.)
 - **Tailwind 4 via `@tailwindcss/vite`.** There is no `tailwind.config.mjs`. Brand tokens live in `@theme` blocks in `src/styles/globals.css`.
 - **React 19 islands** for interactivity; Astro components for everything static.
