@@ -98,6 +98,44 @@ export function serviceListSchema(services: Service[] | null | undefined): strin
   });
 }
 
+// ---------- ItemList of curated products (for /shop) ----------------------
+
+interface ShopProduct {
+  name?: string;
+  brand?: string;
+  url?: string;
+  image?: string | null;
+}
+
+/**
+ * ItemList of the affiliate "Shop My Favorites" products. Each entry is a
+ * Product (name + optional brand + image + affiliate url). No Offer/price is
+ * emitted: these are curated recommendations, not a storefront, so claiming a
+ * price/availability we don't control would be inaccurate structured data.
+ * The page resolves Sanity image URLs and passes plain values in, mirroring
+ * how projectSchema receives a pre-built hero image URL.
+ */
+export function shopItemListSchema(items: ShopProduct[] | null | undefined): string {
+  const list = (items ?? []).filter((p) => p.name);
+  if (list.length === 0) return JSON.stringify({});
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Shop My Favorites',
+    itemListElement: list.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Product',
+        name: p.name,
+        ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}),
+        ...(p.image ? { image: p.image } : {}),
+        ...(p.url ? { url: p.url } : {}),
+      },
+    })),
+  });
+}
+
 // ---------- FAQPage (for /faq) --------------------------------------------
 
 /**

@@ -3,6 +3,7 @@
 // documents (ordered via the orderable-document-list plugin).
 
 import { defineType, defineField } from 'sanity';
+import { additionalSectionsField } from './sections';
 
 export const portfolioPage = defineType({
   name: 'portfolioPage',
@@ -14,6 +15,7 @@ export const portfolioPage = defineType({
     { name: 'seo', title: 'SEO' },
     { name: 'hero', title: 'Hero' },
     { name: 'beforeAfter', title: 'Before & After page' },
+    { name: 'extra', title: 'Extra sections' },
   ],
   fields: [
     defineField({
@@ -131,6 +133,8 @@ export const portfolioPage = defineType({
       initialValue:
         'Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle.',
     }),
+
+    additionalSectionsField,
   ],
   preview: { prepare: () => ({ title: 'Portfolio Page' }) },
 });

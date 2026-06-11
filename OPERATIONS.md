@@ -382,6 +382,18 @@ The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage(
 
 See commits `bd74083` (`Header polish + make hero accents…`) and `7b0f2b7` (Sanity third-party + CSP attempt) for full examples.
 
+### Add an "Extra sections" zone to another page
+
+If a page singleton should let Staci append library blocks (a banner, gallery, CTA, etc.) to the bottom, it takes five small steps — the pattern used on faq/contact/privacy/journal/portfolio:
+
+1. In `studio/schemaTypes/<page>.ts`: `import { additionalSectionsField } from './sections';`, add `{ name: 'extra', title: 'Extra sections' }` to `groups`, and add `additionalSectionsField,` as the last entry in `fields`.
+2. In `src/lib/queries.ts` → `get<Page>()`: add `${sectionsProjection('additionalSections')},` to the projection (it resolves images + cta blocks per block type).
+3. In `src/pages/<page>.astro`: `import SectionRenderer from '@/components/SectionRenderer.astro';` and render `<SectionRenderer sections={page?.additionalSections} idPrefix="<page>-extra" />` near the tail (above the final CTA if there is one). Empty array renders nothing, so the page is unchanged until Staci adds a block.
+4. `npm run typegen` then `npm run build` to verify.
+5. `npm run studio:deploy` (schema changed) + commit + push.
+
+No backfill script is needed — `additionalSections` is optional and defaults to empty. For a brand-new standalone page, point Staci at the `page` doc type (the page builder) instead; this zone is only for extending an existing standard page.
+
 ### Strip leftover Canvas annotations
 
 Sanity Canvas (AI-assisted drafting) sometimes lets prefix annotations like `[NEW per audit, softer framing] …` or full-field placeholders like `[TODO: Staci to write …]` slip into published content.

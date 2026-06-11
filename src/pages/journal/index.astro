@@ -24,6 +24,7 @@ import JournalCard from '@/components/JournalCard.astro';
 import JournalCategoryChip from '@/components/JournalCategoryChip.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const [page, entries, categories, siteSettings] = await Promise.all([
   getJournalPage().catch(() => null),
@@ -130,6 +131,9 @@ const schemas = [
       </div>
     </section>
   )}
+
+  {/* ------- Extra sections (optional, editor-added in Studio) -------------- */}
+  <SectionRenderer sections={page?.additionalSections} idPrefix="journal-extra" />
 
   {/* ------- 5. Final CTA ---------------------------------------------------- */}
   <FinalCta

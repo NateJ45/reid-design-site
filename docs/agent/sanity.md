@@ -65,7 +65,7 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 
 **Studio branding.** `studio/sanity.config.ts` configures the Studio with `title: 'Reid Design'` (shown in the browser tab when editing), a `buildLegacyTheme` bronze theme that maps `--brand-primary` to Warm Bronze (`#9C7661`) and uses the Soft Linen background color, and a custom `StudioLogo` component (at `studio/components/StudioLogo.tsx`, using `studio/reid-logo.png`) wired via `studio.components.logo`. The Studio UI reads as the Reid Design brand rather than the default Sanity chrome.
 
-**SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons, `journalEntry`, `leadMagnet`, and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
+**SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons, `journalEntry`, `leadMagnet`, the `styleQuiz` + `budgetCalculator` singletons (added when `/quiz` + `/calculator` SEO was made editable), and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
 
 **Vision/GROQ plugin gating.** The `visionTool()` plugin (the in-Studio GROQ query runner) is conditionally registered only when `process.env.NODE_ENV !== 'production'`. This means the Vision tab appears for Nathan in the local dev Studio but does not clutter Staci's deployed Studio at `reid-design.sanity.studio`.
 
@@ -102,6 +102,8 @@ The `purpose` strings carry a compressed version of the voice manifesto ("warm, 
 GROQ queries live in `src/lib/queries.ts`. Each page has a typed query function that pulls the singleton plus any auto-populated collections it needs (e.g., homePage query includes featured testimonial, services-where-showOnHomepage, and process steps in order).
 
 The Sanity client is at `src/lib/sanity.ts`. It exports both `client` (for queries) and `urlFor()` (for image URL building).
+
+**Section-array projection.** Any page-builder array (the marker `pageBuilder` arrays, custom-page `pageBuilder`, and the `additionalSections` "Extra sections" zone on faq/contact/privacy/journal/portfolio) is projected with the single `sectionsProjection(field = 'pageBuilder')` helper in `queries.ts`. It spreads each block and resolves the per-type references (hero/CTA-band background images + cta blocks, image+text image + cta, gallery images). To wire a new section-array field on any page, add the field with the shared helper in the schema, then add `${sectionsProjection('<fieldName>')}` to that page's query and render it through `SectionRenderer`. See [Page builder](page-architecture.md) for the component side.
 
 ### Auto-populated lists
 

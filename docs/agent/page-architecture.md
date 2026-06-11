@@ -48,6 +48,20 @@ Now also live (built during placeholder-content phase):
 - Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
 - E-Design — seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
 
+### Page builder + reusable section library
+
+There is one section block library, `studio/schemaTypes/sections.ts`, exporting nine block objects (`heroSection`, `richTextSection`, `imageTextSection`, `gallerySection`, `quoteSection`, `statSection`, `ctaBandSection`, `videoSection`, `spacerSection`) and `SECTION_TYPES` — the single source of truth for any "array of sections" field in the project. `src/components/SectionRenderer.astro` maps each block `_type` to its component and **owns the alternating background cadence** for content blocks (so reordering can never break the rhythm; that's why blocks carry no color field). It opens the cadence on `muted` when the page starts with a text hero, so the first content section contrasts instead of blending.
+
+The library is consumed in three ways:
+
+1. **Author-it-yourself custom pages** — the `page` doc type. Staci creates an entirely new page from the library, sets a slug (reserved-route collision guard at schema + `getStaticPaths`), and optionally adds it to the nav/footer. Served by `src/pages/[slug].astro` (the reserved-slug filter lives INSIDE `getStaticPaths`, per the Astro isolated-scope gotcha). Nav injection flows `getNavPages()` → `BaseLayout` → Header/Footer.
+
+2. **Marker-retrofitted standard pages** — Home, About, Services, Process, Resources, Press, E-Design, Gift each have a `pageBuilder` array of `<page>SectionMarker` blocks (one object type with a `section` enum dropdown) rendered by a per-page `<Page>SectionRenderer.astro`. Each marker maps to the existing section component reading the page's UNCHANGED fields, so reordering/hiding built-in sections and inserting library blocks between them needs zero content migration. A General library block dropped between markers delegates to `SectionRenderer`.
+
+3. **"Extra sections" append zone on the remaining standard pages** — the five pages that aren't marker-retrofitted (`faqPage`, `contactPage`, `privacyPage`, `journalPage`, `portfolioPage`) each expose an optional `additionalSections` array (shared `additionalSectionsField` helper from `sections.ts`, under an "Extra sections" field group). It's projected with `sectionsProjection('additionalSections')` and rendered by a second `<SectionRenderer sections={page?.additionalSections} idPrefix="…-extra">` placed above the final CTA (faq, journal) or at the page tail (contact, privacy, portfolio). Empty array = the page is byte-for-byte unchanged.
+
+Net effect: every page on the site can be extended from the same block library, and Staci can also build new pages from scratch. The projection helper for any pageBuilder/additionalSections array is `sectionsProjection(field)` in `queries.ts` — it resolves images and ctaBlocks per block type, so any new consumer just calls it with the field name.
+
 ### Section visibility
 
 Optional sections of the site can be turned on or off without touching code. The system is designed so the live site is completely unchanged until a toggle is explicitly set to off.

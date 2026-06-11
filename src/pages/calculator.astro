@@ -26,8 +26,8 @@ const [calc, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.budgetCalculator) return Astro.redirect('/');
 
-const title       = 'Budget Calculator · Reid Design';
-const description = 'Get a rough idea of what a design project costs before reaching out. Use the Reid Design budget calculator to build your estimate by room, scope, and add-ons.';
+const title       = calc?.seoTitle ?? 'Budget Calculator · Reid Design';
+const description = calc?.seoDescription ?? 'Get a rough idea of what a design project costs before reaching out. Use the Reid Design budget calculator to build your estimate by room, scope, and add-ons.';
 
 // Validate the calc doc: we need at least one room to be meaningful.
 const hasValidCalc =

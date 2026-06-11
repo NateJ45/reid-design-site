@@ -24,8 +24,9 @@ const [quiz, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.styleQuiz) return Astro.redirect('/');
 
-const title = 'What Is Your Design Style? · Reid Design';
+const title = quiz?.seoTitle ?? 'What Is Your Design Style? · Reid Design';
 const description =
+  quiz?.seoDescription ??
   'Take the Reid Design style quiz to find your design archetype and get a custom recommendation from Staci.';
 
 const schemas = [

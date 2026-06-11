@@ -281,7 +281,8 @@ export async function getFaqPage() {
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION},
-    secondaryCta${CTA_PROJECTION}
+    secondaryCta${CTA_PROJECTION},
+    ${sectionsProjection('additionalSections')}
   }`);
 }
 
@@ -309,7 +310,8 @@ export async function getContactPage() {
     },
     schedulingLink,
     schedulingLinkLabel,
-    availabilityNote
+    availabilityNote,
+    ${sectionsProjection('additionalSections')}
   }`);
 }
 
@@ -324,7 +326,8 @@ export async function getPortfolioPage() {
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
     beforeAfterSeoTitle, beforeAfterSeoDescription,
-    beforeAfterEyebrow, beforeAfterHeadline, beforeAfterSubhead
+    beforeAfterEyebrow, beforeAfterHeadline, beforeAfterSubhead,
+    ${sectionsProjection('additionalSections')}
   }`);
 }
 
@@ -415,7 +418,8 @@ export async function getJournalPage() {
     stickyCtaLabel,
     finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
-    finalCta${CTA_PROJECTION}
+    finalCta${CTA_PROJECTION},
+    ${sectionsProjection('additionalSections')}
   }`);
 }
 
@@ -591,7 +595,8 @@ export async function getPrivacyPage() {
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
     lastUpdated,
-    body
+    body,
+    ${sectionsProjection('additionalSections')}
   }`);
 }
 
@@ -623,6 +628,7 @@ export async function getPressItems() {
 
 export async function getStyleQuiz() {
   return client.fetch(`*[_type == "styleQuiz"][0]{
+    seoTitle, seoDescription,
     seoImage${IMAGE_PROJECTION},
     introEyebrow, introHeadline, introSubhead,
     introImage${IMAGE_PROJECTION},
@@ -658,6 +664,7 @@ export async function getStyleQuiz() {
 
 export async function getBudgetCalculator() {
   return client.fetch(`*[_type == "budgetCalculator"][0]{
+    seoTitle, seoDescription,
     seoImage${IMAGE_PROJECTION},
     introEyebrow, introHeadline, introSubhead,
     heroImage${IMAGE_PROJECTION},

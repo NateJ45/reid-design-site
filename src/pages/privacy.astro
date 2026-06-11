@@ -11,6 +11,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import PortableText from '@/components/PortableText';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 import { getPrivacyPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
@@ -137,4 +138,7 @@ const hasSanityBody = Boolean(page?.body);
       )}
     </div>
   </section>
+
+  {/* Extra sections (optional, editor-added in Studio) */}
+  <SectionRenderer sections={page?.additionalSections} idPrefix="privacy-extra" />
 </BaseLayout>

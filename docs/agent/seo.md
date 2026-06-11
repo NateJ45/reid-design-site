@@ -62,10 +62,12 @@ Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUS
 
 **Per-page schemas to add:**
 
-- `/services` — array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id`.
-- `/faq` — `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer`.
-- `/portfolio/[slug]` (post-launch) — `CreativeWork` schema for the project.
-- Every internal page — `BreadcrumbList` from `/` to the current page.
+- `/services` — array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id` (`serviceListSchema`).
+- `/faq` — `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer` (`faqPageSchema`).
+- `/portfolio/[slug]` — `CreativeWork` schema for the project (`projectSchema`).
+- `/journal/[slug]` — `BlogPosting` schema for the post (`blogPostingSchema`).
+- `/shop` — `ItemList` of `Product`s (`shopItemListSchema`), one per affiliate item across all collections: name + optional brand (vendor) + image + affiliate URL. **No `Offer`/price is emitted** — these are curated recommendations, not a storefront, so we don't claim a price/availability we don't control. Only rendered when the shop is enabled and has items; the page resolves Sanity image URLs and passes plain values into the builder (same split as `projectSchema`'s pre-built hero URL).
+- Every internal page — `BreadcrumbList` from `/` to the current page (`breadcrumbSchema`).
 
 Test every schema with Google's Rich Results Test (https://search.google.com/test/rich-results) before launch. Errors at scale will tank rankings rather than fail loudly.
 
@@ -128,6 +130,8 @@ After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify t
 - [ ] LocalBusiness JSON-LD validates in Google Rich Results Test
 - [ ] FAQPage JSON-LD validates
 - [ ] Service schemas validate
+- [ ] Shop `ItemList`/`Product` JSON-LD validates (only when the shop is enabled with items)
+- [ ] BlogPosting JSON-LD validates on a journal post
 - [ ] BreadcrumbList present on every internal page
 - [ ] OG previews look right in Slack, Twitter, Facebook (verify with opengraph.xyz or similar)
 - [ ] Google Business Profile NAP matches `siteSettings` NAP exactly

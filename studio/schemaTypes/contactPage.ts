@@ -2,6 +2,7 @@
 // Form field options (project types) are wired in the Astro component, not Sanity.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { additionalSectionsField } from './sections';
 
 export const contactPage = defineType({
   name: 'contactPage',
@@ -14,6 +15,7 @@ export const contactPage = defineType({
     { name: 'hero', title: 'Hero' },
     { name: 'form', title: 'Form intro + expectations' },
     { name: 'scheduling', title: 'Scheduling' },
+    { name: 'extra', title: 'Extra sections' },
   ],
   fields: [
     defineField({
@@ -226,6 +228,8 @@ export const contactPage = defineType({
       rows: 3,
       description: 'Internal-only reminder for editors. Anything you write here stays in Studio and never renders on the live page.',
     }),
+
+    additionalSectionsField,
   ],
   preview: { prepare: () => ({ title: 'Contact Page' }) },
 });

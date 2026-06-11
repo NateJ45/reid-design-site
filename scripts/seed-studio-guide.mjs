@@ -385,6 +385,18 @@ const studioGuideDoc = {
         'Click Publish.',
       ],
     },
+    {
+      _key: 'h25',
+      _type: 'howTo',
+      title: 'Add an extra block to one of your main pages',
+      steps: [
+        'You are not stuck with the built-in layout of a page. You can drop in extra blocks from the same set you use to build custom pages: a banner, a photo gallery, a quote, a call-to-action, and so on.',
+        'On the Home, About, Services, Process, Resources, Press, E-Design, and Gift Certificate pages, look for the "Layout & order" area. Each built-in part of the page shows up there as a row you can drag to reorder, or remove to hide. Click "Add item" between two rows to drop a new block in, then fill it in.',
+        'On the FAQ, Contact, Journal, Portfolio, and Privacy pages, scroll to the "Extra sections" area near the bottom of the form. Click "Add item" and pick a block. Whatever you add shows up at the bottom of that page, above the closing call-to-action where there is one.',
+        'Leave the "Extra sections" area empty and the page looks exactly as it does today. It only changes when you add something.',
+        'Use the Preview tab to check it, then click Publish.',
+      ],
+    },
   ],
   tips: [
     {

@@ -12,6 +12,8 @@ Target: WCAG 2.1 AA in both light and dark modes. Aim for 100 Lighthouse Accessi
 
 **Heading hierarchy.** One `<h1>` per page (usually inside the hero). Don't skip levels. Section headings are `<h2>`; subsections inside them are `<h3>`. Heading text describes the content, not its position ("How we work", not "Section 5").
 
+This applies to editor-authored Portable Text too, so the block-style options a schema offers must match the page's outline. On a project detail page the H1 is the project title and the sibling sections ("Before and after", "Gallery") are H2, so `project.introStory` offers **Heading 2** as its top in-story style (and Heading 3 below it) — offering only H3 would skip H1→H3. `journalEntry.body` and `privacyPage.body` similarly offer h2/h3 (the post/policy title is the H1). The `PortableText` renderer maps h2/h3/h4 to real `<h2>`/`<h3>`/`<h4>` and `portable-text-headings.ts` extracts the same levels for the case-study TOC, so adding a heading style is safe end to end. When a grid of cards (portfolio, journal) would otherwise jump H1→H3 (each card is an H3), insert a visually-hidden `<h2 class="sr-only">` to carry the level.
+
 **Forms.** Every input gets an associated `<label for="...">`. Use native input types (`email`, `tel`, `url`) and `autocomplete` hints so browsers and password managers help. Required fields get `required`. Error containers get `role="alert"`.
 
 **Images.**

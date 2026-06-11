@@ -245,8 +245,13 @@ export const project = defineType({
       of: [
         defineArrayMember({
           type: 'block',
+          // Heading 2 is the top in-story level: the project title is the page's
+          // H1 and the sibling sections (Before and after, Gallery) are H2, so a
+          // main heading inside the story should be H2 to keep the outline from
+          // skipping a level. Use Heading 3 for sub-points under an H2.
           styles: [
             { title: 'Paragraph', value: 'normal' },
+            { title: 'Heading 2', value: 'h2' },
             { title: 'Heading 3', value: 'h3' },
             { title: 'Quote', value: 'blockquote' },
           ],

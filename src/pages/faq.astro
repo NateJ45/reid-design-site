@@ -19,6 +19,7 @@ import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
 import FaqAccordion from '@/components/FaqAccordion';
 import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const [page, siteSettings] = await Promise.all([
   getFaqPage().catch(() => null),
@@ -78,6 +79,9 @@ const schemas = [
       </div>
     </div>
   </section>
+
+  {/* ------- Extra sections (optional, editor-added in Studio) -------------- */}
+  <SectionRenderer sections={page?.additionalSections} idPrefix="faq-extra" />
 
   {/* ------- 3. Final CTA ---------------------------------------------------- */}
   <FinalCta

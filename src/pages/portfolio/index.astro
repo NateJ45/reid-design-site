@@ -12,6 +12,7 @@ import Hero from '@/components/Hero.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 import PortfolioFilterChips from '@/components/PortfolioFilterChips';
 import PortfolioCursor from '@/components/PortfolioCursor';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const [projects, page, siteSettings] = await Promise.all([
   getAllProjects().catch(() => []),
@@ -155,4 +156,7 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
       </div>
     </section>
   )}
+
+  {/* Extra sections (optional, editor-added in Studio) */}
+  <SectionRenderer sections={page?.additionalSections} idPrefix="portfolio-extra" />
 </BaseLayout>

@@ -355,3 +355,18 @@ export const pageSectionSchemas = [
 // The list a pageBuilder array uses for `of`. Single source of truth so every
 // builder offers the same blocks.
 export const SECTION_TYPES = pageSectionSchemas.map((s) => ({ type: s.name }));
+
+// Reusable "extra sections" field for the app pages (portfolio, journal, faq,
+// contact, etc.) that keep their bespoke structure instead of the full marker
+// retrofit. Lets Staci append library blocks to the bottom of any of them. The
+// page must declare an `extra` field group. SectionRenderer renders the array;
+// general blocks are self-contained, so no extra page context is needed.
+export const additionalSectionsField = defineField({
+  name: 'additionalSections',
+  title: 'Extra sections',
+  type: 'array',
+  group: 'extra',
+  description:
+    'Optional. Add blocks from the library to the bottom of this page (a banner, a gallery, a call to action, and so on). Leave empty to keep the page exactly as it is.',
+  of: SECTION_TYPES,
+});

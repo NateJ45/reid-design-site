@@ -2,6 +2,7 @@
 // /journal. The posts grid itself is auto-populated from journalEntry documents.
 
 import { defineType, defineField } from 'sanity';
+import { additionalSectionsField } from './sections';
 
 export const journalPage = defineType({
   name: 'journalPage',
@@ -13,6 +14,7 @@ export const journalPage = defineType({
     { name: 'seo',   title: 'SEO' },
     { name: 'hero',  title: 'Hero' },
     { name: 'final', title: 'Final CTA' },
+    { name: 'extra', title: 'Extra sections' },
   ],
   fields: [
     defineField({
@@ -102,6 +104,8 @@ export const journalPage = defineType({
       description:
         'Optional. A photo behind the closing call-to-action. The site automatically darkens it so the headline and button stay readable. Leave empty to keep the solid charcoal panel.',
     }),
+
+    additionalSectionsField,
   ],
   preview: { prepare: () => ({ title: 'Journal Page' }) },
 });

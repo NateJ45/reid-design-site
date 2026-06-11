@@ -4,6 +4,7 @@
 // Safe to edit by hand.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { additionalSectionsField } from './sections';
 
 export const privacyPage = defineType({
   name: 'privacyPage',
@@ -15,6 +16,7 @@ export const privacyPage = defineType({
     { name: 'seo', title: 'SEO' },
     { name: 'hero', title: 'Hero' },
     { name: 'content', title: 'Content' },
+    { name: 'extra', title: 'Extra sections' },
   ],
   fields: [
     // SEO
@@ -130,6 +132,8 @@ export const privacyPage = defineType({
       ],
       validation: (Rule) => Rule.required(),
     }),
+
+    additionalSectionsField,
   ],
   preview: { prepare: () => ({ title: 'Privacy Policy Page' }) },
 });

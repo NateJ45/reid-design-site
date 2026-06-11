@@ -19,7 +19,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getShopPage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
-import { breadcrumbSchema } from '@/lib/schemas';
+import { breadcrumbSchema, shopItemListSchema } from '@/lib/schemas';
+import { urlFor } from '@/lib/sanity';
 import { site } from '@/data/site';
 
 import Hero from '@/components/Hero.astro';
@@ -55,11 +56,29 @@ const collections = page?.collections ?? [];
 // shows its coming-soon state instead of a hard redirect.
 const isDisabled = page?.enabled === false;
 
+// Flatten every collection's items into one product list for ItemList JSON-LD.
+// The page resolves Sanity image URLs here so the schema builder stays free of
+// Sanity-client concerns (same split as projectSchema's pre-built hero URL).
+const shopProducts = (collections as any[]).flatMap((c: any) =>
+  (c?.items ?? [])
+    .filter((it: any) => it?.title)
+    .map((it: any) => ({
+      name: it.title,
+      brand: it.vendor,
+      url: it.affiliateUrl,
+      image: it.image?.asset
+        ? urlFor(it.image).width(800).quality(75).auto('format').url()
+        : null,
+    })),
+);
+
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
     { name: 'Shop', url: `${site.url}/shop` },
   ]),
+  // Only emit the product ItemList when the page is live and has items.
+  ...(!isDisabled && shopProducts.length > 0 ? [shopItemListSchema(shopProducts)] : []),
 ];
 ---
 
