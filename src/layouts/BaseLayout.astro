@@ -253,7 +253,11 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
       function startLenis() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         import('lenis').then(({ default: Lenis }) => {
-          const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
+          // wheelMultiplier > 1 makes each wheel/trackpad notch cover more
+          // distance (default 1), so scrolling feels faster. lerp is separate:
+          // it controls how fast the smoothed position catches the target
+          // (higher = snappier and settles sooner, lower = more glide).
+          const lenis = new Lenis({ smoothWheel: true, lerp: 0.1, wheelMultiplier: 1.4 });
           // Expose the instance so in-page controls (e.g. the homepage hero
           // scroll cue) can trigger a smooth programmatic scroll through Lenis
           // instead of fighting it with a native scrollTo.
