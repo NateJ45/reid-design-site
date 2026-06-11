@@ -23,30 +23,34 @@ const CTA_PROJECTION = `{
 // Page-builder array projection. Spreads each block, then resolves the images
 // and ctaBlocks inside the block types that have them, so SectionRenderer gets
 // ready-to-use data. Block types without images/ctas (text, quote, stats,
-// video, spacer) pass through on the leading `...`.
-const PAGE_BUILDER_PROJECTION = `pageBuilder[]{
-  ...,
-  _type == "heroSection" => {
+// video, spacer) pass through on the leading `...`. Parameterized by field name
+// so it serves both `pageBuilder` (custom pages) and `additionalSections` (the
+// flexible zone on core pages).
+function sectionsProjection(field = 'pageBuilder') {
+  return `${field}[]{
     ...,
-    backgroundImage${IMAGE_PROJECTION},
-    primaryCta${CTA_PROJECTION},
-    secondaryCta${CTA_PROJECTION}
-  },
-  _type == "ctaBandSection" => {
-    ...,
-    backgroundImage${IMAGE_PROJECTION},
-    cta${CTA_PROJECTION}
-  },
-  _type == "imageTextSection" => {
-    ...,
-    image${IMAGE_PROJECTION},
-    cta${CTA_PROJECTION}
-  },
-  _type == "gallerySection" => {
-    ...,
-    images[]${IMAGE_PROJECTION}
-  }
-}`;
+    _type == "heroSection" => {
+      ...,
+      backgroundImage${IMAGE_PROJECTION},
+      primaryCta${CTA_PROJECTION},
+      secondaryCta${CTA_PROJECTION}
+    },
+    _type == "ctaBandSection" => {
+      ...,
+      backgroundImage${IMAGE_PROJECTION},
+      cta${CTA_PROJECTION}
+    },
+    _type == "imageTextSection" => {
+      ...,
+      image${IMAGE_PROJECTION},
+      cta${CTA_PROJECTION}
+    },
+    _type == "gallerySection" => {
+      ...,
+      images[]${IMAGE_PROJECTION}
+    }
+  }`;
+}
 
 // ---- Site settings (used in BaseLayout / Header / Footer) -----------------
 
@@ -727,7 +731,7 @@ export async function getPage(slug: string) {
       "slug": slug.current,
       seoTitle, seoDescription,
       seoImage${IMAGE_PROJECTION},
-      ${PAGE_BUILDER_PROJECTION}
+      ${sectionsProjection('pageBuilder')}
     }`,
     { slug },
   );

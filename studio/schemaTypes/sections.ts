@@ -353,5 +353,5 @@ export const pageSectionSchemas = [
 ];
 
 // The list a pageBuilder array uses for `of`. Single source of truth so every
-// builder (custom pages + retrofitted core pages) offers the same blocks.
+// builder offers the same blocks.
 export const SECTION_TYPES = pageSectionSchemas.map((s) => ({ type: s.name }));
