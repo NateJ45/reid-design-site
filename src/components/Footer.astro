@@ -102,6 +102,23 @@ const footerPages = (navPages ?? []).filter((p) => p.addToFooter && p.slug);
 // Normalize section visibility. Unset => visible (safe default for live site).
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
+// Per-column "has any visible link" flags. A column whose every link is toggled
+// off should drop out entirely (heading included) rather than leave a dangling
+// title with nothing under it. Studio and Get-in-touch always have content
+// (core pages / contact details), so only Work, Free tools, and Latest projects
+// are conditional.
+const showWork  = visible.portfolio || visible.journal || visible.shop || visible.giftCertificates;
+const showTools = visible.styleQuiz || visible.budgetCalculator || visible.guides || visible.resources;
+const showLatest = visible.portfolio;
+
+// Count the columns that actually render so the grid balances at lg and the
+// Get-in-touch column stays at the right edge instead of stranding empty tracks.
+// (Tailwind needs the full class strings present in source, hence the literal map.)
+const colCount = 2 + (showWork ? 1 : 0) + (showTools ? 1 : 0) + (showLatest ? 1 : 0);
+const lgColsClass =
+  ({ 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' })[colCount] ??
+  'lg:grid-cols-5';
+
 const brandName = siteSettings?.title ?? site.name;
 const email = siteSettings?.email ?? '';
 const phone = siteSettings?.phone ?? '';
@@ -140,7 +157,12 @@ const latestProjects = allProjects.slice(0, 3);
 
   {/* Five-column link grid. Single centered column on mobile, five columns
        at md+ (left-aligned). The fifth column carries contact details. */}
-  <div class="mx-auto max-w-content px-m pt-l pb-m grid gap-l grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 text-center md:text-left">
+  <div
+    class:list={[
+      'mx-auto max-w-content px-m pt-l pb-m grid gap-l grid-cols-1 sm:grid-cols-2 md:grid-cols-3 text-center md:text-left',
+      lgColsClass,
+    ]}
+  >
     {/* STUDIO */}
     <nav aria-labelledby="footer-studio">
       <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
@@ -160,53 +182,57 @@ const latestProjects = allProjects.slice(0, 3);
       </ul>
     </nav>
 
-    {/* WORK */}
-    <nav aria-labelledby="footer-work">
-      <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-        Work
-      </p>
-      <ul class="text-sm space-y-2 list-none p-0">
-        {visible.portfolio && (
-          <li><a href="/portfolio" class="text-foreground/85 hover:text-link transition-colors">Portfolio</a></li>
-        )}
-        {visible.portfolio && (
-          <li><a href="/portfolio/before-after" class="text-foreground/85 hover:text-link transition-colors">Before &amp; After</a></li>
-        )}
-        {visible.journal && (
-          <li><a href="/journal" class="text-foreground/85 hover:text-link transition-colors">Journal</a></li>
-        )}
-        {visible.shop && (
-          <li><a href="/shop" class="text-foreground/85 hover:text-link transition-colors">Shop</a></li>
-        )}
-        {visible.giftCertificates && (
-          <li><a href="/gift-certificates" class="text-foreground/85 hover:text-link transition-colors">Gift Certificates</a></li>
-        )}
-      </ul>
-    </nav>
+    {/* WORK — only when at least one of its links is visible. */}
+    {showWork && (
+      <nav aria-labelledby="footer-work">
+        <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          Work
+        </p>
+        <ul class="text-sm space-y-2 list-none p-0">
+          {visible.portfolio && (
+            <li><a href="/portfolio" class="text-foreground/85 hover:text-link transition-colors">Portfolio</a></li>
+          )}
+          {visible.portfolio && (
+            <li><a href="/portfolio/before-after" class="text-foreground/85 hover:text-link transition-colors">Before &amp; After</a></li>
+          )}
+          {visible.journal && (
+            <li><a href="/journal" class="text-foreground/85 hover:text-link transition-colors">Journal</a></li>
+          )}
+          {visible.shop && (
+            <li><a href="/shop" class="text-foreground/85 hover:text-link transition-colors">Shop</a></li>
+          )}
+          {visible.giftCertificates && (
+            <li><a href="/gift-certificates" class="text-foreground/85 hover:text-link transition-colors">Gift Certificates</a></li>
+          )}
+        </ul>
+      </nav>
+    )}
 
-    {/* FREE TOOLS & GUIDES */}
-    <nav aria-labelledby="footer-tools">
-      <p id="footer-tools" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-        Free tools &amp; guides
-      </p>
-      <ul class="text-sm space-y-2 list-none p-0">
-        {visible.styleQuiz && (
-          <li><a href="/quiz" class="text-foreground/85 hover:text-link transition-colors">Style Quiz</a></li>
-        )}
-        {visible.budgetCalculator && (
-          <li><a href="/calculator" class="text-foreground/85 hover:text-link transition-colors">Cost Calculator</a></li>
-        )}
-        {visible.guides && (
-          <li><a href="/guides" class="text-foreground/85 hover:text-link transition-colors">Guides</a></li>
-        )}
-        {visible.resources && (
-          <li><a href="/resources" class="text-foreground/85 hover:text-link transition-colors">Resources</a></li>
-        )}
-      </ul>
-    </nav>
+    {/* FREE TOOLS & GUIDES — only when at least one of its links is visible. */}
+    {showTools && (
+      <nav aria-labelledby="footer-tools">
+        <p id="footer-tools" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          Free tools &amp; guides
+        </p>
+        <ul class="text-sm space-y-2 list-none p-0">
+          {visible.styleQuiz && (
+            <li><a href="/quiz" class="text-foreground/85 hover:text-link transition-colors">Style Quiz</a></li>
+          )}
+          {visible.budgetCalculator && (
+            <li><a href="/calculator" class="text-foreground/85 hover:text-link transition-colors">Cost Calculator</a></li>
+          )}
+          {visible.guides && (
+            <li><a href="/guides" class="text-foreground/85 hover:text-link transition-colors">Guides</a></li>
+          )}
+          {visible.resources && (
+            <li><a href="/resources" class="text-foreground/85 hover:text-link transition-colors">Resources</a></li>
+          )}
+        </ul>
+      </nav>
+    )}
 
     {/* LATEST PROJECTS — only when portfolio is visible. */}
-    {visible.portfolio ? (
+    {showLatest && (
       <nav aria-labelledby="footer-latest">
         <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
           Latest projects
@@ -238,8 +264,6 @@ const latestProjects = allProjects.slice(0, 3);
           </p>
         )}
       </nav>
-    ) : (
-      <div aria-hidden="true" />
     )}
 
     {/* GET IN TOUCH — email, phone, location, socials. */}

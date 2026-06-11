@@ -72,7 +72,7 @@ Optional sections of the site can be turned on or off without touching code. The
 
 **What "off" does.** When a toggle is off, the section disappears everywhere simultaneously:
 - Removed from the desktop nav (`Header.astro`) and mobile drawer (`MobileNav.tsx`)
-- Removed from the footer link columns (`Footer.astro`)
+- Removed from the footer link columns (`Footer.astro`). When *every* link in a footer column is toggled off, the whole column drops out, heading included, instead of leaving a dangling title over nothing. `Footer.astro` computes a per-column `showWork` / `showTools` / `showLatest` flag and a dynamic `lg:grid-cols-{n}` class so the remaining columns rebalance and Get-in-touch stays at the right edge. The Studio and Get-in-touch columns always render (core-page links / contact details), so they are never empty.
 - Removed from the homepage: Featured Work block (portfolio), Featured Journal block (journal), PressStrip (press)
 - Removed from the About page PressStrip (press)
 - The section's own index page (`/portfolio`, `/journal`, `/shop`, `/e-design`, `/gift-certificates`, `/press`, `/resources`, `/guides`, `/quiz`, `/calculator`) redirects home via `return Astro.redirect('/')` at the top of the page

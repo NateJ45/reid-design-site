@@ -3,11 +3,12 @@
 // upload-headshots.mjs). Force-sets the fields (replacing any placeholder
 // imagery) because the whole point is to personalize the site with real photos.
 //
-// Placements (all medium-size slots, never full-bleed heroes, since the source
-// files are 400-600px — fine at these sizes, would look soft in a big hero):
-//   homePage.meetStaciPhoto  = IMG_5680  (friendly intro, branded tee) [per Nathan]
-//   aboutPage.staciPhoto     = IMG_5685  (seated in a designed lounge, polished)
-//   aboutPage.candidPhoto    = IMG_5683  (relaxed, off the clock)
+// Placements (medium-size slots). Sources were re-exported at higher resolution
+// in June 2026; the portrait is now full-res, the other two are mid-size
+// upgrades over the original 400-600px exports:
+//   homePage.meetStaciPhoto  = IMG_5680  (friendly intro; 1067x1600) [per Nathan]
+//   aboutPage.staciPhoto     = IMG_5685  (designed lounge; 4160x6240 full-res)
+//   aboutPage.candidPhoto    = IMG_5683  (off the clock; 2048x1365 landscape)
 //
 // Idempotent: re-running sets the same values. Run: node scripts/place-headshots.mjs
 
