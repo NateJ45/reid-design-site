@@ -28,12 +28,16 @@ const description = page?.seoDescription ?? 'Interior design services for every 
 const services = page?.services ?? [];
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
+// Locality for the per-service areaServed, from businessInfo (editable) with the
+// stable Plainfield, IN fallback so the structured data is unchanged by default.
+const areaServed = `${siteSettings?.city ?? 'Plainfield'} and ${siteSettings?.serviceRegion ?? 'Greater Indianapolis'}`;
+
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
     { name: 'Services', url: `${site.url}/services` },
   ]),
-  serviceListSchema(services),
+  serviceListSchema(services, areaServed),
 ];
 ---
 

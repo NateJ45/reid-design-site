@@ -68,6 +68,9 @@ interface Props {
     socialInstagram?: string;
     socialFacebook?: string;
     serviceAreas?: string[];
+    city?: string;
+    state?: string;
+    serviceRegion?: string;
     tagline?: string;
     footerCredit?: string;
     footerCreditUrl?: string;
@@ -132,6 +135,11 @@ const email = siteSettings?.email ?? '';
 const phone = siteSettings?.phone ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
+// Home-base locality from businessInfo (via getSiteSettings), with the stable
+// Plainfield, IN fallback so the footer reads the same until Staci changes it.
+const city = siteSettings?.city ?? 'Plainfield';
+const state = siteSettings?.state ?? 'IN';
+const serviceRegion = siteSettings?.serviceRegion ?? 'Greater Indianapolis';
 // Copyright auto-updates every build via new Date(). The "Site by..." line
 // (siteCredit + siteCreditUrl) is a SEPARATE concept that sits next to the
 // auto-year copyright in the thin bottom bar.
@@ -313,8 +321,8 @@ const latestProjects = allProjects.slice(0, 3);
         )}
       </div>
       <p class="mt-s text-sm text-foreground/75">
-        Plainfield, IN<br />
-        Serving Greater Indianapolis
+        {city}, {state}<br />
+        Serving {serviceRegion}
       </p>
       {(ig || fb) && (
         <ul class="mt-m flex justify-center md:justify-start gap-s text-sm list-none p-0">

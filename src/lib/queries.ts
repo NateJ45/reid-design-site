@@ -71,6 +71,9 @@ export async function getSiteSettings() {
     "travelFees": *[_type == "businessInfo"][0].travelFees,
     "geoLat": *[_type == "businessInfo"][0].geoLat,
     "geoLng": *[_type == "businessInfo"][0].geoLng,
+    "city": *[_type == "businessInfo"][0].city,
+    "state": *[_type == "businessInfo"][0].state,
+    "serviceRegion": *[_type == "businessInfo"][0].serviceRegion,
     socialInstagram,
     socialFacebook,
     seoImage${IMAGE_PROJECTION},
@@ -101,6 +104,9 @@ export async function getSiteSettings() {
 // that need businessInfo directly can use this.
 export async function getBusinessInfo() {
   return client.fetch(`*[_type == "businessInfo"][0]{
+    city,
+    state,
+    serviceRegion,
     serviceAreas,
     travelFees,
     availabilityStatus,

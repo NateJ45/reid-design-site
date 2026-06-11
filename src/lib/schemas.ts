@@ -16,6 +16,11 @@ interface SiteSettings {
   email?: string;
   phone?: string;
   serviceAreas?: string[];
+  // Home-base locality, sourced from the businessInfo singleton via getSiteSettings.
+  // Feeds the LocalBusiness address (NAP); fall back to the Plainfield, IN constants.
+  city?: string;
+  state?: string;
+  serviceRegion?: string;
   // Studio coordinates, sourced from the businessInfo singleton via getSiteSettings.
   geoLat?: number;
   geoLng?: number;
@@ -54,8 +59,10 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
     email: s.email ?? undefined,
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Plainfield',
-      addressRegion: 'IN',
+      // From businessInfo (Staci-editable) with the stable Plainfield, IN
+      // fallback so the NAP data is identical until/unless she changes it.
+      addressLocality: s.city ?? 'Plainfield',
+      addressRegion: s.state ?? 'IN',
       addressCountry: 'US',
     },
     // Studio coordinates from businessInfo (Staci-editable). Falls back to the
@@ -78,7 +85,10 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
 
 // ---------- Service list (for /services) -----------------------------------
 
-export function serviceListSchema(services: Service[] | null | undefined): string {
+export function serviceListSchema(
+  services: Service[] | null | undefined,
+  areaServed = 'Plainfield and Greater Indianapolis',
+): string {
   const list = (services ?? []).filter((s) => s.name);
   if (list.length === 0) return JSON.stringify({});
   return JSON.stringify({
@@ -92,7 +102,7 @@ export function serviceListSchema(services: Service[] | null | undefined): strin
       description: s.shortDescription,
       url: s.slug?.current ? `${site.url}/services#${s.slug.current}` : `${site.url}/services`,
       provider: { '@id': `${site.url}/#business` },
-      areaServed: 'Plainfield and Greater Indianapolis',
+      areaServed,
       ...(s.price ? { offers: { '@type': 'Offer', price: s.price, priceCurrency: 'USD' } } : {}),
     })),
   });

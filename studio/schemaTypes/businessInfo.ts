@@ -17,6 +17,36 @@ export const businessInfo = defineType({
   // Business facts, not prose — keep out of Canvas's AI-assisted writing UI.
   options: { canvasApp: { exclude: true } },
   fields: [
+    // Home-base location. One source of truth for the city/state shown in the
+    // footer AND fed into the LocalBusiness structured data search engines read.
+    // Keep these matching your Google Business Profile exactly (NAP consistency).
+    defineField({
+      name: 'city',
+      title: 'Studio city',
+      type: 'string',
+      description:
+        'Your home-base city. Shows in the footer and feeds the business listing data search engines read (the LocalBusiness "addressLocality"). Must match your Google Business Profile exactly. Only change it if you relocate.',
+      initialValue: 'Plainfield',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'state',
+      title: 'Studio state (2-letter code)',
+      type: 'string',
+      description:
+        'Two-letter state code, like "IN". Feeds the business listing "addressRegion". Must match your Google Business Profile.',
+      initialValue: 'IN',
+      validation: (Rule) =>
+        Rule.required().length(2).warning('Use the 2-letter state code, like "IN".'),
+    }),
+    defineField({
+      name: 'serviceRegion',
+      title: 'Service region phrase',
+      type: 'string',
+      description:
+        'The broader area you serve, shown as "Serving {this}" in the footer. Example: "Greater Indianapolis".',
+      initialValue: 'Greater Indianapolis',
+    }),
     defineField({
       name: 'serviceAreas',
       title: 'Service areas',
