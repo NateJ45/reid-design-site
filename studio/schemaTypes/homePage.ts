@@ -3,6 +3,7 @@
 // Services and process steps auto-populate from their collections.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { HOME_SECTION_TYPES, HOME_DEFAULT_ORDER } from './homeSections';
 
 export const homePage = defineType({
   name: 'homePage',
@@ -12,6 +13,7 @@ export const homePage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'meetStaci', title: 'Meet Staci' },
     { name: 'featuredWork', title: 'Featured Work' },
@@ -50,6 +52,21 @@ export const homePage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Each "Built-in section" marker is one of the home page's
+    // standard sections; drag to reorder, remove to hide, or add a library block
+    // to insert something new. The home order is conversion-tuned, so reorder
+    // thoughtfully. Content stays in each section's own tab. Defaults to today's order.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of sections on the home page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Heads up: the home order is tuned for conversion, so reorder thoughtfully. Edit each section\'s content in its own tab.',
+      of: HOME_SECTION_TYPES,
+      initialValue: HOME_DEFAULT_ORDER,
     }),
 
     // Hero

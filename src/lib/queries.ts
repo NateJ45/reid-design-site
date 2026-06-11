@@ -116,6 +116,7 @@ export async function getHomePage() {
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
+    ${sectionsProjection('pageBuilder')},
     heroEyebrow,
     heroHeadline,
     heroSubhead,

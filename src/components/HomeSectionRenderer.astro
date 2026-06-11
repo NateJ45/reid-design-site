@@ -1,0 +1,138 @@
+---
+// Foundation, edit with care
+// Renders the Home page from its `pageBuilder` layout array of homeSectionMarker
+// blocks. Each marker maps to the existing home section component, reading the
+// unchanged homePage fields + collections (no content migration). Inserted
+// general blocks delegate to SectionRenderer. Falls back to the default order
+// when the array is empty.
+import Hero from '@/components/Hero.astro';
+import MeetStaci from '@/components/sections/MeetStaci.astro';
+import HomeTestimonials from '@/components/sections/HomeTestimonials.astro';
+import ProcessPreview from '@/components/sections/ProcessPreview.astro';
+import HomeServices from '@/components/sections/HomeServices.astro';
+import FeaturedWork from '@/components/FeaturedWork.astro';
+import FeaturedJournal from '@/components/FeaturedJournal.astro';
+import PressStrip from '@/components/PressStrip.astro';
+import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
+import SectionDivider from '@/components/SectionDivider.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+interface Props {
+  sections?: any[];
+  page: any;
+  siteSettings?: any;
+  pressItems?: any[];
+  visible: any;
+}
+
+const { sections = [], page, siteSettings, pressItems = [], visible } = Astro.props as Props;
+
+const DEFAULT_ORDER = [
+  'hero', 'meetStaci', 'featuredWork', 'testimonials', 'processPreview',
+  'services', 'featuredJournal', 'press', 'serviceAreaCue', 'finalCta',
+].map((section) => ({ _type: 'homeSectionMarker', section }));
+
+const list = (sections ?? []).filter((s) => s && s._type);
+const rows = list.length > 0 ? list : DEFAULT_ORDER;
+---
+
+{rows.map((s: any, i: number) =>
+  s._type === 'homeSectionMarker' ? (
+    s.section === 'hero' ? (
+      <Hero
+        eyebrow={page?.heroEyebrow ?? 'Plainfield, Indiana.'}
+        headline={page?.heroHeadline ?? 'Interior design for homes that feel genuinely yours.'}
+        subhead={page?.heroSubhead ?? ''}
+        backgroundImage={page?.heroImage}
+        backgroundImages={page?.heroImages}
+        primaryCta={page?.heroPrimaryCta}
+        secondaryCta={page?.heroSecondaryCta}
+        headingId="hero-heading"
+        size="tall"
+        rotatingWords={page?.heroRotatingWords ?? ['Lived-in', 'Considered', 'Quiet']}
+        scriptAccent={page?.heroScriptAccent}
+      />
+    ) : s.section === 'meetStaci' ? (
+      <MeetStaci
+        photo={page?.meetStaciPhoto}
+        eyebrow={page?.meetStaciEyebrow}
+        headline={page?.meetStaciHeadline}
+        content={page?.meetStaciContent}
+        cta={page?.meetStaciCta}
+      />
+    ) : s.section === 'featuredWork' ? (
+      visible.portfolio ? (
+        <FeaturedWork
+          projects={page?.featuredProjects ?? []}
+          eyebrow={page?.featuredWorkEyebrow ?? 'Recent Work'}
+          headline={page?.featuredWorkHeadline ?? 'Rooms that feel finished.'}
+          subhead={page?.featuredWorkSubhead ?? 'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.'}
+          cta={page?.featuredWorkCta}
+        />
+      ) : null
+    ) : s.section === 'testimonials' ? (
+      <HomeTestimonials
+        eyebrow={page?.testimonialsEyebrow}
+        headline={page?.testimonialsHeadline}
+        scriptAccent={page?.testimonialsScriptAccent}
+        subhead={page?.testimonialsSubhead}
+        attribution={page?.testimonialsAttribution}
+        featuredQuote={page?.featuredTestimonial}
+        gridQuotes={page?.testimonialsToShow ?? []}
+        reviewsNote={siteSettings?.reviewsNote}
+        googleBusinessUrl={siteSettings?.googleBusinessUrl}
+      />
+    ) : s.section === 'processPreview' ? (
+      <ProcessPreview
+        eyebrow={page?.processPreviewEyebrow}
+        headline={page?.processPreviewHeadline}
+        subhead={page?.processPreviewSubhead}
+        processSteps={page?.processSteps ?? []}
+        cta={page?.processPreviewCta}
+      />
+    ) : s.section === 'services' ? (
+      <HomeServices
+        eyebrow={page?.servicesGridEyebrow}
+        headline={page?.servicesGridHeadline}
+        scriptAccent={page?.servicesGridScriptAccent}
+        subhead={page?.servicesGridSubhead}
+        services={page?.services ?? []}
+        cta={page?.servicesGridCta}
+        footnote={page?.servicesGridFootnote}
+      />
+    ) : s.section === 'featuredJournal' ? (
+      visible.journal ? (
+        <FeaturedJournal
+          entries={page?.featuredJournalEntries ?? []}
+          eyebrow={page?.featuredJournalEyebrow ?? 'From the Journal'}
+          headline={page?.featuredJournalHeadline ?? 'How I think about design.'}
+          subhead={page?.featuredJournalSubhead ?? 'Posts on the design moves that change a room, source roundups behind specific projects, and the occasional honest note about what I would do differently. The thinking that informs every consultation.'}
+          cta={page?.featuredJournalCta}
+        />
+      ) : null
+    ) : s.section === 'press' ? (
+      visible.press && pressItems.length > 0 ? <PressStrip items={pressItems} /> : null
+    ) : s.section === 'serviceAreaCue' ? (
+      <>
+        <div class="bg-muted"><SectionDivider variant="ornament" /></div>
+        <ServiceAreaCue
+          text={page?.serviceAreaCue}
+          cities={siteSettings?.serviceAreas}
+          eyebrow="Where Reid Design works"
+        />
+      </>
+    ) : s.section === 'finalCta' ? (
+      <FinalCta
+        eyebrow={page?.finalCtaEyebrow}
+        headline={page?.finalCtaHeadline}
+        subhead={page?.finalCtaSubhead}
+        cta={page?.finalCta}
+        scriptAccent={page?.finalCtaScriptAccent}
+        backgroundImage={page?.finalCtaBackgroundImage}
+      />
+    ) : null
+  ) : (
+    <SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} />
+  ),
+)}

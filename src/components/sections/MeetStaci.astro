@@ -1,0 +1,58 @@
+---
+// Home "Meet Staci" section, extracted verbatim from index.astro for the
+// marker-based page builder. Content comes from the homePage fields (passed in),
+// nothing migrated. Keeps its bg-background surface. Safe to edit by hand.
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaLink from '@/components/CtaLink.astro';
+
+interface Props {
+  photo?: any;
+  eyebrow?: string;
+  headline?: string;
+  content?: any;
+  cta?: any;
+}
+
+const {
+  photo,
+  eyebrow = 'The Designer.',
+  headline = 'Hi, I’m Staci.',
+  content = null,
+  cta,
+} = Astro.props as Props;
+---
+
+<section class="bg-background" aria-labelledby="meet-staci-heading">
+  <div data-reveal class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-center">
+    {photo?.asset ? (
+      <div class="order-1 md:order-1">
+        <SanityImage
+          source={photo}
+          width={800}
+          sizes="(min-width: 768px) 45vw, 100vw"
+          quality={75}
+          class="w-full h-auto rounded-md"
+        />
+      </div>
+    ) : (
+      <div class="order-1 md:order-1 aspect-[4/5] bg-muted rounded-md" aria-hidden="true"></div>
+    )}
+
+    <div class="order-2 md:order-2">
+      <p class="text-xs uppercase tracking-[0.22em] text-foreground/80 mb-s">{eyebrow}</p>
+      <h2 id="meet-staci-heading" class="font-display text-h2 text-foreground">{headline}</h2>
+      {content ? (
+        <PortableText value={content} className="mt-m text-foreground/85 text-lg leading-relaxed" />
+      ) : (
+        <p class="mt-m text-foreground/85 text-lg leading-relaxed">
+          Plainfield-based interior designer working with homeowners across Greater Indianapolis to
+          create spaces that feel calm, considered, and unmistakably theirs.
+        </p>
+      )}
+      <div class="mt-l flex justify-center md:justify-start">
+        <CtaLink cta={cta} variant="secondary" fallbackHref="/about" fallbackLabel="Get to Know Me" />
+      </div>
+    </div>
+  </div>
+</section>

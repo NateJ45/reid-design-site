@@ -1,0 +1,81 @@
+---
+// Home "Kind Words" testimonials section, extracted verbatim from index.astro
+// for the marker-based page builder. Content from homePage fields + testimonial
+// collection (passed in). Keeps surface-warm bg-background. Self-suppresses with
+// no quotes. Safe to edit by hand.
+import SectionHeading from '@/components/SectionHeading.astro';
+import FeaturedTestimonial from '@/components/FeaturedTestimonial.astro';
+import TestimonialGrid from '@/components/TestimonialGrid.astro';
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  scriptAccent?: string;
+  subhead?: string;
+  attribution?: string;
+  featuredQuote?: any;
+  gridQuotes?: any[];
+  reviewsNote?: string;
+  googleBusinessUrl?: string;
+}
+
+const {
+  eyebrow = 'Kind Words.',
+  headline = 'Words from real homes.',
+  scriptAccent,
+  subhead = 'The part that matters most: how it felt to work together, and how each space holds up to everyday life long after the last pillow is placed.',
+  attribution,
+  featuredQuote,
+  gridQuotes = [],
+  reviewsNote,
+  googleBusinessUrl,
+} = Astro.props as Props;
+---
+
+{(featuredQuote || gridQuotes.length > 0) && (
+  <section class="surface-warm bg-background" aria-labelledby="testimonials-heading">
+    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
+      <SectionHeading
+        eyebrow={eyebrow}
+        headline={headline}
+        subhead={subhead}
+        headingId="testimonials-heading"
+        align="center"
+        class="mx-auto"
+        scriptAccent={scriptAccent}
+      />
+
+      {featuredQuote && (
+        <div class="mt-section-lg">
+          <FeaturedTestimonial testimonial={featuredQuote} />
+        </div>
+      )}
+
+      {gridQuotes.length > 0 && (
+        <div class="mt-section-lg">
+          <TestimonialGrid testimonials={gridQuotes} limit={6} />
+        </div>
+      )}
+
+      {attribution && (
+        <p class="mt-section-md text-center text-sm text-muted-foreground italic">{attribution}</p>
+      )}
+
+      {(reviewsNote || googleBusinessUrl) && (
+        <p class="mt-l text-center text-sm text-foreground/75 flex flex-wrap items-center justify-center gap-s">
+          {reviewsNote && <span>{reviewsNote}</span>}
+          {googleBusinessUrl && (
+            <a
+              href={googleBusinessUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-xs text-link underline underline-offset-2 hover:text-primary-dark transition-colors font-medium"
+            >
+              Read more on Google <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </p>
+      )}
+    </div>
+  </section>
+)}

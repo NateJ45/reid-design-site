@@ -27,6 +27,7 @@ import { processStep } from './processStep';
 import { project } from './project';
 import { pageSectionSchemas } from './sections';
 import { aboutSectionMarker } from './aboutSections';
+import { homeSectionMarker } from './homeSections';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -47,6 +48,7 @@ export const schemaTypes = [
   // whose pageBuilder arrays reference them.
   ...pageSectionSchemas,
   aboutSectionMarker,
+  homeSectionMarker,
 
   // Singletons
   siteSettings,

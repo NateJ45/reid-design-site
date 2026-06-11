@@ -1,0 +1,58 @@
+---
+// Home services-grid section ("How we can help"), extracted verbatim from
+// index.astro for the marker-based page builder. Services from the service
+// collection (passed in). Keeps surface-warm bg-background. Safe to edit by hand.
+import SectionHeading from '@/components/SectionHeading.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import CtaLink from '@/components/CtaLink.astro';
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  scriptAccent?: string;
+  subhead?: string;
+  services?: any[];
+  cta?: any;
+  footnote?: string;
+}
+
+const {
+  eyebrow = 'Reid Design.',
+  headline = 'How we can help your home.',
+  scriptAccent,
+  subhead,
+  services = [],
+  cta,
+  footnote,
+} = Astro.props as Props;
+---
+
+<section class="surface-warm bg-background" aria-labelledby="services-heading">
+  <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
+    <SectionHeading
+      eyebrow={eyebrow}
+      headline={headline}
+      subhead={subhead}
+      headingId="services-heading"
+      align="center"
+      class="mx-auto"
+      scriptAccent={scriptAccent}
+    />
+
+    {services.length > 0 && (
+      <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-m" data-stagger-grid>
+        {services.slice(0, 4).map((service: any) => (
+          <ServiceCard service={service} compact={true} />
+        ))}
+      </div>
+    )}
+
+    <div class="mt-section-lg flex justify-center">
+      <CtaLink cta={cta} variant="secondary" fallbackHref="/services" fallbackLabel="See All Services" />
+    </div>
+
+    {footnote && (
+      <p class="mt-section-md text-center text-sm text-muted-foreground italic">{footnote}</p>
+    )}
+  </div>
+</section>
