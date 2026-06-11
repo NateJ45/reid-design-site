@@ -4,6 +4,7 @@
 // Safe to edit by hand.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { GIFT_SECTION_TYPES, GIFT_DEFAULT_ORDER } from './offeringSections';
 
 export const giftPage = defineType({
   name: 'giftPage',
@@ -13,6 +14,7 @@ export const giftPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'content', title: 'Content' },
   ],
@@ -45,6 +47,20 @@ export const giftPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Reorder or hide the gift content sections (intro, options,
+    // how it works, fine print), or add a library block. The hero and the closing
+    // call to action stay fixed. Edit content in each tab.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of the gift content sections. Drag to reorder, remove one to hide it, or add a block to insert something new. The hero and the closing call to action stay in place.',
+      of: GIFT_SECTION_TYPES,
+      initialValue: GIFT_DEFAULT_ORDER,
     }),
 
     // Hero

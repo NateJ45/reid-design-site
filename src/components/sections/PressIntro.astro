@@ -1,0 +1,16 @@
+---
+// Press optional intro band, extracted verbatim from press.astro. Self-suppresses
+// when blank. Keeps bg-background.
+interface Props {
+  intro?: string;
+}
+const { intro } = Astro.props as Props;
+---
+
+{intro && (
+  <section class="bg-background" aria-label="About our press coverage">
+    <div class="mx-auto max-w-3xl px-m pt-section-md pb-0">
+      <p class="text-foreground/85 text-lg leading-relaxed">{intro}</p>
+    </div>
+  </section>
+)}

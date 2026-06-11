@@ -1,0 +1,48 @@
+---
+// Foundation, edit with care
+// Renders the Resources page from its `pageBuilder` layout array of
+// resourcesSectionMarker blocks. Inserted general blocks delegate to
+// SectionRenderer. Falls back to the default order when empty.
+import Hero from '@/components/Hero.astro';
+import ResourcesIntro from '@/components/sections/ResourcesIntro.astro';
+import ResourcesCards from '@/components/sections/ResourcesCards.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+interface Props {
+  sections?: any[];
+  page: any;
+  visible: any;
+}
+
+const { sections = [], page, visible } = Astro.props as Props;
+
+const DEFAULT_ORDER = ['hero', 'intro', 'cards'].map((section) => ({
+  _type: 'resourcesSectionMarker',
+  section,
+}));
+
+const list = (sections ?? []).filter((s) => s && s._type);
+const rows = list.length > 0 ? list : DEFAULT_ORDER;
+---
+
+{rows.map((s: any, i: number) =>
+  s._type === 'resourcesSectionMarker' ? (
+    s.section === 'hero' ? (
+      <Hero
+        eyebrow={page?.heroEyebrow ?? 'Free tools + guides'}
+        headline={page?.heroHeadline ?? 'Start here before you call'}
+        subhead={page?.heroSubhead ?? 'Everything you need to walk into that first conversation knowing what you want and what to expect.'}
+        backgroundImage={page?.heroImage ?? null}
+        headingId="resources-hero-heading"
+        size="short"
+        scriptAccent={page?.heroScriptAccent ?? undefined}
+      />
+    ) : s.section === 'intro' ? (
+      <ResourcesIntro intro={page?.intro} />
+    ) : s.section === 'cards' ? (
+      <ResourcesCards sanityCards={page?.cards} visible={visible} />
+    ) : null
+  ) : (
+    <SectionRenderer sections={[s]} idPrefix={`resources-extra-${i}`} />
+  ),
+)}

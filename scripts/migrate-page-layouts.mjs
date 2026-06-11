@@ -45,9 +45,33 @@ const LAYOUTS = {
     markerType: 'processSectionMarker',
     order: ['hero', 'steps', 'faq', 'finalCta'],
   },
+  resourcesPage: {
+    markerType: 'resourcesSectionMarker',
+    order: ['hero', 'intro', 'cards'],
+  },
+  pressPage: {
+    markerType: 'pressSectionMarker',
+    order: ['hero', 'pressStrip', 'intro', 'list'],
+  },
+  eDesignPage: {
+    markerType: 'eDesignSectionMarker',
+    order: ['intro', 'howItWorks', 'whatsIncluded', 'tiers', 'faq'],
+  },
+  giftPage: {
+    markerType: 'giftSectionMarker',
+    order: ['intro', 'options', 'howItWorks', 'finePrint'],
+  },
 };
 
 for (const [docId, { markerType, order }] of Object.entries(LAYOUTS)) {
+  // Skip docs that do not exist (e.g. an unpublished eDesignPage / giftPage in
+  // its coming-soon state). Creating them would flip the page out of coming-soon.
+  // Those pages fall back to the default section order in code anyway.
+  const exists = await client.getDocument(docId);
+  if (!exists) {
+    console.log(`${docId}: doc not found, skipped (renders default order in code)`);
+    continue;
+  }
   const pageBuilder = order.map((section) => ({ _type: markerType, _key: `${docId}-${section}`, section }));
   const result = await client.patch(docId).setIfMissing({ pageBuilder }).commit();
   const got = (result.pageBuilder ?? []).map((m) => m.section).join(' -> ');

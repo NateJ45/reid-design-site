@@ -30,6 +30,12 @@ import { aboutSectionMarker } from './aboutSections';
 import { homeSectionMarker } from './homeSections';
 import { servicesSectionMarker } from './servicesSections';
 import { processSectionMarker } from './processSections';
+import {
+  resourcesSectionMarker,
+  pressSectionMarker,
+  giftSectionMarker,
+  eDesignSectionMarker,
+} from './offeringSections';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -53,6 +59,10 @@ export const schemaTypes = [
   homeSectionMarker,
   servicesSectionMarker,
   processSectionMarker,
+  resourcesSectionMarker,
+  pressSectionMarker,
+  giftSectionMarker,
+  eDesignSectionMarker,
 
   // Singletons
   siteSettings,

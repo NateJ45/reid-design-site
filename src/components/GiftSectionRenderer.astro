@@ -1,0 +1,102 @@
+---
+// Foundation, edit with care
+// Renders the Gift Certificates page's reorderable content sections from its
+// `pageBuilder` layout array of giftSectionMarker blocks. Markup is verbatim from
+// the original gift-certificates.astro. Hero, the coming-soon state, and the
+// closing CTA stay in gift-certificates.astro. Inserted general blocks delegate
+// to SectionRenderer.
+import SectionHeading from '@/components/SectionHeading.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+interface Props {
+  sections?: any[];
+  page: any;
+}
+
+const { sections = [], page } = Astro.props as Props;
+const CONTACT_HREF = '/contact?type=gift-certificate';
+const ctaLabel = page?.ctaLabel ?? 'Inquire about a Gift Certificate';
+
+const DEFAULT_ORDER = ['intro', 'options', 'howItWorks', 'finePrint'].map((section) => ({
+  _type: 'giftSectionMarker',
+  section,
+}));
+
+const list = (sections ?? []).filter((s) => s && s._type);
+const rows = list.length > 0 ? list : DEFAULT_ORDER;
+---
+
+{rows.map((s: any, i: number) =>
+  s._type === 'giftSectionMarker' ? (
+    s.section === 'intro' ? (
+      page.intro ? (
+        <section class="bg-background" aria-labelledby="gift-intro-heading">
+          <div class="mx-auto max-w-content px-m py-section-lg">
+            <div class="max-w-3xl mx-auto">
+              <SectionHeading eyebrow="The Gift." headline="Give Something That Changes a Room." headingId="gift-intro-heading" />
+              <p class="mt-l text-foreground/85 text-lg leading-relaxed">{page.intro}</p>
+            </div>
+          </div>
+        </section>
+      ) : null
+    ) : s.section === 'options' ? (
+      page.options && page.options.length > 0 ? (
+        <section class="surface-warm bg-muted" aria-labelledby="gift-options-heading">
+          <div class="mx-auto max-w-content px-m py-section-lg">
+            <SectionHeading eyebrow="The Options." headline="Certificate Amounts." headingId="gift-options-heading" align="center" class="mx-auto" />
+            <div class="mt-section-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
+              {page.options.map((option: any) => (
+                <article class="card-lift relative flex flex-col bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40">
+                  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+                  <div class="flex flex-col flex-1 p-l">
+                    <p class="text-sm font-mono uppercase tracking-eyebrow text-link">{option.amount}</p>
+                    <h3 class="mt-xs font-display text-h3 text-foreground">{option.label}</h3>
+                    {option.blurb && <p class="mt-m text-foreground/80 text-base leading-relaxed">{option.blurb}</p>}
+                    <div class="mt-l pt-m flex-1 flex items-end">
+                      <a href={CONTACT_HREF} class="inline-flex items-center min-h-[44px] py-s text-xs font-semibold uppercase tracking-eyebrow text-link hover:text-primary-dark transition-colors">
+                        {ctaLabel} <span aria-hidden="true" class="ml-xs">→</span>
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null
+    ) : s.section === 'howItWorks' ? (
+      page.howItWorks && page.howItWorks.length > 0 ? (
+        <section class="bg-background" aria-labelledby="gift-how-heading">
+          <div class="mx-auto max-w-content px-m py-section-lg">
+            <div class="max-w-3xl mx-auto">
+              <SectionHeading eyebrow="The Process." headline="How It Works." headingId="gift-how-heading" />
+              <ol class="mt-l space-y-l list-none p-0">
+                {page.howItWorks.map((step: any) => (
+                  <li class="flex items-start gap-l">
+                    <span class="font-mono text-3xl font-bold text-tertiary/60 leading-none shrink-0 w-10 text-right" aria-hidden="true">
+                      {String(step.stepNumber).padStart(2, '0')}
+                    </span>
+                    <div>
+                      <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
+                      {step.body && <p class="mt-xs text-foreground/80 leading-relaxed">{step.body}</p>}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </section>
+      ) : null
+    ) : s.section === 'finePrint' ? (
+      page.finePrint ? (
+        <section class="bg-muted" aria-label="Terms and conditions">
+          <div class="mx-auto max-w-content px-m py-m">
+            <p class="text-xs text-muted-foreground leading-relaxed max-w-3xl mx-auto text-center">{page.finePrint}</p>
+          </div>
+        </section>
+      ) : null
+    ) : null
+  ) : (
+    <SectionRenderer sections={[s]} idPrefix={`gift-extra-${i}`} />
+  ),
+)}

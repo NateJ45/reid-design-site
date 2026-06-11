@@ -3,6 +3,7 @@
 // Safe to edit by hand.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { EDESIGN_SECTION_TYPES, EDESIGN_DEFAULT_ORDER } from './offeringSections';
 
 export const eDesignPage = defineType({
   name: 'eDesignPage',
@@ -12,6 +13,7 @@ export const eDesignPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'intro', title: 'Intro' },
     { name: 'how', title: 'How It Works' },
@@ -49,6 +51,20 @@ export const eDesignPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Reorder or hide the E-Design content sections (intro, how
+    // it works, what's included, pricing tiers, FAQ), or add a library block.
+    // The hero and closing call to action stay fixed. Edit content in each tab.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of the E-Design content sections. Drag to reorder, remove one to hide it, or add a block to insert something new. The hero and the closing call to action stay in place.',
+      of: EDESIGN_SECTION_TYPES,
+      initialValue: EDESIGN_DEFAULT_ORDER,
     }),
 
     // Hero

@@ -1,0 +1,16 @@
+---
+// Resources optional intro band, extracted verbatim from resources.astro.
+// Self-suppresses when blank. Keeps bg-background.
+interface Props {
+  intro?: string;
+}
+const { intro } = Astro.props as Props;
+---
+
+{intro && (
+  <section class="bg-background border-b border-border">
+    <div class="mx-auto max-w-content px-m py-section-md">
+      <p class="max-w-2xl mx-auto text-center text-foreground/80 text-lg leading-relaxed">{intro}</p>
+    </div>
+  </section>
+)}

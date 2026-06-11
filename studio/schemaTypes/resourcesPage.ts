@@ -4,6 +4,7 @@
 // Safe to edit by hand.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { RESOURCES_SECTION_TYPES, RESOURCES_DEFAULT_ORDER } from './offeringSections';
 
 export const resourcesPage = defineType({
   name: 'resourcesPage',
@@ -13,6 +14,7 @@ export const resourcesPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'content', title: 'Content' },
   ],
@@ -45,6 +47,19 @@ export const resourcesPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Drag the built-in section markers to reorder, remove one to
+    // hide it, or add a library block. Edit each section's content in its own tab.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of sections on the Resources page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new.',
+      of: RESOURCES_SECTION_TYPES,
+      initialValue: RESOURCES_DEFAULT_ORDER,
     }),
 
     // Hero

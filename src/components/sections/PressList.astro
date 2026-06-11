@@ -1,0 +1,77 @@
+---
+// Press items list (with empty state), extracted verbatim from press.astro.
+// Items from the pressItem collection (passed in). Keeps bg-background.
+interface Props {
+  items?: any[];
+}
+const { items = [] } = Astro.props as Props;
+
+function formatDate(d?: string): string {
+  if (!d) return '';
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+---
+
+{items.length > 0 ? (
+  <section class="bg-background" aria-labelledby="press-list-heading">
+    <h2 id="press-list-heading" class="sr-only">Press coverage list</h2>
+
+    <div class="mx-auto max-w-3xl px-m py-section-lg space-y-l">
+      {items.map((item: any) => {
+        const dateLabel = formatDate(item.date);
+        return (
+          <article
+            class="card-lift bg-card border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+            aria-labelledby={`press-item-${item._id}`}
+          >
+            <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+            <div class="p-l">
+              <div class="flex flex-wrap items-baseline gap-m justify-between mb-m">
+                <h3 id={`press-item-${item._id}`} class="font-display text-h3 text-foreground leading-tight">
+                  {item.outlet ?? 'Press feature'}
+                </h3>
+                {dateLabel && (
+                  <p class="shrink-0 text-xs uppercase tracking-eyebrow text-foreground/80">{dateLabel}</p>
+                )}
+              </div>
+              {item.quote && (
+                <blockquote class="mt-s font-display text-lg italic text-foreground/80 leading-relaxed border-l-2 border-primary pl-m">
+                  {item.quote}
+                </blockquote>
+              )}
+              {item.url && (
+                <p class="mt-m">
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+                  >
+                    Read the article <span aria-hidden="true">↗</span>
+                  </a>
+                </p>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+) : (
+  <section class="bg-background" aria-label="No press items yet">
+    <div class="mx-auto max-w-content px-m py-section-lg">
+      <div class="rounded-md border border-border bg-muted p-section-md text-center">
+        <p class="font-display text-h3 text-foreground">Press features are on the way.</p>
+        <p class="mt-s text-foreground/80 max-w-prose mx-auto">
+          Coverage from print and online publications will appear here as it's published.
+          In the meantime, take a look at
+          <a href="/portfolio" class="text-link underline underline-offset-2 hover:text-primary"> the portfolio</a>
+          or
+          <a href="/contact" class="text-link underline underline-offset-2 hover:text-primary"> start a conversation</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+)}
