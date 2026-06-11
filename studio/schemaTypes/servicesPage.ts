@@ -2,6 +2,7 @@
 // Services list auto-populates from service collection.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { SERVICES_SECTION_TYPES, SERVICES_DEFAULT_ORDER } from './servicesSections';
 
 export const servicesPage = defineType({
   name: 'servicesPage',
@@ -11,6 +12,7 @@ export const servicesPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'list', title: 'Services list' },
     { name: 'builders', title: 'Builders & Realtors' },
@@ -45,6 +47,20 @@ export const servicesPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Drag the built-in section markers to reorder, remove one to
+    // hide it, or add a library block to insert something new. Edit each section's
+    // content in its own tab. Defaults to today's order.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of sections on the Services page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Edit each section\'s content in its own tab.',
+      of: SERVICES_SECTION_TYPES,
+      initialValue: SERVICES_DEFAULT_ORDER,
     }),
 
     defineField({ name: 'heroEyebrow', title: 'Hero eyebrow', type: 'string', group: 'hero', initialValue: 'What We Offer.' }),

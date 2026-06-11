@@ -244,6 +244,7 @@ export async function getServicesPage() {
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
+    ${sectionsProjection('pageBuilder')},
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,

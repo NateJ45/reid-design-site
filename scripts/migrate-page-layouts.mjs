@@ -37,6 +37,10 @@ const LAYOUTS = {
     markerType: 'aboutSectionMarker',
     order: ['hero', 'story', 'philosophy', 'personal', 'press', 'stats', 'finalCta'],
   },
+  servicesPage: {
+    markerType: 'servicesSectionMarker',
+    order: ['hero', 'servicesList', 'builders', 'serviceArea', 'guarantee', 'finalCta'],
+  },
 };
 
 for (const [docId, { markerType, order }] of Object.entries(LAYOUTS)) {

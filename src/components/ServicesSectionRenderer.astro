@@ -1,0 +1,79 @@
+---
+// Foundation, edit with care
+// Renders the Services page from its `pageBuilder` layout array of
+// servicesSectionMarker blocks. Each marker maps to the existing section reading
+// the unchanged servicesPage fields. Inserted general blocks delegate to
+// SectionRenderer. Falls back to the default order when empty.
+import Hero from '@/components/Hero.astro';
+import ServicesList from '@/components/sections/ServicesList.astro';
+import BuildersRealtors from '@/components/sections/BuildersRealtors.astro';
+import ServiceArea from '@/components/sections/ServiceArea.astro';
+import SatisfactionGuarantee from '@/components/sections/SatisfactionGuarantee.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+interface Props {
+  sections?: any[];
+  page: any;
+  siteSettings?: any;
+  visible: any;
+}
+
+const { sections = [], page, siteSettings, visible } = Astro.props as Props;
+
+const DEFAULT_ORDER = ['hero', 'servicesList', 'builders', 'serviceArea', 'guarantee', 'finalCta'].map(
+  (section) => ({ _type: 'servicesSectionMarker', section }),
+);
+
+const list = (sections ?? []).filter((s) => s && s._type);
+const rows = list.length > 0 ? list : DEFAULT_ORDER;
+
+const builders = page?.builderRealtorSection;
+const areaSec = page?.serviceAreaSection;
+const travelFees = page?.travelFees ?? [];
+const hasBuilders = !!(builders && (builders.headline || builders.description));
+const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
+---
+
+{rows.map((s: any, i: number) =>
+  s._type === 'servicesSectionMarker' ? (
+    s.section === 'hero' ? (
+      <Hero
+        eyebrow={page?.heroEyebrow ?? 'What We Offer.'}
+        headline={page?.heroHeadline ?? 'Design Services for Every Space and Stage.'}
+        subhead={page?.heroSubhead ?? ''}
+        backgroundImage={page?.heroImage}
+        headingId="services-hero-heading"
+        size="short"
+        scriptAccent={page?.heroScriptAccent ?? 'reveal'}
+      />
+    ) : s.section === 'servicesList' ? (
+      <ServicesList
+        eyebrow={page?.servicesListEyebrow}
+        headline={page?.servicesListHeadline}
+        subhead={page?.servicesListSubhead}
+        services={page?.services ?? []}
+        hasBuilders={hasBuilders}
+        hasServiceArea={hasServiceArea}
+        visibleEDesign={visible.eDesign}
+      />
+    ) : s.section === 'builders' ? (
+      <BuildersRealtors builders={builders} />
+    ) : s.section === 'serviceArea' ? (
+      <ServiceArea areaSec={areaSec} travelFees={travelFees} />
+    ) : s.section === 'guarantee' ? (
+      <SatisfactionGuarantee text={siteSettings?.satisfactionGuarantee} />
+    ) : s.section === 'finalCta' ? (
+      <FinalCta
+        eyebrow={page?.finalCtaEyebrow}
+        headline={page?.finalCtaHeadline}
+        subhead={page?.finalCtaSubhead}
+        cta={page?.finalCta}
+        scriptAccent={page?.finalCtaScriptAccent}
+        backgroundImage={page?.finalCtaBackgroundImage}
+      />
+    ) : null
+  ) : (
+    <SectionRenderer sections={[s]} idPrefix={`services-extra-${i}`} />
+  ),
+)}

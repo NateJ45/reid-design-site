@@ -28,6 +28,7 @@ import { project } from './project';
 import { pageSectionSchemas } from './sections';
 import { aboutSectionMarker } from './aboutSections';
 import { homeSectionMarker } from './homeSections';
+import { servicesSectionMarker } from './servicesSections';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -49,6 +50,7 @@ export const schemaTypes = [
   ...pageSectionSchemas,
   aboutSectionMarker,
   homeSectionMarker,
+  servicesSectionMarker,
 
   // Singletons
   siteSettings,

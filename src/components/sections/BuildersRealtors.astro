@@ -1,0 +1,67 @@
+---
+// Services "Builders & Realtors" partnerships section, extracted verbatim from
+// services.astro. Self-suppresses with no headline/description. Keeps bg-muted.
+import SectionHeading from '@/components/SectionHeading.astro';
+import PortableText from '@/components/PortableText';
+import CtaLink from '@/components/CtaLink.astro';
+
+interface Props {
+  builders?: any;
+}
+
+const { builders } = Astro.props as Props;
+const show = builders && (builders.headline || builders.description);
+---
+
+{show && (
+  <section id="builders" class="bg-muted scroll-mt-24" aria-labelledby="builders-realtors-heading">
+    <div class="mx-auto max-w-content px-m py-section-lg">
+      <SectionHeading
+        eyebrow={builders.eyebrow ?? 'For Professionals.'}
+        headline={builders.headline ?? 'Builder & Realtor Partnerships.'}
+        headingId="builders-realtors-heading"
+        class="max-w-3xl"
+      />
+
+      {builders.description && (
+        <div class="mt-l max-w-3xl">
+          <PortableText value={builders.description} className="text-foreground/85 text-lg leading-relaxed" />
+        </div>
+      )}
+
+      {(builders.forBuildersText || builders.forRealtorsText || builders.forContractorsText) && (
+        <div class="mt-section-md grid grid-cols-1 md:grid-cols-3 gap-l">
+          {builders.forBuildersText && (
+            <article class="bg-card p-l rounded-md border border-border-soft">
+              <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">For Builders</p>
+              <p class="text-foreground/85 leading-relaxed">{builders.forBuildersText}</p>
+            </article>
+          )}
+          {builders.forRealtorsText && (
+            <article class="bg-card p-l rounded-md border border-border-soft">
+              <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">For Realtors</p>
+              <p class="text-foreground/85 leading-relaxed">{builders.forRealtorsText}</p>
+            </article>
+          )}
+          {builders.forContractorsText && (
+            <article class="bg-card p-l rounded-md border border-border-soft">
+              <p class="text-xs uppercase tracking-widest text-foreground/80 mb-xs">For Contractors</p>
+              <p class="text-foreground/85 leading-relaxed">{builders.forContractorsText}</p>
+            </article>
+          )}
+        </div>
+      )}
+
+      {builders.cta && (
+        <div class="mt-section-md flex justify-center md:justify-start">
+          <CtaLink
+            cta={builders.cta}
+            variant="primary"
+            fallbackHref="/contact"
+            fallbackLabel="Start a Partnership Conversation"
+          />
+        </div>
+      )}
+    </div>
+  </section>
+)}

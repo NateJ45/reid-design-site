@@ -1,0 +1,45 @@
+---
+// Services "Service area + travel fees" section, extracted verbatim from
+// services.astro. Travel fees come from businessInfo (via the page query).
+// Self-suppresses with no headline + no travel fees. Keeps bg-background.
+import SectionHeading from '@/components/SectionHeading.astro';
+
+interface Props {
+  areaSec?: any;
+  travelFees?: any[];
+}
+
+const { areaSec, travelFees = [] } = Astro.props as Props;
+const show = areaSec?.headline || travelFees.length > 0;
+---
+
+{show && (
+  <section id="service-area" class="bg-background scroll-mt-24" aria-labelledby="service-area-heading">
+    <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-2 gap-l md:gap-section-md items-start">
+      <div>
+        <SectionHeading
+          eyebrow={areaSec?.eyebrow ?? 'Service Area.'}
+          headline={areaSec?.headline ?? 'Travel for Out-of-Area Projects.'}
+          headingId="service-area-heading"
+        />
+        {areaSec?.description && (
+          <p class="mt-m text-foreground/85 text-lg leading-relaxed">{areaSec.description}</p>
+        )}
+      </div>
+
+      {travelFees.length > 0 && (
+        <div class="bg-muted p-l rounded-md">
+          <p class="text-xs uppercase tracking-widest text-foreground/80 mb-m">Travel fee tiers</p>
+          <dl class="divide-y divide-border-soft">
+            {travelFees.map((tier: any) => (
+              <div class="flex items-baseline justify-between py-s gap-m">
+                <dt class="text-foreground/85">{tier.distanceLabel}</dt>
+                <dd class="font-mono text-sm font-semibold text-link whitespace-nowrap">{tier.fee}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+    </div>
+  </section>
+)}

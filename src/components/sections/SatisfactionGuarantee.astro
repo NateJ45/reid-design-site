@@ -1,0 +1,18 @@
+---
+// Satisfaction-guarantee band, extracted verbatim from services.astro. Sourced
+// from siteSettings.satisfactionGuarantee. Self-suppresses when blank.
+interface Props {
+  text?: string;
+}
+const { text } = Astro.props as Props;
+---
+
+{text && (
+  <section class="bg-background" aria-label="Satisfaction guarantee">
+    <div class="mx-auto max-w-content px-m py-l">
+      <p class="text-center text-foreground/80 text-sm border border-border-soft rounded-md py-m px-l bg-muted">
+        {text}
+      </p>
+    </div>
+  </section>
+)}
