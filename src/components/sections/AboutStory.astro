@@ -1,0 +1,77 @@
+---
+// About "story" section, extracted verbatim from about.astro so the marker-based
+// page builder can render it in any order. Content still comes from the aboutPage
+// fields (passed in), so nothing migrated. Keeps its original bg-background
+// surface so the default order is pixel-identical. Safe to edit by hand.
+import SectionHeading from '@/components/SectionHeading.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  content?: any;
+  photo?: any;
+  attribution?: string;
+  backgroundLine?: string;
+  serviceAreaMention?: string;
+  headingId?: string;
+}
+
+const {
+  eyebrow = 'My Story.',
+  headline = 'Why I Started Reid Design.',
+  content,
+  photo,
+  attribution,
+  backgroundLine,
+  serviceAreaMention,
+  headingId = 'about-story-heading',
+} = Astro.props as Props;
+---
+
+<section class="bg-background" aria-labelledby={headingId}>
+  <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-l md:gap-section-md items-start">
+    <div class="md:sticky md:top-section-lg">
+      {photo?.asset ? (
+        <SanityImage
+          source={photo}
+          width={900}
+          sizes="(min-width: 768px) 40vw, 100vw"
+          quality={75}
+          class="w-full h-auto rounded-md"
+        />
+      ) : (
+        <div class="aspect-[4/5] bg-muted rounded-md" aria-hidden="true"></div>
+      )}
+      {attribution && (
+        <p class="mt-s text-xs uppercase tracking-widest text-foreground/80">{attribution}</p>
+      )}
+    </div>
+
+    <div>
+      <SectionHeading eyebrow={eyebrow} headline={headline} headingId={headingId} />
+
+      {content && (
+        <PortableText value={content} className="mt-l text-foreground/85 text-lg leading-relaxed" />
+      )}
+
+      {(backgroundLine || serviceAreaMention) && (
+        <div class="mt-section-md pt-l border-t border-border-soft space-y-m text-foreground/80">
+          {backgroundLine && (
+            <p>
+              <span class="block text-xs uppercase tracking-widest text-foreground/80 mb-xs">Background</span>
+              {backgroundLine}
+            </p>
+          )}
+          {serviceAreaMention && (
+            <p>
+              <span class="block text-xs uppercase tracking-widest text-foreground/80 mb-xs">Service area</span>
+              {serviceAreaMention}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</section>

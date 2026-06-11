@@ -26,6 +26,7 @@ import { processPage } from './processPage';
 import { processStep } from './processStep';
 import { project } from './project';
 import { pageSectionSchemas } from './sections';
+import { aboutSectionMarker } from './aboutSections';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -45,6 +46,7 @@ export const schemaTypes = [
   // Page-builder section blocks (objects). Registered before the documents
   // whose pageBuilder arrays reference them.
   ...pageSectionSchemas,
+  aboutSectionMarker,
 
   // Singletons
   siteSettings,

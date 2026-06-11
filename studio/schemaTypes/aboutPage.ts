@@ -1,6 +1,7 @@
 // About page singleton. Philosophy values auto-populate from philosophyPoint collection.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { ABOUT_SECTION_TYPES, ABOUT_DEFAULT_ORDER } from './aboutSections';
 
 export const aboutPage = defineType({
   name: 'aboutPage',
@@ -10,6 +11,7 @@ export const aboutPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'story', title: 'Story' },
     { name: 'philosophy', title: 'Philosophy' },
@@ -45,6 +47,21 @@ export const aboutPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Each "Built-in section" marker is one of the About page's
+    // standard sections; drag to reorder, remove one to hide it, or add a block
+    // from the library to drop in something new. Edit each built-in section's
+    // words and photos in its own tab. Defaults to today's order.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of sections on the About page. Drag to reorder. Remove a built-in section to hide it. Add a block to insert something new between sections. Edit each built-in section\'s content in its own tab above.',
+      of: ABOUT_SECTION_TYPES,
+      initialValue: ABOUT_DEFAULT_ORDER,
     }),
 
     defineField({ name: 'heroEyebrow', title: 'Hero eyebrow', type: 'string', group: 'hero', initialValue: 'The Designer.' }),

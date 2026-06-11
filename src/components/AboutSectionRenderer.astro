@@ -1,0 +1,99 @@
+---
+// Foundation, edit with care
+// Renders the About page from its `pageBuilder` layout array. Each
+// `aboutSectionMarker` maps to the existing About section component, reading the
+// unchanged aboutPage fields (so no content migration). Any general library
+// block inserted between sections is delegated to the main SectionRenderer, so
+// the block-to-component mapping isn't duplicated. Falls back to the default
+// section order when the layout array is empty (pre-migration safety).
+import Hero from '@/components/Hero.astro';
+import AboutStory from '@/components/sections/AboutStory.astro';
+import AboutPhilosophy from '@/components/sections/AboutPhilosophy.astro';
+import AboutPersonal from '@/components/AboutPersonal.astro';
+import PressStrip from '@/components/PressStrip.astro';
+import StatsRow from '@/components/StatsRow.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+interface Props {
+  sections?: any[];
+  page: any;
+  philosophyPoints?: any[];
+  pressItems?: any[];
+  visiblePress?: boolean;
+}
+
+const { sections = [], page, philosophyPoints = [], pressItems = [], visiblePress = true } =
+  Astro.props as Props;
+
+// Default order, matching the current About page. Used when the layout array
+// hasn't been set on the doc yet.
+const DEFAULT_ORDER = ['hero', 'story', 'philosophy', 'personal', 'press', 'stats', 'finalCta'].map(
+  (section) => ({ _type: 'aboutSectionMarker', section }),
+);
+
+const list = (sections ?? []).filter((s) => s && s._type);
+const rows = list.length > 0 ? list : DEFAULT_ORDER;
+
+const stats = (page?.stats ?? [])
+  .filter((s: any) => typeof s?.number === 'number' && typeof s?.label === 'string')
+  .map(({ number, suffix, label }: any) => ({ number, suffix, label }));
+---
+
+{rows.map((s: any, i: number) =>
+  s._type === 'aboutSectionMarker' ? (
+    s.section === 'hero' ? (
+      <Hero
+        eyebrow={page?.heroEyebrow ?? 'The Designer.'}
+        headline={page?.heroHeadline ?? 'People Hire People.'}
+        subhead={page?.heroSubhead ?? "Here's who you'd be working with."}
+        backgroundImage={page?.heroImage}
+        headingId="about-hero-heading"
+        size="short"
+        scriptAccent={page?.heroScriptAccent}
+      />
+    ) : s.section === 'story' ? (
+      <AboutStory
+        eyebrow={page?.storyEyebrow}
+        headline={page?.storyHeadline}
+        content={page?.storyContent}
+        photo={page?.staciPhoto}
+        attribution={page?.staciAttribution}
+        backgroundLine={page?.backgroundLine}
+        serviceAreaMention={page?.serviceAreaMention}
+      />
+    ) : s.section === 'philosophy' ? (
+      <AboutPhilosophy
+        eyebrow={page?.philosophyEyebrow}
+        headline={page?.philosophyHeadline}
+        points={philosophyPoints}
+      />
+    ) : s.section === 'personal' ? (
+      <AboutPersonal
+        eyebrow={page?.personalEyebrow}
+        headline={page?.personalHeadline}
+        intro={page?.personalIntro}
+        currentlyList={page?.currentlyList}
+        rapidFire={page?.rapidFire}
+        localSpots={page?.localSpots}
+        beyondDesign={page?.beyondDesign}
+        candidPhoto={page?.candidPhoto}
+      />
+    ) : s.section === 'press' ? (
+      visiblePress && pressItems.length > 0 ? <PressStrip items={pressItems} /> : null
+    ) : s.section === 'stats' ? (
+      <StatsRow stats={stats} />
+    ) : s.section === 'finalCta' ? (
+      <FinalCta
+        eyebrow={page?.finalCtaEyebrow}
+        headline={page?.finalCtaHeadline}
+        subhead={page?.finalCtaSubhead}
+        cta={page?.finalCta}
+        scriptAccent={page?.finalCtaScriptAccent}
+        backgroundImage={page?.finalCtaBackgroundImage}
+      />
+    ) : null
+  ) : (
+    <SectionRenderer sections={[s]} idPrefix={`about-extra-${i}`} />
+  ),
+)}

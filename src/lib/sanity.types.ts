@@ -1093,6 +1093,18 @@ export type SiteSettings = {
   satisfactionGuarantee?: string;
 };
 
+export type AboutSectionMarker = {
+  _type: "aboutSectionMarker";
+  section?:
+    | "hero"
+    | "story"
+    | "philosophy"
+    | "personal"
+    | "press"
+    | "stats"
+    | "finalCta";
+};
+
 export type SpacerSection = {
   _type: "spacerSection";
   variant?: "ornament" | "line" | "space";
@@ -1708,6 +1720,38 @@ export type AboutPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & AboutSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -2217,6 +2261,7 @@ export type AllSanitySchemaTypes =
   | PortfolioPage
   | BusinessInfo
   | SiteSettings
+  | AboutSectionMarker
   | SpacerSection
   | VideoSection
   | CtaBandSection
