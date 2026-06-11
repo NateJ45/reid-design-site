@@ -109,7 +109,7 @@ You can see, edit, or cancel scheduled items by going back to that document befo
 
 ### Field comments
 
-Sanity Studio includes a built-in Comments feature (the speech-bubble icon that appears next to field labels when you hover). This is available by default in Sanity v5 and requires no plugin or config flag to enable.
+Sanity Studio includes a built-in Comments feature (the speech-bubble icon that appears next to field labels when you hover). This is available by default in Sanity v6 and requires no plugin or config flag to enable.
 
 **How Staci can use it:**
 

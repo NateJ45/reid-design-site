@@ -336,6 +336,8 @@ export type BudgetCalculator = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
   seoImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -396,6 +398,8 @@ export type StyleQuiz = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
   seoImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -595,6 +599,38 @@ export type PressPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & PressSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -658,6 +694,35 @@ export type PrivacyPage = {
     _type: "block";
     _key: string;
   }>;
+  additionalSections?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
 };
 
 export type ResourcesPage = {
@@ -676,6 +741,38 @@ export type ResourcesPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & ResourcesSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -722,6 +819,38 @@ export type GiftPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & GiftSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -814,6 +943,38 @@ export type EDesignPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & EDesignSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1013,6 +1174,35 @@ export type PortfolioPage = {
   beforeAfterEyebrow?: string;
   beforeAfterHeadline?: string;
   beforeAfterSubhead?: string;
+  additionalSections?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
 };
 
 export type BusinessInfo = {
@@ -1091,6 +1281,57 @@ export type SiteSettings = {
     showBudgetCalculator?: boolean;
   };
   satisfactionGuarantee?: string;
+};
+
+export type EDesignSectionMarker = {
+  _type: "eDesignSectionMarker";
+  section?: "intro" | "howItWorks" | "whatsIncluded" | "tiers" | "faq";
+};
+
+export type GiftSectionMarker = {
+  _type: "giftSectionMarker";
+  section?: "intro" | "options" | "howItWorks" | "finePrint";
+};
+
+export type PressSectionMarker = {
+  _type: "pressSectionMarker";
+  section?: "hero" | "pressStrip" | "intro" | "list";
+};
+
+export type ResourcesSectionMarker = {
+  _type: "resourcesSectionMarker";
+  section?: "hero" | "intro" | "cards";
+};
+
+export type ProcessSectionMarker = {
+  _type: "processSectionMarker";
+  section?: "hero" | "steps" | "faq" | "finalCta";
+};
+
+export type ServicesSectionMarker = {
+  _type: "servicesSectionMarker";
+  section?:
+    | "hero"
+    | "servicesList"
+    | "builders"
+    | "serviceArea"
+    | "guarantee"
+    | "finalCta";
+};
+
+export type HomeSectionMarker = {
+  _type: "homeSectionMarker";
+  section?:
+    | "hero"
+    | "meetStaci"
+    | "featuredWork"
+    | "testimonials"
+    | "processPreview"
+    | "services"
+    | "featuredJournal"
+    | "press"
+    | "serviceAreaCue"
+    | "finalCta";
 };
 
 export type AboutSectionMarker = {
@@ -1475,6 +1716,35 @@ export type JournalPage = {
     crop?: SanityImageCrop;
     _type: "image";
   };
+  additionalSections?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
 };
 
 export type ContactPage = {
@@ -1538,6 +1808,35 @@ export type ContactPage = {
   schedulingLinkLabel?: string;
   availabilityNote?: string;
   note?: string;
+  additionalSections?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
 };
 
 export type FaqPage = {
@@ -1583,6 +1882,35 @@ export type FaqPage = {
   };
   secondaryCta?: CtaBlock;
   note?: string;
+  additionalSections?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
 };
 
 export type ServicesPage = {
@@ -1601,6 +1929,38 @@ export type ServicesPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & ServicesSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1675,6 +2035,38 @@ export type ProcessPage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & ProcessSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1867,6 +2259,38 @@ export type HomePage = {
     alt?: string;
     _type: "image";
   };
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & HomeSectionMarker)
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -2066,7 +2490,7 @@ export type Project = {
           _type: "span";
           _key: string;
         }>;
-        style?: "normal" | "h3" | "blockquote";
+        style?: "normal" | "h2" | "h3" | "blockquote";
         listItem?: "bullet" | "number";
         markDefs?: Array<
           | {
@@ -2261,6 +2685,13 @@ export type AllSanitySchemaTypes =
   | PortfolioPage
   | BusinessInfo
   | SiteSettings
+  | EDesignSectionMarker
+  | GiftSectionMarker
+  | PressSectionMarker
+  | ResourcesSectionMarker
+  | ProcessSectionMarker
+  | ServicesSectionMarker
+  | HomeSectionMarker
   | AboutSectionMarker
   | SpacerSection
   | VideoSection

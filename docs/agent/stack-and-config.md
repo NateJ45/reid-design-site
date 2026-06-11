@@ -7,7 +7,7 @@
 Pinned versions reflect what's known to work together as of May 2026. Bump deliberately, not casually.
 
 - Astro 6.3.x with TypeScript in strict mode and `output: 'static'`. Requires Node 22.12+.
-- **Sanity v5** as the headless CMS. Schemas in `studio/schemaTypes/`, written with `defineType`/`defineField`/`defineArrayMember` from `'sanity'`. Sanity TypeGen generates TypeScript types from the schemas (`npm run typegen`). All editable content lives in Sanity (services, testimonials, FAQs, projects, page singletons). Studio deployed alongside the site at `studio.reiddesignllc.com` or hosted on Sanity's free hosting.
+- **Sanity v6** as the headless CMS (upgraded from v5 on 2026-06-11; `@sanity/vision` moved to v6 and `@sanity/orderable-document-list` to v2 in the same bump, all third-party plugins already declared v6 peer support). Schemas in `studio/schemaTypes/`, written with `defineType`/`defineField`/`defineArrayMember` from `'sanity'`. Sanity TypeGen generates TypeScript types from the schemas (`npm run typegen`). All editable content lives in Sanity (services, testimonials, FAQs, projects, page singletons). Studio deployed alongside the site at `studio.reiddesignllc.com` or hosted on Sanity's free hosting.
 - Tailwind 4 via `@tailwindcss/vite`. Brand tokens declared in `@theme` blocks inside `src/styles/globals.css`. There is no `tailwind.config.mjs` file.
 - React 19 islands for anything interactive (mobile nav drawer, contact form, lightbox, theme toggle, back-to-top, before/after slider for case studies, filter chips). Astro components for everything static.
 - shadcn/ui primitives in `src/components/ui/` (Nova preset, Radix base). Extend Button with project-specific marketing variants only when the standard variants don't carry the brand.
