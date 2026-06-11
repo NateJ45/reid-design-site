@@ -20,6 +20,34 @@ const CTA_PROJECTION = `{
   internalLink->{ _type, "slug": slug.current }
 }`;
 
+// Page-builder array projection. Spreads each block, then resolves the images
+// and ctaBlocks inside the block types that have them, so SectionRenderer gets
+// ready-to-use data. Block types without images/ctas (text, quote, stats,
+// video, spacer) pass through on the leading `...`.
+const PAGE_BUILDER_PROJECTION = `pageBuilder[]{
+  ...,
+  _type == "heroSection" => {
+    ...,
+    backgroundImage${IMAGE_PROJECTION},
+    primaryCta${CTA_PROJECTION},
+    secondaryCta${CTA_PROJECTION}
+  },
+  _type == "ctaBandSection" => {
+    ...,
+    backgroundImage${IMAGE_PROJECTION},
+    cta${CTA_PROJECTION}
+  },
+  _type == "imageTextSection" => {
+    ...,
+    image${IMAGE_PROJECTION},
+    cta${CTA_PROJECTION}
+  },
+  _type == "gallerySection" => {
+    ...,
+    images[]${IMAGE_PROJECTION}
+  }
+}`;
+
 // ---- Site settings (used in BaseLayout / Header / Footer) -----------------
 
 export async function getSiteSettings() {
@@ -687,4 +715,41 @@ export async function getProjectsWithBeforeAfter() {
         caption
       }
     }`);
+}
+
+// ---- Custom pages (page builder) ------------------------------------------
+
+// One published custom page by slug, with its section array fully resolved.
+export async function getPage(slug: string) {
+  return client.fetch(
+    `*[_type == "page" && slug.current == $slug][0]{
+      title,
+      "slug": slug.current,
+      seoTitle, seoDescription,
+      seoImage${IMAGE_PROJECTION},
+      ${PAGE_BUILDER_PROJECTION}
+    }`,
+    { slug },
+  );
+}
+
+// Slugs of every published custom page, for getStaticPaths in [...slug].astro.
+export async function getAllPageSlugs(): Promise<string[]> {
+  const list: Array<{ slug: string }> = await client.fetch(
+    `*[_type == "page" && defined(slug.current)]{ "slug": slug.current }`,
+  );
+  return list.map((p) => p.slug).filter(Boolean);
+}
+
+// Custom pages flagged to appear in the main nav and/or footer. Header.astro
+// and Footer.astro inject these alongside the built-in links.
+export async function getNavPages() {
+  return client.fetch(`*[_type == "page" && defined(slug.current) && (addToMainNav == true || addToFooter == true)]{
+    title,
+    "slug": slug.current,
+    navLabel,
+    addToMainNav,
+    navGroup,
+    addToFooter
+  }`);
 }

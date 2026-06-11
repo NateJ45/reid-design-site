@@ -1,0 +1,101 @@
+---
+// Foundation, edit with care
+// Renders a page-builder section array. Maps each block _type to its component
+// and OWNS the alternating background cadence for content blocks, so reordering
+// can never break the page rhythm (that is why blocks have no color field).
+// Self-contained blocks (hero, CTA band, stats, spacer) manage their own surface.
+//
+// Used by custom pages (src/pages/[...slug].astro) and, after the retrofit, by
+// the core pages. The GROQ query that loads `sections` must project images with
+// the image projection and ctaBlocks with the CTA projection (see queries.ts
+// PAGE_BUILDER_PROJECTION).
+import Hero from '@/components/Hero.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import StatsRow from '@/components/StatsRow.astro';
+import SectionDivider from '@/components/SectionDivider.astro';
+import RichTextSection from '@/components/sections/RichTextSection.astro';
+import ImageText from '@/components/sections/ImageText.astro';
+import GalleryGrid from '@/components/sections/GalleryGrid.astro';
+import QuoteBlock from '@/components/sections/QuoteBlock.astro';
+import VideoEmbed from '@/components/sections/VideoEmbed.astro';
+
+interface Props {
+  sections?: any[];
+  /** Prefix for generated heading ids, so two renderers on a page don't collide. */
+  idPrefix?: string;
+}
+
+const { sections = [], idPrefix = 'section' } = Astro.props as Props;
+
+// Content blocks take an alternating surface (background / muted) from the
+// renderer. Everything else owns its own surface.
+const CONTENT_TYPES = new Set([
+  'richTextSection',
+  'imageTextSection',
+  'gallerySection',
+  'quoteSection',
+  'videoSection',
+]);
+
+const list = (sections ?? []).filter((s) => s && s._type);
+
+// If the page opens with a text hero (no background image, so it renders on the
+// light bg-background surface), start the content cadence on muted so the first
+// section contrasts instead of blending into the hero. An image hero is dark,
+// so a light first section already contrasts.
+const first = list[0];
+const opensWithTextHero = first?._type === 'heroSection' && !first?.backgroundImage?.asset;
+let contentIdx = opensWithTextHero ? 1 : 0;
+const rows = list.map((s, i) => {
+  let surface: 'background' | 'muted' | null = null;
+  if (CONTENT_TYPES.has(s._type)) {
+    surface = contentIdx % 2 === 0 ? 'background' : 'muted';
+    contentIdx += 1;
+  }
+  return { s, surface, headingId: `${idPrefix}-${i}` };
+});
+---
+
+{rows.map(({ s, surface, headingId }) =>
+  s._type === 'heroSection' ? (
+    <Hero
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      backgroundImage={s.backgroundImage}
+      primaryCta={s.primaryCta}
+      secondaryCta={s.secondaryCta}
+      scriptAccent={s.scriptAccent}
+      size={s.size ?? 'short'}
+      headingId={headingId}
+    />
+  ) : s._type === 'ctaBandSection' ? (
+    <FinalCta
+      eyebrow={s.eyebrow}
+      headline={s.headline}
+      subhead={s.subhead}
+      cta={s.cta}
+      scriptAccent={s.scriptAccent}
+      backgroundImage={s.backgroundImage}
+      headingId={headingId}
+    />
+  ) : s._type === 'statSection' ? (
+    <StatsRow stats={(s.stats ?? []).filter((x: any) => typeof x?.number === 'number')} />
+  ) : s._type === 'spacerSection' ? (
+    s.variant === 'space' ? (
+      <div class="py-section-md" aria-hidden="true"></div>
+    ) : (
+      <SectionDivider variant={s.variant === 'line' ? 'line' : 'ornament'} />
+    )
+  ) : s._type === 'richTextSection' ? (
+    <RichTextSection {...s} surface={surface} headingId={headingId} />
+  ) : s._type === 'imageTextSection' ? (
+    <ImageText {...s} surface={surface} headingId={headingId} />
+  ) : s._type === 'gallerySection' ? (
+    <GalleryGrid {...s} surface={surface} headingId={headingId} />
+  ) : s._type === 'quoteSection' ? (
+    <QuoteBlock {...s} surface={surface} />
+  ) : s._type === 'videoSection' ? (
+    <VideoEmbed {...s} surface={surface} headingId={headingId} />
+  ) : null,
+)}

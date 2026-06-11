@@ -1,0 +1,46 @@
+---
+// Custom pages Staci builds in the page builder. Generates one static page per
+// published `page` document at /<slug>. Built-in routes (about.astro, etc.) are
+// explicit files and take precedence; the schema blocks reserved slugs, and the
+// filter below is a second guard so a custom page can never shadow a real route.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import { getPage, getAllPageSlugs, getSiteSettings } from '@/lib/queries';
+import { breadcrumbSchema } from '@/lib/schemas';
+import { site } from '@/data/site';
+
+export async function getStaticPaths() {
+  // Defined inside getStaticPaths: Astro runs this function in an isolated
+  // scope that cannot see component-level consts. Mirrors the page schema's
+  // reserved list so a custom page can never shadow a built-in route.
+  const RESERVED = new Set([
+    'about', 'services', 'process', 'portfolio', 'faq', 'contact', 'journal',
+    'e-design', 'shop', 'gift-certificates', 'quiz', 'calculator', 'resources',
+    'guides', 'press', 'privacy', '404', 'sitemap-index.xml',
+  ]);
+  const slugs = await getAllPageSlugs().catch(() => []);
+  return slugs.filter((slug) => !RESERVED.has(slug)).map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const [pageDoc, siteSettings] = await Promise.all([
+  getPage(slug as string).catch(() => null),
+  getSiteSettings().catch(() => null),
+]);
+
+if (!pageDoc) return Astro.redirect('/404');
+
+const title = pageDoc.seoTitle ?? pageDoc.title ?? 'Reid Design';
+const description = pageDoc.seoDescription ?? '';
+
+const schemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: site.url },
+    { name: pageDoc.title ?? 'Page', url: `${site.url}/${pageDoc.slug}` },
+  ]),
+];
+---
+
+<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={pageDoc.seoImage}>
+  <SectionRenderer sections={pageDoc.pageBuilder} idPrefix="page" />
+</BaseLayout>

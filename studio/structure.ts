@@ -47,6 +47,7 @@ import {
   SearchIcon,
   LockIcon,
   CaseIcon,
+  DocumentsIcon,
   PresentationIcon,
   ThumbsUpIcon,
   ColorWheelIcon,
@@ -103,6 +104,7 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'faqItem',
   'journalEntry',
   'journalCategory',
+  'page', // custom pages, placed explicitly under "Pages"
   // sanity-plugin-media registers this tag type; keep it out of the desk root
   // (the "Media" tool in the top sidebar is where tags belong).
   'media.tag',
@@ -254,6 +256,13 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               // Other
               singletonWithPreview(S, 'pressPage', 'Press Page', CaseIcon),
               singletonWithPreview(S, 'privacyPage', 'Privacy Policy Page', LockIcon),
+
+              S.divider(),
+
+              // Custom pages — Staci builds these herself from the section
+              // library. Multi-instance (not a singleton), so it is a normal
+              // document list she can add to.
+              S.documentTypeListItem('page').title('Custom pages (you build these)').icon(DocumentsIcon),
             ]),
         ),
 
