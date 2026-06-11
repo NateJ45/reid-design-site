@@ -1,0 +1,41 @@
+---
+// Process FAQ block, extracted verbatim from process.astro for the marker-based
+// page builder. Shows faqItems flagged alsoShowOnProcessPage (passed in).
+// Self-suppresses with no FAQs. Keeps bg-muted. Safe to edit by hand.
+import SectionHeading from '@/components/SectionHeading.astro';
+import FaqAccordion from '@/components/FaqAccordion';
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  faqs?: any[];
+}
+
+const {
+  eyebrow = 'Common Questions.',
+  headline = 'Things People Ask Before We Start.',
+  faqs = [],
+} = Astro.props as Props;
+---
+
+{faqs.length > 0 && (
+  <section class="bg-muted" aria-labelledby="process-faq-heading">
+    <div class="mx-auto max-w-content px-m py-section-lg">
+      <SectionHeading
+        eyebrow={eyebrow}
+        headline={headline}
+        headingId="process-faq-heading"
+        align="center"
+        class="mx-auto"
+      />
+
+      <div class="mt-section-lg max-w-3xl mx-auto">
+        <FaqAccordion client:visible faqs={faqs} idPrefix="process-faq" />
+      </div>
+
+      <p class="mt-l text-center text-sm text-muted-foreground">
+        More questions? <a href="/faq" class="text-link underline underline-offset-2 hover:text-primary-dark">See the full FAQ</a>.
+      </p>
+    </div>
+  </section>
+)}

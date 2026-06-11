@@ -1,0 +1,22 @@
+---
+// Process "steps" section, extracted verbatim from process.astro for the
+// marker-based page builder. Steps from the processStep collection (passed in).
+// Keeps bg-background. Safe to edit by hand.
+import ProcessStep from '@/components/ProcessStep.astro';
+
+interface Props {
+  processSteps?: any[];
+}
+
+const { processSteps = [] } = Astro.props as Props;
+---
+
+<section class="bg-background" aria-label="Our process step by step">
+  <div class="mx-auto max-w-content px-m py-section-lg space-y-section-lg">
+    {processSteps.map((step: any, i: number) => (
+      <div class={i > 0 ? 'pt-section-lg border-t border-border-soft' : ''}>
+        <ProcessStep step={step} variant="full" isLast={i === processSteps.length - 1} />
+      </div>
+    ))}
+  </div>
+</section>

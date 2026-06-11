@@ -1,6 +1,7 @@
 // Process page singleton. Steps and process-relevant FAQs auto-populate.
 
 import { defineType, defineField } from 'sanity';
+import { PROCESS_SECTION_TYPES, PROCESS_DEFAULT_ORDER } from './processSections';
 
 export const processPage = defineType({
   name: 'processPage',
@@ -10,6 +11,7 @@ export const processPage = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'faqSection', title: 'FAQ block' },
     { name: 'final', title: 'Final CTA' },
@@ -42,6 +44,19 @@ export const processPage = defineType({
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
       ],
+    }),
+
+    // Layout & order. Drag the built-in section markers to reorder, remove one to
+    // hide it, or add a library block. Edit each section's content in its own tab.
+    defineField({
+      name: 'pageBuilder',
+      title: 'Page layout',
+      type: 'array',
+      group: 'layout',
+      description:
+        'The order of sections on the Process page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Edit each section\'s content in its own tab.',
+      of: PROCESS_SECTION_TYPES,
+      initialValue: PROCESS_DEFAULT_ORDER,
     }),
 
     defineField({ name: 'heroEyebrow', title: 'Hero eyebrow', type: 'string', group: 'hero', initialValue: 'The Process.' }),

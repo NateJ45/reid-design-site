@@ -1,0 +1,62 @@
+---
+// Foundation, edit with care
+// Renders the Process page from its `pageBuilder` layout array of
+// processSectionMarker blocks. Each marker maps to the existing section reading
+// the unchanged processPage fields + collections. Inserted general blocks
+// delegate to SectionRenderer. Falls back to the default order when empty.
+import Hero from '@/components/Hero.astro';
+import ProcessSteps from '@/components/sections/ProcessSteps.astro';
+import ProcessFaq from '@/components/sections/ProcessFaq.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+interface Props {
+  sections?: any[];
+  page: any;
+}
+
+const { sections = [], page } = Astro.props as Props;
+
+const DEFAULT_ORDER = ['hero', 'steps', 'faq', 'finalCta'].map((section) => ({
+  _type: 'processSectionMarker',
+  section,
+}));
+
+const list = (sections ?? []).filter((s) => s && s._type);
+const rows = list.length > 0 ? list : DEFAULT_ORDER;
+---
+
+{rows.map((s: any, i: number) =>
+  s._type === 'processSectionMarker' ? (
+    s.section === 'hero' ? (
+      <Hero
+        eyebrow={page?.heroEyebrow ?? 'The Process.'}
+        headline={page?.heroHeadline ?? 'From First Call to Final Reveal.'}
+        subhead={page?.heroSubhead ?? ''}
+        backgroundImage={page?.heroImage}
+        headingId="process-hero-heading"
+        size="short"
+        scriptAccent={page?.heroScriptAccent}
+      />
+    ) : s.section === 'steps' ? (
+      <ProcessSteps processSteps={page?.processSteps ?? []} />
+    ) : s.section === 'faq' ? (
+      <ProcessFaq
+        eyebrow={page?.faqSectionEyebrow}
+        headline={page?.faqSectionHeadline}
+        faqs={page?.faqs ?? []}
+      />
+    ) : s.section === 'finalCta' ? (
+      <FinalCta
+        eyebrow={page?.finalCtaEyebrow}
+        headline={page?.finalCtaHeadline}
+        subhead={page?.finalCtaSubhead}
+        cta={page?.finalCta}
+        scriptAccent={page?.finalCtaScriptAccent}
+        backgroundImage={page?.finalCtaBackgroundImage}
+      />
+    ) : null
+  ) : (
+    <SectionRenderer sections={[s]} idPrefix={`process-extra-${i}`} />
+  ),
+)}
