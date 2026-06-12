@@ -127,6 +127,8 @@ Standalone scripts:
 - `scripts/seed-about-personal.mjs` — idempotent seeder for the About personal section. Seeds placeholder text into `aboutPage.personal*` fields only when `personalHeadline` has not been customized. Safe to re-run.
 - `scripts/seed-studio-guide.mjs` — idempotent seeder (`createOrReplace`) for the `studioGuide` and `studioNotes` singletons. Seeds both from the previously hardcoded content in the Studio components. Run once on a fresh dataset, or after adding a new how-to/tip to the seed file.
 - `scripts/seed-studio-playbook.mjs` — idempotent seeder (`createOrReplace`) for the `studioPlaybook` singleton (the "Grow your studio" panel: five professional-development guides — photography, portfolio and journal writing, software toolkit, e-design, trade sourcing). Re-run after editing the guide content in the seed file.
+- `src/components/starwind/` — Astro-native Starwind UI component set (accordion, tabs, dialog, dropdown); add more via `npx starwind@latest add <name>`
+- `src/components/primereact/` — PrimeReact unstyled escape hatch; use only for complex behavior-heavy widgets (DataTable, TreeSelect) that shadcn/Radix does not cover
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
 - `public/_headers` (security response headers shipped with the deploy)
 - `public/og-default.png` (regenerate via `npm run og`)
@@ -245,6 +247,7 @@ Read these on demand. They are NOT auto-loaded, and they are referenced as plain
 | Pre-launch setup checklist | `docs/agent/setup-checklist.md` |
 | Editor-driven vs hardcoded | `docs/agent/editor-vs-hardcoded.md` |
 | Change history | `docs/agent/changelog.md` |
+| Component sourcing (shadcn, Starwind, Magic UI, PrimeReact, copy-paste sources, token-remap cheat sheet) | `docs/agent/component-sources.md` |
 
 ---
 

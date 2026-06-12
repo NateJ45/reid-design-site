@@ -250,6 +250,23 @@
     --sidebar-accent-foreground: #3D3D3D;
     --sidebar-border: #E8E4E0;
     --sidebar-ring: #9C7661;
+
+    /* Starwind UI extra semantic tokens — not in shadcn's default set.
+       Values harmonized to the Reid warm bronze/cream palette.
+       --primary-accent/-secondary-accent are lightness-shifted from --primary/#9C7661.
+       Info/success/warning/error use standard semantic hues tinted warm so they
+       sit comfortably beside Warm Bronze without clashing. --outline matches --ring. */
+    --primary-accent: #7A5D4C;        /* Bronze Dark — hover/active shade of --primary */
+    --secondary-accent: #3D3D3D;      /* Charcoal — active/pressed secondary */
+    --info: #93C5FD;                  /* soft blue, neutral enough beside warm bronze */
+    --info-foreground: #1E3A5F;       /* deep blue for text on info surfaces */
+    --success: #86EFAC;               /* soft green */
+    --success-foreground: #14532D;    /* deep green for text on success surfaces */
+    --warning: #FDE68A;               /* soft amber */
+    --warning-foreground: #713F12;    /* deep amber for text on warning surfaces */
+    --error: oklch(0.577 0.245 27.325); /* matches --destructive */
+    --error-foreground: #FFFFFF;
+    --outline: #9C7661;               /* matches --ring (Warm Bronze) */
 }
 
 /* ---------- Dark mode --------------------------------------------------
@@ -296,6 +313,19 @@
     --sidebar-accent-foreground: #F5F0EB;
     --sidebar-border: oklch(1 0 0 / 12%);
     --sidebar-ring: #B89274;
+
+    /* Starwind UI extra semantic tokens — dark mode variants. */
+    --primary-accent: #B89274;        /* lifted Bronze — hover/active shade on dark surfaces */
+    --secondary-accent: #F5F0EB;      /* Cream — active/pressed secondary on dark surfaces */
+    --info: #93C5FD;                  /* same soft blue reads well on dark warm surfaces */
+    --info-foreground: #1E3A5F;
+    --success: #86EFAC;
+    --success-foreground: #14532D;
+    --warning: #FDE68A;
+    --warning-foreground: #713F12;
+    --error: oklch(0.704 0.191 22.216); /* matches dark --destructive */
+    --error-foreground: #FFFFFF;
+    --outline: #B89274;               /* matches dark --ring (lifted Bronze) */
 }
 
 /* ---------- Base resets and defaults ---------------------------------- */
