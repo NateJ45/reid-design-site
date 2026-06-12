@@ -54,8 +54,17 @@ function sectionsProjection(field = 'pageBuilder') {
 
 // ---- Site settings (used in BaseLayout / Header / Footer) -----------------
 
+// Module-level memoized promise. The first call fires the GROQ query and
+// stores the in-flight promise; every subsequent call within the same build
+// process reuses it. This collapses the ~20 per-page getSiteSettings() calls
+// that happen during `astro build` into a single Sanity request, including
+// the double-calls in journal/[slug].astro and guides/[slug].astro where both
+// getStaticPaths and the render phase each call getSiteSettings().
+let _siteSettingsPromise: Promise<any> | null = null;
+
 export async function getSiteSettings() {
-  return client.fetch(`*[_type == "siteSettings"][0]{
+  if (_siteSettingsPromise) return _siteSettingsPromise;
+  _siteSettingsPromise = client.fetch(`*[_type == "siteSettings"][0]{
     title,
     tagline,
     primaryCtaLabel,
@@ -96,6 +105,7 @@ export async function getSiteSettings() {
       showBudgetCalculator
     }
   }`);
+  return _siteSettingsPromise;
 }
 
 // ---- Business info (service areas, travel, availability, geo) -------------

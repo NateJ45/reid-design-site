@@ -34,6 +34,13 @@ interface Props {
   siteSettings?: any;
   /** When true, emit <meta name="robots" content="noindex, follow">. Used by the 404 page so it never gets indexed. Defaults to false (the page is indexable). */
   noindex?: boolean;
+  /** OG type. Defaults to 'website'. Pass 'article' for journal/blog post detail pages. */
+  ogType?: 'website' | 'article';
+  /** Article-specific OG metadata. Only used when ogType is 'article'. */
+  ogArticle?: {
+    publishedAt?: string;
+    author?: string;
+  };
 }
 
 const {
@@ -44,6 +51,8 @@ const {
   schemas = [],
   siteSettings = null,
   noindex = false,
+  ogType = 'website',
+  ogArticle,
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, site.url).toString();
@@ -109,7 +118,7 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={site.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -130,8 +139,11 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
         would 404. If hero h1 LCP needs faster fonts, switch to font-display: optional
         or generate the preload tag from the built CSS manifest. */}
 
+    {/* RSS autodiscovery — browsers and feed readers surface this automatically. */}
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} Journal`} href="/journal/rss.xml" />
+
     {/* Open Graph */}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
@@ -141,6 +153,13 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={ogImageAlt} />
+    {/* article:* meta — only emitted on journal/blog post detail pages */}
+    {ogType === 'article' && ogArticle?.publishedAt && (
+      <meta property="article:published_time" content={ogArticle.publishedAt} />
+    )}
+    {ogType === 'article' && ogArticle?.author && (
+      <meta property="article:author" content={ogArticle.author} />
+    )}
 
     {/* Twitter */}
     <meta name="twitter:card" content="summary_large_image" />

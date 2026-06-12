@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # PUBLIC_SANITY_PROJECT_ID and PUBLIC_SANITY_DATASET are public identifiers
+    # (they appear in every GROQ request URL and in the committed src/lib/sanity.ts).
+    # They are inlined here so the build can fetch published content without any
+    # secret. No token is needed: the dataset is public and CI only reads.
+    env:
+      PUBLIC_SANITY_PROJECT_ID: ba403vjc
+      PUBLIC_SANITY_DATASET: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install studio dependencies
+        run: npm ci --prefix studio
+
+      - name: Generate Sanity types
+        run: npm run typegen
+
+      - name: Build Astro
+        run: npm run build
+
+      - name: Build Sanity Studio
+        run: npm --prefix studio run build

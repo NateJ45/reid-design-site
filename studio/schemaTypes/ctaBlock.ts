@@ -42,6 +42,9 @@ export const ctaBlock = defineType({
         { type: 'contactPage' },
         { type: 'journalPage' },
         { type: 'journalEntry' },
+        // Custom pages Staci creates via the page builder (/[slug] routes).
+        // Previously missing — editors could not CTA-link to custom pages.
+        { type: 'page' },
       ],
       hidden: ({ parent }) => parent?.linkType !== 'internal',
     }),

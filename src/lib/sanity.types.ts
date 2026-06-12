@@ -106,59 +106,6 @@ export type PressItem = {
   orderRank?: string;
 };
 
-export type Page = {
-  _id: string;
-  _type: "page";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  pageBuilder?: Array<
-    | ({
-        _key: string;
-      } & HeroSection)
-    | ({
-        _key: string;
-      } & RichTextSection)
-    | ({
-        _key: string;
-      } & ImageTextSection)
-    | ({
-        _key: string;
-      } & GallerySection)
-    | ({
-        _key: string;
-      } & QuoteSection)
-    | ({
-        _key: string;
-      } & StatSection)
-    | ({
-        _key: string;
-      } & CtaBandSection)
-    | ({
-        _key: string;
-      } & VideoSection)
-    | ({
-        _key: string;
-      } & SpacerSection)
-  >;
-  addToMainNav?: boolean;
-  navGroup?: "top" | "services" | "resources";
-  navLabel?: string;
-  addToFooter?: boolean;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-  };
-};
-
 export type JournalCategory = {
   _id: string;
   _type: "journalCategory";
@@ -1094,6 +1041,13 @@ export type JournalEntryReference = {
   [internalGroqTypeReferenceTo]?: "journalEntry";
 };
 
+export type PageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "page";
+};
+
 export type CtaBlock = {
   _type: "ctaBlock";
   label?: string;
@@ -1106,7 +1060,8 @@ export type CtaBlock = {
     | FaqPageReference
     | ContactPageReference
     | JournalPageReference
-    | JournalEntryReference;
+    | JournalEntryReference
+    | PageReference;
   externalUrl?: string;
   emailAddress?: string;
   phoneNumber?: string;
@@ -1491,6 +1446,59 @@ export type HeroSection = {
   primaryCta?: CtaBlock;
   secondaryCta?: CtaBlock;
   size?: "tall" | "short";
+};
+
+export type Page = {
+  _id: string;
+  _type: "page";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  pageBuilder?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+  >;
+  addToMainNav?: boolean;
+  navGroup?: "top" | "services" | "resources";
+  navLabel?: string;
+  addToFooter?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
 };
 
 export type JournalCategoryReference = {
@@ -2653,7 +2661,6 @@ export type AllSanitySchemaTypes =
   | ShopCollection
   | Slug
   | PressItem
-  | Page
   | JournalCategory
   | ServiceReference
   | ProcessStep
@@ -2683,6 +2690,7 @@ export type AllSanitySchemaTypes =
   | ContactPageReference
   | JournalPageReference
   | JournalEntryReference
+  | PageReference
   | CtaBlock
   | NotFoundPage
   | PortfolioPage
@@ -2705,6 +2713,7 @@ export type AllSanitySchemaTypes =
   | ImageTextSection
   | RichTextSection
   | HeroSection
+  | Page
   | JournalCategoryReference
   | ProjectReference
   | JournalEntry

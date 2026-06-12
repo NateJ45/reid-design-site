@@ -52,8 +52,8 @@ const {
 } = Astro.props as Props;
 
 // Map Sanity document _type to its route. Mirrors the routes in src/pages/.
-// Singletons go to a fixed path; journalEntry uses {slug} for the dynamic
-// /journal/[slug] route.
+// Singletons go to a fixed path; journalEntry and page use {slug} for dynamic
+// /journal/[slug] and /[slug] routes respectively.
 const TYPE_TO_PATH: Record<string, string> = {
   homePage: '/',
   aboutPage: '/about',
@@ -73,6 +73,10 @@ function resolveHref(c?: CtaBlock | null): string {
       // Slug-based types need the slug appended. Singletons use a fixed path.
       if (t === 'journalEntry' && c.internalLink?.slug) {
         return `/journal/${c.internalLink.slug}`;
+      }
+      // Custom pages Staci builds via the page builder — routed at /[slug].
+      if (t === 'page' && c.internalLink?.slug) {
+        return `/${c.internalLink.slug}`;
       }
       return TYPE_TO_PATH[t] ?? fallbackHref;
     }

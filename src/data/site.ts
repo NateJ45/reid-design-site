@@ -7,6 +7,7 @@ export const site = {
   studio: "Reid Design LLC",
   domain: "reiddesignllc.com",
   url: "https://reiddesignllc.com",
+  lang: "en",
   storageKeyPrefix: "reid-design",
   themeStorageKey: "reid-design-theme",
 
