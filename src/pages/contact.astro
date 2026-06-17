@@ -30,7 +30,7 @@ const heroHeadline  = page?.heroHeadline  ?? 'Start the Conversation.';
 const heroSubhead   = page?.heroSubhead   ?? '';
 const formIntroNote = page?.formIntroNote ?? '';
 
-const schedulingLink      = page?.schedulingLink;
+const schedulingLink      = page?.schedulingLink ?? import.meta.env.PUBLIC_CALENDLY_URL;
 const schedulingLinkLabel = page?.schedulingLinkLabel ?? 'Schedule a 20-minute discovery call.';
 
 const availability = page?.availabilityNote ?? siteSettings?.availabilityStatus;
