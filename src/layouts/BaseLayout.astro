@@ -188,7 +188,7 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
         function applyTheme() {
           let dark = false;
           try {
-            const stored = localStorage.getItem(key) ?? 'system';
+            const stored = localStorage.getItem(key) ?? 'light';
             dark =
               stored === 'dark' ||
               (stored === 'system' &&

@@ -32,10 +32,10 @@ function applyTheme(theme: Theme) {
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    const stored = (localStorage.getItem(KEY) as Theme | null) ?? 'system';
+    const stored = (localStorage.getItem(KEY) as Theme | null) ?? 'light';
     setTheme(stored);
 
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
