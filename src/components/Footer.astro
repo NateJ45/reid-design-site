@@ -160,14 +160,13 @@ const latestProjects = allProjects.slice(0, 3);
   {/* Newsletter signup — renders only when siteSettings.newsletter.enabled is
        true. Island hydrates when scrolled into view. */}
   {siteSettings?.newsletter?.enabled && (
-    <div class="mx-auto max-w-content px-m pt-l">
-      <div class="max-w-md mx-auto">
-        <NewsletterSignup
-          client:visible
-          newsletter={siteSettings.newsletter}
-          source="footer"
-        />
-      </div>
+    <div class="mx-auto max-w-content px-m pt-l pb-m border-b border-border">
+      <NewsletterSignup
+        client:visible
+        newsletter={siteSettings.newsletter}
+        source="footer"
+        compact
+      />
     </div>
   )}
 

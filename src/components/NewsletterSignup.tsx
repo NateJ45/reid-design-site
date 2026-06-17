@@ -39,13 +39,16 @@ interface Props {
   newsletter: NewsletterConfig;
   /** Human-readable source label for tracking (e.g. "footer", "journal-index"). */
   source?: string;
+  /** When true, renders a compact horizontal layout (heading + blurb left, input + button right).
+   *  Used in the footer so it stretches wide rather than stacking tall. */
+  compact?: boolean;
 }
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 const WEB3FORMS_KEY = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
 
-export default function NewsletterSignup({ newsletter, source = 'newsletter' }: Props) {
+export default function NewsletterSignup({ newsletter, source = 'newsletter', compact = false }: Props) {
   // Guard: render nothing when the feature is disabled or unconfigured.
   if (!newsletter?.enabled) return null;
   if (!newsletter.formActionUrl && !WEB3FORMS_KEY) return null;
@@ -102,13 +105,105 @@ export default function NewsletterSignup({ newsletter, source = 'newsletter' }: 
     }
   }
 
+  const consentJsx = (
+    <p className="mt-s text-xs text-foreground/70 leading-relaxed">
+      {consentNote.includes('privacy policy') ? (
+        <>
+          {consentNote.replace('privacy policy', '').trimEnd()}{' '}
+          <a href="/privacy" className="underline underline-offset-2 hover:text-link transition-colors">
+            privacy policy
+          </a>
+          .
+        </>
+      ) : (
+        consentNote
+      )}
+    </p>
+  );
+
+  const honeypot = (
+    <div
+      aria-hidden="true"
+      style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
+    >
+      <label>
+        Website (leave blank)
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+        />
+      </label>
+    </div>
+  );
+
+  // ── Compact horizontal layout (footer) ──────────────────────────────────────
+  if (compact) {
+    if (status === 'success') {
+      return (
+        <div role="status" aria-live="polite" className="py-m">
+          <p className="font-display text-h4 text-foreground">{successMessage}</p>
+        </div>
+      );
+    }
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-m items-start">
+        {/* Left: heading + blurb */}
+        <div>
+          <h3 className="font-display text-h3 text-foreground">{heading}</h3>
+          {blurb && <p className="mt-xs text-sm text-foreground/80 leading-relaxed">{blurb}</p>}
+        </div>
+
+        {/* Right: inline input + button */}
+        <form onSubmit={onSubmit} noValidate aria-busy={status === 'submitting'}>
+          {honeypot}
+          {errorMsg && (
+            <div role="alert" aria-live="polite" className="mb-s rounded-md border border-destructive bg-destructive/10 p-s text-sm text-foreground">
+              {errorMsg}
+            </div>
+          )}
+          <label htmlFor="newsletter-email" className="block text-sm font-semibold text-foreground mb-1">
+            Email address
+          </label>
+          <div className="flex gap-s">
+            <input
+              ref={emailRef}
+              id="newsletter-email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (errorMsg) setErrorMsg(''); }}
+              aria-invalid={!!errorMsg}
+              aria-describedby={errorMsg ? 'newsletter-email-error' : undefined}
+              placeholder="you@example.com"
+              className="flex-1 min-w-0 px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
+            />
+            <button
+              type="submit"
+              disabled={status === 'submitting'}
+              className="inline-flex items-center justify-center min-h-[44px] px-m py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-xs hover:bg-accent-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors rounded-sm press-tactile whitespace-nowrap"
+            >
+              {status === 'submitting' ? 'Subscribing…' : buttonLabel}
+            </button>
+          </div>
+          {errorMsg && (
+            <p id="newsletter-email-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errorMsg}</p>
+          )}
+          {consentJsx}
+        </form>
+      </div>
+    );
+  }
+
+  // ── Default stacked card layout (journal page, etc.) ────────────────────────
   if (status === 'success') {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="rounded-md border border-primary bg-muted p-l"
-      >
+      <div role="status" aria-live="polite" className="rounded-md border border-primary bg-muted p-l">
         <p className="font-display text-h4 text-foreground">{successMessage}</p>
       </div>
     );
@@ -124,41 +219,13 @@ export default function NewsletterSignup({ newsletter, source = 'newsletter' }: 
         <p className="mt-s text-sm text-foreground/80 leading-relaxed">{blurb}</p>
       )}
 
-      <form
-        onSubmit={onSubmit}
-        noValidate
-        className="mt-m space-y-s"
-        aria-busy={status === 'submitting'}
-      >
-        {/* Honeypot — visually hidden, bots fill it, real users can't see it. */}
-        <div
-          aria-hidden="true"
-          style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
-        >
-          <label>
-            Website (leave blank)
-            <input
-              type="text"
-              name="website"
-              tabIndex={-1}
-              autoComplete="off"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
-          </label>
-        </div>
-
-        {/* Error banner */}
+      <form onSubmit={onSubmit} noValidate className="mt-m space-y-s" aria-busy={status === 'submitting'}>
+        {honeypot}
         {errorMsg && (
-          <div
-            role="alert"
-            aria-live="polite"
-            className="rounded-md border border-destructive bg-destructive/10 p-s text-sm text-foreground"
-          >
+          <div role="alert" aria-live="polite" className="rounded-md border border-destructive bg-destructive/10 p-s text-sm text-foreground">
             {errorMsg}
           </div>
         )}
-
         <div>
           <label htmlFor="newsletter-email" className="block text-sm font-semibold text-foreground mb-1">
             Email address
@@ -171,22 +238,16 @@ export default function NewsletterSignup({ newsletter, source = 'newsletter' }: 
             required
             autoComplete="email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (errorMsg) setErrorMsg('');
-            }}
+            onChange={(e) => { setEmail(e.target.value); if (errorMsg) setErrorMsg(''); }}
             aria-invalid={!!errorMsg}
             aria-describedby={errorMsg ? 'newsletter-email-error' : undefined}
             placeholder="you@example.com"
             className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
           />
           {errorMsg && (
-            <p id="newsletter-email-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">
-              {errorMsg}
-            </p>
+            <p id="newsletter-email-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">{errorMsg}</p>
           )}
         </div>
-
         <button
           type="submit"
           disabled={status === 'submitting'}
@@ -196,20 +257,7 @@ export default function NewsletterSignup({ newsletter, source = 'newsletter' }: 
         </button>
       </form>
 
-      {/* Consent / privacy note. Parses the privacy link pattern for the /privacy page. */}
-      <p className="mt-s text-xs text-foreground/70 leading-relaxed">
-        {consentNote.includes('privacy policy') ? (
-          <>
-            {consentNote.replace('privacy policy', '').trimEnd()}{' '}
-            <a href="/privacy" className="underline underline-offset-2 hover:text-link transition-colors">
-              privacy policy
-            </a>
-            .
-          </>
-        ) : (
-          consentNote
-        )}
-      </p>
+      {consentJsx}
     </div>
   );
 }
