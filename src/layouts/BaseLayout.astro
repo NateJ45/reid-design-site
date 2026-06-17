@@ -119,6 +119,8 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 
 // Cloudflare Web Analytics token — only render the beacon when present.
 const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+// Google Analytics — only render when present. Set PUBLIC_GA_MEASUREMENT_ID in .env.
+const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
 ---
 
 <!doctype html>
@@ -227,6 +229,19 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
         }
       })();
     </script>
+
+    {/* Google Analytics — conditional on PUBLIC_GA_MEASUREMENT_ID. */}
+    {gaMeasurementId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
+        <script is:inline define:vars={{ gaMeasurementId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaMeasurementId);
+        </script>
+      </>
+    )}
 
     {/* Cloudflare Web Analytics — conditional, no cookie banner needed. */}
     {cfToken && (
