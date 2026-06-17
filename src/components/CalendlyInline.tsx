@@ -59,7 +59,7 @@ export default function CalendlyInline({
         <button
           type="button"
           onClick={() => setLoaded(true)}
-          className="press-tactile w-full rounded-md border border-border-soft bg-muted/60 hover:bg-muted px-l py-section-md text-left transition-colors group"
+          className="press-tactile w-full rounded-md border border-border-soft bg-muted/60 hover:bg-muted px-l py-section-md text-left transition-colors group cursor-pointer"
         >
           <p className="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
             Or pick a time directly
@@ -68,7 +68,7 @@ export default function CalendlyInline({
             {loadLabel} <span aria-hidden="true" className="ml-xs transition-transform group-hover:translate-x-1 inline-block">→</span>
           </p>
           <p className="mt-xs text-sm text-foreground/80">
-            Opens the 20-minute discovery call calendar in place. We don't load it until you ask.
+            Pick a time that works for you and book directly with Staci.
           </p>
         </button>
       ) : (
@@ -77,7 +77,7 @@ export default function CalendlyInline({
             src={toEmbedUrl(url)}
             title="Schedule a discovery call with Reid Design"
             className="block w-full"
-            style={{ height: 'min(75vh, 720px)', minHeight: '480px' }}
+            style={{ height: 'min(90vh, 900px)', minHeight: '700px' }}
             loading="lazy"
             allow="clipboard-write"
           />
