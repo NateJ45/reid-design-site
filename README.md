@@ -1,8 +1,30 @@
-# Reid Design LLC — Site
+# Reid Design LLC
 
-Astro + Sanity + Cloudflare Workers marketing site for Reid Design LLC, a Plainfield, Indiana interior design studio run by Staci Perkins.
+Marketing site for **Reid Design LLC**, an interior design studio in Plainfield, Indiana run by Staci Perkins. Built on Astro + Sanity + Cloudflare Workers.
 
-Full architecture reference: `CLAUDE.md`. Operational playbook: `OPERATIONS.md`. Migration planning docs: `migration-docs/`.
+**Live:** [reiddesignllc.com](https://reiddesignllc.com) · **Studio:** studio.reiddesignllc.com
+
+---
+
+## The brief
+
+An interior designer's website has two jobs: prove the work, and turn a curious visitor into a booked consultation. Staci needed both, plus the ability to run the site herself between projects. The old setup did neither well. Photos of finished rooms were the whole business, and they were buried.
+
+The goal was a site that sells the way a designer sells: show the transformation, make the next step obvious, and give someone who is not quite ready a reason to stick around.
+
+## The work
+
+**A portfolio built around the reveal.** Every project page opens with a before/after slider, then a full gallery, a table of contents for longer write-ups, and a link to any journal post that features the room. The project grid filters by Room and Style at the same time, so a visitor looking for "kitchen, modern" finds it in one move.
+
+**Two tools that do the qualifying.** A multi-step **style-archetype quiz** turns a browsing visitor into a lead with a result worth waiting for, and a **budget calculator** sets expectations before the first call, so the consultations Staci takes are the right ones. Both are lead magnets that earn an email honestly, by giving something back.
+
+**A service ladder, not a single price.** The site presents tiered services and a productized **E-Design** offering for clients who want the plan without the full engagement, plus gift certificates and an affiliate "Shop My Favorites" page (with the FTC disclosure done properly). Contact pairs a form with a Calendly embed so booking is one click, not an email thread.
+
+**A journal and a resources hub** keep the site alive between projects and give search engines something to find.
+
+## The result
+
+Staci edits every word, price, photo, and project in Sanity; the site rebuilds itself. The portfolio leads with transformations, the quiz and calculator feed a real pipeline, and the whole thing loads fast and reads clearly on a phone.
 
 ---
 
@@ -11,91 +33,22 @@ Full architecture reference: `CLAUDE.md`. Operational playbook: `OPERATIONS.md`.
 - **Astro 6** (static output) + TypeScript strict mode
 - **Sanity v5** headless CMS (schemas in `studio/schemaTypes/`, Studio at `studio.reiddesignllc.com`)
 - **Tailwind 4** via `@tailwindcss/vite` (brand tokens in `src/styles/globals.css`, no `tailwind.config`)
-- **React 19** islands for interactive components (nav drawer, contact form, quiz, calculator, galleries)
-- **Cloudflare Workers** for hosting via `wrangler deploy`; GitHub pushes to `main` auto-deploy via Cloudflare's CI
-
----
+- **React 19** islands for the interactive pieces: nav drawer, contact form, style quiz, budget calculator, before/after sliders, galleries
+- **Cloudflare Workers** hosting via `wrangler deploy`; pushes to `main` auto-deploy through Cloudflare's CI
 
 ## Pages
 
-| Route | Description |
-|---|---|
-| `/` | Home |
-| `/about` | About Staci |
-| `/process` | How it works |
-| `/services` | Service tiers and pricing |
-| `/faq` | FAQ grouped by category |
-| `/contact` | Contact form + Calendly embed |
-| `/portfolio` | Project grid with Room x Style filter chips |
-| `/portfolio/[slug]` | Project detail (before/after slider, gallery, TOC, featured-in-journal) |
-| `/portfolio/before-after` | All projects with before/after pairs |
-| `/journal` | Blog/journal index |
-| `/journal/[slug]` | Journal post detail |
-| `/e-design` | Productized E-Design offering |
-| `/shop` | Affiliate "Shop My Favorites" (FTC disclosure) |
-| `/gift-certificates` | Gift certificate info |
-| `/quiz` | Multi-step style archetype quiz |
-| `/calculator` | Budget estimate calculator |
-| `/resources` | Resources hub (links to tools, guides, FAQ, journal) |
-| `/guides` | Lead-magnet index |
-| `/guides/[slug]` | Lead-magnet landing + gated download |
-| `/press` | Press coverage + logo strip |
-| `/privacy` | Privacy policy |
-| `/404` | Custom 404 |
+Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · Journal (+ post) · E-Design · Shop · Gift Certificates · Style Quiz · Budget Calculator · Resources · Guides.
 
----
+## Running it locally
 
-## Features
-
-- All content editable in Sanity Studio by Staci, including an editable in-Studio "Start Here" guide and business notes (`studioGuide` + `studioNotes` singletons; Brand Kit stays code-driven)
-- Grouped dropdown nav: Services (Services, E-Design, Process, Gift Certificates) and Resources (Style Quiz, Cost Calculator, Guides, FAQ, Journal)
-- Email capture: newsletter signup, lead-magnet gated downloads, style quiz email gate, budget calculator optional email
-- Contact form via Web3Forms with autoresponder, post-inquiry roadmap, Calendly embed
-- Affiliate shop with FTC disclosure
-- Press strip ("As Seen In") on home, about, and press pages
-- Before/after slider on project pages and `/portfolio/before-after`
-- Full-viewport home hero with a soft pulsing scroll cue
-- Phone number and availability status surfaced site-wide from Sanity (tap-to-call in the header, footer, mobile menu, and contact page)
-- Project pages auto-surface journal posts that reference them ("Featured in the journal")
-- About page "off the clock" personal section (currently reading/listening, rapid-fire Q&A, favorite local spots, beyond design), each module self-hiding when empty
-- Style quiz with archetype results and service recommendations
-- Budget calculator with room/scope/add-on estimate ranges
-- Pinyon Script section-heading accents, editor-controlled via Sanity
-- Three-state dark/light/system theme toggle (no FOUC)
-- Cloudflare Web Analytics (cookieless, no consent banner needed)
-- `robots.txt` (allow-all + sitemap) and `llms.txt` (AI crawler index) in `public/`
-- `@astrojs/sitemap` auto-generates sitemap for all routes
-
----
-
-## Local dev
-
-```bash
+```sh
 npm install
-npm run dev          # Astro dev server at localhost:4321
-npm run studio:dev   # Sanity Studio at localhost:3333
+npm run dev
 ```
 
-Copy `.env.example` to `.env` and fill in Sanity + Web3Forms + Cloudflare values.
+Full architecture reference in [`CLAUDE.md`](./CLAUDE.md); operational playbook in [`OPERATIONS.md`](./OPERATIONS.md).
 
 ---
 
-## Deploy
-
-Auto-deploy: push to `main`. Cloudflare builds and deploys in ~1-2 minutes.
-
-Manual deploy:
-
-```bash
-npm run build
-npm run deploy   # = wrangler deploy
-```
-
-After any Sanity schema change, also run:
-
-```bash
-npm run typegen        # regenerate src/lib/sanity.types.ts
-npm run studio:deploy  # push updated schema to hosted Studio
-```
-
-See `OPERATIONS.md` for the full playbook including the before-DNS-cutover checklist.
+Built by [Nixon Creative Studio](https://nixoncreativestudio.com).
