@@ -129,7 +129,6 @@ interface Draft {
   timeline: string;
   message: string;
   source: string;
-  zip: string;
 }
 
 const EMPTY: Draft = {
@@ -142,7 +141,6 @@ const EMPTY: Draft = {
   timeline: '',
   message: '',
   source: '',
-  zip: '',
 };
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -168,6 +166,10 @@ export default function ContactForm({
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Partial<Record<keyof Draft, string>>>({});
   const [errorMessage, setErrorMessage] = useState('');
+  // Honeypot state, kept OUT of `draft` on purpose: draft is all-strings (the
+  // localStorage autosave and the "has content" check below both assume that),
+  // and this must never be persisted or restored.
+  const [botcheck, setBotcheck] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const restoredOnce = useRef(false);
 
@@ -255,8 +257,15 @@ export default function ContactForm({
       return;
     }
 
-    // Honeypot check (botcheck) — bots fill it, humans don't.
-    if (draft.zip) {
+    // Honeypot check — bots tick the hidden checkbox, humans never see it.
+    // This was previously a text field named "zip". Browser address-autofill
+    // filled it for real visitors (Chrome ignores autocomplete="off" for
+    // address fields), which tripped this check and SILENTLY DROPPED genuine
+    // inquiries: the visitor saw the success screen but nothing ever sent.
+    // A checkbox is immune because autofill never ticks checkboxes. Do NOT
+    // revert this to a text input, and never name a honeypot after a real
+    // field (zip, email, name, phone, address, etc.).
+    if (botcheck) {
       // Pretend success so the bot moves on; don't actually submit.
       setStatus('success');
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
@@ -350,17 +359,22 @@ export default function ContactForm({
         </div>
       )}
 
-      {/* Honeypot: bots fill this; humans can't see it. */}
+      {/* Honeypot: a hidden checkbox bots tend to tick but humans never see.
+          MUST stay a checkbox with a non-autofill name. A previous version
+          used a text input named "zip", which browser address-autofill filled
+          for real visitors, tripping the honeypot and silently dropping their
+          inquiries. Autofill never ticks checkboxes, so this is immune. See
+          the matching note in onSubmit before changing anything here. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
         <label>
-          ZIP code (leave blank)
+          Leave this box unchecked
           <input
-            type="text"
-            name="zip"
+            type="checkbox"
+            name="botcheck"
             tabIndex={-1}
             autoComplete="off"
-            value={draft.zip}
-            onChange={(e) => update('zip', e.target.value)}
+            checked={botcheck}
+            onChange={(e) => setBotcheck(e.target.checked)}
           />
         </label>
       </div>
