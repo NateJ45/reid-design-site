@@ -234,3 +234,47 @@ Product recommendations
 - Shopping & Procurement (hourly)
 - Installation & Styling Days (daily rate or hourly)
 - Travel (included within a radius, then mileage or hourly beyond)
+
+---
+
+## 7. Outcome (shipped 2026-07-28)
+
+All of section 5 shipped and is live on reiddesignllc.com, with the open questions
+resolved as recommended: $1,795, "Signature room design + styling", price-ladder
+order, badge on Full room design (not the custom tier), About story left alone.
+
+Two gotchas worth remembering, both of which silently produced wrong results:
+
+**1. `orderRank` beats `displayOrder`.** The site sorts services by
+`orderRank asc, displayOrder asc` (queries.ts). `orderRank` is managed by the
+orderable-document-list plugin and always wins, so editing `displayOrder` alone
+reorders nothing. A new service document needs an explicit `orderRank` that sorts
+lexically between its neighbours, or it lands at the end regardless of its number.
+
+**2. Publishing to Sanity triggers a Cloudflare build that overwrites a manual
+`wrangler deploy`.** The publish webhook rebuilds from GitHub `main`. Deploying
+locally with uncommitted code produced a live site with the new Sanity content and
+the old code, eight seconds later, with no error anywhere. Any change that spans
+code + content has to be committed and pushed, not hand-deployed.
+
+Also fixed along the way, all found by scanning rather than by looking at the
+pages: `Offer.price` was feeding Google the display string (invalid, dropped),
+the services meta description hardcoded "$150", the homepage `seoDescription`
+put "$150" into every link preview of the site, and nine further Sanity documents
+(/faq's price rundown, the budget calculator's button, the gift page's amounts,
+the contact form's Project Type dropdown, two process steps) still quoted the old
+prices or the retired tier name.
+
+### Still open
+
+- **Itemized whole-home pricing** — needs a design fee and an install day rate
+  from Staci before it can be written.
+- **`seed.pressItem.3`** is a fabricated press quote attributed to a real-sounding
+  outlet ("Plainfield Town Press") with a URL. It is not currently rendering, but
+  it is a published document sitting in the dataset. It should be deleted, not
+  updated.
+- **`seed.leadMagnet.consultPrep`** still has the slug
+  `how-to-get-the-most-from-a-150-consultation`. Title is fixed; the slug would
+  need a redirect.
+- **`studioGuide.howTos[7]`** uses "$150" as an example in Staci's own
+  instructions. Harmless, internal only.
