@@ -309,6 +309,12 @@ const patches = [
       // even though the visible headline drops them. The new headline is the
       // emotional hook; the title tag still has to do the local-search work.
       seoTitle: 'Interior Design in Plainfield & Indianapolis | Reid Design',
+      // This one named "$150" too, and it feeds the meta description, the OG
+      // description, and the Twitter card — so a stale price here was showing
+      // up in every link preview of the homepage, not just in search results.
+      // No price named now, so it can't go stale again.
+      seoDescription:
+        'Plainfield-based interior design serving Greater Indianapolis. Warm, livable spaces that feel like home, from a single room to a whole-home refresh.',
     },
   },
 

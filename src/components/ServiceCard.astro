@@ -79,7 +79,13 @@ const badge = service.badge?.trim();
   <div class="flex flex-col flex-1 p-l">
   <header>
     {badge && (
-      <p class="mb-s inline-flex items-center rounded-full bg-primary px-s py-0.5 text-[0.6875rem] font-semibold uppercase tracking-eyebrow text-primary-foreground">
+      {/* Soft-fill pill, not a solid bronze one. A solid --color-primary fill
+          with white text lands at 4.06:1, which fails AA at this size (11px,
+          too small for the large-text exemption). --link is the token that's
+          already contrast-checked against card surfaces in BOTH themes (AA on
+          Soft Linen, 6.4:1 on the dark surface), so the tint keeps the badge
+          legible without a per-theme override. */}
+      <p class="mb-s inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-s py-0.5 text-[0.6875rem] font-semibold uppercase tracking-eyebrow text-link">
         {badge}
       </p>
     )}
