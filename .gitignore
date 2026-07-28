@@ -33,3 +33,7 @@ studio/dist/
 
 # jetbrains setting folder
 .idea/
+
+# Playwright
+test-results/
+playwright-report/

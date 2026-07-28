@@ -48,6 +48,7 @@ import { studioNotes } from './studioNotes';
 import { studioPlaybook } from './studioPlaybook';
 import { styleQuiz } from './styleQuiz';
 import { testimonial } from './testimonial';
+import { trashedItem } from './trashedItem';
 
 export const schemaTypes = [
   // Object types (embedded) first so they're defined before docs that reference them
@@ -106,4 +107,7 @@ export const schemaTypes = [
   pressItem,
   shopCollection,
   shopItem,
+
+  // Soft-delete receipts, created only by the Archive action.
+  trashedItem,
 ];

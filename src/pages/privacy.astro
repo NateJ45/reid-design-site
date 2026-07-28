@@ -61,7 +61,12 @@ const hasSanityBody = Boolean(page?.body);
     size="short"
   />
 
-  <section class="bg-background" aria-label="Privacy policy">
+  {/* No aria-label here on purpose. The hero section is already a landmark
+      named by the "Privacy Policy" heading, and labelling this one the same
+      thing produced two identically-named regions (axe: landmark-unique). A
+      <section> without an accessible name is not exposed as a landmark, which
+      is the right answer for a plain content wrapper. */}
+  <section class="bg-background">
     <div class="mx-auto max-w-3xl px-m py-section-lg">
       {lastUpdated && (
         <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-l">

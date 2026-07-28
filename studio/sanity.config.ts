@@ -15,6 +15,7 @@ import { deskStructure } from './structure';
 import StudioLogo from './components/StudioLogo';
 import { CharacterCountInput } from './components/CharacterCountInput';
 import { documentBadges } from './components/documentBadges';
+import { ArchiveAction, RestoreAction, DeleteForeverAction } from './actions/archive';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -200,20 +201,56 @@ export default defineConfig({
     badges: (prev) => [...prev, ...documentBadges],
     newDocumentOptions: (prev, { creationContext }) => {
       if (creationContext.type === 'global') {
-        return prev.filter((option) => !SINGLETON_TYPES.has(option.templateId));
+        // trashedItem is created only by the Archive action, never by hand.
+        return prev.filter(
+          (option) =>
+            !SINGLETON_TYPES.has(option.templateId) && option.templateId !== 'trashedItem',
+        );
       }
       return prev;
     },
     actions: (prev, { schemaType }) => {
+      // Trash rows get their own two actions and nothing else: you can put a
+      // document back, or destroy it for good.
+      if (schemaType === 'trashedItem') {
+        return [RestoreAction, DeleteForeverAction];
+      }
       if (SINGLETON_TYPES.has(schemaType)) {
         return prev.filter(
           ({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || ''),
         );
       }
+      // Swap Sanity's permanent Delete for the recoverable Archive on the
+      // content Staci edits day to day. Publish/duplicate/etc stay as they are.
+      if (ARCHIVABLE_TYPES.has(schemaType)) {
+        return [...prev.filter(({ action }) => action !== 'delete'), ArchiveAction];
+      }
       return prev;
     },
   },
 });
+
+// Types that get soft-delete instead of Sanity's permanent Delete. Everything
+// here is multi-instance content Staci creates and removes herself; the
+// singletons above are excluded because they can't be deleted at all.
+//
+// Deliberately NOT included: `page` (custom pages carry their own routes, and a
+// restored one would need its slug re-checked against the reserved list) and
+// `trashedItem` itself.
+const ARCHIVABLE_TYPES = new Set<string>([
+  'service',
+  'processStep',
+  'philosophyPoint',
+  'testimonial',
+  'faqItem',
+  'project',
+  'journalEntry',
+  'journalCategory',
+  'leadMagnet',
+  'pressItem',
+  'shopCollection',
+  'shopItem',
+]);
 
 // Singleton document types — one instance each, not duplicable.
 const SINGLETON_TYPES = new Set<string>([

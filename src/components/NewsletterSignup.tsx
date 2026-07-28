@@ -106,7 +106,7 @@ export default function NewsletterSignup({ newsletter, source = 'newsletter', co
   }
 
   const consentJsx = (
-    <p className="mt-s text-xs text-foreground/70 leading-relaxed">
+    <p className="mt-s text-xs text-foreground/80 leading-relaxed">
       {consentNote.includes('privacy policy') ? (
         <>
           {consentNote.replace('privacy policy', '').trimEnd()}{' '}

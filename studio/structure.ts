@@ -23,6 +23,7 @@ import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import { Iframe, urlForDoc } from './sanity.config';
 import {
   CogIcon,
+  TrashIcon,
   PinIcon,
   HomeIcon,
   UserIcon,
@@ -108,6 +109,8 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   // sanity-plugin-media registers this tag type; keep it out of the desk root
   // (the "Media" tool in the top sidebar is where tags belong).
   'media.tag',
+  // Trash has its own explicit desk entry near the bottom.
+  'trashedItem',
 ]);
 
 /**
@@ -382,6 +385,19 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               S.documentTypeListItem('journalEntry').title('Posts').icon(EditIcon),
               S.documentTypeListItem('journalCategory').title('Categories').icon(TagIcon),
             ]),
+        ),
+
+      S.divider(),
+
+      // Trash — anything removed with "Move to Trash". Sorted newest first so the
+      // thing you just deleted by accident is the first row you see.
+      S.listItem()
+        .title('Trash')
+        .icon(TrashIcon)
+        .child(
+          S.documentTypeList('trashedItem')
+            .title('Trash')
+            .defaultOrdering([{ field: 'deletedAt', direction: 'desc' }]),
         ),
 
       // Safety net: surface any document type we have NOT explicitly placed above

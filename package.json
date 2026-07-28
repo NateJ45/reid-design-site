@@ -20,7 +20,13 @@
     "studio:dev": "npm --prefix studio run dev",
     "studio:deploy": "npm --prefix studio run deploy",
     "studio:import": "node scripts/import-content.mjs",
-    "check": "npm run typegen && astro build && npm --prefix studio run build"
+    "check": "npm run typegen && astro build && npm --prefix studio run build",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "serve:dist": "http-server dist/client -p 4321 -s -c-1 --silent"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.5",
@@ -65,9 +71,13 @@
     "vite": "^7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/vite": "^4.3.0",
+    "http-server": "^14.1.1",
     "opentype.js": "^2.0.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }

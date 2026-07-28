@@ -56,8 +56,11 @@ if (validSteps.length === 0) return null;
           {/* Step number — monospace, bronze-tinted, aria-hidden so the list
               semantics carry the order without the screen reader reading
               "zero one" before every step. */}
+          {/* text-link, not text-primary-dark: primary-dark is a fixed bronze
+              that only clears AA on light surfaces, so these step numbers
+              failed contrast in dark mode. --link is defined per theme. */}
           <span
-            class="shrink-0 font-mono text-sm font-semibold text-primary-dark min-w-[1.5rem] pt-px"
+            class="shrink-0 font-mono text-sm font-semibold text-link min-w-[1.5rem] pt-px"
             aria-hidden="true"
           >
             {String(idx + 1).padStart(2, '0')}
