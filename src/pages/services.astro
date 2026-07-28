@@ -23,7 +23,10 @@ const [page, siteSettings] = await Promise.all([
 ]);
 
 const title       = page?.seoTitle       ?? 'Services & Pricing · Reid Design';
-const description = page?.seoDescription ?? 'Interior design services for every space and stage — from $150 consultations to full-room design across Greater Indianapolis.';
+// Fallback only, used when servicesPage.seoDescription is empty. Deliberately
+// names no prices: this string lives in code and would go stale the next time
+// Staci changes a number in Sanity (it already had, at "$150").
+const description = page?.seoDescription ?? 'Interior design services for every space and stage, from in-home consultations to full-room design across Greater Indianapolis.';
 
 const services = page?.services ?? [];
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);

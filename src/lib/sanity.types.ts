@@ -527,6 +527,7 @@ export type Service = {
   displayOrder?: number;
   showOnHomepage?: boolean;
   ctaLabel?: string;
+  badge?: string;
   orderRank?: string;
 };
 

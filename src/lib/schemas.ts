@@ -32,7 +32,10 @@ interface Service {
   name?: string;
   slug?: { current?: string };
   shortDescription?: string;
+  /** Display string ("starting at $995"). Never emit this as Offer.price. */
   price?: string;
+  /** Sort/structured-data value. This is what Offer.priceSpecification uses. */
+  priceNumeric?: number | null;
 }
 
 interface FaqItem {
@@ -103,7 +106,26 @@ export function serviceListSchema(
       url: s.slug?.current ? `${site.url}/services#${s.slug.current}` : `${site.url}/services`,
       provider: { '@id': `${site.url}/#business` },
       areaServed,
-      ...(s.price ? { offers: { '@type': 'Offer', price: s.price, priceCurrency: 'USD' } } : {}),
+      // Schema.org wants a bare number in Offer.price, so the display string
+      // ("starting at $995", "$100 per hour") can't go here — Google reads that
+      // as an invalid offer and drops it. priceNumeric exists for exactly this.
+      //
+      // Every tier is an "on request / from" price rather than a fixed one, so
+      // this is a PriceSpecification with minPrice: the honest shape, and it
+      // won't claim a firm price we don't actually charge.
+      ...(typeof s.priceNumeric === 'number' && s.priceNumeric > 0
+        ? {
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              priceSpecification: {
+                '@type': 'PriceSpecification',
+                minPrice: s.priceNumeric,
+                priceCurrency: 'USD',
+              },
+            },
+          }
+        : {}),
     })),
   });
 }

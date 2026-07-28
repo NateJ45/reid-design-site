@@ -29,6 +29,7 @@ interface Props {
     features?: string[];
     bestFor?: string;
     ctaLabel?: string;
+    badge?: string;
     featuredImage?: SanityImageObject | null;
   };
   /** When true, render an anchor id from the slug so /services?#consultation deep-links. */
@@ -44,11 +45,20 @@ const visibleFeatures = compact ? features.slice(0, 4) : features;
 const moreCount = compact ? Math.max(0, features.length - visibleFeatures.length) : 0;
 const ctaLabel = service.ctaLabel ?? 'Start a Conversation';
 const hasImage = !!service.featuredImage?.asset;
+// Optional "Most popular" style label. Rendered inline above the service name
+// rather than floated over the corner, so it behaves the same whether or not
+// the card has an image and never lands on top of the heading.
+const badge = service.badge?.trim();
 ---
 
 <article
   id={id}
-  class="card-lift group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden transition-colors hover:border-primary/40 scroll-mt-24 shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
+  class:list={[
+    'card-lift group relative flex flex-col h-full bg-card text-card-foreground border rounded-md overflow-hidden transition-colors hover:border-primary/40 scroll-mt-24 shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]',
+    // A badged card carries a slightly stronger edge so the emphasis reads at a
+    // glance in the grid, not just when you get to the label.
+    badge ? 'border-primary/45' : 'border-border-soft',
+  ]}
 >
   {/* Brand accent stripe — same 2px Warm Bronze signature used at the top of
       the site header, mobile menu, and footer. Gives each service card a
@@ -68,6 +78,11 @@ const hasImage = !!service.featuredImage?.asset;
 
   <div class="flex flex-col flex-1 p-l">
   <header>
+    {badge && (
+      <p class="mb-s inline-flex items-center rounded-full bg-primary px-s py-0.5 text-[0.6875rem] font-semibold uppercase tracking-eyebrow text-primary-foreground">
+        {badge}
+      </p>
+    )}
     <h3 class="font-display text-h3 text-foreground">{service.name}</h3>
     {service.price && (
       <p class="mt-xs text-sm font-mono uppercase tracking-eyebrow text-link">

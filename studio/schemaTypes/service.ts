@@ -135,15 +135,23 @@ export const service = defineType({
       description: 'Text on the button for this service.',
       initialValue: 'Start a Conversation',
     }),
+    defineField({
+      name: 'badge',
+      title: 'Badge (optional)',
+      type: 'string',
+      description:
+        'Small label pinned to the top of the card. Example: "Most popular". Leave blank on every service you do not want to single out. Only one service should carry a badge at a time, otherwise it stops meaning anything.',
+      validation: (Rule) => Rule.max(20),
+    }),
     // Hidden field managed by the orderable-document-list plugin. Required
     // even when no one's reordered anything yet — the plugin validates the
     // schema declares it.
     orderRankField({ type: 'service' }),
   ],
   preview: {
-    select: { name: 'name', price: 'price', order: 'displayOrder', media: 'featuredImage' },
-    prepare: ({ name, price, order, media }) => ({
-      title: name,
+    select: { name: 'name', price: 'price', order: 'displayOrder', media: 'featuredImage', badge: 'badge' },
+    prepare: ({ name, price, order, media, badge }) => ({
+      title: badge ? `${name}  (${badge})` : name,
       subtitle: `${price ?? ''} · #${order ?? '?'}`,
       media,
     }),
