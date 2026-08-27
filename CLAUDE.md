@@ -231,6 +231,8 @@ Read these on demand. They are NOT auto-loaded, and they are referenced as plain
 
 | Area | Doc |
 |---|---|
+| **Open loops: queued work + waiting-on-a-human items** | `docs/PENDING.md` (read early; edit in the same commit that opens or closes an item) |
+| **Which test suite covers what** | `docs/TESTING.md` |
 | Stack detail + astro.config landmines | `docs/agent/stack-and-config.md` |
 | Page + section architecture, nav, visibility toggles | `docs/agent/page-architecture.md` |
 | Brand colors + theme system (light/dark discipline) | `docs/agent/theme-and-color.md` |

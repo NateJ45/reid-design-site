@@ -7,7 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/free-dist.mjs",
     "build": "astro build",
+    "free-dist": "node scripts/free-dist.mjs",
     "build:full": "npm run typegen && astro build",
     "preview": "wrangler dev",
     "astro": "astro",
@@ -26,7 +28,9 @@
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "serve:dist": "http-server dist/client -p 4321 -s -c-1 --silent"
+    "serve:dist": "http-server dist/client -p 4321 -s -c-1 --silent",
+    "parity": "node scripts/page-parity.mjs",
+    "sync-check": "node scripts/sync-check.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.5",

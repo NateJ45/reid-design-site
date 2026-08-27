@@ -34,8 +34,91 @@ jobs:
       - name: Generate Sanity types
         run: npm run typegen
 
+      - name: Fail if committed Sanity types are stale
+        # Added 2026-08-27 (PORTS.md card 5). `npm run build` does NOT chain
+        # typegen: it consumes the already-committed src/lib/sanity.types.ts,
+        # and `astro build` does not run `astro check`, so stale types never
+        # fail a build. They just drift silently until the types describe a
+        # schema that no longer exists. presacademy shipped exactly that on a
+        # green build (2026-06-14). CI already regenerates the file in the step
+        # above, so the guard is four lines: if that regeneration produced a
+        # diff, the commit was stale.
+        #
+        # Verified byte-stable here 2026-08-27: two consecutive `npm run typegen`
+        # runs reproduce the committed file exactly. The only local difference is
+        # line endings, which git normalizes, so this is clean on Linux CI.
+        run: |
+          if ! git diff --quiet -- src/lib/sanity.types.ts; then
+            echo "::error::src/lib/sanity.types.ts is out of date. Run 'npm run typegen' and commit the result."
+            git --no-pager diff -- src/lib/sanity.types.ts
+            exit 1
+          fi
+
       - name: Build Astro
         run: npm run build
 
       - name: Build Sanity Studio
         run: npm --prefix studio run build
+
+      # Vitest. Includes src/lib/theme-tokens.test.ts, the contrast gate added
+      # 2026-08-27: it reads the real hex tokens out of globals.css and asserts
+      # the text and focus-ring pairs the design system renders in both themes.
+      # Nothing else in this pipeline can catch a palette edit that pushes body
+      # text or a focus outline under threshold.
+      - name: Run unit tests
+        run: npm run test:unit
+
+  # Wired 2026-08-27 (PORTS.md card 8). tests/, playwright.config.ts and
+  # @axe-core/playwright have all been in this repo for months and CI never ran
+  # any of it. A suite that does not run is worse than no suite: it reports
+  # green by being absent from the pipeline. Verified passing locally before
+  # wiring (140/140 on 2026-08-27), so this is a REAL gate, not
+  # continue-on-error.
+  playwright:
+    runs-on: ubuntu-latest
+
+    # Same public identifiers as the build job, and they matter more here than
+    # they look. tests/routes.ts splits the route list into `routes` (render
+    # real content, axe-scanned) and `hiddenRoutes` (sections currently switched
+    # off in siteSettings.sectionVisibility, so the page emits a meta-refresh
+    # stub that fails five axe rules and is smoke-only). That split is
+    # calibrated against the REAL dataset. Building with an empty project id
+    # would take the credential-less fallback path, change which pages are
+    # stubs, and point the a11y sweep at a site that does not exist.
+    env:
+      PUBLIC_SANITY_PROJECT_ID: ba403vjc
+      PUBLIC_SANITY_DATASET: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      # Both projects in playwright.config.ts: chromium (desktop) AND
+      # mobile-webkit (iPhone 14). Installing only chromium makes every webkit
+      # test die with "Executable doesn't exist".
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      # smoke (every route 200s and has a title), axe in light, axe in dark as a
+      # separate sweep (a theme swap is a different resting DOM), and reflow at
+      # 320/768/1024/1440 (WCAG 1.4.10 starts at 320, not 375). The config's
+      # webServer runs `npm run build` itself and serves dist/client on 4321.
+      # The html reporter is added on the command line rather than in the config
+      # so local runs keep the quiet `list` output while CI still produces the
+      # report artifact below.
+      - name: Run Playwright suites (smoke, a11y light + dark, reflow)
+        run: npx playwright test --reporter=list,html
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

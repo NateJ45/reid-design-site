@@ -24,6 +24,9 @@ pnpm-debug.log*
 tmp/
 studio/schema.json
 studio/dist/
+# scripts/lib/sanity-lib.mjs caches uploaded Sanity asset ids here so a re-run
+# of a seed script never re-uploads. Machine-local, never committed.
+scripts/.asset-map.json
 
 # transient commit message files
 .git-commit-msg.tmp

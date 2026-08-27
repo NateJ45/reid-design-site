@@ -1,0 +1,92 @@
+name: Sanity dataset backup
+
+# Added 2026-08-27 (PORTS.md card 6, pattern from presacademy).
+#
+# Nightly export of the production Sanity dataset (documents + assets) so a bad
+# mutation, a bad seed script, or an accidental "Remove field" in Studio is
+# always recoverable. CLAUDE.md's first hard rule warns that "Remove field"
+# deletes that field's data across every document and "cannot be undone without
+# a dataset restore" -- this workflow is the thing that makes that restore
+# possible. Until it has run at least once, that sentence has no backup behind
+# it.
+#
+# The schedule is ENABLED because this repo is public and GitHub Actions minutes
+# are free on public repositories, so the billing argument that keeps the same
+# workflow disabled in presacademy (a private repo) does not apply here. The
+# nightly run is cheap and the gate job below makes it safe to leave on before
+# the secret exists.
+#
+# HUMAN ACTION REQUIRED: create a repo secret named SANITY_AUTH_TOKEN
+# (Settings -> Secrets and variables -> Actions). A READ token is enough: get
+# one at sanity.io/manage -> project ba403vjc -> API -> Tokens. Until then, the
+# gate job logs a warning and the export is skipped, so the workflow is safe to
+# commit today and starts working the moment the secret lands.
+#
+# RESTORE: download the artifact, then
+#   npx sanity dataset import sanity-backup-<date>.tar.gz production --replace
+# Do that against a scratch dataset first if you are not certain.
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # daily 07:00 UTC (03:00 Eastern)
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        # A secret cannot be read in an `if:` expression, so the check has to
+        # happen in a step. This job deliberately does not check out the repo:
+        # it needs nothing but the secret's presence.
+        env:
+          TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SANITY_AUTH_TOKEN not set; skipping backup. See docs/PENDING.md."
+          fi
+
+  export:
+    needs: gate
+    if: needs.gate.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # The sanity CLI lives in the studio package, not the root one (the root
+      # package delegates typegen to studio for the same reason), so the studio
+      # install is what puts the binary on disk. Called by path rather than
+      # through npx so the export still runs from the repo root and writes the
+      # tarball there.
+      - name: Install studio dependencies
+        run: npm ci --prefix studio
+
+      - name: Export production dataset
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          # This project's PUBLIC Sanity id. Not a secret: it ships in the
+          # client bundle and appears in every GROQ request URL.
+          SANITY_STUDIO_PROJECT_ID: ba403vjc
+          SANITY_STUDIO_DATASET: production
+        run: |
+          STAMP=$(date -u +%Y-%m-%d)
+          ./studio/node_modules/.bin/sanity dataset export production "sanity-backup-$STAMP.tar.gz"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanity-backup
+          path: sanity-backup-*.tar.gz
+          # GitHub keeps artifacts 90 days. For longer or off-site retention,
+          # push the tarball to R2 here instead.
+          retention-days: 90
