@@ -18,14 +18,40 @@ import ImageText from '@/components/sections/ImageText.astro';
 import GalleryGrid from '@/components/sections/GalleryGrid.astro';
 import QuoteBlock from '@/components/sections/QuoteBlock.astro';
 import VideoEmbed from '@/components/sections/VideoEmbed.astro';
+import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 
 interface Props {
   sections?: any[];
   /** Prefix for generated heading ids, so two renderers on a page don't collide. */
   idPrefix?: string;
+  /**
+   * PREVIEW ONLY (added 2026-08-28, PORTS.md card 17). When the Studio preview
+   * route passes the document AND the array field these sections came from,
+   * every section is wrapped in a real block box carrying a `data-sanity`
+   * attribute, which is what gives the Presentation overlay its in-canvas
+   * insert / duplicate / remove / drag-to-reorder controls.
+   *
+   * Note `field`: this renderer serves BOTH `pageBuilder` (custom pages) and
+   * `additionalSections` (the Extra sections zone on the bespoke pages), so the
+   * caller has to say which one it is passing.
+   *
+   * The live pages never pass it, and with it absent the wrapper is a
+   * `<Fragment>`, which renders NOTHING at all. That is why the static build's
+   * markup stays byte-identical with this feature installed, and
+   * `npm run parity compare` is the standing gate on that promise.
+   */
+  editDoc?: EditDoc;
 }
 
-const { sections = [], idPrefix = 'section' } = Astro.props as Props;
+const { sections = [], idPrefix = 'section', editDoc } = Astro.props as Props;
+
+// A real element in preview, nothing at all on the live site. The wrapper must
+// NOT be `display: contents`: the overlay outlines the element's rect, and a
+// contents element has none. A plain block-level div around a full-width
+// <section> changes no layout.
+const Wrap = editDoc ? 'div' : Fragment;
+const wrapAttrs = (key: string | undefined) =>
+  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
 
 // Content blocks take an alternating surface (background / muted) from the
 // renderer. Everything else owns its own surface.
@@ -56,8 +82,9 @@ const rows = list.map((s, i) => {
 });
 ---
 
-{rows.map(({ s, surface, headingId }) =>
-  s._type === 'heroSection' ? (
+{rows.map(({ s, surface, headingId }) => (
+  <Wrap {...wrapAttrs(s._key)}>
+  {s._type === 'heroSection' ? (
     <Hero
       eyebrow={s.eyebrow}
       headline={s.headline}
@@ -97,5 +124,6 @@ const rows = list.map((s, i) => {
     <QuoteBlock {...s} surface={surface} />
   ) : s._type === 'videoSection' ? (
     <VideoEmbed {...s} surface={surface} headingId={headingId} />
-  ) : null,
-)}
+  ) : null}
+  </Wrap>
+))}

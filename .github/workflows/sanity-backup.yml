@@ -63,13 +63,14 @@ jobs:
           node-version: 22
           cache: npm
 
-      # The sanity CLI lives in the studio package, not the root one (the root
-      # package delegates typegen to studio for the same reason), so the studio
-      # install is what puts the binary on disk. Called by path rather than
-      # through npx so the export still runs from the repo root and writes the
+      # 2026-08-28: the nested studio/ package was folded into the root
+      # (PORTS.md card 10), so the sanity CLI now comes from the ROOT install.
+      # This step used to be `npm ci --prefix studio` and the export below used
+      # to call ./studio/node_modules/.bin/sanity. Still called by path rather
+      # than through npx so the export runs from the repo root and writes the
       # tarball there.
-      - name: Install studio dependencies
-        run: npm ci --prefix studio
+      - name: Install dependencies
+        run: npm ci
 
       - name: Export production dataset
         env:
@@ -80,7 +81,7 @@ jobs:
           SANITY_STUDIO_DATASET: production
         run: |
           STAMP=$(date -u +%Y-%m-%d)
-          ./studio/node_modules/.bin/sanity dataset export production "sanity-backup-$STAMP.tar.gz"
+          ./node_modules/.bin/sanity dataset export production "sanity-backup-$STAMP.tar.gz"
 
       - name: Upload backup artifact
         uses: actions/upload-artifact@v4

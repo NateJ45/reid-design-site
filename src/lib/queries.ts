@@ -7,6 +7,7 @@
 // Run `npm run typegen` after schema changes to regenerate src/lib/sanity.types.ts.
 
 import { client } from './sanity';
+import type { SanityClient } from '@sanity/client';
 
 // Common Portable Text + image projection shorthand
 const IMAGE_PROJECTION = `{
@@ -62,9 +63,15 @@ function sectionsProjection(field = 'pageBuilder') {
 // getStaticPaths and the render phase each call getSiteSettings().
 let _siteSettingsPromise: Promise<any> | null = null;
 
-export async function getSiteSettings() {
-  if (_siteSettingsPromise) return _siteSettingsPromise;
-  _siteSettingsPromise = client.fetch(`*[_type == "siteSettings"][0]{
+// 2026-08-28: `c` lets the Studio preview route run this same GROQ through the
+// DRAFT-aware client (src/lib/cms-preview.ts). The memo is deliberately skipped
+// whenever a client is passed in: the cache exists to collapse the ~20 calls of
+// one build process, and caching a per-request draft read in module scope would
+// serve one editor's drafts to the next request in the same Worker isolate.
+// Build-time callers pass nothing and keep the memo.
+export async function getSiteSettings(c?: SanityClient) {
+  if (!c && _siteSettingsPromise) return _siteSettingsPromise;
+  const promise = (c ?? client).fetch(`*[_type == "siteSettings"][0]{
     title,
     tagline,
     primaryCtaLabel,
@@ -105,7 +112,8 @@ export async function getSiteSettings() {
       showBudgetCalculator
     }
   }`);
-  return _siteSettingsPromise;
+  if (!c) _siteSettingsPromise = promise;
+  return promise;
 }
 
 // ---- Business info (service areas, travel, availability, geo) -------------
@@ -127,8 +135,8 @@ export async function getBusinessInfo() {
 
 // ---- Home page ------------------------------------------------------------
 
-export async function getHomePage() {
-  return client.fetch(`*[_type == "homePage"][0]{
+export async function getHomePage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "homePage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -203,8 +211,8 @@ export async function getHomePage() {
 
 // ---- About page -----------------------------------------------------------
 
-export async function getAboutPage() {
-  return client.fetch(`*[_type == "aboutPage"][0]{
+export async function getAboutPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "aboutPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -236,8 +244,8 @@ export async function getAboutPage() {
 
 // ---- Process page ---------------------------------------------------------
 
-export async function getProcessPage() {
-  return client.fetch(`*[_type == "processPage"][0]{
+export async function getProcessPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "processPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -256,8 +264,8 @@ export async function getProcessPage() {
 
 // ---- Services page --------------------------------------------------------
 
-export async function getServicesPage() {
-  return client.fetch(`*[_type == "servicesPage"][0]{
+export async function getServicesPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "servicesPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -282,8 +290,8 @@ export async function getServicesPage() {
 
 // ---- FAQ page -------------------------------------------------------------
 
-export async function getFaqPage() {
-  return client.fetch(`*[_type == "faqPage"][0]{
+export async function getFaqPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "faqPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -304,8 +312,8 @@ export async function getFaqPage() {
 
 // ---- Contact page ---------------------------------------------------------
 
-export async function getContactPage() {
-  return client.fetch(`*[_type == "contactPage"][0]{
+export async function getContactPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "contactPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -333,8 +341,8 @@ export async function getContactPage() {
 
 // ---- Portfolio index page -------------------------------------------------
 
-export async function getPortfolioPage() {
-  return client.fetch(`*[_type == "portfolioPage"][0]{
+export async function getPortfolioPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "portfolioPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -349,8 +357,8 @@ export async function getPortfolioPage() {
 
 // ---- 404 page -------------------------------------------------------------
 
-export async function getNotFoundPage() {
-  return client.fetch(`*[_type == "notFoundPage"][0]{
+export async function getNotFoundPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "notFoundPage"][0]{
     seoTitle,
     seoDescription,
     eyebrow,
@@ -423,8 +431,8 @@ const JOURNAL_CARD_PROJECTION = `{
   "categories": categories[]->{ _id, title, slug, description }
 }`;
 
-export async function getJournalPage() {
-  return client.fetch(`*[_type == "journalPage"][0]{
+export async function getJournalPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "journalPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -502,8 +510,8 @@ export async function getAllJournalSlugs(): Promise<string[]> {
 
 // ---- E-Design page --------------------------------------------------------
 
-export async function getEDesignPage() {
-  return client.fetch(`*[_type == "eDesignPage"][0]{
+export async function getEDesignPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "eDesignPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -530,8 +538,8 @@ export async function getEDesignPage() {
 
 // ---- Shop page + collections + items -------------------------------------
 
-export async function getShopPage() {
-  return client.fetch(`*[_type == "shopPage"][0]{
+export async function getShopPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "shopPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -559,8 +567,8 @@ export async function getShopPage() {
 
 // ---- Gift certificates page -----------------------------------------------
 
-export async function getGiftPage() {
-  return client.fetch(`*[_type == "giftPage"][0]{
+export async function getGiftPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "giftPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -582,8 +590,8 @@ export async function getGiftPage() {
 
 // ---- Resources hub page ---------------------------------------------------
 
-export async function getResourcesPage() {
-  return client.fetch(`*[_type == "resourcesPage"][0]{
+export async function getResourcesPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "resourcesPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -602,8 +610,8 @@ export async function getResourcesPage() {
 
 // ---- Privacy page ---------------------------------------------------------
 
-export async function getPrivacyPage() {
-  return client.fetch(`*[_type == "privacyPage"][0]{
+export async function getPrivacyPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "privacyPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -618,8 +626,8 @@ export async function getPrivacyPage() {
 
 // ---- Press page + press items ---------------------------------------------
 
-export async function getPressPage() {
-  return client.fetch(`*[_type == "pressPage"][0]{
+export async function getPressPage(c: SanityClient = client) {
+  return c.fetch(`*[_type == "pressPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -632,8 +640,8 @@ export async function getPressPage() {
 }
 
 // Press items ordered by orderRank for the strip + /press listing.
-export async function getPressItems() {
-  return client.fetch(`*[_type == "pressItem"] | order(orderRank asc){
+export async function getPressItems(c: SanityClient = client) {
+  return c.fetch(`*[_type == "pressItem"] | order(orderRank asc){
     _id, outlet,
     logo${IMAGE_PROJECTION},
     quote, url, date, orderRank
@@ -755,9 +763,11 @@ export async function getProjectsWithBeforeAfter() {
 // ---- Custom pages (page builder) ------------------------------------------
 
 // One published custom page by slug, with its section array fully resolved.
-export async function getPage(slug: string) {
-  return client.fetch(
+export async function getPage(slug: string, c: SanityClient = client) {
+  return c.fetch(
     `*[_type == "page" && slug.current == $slug][0]{
+      _id,
+      _type,
       title,
       "slug": slug.current,
       seoTitle, seoDescription,

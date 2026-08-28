@@ -3,10 +3,21 @@
 # requires testing because of the Sanity CDN, Web3Forms POST, Calendly iframe, and the
 # Cloudflare Analytics beacon. Revisit post-launch.
 #
-# frame-ancestors: replaces the legacy X-Frame-Options so we can selectively allow
-# the deployed Sanity Studio (and local studio dev servers on :3333/:3334) to iframe
-# the live site for the iframe-pane preview plugin. 'self' lets the site embed itself.
-# Modern browsers prefer CSP frame-ancestors over X-Frame-Options when both are present.
+# frame-ancestors: replaces the legacy X-Frame-Options so a Studio can iframe this
+# site for preview. Modern browsers prefer CSP frame-ancestors over X-Frame-Options
+# when both are present.
+#
+# 2026-08-28: 'self' is now the entry that matters. The Studio is EMBEDDED at
+# /studio on this same origin, so the Presentation tool's preview iframe of
+# /preview/* is a same-origin frame and 'self' is the whole permission it needs.
+# Nothing was added here for the embedded Studio, and nothing needs to be.
+#
+# The *.sanity.studio and :3333/:3334 entries are LEGACY: they existed for the
+# separately deployed reid-design.sanity.studio and its iframe-pane preview,
+# both of which this repo stopped producing (see sanity.cli.ts). They are kept
+# only until that old hosted Studio is retired in Sanity Manage, so an editor who
+# still has its URL bookmarked is not left with a blank preview pane. Delete this
+# line's *.sanity.studio and localhost entries at the same time as that Studio.
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains

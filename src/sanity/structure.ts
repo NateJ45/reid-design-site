@@ -20,7 +20,10 @@
 
 import type { StructureBuilder, StructureResolverContext } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
-import { Iframe, urlForDoc } from './sanity.config';
+// 2026-08-28: this used to be `import { Iframe, urlForDoc } from './sanity.config'`,
+// which made the desk structure and the config import each other. The URL map
+// now lives in its own module (src/sanity/urls.ts) and the cycle is gone; the
+// iframe preview pane is gone too (see singletonWithPreview below).
 import {
   CogIcon,
   TrashIcon,
@@ -114,12 +117,18 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
 ]);
 
 /**
- * Build a singleton list item whose editor pane includes both the form view
- * and an iframe preview view (when the doc type has a viewable page).
+ * Build a singleton list item pinned to its one fixed document id.
  *
- * S.editor() and S.document().views([S.view.form()]) both pre-set views and
- * thereby bypass the defaultDocumentNode in sanity.config.ts. So we attach
- * views explicitly here for the singletons that need them.
+ * NAME KEPT ON PURPOSE. It used to attach a second `sanity-plugin-iframe-pane`
+ * "Preview" tab beside the form. That plugin was dropped on 2026-08-28 with the
+ * Sanity 6.4 pin set: it depends on `@sanity/ui: ^3.2.0` by caret, which floats
+ * to 3.5.x and breaks the one-@sanity/ui-instance invariant the whole Studio
+ * theme context rests on (PORTS.md card 10). Overriding a third package to hold
+ * a dead-end preview was the wrong trade, because the Presentation tool now in
+ * sanity.config.ts replaces what it did and does it better: a live, click-to-
+ * edit, draft-aware preview with a page navigator, instead of a read-only
+ * iframe of the last deploy.
+ *
  */
 function singletonWithPreview(
   S: StructureBuilder,
@@ -127,32 +136,10 @@ function singletonWithPreview(
   title: string,
   icon: any,
 ) {
-  const hasPreview = urlForDoc(schemaType, {}) !== null;
-  const views = [
-    S.view.form(),
-    ...(hasPreview
-      ? [
-          S.view
-            .component(Iframe)
-            .options({
-              url: (doc: any) => urlForDoc(schemaType, doc) ?? '',
-              reload: { button: true },
-              defaultSize: 'desktop',
-            })
-            .title('Preview'),
-        ]
-      : []),
-  ];
-
   return S.listItem()
     .title(title)
     .icon(icon)
-    .child(
-      S.document()
-        .schemaType(schemaType)
-        .documentId(schemaType)
-        .views(views),
-    );
+    .child(S.document().schemaType(schemaType).documentId(schemaType).views([S.view.form()]));
 }
 
 export const deskStructure = (S: StructureBuilder, context: StructureResolverContext) =>

@@ -6,20 +6,103 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
+import sanity from '@sanity/astro';
+
+// The Sanity project id is PUBLIC by design: it ships in every client bundle and
+// in every GROQ request URL. Read through process.env here (astro.config runs in
+// Node before Vite's import.meta.env exists) with the same placeholder fallback
+// src/lib/sanity.ts uses, so a clone with no .env still builds.
+const SANITY_PROJECT_ID = process.env.PUBLIC_SANITY_PROJECT_ID || 'placeholder-project-id';
+const SANITY_DATASET = process.env.PUBLIC_SANITY_DATASET || 'production';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://reiddesignllc.com',
   output: 'static',
+  // 2026-08-28 (Astro 7 / @astrojs/cloudflare 14 upgrade): there is no gated
+  // area or login anywhere on this site, so opt out of sessions. Left on, the
+  // v14 adapter auto-declares a "SESSION" KV binding in the generated
+  // dist/server/wrangler.json, and a KV binding with no namespace id fails the
+  // deploy. Verified: the adapter-13 build DID emit that binding. A future
+  // feature that needs sessions turns this back on and creates the namespace
+  // deliberately.
+  session: false,
   // `imageService: 'compile'` tells @astrojs/cloudflare to process images
   // with Sharp at build time and ship plain static files — no Cloudflare
   // Images runtime, no per-transform fees, no Workers binding required.
   // The adapter's default would otherwise wire up the IMAGES binding which
   // is meant for SSR sites that want on-demand transforms (we don't).
   adapter: cloudflare({ imageService: 'compile' }),
-  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404') }), react()],
+  integrations: [
+    mdx(),
+    // Embedded Sanity Studio at /studio (2026-08-28). This is now the ONE
+    // Studio: it rebuilds with every site deploy, so its schema can never drift
+    // stale the way the old hand-deployed reid-design.sanity.studio could.
+    // The config it loads is the repo-root sanity.config.ts.
+    sanity({
+      projectId: SANITY_PROJECT_ID,
+      dataset: SANITY_DATASET,
+      useCdn: false,
+      studioBasePath: '/studio',
+    }),
+    sitemap({
+      // /studio and /preview are Studio plumbing (SSR, noindex). The sitemap
+      // only walks prerendered routes so they are mostly excluded already, but
+      // the filter makes it explicit and future-proof.
+      filter: (page) =>
+        !page.includes('/404') && !page.includes('/studio') && !page.includes('/preview'),
+    }),
+    react(),
+  ],
   vite: {
     plugins: [tailwindcss()],
+    // @sanity/ui ships an ESM build that Vite's dependency pre-bundler
+    // mis-scans on this stack (MISSING_EXPORT errors for styled-components).
+    // Excluding it from pre-bundling matches the starter's working config; it
+    // is still bundled correctly by `astro build`.
+    //
+    // Deliberately NO custom chunking here. An `advancedChunks` group forcing
+    // styled-components + @sanity/ui into one chunk was tried in presacademy on
+    // 2026-08-26 (chasing a theming crash) and made things worse: merging those
+    // modules changes evaluation order and broke @sanity/ui's theme init,
+    // surfacing as "TypeError: Cannot read properties of undefined (reading
+    // 'v2')" from inside styled-components' generateAndInjectStyles. Leave the
+    // bundler's default chunking alone.
+    optimizeDeps: {
+      exclude: ['@sanity/ui', 'styled-components'],
+    },
+    // -----------------------------------------------------------------------
+    // ONE module instance per package
+    // -----------------------------------------------------------------------
+    // The Studio now lives in this package (the nested studio/ package was
+    // folded in 2026-08-28), so there is only one node_modules tree and this is
+    // belt-and-braces rather than the load-bearing fix it was in presacademy.
+    // Keep it anyway: it is cheap, and it protects against a future package
+    // adding a second resolution root. Two instances of styled-components means
+    // two React contexts, and the ThemeProvider mounted by one is invisible to
+    // useTheme in the other, which kills the signed-in Studio while leaving the
+    // login screen (core code only) working.
+    //
+    // @sanity/icons is deliberately NOT here: sanity core wants v5 while
+    // @sanity/ui v3 wants v3.8, and icons are stateless SVG components with no
+    // React context, so two instances are harmless. Deduping them broke the
+    // build in the starter (CogIcon is gone in v5).
+    //
+    // Verify after any Sanity dependency work:
+    //   Select-String -Path dist/client/_astro/*.js -Pattern "errors.md#" -List
+    // must list exactly ONE file.
+    resolve: {
+      dedupe: [
+        'react',
+        'react-dom',
+        'react-is',
+        'styled-components',
+        '@sanity/ui',
+        '@sanity/client',
+        'sanity',
+        'rxjs',
+      ],
+    },
   },
   // NOTE: A previous attempt at `security.csp` shipped a hash-based CSP
   // meta tag. It got past Lighthouse's csp-xss check on paper, but Astro

@@ -2,7 +2,7 @@
 
 Marketing site for **Reid Design LLC**, an interior design studio in Plainfield, Indiana run by Staci Perkins. Built on Astro + Sanity + Cloudflare Workers.
 
-**Live:** [reiddesignllc.com](https://reiddesignllc.com) · **Studio:** studio.reiddesignllc.com
+**Live:** [reiddesignllc.com](https://reiddesignllc.com) · **Studio:** `/studio` on the site itself
 
 ---
 
@@ -30,11 +30,12 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 
 ## Stack
 
-- **Astro 6** (static output) + TypeScript strict mode
-- **Sanity v5** headless CMS (schemas in `studio/schemaTypes/`, Studio at `studio.reiddesignllc.com`)
+- **Astro 7** (static output plus a few SSR routes) + TypeScript strict mode
+- **Sanity 6.4** headless CMS in the same package (schemas in `src/sanity/schemaTypes/`), with the Studio **embedded at `/studio`** so it rebuilds with every deploy and cannot drift stale
+- **Live preview** at `/preview/*` through Sanity's Presentation tool: click any text to edit it, and add, duplicate, reorder or remove whole sections right in the canvas
 - **Tailwind 4** via `@tailwindcss/vite` (brand tokens in `src/styles/globals.css`, no `tailwind.config`)
 - **React 19** islands for the interactive pieces: nav drawer, contact form, style quiz, budget calculator, before/after sliders, galleries
-- **Cloudflare Workers** hosting via `wrangler deploy`; pushes to `main` auto-deploy through Cloudflare's CI
+- **Cloudflare Workers** hosting via `wrangler deploy -c dist/server/wrangler.json`; pushes to `main` auto-deploy through Cloudflare's CI
 
 ## Pages
 
@@ -44,8 +45,19 @@ Home · About · Process · Services · FAQ · Contact · Portfolio (+ project d
 
 ```sh
 npm install
-npm run dev
+npm run dev          # site on :4321, Studio on :4321/studio
 ```
+
+To exercise the SSR routes (`/studio`, `/preview/**`, `/api/draft-mode/*`) the way
+production runs them, build and serve through a real Worker instead:
+
+```sh
+npm run build
+npm run preview      # wrangler dev -c dist/server/wrangler.json
+```
+
+The preview stack needs a `SANITY_TOKEN` in `.dev.vars` (see `.dev.vars.example`)
+and this origin on the Sanity project's CORS allow list.
 
 Full architecture reference in [`CLAUDE.md`](./CLAUDE.md); operational playbook in [`OPERATIONS.md`](./OPERATIONS.md).
 

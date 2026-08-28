@@ -1,0 +1,346 @@
+---
+/* ============================================================================
+   Preview route - draft-aware pages for the Studio Presentation tool
+   (ported from ncs-astro-sanity-starter 2026-08-28; PORTS.md cards 10 + 17)
+   ============================================================================
+   One SSR route renders ANY page in draft mode for the Presentation Tool: it
+   reads the perspective cookie, fetches the doc draft-aware (stega on) through
+   the SAME query functions the live pages use, and renders it through the SAME
+   renderer, so the preview cannot drift from the page.
+
+   THIS SITE HAS THREE PAGE SHAPES, and the preview treats them differently.
+
+    1. BUILDER SINGLETONS - home, about, process, services, e-design,
+       gift-certificates, press, resources. Their layout IS a `pageBuilder`
+       array of section markers plus inserted library blocks, rendered by a
+       per-page renderer (HomeSectionRenderer and friends). The preview is
+       FULL FIDELITY: same query, same renderer, same props. The only things
+       missing are the site header, the footer and the polish layer, which
+       PreviewLayout deliberately leaves out (see its header for why).
+
+    2. CUSTOM `page` DOCS - the pages Staci builds herself. Their whole body is
+       a `pageBuilder` array of library blocks through SectionRenderer. Also
+       full fidelity.
+
+    3. BESPOKE SINGLETONS - faq, contact, journal, portfolio, privacy, shop,
+       404. Their middles are drawn in code (the FAQ accordion, the contact
+       form, the journal and portfolio grids), so what previews is their
+       EDITABLE SURFACE: the hero fields, the "Extra sections" array, and the
+       closing call to action, with a note on the page saying so. Converting
+       one of these to the page builder would upgrade its preview for free, but
+       that conversion is a separate job (PORTS.md card 12) and is deliberately
+       not attempted here.
+
+   Keep the path -> type map in sync with SINGLETON_PREVIEW_PATHS in
+   src/sanity/resolve.ts and FIRST_SEGMENT_PREVIEWABLE in
+   src/layouts/PreviewLayout.astro. noindex comes from PreviewLayout.
+   ============================================================================ */
+export const prerender = false;
+
+import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
+import PreviewLayout from '@/layouts/PreviewLayout.astro';
+import Hero from '@/components/Hero.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import HomeSectionRenderer from '@/components/HomeSectionRenderer.astro';
+import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
+import ProcessSectionRenderer from '@/components/ProcessSectionRenderer.astro';
+import ServicesSectionRenderer from '@/components/ServicesSectionRenderer.astro';
+import EDesignSectionRenderer from '@/components/EDesignSectionRenderer.astro';
+import GiftSectionRenderer from '@/components/GiftSectionRenderer.astro';
+import PressSectionRenderer from '@/components/PressSectionRenderer.astro';
+import ResourcesSectionRenderer from '@/components/ResourcesSectionRenderer.astro';
+import { getPreviewClient, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
+import { getSectionVisibility } from '@/lib/sectionVisibility';
+import {
+  getSiteSettings,
+  getPressItems,
+  getHomePage,
+  getAboutPage,
+  getProcessPage,
+  getServicesPage,
+  getEDesignPage,
+  getGiftPage,
+  getPressPage,
+  getResourcesPage,
+  getFaqPage,
+  getContactPage,
+  getJournalPage,
+  getPortfolioPage,
+  getPrivacyPage,
+  getShopPage,
+  getNotFoundPage,
+  getPage,
+} from '@/lib/queries';
+
+// A clone with no project id or no runtime token: say so, do not 500.
+const config = previewConfig();
+if (!config.ok) {
+  return previewUnconfiguredResponse(config.missing);
+}
+
+const draftMode = Astro.cookies.has(perspectiveCookieName);
+const slug = ((Astro.params.slug as string | undefined) || '').replace(/\/+$/, '');
+const client = getPreviewClient(draftMode);
+
+// Fixed preview path -> singleton type. Mirror of SINGLETON_PREVIEW_PATHS in
+// src/sanity/resolve.ts (that map carries the /preview prefix, this one does
+// not) and of FIRST_SEGMENT_PREVIEWABLE in src/layouts/PreviewLayout.astro.
+const SINGLETON_BY_PATH: Record<string, string> = {
+  '': 'homePage',
+  about: 'aboutPage',
+  process: 'processPage',
+  services: 'servicesPage',
+  'e-design': 'eDesignPage',
+  'gift-certificates': 'giftPage',
+  press: 'pressPage',
+  resources: 'resourcesPage',
+  faq: 'faqPage',
+  contact: 'contactPage',
+  journal: 'journalPage',
+  portfolio: 'portfolioPage',
+  privacy: 'privacyPage',
+  shop: 'shopPage',
+  '404': 'notFoundPage',
+};
+
+const singletonType = SINGLETON_BY_PATH[slug];
+
+// Singleton documents are pinned to a document id equal to their type (the
+// convention src/sanity/structure.ts enforces with documentId(schemaType)), so
+// there is no id to look up for those. A custom page's id comes off the doc.
+const isBuilderSingleton = new Set([
+  'homePage',
+  'aboutPage',
+  'processPage',
+  'servicesPage',
+  'eDesignPage',
+  'giftPage',
+  'pressPage',
+  'resourcesPage',
+]).has(singletonType ?? '');
+
+// ---------------------------------------------------------------------------
+// Load. Every fetch goes through the DRAFT-aware client, including the shared
+// documents (site settings, press items), so an unpublished edit to a service
+// or a testimonial shows up in the page that renders it.
+// ---------------------------------------------------------------------------
+const siteSettings = await getSiteSettings(client).catch(() => null);
+const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+
+let page: any = null;
+let pressItems: any[] = [];
+
+if (singletonType) {
+  const loaders: Record<string, () => Promise<any>> = {
+    homePage: () => getHomePage(client),
+    aboutPage: () => getAboutPage(client),
+    processPage: () => getProcessPage(client),
+    servicesPage: () => getServicesPage(client),
+    eDesignPage: () => getEDesignPage(client),
+    giftPage: () => getGiftPage(client),
+    pressPage: () => getPressPage(client),
+    resourcesPage: () => getResourcesPage(client),
+    faqPage: () => getFaqPage(client),
+    contactPage: () => getContactPage(client),
+    journalPage: () => getJournalPage(client),
+    portfolioPage: () => getPortfolioPage(client),
+    privacyPage: () => getPrivacyPage(client),
+    shopPage: () => getShopPage(client),
+    notFoundPage: () => getNotFoundPage(client),
+  };
+  page = await loaders[singletonType]().catch(() => null);
+  // Only the two pages that render the press strip pay for the extra query.
+  if (singletonType === 'homePage' || singletonType === 'aboutPage' || singletonType === 'pressPage') {
+    pressItems = await getPressItems(client).catch(() => []);
+  }
+} else {
+  page = await getPage(slug, client).catch(() => null);
+}
+
+if (!page) {
+  return new Response(
+    `No document found for "${slug || 'home'}". Create it in the Studio, then reopen the preview.`,
+    { status: 404 },
+  );
+}
+
+// The doc id the overlay and /preview/live listen on. Singleton ids equal their
+// type; a Studio-created page has a random id, and the draft perspective can
+// return the drafts. twin's id, so strip the prefix to match both twins.
+const pageId = singletonType ?? String(page._id ?? '').replace(/^drafts\./, '');
+const docType = singletonType ?? 'page';
+
+// ---------------------------------------------------------------------------
+// In-canvas section controls (PORTS.md card 17)
+// ---------------------------------------------------------------------------
+// The doc and array field each rendered section belongs to. The renderers turn
+// this into one `data-sanity` attribute per section, which is what lets the
+// Presentation overlay outline a section and offer insert / duplicate / remove
+// / drag-to-reorder right in the preview instead of only in the Structure
+// panel. See src/lib/preview-edit-attr.ts.
+//
+// TWO FIELD NAMES on this site: the builder pages and custom pages hold their
+// layout in `pageBuilder`; the bespoke pages' editable array is
+// `additionalSections`. Point a renderer at the wrong one and its controls edit
+// nothing, silently.
+//
+// Passed regardless of draftMode. The attribute is inert without the Studio's
+// overlay, this route is noindex and never part of the static build, and a
+// preview opened before the cookie lands would otherwise render uncontrollable
+// sections.
+const builderEditDoc = { id: pageId, type: docType, field: 'pageBuilder' as const };
+const extraEditDoc = { id: pageId, type: docType, field: 'additionalSections' as const };
+
+// The bespoke pages carry hero fields; the 404 page names them differently.
+const heroHeadline = page.heroHeadline || page.headline || '';
+const heroEyebrow = page.heroEyebrow || page.eyebrow || '';
+const isBespoke = Boolean(singletonType) && !isBuilderSingleton;
+const showHero = isBespoke && Boolean(heroHeadline);
+const hasFinalCta = isBespoke && Boolean(page.finalCtaHeadline || page.finalCta);
+const extraSections = page.additionalSections ?? [];
+
+const label = page.title || page.seoTitle || heroHeadline || slug || 'Home';
+const title = `${label} - Preview`;
+---
+
+<PreviewLayout {title} {draftMode} {pageId}>
+  {
+    singletonType === 'homePage' && (
+      <HomeSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        siteSettings={siteSettings}
+        pressItems={pressItems}
+        visible={visible}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+  {
+    singletonType === 'aboutPage' && (
+      <AboutSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        philosophyPoints={page.philosophyPoints ?? []}
+        pressItems={pressItems}
+        visiblePress={visible.press}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+  {
+    singletonType === 'processPage' && (
+      <ProcessSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+  {
+    singletonType === 'servicesPage' && (
+      <ServicesSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        siteSettings={siteSettings}
+        visible={visible}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+  {
+    singletonType === 'eDesignPage' && (
+      <EDesignSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+  {
+    singletonType === 'giftPage' && (
+      <GiftSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
+    )
+  }
+  {
+    singletonType === 'pressPage' && (
+      <PressSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        pressItems={pressItems}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+  {
+    singletonType === 'resourcesPage' && (
+      <ResourcesSectionRenderer
+        sections={page.pageBuilder}
+        page={page}
+        visible={visible}
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+
+  {/* Custom page built in the page builder. */}
+  {
+    !singletonType && (
+      <SectionRenderer
+        sections={page.pageBuilder}
+        idPrefix="page"
+        editDoc={builderEditDoc}
+      />
+    )
+  }
+
+  {/* Bespoke page: hero, a note about what is not shown, the Extra sections
+      array, and the closing call to action. */}
+  {
+    showHero && (
+      <Hero
+        eyebrow={heroEyebrow}
+        headline={heroHeadline}
+        subhead={page.heroSubhead ?? ''}
+        backgroundImage={page.heroImage ?? null}
+        scriptAccent={page.heroScriptAccent}
+        headingId="preview-hero"
+        size="short"
+      />
+    )
+  }
+  {
+    isBespoke && (
+      <div class="mx-auto max-w-3xl px-m py-m">
+        <p class="border-border-soft bg-bg-soft text-foreground/80 rounded-md border px-m py-s text-sm">
+          This page's middle is drawn in code (the list, form or grid it is built
+          around), so it previews as its editable surface only: the hero above,
+          any extra sections below, and the closing call to action. The parts
+          held in code render on the live site.
+        </p>
+      </div>
+    )
+  }
+  {
+    isBespoke && (
+      <SectionRenderer
+        sections={extraSections}
+        idPrefix="preview-extra"
+        editDoc={extraEditDoc}
+      />
+    )
+  }
+  {
+    hasFinalCta && (
+      <FinalCta
+        eyebrow={page.finalCtaEyebrow}
+        headline={page.finalCtaHeadline}
+        subhead={page.finalCtaSubhead}
+        scriptAccent={page.finalCtaScriptAccent}
+        cta={page.finalCta ?? null}
+        backgroundImage={page.finalCtaBackgroundImage ?? null}
+      />
+    )
+  }
+</PreviewLayout>

@@ -59,17 +59,129 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 **Reusable object types (embedded, not standalone documents):**
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
 
+### Where the Studio lives (rewritten 2026-08-28)
+
+**One package, one Studio, embedded at `/studio`.** The nested `studio/` package
+is gone. Its contents moved into this one:
+
+| Was | Is now |
+|---|---|
+| `studio/sanity.config.ts` | `sanity.config.ts` (repo root) |
+| `studio/sanity.cli.ts` | `sanity.cli.ts` (repo root) |
+| `studio/schemaTypes/*` | `src/sanity/schemaTypes/*` |
+| `studio/components/*` | `src/sanity/components/*` |
+| `studio/actions/archive.tsx`, `studio/lib/trash.ts` | `src/sanity/actions/`, `src/sanity/lib/` |
+| `studio/structure.ts`, `studio/global.d.ts`, `studio/reid-logo.png` | `src/sanity/` |
+| `npm --prefix studio run typegen` | `npm run typegen` from the root |
+| `npm run studio:dev` | `npm run dev`, then `/studio` |
+| `npm run studio:deploy` | nothing. The Studio ships with the site |
+
+**Why it had to be one package.** Two `node_modules` trees means two module
+instances of `styled-components` and `@sanity/ui`, same pinned versions or not.
+The ThemeProvider mounted by one is invisible to `useTheme` in the other, so the
+desk dies on its first custom-component render (styled-components error #18,
+then `Cannot read properties of undefined (reading 'v2')`) while the login
+screen, which is core code only, renders fine. A sibling site in the family lost
+a day of production outage to exactly that. `astro.config.mjs` keeps a
+`resolve.dedupe` list as belt-and-braces. `@sanity/icons` is deliberately NOT
+deduped: sanity core wants v5, `@sanity/ui` v3 wants v3.8, icons are stateless,
+and deduping them broke the build elsewhere on a missing v5 `CogIcon`.
+
+**Verify after any Sanity dependency work, on DISK and in the bundle**, not from
+the npm install output:
+
+```powershell
+Get-ChildItem -Recurse node_modules -Filter package.json |
+  Where-Object FullName -like '*@sanity\ui\package.json'      # exactly one
+Select-String -Path dist/client/_astro/*.js `
+  -Pattern 'packages/styled-components/src/utils/errors.md#' -List   # exactly one
+```
+
+Note the SECOND pattern is deliberately specific. The family's shorthand check is
+`grep -l "errors.md#"`, which reports TWO files here and looks like a failure: the
+extra hit is `polished` (a normal dependency of `sanity` 6.4.0) whose error
+messages happen to use the same URL shape. Match the styled-components path.
+
+**The version set is a set.** `sanity` 6.4.0, `@sanity/ui` **3.3.5**,
+`styled-components` 6.4.3, `@sanity/client` 7.23.0, `react`/`react-dom`/`react-is`
+exactly 19.2.7, `sanity-plugin-media` 5.0.11,
+`sanity-plugin-asset-source-unsplash` 7.0.15, and `overrides` for
+`sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.4.5. Those two need
+`overrides` rather than a plain dependency pin, because npm will happily nest a
+newer copy under a dependant and drag a second `@sanity/ui` in with it. "Latest
+v3" is not close enough: 3.5.3 clears error #18 and then fails differently,
+because `sanity` 6.4.0 expects the 3.3.x theme shape. Check a change against a
+sibling repo's RESOLVED versions, never its semver ranges, and delete the
+lockfile when an override appears to do nothing (npm keeps an already-resolved
+nested tree).
+
+**`sanity-plugin-iframe-pane` was dropped** with the fold. It depended on
+`@sanity/ui` by caret, which floats off 3.3.5, and the read-only iframe of the
+last deploy it provided is strictly worse than the Presentation preview below.
+
+### The live preview (added 2026-08-28)
+
+Five parts that only work together:
+
+1. **`presentationTool`** in `sanity.config.ts`, pointed at `/preview` with
+   `previewMode.enable: '/api/draft-mode/enable'`. `disable` is a documented
+   no-op in this Sanity version, so leaving preview is a plain link to
+   `/api/draft-mode/disable`.
+2. **`src/sanity/resolve.ts`** — the document/URL map in both directions.
+3. **`src/pages/preview/[...slug].astro`** — one SSR route that renders any page
+   draft-aware. The eight builder singletons (home, about, process, services,
+   e-design, gift-certificates, press, resources) and custom `page` docs go
+   through their REAL renderers, so the preview cannot drift from the page. The
+   bespoke ones (faq, contact, journal, portfolio, privacy, shop, 404) preview
+   their editable surface (hero, Extra sections, closing CTA) with a note on the
+   page saying the middle is drawn in code.
+4. **`src/pages/preview/live.ts`** — an SSE proxy holding the token server-side
+   over ONE long-lived connection to Sanity's listen API. A listen connection is
+   a single API request no matter how long it stays open, and events ride it for
+   free. **Never replace it with an interval poll**; that is what burned a
+   sibling site's Sanity quota.
+5. **`src/lib/preview-auth.ts`** — the preview cookie's value is a SHA-256
+   fingerprint of the server-side token, not the package's forgeable static
+   `true`.
+
+**`NON_STEGA_FIELDS` in `src/lib/cms-preview.ts` is not optional.** Stega hides
+roughly a kilobyte of invisible marker characters inside every string it
+encodes, so an encoded `'hero'` fails `=== 'hero'` and the component takes the
+wrong branch **in preview only**. Every enum that drives rendering must be
+excluded. The most load-bearing name on that list is `section`: it is
+`homeSectionMarker.section` and its siblings, the string every `*SectionRenderer`
+branches on, so encoding it would blank every built-in section of the home page
+in preview while the live site looked perfect.
+
+**In-canvas section controls.** Each rendered section carries a `data-sanity`
+attribute (`src/lib/preview-edit-attr.ts`) so the visual-editing overlay outlines
+it as an array item and offers insert / duplicate / remove / drag-to-reorder in
+the canvas. Two array field names on this site: `pageBuilder` on the builder
+singletons and custom pages, `additionalSections` on the bespoke ones. Point a
+renderer at the wrong one and its controls edit nothing, silently. The attribute
+renders on preview surfaces ONLY; `npm run parity` is the gate on that.
+
+**Three files hold the same path map and must agree:**
+`SINGLETON_PREVIEW_PATHS` (`src/sanity/resolve.ts`), `SINGLETON_BY_PATH`
+(`src/pages/preview/[...slug].astro`), and `FIRST_SEGMENT_PREVIEWABLE`
+(the click interceptor in `src/layouts/PreviewLayout.astro`). The third is the
+one that degrades silently: a missed entry does not error, it just lets a click
+escape the iframe to the live site, and the Studio's navigator and edit panel
+freeze on the previous page while the preview shows the real site.
+
 ### Studio configuration notes
 
 **All-fields default.** The `default: true` property has been removed from every schema field group definition across all schemas. Without it, Sanity Studio opens documents on the "All fields" tab instead of a single group. This gives Staci a complete view of a document without needing to know which group a field lives in.
 
-**Studio branding.** `studio/sanity.config.ts` configures the Studio with `title: 'Reid Design'` (shown in the browser tab when editing), a `buildLegacyTheme` bronze theme that maps `--brand-primary` to Warm Bronze (`#9C7661`) and uses the Soft Linen background color, and a custom `StudioLogo` component (at `studio/components/StudioLogo.tsx`, using `studio/reid-logo.png`) wired via `studio.components.logo`. The Studio UI reads as the Reid Design brand rather than the default Sanity chrome.
+**Studio branding.** The repo-root `sanity.config.ts` configures the Studio with `title: 'Reid Design'` (shown in the browser tab when editing), a `buildLegacyTheme` bronze theme that maps `--brand-primary` to Warm Bronze (`#9C7661`) and uses the Soft Linen background color, and a custom `StudioLogo` component (at `src/sanity/components/StudioLogo.tsx`, using `src/sanity/reid-logo.png`) wired via `studio.components.logo`. The Studio UI reads as the Reid Design brand rather than the default Sanity chrome.
+
+Worth knowing if the Studio's Dark appearance setting ever comes up: `buildLegacyTheme` is **light-only**. It hard-codes white component backgrounds, so flipping the Studio to Dark leaves every panel white. `@sanity/ui`'s `buildTheme` ships a real tested dark mode and costs the brand tinting of the Studio chrome, which is a reasonable trade if Staci ever asks for it. The bronze legacy theme was kept here deliberately: it is a brand decision, not an oversight.
 
 **SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons, `journalEntry`, `leadMagnet`, the `styleQuiz` + `budgetCalculator` singletons (added when `/quiz` + `/calculator` SEO was made editable), and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
 
-**Vision/GROQ plugin gating.** The `visionTool()` plugin (the in-Studio GROQ query runner) is conditionally registered only when `process.env.NODE_ENV !== 'production'`. This means the Vision tab appears for Nathan in the local dev Studio but does not clutter Staci's deployed Studio at `reid-design.sanity.studio`.
+**Vision/GROQ plugin gating, and why the old test was a live bug.** The `visionTool()` plugin (the in-Studio GROQ query runner) is registered only in dev. The test used to be `process.env.NODE_ENV !== 'production'`, which was fine while the Studio was its own package and is wrong in an embedded one: Astro/Vite's client bundle injects `globalThis.process ??= {}`, so `process` exists with an empty env, `NODE_ENV` is `undefined`, and the comparison came out TRUE in production, shipping Vision to Staci. The check now reads `import.meta.env.DEV` first and FAILS CLOSED (`IS_DEV` in `sanity.config.ts`).
 
-**`studio/global.d.ts`.** Contains ambient module declarations for `*.png`, `*.jpg`, and `*.svg` imports, so TypeScript does not complain when Studio components import the `reid-logo.png` asset.
+**`src/sanity/global.d.ts`.** Contains ambient module declarations for `*.png`, `*.jpg`, and `*.svg` imports, so TypeScript does not complain when Studio components import the `reid-logo.png` asset.
 
 ### Canvas (AI-assisted writing)
 
@@ -93,7 +205,7 @@ Two schema-level controls govern what Canvas sees, both expressed as `options.ca
 
 The `purpose` strings carry a compressed version of the voice manifesto ("warm, plain-spoken, slightly informal, confident about money; sounds like a smart friend, not a brochure; banned vocabulary: transformative, curated, elevated, tailored, investment in your space") plus per-field role guidance. These ride along with every Canvas suggestion for that field, but they are NOT a hard guardrail — Staci should still apply the manifesto in review, and Claude in chat can run a `brand-voice:enforce-voice` pass over any Canvas draft before publish.
 
-**Deploying changes** that touch Canvas annotations: run `npm run studio:deploy` from the project root. Canvas reads the deployed Studio schema, so any new `canvasApp.purpose` or `exclude` change needs a Studio redeploy to take effect.
+**Deploying changes** that touch Canvas annotations: push to `main` and let the site deploy. Canvas reads the project's registered schema, and since 2026-08-28 that is refreshed by the site build rather than by a separate `studio:deploy` (which no longer exists).
 
 **Activating Canvas** for the project (one-time): the toggle lives in [manage.sanity.io](https://manage.sanity.io) under the project's Canvas section. May require a paid plan tier depending on Sanity's pricing at the time.
 

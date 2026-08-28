@@ -4,10 +4,23 @@
 
 ## Deployment
 
-- Production: pushes to `main` trigger a Cloudflare Workers build that serves `reiddesignllc.com`.
+- Production: pushes to `main` trigger a Cloudflare Workers build. Today it serves `reid-design-site.nathanjnixon86.workers.dev`; `reiddesignllc.com` still points at Squarespace until the DNS cutover.
 - Previews: any other branch gets its own preview URL via Cloudflare Workers.
-- Build command: `npm run build`. Output directory: `dist`.
-- `output: 'static'` in `astro.config.mjs` prerenders every page to HTML at build time. The `@astrojs/cloudflare` adapter stays installed so individual pages can opt into server rendering later via `export const prerender = false` in that page's frontmatter, but for a content-rich marketing site it's effectively inert.
+- Build command: `npm run build`.
+- **Deploy command (CHANGED 2026-08-28): `npx wrangler deploy -c dist/server/wrangler.json`.** `@astrojs/cloudflare` 14 splits the output into `dist/client` (static assets) and `dist/server` (the SSR bundle plus a generated `wrangler.json` the adapter derives from the root `wrangler.jsonc`). A plain `wrangler deploy` reads the root config, ships the assets without the SSR entrypoint, and every SSR route 404s. **This has to be set in the Cloudflare dashboard** (Workers & Pages, reid-design-site, Settings, Build), because Cloudflare's git integration owns the deploy step, not this repo. `npm run deploy` already passes the flag for a manual deploy. Tracked in `docs/PENDING.md`.
+- `output: 'static'` in `astro.config.mjs` still prerenders every public page to HTML at build time. Since 2026-08-28 a handful of routes deliberately opt out with `export const prerender = false`: `/studio/*` (the embedded Sanity Studio), `/preview/**` and `/api/draft-mode/*` (the live-preview stack). The adapter is no longer effectively inert; it is what serves those.
+
+### Three adapter-config landmines, all removed 2026-08-28
+
+Each was in the config before the upgrade, and each would have broken the deploy or the preview:
+
+- **`not_found_handling: "404-page"`** in `wrangler.jsonc`. With it set, Cloudflare answers NAVIGATION requests (`Sec-Fetch-Mode: navigate`) that miss the asset store straight from the static 404 page **without invoking the Worker**. Every SSR route then 404s for real browsers while `curl`, which sends no `Sec-Fetch` headers, sees them working. That failure mode broke a sibling site's preview in production and hid from every command-line probe. Without the field, an asset miss invokes the Worker and Astro renders the 404 page itself, which is what a real `wrangler dev` showed here.
+- **Sessions.** Left on, adapter 14 auto-declares a `SESSION` KV binding in the generated config, and a KV binding with no namespace id fails the deploy. This site has no gated area, so `session: false`. The adapter-13 build genuinely was emitting that binding already; it just never mattered because nothing consumed the generated config.
+- **`legacy_env`.** Adapter 14 writes it on some configs and wrangler 4.126+ rejects the field outright. The generated config from 14.2.4 here contains no `legacy_env` at all, so the `~4.110.0` wrangler pin is belt-and-braces on this combination. It stays because the adapter's own peer range enforces the pair: 14.2.4 peers `wrangler ^4.83.0`, 14.2.5 peers `^4.125.0`.
+
+### Environment: two token names, two different places
+
+`SANITY_API_READ_TOKEN` lives in `.env` and in the Cloudflare **build** variables; it is read while `astro build` runs, for the static pages. `SANITY_TOKEN` is a Worker **runtime secret** (`npx wrangler secret put SANITY_TOKEN`, `.dev.vars` locally) read through `cloudflare:workers` by the preview routes, which run per request long after the build is over. They may hold the same value. Setting only the first leaves `/preview/*` answering a 503 that names what is missing.
 
 ### Cloudflare Workers vs Pages note
 

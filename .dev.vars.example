@@ -1,0 +1,26 @@
+# Worker RUNTIME secrets, for `wrangler dev` and `npm run preview`.
+# Copy to `.dev.vars` (gitignored) and fill in.
+#
+# This file is NOT the same thing as `.env`. `.env` holds BUILD-time variables
+# that Vite inlines while `astro build` runs. `.dev.vars` holds variables the
+# Worker reads at REQUEST time through `cloudflare:workers`, which is the only
+# place the live-preview stack can get a token: the preview routes are
+# `prerender = false` and run per request, long after the build is over.
+#
+# In production these are set with:
+#   npx wrangler secret put SANITY_TOKEN
+
+# Sanity token with read access to DRAFT documents. Powers /preview/*,
+# /preview/live and /api/draft-mode/enable. Without it those routes fail closed
+# with a 503 naming what is missing, rather than quietly serving published
+# content dressed up as a draft.
+#
+# Create at https://sanity.io/manage/project/ba403vjc/api/tokens with Viewer
+# permission. It may be the same value as SANITY_API_READ_TOKEN in .env; the
+# names are separate because the two live in different places and rotate
+# independently.
+#
+# Rotating it invalidates every outstanding preview cookie (the cookie value is
+# a fingerprint of this token, see src/lib/preview-auth.ts). Editors just reopen
+# the Presentation tool.
+SANITY_TOKEN=

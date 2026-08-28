@@ -7,13 +7,32 @@
 // to SectionRenderer.
 import SectionHeading from '@/components/SectionHeading.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 
 interface Props {
   sections?: any[];
   page: any;
+  /**
+   * PREVIEW ONLY (added 2026-08-28, PORTS.md card 17). When the Studio preview
+   * route passes the document this layout array belongs to, each row is wrapped
+   * in a real block box carrying a `data-sanity` attribute, which is what gives
+   * the Presentation overlay its in-canvas insert / duplicate / remove /
+   * drag-to-reorder controls over this page's `pageBuilder` array.
+   *
+   * The live page never passes it, and with it absent the wrapper is a
+   * `<Fragment>`, which renders nothing. `npm run parity compare` is the gate.
+   */
+  editDoc?: EditDoc;
 }
 
-const { sections = [], page } = Astro.props as Props;
+const { sections = [], page, editDoc } = Astro.props as Props;
+
+// A real element in preview, nothing at all on the live site. Must NOT be
+// `display: contents`: the overlay outlines the element's rect and a contents
+// element has none.
+const Wrap = editDoc ? 'div' : Fragment;
+const wrapAttrs = (key: string | undefined) =>
+  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
 const CONTACT_HREF = '/contact?type=gift-certificate';
 const ctaLabel = page?.ctaLabel ?? 'Inquire about a Gift Certificate';
 
@@ -26,7 +45,9 @@ const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
 ---
 
-{rows.map((s: any, i: number) =>
+{rows.map((s: any, i: number) => (
+  <Wrap {...wrapAttrs(s._key)}>
+  {
   s._type === 'giftSectionMarker' ? (
     s.section === 'intro' ? (
       page.intro ? (
@@ -98,5 +119,6 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
     ) : null
   ) : (
     <SectionRenderer sections={[s]} idPrefix={`gift-extra-${i}`} />
-  ),
-)}
+  )}
+  </Wrap>
+))}

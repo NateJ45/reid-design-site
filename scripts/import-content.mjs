@@ -57,14 +57,16 @@ if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 writeFileSync(outPath, lines.join('\n') + '\n', 'utf-8');
 console.log(`\nWrote ${total} documents to ${outPath}`);
 
-// Run the import. Studio CLI is invoked from the studio/ folder because that's
-// where sanity.cli.ts lives (project ID + dataset config).
+// Run the import from the REPO ROOT. 2026-08-28: this used to run in studio/,
+// because that is where sanity.cli.ts lived. The nested studio package was
+// folded into the root (PORTS.md card 10) and sanity.cli.ts moved with it, so
+// the root is now the only place the CLI finds its project id and dataset.
 console.log('\nRunning sanity dataset import...\n');
 const result = spawnSync(
   process.platform === 'win32' ? 'npx.cmd' : 'npx',
   ['sanity', 'dataset', 'import', outPath, 'production', '--replace'],
   {
-    cwd: resolve(root, 'studio'),
+    cwd: root,
     stdio: 'inherit',
   },
 );

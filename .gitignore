@@ -16,14 +16,22 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+# Worker RUNTIME secrets for `wrangler dev` (SANITY_TOKEN for the live preview).
+# Real values only; .dev.vars.example is the committed template.
+.dev.vars
 
 # wrangler local cache (Cloudflare adapter)
 .wrangler/
 
 # generated artifacts
 tmp/
-studio/schema.json
-studio/dist/
+# `sanity schema extract --force` writes this at the repo root now that the
+# nested studio/ package is gone (2026-08-28). It is an intermediate for
+# `sanity typegen generate`; the generated src/lib/sanity.types.ts IS committed.
+schema.json
+# A standalone Studio bundle, only if someone runs `npx sanity build .studio-dist`.
+# The real Studio is built by `astro build` and served at /studio.
+.studio-dist/
 # scripts/lib/sanity-lib.mjs caches uploaded Sanity asset ids here so a re-run
 # of a seed script never re-uploads. Machine-local, never committed.
 scripts/.asset-map.json

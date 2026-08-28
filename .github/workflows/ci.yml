@@ -25,11 +25,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install root dependencies
+      # One package since 2026-08-28: the nested studio/ package was folded into
+      # the root (PORTS.md card 10), so there is no `npm ci --prefix studio`
+      # step any more and no second node_modules tree to keep in step.
+      - name: Install dependencies
         run: npm ci
-
-      - name: Install studio dependencies
-        run: npm ci --prefix studio
 
       - name: Generate Sanity types
         run: npm run typegen
@@ -54,11 +54,12 @@ jobs:
             exit 1
           fi
 
-      - name: Build Astro
+      # `astro build` now builds the embedded Studio at /studio as part of the
+      # site, so the separate `sanity build` step is gone. Do NOT add one back:
+      # `sanity build` writes to ./dist by default and would clobber the Astro
+      # output.
+      - name: Build Astro (site + embedded Studio)
         run: npm run build
-
-      - name: Build Sanity Studio
-        run: npm --prefix studio run build
 
       # Vitest. Includes src/lib/theme-tokens.test.ts, the contrast gate added
       # 2026-08-27: it reads the real hex tokens out of globals.css and asserts
@@ -97,7 +98,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: npm ci
 
       # Both projects in playwright.config.ts: chromium (desktop) AND

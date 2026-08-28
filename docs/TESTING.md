@@ -13,7 +13,7 @@ it before adding a check, and update it in the same commit that adds one.
 | E2E, mobile-webkit | same command, second project | Real WebKit, iPhone 14 profile | smoke and both axe sweeps. `reflow.spec.ts` is excluded via `testIgnore`: it drives its own explicit viewport widths, which fights device emulation |
 | Parity | `npm run parity capture` / `compare` | Node, reads `dist/client` | Rendered-HTML drift on a change that is supposed to be render-neutral (below) |
 | Drift check | `npm run sync-check` | Node, dependency-free | Whether this repo's copies of the shared starter files still match the library of record (below) |
-| CI | push / PR, `.github/workflows/ci.yml` | GitHub Actions | Two jobs: **build** (typegen, stale-types guard, Astro build, Studio build, unit tests) and **playwright** (both browser projects, html report artifact) |
+| CI | push / PR, `.github/workflows/ci.yml` | GitHub Actions | Two jobs: **build** (typegen, stale-types guard, Astro build, unit tests) and **playwright** (both browser projects, html report artifact). The separate "Build Sanity Studio" step went away 2026-08-28: `astro build` builds the embedded Studio at `/studio` as part of the site |
 
 `npm test` runs unit then e2e, which is the whole local gate in one command.
 CI splits them into separate jobs so a Playwright failure does not hide a build
@@ -138,4 +138,42 @@ sources of build nondeterminism.
 - **No visual regression / screenshot diffing.** Both themes and both viewports
   are checked by a human against the running site, per CLAUDE.md.
 - **Studio behavior is unautomated.** Schema and structure changes are checked
-  by hand with `npm run studio:dev`, as Staci would see them.
+  by hand at `http://localhost:4321/studio` (`npm run dev`), as Staci would see
+  them. There is no `studio:dev` any more; the Studio is part of the site.
+
+## What no suite covers: the live-preview stack (2026-08-28)
+
+Nothing automated exercises `/studio`, `/preview/**`, `/preview/live` or
+`/api/draft-mode/*`. They are SSR routes, and the Playwright `webServer` serves
+`dist/client` through `http-server`, which has no Worker behind it, so those
+routes do not exist during a test run. `tests/routes.ts` therefore does not
+list them and should not: adding them would fail for the wrong reason.
+
+Check them by hand after any change to the preview stack, against a real Worker:
+
+```powershell
+npm run build
+npm run preview          # wrangler dev -c dist/server/wrangler.json
+```
+
+Then, on the port wrangler reports. **Confirm the port is actually serving THIS
+repo** before believing any result: another project's `wrangler dev` already
+listening on the same port answers instead, and its 404 page is indistinguishable
+from a bug in this build. That cost real time on 2026-08-28.
+
+| Check | Expected |
+|---|---|
+| `/`, `/services/`, any static route | 200. Proves removing `not_found_handling` did not break asset serving |
+| a route that does not exist | 404 rendering the real 404 page |
+| `/studio/` | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
+| `/preview`, `/preview/about`, `/preview/faq` | 200 |
+| `/preview/live?page=homePage` with no cookie | 403 |
+| `/api/draft-mode/enable?sanity-preview-secret=bogus` | 401 |
+
+The full handshake (302 on a real secret, draft-aware stega, `/preview/live`
+streaming, and the `data-sanity` count matching a GROQ count of the section
+array) needs a preview secret minted through
+`@sanity/preview-url-secret/create-secret`, which is a WRITE and needs
+`SANITY_API_WRITE_TOKEN`. That was run and passed on 2026-08-28; the numbers are
+in `docs/PENDING.md` under Recently closed. Write it as a throwaway script under
+`tmp/` rather than adding a suite: it mutates the production dataset.

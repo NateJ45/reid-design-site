@@ -1,21 +1,40 @@
 // Foundation, edit with care
-// Reid Design Sanity Studio configuration. Replace PUBLIC_SANITY_PROJECT_ID
-// in .env with the real ID from manage.sanity.io after running `sanity init`
-// (or after creating the project manually). Studio reads it via the cli
-// config — see sanity.cli.ts for runtime overrides.
+// =============================================================================
+// Reid Design Sanity Studio configuration - loaded by the EMBEDDED /studio
+// =============================================================================
+// 2026-08-28: this file moved up from studio/sanity.config.ts when the nested
+// studio/ package was folded into the site package (PORTS.md card 10). One
+// node_modules, one copy of every module, which is what keeps the
+// styled-components / @sanity/ui theme context intact: a nested studio package
+// gives two module instances of styled-components, so the ThemeProvider mounted
+// by one is invisible to useTheme in the other and the desk dies on its first
+// custom-component render (styled-components error #18, then "Cannot read
+// properties of undefined (reading 'v2')") while the login screen renders fine.
+// That was presacademy's 2026-08-26 production outage.
+//
+// @sanity/astro mounts this config at /studio (see astro.config.mjs); the sanity
+// CLI (sanity.cli.ts) uses it for typegen and dataset commands. There is no
+// longer a separate reid-design.sanity.studio deploy: see sanity.cli.ts.
 
 import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
 import { media } from 'sanity-plugin-media';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
-import { Iframe } from 'sanity-plugin-iframe-pane';
-import { schemaTypes } from './schemaTypes';
-import { deskStructure } from './structure';
-import StudioLogo from './components/StudioLogo';
-import { CharacterCountInput } from './components/CharacterCountInput';
-import { documentBadges } from './components/documentBadges';
-import { ArchiveAction, RestoreAction, DeleteForeverAction } from './actions/archive';
+import { schemaTypes } from './src/sanity/schemaTypes';
+import { deskStructure } from './src/sanity/structure';
+import { resolve } from './src/sanity/resolve';
+import { PreviewNavigator } from './src/sanity/components/PreviewNavigator';
+import { envVal } from './src/sanity/urls';
+import StudioLogo from './src/sanity/components/StudioLogo';
+import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
+import { documentBadges } from './src/sanity/components/documentBadges';
+import {
+  ArchiveAction,
+  RestoreAction,
+  DeleteForeverAction,
+} from './src/sanity/actions/archive';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -68,61 +87,33 @@ const reidThemeProps = {
 // byte-identical while keeping `tsc --noEmit` clean. Don't inline this back.
 const reidTheme = buildLegacyTheme(reidThemeProps);
 
-// Re-export so structure.ts can attach the iframe view to every singleton.
-export { Iframe };
-export const SITE_URL_FOR_PREVIEW = 'https://reid-design-site.nathanjnixon86.workers.dev';
+// 2026-08-28: `Iframe`, `SITE_URL_FOR_PREVIEW` and `urlForDoc` used to live
+// here. The URL map moved to src/sanity/urls.ts (structure.ts imported it from
+// this file, which made the two import each other), and the
+// sanity-plugin-iframe-pane preview it fed was replaced by the Presentation
+// tool below. See src/sanity/urls.ts and src/sanity/structure.ts.
 
-// Map doc _type → live-site path. Singletons get a fixed path; slug-based
-// docs build the path from the doc's slug. Returns null for types that have
-// no viewable page (siteSettings) — the preview pane is hidden for those.
-// Exported so structure.ts can call it when wiring per-doc views.
-export function urlForDoc(schemaType: string, doc: any): string | null {
-  const SITE_URL = SITE_URL_FOR_PREVIEW;
-  const slug = doc?.slug?.current;
-  switch (schemaType) {
-    case 'homePage':      return `${SITE_URL}/`;
-    case 'aboutPage':     return `${SITE_URL}/about`;
-    case 'processPage':   return `${SITE_URL}/process`;
-    case 'servicesPage':  return `${SITE_URL}/services`;
-    case 'portfolioPage': return `${SITE_URL}/portfolio`;
-    case 'faqPage':       return `${SITE_URL}/faq`;
-    case 'contactPage':   return `${SITE_URL}/contact`;
-    case 'journalPage':   return `${SITE_URL}/journal`;
-    case 'notFoundPage':  return `${SITE_URL}/404`;
-    case 'journalEntry':  return slug ? `${SITE_URL}/journal/${slug}` : `${SITE_URL}/journal`;
-    case 'project':       return slug ? `${SITE_URL}/portfolio/${slug}` : `${SITE_URL}/portfolio`;
-    // New page singletons (Phase 1)
-    case 'eDesignPage':   return `${SITE_URL}/e-design`;
-    case 'shopPage':      return `${SITE_URL}/shop`;
-    case 'giftPage':      return `${SITE_URL}/gift-certificates`;
-    case 'resourcesPage': return `${SITE_URL}/resources`;
-    case 'privacyPage':   return `${SITE_URL}/privacy`;
-    case 'pressPage':     return `${SITE_URL}/press`;
-    case 'styleQuiz':     return `${SITE_URL}/quiz`;
-    case 'budgetCalculator': return `${SITE_URL}/calculator`;
-    // service/processStep/etc don't have individual pages; preview their parent
-    case 'service':      return `${SITE_URL}/services`;
-    case 'processStep':  return `${SITE_URL}/process`;
-    case 'faqItem':      return `${SITE_URL}/faq`;
-    // Press items list on /press page
-    case 'pressItem':    return `${SITE_URL}/press`;
-    // Shop collections/items list on /shop page
-    case 'shopCollection': return `${SITE_URL}/shop`;
-    case 'shopItem':       return `${SITE_URL}/shop`;
-    // Lead magnets preview at /guides/[slug]
-    case 'leadMagnet':   return slug ? `${SITE_URL}/guides/${slug}` : `${SITE_URL}/guides`;
-    default:             return null;
-  }
-}
+// Dev detection must FAIL CLOSED. The old check was
+// `process.env.NODE_ENV !== 'production'`, which was fine while the Studio was
+// its own package but is a live bug in the embedded one: Astro/Vite's client
+// bundle injects `globalThis.process ??= {}`, so `process` exists with an empty
+// env, NODE_ENV is undefined, and the test came out TRUE in production. That
+// would ship the Vision GROQ playground to Staci.
+const IS_DEV =
+  (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true ||
+  (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development');
 
 export default defineConfig({
   name: 'reid-design',
   // Short title shown in the browser tab when editing.
   title: 'Reid Design',
 
-  // Replace these after `sanity init` (or set via env at build time).
-  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'placeholder-project-id',
-  dataset: process.env.SANITY_STUDIO_DATASET || 'production',
+  // envVal reads process.env (sanity CLI) and import.meta.env (the embedded
+  // Studio, which has no real `process` in the browser). A bare process.env
+  // read would throw the moment the embedded studio chunk evaluates.
+  projectId:
+    envVal('SANITY_STUDIO_PROJECT_ID', 'PUBLIC_SANITY_PROJECT_ID') || 'placeholder-project-id',
+  dataset: envVal('SANITY_STUDIO_DATASET', 'PUBLIC_SANITY_DATASET') || 'production',
 
   // Brand theme — bronze primary color + warm linen background.
   theme: reidTheme,
@@ -145,39 +136,48 @@ export default defineConfig({
   },
 
   plugins: [
+    // 2026-08-28: the `defaultDocumentNode` that injected a
+    // sanity-plugin-iframe-pane "Preview" tab on every previewable type is
+    // gone. It showed the LAST DEPLOYED page in a read-only iframe, which is
+    // not the same thing as a preview of what you are typing. The Presentation
+    // tool below shows live draft content with click-to-edit, so keeping a
+    // second, worse preview around was not worth holding a third package
+    // (@sanity/ui ^3.2.0 by caret) off the pinned 3.3.5.
     structureTool({
       structure: deskStructure,
-      // Inject an iframe "Preview" tab alongside the form on every document
-      // type that has a viewable page. Editing /about? You see the editor on
-      // the left, the live About page on the right. Saves the context-switch
-      // of opening another tab. Hidden for types like siteSettings that don't
-      // map to a page.
-      //
-      // Note: this only fires for documents opened via paths in the structure
-      // that DON'T pre-define their own views. Singletons in structure.ts that
-      // use S.document().views([...]) get explicit per-doc views attached
-      // there; this default handles everything else (orderable lists, journal
-      // entries, the generic document-type lists, etc.).
-      defaultDocumentNode: (S, { schemaType }) => {
-        const url = urlForDoc(schemaType, {});
-        if (!url) return S.document().views([S.view.form()]);
-        return S.document().views([
-          S.view.form(),
-          S.view
-            .component(Iframe)
-            .options({
-              url: (doc: any) => urlForDoc(schemaType, doc) ?? `${SITE_URL_FOR_PREVIEW}/`,
-              reload: { button: true },
-              defaultSize: 'desktop',
-            })
-            .title('Preview'),
-        ]);
+    }),
+    // Click-to-edit live preview against the Studio-only /preview/* routes
+    // (never the real public pages: see src/sanity/resolve.ts and
+    // src/pages/preview/). previewMode only sets `enable`, because `disable` is
+    // a documented no-op in this Sanity version, so exiting preview is a plain
+    // link to /api/draft-mode/disable (see PreviewLayout.astro). The relative
+    // URLs assume the EMBEDDED /studio, i.e. same origin as the site.
+    //
+    // REQUIRES the SANITY_TOKEN runtime secret. Without it the preview routes
+    // fail closed with a 503 naming what is missing rather than showing draft
+    // content; see .dev.vars.example and docs/agent/deployment.md.
+    presentationTool({
+      resolve,
+      previewUrl: {
+        initial: '/preview',
+        previewMode: { enable: '/api/draft-mode/enable' },
+      },
+      // The Squarespace-style page list beside the preview: click a page, the
+      // preview jumps there and the edit panel follows.
+      components: {
+        unstable_navigator: {
+          component: PreviewNavigator,
+          minWidth: 160,
+          maxWidth: 280,
+        },
       },
     }),
     // Unsplash plugin — adds an "Unsplash" tab to every image picker. The
     // package's correct registration is via the plugins array (not
     // form.image.assetSources — that was my earlier bug). Picking a photo
     // uploads it to the Sanity library + attaches to the field in one shot.
+    // Held at 7.0.15: newer versions demand @sanity/ui ^3.4, which would drag
+    // the pinned 3.3.5 forward and break the theme context.
     unsplashImageAsset(),
     // Media browser — adds a top-level "Media" icon in the Studio sidebar
     // for browsing every uploaded image at once with tag + filter + bulk-edit.
@@ -185,7 +185,7 @@ export default defineConfig({
     media(),
     // Vision (GROQ query runner) is a developer tool, not an editor tool.
     // Gate it to local dev so it doesn't clutter Staci's deployed Studio.
-    ...(process.env.NODE_ENV !== 'production' ? [visionTool()] : []),
+    ...(IS_DEV ? [visionTool()] : []),
   ],
 
   schema: {
