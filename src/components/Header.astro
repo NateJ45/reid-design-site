@@ -20,11 +20,19 @@ import { Mail, Phone } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
+import SanityImage from './SanityImage.astro';
 import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 import { getSectionVisibility, type SectionVisibility } from '@/lib/sectionVisibility';
 import { telHref } from '@/lib/phone';
+import {
+  resolveChrome,
+  DEFAULT_CTA_HREF,
+  DEFAULT_CTA_LABEL,
+  type RawNavItem,
+} from '@/lib/siteSettings';
+import type { RawNavLink } from '@/lib/nav-href';
 
 // Pre-render every logo variant we'll need via Astro's image pipeline so we
 // have the hashed WebP URLs available at build time. The header displays at
@@ -60,6 +68,17 @@ interface Props {
     socialInstagram?: string;
     socialFacebook?: string;
     availabilityStatus?: string;
+    /** Editor-supplied logo. When set it replaces the built-in theme-aware pair. */
+    logo?: { asset?: { _ref?: string; _id?: string }; alt?: string } | null;
+    /** Chrome options (see src/lib/siteSettings.ts). All optional; empty keeps the built-ins. */
+    navItems?: RawNavItem[] | null;
+    headerCta?: {
+      show?: boolean | null;
+      label?: string | null;
+      link?: RawNavLink | null;
+    } | null;
+    showEmail?: boolean | null;
+    showSocials?: boolean | null;
     sectionVisibility?: {
       showPortfolio?: boolean | null;
       showJournal?: boolean | null;
@@ -91,9 +110,18 @@ const { siteSettings, navPages } = Astro.props as Props;
 const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
 const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
 const availability = siteSettings?.availabilityStatus ?? '';
-const ctaLabel = siteSettings?.primaryCtaLabel ?? 'Book a consultation';
 const headerTagline =
   siteSettings?.headerTagline ?? 'Plainfield Interior Design · Serving Greater Indianapolis';
+
+// Editor-managed chrome: the top menu, the header button, and the show/hide
+// switches for the contact details. Every one of them is opt-in — an untouched
+// Site settings document resolves to exactly the built-ins below.
+const chrome = resolveChrome(siteSettings);
+const ctaLabel = chrome.headerCta.label;
+const ctaHref = chrome.headerCta.href;
+
+// An editor-supplied logo replaces the built-in theme-aware pair.
+const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
 
 // Subset of siteSettings the mobile menu needs. Pass as a plain object so the
 // React island doesn't try to serialize the whole Sanity document graph.
@@ -112,6 +140,25 @@ const email = siteSettings?.email ?? '';
 const phone = siteSettings?.phone ?? '';
 const ig = siteSettings?.socialInstagram ?? '';
 const fb = siteSettings?.socialFacebook ?? '';
+// The switches above decide whether the eyebrow strip and the phone menu carry
+// these at all. Unset means yes, so an untouched site is unchanged.
+const showEmail = chrome.showEmail;
+const showSocials = chrome.showSocials;
+
+// MobileNav is a client:only island, so every prop it receives is SERIALIZED
+// INTO THE HTML. Pass it only what actually DIFFERS from the defaults it
+// already applies on its own, so a Site settings document nobody has touched
+// renders a byte-identical page — the same opt-in promise the rest of these
+// fields make, held to at the level of the island's props attribute.
+const mobileCtaIsDefault =
+  chrome.headerCta.show &&
+  chrome.headerCta.href === DEFAULT_CTA_HREF &&
+  chrome.headerCta.label === (siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL);
+const mobileChrome = {
+  ...(mobileCtaIsDefault ? {} : { cta: chrome.headerCta }),
+  ...(showEmail ? {} : { showEmail: false }),
+  ...(showSocials ? {} : { showSocials: false }),
+};
 
 // Grouped nav structure. Flat items render as plain anchor links; dropdown
 // items render as native <details>/<summary> disclosure groups on desktop
@@ -159,7 +206,7 @@ const resourcesDropdownItems = [
 
 // Assemble the full nav. Flat items Portfolio and Shop are gated by visibility.
 // Dropdown groups are omitted entirely when their children list ends up empty.
-const NAV_ITEMS = [
+const BUILT_IN_NAV_ITEMS = [
   { kind: 'flat' as const,     label: 'Home',  href: '/' },
   ...(visible.portfolio ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio' }] : []),
   // Services dropdown — always present (Services + Process are core).
@@ -177,6 +224,10 @@ const NAV_ITEMS = [
   ...customTopItems.map((it) => ({ kind: 'flat' as const, label: it.label, href: it.href })),
   { kind: 'flat' as const,     label: 'About', href: '/about' },
 ];
+
+// Site settings -> Top menu links, when Staci has filled it in, replaces the
+// whole computed menu above. Empty (the default) keeps the built-in one.
+const NAV_ITEMS = chrome.navItems ?? BUILT_IN_NAV_ITEMS;
 
 // Flatten NAV_ITEMS into the shape MobileNav expects (a list of NavLink[]
 // with optional sub-items for the groups). MobileNav already handles both
@@ -233,7 +284,7 @@ function isGroupActive(items: { href: string }[]) {
         )}
       </div>
       <div class="flex items-center gap-m">
-        {email && (
+        {showEmail && email && (
           <a
             href={`mailto:${email}`}
             class="inline-flex items-center gap-xs text-xs text-foreground hover:text-link transition-colors"
@@ -251,7 +302,7 @@ function isGroupActive(items: { href: string }[]) {
             {phone}
           </a>
         )}
-        {(ig || fb) && (
+        {showSocials && (ig || fb) && (
           <div class="flex items-center gap-1">
             {ig && (
               <a
@@ -350,19 +401,31 @@ function isGroupActive(items: { href: string }[]) {
         so the browser reserves the right layout box before the file lands
         — no CLS.
       */}
-      <img
-        alt={brandName}
-        width={100}
-        height={106}
-        class="h-[6.25rem] w-auto"
-        loading="eager"
-        decoding="async"
-        data-theme-logo
-        data-logo-light-src={logoLight1x.src}
-        data-logo-light-srcset={logoLightSrcset}
-        data-logo-dark-src={logoDark1x.src}
-        data-logo-dark-srcset={logoDarkSrcset}
-      />
+      {customLogo ? (
+        /* Editor-supplied logo (Site settings -> Logo). One file for both
+           themes, so it skips the light/dark swap machinery entirely. */
+        <SanityImage
+          source={customLogo}
+          width={200}
+          alt={customLogo.alt || brandName}
+          loading="eager"
+          class="h-[6.25rem] w-auto"
+        />
+      ) : (
+        <img
+          alt={brandName}
+          width={100}
+          height={106}
+          class="h-[6.25rem] w-auto"
+          loading="eager"
+          decoding="async"
+          data-theme-logo
+          data-logo-light-src={logoLight1x.src}
+          data-logo-light-srcset={logoLightSrcset}
+          data-logo-dark-src={logoDark1x.src}
+          data-logo-dark-srcset={logoDarkSrcset}
+        />
+      )}
     </a>
     {/* Synchronous inline setup — runs immediately after the img element
         is parsed, so the src is set before the browser begins any image
@@ -453,24 +516,29 @@ function isGroupActive(items: { href: string }[]) {
           )
         )}
       </nav>
-      <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
-      <a
-        href="/contact"
-        class:list={[
-          'press-tactile inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold',
-          isActive('/contact')
-            ? 'bg-accent-dark text-white'
-            : 'bg-primary-dark text-white hover:bg-accent-dark',
-        ]}
-      >
-        {ctaLabel}
-      </a>
+      {chrome.headerCta.show && (
+        <>
+          <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
+          <a
+            href={ctaHref}
+            class:list={[
+              'press-tactile inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold',
+              isActive(ctaHref)
+                ? 'bg-accent-dark text-white'
+                : 'bg-primary-dark text-white hover:bg-accent-dark',
+            ]}
+          >
+            {ctaLabel}
+          </a>
+        </>
+      )}
     </div>
 
     <MobileNav
       client:only="react"
       links={NAV_LINKS}
       siteSettings={mobileNavSettings}
+      {...mobileChrome}
       logoLightUrl={logoLightWebpMobile.src}
       logoDarkUrl={logoDarkWebpMobile.src}
     />

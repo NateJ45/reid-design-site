@@ -53,6 +53,16 @@ function sectionsProjection(field = 'pageBuilder') {
   }`;
 }
 
+// One menu link (schemaTypes/navLink.ts), as every menu needs it: the label,
+// the hand-typed address, and the picked page DEREFERENCED down to a type +
+// slug. src/lib/nav-href.ts turns that into an href. The field list is kept
+// separate from the braces so it can also be spread into a projection that
+// adds children (the top menu's dropdown groups).
+const NAV_LINK_FIELDS = `_key, _type, label, linkType, href, externalUrl,
+    "slug": internalPage->slug.current,
+    "docType": internalPage->_type`;
+export const NAV_LINK_PROJECTION = `{ ${NAV_LINK_FIELDS} }`;
+
 // ---- Site settings (used in BaseLayout / Header / Footer) -----------------
 
 // Module-level memoized promise. The first call fires the GROQ query and
@@ -63,15 +73,10 @@ function sectionsProjection(field = 'pageBuilder') {
 // getStaticPaths and the render phase each call getSiteSettings().
 let _siteSettingsPromise: Promise<any> | null = null;
 
-// 2026-08-28: `c` lets the Studio preview route run this same GROQ through the
-// DRAFT-aware client (src/lib/cms-preview.ts). The memo is deliberately skipped
-// whenever a client is passed in: the cache exists to collapse the ~20 calls of
-// one build process, and caching a per-request draft read in module scope would
-// serve one editor's drafts to the next request in the same Worker isolate.
-// Build-time callers pass nothing and keep the memo.
-export async function getSiteSettings(c?: SanityClient) {
-  if (!c && _siteSettingsPromise) return _siteSettingsPromise;
-  const promise = (c ?? client).fetch(`*[_type == "siteSettings"][0]{
+// Exported so the preview shell (src/layouts/PreviewLayout.astro) fetches the
+// chrome through the SAME projection. It used to fetch the raw document, which
+// left every dereferenced menu link null in the preview.
+export const SITE_SETTINGS_PROJECTION = `{
     title,
     tagline,
     primaryCtaLabel,
@@ -92,6 +97,7 @@ export async function getSiteSettings(c?: SanityClient) {
     "serviceRegion": *[_type == "businessInfo"][0].serviceRegion,
     socialInstagram,
     socialFacebook,
+    logo${IMAGE_PROJECTION},
     seoImage${IMAGE_PROJECTION},
     footerCredit,
     footerCreditUrl,
@@ -99,6 +105,20 @@ export async function getSiteSettings(c?: SanityClient) {
     googleBusinessUrl,
     reviewsNote,
     satisfactionGuarantee,
+    navItems[]{
+      ${NAV_LINK_FIELDS},
+      links[]${NAV_LINK_PROJECTION}
+    },
+    footerColumns[]{
+      _key,
+      title,
+      links[]${NAV_LINK_PROJECTION}
+    },
+    legalNav[]${NAV_LINK_PROJECTION},
+    headerCta{ show, label, link${NAV_LINK_PROJECTION} },
+    showEmail,
+    showSocials,
+    showFooterSocials,
     sectionVisibility{
       showPortfolio,
       showJournal,
@@ -111,7 +131,19 @@ export async function getSiteSettings(c?: SanityClient) {
       showStyleQuiz,
       showBudgetCalculator
     }
-  }`);
+  }`;
+
+// 2026-08-28: `c` lets the Studio preview route run this same GROQ through the
+// DRAFT-aware client (src/lib/cms-preview.ts). The memo is deliberately skipped
+// whenever a client is passed in: the cache exists to collapse the ~20 calls of
+// one build process, and caching a per-request draft read in module scope would
+// serve one editor's drafts to the next request in the same Worker isolate.
+// Build-time callers pass nothing and keep the memo.
+export async function getSiteSettings(c?: SanityClient) {
+  if (!c && _siteSettingsPromise) return _siteSettingsPromise;
+  const promise = (c ?? client).fetch(
+    `*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`,
+  );
   if (!c) _siteSettingsPromise = promise;
   return promise;
 }

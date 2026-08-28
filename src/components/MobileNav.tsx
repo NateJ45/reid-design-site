@@ -57,9 +57,26 @@ interface MobileNavSiteSettings {
   primaryCtaLabel?: string;
 }
 
+/** The header button, already resolved by src/lib/siteSettings.ts. */
+interface HeaderCta {
+  show: boolean;
+  label: string;
+  href: string;
+}
+
 interface Props {
   links: NavItem[];
   siteSettings?: MobileNavSiteSettings | null;
+  /**
+   * The main button, resolved once in Header.astro so the drawer and the
+   * desktop header can never disagree about its wording or destination.
+   * Omitted (older callers) falls back to the built-in Contact button.
+   */
+  cta?: HeaderCta;
+  /** Site settings switch: show the email in "Get in touch". Default yes. */
+  showEmail?: boolean;
+  /** Site settings switch: show the social buttons. Default yes. */
+  showSocials?: boolean;
   /**
    * Optimized logo URLs pre-rendered by Astro's getImage() in the parent
    * Header.astro. We can't import the asset directly in a React component
@@ -72,17 +89,27 @@ interface Props {
 
 // ---- Component --------------------------------------------------------------
 
-export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkUrl }: Props) {
+export default function MobileNav({
+  links,
+  siteSettings,
+  cta,
+  showEmail = true,
+  showSocials = true,
+  logoLightUrl,
+  logoDarkUrl,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const tagline =
     siteSettings?.tagline ??
     'Plainfield interior design for homes that feel genuinely yours.';
-  const email = siteSettings?.email;
+  const email = showEmail ? siteSettings?.email : undefined;
   const phone = siteSettings?.phone;
-  const ig = siteSettings?.socialInstagram;
-  const fb = siteSettings?.socialFacebook;
-  const ctaLabel = siteSettings?.primaryCtaLabel ?? 'Book a consultation';
+  const ig = showSocials ? siteSettings?.socialInstagram : undefined;
+  const fb = showSocials ? siteSettings?.socialFacebook : undefined;
+  const ctaLabel = cta?.label ?? siteSettings?.primaryCtaLabel ?? 'Book a consultation';
+  const ctaHref = cta?.href ?? '/contact';
+  const showCta = cta?.show !== false;
 
   const close = () => setOpen(false);
 
@@ -109,16 +136,19 @@ export default function MobileNav({ links, siteSettings, logoLightUrl, logoDarkU
             </SheetTitle>
           </SheetHeader>
 
-          {/* Primary CTA — main conversion action surfaced before the nav list. */}
-          <div className="px-l pb-l">
-            <a
-              href="/contact"
-              onClick={close}
-              className="block w-full px-m py-m text-center rounded-md bg-primary-dark text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-accent-dark transition-colors"
-            >
-              {ctaLabel}
-            </a>
-          </div>
+          {/* Primary CTA — main conversion action surfaced before the nav list.
+              Site settings -> Header button can turn it off entirely. */}
+          {showCta && (
+            <div className="px-l pb-l">
+              <a
+                href={ctaHref}
+                onClick={close}
+                className="block w-full px-m py-m text-center rounded-md bg-primary-dark text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-accent-dark transition-colors"
+              >
+                {ctaLabel}
+              </a>
+            </div>
+          )}
 
           {/* Tagline in display serif for editorial feel. */}
           <p className="px-l pb-l font-display italic text-h4 text-foreground/85 leading-snug">

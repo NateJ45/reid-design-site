@@ -37,6 +37,8 @@ import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { telHref } from '@/lib/phone';
+import { resolveChrome, type RawFooterColumn } from '@/lib/siteSettings';
+import { isExternalHref, type RawNavLink } from '@/lib/nav-href';
 
 // Pre-render the four footer-logo variants (1x + 2x for each theme) so we
 // can ship ONE img tag with data-attribute URLs and let the BaseLayout
@@ -75,6 +77,10 @@ interface Props {
     footerCredit?: string;
     footerCreditUrl?: string;
     newsletter?: NewsletterConfig | null;
+    /** Chrome options (see src/lib/siteSettings.ts). Empty keeps the built-ins. */
+    footerColumns?: RawFooterColumn[] | null;
+    legalNav?: (RawNavLink | null)[] | null;
+    showFooterSocials?: boolean | null;
     sectionVisibility?: {
       showPortfolio?: boolean | null;
       showJournal?: boolean | null;
@@ -111,14 +117,23 @@ const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 // title with nothing under it. Studio and Get-in-touch always have content
 // (core pages / contact details), so only Work, Free tools, and Latest projects
 // are conditional.
-const showWork  = visible.portfolio || visible.journal || visible.shop || visible.giftCertificates;
-const showTools = visible.styleQuiz || visible.budgetCalculator || visible.guides || visible.resources;
-const showLatest = visible.portfolio;
+// Editor-managed chrome. `footerColumns` is opt-in: when Staci has filled it
+// in, HER columns replace the four built-in link columns wholesale (Get in
+// touch always stays, it is contact details rather than a menu). Empty — the
+// default — leaves every line below exactly as it was.
+const chrome = resolveChrome(siteSettings);
+const editorColumns = chrome.footerColumns;
+
+const showWork  = !editorColumns && (visible.portfolio || visible.journal || visible.shop || visible.giftCertificates);
+const showTools = !editorColumns && (visible.styleQuiz || visible.budgetCalculator || visible.guides || visible.resources);
+const showLatest = !editorColumns && visible.portfolio;
 
 // Count the columns that actually render so the grid balances at lg and the
 // Get-in-touch column stays at the right edge instead of stranding empty tracks.
 // (Tailwind needs the full class strings present in source, hence the literal map.)
-const colCount = 2 + (showWork ? 1 : 0) + (showTools ? 1 : 0) + (showLatest ? 1 : 0);
+const colCount = editorColumns
+  ? editorColumns.length + 1
+  : 2 + (showWork ? 1 : 0) + (showTools ? 1 : 0) + (showLatest ? 1 : 0);
 const lgColsClass =
   ({ 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' })[colCount] ??
   'lg:grid-cols-5';
@@ -183,24 +198,50 @@ const latestProjects = allProjects.slice(0, 3);
         : ['grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3', lgColsClass],
     ]}
   >
+    {/* EDITOR COLUMNS — Site settings -> Footer link columns. When Staci has
+        set any, they stand in for the four built-in link columns below. */}
+    {editorColumns?.map((col, i) => (
+      <nav aria-labelledby={`footer-col-${i}`}>
+        <p id={`footer-col-${i}`} class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          {col.title}
+        </p>
+        <ul class="text-sm space-y-2 list-none p-0">
+          {col.links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                target={isExternalHref(link.href) ? '_blank' : undefined}
+                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                class="text-foreground/85 hover:text-link transition-colors"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+
     {/* STUDIO */}
-    <nav aria-labelledby="footer-studio">
-      <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-        Studio
-      </p>
-      <ul class="text-sm space-y-2 list-none p-0">
-        <li><a href="/about" class="text-foreground/85 hover:text-link transition-colors">About Staci</a></li>
-        <li><a href="/process" class="text-foreground/85 hover:text-link transition-colors">Process</a></li>
-        <li><a href="/services" class="text-foreground/85 hover:text-link transition-colors">Services &amp; Pricing</a></li>
-        <li><a href="/faq" class="text-foreground/85 hover:text-link transition-colors">FAQ</a></li>
-        {visible.press && (
-          <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
-        )}
-        {footerPages.map((p) => (
-          <li><a href={`/${p.slug}`} class="text-foreground/85 hover:text-link transition-colors">{p.navLabel || p.title}</a></li>
-        ))}
-      </ul>
-    </nav>
+    {!editorColumns && (
+      <nav aria-labelledby="footer-studio">
+        <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          Studio
+        </p>
+        <ul class="text-sm space-y-2 list-none p-0">
+          <li><a href="/about" class="text-foreground/85 hover:text-link transition-colors">About Staci</a></li>
+          <li><a href="/process" class="text-foreground/85 hover:text-link transition-colors">Process</a></li>
+          <li><a href="/services" class="text-foreground/85 hover:text-link transition-colors">Services &amp; Pricing</a></li>
+          <li><a href="/faq" class="text-foreground/85 hover:text-link transition-colors">FAQ</a></li>
+          {visible.press && (
+            <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
+          )}
+          {footerPages.map((p) => (
+            <li><a href={`/${p.slug}`} class="text-foreground/85 hover:text-link transition-colors">{p.navLabel || p.title}</a></li>
+          ))}
+        </ul>
+      </nav>
+    )}
 
     {/* WORK — only when at least one of its links is visible. */}
     {showWork && (
@@ -323,7 +364,7 @@ const latestProjects = allProjects.slice(0, 3);
         {city}, {state}<br />
         Serving {serviceRegion}
       </p>
-      {(ig || fb) && (
+      {chrome.showFooterSocials && (ig || fb) && (
         <ul class="mt-m flex justify-center md:justify-start gap-s text-sm list-none p-0">
           {ig && (
             <li>
@@ -377,9 +418,24 @@ const latestProjects = allProjects.slice(0, 3);
     <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-xs text-xs text-foreground/80 text-center">
       <p>© {currentYear} {brandName}</p>
       <div class="flex items-center gap-m">
-        <a href="/privacy" class="underline underline-offset-2 hover:text-link transition-colors">
-          Privacy policy
-        </a>
+        {/* Site settings -> Footer small-print links replaces this single
+            built-in Privacy link when Staci sets any. */}
+        {chrome.legalNav ? (
+          chrome.legalNav.map((link) => (
+            <a
+              href={link.href}
+              target={isExternalHref(link.href) ? '_blank' : undefined}
+              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+              class="underline underline-offset-2 hover:text-link transition-colors"
+            >
+              {link.label}
+            </a>
+          ))
+        ) : (
+          <a href="/privacy" class="underline underline-offset-2 hover:text-link transition-colors">
+            Privacy policy
+          </a>
+        )}
         {siteCredit && (
           siteCreditUrl ? (
             <a

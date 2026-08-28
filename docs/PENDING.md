@@ -85,6 +85,19 @@ missing and the embedded Studio cannot reach the Sanity API.
 
 ## Open — code and content work queued
 
+### Parity baselines are stale (found 2026-08-28)
+
+`node scripts/page-parity.mjs compare` reports 11/20 on a PRISTINE
+tree: a commit after the baselines were captured changed the
+availability-pill markup (bg-primary-dark -> bg-muted, "Book a
+consultation" -> "Open") on 9 routes (404, about, contact, e-design,
+faq, home, privacy, process, services). The chrome-options port was
+proven render-neutral against a pristine-build snapshot instead.
+Fix: regenerate the baselines from a clean main/modern-stack build
+(`node scripts/page-parity.mjs baseline`) in a commit that says why.
+
+
+
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the
   2026-08-28 upgrade started (an uncommitted "Meet Staci bio" launch-blocker

@@ -11,6 +11,7 @@ export const siteSettings = defineType({
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'identity', title: 'Identity & contact' },
+    { name: 'navigation', title: 'Menus & header button' },
     { name: 'visibility', title: 'Section visibility' },
     { name: 'social', title: 'Social & footer' },
     { name: 'newsletter', title: 'Newsletter' },
@@ -66,6 +67,191 @@ export const siteSettings = defineType({
           'That does not look like a phone number. Use digits, spaces, and the symbols + ( ) - only.',
         ),
     }),
+    defineField({
+      name: 'logo',
+      title: 'Logo (optional)',
+      type: 'image',
+      group: 'identity',
+      description:
+        'A logo image for the top of every page. Leave blank and the site keeps its built-in Reid Design logo, which already switches between the light and dark versions on its own. When you set one here it replaces both, so upload a version that reads on either background, with any spare space already trimmed off.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          description: 'What the logo says, for screen readers. Example: "Reid Design".',
+          validation: (Rule) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Sanity's context parent is loosely typed
+            Rule.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value
+                ? 'Add alt text so screen readers can read the logo'
+                : true,
+            ),
+        }),
+      ],
+    }),
+
+    // ── Menus & header button ────────────────────────────────────────────────
+    // Every menu here is EMPTY by default, and empty means "keep the built-in
+    // menu". The moment a list has items in it, that list becomes the whole
+    // menu, so a half-filled list is not a half-changed menu.
+    defineField({
+      name: 'navItems',
+      title: 'Top menu links',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'The links across the top of the site. Drag to reorder. Add a "Link" for a single page, or a "Dropdown menu" to group several links under one heading. The header fits about six. Leave this empty to keep the built-in menu (Home, Portfolio, Services, Shop, Resources, About). Once you add anything here it replaces the whole menu, so include every link you want.',
+      validation: (Rule) => Rule.max(6),
+      of: [
+        defineArrayMember({ type: 'navLink' }),
+        defineArrayMember({
+          type: 'object',
+          name: 'navGroup',
+          title: 'Dropdown menu',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Menu heading',
+              type: 'string',
+              description: 'The word the dropdown opens from, e.g. "Services".',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'links',
+              title: 'Menu links',
+              type: 'array',
+              of: [defineArrayMember({ type: 'navLink' })],
+              validation: (Rule) => Rule.required().min(1),
+            }),
+          ],
+          preview: {
+            select: { title: 'label', links: 'links' },
+            prepare: ({ title, links }) => ({
+              title: title ?? '(no heading)',
+              subtitle: `Dropdown · ${Array.isArray(links) ? links.length : 0} link(s)`,
+            }),
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'footerColumns',
+      title: 'Footer link columns',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'The titled columns of links in the footer, for example "Studio", "Work", "Free tools & guides". Drag to reorder. Leave empty to keep the built-in columns. The "Get in touch" column (email, phone, location, socials) always shows on its own and is not set here. Three columns keeps the footer balanced; four is the most that fits.',
+      validation: (Rule) => Rule.max(4),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'footerColumn',
+          title: 'Column',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Column heading',
+              type: 'string',
+              description: 'The small heading above the links, e.g. "Studio".',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'links',
+              title: 'Links',
+              type: 'array',
+              of: [defineArrayMember({ type: 'navLink' })],
+              validation: (Rule) => Rule.required().min(1).max(8),
+            }),
+          ],
+          preview: {
+            select: { title: 'title', links: 'links' },
+            prepare: ({ title, links }) => ({
+              title: title ?? '(no heading)',
+              subtitle: `Column · ${Array.isArray(links) ? links.length : 0} link(s)`,
+            }),
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'legalNav',
+      title: 'Footer small-print links',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'The little links beside the copyright line at the very bottom. Leave empty to keep the single "Privacy policy" link.',
+      validation: (Rule) => Rule.max(6),
+      of: [defineArrayMember({ type: 'navLink' })],
+    }),
+    defineField({
+      name: 'headerCta',
+      title: 'Header button',
+      type: 'object',
+      group: 'navigation',
+      description:
+        'The one button at the right of the header (and at the top of the phone menu). Leave the boxes blank to keep the built-in button, which uses the "Main button label" above and goes to the Contact page.',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({
+          name: 'show',
+          title: 'Show the header button',
+          type: 'boolean',
+          description: 'Turn off to remove the button from the header and the phone menu.',
+          initialValue: true,
+        }),
+        defineField({
+          name: 'label',
+          title: 'Button text',
+          type: 'string',
+          description: 'Leave blank to use the "Main button label" set further up this page.',
+        }),
+        defineField({
+          name: 'link',
+          title: 'Where the button goes',
+          type: 'navLink',
+          description: 'Leave blank to keep pointing at the Contact page.',
+        }),
+      ],
+      preview: {
+        select: { show: 'show', label: 'label' },
+        prepare: ({ show, label }) => ({
+          title: label || 'Book a consultation',
+          subtitle: show === false ? 'Hidden' : 'Header button',
+        }),
+      },
+    }),
+    // Small on/off switches for the contact details the chrome carries. All
+    // three are ON unless explicitly turned off, so an untouched site is
+    // unchanged (the site reads a blank value as "yes").
+    defineField({
+      name: 'showEmail',
+      title: 'Show the email address in the menus',
+      type: 'boolean',
+      group: 'navigation',
+      description:
+        'The email in the strip across the very top on desktop, and in the "Get in touch" block at the foot of the phone menu. On unless you turn it off.',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'showSocials',
+      title: 'Show social buttons in the menus',
+      type: 'boolean',
+      group: 'navigation',
+      description:
+        'The Instagram and Facebook buttons in the strip across the very top on desktop, and at the foot of the phone menu. On unless you turn it off.',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'showFooterSocials',
+      title: 'Show social buttons in the footer',
+      type: 'boolean',
+      group: 'navigation',
+      description: 'The Instagram and Facebook buttons in the footer. On unless you turn it off.',
+      initialValue: true,
+    }),
+
     // ── MOVED to Business info (Content tab) ────────────────────────────────
     // availabilityStatus, serviceAreas, and travelFees now live on the
     // businessInfo singleton so Settings stays identity + infrastructure. These

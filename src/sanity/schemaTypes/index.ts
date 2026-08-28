@@ -15,6 +15,7 @@ import { journalCategory } from './journalCategory';
 import { journalEntry } from './journalEntry';
 import { journalPage } from './journalPage';
 import { leadMagnet } from './leadMagnet';
+import { navLink } from './navLink';
 import { notFoundPage } from './notFoundPage';
 import { page } from './page';
 import { philosophyPoint } from './philosophyPoint';
@@ -53,6 +54,8 @@ import { trashedItem } from './trashedItem';
 export const schemaTypes = [
   // Object types (embedded) first so they're defined before docs that reference them
   ctaBlock,
+  // One menu link. Shared by every editable menu on siteSettings.
+  navLink,
   // Page-builder section blocks (objects). Registered before the documents
   // whose pageBuilder arrays reference them.
   ...pageSectionSchemas,
