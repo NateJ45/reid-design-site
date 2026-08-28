@@ -8,6 +8,12 @@ import {
 import { Box, Button, Card, Flex, Spinner, Stack, Text } from "@sanity/ui";
 import { AddIcon, LaunchIcon } from "@sanity/icons";
 import { SINGLETON_PREVIEW_PATHS } from "../resolve";
+import {
+  startNav,
+  stepNav,
+  type PendingNav,
+} from "../../lib/preview-navigation";
+import { LiveDraftBridge } from "./LiveDraftBridge";
 
 // =============================================================================
 // PreviewNavigator - the Squarespace-style page list beside the live preview
@@ -204,46 +210,76 @@ export function PreviewNavigator() {
   // params.preview is the iframe's current URL; compare pathnames only.
   const current = (params.preview ?? "").split("?")[0];
 
-  // STICKY navigation (2026-08-28, editor feedback on presacademy): every
-  // preview page change is a full document load, and Presentation can only
-  // hand the iframe its next URL once the NEW page's visual-editing script
-  // has reconnected. A click that lands inside that window (an editor
-  // moving quickly through the page list) is silently dropped. So a click
-  // records its intent and an effect re-issues navigate() every 750ms
-  // until params.preview reports the requested path (or ~6s pass). When
-  // the first navigate lands immediately, `current` matches at once and no
-  // retry ever fires. `pending` also drives the row highlight, so the list
-  // responds to the click instantly instead of after the page load.
-  const [pending, setPending] = useState<{
-    href: string;
-    type: string;
-    id: string;
-  } | null>(null);
+  // BOUNCE-AWARE navigation (2026-08-28, editor feedback). Clicking a page
+  // took two clicks every time: the panel changed, the iframe did not, the
+  // panel bounced back, and the second click worked. The whole rule set, and
+  // the host sources it was read out of, live in
+  // ../../lib/preview-navigation.ts; this is only the timer and the navigate
+  // call. It replaces an earlier sticky retry that re-issued navigate() with
+  // the SAME href, which leaves params.preview at the value it already had, so
+  // the host's effect never re-ran and nothing was ever posted to the frame.
+  //
+  // `pending` also drives the row highlight, and because it now survives the
+  // bounce the list stays put instead of flickering back and forth.
+  const [pending, setPending] = useState<PendingNav | null>(null);
   const go = useCallback(
     (href: string, type: string, id: string) => {
-      setPending({ href, type, id });
+      setPending(startNav(href, type, id, current, Date.now()));
       navigate(href, { type, id });
     },
-    [navigate],
+    [navigate, current],
   );
   useEffect(() => {
-    if (!pending) return;
-    if (current === pending.href) {
-      setPending(null);
-      return;
-    }
-    let tries = 0;
-    const timer = setInterval(() => {
-      tries += 1;
-      if (tries > 8) {
-        clearInterval(timer);
+    if (!pending) return undefined;
+    const step = () => {
+      const next = stepNav(pending, current, Date.now());
+      if (next.action === "settle") {
         setPending(null);
         return;
       }
-      navigate(pending.href, { type: pending.type, id: pending.id });
-    }, 750);
+      if (next.action === "retry" && next.pending) {
+        setPending(next.pending);
+        navigate(next.pending.href, {
+          type: next.pending.type,
+          id: next.pending.id,
+        });
+        return;
+      }
+      // Identity is the signal: stepNav hands back the same object when
+      // nothing moved, which is what keeps this effect from re-running itself
+      // forever.
+      if (next.pending !== pending) setPending(next.pending);
+    };
+    step();
+    // The window has to close on its own: params.preview can sit still for the
+    // whole of it, and a stale `pending` would pin the row highlight.
+    const timer = setInterval(step, 400);
     return () => clearInterval(timer);
   }, [pending, current, navigate]);
+
+  // Which page the preview is showing, as a row. `pending` wins so the answer
+  // follows the click rather than the page load, exactly as the row highlight
+  // does. Only used to mount the live-draft bridge below, and deliberately a
+  // SEPARATE computation from the `active` flag in the list: that flag is the
+  // repo's own resolution for three page shapes (builder singletons, `page`
+  // documents, bespoke pages) and is left exactly as it was.
+  //
+  // A preview path that matches no row - a bespoke child route such as
+  // /preview/journal/<slug>, or a builder singleton this list does not carry -
+  // resolves to null and mounts no bridge. That is the correct outcome, not a
+  // gap: without the bridge instant text still runs off the optimistic actor,
+  // one listen round trip slower, and a bridge mounted for the WRONG document
+  // would post another page's draft into the frame.
+  const currentRow = useMemo(() => {
+    if (!rows) return null;
+    const href = pending?.href ?? current;
+    if (!href) return null;
+    return (
+      rows.find((r) => r.href === href) ??
+      rows.find((r) => r.href !== "/preview" && href.endsWith(r.href)) ??
+      null
+    );
+  }, [rows, pending, current]);
 
   // "New page": create an empty DRAFT (so nothing half-made ever publishes
   // itself) and open it in the edit panel right here.
@@ -268,6 +304,19 @@ export function PreviewNavigator() {
 
   return (
     <Flex direction="column" style={{ height: "100%" }}>
+      {/* KEYSTROKE-INSTANT PREVIEW (2026-08-28). Renders nothing. It lives here
+          because this panel is the one place inside Presentation that already
+          knows WHICH page the preview is showing, and it is always mounted
+          alongside the preview iframe it posts into. See ./LiveDraftBridge.tsx
+          for what it sends and src/lib/preview-live-draft.ts for the
+          contract. */}
+      {currentRow && (
+        <LiveDraftBridge
+          key={currentRow.id}
+          documentId={currentRow.id}
+          documentType={currentRow.type}
+        />
+      )}
       <Box flex={1} padding={3} style={{ overflowY: "auto" }}>
         <Stack space={4}>
           {grouped === null ? (
