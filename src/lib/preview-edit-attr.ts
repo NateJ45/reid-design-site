@@ -33,7 +33,7 @@
 // Drag-and-drop needs no extra props in @sanity/visual-editing 5.4.5: it is on
 // as soon as the attribute exists.
 // =============================================================================
-import { createDataAttribute } from '@sanity/visual-editing/create-data-attribute';
+import { createDataAttribute } from "@sanity/visual-editing/create-data-attribute";
 
 export interface EditDoc {
   /** The PUBLISHED document id (no `drafts.` prefix). */
@@ -45,14 +45,29 @@ export interface EditDoc {
    * Pass `additionalSections` for the "Extra sections" zone on the bespoke
    * pages. See rule 3 above.
    */
-  field?: 'pageBuilder' | 'additionalSections';
+  field?: "pageBuilder" | "additionalSections";
 }
 
 /** The `data-sanity` value that targets one section array item on a doc. */
 export function sectionEditAttr(doc: EditDoc, key: string): string {
   return createDataAttribute({
-    id: doc.id.replace(/^drafts\./, ''),
+    id: doc.id.replace(/^drafts\./, ""),
     type: doc.type,
-    baseUrl: '/studio',
-  })(`${doc.field ?? 'pageBuilder'}[_key=="${key}"]`).toString();
+    baseUrl: "/studio",
+  })(`${doc.field ?? "pageBuilder"}[_key=="${key}"]`).toString();
+}
+
+/**
+ * The `data-sanity` value that targets a field on ANY document - the
+ * WordPress-template-part gesture (2026-08-28). PreviewLayout wraps the shared
+ * Header and Footer in this attribute pointed at `siteSettings`, so in Edit
+ * mode the chrome outlines as one editable surface and a click switches the
+ * Presentation edit panel to the owning document, opened at `path`.
+ */
+export function docEditAttr(id: string, type: string, path: string): string {
+  return createDataAttribute({
+    id: id.replace(/^drafts\./, ""),
+    type,
+    baseUrl: "/studio",
+  })(path).toString();
 }
