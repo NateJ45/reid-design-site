@@ -2,6 +2,7 @@
 import { VisualEditing } from '@sanity/visual-editing/react';
 import type { HistoryAdapter, HistoryRefresh } from '@sanity/visual-editing';
 import { useCallback, useEffect, useRef } from 'react';
+import { inCanvasControls } from './overlay/index.ts';
 import { SOFT_REFRESH_EVENT, useInstantText } from './overlay/useInstantText.ts';
 import { startTiming } from './overlay/timing.ts';
 import {
@@ -64,7 +65,7 @@ const mpaHistory: HistoryAdapter = {
 // =============================================================================
 // VisualEditingOverlay - click-to-edit overlay + refresh for the preview
 // =============================================================================
-// Three jobs, all only ever active in the Studio's Presentation preview (this is
+// Four jobs, all only ever active in the Studio's Presentation preview (this is
 // rendered from PreviewLayout with client:only when draftMode is true, so it
 // never ships to a public page):
 //
@@ -99,10 +100,20 @@ const mpaHistory: HistoryAdapter = {
 //     newest one anybody knows about, so any render started before it is stale
 //     even though no SSE signal has arrived for it yet.
 //
-// NOT PORTED from presacademy: the in-canvas controls (`components`) - the
-// section swatches, the accent-word picker and the text card. They are a
-// separate body of work with their own write path; this port is the reliability
-// and speed layer only.
+//  4. THE IN-CANVAS CONTROLS (`components`, 2026-08-28, card 28): a LAYOUT card
+//     that opens off a small preview-only handle in each section's top-right
+//     corner, and a click-a-word picker for the handwritten script accent on a
+//     headline. They live in ./overlay/, they write through the optimistic
+//     document API (no token in the browser, every write lands in the draft and
+//     is covered by the Studio's own undo), and their edits come back through
+//     the same refresh loop above as any other change. See ./overlay/index.ts.
+//
+//     TWO controls, not three. The sibling repos also put a band-colour swatch
+//     in the corner and a bold-and-italic text card on their curated support
+//     lines. No block here carries a colour field (SectionRenderer owns the
+//     alternating cadence, which is the point) and no field has a rich-text
+//     twin, so neither has anything to write to. src/lib/section-fields.ts
+//     records both absences and its drift gate fails the day either changes.
 //
 // TIMING. Set `localStorage.previewTiming = '1'` in the preview frame to have
 // both paths log how long they took. See ./overlay/timing.ts.
@@ -376,5 +387,7 @@ export default function VisualEditingOverlay({ pageId }: Props) {
     [pageId, softRefresh],
   );
 
-  return <VisualEditing portal refresh={refresh} history={mpaHistory} />;
+  return (
+    <VisualEditing portal refresh={refresh} history={mpaHistory} components={inCanvasControls} />
+  );
 }

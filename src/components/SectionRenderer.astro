@@ -18,7 +18,8 @@ import ImageText from '@/components/sections/ImageText.astro';
 import GalleryGrid from '@/components/sections/GalleryGrid.astro';
 import QuoteBlock from '@/components/sections/QuoteBlock.astro';
 import VideoEmbed from '@/components/sections/VideoEmbed.astro';
-import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
 
 interface Props {
   sections?: any[];
@@ -49,9 +50,50 @@ const { sections = [], idPrefix = 'section', editDoc } = Astro.props as Props;
 // NOT be `display: contents`: the overlay outlines the element's rect, and a
 // contents element has none. A plain block-level div around a full-width
 // <section> changes no layout.
+//
+// `position: relative` in preview is what the in-canvas layout handle below
+// hangs off. It is set on the wrapper rather than on the section, so no
+// component's own positioning changes, and it only exists on the preview route.
 const Wrap = editDoc ? 'div' : Fragment;
 const wrapAttrs = (key: string | undefined) =>
-  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
+  editDoc && key
+    ? { 'data-sanity': sectionEditAttr(editDoc, key), style: 'position:relative' }
+    : {};
+
+// -------------------------------------------------------------------------
+// The in-canvas layout handle (2026-08-28, card 28)
+// -------------------------------------------------------------------------
+// The layout card needs a node the Studio schema resolves to a FIELD. The
+// wrapper above names a bare array item, which resolves to none, so a custom
+// overlay component can never mount on it (learned in a deployed Studio; see
+// `sectionFieldEditAttr`). This little square is that node: it points at the
+// section's own first layout field, so clicking it selects that field and the
+// overlay answers with the card.
+//
+// Exactly one per section, and only for sections that HAVE a layout choice:
+// `handleFieldFor` refuses the four types with no radio (quote, stats, video,
+// the CTA band), and `layoutApplies` refuses any instance that renders nothing
+// at all, which today means a gallery with no pictures.
+//
+// TOP-RIGHT, INSIDE the section. A section is often taller than the viewport,
+// so its bottom-right corner is below the fold exactly when the editor is
+// looking at the section; its top-right is on screen the moment the section is.
+// It renders after the content so it paints above it, and it carries its styles
+// inline because the preview loads no preview-only stylesheet.
+//
+// KNOWN GAP, recorded rather than half-closed: the eight *SectionRenderer.astro
+// files wrap each item themselves and hand a one-element array to this renderer
+// with no `editDoc`, so a library block inserted into a marker page keeps its
+// array controls and gets no layout handle. Closing that means giving all eight
+// the same handle, which is its own change to eight files.
+const handleAttr = (section: any) => {
+  const field = handleFieldFor(section?._type);
+  return editDoc && section?._key && field && layoutApplies(section._type, section)
+    ? sectionFieldEditAttr(editDoc, section._key, field)
+    : undefined;
+};
+const HANDLE_STYLE =
+  'position:absolute;top:12px;right:12px;z-index:5;width:28px;height:28px;border-radius:999px;background:#ffffff;border:1px solid rgba(61,61,61,0.18);box-shadow:0 2px 8px rgba(61,61,61,0.22);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;';
 
 // Content blocks take an alternating surface (background / muted) from the
 // renderer. Everything else owns its own surface.
@@ -78,11 +120,11 @@ const rows = list.map((s, i) => {
     surface = contentIdx % 2 === 0 ? 'background' : 'muted';
     contentIdx += 1;
   }
-  return { s, surface, headingId: `${idPrefix}-${i}` };
+  return { s, surface, headingId: `${idPrefix}-${i}`, handle: handleAttr(s) };
 });
 ---
 
-{rows.map(({ s, surface, headingId }) => (
+{rows.map(({ s, surface, headingId, handle }) => (
   <Wrap {...wrapAttrs(s._key)}>
   {s._type === 'heroSection' ? (
     <Hero
@@ -125,5 +167,10 @@ const rows = list.map((s, i) => {
   ) : s._type === 'videoSection' ? (
     <VideoEmbed {...s} surface={surface} headingId={headingId} />
   ) : null}
+  {handle && (
+    <div data-sanity={handle} data-layout-handle title="Layout" aria-hidden="true" style={HANDLE_STYLE}>
+      &#9776;
+    </div>
+  )}
   </Wrap>
 ))}

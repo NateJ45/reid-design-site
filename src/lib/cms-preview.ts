@@ -143,6 +143,21 @@ const NON_STEGA_FIELDS = new Set([
   'icon',
   'aspect',
   'ratio',
+  // -- NOT dropdowns, and here for the same reason (2026-08-28, card 28).
+  //    The accent word is free text, but it is used as a MATCH NEEDLE rather
+  //    than shown as prose: `splitScriptAccent` does `headline.indexOf(accent)`
+  //    and in the preview BOTH strings carry their own stega run, so the needle
+  //    is never found and the script flourish silently does not render - in the
+  //    preview only, on a live site where it works. The in-canvas word picker
+  //    makes that flourish a one-click choice, and a control that promises what
+  //    the preview will not draw is exactly what it must not be.
+  //    Nothing is lost by excluding them: the accent is never rendered as its
+  //    own string, so it never had a clickable element of its own.
+  'scriptAccent',
+  'heroScriptAccent',
+  'finalCtaScriptAccent',
+  'testimonialsScriptAccent',
+  'servicesGridScriptAccent',
 ]);
 
 export function getPreviewClient(draftMode: boolean): SanityClient {

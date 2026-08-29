@@ -161,6 +161,48 @@ singletons and custom pages, `additionalSections` on the bespoke ones. Point a
 renderer at the wrong one and its controls edit nothing, silently. The attribute
 renders on preview surfaces ONLY; `npm run parity` is the gate on that.
 
+**The floating in-canvas controls (card 28, added 2026-08-28).** Two of them, and
+only two, because only two have a field behind them:
+
+1. **Layout card.** A small handle sits in the top-right corner of every section
+   that has a layout radio, and clicking it opens a card with that section's own
+   choices: hero height, text-block width and alignment, image side, gallery
+   columns, spacer style. Height, width and columns repaint the section under
+   the cursor and revert if the write fails; alignment, image side and spacer
+   style wait for the soft refresh, because there is no single class list to
+   swap. The handle exists because a custom overlay component only mounts on a
+   node the Studio resolves to a FIELD - a bare array item resolves to none - so
+   it carries `data-sanity` for `...[_key=="x"].<field>` via
+   `sectionFieldEditAttr`. **Known gap:** the eight `*SectionRenderer.astro`
+   files wrap inserted library blocks themselves and pass no `editDoc` down, so
+   a block on a marker page keeps its array controls and gets no layout handle.
+2. **Script accent picker.** Click a headline, click a word, and that word is
+   stored as the Pinyon Script accent - a slice of the headline by construction,
+   so the renderer's exact-match `indexOf` cannot miss it. It refuses an
+   image-less hero (the text branch of `Hero.astro` never forwards
+   `scriptAccent`) and a headline with rotating words (the two flourishes must
+   not compete), because a control must not promise what the renderer drops.
+
+Both write through the optimistic document API: no token in the browser, every
+write lands in the draft, and the Studio's own undo covers it.
+`src/lib/section-fields.ts` holds the registry and `section-fields.test.ts` is a
+DRIFT GATE that reads `sections.ts`, `Hero.astro`, `RichTextSection.astro`,
+`GalleryGrid.astro` and `SectionRenderer.astro` and fails when a field, a value
+or a class list moves. There is deliberately **no band-colour card** (no block
+carries a colour field, and `SectionRenderer` owning the cadence is the point)
+and **no rich-text card** (no `*Rich` twin exists anywhere); the gate asserts
+both absences. `src/lib/sanity-path.ts` and
+`src/components/preview/overlay/{styles,usePopover,useDraftDocument}.ts` are
+PORTABLE canonical copies from the starter; the per-repo halves are
+`section-fields.ts`, `overlay/tool-theme.ts` (the six-value palette),
+`overlay/index.ts` and the two card components.
+
+The five `*scriptAccent*` field names joined `NON_STEGA_FIELDS` in the same pass.
+They are free text, not enums, but they are used as a MATCH NEEDLE, and with
+both the headline and the needle carrying their own stega run the accent was
+silently never found - so the flourish did not render in the preview at all,
+while the live site was fine.
+
 **Three files hold the same path map and must agree:**
 `SINGLETON_PREVIEW_PATHS` (`src/sanity/resolve.ts`), `SINGLETON_BY_PATH`
 (`src/pages/preview/[...slug].astro`), and `FIRST_SEGMENT_PREVIEWABLE`
