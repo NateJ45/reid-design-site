@@ -93,7 +93,7 @@ availability-pill markup (bg-primary-dark -> bg-muted, "Book a
 consultation" -> "Open") on 9 routes (404, about, contact, e-design,
 faq, home, privacy, process, services). The chrome-options port was
 proven render-neutral against a pristine-build snapshot instead.
-Fix: regenerate the baselines from a clean main/modern-stack build
+Fix: regenerate the baselines from a clean main/staging build
 (`node scripts/page-parity.mjs baseline`) in a commit that says why.
 
 
