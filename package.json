@@ -84,7 +84,11 @@
   "comment:overrides": "2026-08-28. (1) The old `vite: ^7` override was REMOVED with the Astro 7 upgrade. Astro 7.2.9 peers vite ^8.0.13 and its static build calls vite.createBuilder(); pinned to 7.3.3 the build got through the client bundle and then died on 'Could not find the prerender entry point in the build output. This is likely a bug in Astro.' It is not a bug in Astro, it is a silently-downgraded vite. Check Astro's peer range before ever pinning vite again. (2) The two entries below are load-bearing, not cosmetic: a PLAIN dependency pin is proven insufficient because npm will happily nest a newer copy under a dependant. sanity-plugin-utils defaults to 2.0.17, which drags in @sanity/ui v4; @sanity/astro depends on @sanity/visual-editing by caret range and nests a newer copy under @sanity/astro/node_modules, which drags a second @sanity/ui (3.5.4) in with it. Either one breaks the one-@sanity/ui-instance invariant that keeps the styled-components theme context alive (PORTS.md card 10). Verify on DISK after any Sanity dependency work, not in the install output: `Get-ChildItem -Recurse node_modules -Filter package.json | Where-Object FullName -like '*@sanity\\ui\\package.json'` must print exactly one line.",
   "overrides": {
     "sanity-plugin-utils": "2.0.6",
-    "@sanity/visual-editing": "5.4.5"
+    "@sanity/visual-editing": "5.4.5",
+    "@vercel/frameworks": {
+      "js-yaml": "^3.15.1",
+      "smol-toml": "^1.6.1"
+    }
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
