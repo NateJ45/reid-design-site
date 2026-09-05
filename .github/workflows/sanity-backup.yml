@@ -100,7 +100,13 @@ jobs:
           SANITY_STUDIO_DATASET: production
         run: |
           STAMP=$(date -u +%Y-%m-%d)
-          ./studio/node_modules/.bin/sanity dataset export production "sanity-backup-$STAMP.tar.gz"
+          # --project-id is required here: the sanity CLI walks cwd upward
+          # looking for sanity.cli.ts to infer the project, but that file
+          # lives in studio/ while this runs from the repo root (2026-09-05:
+          # first real run after SANITY_AUTH_TOKEN was set failed with
+          # ProjectRootNotFoundError until this flag was added).
+          ./studio/node_modules/.bin/sanity dataset export production "sanity-backup-$STAMP.tar.gz" \
+            --project-id ba403vjc
 
       # Encrypt BEFORE upload -- see the header warning. AES-256-CBC with a
       # PBKDF2-stretched passphrase; openssl ships on every runner and every
