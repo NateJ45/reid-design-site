@@ -5,6 +5,17 @@
   "compatibility_flags": ["global_fetch_strictly_public"],
   "name": "reid-design-site",
   "main": "@astrojs/cloudflare/entrypoints/server",
+  // Sessions: @astrojs/cloudflare needs a KV binding named SESSION. Left
+  // unpinned, wrangler tries to auto-provision "reid-design-site-session" on every
+  // deploy and fails with 10014 (namespace already exists), which is why no
+  // Workers Builds deploy landed between 2026-08-29 and 2026-09-04. Pinned
+  // to the existing namespace, same as wcp-website does.
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "d4446ebdb5d843228dbcba285c49a6a1",
+    },
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
