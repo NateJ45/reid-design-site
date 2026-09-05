@@ -11,6 +11,7 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://reiddesignllc.com',
   output: 'static',
+  session: false,
   // `imageService: 'compile'` tells @astrojs/cloudflare to process images
   // with Sharp at build time and ship plain static files — no Cloudflare
   // Images runtime, no per-transform fees, no Workers binding required.
