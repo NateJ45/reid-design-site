@@ -14,17 +14,30 @@ name: Sanity dataset backup
 # are free on public repositories, so the billing argument that keeps the same
 # workflow disabled in presacademy (a private repo) does not apply here. The
 # nightly run is cheap and the gate job below makes it safe to leave on before
-# the secret exists.
+# the secrets exist.
 #
-# HUMAN ACTION REQUIRED: create a repo secret named SANITY_AUTH_TOKEN
-# (Settings -> Secrets and variables -> Actions). A READ token is enough: get
-# one at sanity.io/manage -> project ba403vjc -> API -> Tokens. Until then, the
-# gate job logs a warning and the export is skipped, so the workflow is safe to
-# commit today and starts working the moment the secret lands.
+# WARNING: the export is ENCRYPTED before upload, and that is load-bearing.
+# This repo is PUBLIC, so any logged-in GitHub user can download workflow
+# artifacts. A plaintext artifact publishes the full dataset to anyone. That
+# is why the gate refuses to export when BACKUP_PASSPHRASE is missing:
+# skipping a backup is recoverable, publishing the dataset is not. Never
+# upload the tarball without the openssl step. (2026-09-05: ported from
+# wcp-website 73cfe3c / presacademy, after this repo was found missing the
+# fix entirely -- see gotchas/public-repo-artifacts-leak-pii.md.)
 #
-# RESTORE: download the artifact, then
+# HUMAN ACTION REQUIRED: create TWO repo secrets, SANITY_AUTH_TOKEN (a READ
+# token from sanity.io/manage -> project ba403vjc -> API -> Tokens) and
+# BACKUP_PASSPHRASE (a long random passphrase -- store a copy off-GitHub,
+# GitHub never shows a secret again). Until both exist, the gate job logs a
+# warning and the export is skipped, so the workflow is safe to commit today
+# and starts working the moment both secrets land.
+#
+# RESTORE: download the artifact, decrypt it --
+#   BACKUP_PASSPHRASE=*** openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
+#     -in sanity-backup-<date>.tar.gz.enc -out sanity-backup-<date>.tar.gz \
+#     -pass env:BACKUP_PASSPHRASE
+# -- then import against a scratch dataset first if you are not certain:
 #   npx sanity dataset import sanity-backup-<date>.tar.gz production --replace
-# Do that against a scratch dataset first if you are not certain.
 
 on:
   schedule:
@@ -40,15 +53,22 @@ jobs:
       - id: check
         # A secret cannot be read in an `if:` expression, so the check has to
         # happen in a step. This job deliberately does not check out the repo:
-        # it needs nothing but the secret's presence.
+        # it needs nothing but the secrets' presence.
         env:
           TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
-          if [ -n "$TOKEN" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
+          if [ -z "$TOKEN" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "::warning::SANITY_AUTH_TOKEN not set; skipping backup. See docs/PENDING.md."
+          elif [ -z "$PASSPHRASE" ]; then
+            # No passphrase means the artifact would upload as PLAINTEXT on a
+            # public repo. Refuse to export at all rather than publish the
+            # dataset -- see the header warning.
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::BACKUP_PASSPHRASE not set; skipping backup so the dataset never uploads unencrypted. See docs/PENDING.md."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
   export:
@@ -82,11 +102,25 @@ jobs:
           STAMP=$(date -u +%Y-%m-%d)
           ./studio/node_modules/.bin/sanity dataset export production "sanity-backup-$STAMP.tar.gz"
 
+      # Encrypt BEFORE upload -- see the header warning. AES-256-CBC with a
+      # PBKDF2-stretched passphrase; openssl ships on every runner and every
+      # laptop a restore would happen on.
+      - name: Encrypt the export
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          for f in sanity-backup-*.tar.gz; do
+            openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
+              -in "$f" -out "$f.enc" -pass env:BACKUP_PASSPHRASE
+            rm "$f"
+          done
+          ls -lh sanity-backup-*.tar.gz.enc
+
       - name: Upload backup artifact
         uses: actions/upload-artifact@v7
         with:
           name: sanity-backup
-          path: sanity-backup-*.tar.gz
+          path: sanity-backup-*.tar.gz.enc
           # GitHub keeps artifacts 90 days. For longer or off-site retention,
           # push the tarball to R2 here instead.
           retention-days: 90
