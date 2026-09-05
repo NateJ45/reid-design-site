@@ -24,7 +24,7 @@
     "sanity": "^6.0.0",
     "sanity-plugin-asset-source-unsplash": "^7.0.7",
     "sanity-plugin-iframe-pane": "^5.0.13",
-    "sanity-plugin-media": "^4.3.1",
+    "sanity-plugin-media": "^6.1.7",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
