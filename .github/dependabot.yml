@@ -23,6 +23,25 @@ updates:
         update-types: ["minor", "patch"]
     open-pull-requests-limit: 5
 
+  # studio/ is a SEPARATE npm project (its own package.json + lockfile) that
+  # this config never watched, so it silently drifted for months while root's
+  # deps stayed current via the entry above. Found 2026-09-05 auditing 58
+  # open Dependabot security alerts: the bulk of them were stale studio/
+  # packages (dompurify, postcss, tar, brace-expansion, js-yaml, undici, ...)
+  # with no update PR ever generated. Add any other nested npm project here
+  # too if one shows up.
+  - package-ecosystem: npm
+    directory: /studio
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: America/New_York
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
