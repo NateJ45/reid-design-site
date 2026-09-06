@@ -12,16 +12,15 @@
 # /preview/* is a same-origin frame and 'self' is the whole permission it needs.
 # Nothing was added here for the embedded Studio, and nothing needs to be.
 #
-# The *.sanity.studio and :3333/:3334 entries are LEGACY: they existed for the
-# separately deployed reid-design.sanity.studio and its iframe-pane preview,
-# both of which this repo stopped producing (see sanity.cli.ts). They are kept
-# only until that old hosted Studio is retired in Sanity Manage, so an editor who
-# still has its URL bookmarked is not left with a blank preview pane. Delete this
-# line's *.sanity.studio and localhost entries at the same time as that Studio.
+# 2026-09-05: the old hosted reid-design.sanity.studio was retired in Sanity
+# Manage, so its *.sanity.studio and localhost:3333/3334 entries are gone from
+# the line below. The sanity.io entries stay: Sanity's own hosted tooling can
+# still frame the site. Local dev is same-origin (astro dev serves /studio), so
+# it needs nothing here either.
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: frame-ancestors 'self' https://reid-design.sanity.studio https://*.sanity.studio https://www.sanity.io https://*.sanity.io http://localhost:3333 http://localhost:3334
+  Content-Security-Policy: frame-ancestors 'self' https://www.sanity.io https://*.sanity.io
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
