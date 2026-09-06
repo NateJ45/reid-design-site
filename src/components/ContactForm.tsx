@@ -145,6 +145,26 @@ const EMPTY: Draft = {
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
+// Field chrome. Text inputs and the textarea keep the Tailwind ring, which
+// compiles to a box-shadow.
+const FIELD_CLASS =
+  'w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none';
+
+// A <select> keeps the same box but draws its focus indicator as an OUTLINE.
+// WebKit renders native form controls itself and drops box-shadow on them, so
+// `focus:ring-2` paints nothing on a select in Safari or iOS, and the
+// `focus:outline-none` that goes with it removed the only fallback: those five
+// selects had NO visible focus indicator at all on every Apple device, a WCAG
+// 2.4.7 failure. Measured in a real WebKit on 2026-09-06: the select does
+// enter :focus and :focus-visible, but computed box-shadow stays `none` while
+// focused, on the same classes every passing text field carries. An outline
+// paints on native controls in every engine and follows the border radius, so
+// this is the same 2px --ring band, actually drawn. Do not swap it back to a
+// ring. (--ring is pinned to 3:1 against every surface by
+// src/lib/theme-tokens.test.ts, in both themes.)
+const SELECT_CLASS =
+  'w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:outline-2 focus:outline-offset-0 focus:outline-ring';
+
 export default function ContactForm({
   projectTypes,
   locations,
@@ -418,7 +438,7 @@ export default function ContactForm({
           onChange={(e) => update('name', e.target.value)}
           aria-invalid={!!errors.name}
           aria-describedby={errors.name ? 'name-error' : undefined}
-          className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+          className={FIELD_CLASS}
         />
         {errors.name && (
           <p
@@ -447,7 +467,7 @@ export default function ContactForm({
             onChange={(e) => update('email', e.target.value)}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'email-error' : undefined}
-            className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className={FIELD_CLASS}
           />
           {errors.email && (
             <p
@@ -472,7 +492,7 @@ export default function ContactForm({
             autoComplete="tel"
             value={draft.phone}
             onChange={(e) => update('phone', e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className={FIELD_CLASS}
           />
         </div>
       </div>
@@ -492,7 +512,7 @@ export default function ContactForm({
             onChange={(e) => update('location', e.target.value)}
             aria-invalid={!!errors.location}
             aria-describedby={errors.location ? 'location-error location-hint' : 'location-hint'}
-            className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className={SELECT_CLASS}
           >
             <option value="">Pick the closest area</option>
             {locationOptions.map((opt) => (
@@ -529,7 +549,7 @@ export default function ContactForm({
             onChange={(e) => update('projectType', e.target.value)}
             aria-invalid={!!errors.projectType}
             aria-describedby={errors.projectType ? 'projectType-error' : undefined}
-            className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className={SELECT_CLASS}
           >
             <option value="">Pick the closest match</option>
             {projectTypeOptions.map((opt) => (
@@ -568,7 +588,7 @@ export default function ContactForm({
             onChange={(e) => update('budget', e.target.value)}
             aria-invalid={!!errors.budget}
             aria-describedby={errors.budget ? 'budget-error budget-hint' : 'budget-hint'}
-            className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className={SELECT_CLASS}
           >
             <option value="">Pick a bracket</option>
             {budgetOptions.map((opt) => (
@@ -605,7 +625,7 @@ export default function ContactForm({
             onChange={(e) => update('timeline', e.target.value)}
             aria-invalid={!!errors.timeline}
             aria-describedby={errors.timeline ? 'timeline-error' : undefined}
-            className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className={SELECT_CLASS}
           >
             <option value="">When do you want to start?</option>
             {timelineOptions.map((opt) => (
@@ -640,7 +660,7 @@ export default function ContactForm({
           onChange={(e) => update('message', e.target.value)}
           aria-invalid={!!errors.message}
           aria-describedby={errors.message ? 'message-error message-hint' : 'message-hint'}
-          className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+          className={FIELD_CLASS}
         />
         {errors.message ? (
           <p
@@ -671,7 +691,7 @@ export default function ContactForm({
           name="source"
           value={draft.source}
           onChange={(e) => update('source', e.target.value)}
-          className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+          className={SELECT_CLASS}
         >
           <option value="">Skip if you'd rather not say</option>
           {sourceOptions.map((opt) => (

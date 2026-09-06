@@ -161,7 +161,14 @@ export default function BudgetCalculator({ config }: Props) {
               id={`${uid}-room`}
               value={selectedRoom}
               onChange={(e) => setSelectedRoom(Number(e.target.value))}
-              className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+              // The focus indicator is an OUTLINE, not a `focus:ring-*`. WebKit
+              // renders a native <select> itself and drops box-shadow on it, so
+              // a ring paints nothing on Safari or iOS, and the
+              // `focus:outline-none` it pairs with left the control with no
+              // visible focus at all (WCAG 2.4.7). An outline paints on native
+              // controls in every engine and follows the border radius. See the
+              // longer note in ContactForm.tsx. Do not swap it back to a ring.
+              className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:outline-2 focus:outline-offset-0 focus:outline-ring"
             >
               {rooms.map((r, i) => (
                 <option key={i} value={i}>
