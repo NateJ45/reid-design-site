@@ -206,7 +206,9 @@ describe('the layout fields', () => {
 
   it('the fields that recolour the page are the ones whose every value paints', () => {
     const swappable = Object.entries(LAYOUT_FIELDS)
-      .flatMap(([type, fields]) => fields.map((f) => [`${type}.${f.name}`, swapsClasses(f)] as const))
+      .flatMap(([type, fields]) =>
+        fields.map((f) => [`${type}.${f.name}`, swapsClasses(f)] as const),
+      )
       .filter(([, yes]) => yes)
       .map(([name]) => name);
     expect(swappable).toEqual([
@@ -299,7 +301,7 @@ describe('the in-canvas handle in SectionRenderer', () => {
   it('names both of this repo’s section arrays, so neither zone is missed', () => {
     expect([...SECTION_ARRAY_FIELDS]).toEqual(['pageBuilder', 'additionalSections']);
     // The renderer serves both, and the EditDoc field says which one it is on.
-    expect(read('../lib/preview-edit-attr.ts')).toContain('"pageBuilder" | "additionalSections"');
+    expect(read('../lib/preview-edit-attr.ts')).toContain("'pageBuilder' | 'additionalSections'");
   });
 
   it('the wrapper it hangs inside is positioned, and still preview-only', () => {
@@ -353,7 +355,9 @@ describe('layoutFieldsFor and handleFieldFor', () => {
 
 describe('layoutApplies - the per-instance gate', () => {
   it('says yes to a section that has a choice to make', () => {
-    expect(layoutApplies('richTextSection', { _type: 'richTextSection', heading: 'Hi' })).toBe(true);
+    expect(layoutApplies('richTextSection', { _type: 'richTextSection', heading: 'Hi' })).toBe(
+      true,
+    );
     expect(layoutApplies('spacerSection', { _type: 'spacerSection' })).toBe(true);
   });
 
@@ -364,7 +368,10 @@ describe('layoutApplies - the per-instance gate', () => {
     expect(layoutApplies('gallerySection', { _type: 'gallerySection', images: [] })).toBe(false);
     expect(layoutApplies('gallerySection', { _type: 'gallerySection', images: [{}] })).toBe(false);
     expect(
-      layoutApplies('gallerySection', { _type: 'gallerySection', images: [{ asset: { _ref: 'x' } }] }),
+      layoutApplies('gallerySection', {
+        _type: 'gallerySection',
+        images: [{ asset: { _ref: 'x' } }],
+      }),
     ).toBe(true);
   });
 
@@ -447,7 +454,12 @@ const DOC = {
   heroImage: { asset: { _ref: 'image-1' } },
   finalCtaHeadline: 'Ready to Love Your Space?',
   pageBuilder: [
-    { _key: 'a', _type: 'heroSection', headline: 'Ask first', backgroundImage: { asset: { _ref: 'i' } } },
+    {
+      _key: 'a',
+      _type: 'heroSection',
+      headline: 'Ask first',
+      backgroundImage: { asset: { _ref: 'i' } },
+    },
     { _key: 'b', _type: 'richTextSection', heading: 'How this works', width: 'narrow' },
     { _key: 'c', _type: 'imageTextSection', heading: 'No accent here' },
     { _key: 'd', _type: 'heroSection', headline: 'Text hero' },
@@ -515,9 +527,9 @@ describe('heroAccentApplies', () => {
     expect(heroAccentApplies({})).toBe(false);
     expect(heroAccentApplies(null)).toBe(false);
     expect(heroAccentApplies({ heroImages: [{}] })).toBe(false);
-    expect(
-      heroAccentApplies({ heroImage: { asset: {} }, heroRotatingWords: ['One', 'Two'] }),
-    ).toBe(false);
+    expect(heroAccentApplies({ heroImage: { asset: {} }, heroRotatingWords: ['One', 'Two'] })).toBe(
+      false,
+    );
   });
 
   it('a single rotating word is not a rotation, and the accent still draws', () => {
@@ -547,7 +559,11 @@ describe('splitHeadingWords and isAccentedWord', () => {
 
   it('preserves the headline when the pieces are joined back up', () => {
     const heading = 'People  Hire People.';
-    expect(splitHeadingWords(heading).map((t) => t.text).join('')).toBe(heading);
+    expect(
+      splitHeadingWords(heading)
+        .map((t) => t.text)
+        .join(''),
+    ).toBe(heading);
   });
 
   it('cleans stega before splitting, so a stored slice can be found again', () => {
