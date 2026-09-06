@@ -74,7 +74,17 @@ const FORM_ROUTES = ['/contact'];
 
 test.describe('Focus indicators are visible in dark mode', () => {
   for (const route of FORM_ROUTES) {
-    test(`${route} gives every field a visible focus ring in dark mode`, async ({ page }) => {
+    test(`${route} gives every field a visible focus ring in dark mode`, async ({
+      page,
+      browserName,
+    }) => {
+      // Chromium-only. Under the iPhone WebKit profile a programmatic
+      // `.focus()` on a <select> does not put it in the :focus state (the
+      // native picker owns focus there), so every select came back with no
+      // ring while every text field passed, on the SAME `focus:ring-2` classes
+      // (staging CI, 2026-09-05). Chromium exercises the real styling for all
+      // of them; the WebKit result is the harness, not the site.
+      test.skip(browserName === 'webkit', 'WebKit cannot focus a <select> from script');
       await forceDark(page);
       await page.goto(route);
       await expect(page.locator('html')).toHaveClass(/dark/);
