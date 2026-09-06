@@ -6,18 +6,29 @@ it before adding a check, and update it in the same commit that adds one.
 
 ## The suites
 
-| Suite              | Command                                       | Runtime                        | Covers                                                                                                                                                                                                                                                                              |
-| ------------------ | --------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit               | `npm run test:unit` (vitest)                  | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, and **theme-tokens** (below)                                                                                                                           |
-| E2E, chromium      | `npm run test:e2e` (or `npx playwright test`) | Desktop Chrome                 | All four Playwright specs: smoke, axe light, axe dark, reflow at 320/768/1024/1440                                                                                                                                                                                                  |
-| E2E, mobile-webkit | same command, second project                  | Real WebKit, iPhone 14 profile | smoke and both axe sweeps. `reflow.spec.ts` is excluded via `testIgnore`: it drives its own explicit viewport widths, which fights device emulation                                                                                                                                 |
-| Parity             | `npm run parity capture` / `compare`          | Node, reads `dist/client`      | Rendered-HTML drift on a change that is supposed to be render-neutral (below)                                                                                                                                                                                                       |
-| Drift check        | `npm run sync-check`                          | Node, dependency-free          | Whether this repo's copies of the shared starter files still match the library of record (below)                                                                                                                                                                                    |
-| CI                 | push / PR, `.github/workflows/ci.yml`         | GitHub Actions                 | Two jobs: **build** (typegen, stale-types guard, Astro build, unit tests) and **playwright** (both browser projects, html report artifact). The separate "Build Sanity Studio" step went away 2026-08-28: `astro build` builds the embedded Studio at `/studio` as part of the site |
+| Suite              | Command                                                    | Runtime                        | Covers                                                                                                                                                                                                                                                                             |
+| ------------------ | ---------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Static checks      | `npm run check` (= `astro check && npm run lint`)          | Node, no browser               | Type errors across `.astro`/`.ts`/`.tsx` (astro check) and the eslint ruleset in `eslint.config.js`. `npm run format:check` (prettier) is the third static gate; `npm run format` fixes it                                                                                         |
+| Unit               | `npm run test:unit` (vitest)                               | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, section-fields drift gates, and **theme-tokens** (below)                                                                                              |
+| E2E, chromium      | `npm test` (or `npx playwright test`)                      | Desktop Chrome                 | All four Playwright specs: smoke, axe light, axe dark (+ focus indicators), reflow at 320/768/1024/1440                                                                                                                                                                            |
+| E2E, webkit-iphone | same command, second project                               | Real WebKit, iPhone 14 profile | smoke and both axe sweeps, via `testMatch`. `reflow.spec.ts` drives its own explicit viewport widths, which fights device emulation, so it is chromium-only                                                                                                                        |
+| Link check         | `npm run check:links` (after `npm run build`)              | Node, reads `dist/client`      | Every internal link in the built site resolves (linkinator). External URLs and the SSR-only `/studio`, `/preview`, `/api` paths are skipped                                                                                                                                        |
+| Lighthouse         | `npx lhci autorun` (after `npm run build`)                 | Headless Chrome                | `lighthouserc.json`: one URL per prerendered template plus `404.html`. Accessibility is a hard gate at 100; performance, best practices and SEO warn below 0.85 / 0.95 / 0.95; LCP over 4.5s and CLS over 0.1 fail                                                                 |
+| Parity             | `npm run parity capture` / `compare`                       | Node, reads `dist/client`      | Rendered-HTML drift on a change that is supposed to be render-neutral (below)                                                                                                                                                                                                      |
+| Drift check        | `npm run sync-check`                                       | Node, dependency-free          | Whether this repo's copies of the shared starter files still match the library of record (below)                                                                                                                                                                                   |
+| CI                 | push / PR, `.github/workflows/ci.yml` and `lighthouse.yml` | GitHub Actions                 | ci.yml has two jobs: **build** (typegen with retry, stale-types guard, astro check, eslint, prettier check, unit tests, Astro build, link check) and **test** (both Playwright projects, html report artifact). lighthouse.yml builds once more and runs `lhci autorun` on its own |
 
-`npm test` runs unit then e2e, which is the whole local gate in one command.
-CI splits them into separate jobs so a Playwright failure does not hide a build
-failure, and vice versa.
+This is the family test standard (2026-09-05): every Astro site in the family
+runs the same gates in the same order, copied from WCP. `npm run check:full`
+keeps the old local chain (typegen, build, unit tests) for a from-scratch
+verification. CI splits build and Playwright into separate jobs so a Playwright
+failure does not hide a build failure, and vice versa.
+
+Three files are deliberately outside prettier's reach (see `.prettierignore`):
+`Hero.astro`, `HeroBackground.astro` and `BaseLayout.astro` nest a
+`<script is:inline>` inside a template expression, which prettier-plugin-astro
+cannot parse, and `scripts/sync-check.mjs` must stay byte-exact with the
+starter (below). Format those by hand.
 
 ## What the Playwright suites assert
 
@@ -34,8 +45,10 @@ That file splits the list in two, and the split is load-bearing:
   axe rules for real, so they are smoke-only rather than deleted, and the list
   shrinks to nothing the day the sections are turned on. See `docs/PENDING.md`.
 
-- **`tests/smoke.spec.ts`** — every route in `allRoutes` answers 200 and renders
-  a non-empty `<title>`.
+- **`tests/smoke.spec.ts`** — every content route answers 200 with "Reid
+  Design" in its `<title>` (proof of a real rendered page, not an error body);
+  every hidden route answers 200 with the stub's "Redirecting to: /" title (or
+  the home title, once the refresh has fired).
 - **`tests/a11y.spec.ts`** — axe-core's **default** rule set on every content
   route, zero violations. Deliberately not narrowed with `.withTags([...])`:
   filtering to `wcag2a` alone quietly drops the AA rules, which is a mistake
@@ -45,7 +58,11 @@ That file splits the list in two, and the split is load-bearing:
   DOM. It forces dark by seeding `localStorage['reid-design-theme']` through
   `addInitScript`, before BaseLayout's inline bootstrap runs, then asserts
   `<html class="dark">` actually took, so the suite can never silently audit
-  light mode twice.
+  light mode twice. A second block focuses every field on the form routes
+  (`FORM_ROUTES`, currently `/contact`) and asserts a visible outline or ring
+  exists: axe has no focus-indicator rule and only audits the resting DOM, and
+  that blind spot once shipped invisible keyboard focus on WCP with Lighthouse
+  at 100. The ring's contrast is pinned by the theme-token test below.
 - **`tests/reflow.spec.ts`** — WCAG 1.4.10 at 320, 768, 1024 and 1440 px on
   every route: `documentElement.scrollWidth` must not exceed `clientWidth`. It
   starts at 320 because the success criterion does; a single 375px screenshot
@@ -131,12 +148,15 @@ sources of build nondeterminism.
 
 ## What is not covered
 
-- **Lighthouse is manual here.** CLAUDE.md's visual verification workflow asks
-  for a Lighthouse run on accessibility-affecting changes, via the
-  chrome-devtools MCP against the deployed URL. There is no Lighthouse CI job
-  (presacademy has one; this repo does not).
+- **Lighthouse on the deployed edge.** `.github/workflows/lighthouse.yml`
+  audits the static build on every push, but against a local static server,
+  not Cloudflare. CLAUDE.md's visual verification workflow still asks for a
+  Lighthouse run on the deployed URL for accessibility-affecting changes.
 - **No visual regression / screenshot diffing.** Both themes and both viewports
-  are checked by a human against the running site, per CLAUDE.md.
+  are checked by a human against the running site, per CLAUDE.md. The family
+  standard only screenshots a fixture-driven `/styleguide` route (WCP has one);
+  this site has none, and its pages are CMS-driven, so pixel diffs would flake
+  with content.
 - **Studio behavior is unautomated.** Schema and structure changes are checked
   by hand at `http://localhost:4321/studio` (`npm run dev`), as Staci would see
   them. There is no `studio:dev` any more; the Studio is part of the site.

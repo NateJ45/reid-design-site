@@ -55,6 +55,13 @@ Standalone scripts:
 - `npm run preview` runs the built output under `wrangler dev -c dist/server/wrangler.json`, which is the only way to exercise the SSR routes (`/studio`, `/preview/**`, `/api/draft-mode/*`) locally the way production runs them.
 - **Do NOT run `npx sanity deploy`.** It would publish a second, hand-updated Studio at `reid-design.sanity.studio` pointed at the same production data, which is exactly the drift the embedded Studio removed. There is deliberately no `studioHost` in `sanity.cli.ts` to stop it.
 
+Quality gates (the family test standard, 2026-09-05; `docs/TESTING.md` has the full map):
+
+- `npm run check` = `astro check && npm run lint`. Type errors and eslint. Run it before every push; CI runs it first.
+- `npm run format:check` / `npm run format`. Prettier with the family `.prettierrc`. Three files are hand-formatted and listed in `.prettierignore` because prettier-plugin-astro cannot parse a `<script>` nested in a template expression.
+- `npm run test:unit` (vitest), `npm test` (Playwright: smoke, axe light and dark, reflow), `npm run check:links` (linkinator over `dist/client`, after a build).
+- Lighthouse CI runs in its own workflow (`lighthouse.yml`, config in `lighthouserc.json`): accessibility must hold 100.
+
 `public/og-default.png` is committed to the repo because it's a real asset shipped to visitors. `src/lib/sanity.types.ts` is also committed so other contributors (or future Claude sessions) don't need to run typegen to see what the schemas look like in code.
 
 ---
@@ -188,9 +195,9 @@ Use the Playwright MCP for screenshot-and-compare loops:
 4. Compare against the intent (spec, mockup, or prior screenshot)
 5. If something's off, fix and re-screenshot. Don't ship a change you haven't seen rendered.
 
-For accessibility-affecting changes, run Lighthouse on the changed page before opening a PR. Targets: 100/100/100/100 desktop. Defend them — when a score drops, find out why before merging.
+For accessibility-affecting changes, run Lighthouse on the changed page before opening a PR. Targets: 100/100/100/100 desktop. Defend them — when a score drops, find out why before merging. CI runs Lighthouse too (`lighthouse.yml`, one URL per template from `lighthouserc.json`) and fails the run if accessibility drops below 100.
 
-For Sanity Studio testing (schema or structure changes), run `npm run studio:dev` and check the editor experience as Staci would see it. The Studio is the editor's UI; broken Studio = broken editor workflow.
+For Sanity Studio testing (schema or structure changes), run `npm run dev` and open `http://localhost:4321/studio` to check the editor experience as Staci would see it. The Studio is the editor's UI; broken Studio = broken editor workflow.
 
 ### When NOT to skip this
 
@@ -205,7 +212,7 @@ Even "tiny" changes — a color tweak, a spacing nudge, a copy edit — go throu
 - Pause for confirmation before installing new dependencies.
 - When proposing design changes, describe the visual outcome in plain language, not just the code.
 - For browser-based verification, prefer the Playwright MCP. See the [Visual verification workflow](#visual-verification-workflow) section above for what to verify and when.
-- For Sanity Studio testing, run `npm run studio:dev` and check the editor experience as Staci would see it.
+- For Sanity Studio testing, run `npm run dev` and open `/studio` to check the editor experience as Staci would see it.
 - Don't report a UI change as done without screenshots in both themes and both viewports.
 
 ---
