@@ -74,17 +74,17 @@ const FORM_ROUTES = ['/contact'];
 
 test.describe('Focus indicators are visible in dark mode', () => {
   for (const route of FORM_ROUTES) {
-    test(`${route} gives every field a visible focus ring in dark mode`, async ({
-      page,
-      browserName,
-    }) => {
-      // Chromium-only. Under the iPhone WebKit profile a programmatic
-      // `.focus()` on a <select> does not put it in the :focus state (the
-      // native picker owns focus there), so every select came back with no
-      // ring while every text field passed, on the SAME `focus:ring-2` classes
-      // (staging CI, 2026-09-05). Chromium exercises the real styling for all
-      // of them; the WebKit result is the harness, not the site.
-      test.skip(browserName === 'webkit', 'WebKit cannot focus a <select> from script');
+    test(`${route} gives every field a visible focus ring in dark mode`, async ({ page }) => {
+      // Runs on BOTH engines, deliberately. This check was briefly skipped on
+      // webkit (2026-09-05) on the theory that a programmatic `.focus()` could
+      // not put a <select> into :focus there. That theory was wrong and the
+      // skip was hiding a live bug: measured in a real WebKit on 2026-09-06,
+      // the selects DID enter :focus and :focus-visible, but their computed
+      // box-shadow stayed `none`, because WebKit renders native form controls
+      // itself and drops box-shadow on them. With `focus:outline-none` also in
+      // the class list, the five selects on /contact had NO focus indicator at
+      // all on Safari and iOS. WebKit is exactly where this bug lives, so it
+      // is exactly where the check has to run.
       await forceDark(page);
       await page.goto(route);
       await expect(page.locator('html')).toHaveClass(/dark/);
@@ -99,21 +99,26 @@ test.describe('Focus indicators are visible in dark mode', () => {
       const bare: string[] = [];
       for (let i = 0; i < count; i++) {
         const field = fields.nth(i);
+        // Read the RESTING box-shadow first, then focus and read it again. A
+        // field that carries a decorative shadow at rest would otherwise pass
+        // on that shadow alone, even with its focus ring gone; only a shadow
+        // that actually CHANGES on focus is a focus indicator.
+        const before = await field.evaluate((el) => getComputedStyle(el).boxShadow);
         await field.focus();
-        const indicator = await field.evaluate((el) => {
+        const indicator = await field.evaluate((el, resting) => {
           const s = getComputedStyle(el);
           const outline =
             s.outlineStyle !== 'none' && parseFloat(s.outlineWidth || '0') >= 1
               ? parseFloat(s.outlineWidth)
               : 0;
-          const shadow = s.boxShadow && s.boxShadow !== 'none' ? 1 : 0;
+          const shadow = s.boxShadow && s.boxShadow !== 'none' && s.boxShadow !== resting ? 1 : 0;
           return {
             outline,
             shadow,
-            name: el.getAttribute('name') ?? el.tagName.toLowerCase(),
+            name: el.getAttribute('name') ?? el.id ?? el.tagName.toLowerCase(),
           };
-        });
-        // Either a real outline or a ring-style box-shadow counts.
+        }, before);
+        // Either a real outline or a ring-style box-shadow that focus added.
         if (indicator.outline === 0 && indicator.shadow === 0) bare.push(indicator.name);
       }
 
