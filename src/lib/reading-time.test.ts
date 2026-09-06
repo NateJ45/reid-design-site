@@ -37,7 +37,18 @@ describe('readingTimeFromPortableText', () => {
   it('ignores non-block entries, such as embedded images, when counting words', () => {
     const blocks = [
       { _type: 'image', asset: { _ref: 'image-abc' } },
-      textBlock(['ten', 'words', 'total', 'across', 'this', 'one', 'text', 'block', 'right', 'here']),
+      textBlock([
+        'ten',
+        'words',
+        'total',
+        'across',
+        'this',
+        'one',
+        'text',
+        'block',
+        'right',
+        'here',
+      ]),
     ];
     // Ten words is well under the 200-word minute, so it still floors to 1.
     expect(readingTimeFromPortableText(blocks)).toBe(1);

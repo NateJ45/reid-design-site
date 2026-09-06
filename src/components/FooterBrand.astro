@@ -36,7 +36,7 @@ const {
   <a
     href="/"
     aria-label={`${brandName} home`}
-    class="inline-block hover:opacity-80 transition-opacity"
+    class="inline-block transition-opacity hover:opacity-80"
   >
     <img
       alt={brandName}
@@ -52,7 +52,5 @@ const {
       data-logo-dark-srcset={logoDarkSrcset}
     />
   </a>
-  {tagline && (
-    <p class="text-sm text-foreground/80 italic max-w-[28rem]">{tagline}</p>
-  )}
+  {tagline && <p class="max-w-[28rem] text-sm text-foreground/80 italic">{tagline}</p>}
 </div>

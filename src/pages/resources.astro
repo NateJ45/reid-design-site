@@ -22,8 +22,10 @@ const [page, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.resources) return Astro.redirect('/');
 
-const title       = page?.seoTitle       ?? 'Free Resources · Reid Design';
-const description = page?.seoDescription ?? 'Planning tools and guides from Reid Design: the style quiz, budget calculator, free guides, FAQ, and more.';
+const title = page?.seoTitle ?? 'Free Resources · Reid Design';
+const description =
+  page?.seoDescription ??
+  'Planning tools and guides from Reid Design: the style quiz, budget calculator, free guides, FAQ, and more.';
 
 const schemas = [
   breadcrumbSchema([

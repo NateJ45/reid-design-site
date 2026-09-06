@@ -106,7 +106,8 @@ const categories = [
     _id: 'journalCategory.sourceRoundups',
     title: 'Source Roundups',
     slug: { _type: 'slug', current: 'source-roundups' },
-    description: 'Where I actually source things — vendors, vintage spots, local makers, online finds.',
+    description:
+      'Where I actually source things — vendors, vintage spots, local makers, online finds.',
   },
 ];
 
@@ -176,9 +177,11 @@ const body = [
     mspan('cozy', ['em']),
     span(' and '),
     mspan('intentional', ['em']),
-    span(". But what they were "),
+    span('. But what they were '),
     mspan('doing', ['em']),
-    span(' in that room every night was different than what they had told themselves they wanted. They were:'),
+    span(
+      ' in that room every night was different than what they had told themselves they wanted. They were:',
+    ),
   ]),
   li('Watching movies on Friday nights, all five together'),
   li('Playing board games on the rug, with at least one kid on the floor'),
@@ -221,9 +224,7 @@ const body = [
   ]),
   ni([
     mspan('Swap the square coffee table for a round one. ', ['strong']),
-    span(
-      'A square coffee table forces walking paths around four corners. A round one forgives.',
-    ),
+    span('A square coffee table forces walking paths around four corners. A round one forgives.'),
   ]),
   ni([
     mspan('Layer a washable wool rug under everything. ', ['strong']),
@@ -324,23 +325,30 @@ const body = [
   p(
     'We finished the reveal on a Friday. By Sunday, the family had hosted four neighbors and one of the kids had built a fort behind the swivel chair. Both, I think, count as success.',
   ),
-  block('normal', [
-    span(
-      "I will post the photography here in a week or two — Sarah Lemmons shot it on the second day and I am waiting on her edits. In the meantime, if you'd like to walk through your own version of this — the room that ",
-    ),
-    mspan('should', ['em']),
-    span(' work but doesn’t quite, the layout you suspect is wrong but can’t articulate why — that is literally what an '),
-    mspan('in-home consultation', ['link-process']),
-    span(' is for, or just '),
-    mspan('start a conversation', ['link-contact']),
-    span(' and we can talk through whether the timing is right.'),
-  ], { markDefs: [linkInline1, linkInline2] }),
+  block(
+    'normal',
+    [
+      span(
+        "I will post the photography here in a week or two — Sarah Lemmons shot it on the second day and I am waiting on her edits. In the meantime, if you'd like to walk through your own version of this — the room that ",
+      ),
+      mspan('should', ['em']),
+      span(
+        ' work but doesn’t quite, the layout you suspect is wrong but can’t articulate why — that is literally what an ',
+      ),
+      mspan('in-home consultation', ['link-process']),
+      span(' is for, or just '),
+      mspan('start a conversation', ['link-contact']),
+      span(' and we can talk through whether the timing is right.'),
+    ],
+    { markDefs: [linkInline1, linkInline2] },
+  ),
 ];
 
 const journalEntry = {
   _type: 'journalEntry',
   _id: 'journalEntry.plainfieldFamilyRoomWalkthrough',
-  title: 'Inside a Plainfield Family Room: How Pulling One Sectional Off the Wall Made the Whole Room Work',
+  title:
+    'Inside a Plainfield Family Room: How Pulling One Sectional Off the Wall Made the Whole Room Work',
   slug: { _type: 'slug', current: 'plainfield-family-room-walkthrough' },
   excerpt:
     'A young Plainfield family wanted a room that could handle five people, three kids at bedtime, and the occasional juice spill — without feeling like a daycare. Here’s exactly how we got there, what each piece cost, and the one decision I’d change.',

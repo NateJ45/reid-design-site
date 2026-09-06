@@ -45,40 +45,41 @@ const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
 ---
 
-{rows.map((s: any, i: number) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {
-  s._type === 'processSectionMarker' ? (
-    s.section === 'hero' ? (
-      <Hero
-        eyebrow={page?.heroEyebrow ?? 'The Process.'}
-        headline={page?.heroHeadline ?? 'From First Call to Final Reveal.'}
-        subhead={page?.heroSubhead ?? ''}
-        backgroundImage={page?.heroImage}
-        headingId="process-hero-heading"
-        size="short"
-        scriptAccent={page?.heroScriptAccent}
-      />
-    ) : s.section === 'steps' ? (
-      <ProcessSteps processSteps={page?.processSteps ?? []} />
-    ) : s.section === 'faq' ? (
-      <ProcessFaq
-        eyebrow={page?.faqSectionEyebrow}
-        headline={page?.faqSectionHeadline}
-        faqs={page?.faqs ?? []}
-      />
-    ) : s.section === 'finalCta' ? (
-      <FinalCta
-        eyebrow={page?.finalCtaEyebrow}
-        headline={page?.finalCtaHeadline}
-        subhead={page?.finalCtaSubhead}
-        cta={page?.finalCta}
-        scriptAccent={page?.finalCtaScriptAccent}
-        backgroundImage={page?.finalCtaBackgroundImage}
-      />
-    ) : null
-  ) : (
-    <SectionRenderer sections={[s]} idPrefix={`process-extra-${i}`} />
-  )}
-  </Wrap>
-))}
+{
+  rows.map((s: any, i: number) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'processSectionMarker' ? (
+        s.section === 'hero' ? (
+          <Hero
+            eyebrow={page?.heroEyebrow ?? 'The Process.'}
+            headline={page?.heroHeadline ?? 'From First Call to Final Reveal.'}
+            subhead={page?.heroSubhead ?? ''}
+            backgroundImage={page?.heroImage}
+            headingId="process-hero-heading"
+            size="short"
+            scriptAccent={page?.heroScriptAccent}
+          />
+        ) : s.section === 'steps' ? (
+          <ProcessSteps processSteps={page?.processSteps ?? []} />
+        ) : s.section === 'faq' ? (
+          <ProcessFaq
+            eyebrow={page?.faqSectionEyebrow}
+            headline={page?.faqSectionHeadline}
+            faqs={page?.faqs ?? []}
+          />
+        ) : s.section === 'finalCta' ? (
+          <FinalCta
+            eyebrow={page?.finalCtaEyebrow}
+            headline={page?.finalCtaHeadline}
+            subhead={page?.finalCtaSubhead}
+            cta={page?.finalCta}
+            scriptAccent={page?.finalCtaScriptAccent}
+            backgroundImage={page?.finalCtaBackgroundImage}
+          />
+        ) : null
+      ) : (
+        <SectionRenderer sections={[s]} idPrefix={`process-extra-${i}`} />
+      )}
+    </Wrap>
+  ))
+}

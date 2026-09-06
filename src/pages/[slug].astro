@@ -14,9 +14,24 @@ export async function getStaticPaths() {
   // scope that cannot see component-level consts. Mirrors the page schema's
   // reserved list so a custom page can never shadow a built-in route.
   const RESERVED = new Set([
-    'about', 'services', 'process', 'portfolio', 'faq', 'contact', 'journal',
-    'e-design', 'shop', 'gift-certificates', 'quiz', 'calculator', 'resources',
-    'guides', 'press', 'privacy', '404', 'sitemap-index.xml',
+    'about',
+    'services',
+    'process',
+    'portfolio',
+    'faq',
+    'contact',
+    'journal',
+    'e-design',
+    'shop',
+    'gift-certificates',
+    'quiz',
+    'calculator',
+    'resources',
+    'guides',
+    'press',
+    'privacy',
+    '404',
+    'sitemap-index.xml',
   ]);
   const slugs = await getAllPageSlugs().catch(() => []);
   return slugs.filter((slug) => !RESERVED.has(slug)).map((slug) => ({ params: { slug } }));

@@ -35,7 +35,14 @@ interface Props {
   editDoc?: EditDoc;
 }
 
-const { sections = [], page, philosophyPoints = [], pressItems = [], visiblePress = true, editDoc } = Astro.props as Props;
+const {
+  sections = [],
+  page,
+  philosophyPoints = [],
+  pressItems = [],
+  visiblePress = true,
+  editDoc,
+} = Astro.props as Props;
 
 // A real element in preview, nothing at all on the live site. Must NOT be
 // `display: contents`: the overlay outlines the element's rect and a contents
@@ -58,63 +65,66 @@ const stats = (page?.stats ?? [])
   .map(({ number, suffix, label }: any) => ({ number, suffix, label }));
 ---
 
-{rows.map((s: any, i: number) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {
-  s._type === 'aboutSectionMarker' ? (
-    s.section === 'hero' ? (
-      <Hero
-        eyebrow={page?.heroEyebrow ?? 'The Designer.'}
-        headline={page?.heroHeadline ?? 'People Hire People.'}
-        subhead={page?.heroSubhead ?? "Here's who you'd be working with."}
-        backgroundImage={page?.heroImage}
-        headingId="about-hero-heading"
-        size="short"
-        scriptAccent={page?.heroScriptAccent}
-      />
-    ) : s.section === 'story' ? (
-      <AboutStory
-        eyebrow={page?.storyEyebrow}
-        headline={page?.storyHeadline}
-        content={page?.storyContent}
-        photo={page?.staciPhoto}
-        attribution={page?.staciAttribution}
-        backgroundLine={page?.backgroundLine}
-        serviceAreaMention={page?.serviceAreaMention}
-      />
-    ) : s.section === 'philosophy' ? (
-      <AboutPhilosophy
-        eyebrow={page?.philosophyEyebrow}
-        headline={page?.philosophyHeadline}
-        points={philosophyPoints}
-      />
-    ) : s.section === 'personal' ? (
-      <AboutPersonal
-        eyebrow={page?.personalEyebrow}
-        headline={page?.personalHeadline}
-        intro={page?.personalIntro}
-        currentlyList={page?.currentlyList}
-        rapidFire={page?.rapidFire}
-        localSpots={page?.localSpots}
-        beyondDesign={page?.beyondDesign}
-        candidPhoto={page?.candidPhoto}
-      />
-    ) : s.section === 'press' ? (
-      visiblePress && pressItems.length > 0 ? <PressStrip items={pressItems} /> : null
-    ) : s.section === 'stats' ? (
-      <StatsRow stats={stats} />
-    ) : s.section === 'finalCta' ? (
-      <FinalCta
-        eyebrow={page?.finalCtaEyebrow}
-        headline={page?.finalCtaHeadline}
-        subhead={page?.finalCtaSubhead}
-        cta={page?.finalCta}
-        scriptAccent={page?.finalCtaScriptAccent}
-        backgroundImage={page?.finalCtaBackgroundImage}
-      />
-    ) : null
-  ) : (
-    <SectionRenderer sections={[s]} idPrefix={`about-extra-${i}`} />
-  )}
-  </Wrap>
-))}
+{
+  rows.map((s: any, i: number) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'aboutSectionMarker' ? (
+        s.section === 'hero' ? (
+          <Hero
+            eyebrow={page?.heroEyebrow ?? 'The Designer.'}
+            headline={page?.heroHeadline ?? 'People Hire People.'}
+            subhead={page?.heroSubhead ?? "Here's who you'd be working with."}
+            backgroundImage={page?.heroImage}
+            headingId="about-hero-heading"
+            size="short"
+            scriptAccent={page?.heroScriptAccent}
+          />
+        ) : s.section === 'story' ? (
+          <AboutStory
+            eyebrow={page?.storyEyebrow}
+            headline={page?.storyHeadline}
+            content={page?.storyContent}
+            photo={page?.staciPhoto}
+            attribution={page?.staciAttribution}
+            backgroundLine={page?.backgroundLine}
+            serviceAreaMention={page?.serviceAreaMention}
+          />
+        ) : s.section === 'philosophy' ? (
+          <AboutPhilosophy
+            eyebrow={page?.philosophyEyebrow}
+            headline={page?.philosophyHeadline}
+            points={philosophyPoints}
+          />
+        ) : s.section === 'personal' ? (
+          <AboutPersonal
+            eyebrow={page?.personalEyebrow}
+            headline={page?.personalHeadline}
+            intro={page?.personalIntro}
+            currentlyList={page?.currentlyList}
+            rapidFire={page?.rapidFire}
+            localSpots={page?.localSpots}
+            beyondDesign={page?.beyondDesign}
+            candidPhoto={page?.candidPhoto}
+          />
+        ) : s.section === 'press' ? (
+          visiblePress && pressItems.length > 0 ? (
+            <PressStrip items={pressItems} />
+          ) : null
+        ) : s.section === 'stats' ? (
+          <StatsRow stats={stats} />
+        ) : s.section === 'finalCta' ? (
+          <FinalCta
+            eyebrow={page?.finalCtaEyebrow}
+            headline={page?.finalCtaHeadline}
+            subhead={page?.finalCtaSubhead}
+            cta={page?.finalCta}
+            scriptAccent={page?.finalCtaScriptAccent}
+            backgroundImage={page?.finalCtaBackgroundImage}
+          />
+        ) : null
+      ) : (
+        <SectionRenderer sections={[s]} idPrefix={`about-extra-${i}`} />
+      )}
+    </Wrap>
+  ))
+}

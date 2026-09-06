@@ -49,7 +49,8 @@ if (!writeToken) {
 }
 
 const client = createClient({
-  projectId, dataset,
+  projectId,
+  dataset,
   apiVersion: '2025-02-19',
   useCdn: false,
   token: writeToken,
@@ -89,7 +90,9 @@ function collectPhotos() {
 }
 
 const photos = collectPhotos();
-console.log(`Found ${photos.length} photos to upload across ${new Set(photos.map(p => p.folder)).size} folders.`);
+console.log(
+  `Found ${photos.length} photos to upload across ${new Set(photos.map((p) => p.folder)).size} folders.`,
+);
 console.log(`Skipping 7 already-wired + everything in 09-Logos.`);
 
 // ---- Upload with limited concurrency ----
@@ -135,7 +138,9 @@ async function runInBatches(items, batchSize, fn) {
     const settled = await Promise.all(batch.map(fn));
     out.push(...settled);
     const pct = Math.round((Math.min(i + batchSize, items.length) / items.length) * 100);
-    process.stdout.write(`\r  Progress: ${done}/${items.length} uploaded · ${failed} failed · ${pct}%`);
+    process.stdout.write(
+      `\r  Progress: ${done}/${items.length} uploaded · ${failed} failed · ${pct}%`,
+    );
   }
   return out;
 }
@@ -154,7 +159,9 @@ for (const r of uploadResults) {
 }
 console.log('Per-folder results:');
 for (const [folder, counts] of Object.entries(byFolder).sort()) {
-  console.log(`  ${folder.padEnd(35)} ${counts.ok} uploaded${counts.failed > 0 ? `, ${counts.failed} failed` : ''}`);
+  console.log(
+    `  ${folder.padEnd(35)} ${counts.ok} uploaded${counts.failed > 0 ? `, ${counts.failed} failed` : ''}`,
+  );
 }
 
 const failedDetails = uploadResults.filter((r) => !r.ok);
@@ -171,7 +178,9 @@ if (failedDetails.length > 0) {
 if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 writeFileSync(manifestPath, JSON.stringify(uploadResults, null, 2), 'utf-8');
 console.log(`\nManifest written to ${manifestPath}`);
-console.log(`(maps filename → Sanity asset _id, useful if we ever want to wire specific photos to specific docs later)`);
+console.log(
+  `(maps filename → Sanity asset _id, useful if we ever want to wire specific photos to specific docs later)`,
+);
 
 if (failed > 0) process.exit(1);
 console.log("\nDone! All photos are now in Staci's Sanity asset library.");

@@ -18,8 +18,10 @@ const [page, siteSettings] = await Promise.all([
   getSiteSettings().catch(() => null),
 ]);
 
-const title       = page?.seoTitle       ?? 'The Process · Reid Design';
-const description = page?.seoDescription ?? "From first call to final reveal — here's exactly how working with Reid Design unfolds.";
+const title = page?.seoTitle ?? 'The Process · Reid Design';
+const description =
+  page?.seoDescription ??
+  "From first call to final reveal — here's exactly how working with Reid Design unfolds.";
 
 const schemas = [
   breadcrumbSchema([

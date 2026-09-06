@@ -44,27 +44,31 @@ const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
 ---
 
-{rows.map((s: any, i: number) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {
-  s._type === 'resourcesSectionMarker' ? (
-    s.section === 'hero' ? (
-      <Hero
-        eyebrow={page?.heroEyebrow ?? 'Free tools + guides'}
-        headline={page?.heroHeadline ?? 'Start here before you call'}
-        subhead={page?.heroSubhead ?? 'Everything you need to walk into that first conversation knowing what you want and what to expect.'}
-        backgroundImage={page?.heroImage ?? null}
-        headingId="resources-hero-heading"
-        size="short"
-        scriptAccent={page?.heroScriptAccent ?? undefined}
-      />
-    ) : s.section === 'intro' ? (
-      <ResourcesIntro intro={page?.intro} />
-    ) : s.section === 'cards' ? (
-      <ResourcesCards sanityCards={page?.cards} visible={visible} />
-    ) : null
-  ) : (
-    <SectionRenderer sections={[s]} idPrefix={`resources-extra-${i}`} />
-  )}
-  </Wrap>
-))}
+{
+  rows.map((s: any, i: number) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'resourcesSectionMarker' ? (
+        s.section === 'hero' ? (
+          <Hero
+            eyebrow={page?.heroEyebrow ?? 'Free tools + guides'}
+            headline={page?.heroHeadline ?? 'Start here before you call'}
+            subhead={
+              page?.heroSubhead ??
+              'Everything you need to walk into that first conversation knowing what you want and what to expect.'
+            }
+            backgroundImage={page?.heroImage ?? null}
+            headingId="resources-hero-heading"
+            size="short"
+            scriptAccent={page?.heroScriptAccent ?? undefined}
+          />
+        ) : s.section === 'intro' ? (
+          <ResourcesIntro intro={page?.intro} />
+        ) : s.section === 'cards' ? (
+          <ResourcesCards sanityCards={page?.cards} visible={visible} />
+        ) : null
+      ) : (
+        <SectionRenderer sections={[s]} idPrefix={`resources-extra-${i}`} />
+      )}
+    </Wrap>
+  ))
+}

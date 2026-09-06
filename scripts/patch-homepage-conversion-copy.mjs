@@ -86,10 +86,6 @@ if (!apply) {
   process.exit(0);
 }
 
-await client
-  .patch(doc._id)
-  .set(overwrite)
-  .setIfMissing(seed)
-  .commit();
+await client.patch(doc._id).set(overwrite).setIfMissing(seed).commit();
 
 console.log('\nPatched. Remember: the site is prerendered — push/redeploy to see it live.\n');

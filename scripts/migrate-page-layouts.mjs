@@ -14,9 +14,13 @@ import { config as loadDotenv } from 'dotenv';
 loadDotenv();
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const env = Object.fromEntries(
-  readFileSync(resolve(root, '.env'), 'utf-8').split('\n')
+  readFileSync(resolve(root, '.env'), 'utf-8')
+    .split('\n')
     .filter((l) => l && !l.startsWith('#') && l.includes('='))
-    .map((l) => { const [k, ...v] = l.split('='); return [k.trim(), v.join('=').trim()]; }),
+    .map((l) => {
+      const [k, ...v] = l.split('=');
+      return [k.trim(), v.join('=').trim()];
+    }),
 );
 
 const client = createClient({
@@ -31,7 +35,18 @@ const client = createClient({
 const LAYOUTS = {
   homePage: {
     markerType: 'homeSectionMarker',
-    order: ['hero', 'meetStaci', 'featuredWork', 'testimonials', 'processPreview', 'services', 'featuredJournal', 'press', 'serviceAreaCue', 'finalCta'],
+    order: [
+      'hero',
+      'meetStaci',
+      'featuredWork',
+      'testimonials',
+      'processPreview',
+      'services',
+      'featuredJournal',
+      'press',
+      'serviceAreaCue',
+      'finalCta',
+    ],
   },
   aboutPage: {
     markerType: 'aboutSectionMarker',
@@ -72,7 +87,11 @@ for (const [docId, { markerType, order }] of Object.entries(LAYOUTS)) {
     console.log(`${docId}: doc not found, skipped (renders default order in code)`);
     continue;
   }
-  const pageBuilder = order.map((section) => ({ _type: markerType, _key: `${docId}-${section}`, section }));
+  const pageBuilder = order.map((section) => ({
+    _type: markerType,
+    _key: `${docId}-${section}`,
+    section,
+  }));
   const result = await client.patch(docId).setIfMissing({ pageBuilder }).commit();
   const got = (result.pageBuilder ?? []).map((m) => m.section).join(' -> ');
   console.log(`${docId}: ${got}`);

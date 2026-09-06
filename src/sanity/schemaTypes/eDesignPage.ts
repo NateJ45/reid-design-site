@@ -29,8 +29,12 @@ export const eDesignPage = defineType({
       title: 'SEO title',
       type: 'string',
       group: 'seo',
-      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
-      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+      description:
+        'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
+      validation: (Rule) =>
+        Rule.max(60).warning(
+          'Titles longer than about 60 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoDescription',
@@ -38,19 +42,22 @@ export const eDesignPage = defineType({
       type: 'text',
       rows: 3,
       group: 'seo',
-      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
-      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+      description:
+        'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
+      validation: (Rule) =>
+        Rule.max(160).warning(
+          'Descriptions longer than about 160 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoImage',
       title: 'Social share image (this page)',
       type: 'image',
       group: 'seo',
-      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      description:
+        'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
       options: { hotspot: true },
-      fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
-      ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
 
     // Layout & order. Reorder or hide the E-Design content sections (intro, how
@@ -76,7 +83,13 @@ export const eDesignPage = defineType({
       group: 'hero',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', rows: 2, group: 'hero' }),
+    defineField({
+      name: 'heroSubhead',
+      title: 'Hero subhead',
+      type: 'text',
+      rows: 2,
+      group: 'hero',
+    }),
     defineField({
       name: 'heroImage',
       title: 'Hero background image',
@@ -85,7 +98,12 @@ export const eDesignPage = defineType({
       description: 'Full-bleed photo behind the hero text.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
     defineField({
@@ -93,7 +111,8 @@ export const eDesignPage = defineType({
       title: 'Script-font accent word (optional)',
       type: 'string',
       group: 'hero',
-      description: 'A single word from the headline to render in Pinyon Script. Must match exactly. Leave blank to skip.',
+      description:
+        'A single word from the headline to render in Pinyon Script. Must match exactly. Leave blank to skip.',
     }),
 
     // Intro
@@ -102,7 +121,8 @@ export const eDesignPage = defineType({
       title: 'Intro copy',
       type: 'array',
       group: 'intro',
-      description: 'Opening paragraph(s) below the hero. Explain what e-design is and why it fits remote clients.',
+      description:
+        'Opening paragraph(s) below the hero. Explain what e-design is and why it fits remote clients.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -130,8 +150,18 @@ export const eDesignPage = defineType({
           type: 'object',
           name: 'howItWorksStep',
           fields: [
-            defineField({ name: 'stepNumber', title: 'Step number', type: 'number', validation: (Rule) => Rule.required().integer().min(1) }),
-            defineField({ name: 'title', title: 'Step title', type: 'string', validation: (Rule) => Rule.required() }),
+            defineField({
+              name: 'stepNumber',
+              title: 'Step number',
+              type: 'number',
+              validation: (Rule) => Rule.required().integer().min(1),
+            }),
+            defineField({
+              name: 'title',
+              title: 'Step title',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({ name: 'body', title: 'Step detail', type: 'text', rows: 3 }),
           ],
           preview: {
@@ -164,12 +194,45 @@ export const eDesignPage = defineType({
           type: 'object',
           name: 'eDesignTier',
           fields: [
-            defineField({ name: 'name', title: 'Tier name', type: 'string', validation: (Rule) => Rule.required() }),
-            defineField({ name: 'price', title: 'Price display', type: 'string', description: 'How the price reads. Example: "$450" or "Starting at $350".', validation: (Rule) => Rule.required() }),
-            defineField({ name: 'priceNumeric', title: 'Price (number, internal)', type: 'number', description: 'Used for sorting. Leave blank for custom-quoted tiers.' }),
-            defineField({ name: 'features', title: 'Features', type: 'array', of: [defineArrayMember({ type: 'string' })], validation: (Rule) => Rule.required().min(1) }),
-            defineField({ name: 'bestFor', title: 'Best for', type: 'text', rows: 2, description: 'One sentence describing the ideal client for this tier.' }),
-            defineField({ name: 'ctaLabel', title: 'CTA label', type: 'string', initialValue: 'Inquire about E-Design' }),
+            defineField({
+              name: 'name',
+              title: 'Tier name',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'price',
+              title: 'Price display',
+              type: 'string',
+              description: 'How the price reads. Example: "$450" or "Starting at $350".',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'priceNumeric',
+              title: 'Price (number, internal)',
+              type: 'number',
+              description: 'Used for sorting. Leave blank for custom-quoted tiers.',
+            }),
+            defineField({
+              name: 'features',
+              title: 'Features',
+              type: 'array',
+              of: [defineArrayMember({ type: 'string' })],
+              validation: (Rule) => Rule.required().min(1),
+            }),
+            defineField({
+              name: 'bestFor',
+              title: 'Best for',
+              type: 'text',
+              rows: 2,
+              description: 'One sentence describing the ideal client for this tier.',
+            }),
+            defineField({
+              name: 'ctaLabel',
+              title: 'CTA label',
+              type: 'string',
+              initialValue: 'Inquire about E-Design',
+            }),
           ],
           preview: {
             select: { name: 'name', price: 'price' },
@@ -190,8 +253,18 @@ export const eDesignPage = defineType({
     }),
 
     // Final CTA
-    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final' }),
-    defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final' }),
+    defineField({
+      name: 'finalCtaEyebrow',
+      title: 'Final CTA eyebrow',
+      type: 'string',
+      group: 'final',
+    }),
+    defineField({
+      name: 'finalCtaHeadline',
+      title: 'Final CTA headline',
+      type: 'string',
+      group: 'final',
+    }),
     defineField({
       name: 'finalCtaScriptAccent',
       title: 'Final CTA heading script accent (optional)',
@@ -200,7 +273,13 @@ export const eDesignPage = defineType({
       description:
         'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
     }),
-    defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final' }),
+    defineField({
+      name: 'finalCtaSubhead',
+      title: 'Final CTA subhead',
+      type: 'text',
+      rows: 2,
+      group: 'final',
+    }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
     defineField({
       name: 'finalCtaBackgroundImage',

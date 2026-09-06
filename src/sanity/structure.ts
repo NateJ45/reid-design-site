@@ -130,12 +130,7 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
  * iframe of the last deploy.
  *
  */
-function singletonWithPreview(
-  S: StructureBuilder,
-  schemaType: string,
-  title: string,
-  icon: any,
-) {
+function singletonWithPreview(S: StructureBuilder, schemaType: string, title: string, icon: any) {
   return S.listItem()
     .title(title)
     .icon(icon)
@@ -197,7 +192,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                       S.view.form().title('Edit'),
                     ]),
                 ),
-            ])
+            ]),
         ),
 
       S.divider(),
@@ -252,7 +247,9 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               // Custom pages — Staci builds these herself from the section
               // library. Multi-instance (not a singleton), so it is a normal
               // document list she can add to.
-              S.documentTypeListItem('page').title('Custom pages (you build these)').icon(DocumentsIcon),
+              S.documentTypeListItem('page')
+                .title('Custom pages (you build these)')
+                .icon(DocumentsIcon),
             ]),
         ),
 
@@ -293,8 +290,18 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                         context,
                       }),
                       singletonWithPreview(S, 'eDesignPage', 'E-Design pricing', DesktopIcon),
-                      singletonWithPreview(S, 'giftPage', 'Gift certificate amounts', CreditCardIcon),
-                      singletonWithPreview(S, 'budgetCalculator', 'Budget calculator ranges', BillIcon),
+                      singletonWithPreview(
+                        S,
+                        'giftPage',
+                        'Gift certificate amounts',
+                        CreditCardIcon,
+                      ),
+                      singletonWithPreview(
+                        S,
+                        'budgetCalculator',
+                        'Budget calculator ranges',
+                        BillIcon,
+                      ),
                     ]),
                 ),
 
@@ -389,5 +396,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       // Safety net: surface any document type we have NOT explicitly placed above
       // (and keep the hidden set, including media.tag, out of the desk root).
-      ...S.documentTypeListItems().filter((item) => !HIDDEN_FROM_DEFAULT.has(item.getId() as string)),
+      ...S.documentTypeListItems().filter(
+        (item) => !HIDDEN_FROM_DEFAULT.has(item.getId() as string),
+      ),
     ]);

@@ -110,8 +110,7 @@ async function patchSiteSettings() {
           'Occasional notes on Indiana projects, paint colors worth stealing, and when I open new project slots. No spam, ever.',
         buttonLabel: 'Subscribe',
         successMessage: "You're in. Talk soon.",
-        consentNote:
-          'By subscribing you agree to our privacy policy. Unsubscribe anytime.',
+        consentNote: 'By subscribing you agree to our privacy policy. Unsubscribe anytime.',
       },
       googleBusinessUrl: 'https://g.page/reid-design-llc',
       reviewsNote: 'Real words from real Reid Design clients.',
@@ -175,8 +174,7 @@ const leadMagnets = [
       _key: 'lm1cover',
     },
     gateHeading: 'Get the free guide.',
-    gateBlurb:
-      'Enter your email and I will send it right over. No sales sequence, just the guide.',
+    gateBlurb: 'Enter your email and I will send it right over. No sales sequence, just the guide.',
     buttonLabel: 'Send me the guide',
     successMessage: "You're in. Your download link is just below.",
     espTag: 'guide-consult-prep',
@@ -199,7 +197,7 @@ const leadMagnets = [
     gateBlurb:
       'Drop your email and I will send you the five colors, with notes on where each one works best.',
     buttonLabel: 'Send me the colors',
-    successMessage: "Got it. The guide is right below.",
+    successMessage: 'Got it. The guide is right below.',
     espTag: 'guide-paint-colors',
     published: true,
     displayOrder: 2,
@@ -226,7 +224,10 @@ const styleQuiz = {
         {
           _key: 'q1a1',
           label: 'Clean lines and breathing room',
-          image: { ...img(ASSETS.ls1, 'Modern living room with clean lines and open space'), _key: 'q1a1img' },
+          image: {
+            ...img(ASSETS.ls1, 'Modern living room with clean lines and open space'),
+            _key: 'q1a1img',
+          },
           archetypeWeights: [
             { _key: 'q1a1w1', archetypeSlug: 'modern-organic', weight: 3 },
             { _key: 'q1a1w2', archetypeSlug: 'classic-transitional', weight: 1 },
@@ -235,7 +236,10 @@ const styleQuiz = {
         {
           _key: 'q1a2',
           label: 'Layered fabrics and warm texture',
-          image: { ...img(ASSETS.pt2, 'Cozy bedroom with layered textiles and warm tones'), _key: 'q1a2img' },
+          image: {
+            ...img(ASSETS.pt2, 'Cozy bedroom with layered textiles and warm tones'),
+            _key: 'q1a2img',
+          },
           archetypeWeights: [
             { _key: 'q1a2w1', archetypeSlug: 'cozy-farmhouse', weight: 3 },
             { _key: 'q1a2w2', archetypeSlug: 'classic-transitional', weight: 1 },
@@ -244,7 +248,10 @@ const styleQuiz = {
         {
           _key: 'q1a3',
           label: 'A balanced mix of old and new',
-          image: { ...img(ASSETS.ls2, 'Transitional living room blending classic and modern'), _key: 'q1a3img' },
+          image: {
+            ...img(ASSETS.ls2, 'Transitional living room blending classic and modern'),
+            _key: 'q1a3img',
+          },
           archetypeWeights: [
             { _key: 'q1a3w1', archetypeSlug: 'classic-transitional', weight: 3 },
             { _key: 'q1a3w2', archetypeSlug: 'modern-organic', weight: 1 },
@@ -260,7 +267,10 @@ const styleQuiz = {
         {
           _key: 'q2a1',
           label: 'Calm and collected',
-          image: { ...img(ASSETS.ls3, 'Calm neutral bedroom with minimal styling'), _key: 'q2a1img' },
+          image: {
+            ...img(ASSETS.ls3, 'Calm neutral bedroom with minimal styling'),
+            _key: 'q2a1img',
+          },
           archetypeWeights: [
             { _key: 'q2a1w1', archetypeSlug: 'modern-organic', weight: 3 },
             { _key: 'q2a1w2', archetypeSlug: 'classic-transitional', weight: 1 },
@@ -293,7 +303,10 @@ const styleQuiz = {
         {
           _key: 'q3a1',
           label: 'Natural linen, rattan, and stone',
-          image: { ...img(ASSETS.ls2, 'Natural materials: linen, rattan, and stone textures'), _key: 'q3a1img' },
+          image: {
+            ...img(ASSETS.ls2, 'Natural materials: linen, rattan, and stone textures'),
+            _key: 'q3a1img',
+          },
           archetypeWeights: [
             { _key: 'q3a1w1', archetypeSlug: 'modern-organic', weight: 3 },
             { _key: 'q3a1w2', archetypeSlug: 'cozy-farmhouse', weight: 1 },
@@ -302,7 +315,10 @@ const styleQuiz = {
         {
           _key: 'q3a2',
           label: 'Wood tones, cotton, and warm metals',
-          image: { ...img(ASSETS.pt2, 'Warm wood, cotton, and brass accent bedroom'), _key: 'q3a2img' },
+          image: {
+            ...img(ASSETS.pt2, 'Warm wood, cotton, and brass accent bedroom'),
+            _key: 'q3a2img',
+          },
           archetypeWeights: [
             { _key: 'q3a2w1', archetypeSlug: 'cozy-farmhouse', weight: 3 },
             { _key: 'q3a2w2', archetypeSlug: 'classic-transitional', weight: 1 },
@@ -311,7 +327,10 @@ const styleQuiz = {
         {
           _key: 'q3a3',
           label: 'Subtle pattern, velvet, and brushed nickel',
-          image: { ...img(ASSETS.ls3, 'Classic transitional hallway with subtle pattern'), _key: 'q3a3img' },
+          image: {
+            ...img(ASSETS.ls3, 'Classic transitional hallway with subtle pattern'),
+            _key: 'q3a3img',
+          },
           archetypeWeights: [
             { _key: 'q3a3w1', archetypeSlug: 'classic-transitional', weight: 3 },
             { _key: 'q3a3w2', archetypeSlug: 'modern-organic', weight: 1 },
@@ -327,25 +346,22 @@ const styleQuiz = {
           _key: 'q4a1',
           label: 'Open, airy, a few perfect things',
           image: { ...img(ASSETS.ls1, 'Airy open living room, minimal but warm'), _key: 'q4a1img' },
-          archetypeWeights: [
-            { _key: 'q4a1w1', archetypeSlug: 'modern-organic', weight: 3 },
-          ],
+          archetypeWeights: [{ _key: 'q4a1w1', archetypeSlug: 'modern-organic', weight: 3 }],
         },
         {
           _key: 'q4a2',
           label: 'Layered, cozy, feels lived in',
           image: { ...img(ASSETS.pt1, 'Cozy layered kitchen, farmhouse style'), _key: 'q4a2img' },
-          archetypeWeights: [
-            { _key: 'q4a2w1', archetypeSlug: 'cozy-farmhouse', weight: 3 },
-          ],
+          archetypeWeights: [{ _key: 'q4a2w1', archetypeSlug: 'cozy-farmhouse', weight: 3 }],
         },
         {
           _key: 'q4a3',
           label: 'Elegant but still comfortable',
-          image: { ...img(ASSETS.pt3, 'Classic transitional hallway with elegant trim'), _key: 'q4a3img' },
-          archetypeWeights: [
-            { _key: 'q4a3w1', archetypeSlug: 'classic-transitional', weight: 3 },
-          ],
+          image: {
+            ...img(ASSETS.pt3, 'Classic transitional hallway with elegant trim'),
+            _key: 'q4a3img',
+          },
+          archetypeWeights: [{ _key: 'q4a3w1', archetypeSlug: 'classic-transitional', weight: 3 }],
         },
       ],
     },
@@ -381,11 +397,20 @@ const styleQuiz = {
       name: 'Modern Organic',
       slug: { _type: 'slug', current: 'modern-organic' },
       description: [
-        ptBlock('arch1d1', 'You are drawn to calm spaces with natural materials and just enough breathing room. Linen, rattan, stone, and warm neutrals are your language. The room looks like it came together on its own, but every piece was chosen on purpose.'),
-        ptBlock('arch1d2', 'Full Room Design is usually the right starting point. We will build a palette, source the anchor pieces, and make sure the whole thing lands the way you are picturing it.'),
+        ptBlock(
+          'arch1d1',
+          'You are drawn to calm spaces with natural materials and just enough breathing room. Linen, rattan, stone, and warm neutrals are your language. The room looks like it came together on its own, but every piece was chosen on purpose.',
+        ),
+        ptBlock(
+          'arch1d2',
+          'Full Room Design is usually the right starting point. We will build a palette, source the anchor pieces, and make sure the whole thing lands the way you are picturing it.',
+        ),
       ],
       images: [
-        { ...img(ASSETS.ls1, 'Modern organic living room with natural materials'), _key: 'arch1img1' },
+        {
+          ...img(ASSETS.ls1, 'Modern organic living room with natural materials'),
+          _key: 'arch1img1',
+        },
         { ...img(ASSETS.ls3, 'Clean neutral bedroom in modern organic style'), _key: 'arch1img2' },
       ],
       recommendedServiceRef: { _type: 'reference', _ref: 'service.fullRoomDesign' },
@@ -396,11 +421,20 @@ const styleQuiz = {
       name: 'Classic Transitional',
       slug: { _type: 'slug', current: 'classic-transitional' },
       description: [
-        ptBlock('arch2d1', 'You want a room that feels polished without feeling fussy. Traditional proportions, updated fabrics, a mix of old finds and new pieces. Your house should look like you have good taste, not like a showroom.'),
-        ptBlock('arch2d2', 'Full Room Design gets you there. We will balance what you already have with what the room needs, and you will end up with a space that is genuinely yours.'),
+        ptBlock(
+          'arch2d1',
+          'You want a room that feels polished without feeling fussy. Traditional proportions, updated fabrics, a mix of old finds and new pieces. Your house should look like you have good taste, not like a showroom.',
+        ),
+        ptBlock(
+          'arch2d2',
+          'Full Room Design gets you there. We will balance what you already have with what the room needs, and you will end up with a space that is genuinely yours.',
+        ),
       ],
       images: [
-        { ...img(ASSETS.ls2, 'Classic transitional living room with layered accents'), _key: 'arch2img1' },
+        {
+          ...img(ASSETS.ls2, 'Classic transitional living room with layered accents'),
+          _key: 'arch2img1',
+        },
         { ...img(ASSETS.pt3, 'Transitional hallway with classic trim details'), _key: 'arch2img2' },
       ],
       recommendedServiceRef: { _type: 'reference', _ref: 'service.fullRoomDesign' },
@@ -411,8 +445,14 @@ const styleQuiz = {
       name: 'Cozy Farmhouse',
       slug: { _type: 'slug', current: 'cozy-farmhouse' },
       description: [
-        ptBlock('arch3d1', 'Warm wood, cotton, shiplap, and a kitchen that smells like something good is always cooking. You want your home to feel genuinely welcoming, not decorated for Instagram.'),
-        ptBlock('arch3d2', 'A Full Room Design session will help you get the layers right. There is a real skill to making cozy not feel cluttered, and we are good at it.'),
+        ptBlock(
+          'arch3d1',
+          'Warm wood, cotton, shiplap, and a kitchen that smells like something good is always cooking. You want your home to feel genuinely welcoming, not decorated for Instagram.',
+        ),
+        ptBlock(
+          'arch3d2',
+          'A Full Room Design session will help you get the layers right. There is a real skill to making cozy not feel cluttered, and we are good at it.',
+        ),
       ],
       images: [
         { ...img(ASSETS.pt1, 'Cozy farmhouse kitchen with warm wood tones'), _key: 'arch3img1' },
@@ -426,10 +466,8 @@ const styleQuiz = {
   gate: {
     mode: 'optional',
     heading: 'Want your result plus a starting plan?',
-    blurb:
-      'Drop your email and I will send your style result with a few first steps.',
-    consentNote:
-      'By sharing your email you agree to our privacy policy.',
+    blurb: 'Drop your email and I will send your style result with a few first steps.',
+    consentNote: 'By sharing your email you agree to our privacy policy.',
     espTag: 'style-quiz',
   },
 
@@ -490,7 +528,10 @@ const eDesignPage = {
   heroHeadline: 'E-Design',
   heroSubhead:
     'A full room plan delivered online. For Indiana homeowners outside my drive radius, or anyone who likes to shop at their own pace.',
-  heroImage: { ...img(ASSETS.ls1, 'Bright living room, Reid Design E-Design project'), _key: 'edHeroImg' },
+  heroImage: {
+    ...img(ASSETS.ls1, 'Bright living room, Reid Design E-Design project'),
+    _key: 'edHeroImg',
+  },
 
   intro: [
     ptBlock(
@@ -571,7 +612,7 @@ const eDesignPage = {
   ],
 
   finalCtaEyebrow: 'Ready to start?',
-  finalCtaHeadline: 'Let\'s get your room on paper.',
+  finalCtaHeadline: "Let's get your room on paper.",
   finalCtaSubhead: 'Tell me about the room and I will follow up with what we need to get started.',
   finalCta: {
     _type: 'ctaBlock',
@@ -655,7 +696,10 @@ const shopItems = [
     _type: 'shopItem',
     _id: 'seed.shopItem.5',
     title: 'West Elm Heathered Basketweave Rug',
-    image: { ...img(ASSETS.pt2, 'Heathered basketweave area rug in neutral tones'), _key: 'si5img' },
+    image: {
+      ...img(ASSETS.pt2, 'Heathered basketweave area rug in neutral tones'),
+      _key: 'si5img',
+    },
     vendor: 'West Elm',
     affiliateUrl: 'https://www.westelm.com',
     note: 'The texture does a lot of work in a room. Soft enough underfoot, hides dirt well enough for a family space.',
@@ -671,12 +715,15 @@ const shopPage = {
   _id: 'shopPage',
   heroEyebrow: 'Reid Design picks.',
   heroHeadline: 'Shop my favorites.',
-  heroImage: { ...img(ASSETS.ls2, 'Styled living room with Reid Design furniture picks'), _key: 'spHeroImg' },
+  heroImage: {
+    ...img(ASSETS.ls2, 'Styled living room with Reid Design furniture picks'),
+    _key: 'spHeroImg',
+  },
   enabled: true,
   intro:
     'These are the pieces I actually specify and recommend. Good quality at a range of price points, pieces I would put in my own home.',
   disclosure:
-    'Some links below are affiliate links. If you buy through them I may earn a small commission at no extra cost to you. I only share pieces I would actually put in a client\'s home.',
+    "Some links below are affiliate links. If you buy through them I may earn a small commission at no extra cost to you. I only share pieces I would actually put in a client's home.",
   collections: [
     { _type: 'reference', _ref: 'seed.shopCollection.lighting', _key: 'spc1' },
     { _type: 'reference', _ref: 'seed.shopCollection.rugs', _key: 'spc2' },
@@ -690,7 +737,8 @@ const giftPage = {
   _id: 'giftPage',
   heroEyebrow: 'Give something useful.',
   heroHeadline: 'Give a room they will love.',
-  heroSubhead: 'A Reid Design gift certificate is a real design service, not a gift card for a store.',
+  heroSubhead:
+    'A Reid Design gift certificate is a real design service, not a gift card for a store.',
   heroImage: { ...img(ASSETS.sp2, 'Staci Perkins, Reid Design LLC'), _key: 'gpHeroImg' },
   intro:
     'If you know someone who has been putting off a room project, a gift certificate gives them a concrete first step. They book when they are ready, I do the rest.',
@@ -722,7 +770,7 @@ const giftPage = {
       _key: 'gstep1',
       stepNumber: 1,
       title: 'Tell me who it is for',
-      body: 'Send a quick note with the recipient\'s name and which service or amount you want to give. I will handle the rest.',
+      body: "Send a quick note with the recipient's name and which service or amount you want to give. I will handle the rest.",
     },
     {
       _key: 'gstep2',
@@ -775,7 +823,8 @@ const resourcesPage = {
     {
       _key: 'rc4',
       title: 'Common Questions',
-      blurb: 'Honest answers to the questions I hear most, including the uncomfortable ones about money.',
+      blurb:
+        'Honest answers to the questions I hear most, including the uncomfortable ones about money.',
       link: '/faq',
     },
     {
@@ -882,7 +931,9 @@ async function patchTestimonials() {
 
 async function main() {
   console.log(`\nSeeding conversion-build placeholder content`);
-  console.log(`Project: ${PUBLIC_SANITY_PROJECT_ID}, Dataset: ${PUBLIC_SANITY_DATASET || 'production'}\n`);
+  console.log(
+    `Project: ${PUBLIC_SANITY_PROJECT_ID}, Dataset: ${PUBLIC_SANITY_DATASET || 'production'}\n`,
+  );
 
   // 1. Patch existing singletons (never createOrReplace — that wipes fields)
   await patchSiteSettings();
@@ -891,14 +942,25 @@ async function main() {
 
   // 2. Collections that singletons reference must exist first
   const collections = [...leadMagnets, ...shopCollections, ...shopItems, ...pressItems];
-  console.log(`\nCreating/replacing ${collections.length} collection docs (must exist before singletons that reference them)...`);
+  console.log(
+    `\nCreating/replacing ${collections.length} collection docs (must exist before singletons that reference them)...`,
+  );
   for (const doc of collections) {
     await client.createOrReplace(doc);
     console.log(`  ${doc._id}`);
   }
 
   // 3. Singleton pages via createOrReplace (after collections they may reference)
-  const singletons = [styleQuiz, budgetCalculator, eDesignPage, shopPage, giftPage, resourcesPage, privacyPage, pressPage];
+  const singletons = [
+    styleQuiz,
+    budgetCalculator,
+    eDesignPage,
+    shopPage,
+    giftPage,
+    resourcesPage,
+    privacyPage,
+    pressPage,
+  ];
   for (const doc of singletons) {
     console.log(`createOrReplace ${doc._type} (${doc._id})...`);
     await client.createOrReplace(doc);

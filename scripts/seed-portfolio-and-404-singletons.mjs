@@ -81,12 +81,10 @@ async function run() {
 
   await ensureSingleton('notFoundPage', {
     seoTitle: 'Page not found',
-    seoDescription:
-      'That page wandered off. Head back to the homepage or get in touch.',
+    seoDescription: 'That page wandered off. Head back to the homepage or get in touch.',
     eyebrow: '404',
     headline: 'That page wandered off.',
-    body:
-      "It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.",
+    body: "It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.",
     heroImage: {
       _type: 'image',
       asset: {

@@ -32,50 +32,54 @@ const {
 } = Astro.props as Props;
 ---
 
-{(featuredQuote || gridQuotes.length > 0) && (
-  <section class="surface-warm bg-background" aria-labelledby="testimonials-heading">
-    <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
-      <SectionHeading
-        eyebrow={eyebrow}
-        headline={headline}
-        subhead={subhead}
-        headingId="testimonials-heading"
-        align="center"
-        class="mx-auto"
-        scriptAccent={scriptAccent}
-      />
+{
+  (featuredQuote || gridQuotes.length > 0) && (
+    <section class="surface-warm bg-background" aria-labelledby="testimonials-heading">
+      <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
+        <SectionHeading
+          eyebrow={eyebrow}
+          headline={headline}
+          subhead={subhead}
+          headingId="testimonials-heading"
+          align="center"
+          class="mx-auto"
+          scriptAccent={scriptAccent}
+        />
 
-      {featuredQuote && (
-        <div class="mt-section-lg">
-          <FeaturedTestimonial testimonial={featuredQuote} />
-        </div>
-      )}
+        {featuredQuote && (
+          <div class="mt-section-lg">
+            <FeaturedTestimonial testimonial={featuredQuote} />
+          </div>
+        )}
 
-      {gridQuotes.length > 0 && (
-        <div class="mt-section-lg">
-          <TestimonialGrid testimonials={gridQuotes} limit={6} />
-        </div>
-      )}
+        {gridQuotes.length > 0 && (
+          <div class="mt-section-lg">
+            <TestimonialGrid testimonials={gridQuotes} limit={6} />
+          </div>
+        )}
 
-      {attribution && (
-        <p class="mt-section-md text-center text-sm text-muted-foreground italic">{attribution}</p>
-      )}
+        {attribution && (
+          <p class="mt-section-md text-center text-sm text-muted-foreground italic">
+            {attribution}
+          </p>
+        )}
 
-      {(reviewsNote || googleBusinessUrl) && (
-        <p class="mt-l text-center text-sm text-foreground/75 flex flex-wrap items-center justify-center gap-s">
-          {reviewsNote && <span>{reviewsNote}</span>}
-          {googleBusinessUrl && (
-            <a
-              href={googleBusinessUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-xs text-link underline underline-offset-2 hover:text-primary-dark transition-colors font-medium"
-            >
-              Read more on Google <span aria-hidden="true">↗</span>
-            </a>
-          )}
-        </p>
-      )}
-    </div>
-  </section>
-)}
+        {(reviewsNote || googleBusinessUrl) && (
+          <p class="mt-l flex flex-wrap items-center justify-center gap-s text-center text-sm text-foreground/75">
+            {reviewsNote && <span>{reviewsNote}</span>}
+            {googleBusinessUrl && (
+              <a
+                href={googleBusinessUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-xs font-medium text-link underline underline-offset-2 transition-colors hover:text-primary-dark"
+              >
+                Read more on Google <span aria-hidden="true">↗</span>
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}

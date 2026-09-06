@@ -38,15 +38,31 @@ if (!doc) {
 }
 
 const fields = [
-  'heroEyebrow', 'heroHeadline', 'heroSubhead',
-  'meetStaciEyebrow', 'meetStaciHeadline', 'meetStaciContent',
-  'featuredWorkEyebrow', 'featuredWorkHeadline', 'featuredWorkSubhead',
-  'featuredJournalEyebrow', 'featuredJournalHeadline', 'featuredJournalSubhead',
-  'processPreviewEyebrow', 'processPreviewHeadline',
-  'testimonialsEyebrow', 'testimonialsHeadline', 'testimonialsAttribution',
-  'servicesGridEyebrow', 'servicesGridHeadline', 'servicesGridSubhead', 'servicesGridFootnote',
+  'heroEyebrow',
+  'heroHeadline',
+  'heroSubhead',
+  'meetStaciEyebrow',
+  'meetStaciHeadline',
+  'meetStaciContent',
+  'featuredWorkEyebrow',
+  'featuredWorkHeadline',
+  'featuredWorkSubhead',
+  'featuredJournalEyebrow',
+  'featuredJournalHeadline',
+  'featuredJournalSubhead',
+  'processPreviewEyebrow',
+  'processPreviewHeadline',
+  'testimonialsEyebrow',
+  'testimonialsHeadline',
+  'testimonialsAttribution',
+  'servicesGridEyebrow',
+  'servicesGridHeadline',
+  'servicesGridSubhead',
+  'servicesGridFootnote',
   'serviceAreaCue',
-  'finalCtaEyebrow', 'finalCtaHeadline', 'finalCtaSubhead',
+  'finalCtaEyebrow',
+  'finalCtaHeadline',
+  'finalCtaSubhead',
 ];
 
 console.log(`\n[homePage copy audit] dataset=${env.PUBLIC_SANITY_DATASET ?? 'production'}\n`);
@@ -55,7 +71,10 @@ for (const f of fields) {
   let display;
   if (v == null || v === '') display = '(empty → uses code fallback)';
   else if (Array.isArray(v)) {
-    const text = v.map((b) => (b?.children ?? []).map((c) => c?.text ?? '').join('')).join(' ').trim();
+    const text = v
+      .map((b) => (b?.children ?? []).map((c) => c?.text ?? '').join(''))
+      .join(' ')
+      .trim();
     display = text ? `"${text.slice(0, 90)}${text.length > 90 ? '…' : ''}"` : '(empty array)';
   } else display = `"${String(v).slice(0, 90)}${String(v).length > 90 ? '…' : ''}"`;
   console.log(`${f.padEnd(26)} ${display}`);

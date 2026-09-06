@@ -35,14 +35,22 @@ if (!projectId || !writeToken) {
   process.exit(1);
 }
 
-const client = createClient({ projectId, dataset, apiVersion: '2025-02-19', useCdn: false, token: writeToken });
+const client = createClient({
+  projectId,
+  dataset,
+  apiVersion: '2025-02-19',
+  useCdn: false,
+  token: writeToken,
+});
 
 if (!existsSync(headshotsDir)) {
   console.error('Headshots folder not found:', headshotsDir);
   process.exit(1);
 }
 
-const files = readdirSync(headshotsDir).filter((f) => /\.(jpe?g|png|webp)$/i.test(f)).sort();
+const files = readdirSync(headshotsDir)
+  .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+  .sort();
 console.log(`Found ${files.length} headshots to upload from New Headshots/`);
 
 const manifest = {};
@@ -52,7 +60,10 @@ let failed = 0;
 for (const file of files) {
   const buffer = readFileSync(resolve(headshotsDir, file));
   try {
-    const asset = await client.assets.upload('image', buffer, { filename: file, label: 'New Headshots' });
+    const asset = await client.assets.upload('image', buffer, {
+      filename: file,
+      label: 'New Headshots',
+    });
     const dims = asset.metadata?.dimensions ?? {};
     manifest[file] = {
       assetId: asset._id,
@@ -78,9 +89,20 @@ console.log(`Manifest written to ${manifestPath}`);
 // Print a quick dimensions table so we can quality-gate placement.
 console.log('\nDimensions (for placement quality-gating):');
 for (const [file, m] of Object.entries(manifest)) {
-  const orient = m.width && m.height ? (m.width > m.height ? 'landscape' : m.width < m.height ? 'portrait' : 'square') : '?';
-  console.log(`  ${file.padEnd(22)} ${String(m.width ?? '?').padStart(5)} x ${String(m.height ?? '?').padEnd(5)}  ${orient.padEnd(9)} ${Math.round((m.size ?? 0) / 1024)}KB`);
+  const orient =
+    m.width && m.height
+      ? m.width > m.height
+        ? 'landscape'
+        : m.width < m.height
+          ? 'portrait'
+          : 'square'
+      : '?';
+  console.log(
+    `  ${file.padEnd(22)} ${String(m.width ?? '?').padStart(5)} x ${String(m.height ?? '?').padEnd(5)}  ${orient.padEnd(9)} ${Math.round((m.size ?? 0) / 1024)}KB`,
+  );
 }
 
-console.log(`\nDone. ${done} uploaded${failed ? `, ${failed} failed` : ''}. All in the Sanity media library under the "New Headshots" label.`);
+console.log(
+  `\nDone. ${done} uploaded${failed ? `, ${failed} failed` : ''}. All in the Sanity media library under the "New Headshots" label.`,
+);
 if (failed > 0) process.exit(1);

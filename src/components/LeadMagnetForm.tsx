@@ -49,9 +49,7 @@ export default function LeadMagnetForm({
   slug,
 }: Props) {
   const heading = gateHeading ?? 'Get the free guide.';
-  const blurb =
-    gateBlurb ??
-    'Enter your email and the guide downloads immediately. No strings.';
+  const blurb = gateBlurb ?? 'Enter your email and the guide downloads immediately. No strings.';
   const btnLabel = buttonLabel ?? 'Download the guide';
   const successMsg = successMessage ?? 'Your guide is ready. Enjoy.';
 
@@ -101,14 +99,14 @@ export default function LeadMagnetForm({
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-primary bg-muted p-l space-y-m"
+        className="space-y-m rounded-md border border-primary bg-muted p-l"
       >
-        <div className="h-0.5 bg-primary mb-l" aria-hidden="true"></div>
+        <div className="mb-l h-0.5 bg-primary" aria-hidden="true"></div>
         <p className="font-display text-h4 text-foreground">{successMsg}</p>
         <a
           href={fileUrl}
           download
-          className="inline-flex items-center justify-center min-h-[44px] px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-xs hover:bg-accent-dark transition-colors rounded-sm press-tactile"
+          className="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark"
         >
           Download now
         </a>
@@ -122,12 +120,10 @@ export default function LeadMagnetForm({
   return (
     <div className="rounded-md border border-border bg-card p-l">
       {/* Brand accent stripe — matches card grammar throughout the site. */}
-      <div className="h-0.5 bg-primary mb-l" aria-hidden="true"></div>
+      <div className="mb-l h-0.5 bg-primary" aria-hidden="true"></div>
 
       <h2 className="font-display text-h3 text-foreground">{heading}</h2>
-      {blurb && (
-        <p className="mt-s text-sm text-foreground/80 leading-relaxed">{blurb}</p>
-      )}
+      {blurb && <p className="mt-s text-sm leading-relaxed text-foreground/80">{blurb}</p>}
 
       <form
         onSubmit={onSubmit}
@@ -166,8 +162,8 @@ export default function LeadMagnetForm({
 
         {/* Name — optional, helps the ESP personalize and segment. */}
         <div>
-          <label htmlFor="guide-name" className="block text-sm font-semibold text-foreground mb-1">
-            First name <span className="text-muted-foreground font-normal">(optional)</span>
+          <label htmlFor="guide-name" className="mb-1 block text-sm font-semibold text-foreground">
+            First name <span className="font-normal text-muted-foreground">(optional)</span>
           </label>
           <input
             id="guide-name"
@@ -176,12 +172,12 @@ export default function LeadMagnetForm({
             autoComplete="given-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
+            className="min-h-[44px] w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="guide-email" className="block text-sm font-semibold text-foreground mb-1">
+          <label htmlFor="guide-email" className="mb-1 block text-sm font-semibold text-foreground">
             Email address
           </label>
           <input
@@ -199,10 +195,15 @@ export default function LeadMagnetForm({
             aria-invalid={!!errorMsg}
             aria-describedby={errorMsg ? 'guide-email-error' : undefined}
             placeholder="you@example.com"
-            className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
+            className="min-h-[44px] w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
           />
           {errorMsg && (
-            <p id="guide-email-error" role="alert" aria-live="polite" className="mt-xs text-sm text-destructive">
+            <p
+              id="guide-email-error"
+              role="alert"
+              aria-live="polite"
+              className="mt-xs text-sm text-destructive"
+            >
               {errorMsg}
             </p>
           )}
@@ -211,15 +212,18 @@ export default function LeadMagnetForm({
         <button
           type="submit"
           disabled={status === 'submitting'}
-          className="inline-flex items-center justify-center min-h-[44px] w-full px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-xs hover:bg-accent-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors rounded-sm press-tactile"
+          className="press-tactile inline-flex min-h-[44px] w-full items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'submitting' ? 'Getting your guide…' : btnLabel}
         </button>
       </form>
 
-      <p className="mt-s text-xs text-foreground/70 leading-relaxed">
+      <p className="mt-s text-xs leading-relaxed text-foreground/70">
         Your email goes straight to Staci's list. No spam, unsubscribe any time.{' '}
-        <a href="/privacy" className="underline underline-offset-2 hover:text-link transition-colors">
+        <a
+          href="/privacy"
+          className="underline underline-offset-2 transition-colors hover:text-link"
+        >
           Privacy policy
         </a>
         .

@@ -40,9 +40,14 @@ const Wrap = editDoc ? 'div' : Fragment;
 const wrapAttrs = (key: string | undefined) =>
   editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
 
-const DEFAULT_ORDER = ['hero', 'servicesList', 'builders', 'serviceArea', 'guarantee', 'finalCta'].map(
-  (section) => ({ _type: 'servicesSectionMarker', section }),
-);
+const DEFAULT_ORDER = [
+  'hero',
+  'servicesList',
+  'builders',
+  'serviceArea',
+  'guarantee',
+  'finalCta',
+].map((section) => ({ _type: 'servicesSectionMarker', section }));
 
 const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
@@ -54,48 +59,49 @@ const hasBuilders = !!(builders && (builders.headline || builders.description));
 const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
 ---
 
-{rows.map((s: any, i: number) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {
-  s._type === 'servicesSectionMarker' ? (
-    s.section === 'hero' ? (
-      <Hero
-        eyebrow={page?.heroEyebrow ?? 'What We Offer.'}
-        headline={page?.heroHeadline ?? 'Design Services for Every Space and Stage.'}
-        subhead={page?.heroSubhead ?? ''}
-        backgroundImage={page?.heroImage}
-        headingId="services-hero-heading"
-        size="short"
-        scriptAccent={page?.heroScriptAccent ?? 'reveal'}
-      />
-    ) : s.section === 'servicesList' ? (
-      <ServicesList
-        eyebrow={page?.servicesListEyebrow}
-        headline={page?.servicesListHeadline}
-        subhead={page?.servicesListSubhead}
-        services={page?.services ?? []}
-        hasBuilders={hasBuilders}
-        hasServiceArea={hasServiceArea}
-        visibleEDesign={visible.eDesign}
-      />
-    ) : s.section === 'builders' ? (
-      <BuildersRealtors builders={builders} />
-    ) : s.section === 'serviceArea' ? (
-      <ServiceArea areaSec={areaSec} travelFees={travelFees} />
-    ) : s.section === 'guarantee' ? (
-      <SatisfactionGuarantee text={siteSettings?.satisfactionGuarantee} />
-    ) : s.section === 'finalCta' ? (
-      <FinalCta
-        eyebrow={page?.finalCtaEyebrow}
-        headline={page?.finalCtaHeadline}
-        subhead={page?.finalCtaSubhead}
-        cta={page?.finalCta}
-        scriptAccent={page?.finalCtaScriptAccent}
-        backgroundImage={page?.finalCtaBackgroundImage}
-      />
-    ) : null
-  ) : (
-    <SectionRenderer sections={[s]} idPrefix={`services-extra-${i}`} />
-  )}
-  </Wrap>
-))}
+{
+  rows.map((s: any, i: number) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'servicesSectionMarker' ? (
+        s.section === 'hero' ? (
+          <Hero
+            eyebrow={page?.heroEyebrow ?? 'What We Offer.'}
+            headline={page?.heroHeadline ?? 'Design Services for Every Space and Stage.'}
+            subhead={page?.heroSubhead ?? ''}
+            backgroundImage={page?.heroImage}
+            headingId="services-hero-heading"
+            size="short"
+            scriptAccent={page?.heroScriptAccent ?? 'reveal'}
+          />
+        ) : s.section === 'servicesList' ? (
+          <ServicesList
+            eyebrow={page?.servicesListEyebrow}
+            headline={page?.servicesListHeadline}
+            subhead={page?.servicesListSubhead}
+            services={page?.services ?? []}
+            hasBuilders={hasBuilders}
+            hasServiceArea={hasServiceArea}
+            visibleEDesign={visible.eDesign}
+          />
+        ) : s.section === 'builders' ? (
+          <BuildersRealtors builders={builders} />
+        ) : s.section === 'serviceArea' ? (
+          <ServiceArea areaSec={areaSec} travelFees={travelFees} />
+        ) : s.section === 'guarantee' ? (
+          <SatisfactionGuarantee text={siteSettings?.satisfactionGuarantee} />
+        ) : s.section === 'finalCta' ? (
+          <FinalCta
+            eyebrow={page?.finalCtaEyebrow}
+            headline={page?.finalCtaHeadline}
+            subhead={page?.finalCtaSubhead}
+            cta={page?.finalCta}
+            scriptAccent={page?.finalCtaScriptAccent}
+            backgroundImage={page?.finalCtaBackgroundImage}
+          />
+        ) : null
+      ) : (
+        <SectionRenderer sections={[s]} idPrefix={`services-extra-${i}`} />
+      )}
+    </Wrap>
+  ))
+}

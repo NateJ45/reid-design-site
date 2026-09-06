@@ -79,14 +79,9 @@ export default function PortfolioFilterChips({ rooms, styles }: Props) {
     // border-y. Audit feedback: the original border-y read as a cage around
     // the chips; a single hairline above gives "section start" without
     // boxing the filter row in.
-    <div className="border-t border-border-soft pt-l pb-s space-y-m">
+    <div className="space-y-m border-t border-border-soft pt-l pb-s">
       {rooms.length >= 2 && (
-        <FilterRow
-          eyebrow="Room"
-          options={rooms}
-          active={activeRoom}
-          onSelect={setActiveRoom}
-        />
+        <FilterRow eyebrow="Room" options={rooms} active={activeRoom} onSelect={setActiveRoom} />
       )}
       {styles.length >= 2 && (
         <FilterRow
@@ -104,7 +99,7 @@ export default function PortfolioFilterChips({ rooms, styles }: Props) {
               setActiveRoom(null);
               setActiveStyle(null);
             }}
-            className="press-tactile text-xs uppercase tracking-eyebrow text-link underline underline-offset-4 hover:text-primary-dark"
+            className="press-tactile text-xs tracking-eyebrow text-link uppercase underline underline-offset-4 hover:text-primary-dark"
           >
             Clear filters
           </button>
@@ -123,11 +118,11 @@ interface FilterRowProps {
 
 function FilterRow({ eyebrow, options, active, onSelect }: FilterRowProps) {
   return (
-    <div className="flex flex-wrap items-center gap-x-m gap-y-s justify-center">
-      <p className="text-xs uppercase tracking-eyebrow text-foreground/80 w-full text-center sm:w-auto sm:text-left">
+    <div className="flex flex-wrap items-center justify-center gap-x-m gap-y-s">
+      <p className="w-full text-center text-xs tracking-eyebrow text-foreground/80 uppercase sm:w-auto sm:text-left">
         {eyebrow}
       </p>
-      <ul className="flex flex-wrap justify-center gap-xs list-none p-0">
+      <ul className="flex list-none flex-wrap justify-center gap-xs p-0">
         {options.map((opt) => {
           const isActive = active === opt.value;
           return (
@@ -138,9 +133,9 @@ function FilterRow({ eyebrow, options, active, onSelect }: FilterRowProps) {
                 aria-pressed={isActive}
                 className={[
                   // 44px min-height per CLAUDE.md tap-target rule (WCAG 2.5.5 / target audit fix).
-                  'press-tactile inline-flex items-center min-h-[44px] px-m py-s text-xs font-medium rounded-full transition-colors',
+                  'press-tactile inline-flex min-h-[44px] items-center rounded-full px-m py-s text-xs font-medium transition-colors',
                   isActive
-                    ? 'bg-primary-dark text-white border border-primary-dark'
+                    ? 'border border-primary-dark bg-primary-dark text-white'
                     : 'border border-border-soft text-foreground/85 hover:border-primary hover:text-link',
                 ].join(' ')}
               >

@@ -71,7 +71,14 @@ const proseBody = (name = 'body', title = 'Text') =>
               name: 'link',
               type: 'object',
               title: 'Link',
-              fields: [defineField({ name: 'href', title: 'URL', type: 'url', validation: (R) => R.uri({ allowRelative: true }) })],
+              fields: [
+                defineField({
+                  name: 'href',
+                  title: 'URL',
+                  type: 'url',
+                  validation: (R) => R.uri({ allowRelative: true }),
+                }),
+              ],
             },
           ],
         },
@@ -87,12 +94,18 @@ export const heroSection = defineType({
   icon: ComponentIcon,
   fields: [
     defineField({ name: 'eyebrow', title: 'Eyebrow (small line above)', type: 'string' }),
-    defineField({ name: 'headline', title: 'Headline', type: 'string', validation: (R) => R.required() }),
+    defineField({
+      name: 'headline',
+      title: 'Headline',
+      type: 'string',
+      validation: (R) => R.required(),
+    }),
     defineField({
       name: 'scriptAccent',
       title: 'Handwritten accent word (optional)',
       type: 'string',
-      description: 'One word from the headline to render in the script font. Must match exactly. Leave blank to skip.',
+      description:
+        'One word from the headline to render in the script font. Must match exactly. Leave blank to skip.',
     }),
     defineField({ name: 'subhead', title: 'Subhead', type: 'text', rows: 2 }),
     imageWithAlt('backgroundImage', 'Background photo (optional)'),
@@ -103,7 +116,13 @@ export const heroSection = defineType({
       title: 'Height',
       type: 'string',
       initialValue: 'short',
-      options: { list: [{ title: 'Tall', value: 'tall' }, { title: 'Short', value: 'short' }], layout: 'radio' },
+      options: {
+        list: [
+          { title: 'Tall', value: 'tall' },
+          { title: 'Short', value: 'short' },
+        ],
+        layout: 'radio',
+      },
     }),
   ],
   preview: {
@@ -133,14 +152,26 @@ export const richTextSection = defineType({
       title: 'Width',
       type: 'string',
       initialValue: 'normal',
-      options: { list: [{ title: 'Normal', value: 'normal' }, { title: 'Narrow (easier reading)', value: 'narrow' }], layout: 'radio' },
+      options: {
+        list: [
+          { title: 'Normal', value: 'normal' },
+          { title: 'Narrow (easier reading)', value: 'narrow' },
+        ],
+        layout: 'radio',
+      },
     }),
     defineField({
       name: 'align',
       title: 'Alignment',
       type: 'string',
       initialValue: 'left',
-      options: { list: [{ title: 'Left', value: 'left' }, { title: 'Centered', value: 'center' }], layout: 'radio' },
+      options: {
+        list: [
+          { title: 'Left', value: 'left' },
+          { title: 'Centered', value: 'center' },
+        ],
+        layout: 'radio',
+      },
     }),
   ],
   preview: {
@@ -162,7 +193,13 @@ export const imageTextSection = defineType({
       title: 'Image goes on the',
       type: 'string',
       initialValue: 'left',
-      options: { list: [{ title: 'Left', value: 'left' }, { title: 'Right', value: 'right' }], layout: 'radio' },
+      options: {
+        list: [
+          { title: 'Left', value: 'left' },
+          { title: 'Right', value: 'right' },
+        ],
+        layout: 'radio',
+      },
     }),
     defineField({ name: 'eyebrow', title: 'Eyebrow (optional)', type: 'string' }),
     defineField({ name: 'heading', title: 'Heading', type: 'string' }),
@@ -171,7 +208,11 @@ export const imageTextSection = defineType({
   ],
   preview: {
     select: { title: 'heading', media: 'image' },
-    prepare: ({ title, media }) => ({ title: title || 'Image + text', subtitle: 'Image + text', media }),
+    prepare: ({ title, media }) => ({
+      title: title || 'Image + text',
+      subtitle: 'Image + text',
+      media,
+    }),
   },
 });
 
@@ -193,7 +234,12 @@ export const gallerySection = defineType({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'alt',
+              title: 'Alt text',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
             defineField({ name: 'caption', title: 'Caption (optional)', type: 'string' }),
           ],
         }),
@@ -224,13 +270,27 @@ export const quoteSection = defineType({
   type: 'object',
   icon: StarIcon,
   fields: [
-    defineField({ name: 'quote', title: 'Quote', type: 'text', rows: 3, validation: (R) => R.required() }),
+    defineField({
+      name: 'quote',
+      title: 'Quote',
+      type: 'text',
+      rows: 3,
+      validation: (R) => R.required(),
+    }),
     defineField({ name: 'attribution', title: 'Who said it', type: 'string' }),
-    defineField({ name: 'detail', title: 'Their detail (optional)', type: 'string', description: 'Like "Fishers kitchen refresh" or "Plainfield, IN".' }),
+    defineField({
+      name: 'detail',
+      title: 'Their detail (optional)',
+      type: 'string',
+      description: 'Like "Fishers kitchen refresh" or "Plainfield, IN".',
+    }),
   ],
   preview: {
     select: { title: 'quote', subtitle: 'attribution' },
-    prepare: ({ title, subtitle }) => ({ title: title ? `"${title.slice(0, 50)}"` : 'Quote', subtitle: subtitle || 'Quote' }),
+    prepare: ({ title, subtitle }) => ({
+      title: title ? `"${title.slice(0, 50)}"` : 'Quote',
+      subtitle: subtitle || 'Quote',
+    }),
   },
 });
 
@@ -252,9 +312,24 @@ export const statSection = defineType({
           type: 'object',
           name: 'statItem',
           fields: [
-            defineField({ name: 'number', title: 'Number', type: 'number', validation: (R) => R.required() }),
-            defineField({ name: 'suffix', title: 'Suffix (optional)', type: 'string', description: 'Like "+", "%", or "yrs".' }),
-            defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'number',
+              title: 'Number',
+              type: 'number',
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'suffix',
+              title: 'Suffix (optional)',
+              type: 'string',
+              description: 'Like "+", "%", or "yrs".',
+            }),
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
           ],
           preview: { select: { title: 'number', subtitle: 'label' } },
         }),
@@ -272,7 +347,12 @@ export const ctaBandSection = defineType({
   icon: BulbOutlineIcon,
   fields: [
     defineField({ name: 'eyebrow', title: 'Eyebrow (optional)', type: 'string' }),
-    defineField({ name: 'headline', title: 'Headline', type: 'string', validation: (R) => R.required() }),
+    defineField({
+      name: 'headline',
+      title: 'Headline',
+      type: 'string',
+      validation: (R) => R.required(),
+    }),
     defineField({
       name: 'scriptAccent',
       title: 'Handwritten accent word (optional)',
@@ -285,7 +365,11 @@ export const ctaBandSection = defineType({
   ],
   preview: {
     select: { title: 'headline', media: 'backgroundImage' },
-    prepare: ({ title, media }) => ({ title: title || 'Call to action', subtitle: 'CTA band', media }),
+    prepare: ({ title, media }) => ({
+      title: title || 'Call to action',
+      subtitle: 'CTA band',
+      media,
+    }),
   },
 });
 

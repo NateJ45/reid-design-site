@@ -141,9 +141,7 @@ export const SITE_SETTINGS_PROJECTION = `{
 // Build-time callers pass nothing and keep the memo.
 export async function getSiteSettings(c?: SanityClient) {
   if (!c && _siteSettingsPromise) return _siteSettingsPromise;
-  const promise = (c ?? client).fetch(
-    `*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`,
-  );
+  const promise = (c ?? client).fetch(`*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`);
   if (!c) _siteSettingsPromise = promise;
   return promise;
 }
@@ -481,7 +479,9 @@ export async function getJournalPage(c: SanityClient = client) {
 
 export async function getAllJournalEntries() {
   // Featured first, then newest first. Excerpt + cover only (no body).
-  return client.fetch(`*[_type == "journalEntry"] | order(featured desc, publishedAt desc) ${JOURNAL_CARD_PROJECTION}`);
+  return client.fetch(
+    `*[_type == "journalEntry"] | order(featured desc, publishedAt desc) ${JOURNAL_CARD_PROJECTION}`,
+  );
 }
 
 export async function getAllJournalCategories() {

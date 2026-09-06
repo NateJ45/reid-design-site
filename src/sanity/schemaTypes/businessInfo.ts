@@ -51,7 +51,8 @@ export const businessInfo = defineType({
       name: 'serviceAreas',
       title: 'Service areas',
       type: 'array',
-      description: 'Cities and neighborhoods you serve, in display order. Plainfield should be first. This list shows up on the site and tells search engines where you work.',
+      description:
+        'Cities and neighborhoods you serve, in display order. Plainfield should be first. This list shows up on the site and tells search engines where you work.',
       of: [defineArrayMember({ type: 'string' })],
       validation: (Rule) => Rule.required().min(1),
     }),
@@ -99,13 +100,15 @@ export const businessInfo = defineType({
       name: 'geoLat',
       title: 'Studio latitude',
       type: 'number',
-      description: 'For local "near me" search. Plainfield center is about 39.7042. This goes into the business listing data that search engines read. Ask Nathan if you are unsure.',
+      description:
+        'For local "near me" search. Plainfield center is about 39.7042. This goes into the business listing data that search engines read. Ask Nathan if you are unsure.',
     }),
     defineField({
       name: 'geoLng',
       title: 'Studio longitude',
       type: 'number',
-      description: 'For local "near me" search. Plainfield center is about -86.3994. Pairs with the latitude above.',
+      description:
+        'For local "near me" search. Plainfield center is about -86.3994. Pairs with the latitude above.',
     }),
   ],
   preview: {

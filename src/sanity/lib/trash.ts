@@ -12,14 +12,7 @@
 //      dangling reference that renders as a blank card.
 
 /** Fields we look at, in order, to give a trashed item a human label. */
-const TITLE_CANDIDATES = [
-  'name',
-  'title',
-  'headline',
-  'heading',
-  'question',
-  'label',
-] as const;
+const TITLE_CANDIDATES = ['name', 'title', 'headline', 'heading', 'question', 'label'] as const;
 
 export interface TrashedPayload {
   _id: string;

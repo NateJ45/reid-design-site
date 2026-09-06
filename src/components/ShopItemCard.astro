@@ -33,56 +33,63 @@ const hasImage = !!item.image?.asset;
 ---
 
 <article
-  class="card-lift card-lift-slow group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40"
+  class="card-lift card-lift-slow group relative flex h-full flex-col overflow-hidden rounded-md border border-border-soft bg-card text-card-foreground shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40"
 >
   {/* Brand-stripe — required on every marketing card */}
   <div class="h-0.5 bg-primary" aria-hidden="true"></div>
 
-  {hasImage && (
-    <div class="aspect-[4/3] overflow-hidden bg-muted">
-      <SanityImage
-        source={item.image}
-        width={480}
-        sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 100vw"
-        class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
-        loading="lazy"
-      />
-    </div>
-  )}
+  {
+    hasImage && (
+      <div class="aspect-[4/3] overflow-hidden bg-muted">
+        <SanityImage
+          source={item.image}
+          width={480}
+          sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 100vw"
+          class="h-full w-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
 
-  <div class="flex flex-col flex-1 p-m gap-xs">
-    {item.vendor && (
-      <p class="text-xs uppercase tracking-eyebrow text-foreground/80">{item.vendor}</p>
-    )}
+  <div class="flex flex-1 flex-col gap-xs p-m">
+    {
+      item.vendor && (
+        <p class="text-xs tracking-eyebrow text-foreground/80 uppercase">{item.vendor}</p>
+      )
+    }
 
-    <h3 class="font-display text-h4 text-foreground leading-snug">
+    <h3 class="font-display text-h4 leading-snug text-foreground">
       {item.title ?? 'Untitled item'}
     </h3>
 
-    {item.note && (
-      <p class="text-sm text-foreground/75 leading-relaxed italic">
-        {item.note}
-      </p>
-    )}
+    {item.note && <p class="text-sm leading-relaxed text-foreground/75 italic">{item.note}</p>}
 
-    {/* FTC compliance: sponsored + nofollow + noopener are all required.
+    {
+      /* FTC compliance: sponsored + nofollow + noopener are all required.
         "sponsored" tells Google this is a paid/affiliate link.
         "nofollow" prevents PageRank passing.
-        "noopener" prevents the opened tab accessing window.opener. */}
+        "noopener" prevents the opened tab accessing window.opener. */
+    }
     <div class="mt-auto pt-m">
-      {item.affiliateUrl ? (
-        <a
-          href={item.affiliateUrl}
-          target="_blank"
-          rel="sponsored nofollow noopener"
-          class="inline-flex items-center min-h-[44px] py-xs text-xs font-semibold uppercase tracking-eyebrow text-link hover:text-primary-dark transition-colors"
-          aria-label={`Shop this, ${item.title ?? 'this item'}, opens in new tab`}
-        >
-          Shop this <span aria-hidden="true" class="ml-xs">→</span>
-        </a>
-      ) : (
-        <span class="text-xs text-muted-foreground italic">Link coming soon</span>
-      )}
+      {
+        item.affiliateUrl ? (
+          <a
+            href={item.affiliateUrl}
+            target="_blank"
+            rel="sponsored nofollow noopener"
+            class="inline-flex min-h-[44px] items-center py-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+            aria-label={`Shop this, ${item.title ?? 'this item'}, opens in new tab`}
+          >
+            Shop this{' '}
+            <span aria-hidden="true" class="ml-xs">
+              →
+            </span>
+          </a>
+        ) : (
+          <span class="text-xs text-muted-foreground italic">Link coming soon</span>
+        )
+      }
     </div>
   </div>
 </article>

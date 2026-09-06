@@ -68,7 +68,8 @@ export const processStep = defineType({
       name: 'features',
       title: 'Quick bullets',
       type: 'array',
-      description: 'Optional bullets next to the step. Example: "60 to 90 minutes", "In your home".',
+      description:
+        'Optional bullets next to the step. Example: "60 to 90 minutes", "In your home".',
       of: [defineArrayMember({ type: 'string' })],
     }),
     defineField({

@@ -45,29 +45,30 @@ const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
 ---
 
-{rows.map((s: any, i: number) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {
-  s._type === 'pressSectionMarker' ? (
-    s.section === 'hero' ? (
-      <Hero
-        eyebrow={page?.heroEyebrow ?? 'In the Press.'}
-        headline={page?.heroHeadline ?? "Where Reid Design's work has been featured."}
-        subhead={page?.heroSubhead ?? ''}
-        backgroundImage={page?.heroImage}
-        headingId="press-hero-heading"
-        size="short"
-        scriptAccent={page?.heroScriptAccent}
-      />
-    ) : s.section === 'pressStrip' ? (
-      <PressStrip items={pressItems} />
-    ) : s.section === 'intro' ? (
-      <PressIntro intro={page?.intro} />
-    ) : s.section === 'list' ? (
-      <PressList items={pressItems} />
-    ) : null
-  ) : (
-    <SectionRenderer sections={[s]} idPrefix={`press-extra-${i}`} />
-  )}
-  </Wrap>
-))}
+{
+  rows.map((s: any, i: number) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'pressSectionMarker' ? (
+        s.section === 'hero' ? (
+          <Hero
+            eyebrow={page?.heroEyebrow ?? 'In the Press.'}
+            headline={page?.heroHeadline ?? "Where Reid Design's work has been featured."}
+            subhead={page?.heroSubhead ?? ''}
+            backgroundImage={page?.heroImage}
+            headingId="press-hero-heading"
+            size="short"
+            scriptAccent={page?.heroScriptAccent}
+          />
+        ) : s.section === 'pressStrip' ? (
+          <PressStrip items={pressItems} />
+        ) : s.section === 'intro' ? (
+          <PressIntro intro={page?.intro} />
+        ) : s.section === 'list' ? (
+          <PressList items={pressItems} />
+        ) : null
+      ) : (
+        <SectionRenderer sections={[s]} idPrefix={`press-extra-${i}`} />
+      )}
+    </Wrap>
+  ))
+}

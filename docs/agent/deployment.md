@@ -31,6 +31,7 @@ As of early 2026, Cloudflare merged Pages into Workers. Pages is in maintenance 
 The site is `output: 'static'` — every page is **pre-rendered to HTML at build time, not fetched at runtime**. Practical implication: when Staci edits a field in Sanity and clicks Publish, **the change does NOT appear on the live site until the site rebuilds**. The Sanity dataset updates instantly, but the live HTML is whatever was generated at the last build.
 
 There are two ways the site rebuilds:
+
 1. **`git push origin main`** → Cloudflare detects the push → triggers `npm run build` → site updates in ~1-3 min.
 2. **Cloudflare deploy hook** → an HTTP POST to a private Cloudflare URL triggers the same build.
 
@@ -55,6 +56,7 @@ The old allow-list approach (listing every `_type` that should trigger a rebuild
 3. **Test:** edit `siteSettings.tagline` → publish → watch Cloudflare's Deployments tab → new build kicks off within ~10 seconds → live in ~1-3 min total.
 
 **Trade-offs to know:**
+
 - Every publish triggers a full ~45 second build. Reasonable for a marketing site. If Staci batch-edits 20 testimonials, save the publish click until the end to consolidate one build instead of 20.
 - There's always a 1-3 minute delay between publish and live render. Acceptable for an interior design portfolio; would NOT be for breaking news.
 - Cloudflare's free tier covers 500 builds/month — well clear of expected publish cadence.

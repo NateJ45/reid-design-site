@@ -40,21 +40,72 @@ const PERSONAL = {
   personalIntro:
     'Design is the job, but it is not the whole story. A few honest things about who you would be working with.',
   currentlyList: [
-    { _key: 'cur1', _type: 'currentlyRow', label: 'Reading', value: 'Anything with a good floor plan and a little drama.' },
-    { _key: 'cur2', _type: 'currentlyRow', label: 'Listening to', value: 'A rotating mix of 70s soul and home-reno podcasts.' },
-    { _key: 'cur3', _type: 'currentlyRow', label: 'Cannot stop sourcing', value: 'Vintage brass lamps. I have a problem.' },
-    { _key: 'cur4', _type: 'currentlyRow', label: 'Loving right now', value: 'Warm plaster walls and unlacquered hardware.' },
+    {
+      _key: 'cur1',
+      _type: 'currentlyRow',
+      label: 'Reading',
+      value: 'Anything with a good floor plan and a little drama.',
+    },
+    {
+      _key: 'cur2',
+      _type: 'currentlyRow',
+      label: 'Listening to',
+      value: 'A rotating mix of 70s soul and home-reno podcasts.',
+    },
+    {
+      _key: 'cur3',
+      _type: 'currentlyRow',
+      label: 'Cannot stop sourcing',
+      value: 'Vintage brass lamps. I have a problem.',
+    },
+    {
+      _key: 'cur4',
+      _type: 'currentlyRow',
+      label: 'Loving right now',
+      value: 'Warm plaster walls and unlacquered hardware.',
+    },
   ],
   rapidFire: [
     { _key: 'rf1', _type: 'rapidFireRow', prompt: 'Coffee order', answer: 'Oat latte, extra hot.' },
-    { _key: 'rf2', _type: 'rapidFireRow', prompt: 'Cannot-live-without piece', answer: 'A good floor lamp in every room.' },
-    { _key: 'rf3', _type: 'rapidFireRow', prompt: 'Sunday looks like', answer: 'Coffee, a long walk with the dogs, and rearranging one shelf I said I would leave alone.' },
-    { _key: 'rf4', _type: 'rapidFireRow', prompt: 'Most-used tool', answer: 'A measuring tape and a strong opinion.' },
+    {
+      _key: 'rf2',
+      _type: 'rapidFireRow',
+      prompt: 'Cannot-live-without piece',
+      answer: 'A good floor lamp in every room.',
+    },
+    {
+      _key: 'rf3',
+      _type: 'rapidFireRow',
+      prompt: 'Sunday looks like',
+      answer:
+        'Coffee, a long walk with the dogs, and rearranging one shelf I said I would leave alone.',
+    },
+    {
+      _key: 'rf4',
+      _type: 'rapidFireRow',
+      prompt: 'Most-used tool',
+      answer: 'A measuring tape and a strong opinion.',
+    },
   ],
   localSpots: [
-    { _key: 'ls1', _type: 'localSpotRow', name: 'Downtown Plainfield', note: 'Saturday morning errands and a coffee.' },
-    { _key: 'ls2', _type: 'localSpotRow', name: 'Mass Ave, Indianapolis', note: 'Best window-shopping for color ideas.' },
-    { _key: 'ls3', _type: 'localSpotRow', name: 'Local vintage shops', note: 'Where half my favorite finds come from.' },
+    {
+      _key: 'ls1',
+      _type: 'localSpotRow',
+      name: 'Downtown Plainfield',
+      note: 'Saturday morning errands and a coffee.',
+    },
+    {
+      _key: 'ls2',
+      _type: 'localSpotRow',
+      name: 'Mass Ave, Indianapolis',
+      note: 'Best window-shopping for color ideas.',
+    },
+    {
+      _key: 'ls3',
+      _type: 'localSpotRow',
+      name: 'Local vintage shops',
+      note: 'Where half my favorite finds come from.',
+    },
   ],
   beyondDesign:
     'Outside the studio I am usually chasing two dogs around the yard, repainting something that did not need repainting, or talking a friend out of beige. I grew up in central Indiana and still think the best design ideas come from real houses, not showrooms.',

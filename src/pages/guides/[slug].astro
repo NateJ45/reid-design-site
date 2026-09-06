@@ -52,9 +52,7 @@ if (!magnet) {
 // The getLeadMagnet query projects: file{ asset->{ url } }
 const fileUrl: string = magnet.file?.asset?.url ?? '';
 
-const title =
-  magnet.seoTitle ??
-  `${magnet.title}: A Free Guide from Reid Design`;
+const title = magnet.seoTitle ?? `${magnet.title}: A Free Guide from Reid Design`;
 const description =
   magnet.seoDescription ??
   magnet.summary ??
@@ -73,7 +71,6 @@ const schemas = [
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
-
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
     eyebrow="Free Guide"
@@ -88,37 +85,40 @@ const schemas = [
     <div class="mx-auto max-w-content px-m py-section-md">
       <h2 id="guide-content-heading" class="sr-only">About this guide</h2>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-section-md items-start">
-
+      <div class="grid grid-cols-1 items-start gap-section-md lg:grid-cols-2">
         {/* Left column — cover image + summary copy */}
         <div>
-          {magnet.coverImage?.asset && (
-            <div class="rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] border border-border-soft">
-              {/* Brand accent stripe on the cover image block. */}
-              <div class="h-0.5 bg-primary" aria-hidden="true"></div>
-              <SanityImage
-                source={magnet.coverImage}
-                width={900}
-                sizes="(min-width: 1024px) 45vw, 100vw"
-                class="w-full object-cover"
-                loading="eager"
-              />
-            </div>
-          )}
+          {
+            magnet.coverImage?.asset && (
+              <div class="overflow-hidden rounded-md border border-border-soft shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
+                {/* Brand accent stripe on the cover image block. */}
+                <div class="h-0.5 bg-primary" aria-hidden="true" />
+                <SanityImage
+                  source={magnet.coverImage}
+                  width={900}
+                  sizes="(min-width: 1024px) 45vw, 100vw"
+                  class="w-full object-cover"
+                  loading="eager"
+                />
+              </div>
+            )
+          }
 
-          {magnet.summary && (
-            <div class="mt-l space-y-s">
-              <p class="text-xs uppercase tracking-eyebrow text-foreground/80">What you'll get</p>
-              <div class="h-px w-12 bg-primary/60" aria-hidden="true"></div>
-              <p class="text-foreground/85 leading-relaxed">{magnet.summary}</p>
-            </div>
-          )}
+          {
+            magnet.summary && (
+              <div class="mt-l space-y-s">
+                <p class="text-xs tracking-eyebrow text-foreground/80 uppercase">What you'll get</p>
+                <div class="h-px w-12 bg-primary/60" aria-hidden="true" />
+                <p class="leading-relaxed text-foreground/85">{magnet.summary}</p>
+              </div>
+            )
+          }
 
           {/* Back to all guides link */}
           <p class="mt-l">
             <a
               href="/guides"
-              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+              class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
             >
               <span aria-hidden="true">←</span> All guides
             </a>
@@ -127,33 +127,34 @@ const schemas = [
 
         {/* Right column — gated email form (or no-download notice when file isn't set) */}
         <div>
-          {fileUrl ? (
-            <LeadMagnetForm
-              client:visible
-              fileUrl={fileUrl}
-              gateHeading={magnet.gateHeading}
-              gateBlurb={magnet.gateBlurb}
-              buttonLabel={magnet.buttonLabel}
-              successMessage={magnet.successMessage}
-              espTag={magnet.espTag}
-              formActionUrl={formActionUrl}
-              slug={slug}
-            />
-          ) : (
-            <div class="rounded-md border border-border bg-card p-l">
-              <div class="h-0.5 bg-primary mb-l" aria-hidden="true"></div>
-              <p class="font-display text-h4 text-foreground">
-                This guide is almost ready.
-              </p>
-              <p class="mt-s text-sm text-foreground/80 leading-relaxed">
-                Staci is finishing it up. Check back soon, or
-                <a href="/contact" class="text-link underline underline-offset-2 ml-[0.25ch]">reach out</a>
-                and she'll send it directly when it's done.
-              </p>
-            </div>
-          )}
+          {
+            fileUrl ? (
+              <LeadMagnetForm
+                client:visible
+                fileUrl={fileUrl}
+                gateHeading={magnet.gateHeading}
+                gateBlurb={magnet.gateBlurb}
+                buttonLabel={magnet.buttonLabel}
+                successMessage={magnet.successMessage}
+                espTag={magnet.espTag}
+                formActionUrl={formActionUrl}
+                slug={slug}
+              />
+            ) : (
+              <div class="rounded-md border border-border bg-card p-l">
+                <div class="mb-l h-0.5 bg-primary" aria-hidden="true" />
+                <p class="font-display text-h4 text-foreground">This guide is almost ready.</p>
+                <p class="mt-s text-sm leading-relaxed text-foreground/80">
+                  Staci is finishing it up. Check back soon, or
+                  <a href="/contact" class="ml-[0.25ch] text-link underline underline-offset-2">
+                    reach out
+                  </a>
+                  and she'll send it directly when it's done.
+                </p>
+              </div>
+            )
+          }
         </div>
-
       </div>
     </div>
   </section>
@@ -164,5 +165,4 @@ const schemas = [
     headline="Let's talk about your space."
     subhead="A guide is a start. A consultation is where things actually move."
   />
-
 </BaseLayout>

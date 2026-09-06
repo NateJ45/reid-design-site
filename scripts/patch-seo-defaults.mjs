@@ -72,12 +72,11 @@ const SEO = {
 
 let patched = 0;
 for (const [id, fields] of Object.entries(SEO)) {
-  const res = await client
-    .patch(id)
-    .setIfMissing(fields)
-    .commit({ autoGenerateArrayKeys: true });
+  const res = await client.patch(id).setIfMissing(fields).commit({ autoGenerateArrayKeys: true });
   patched++;
   console.log(`patched ${id}: "${res.seoTitle}"`);
 }
 
-console.log(`\nDone. ${patched} singleton(s) processed (setIfMissing, existing copy left untouched).`);
+console.log(
+  `\nDone. ${patched} singleton(s) processed (setIfMissing, existing copy left untouched).`,
+);

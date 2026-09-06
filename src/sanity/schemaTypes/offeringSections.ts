@@ -47,7 +47,11 @@ const RESOURCES_SECTIONS = [
 ];
 export const resourcesSectionMarker = makeMarker('resourcesSectionMarker', RESOURCES_SECTIONS);
 export const RESOURCES_SECTION_TYPES = typesFor('resourcesSectionMarker');
-export const RESOURCES_DEFAULT_ORDER = defaultOrder('resourcesSectionMarker', 'resources', ['hero', 'intro', 'cards']);
+export const RESOURCES_DEFAULT_ORDER = defaultOrder('resourcesSectionMarker', 'resources', [
+  'hero',
+  'intro',
+  'cards',
+]);
 
 // ── Press ────────────────────────────────────────────────────────────────────
 const PRESS_SECTIONS = [
@@ -58,7 +62,12 @@ const PRESS_SECTIONS = [
 ];
 export const pressSectionMarker = makeMarker('pressSectionMarker', PRESS_SECTIONS);
 export const PRESS_SECTION_TYPES = typesFor('pressSectionMarker');
-export const PRESS_DEFAULT_ORDER = defaultOrder('pressSectionMarker', 'press', ['hero', 'pressStrip', 'intro', 'list']);
+export const PRESS_DEFAULT_ORDER = defaultOrder('pressSectionMarker', 'press', [
+  'hero',
+  'pressStrip',
+  'intro',
+  'list',
+]);
 
 // ── Gift Certificates ────────────────────────────────────────────────────────
 // Hero, coming-soon state, and the bespoke closing CTA stay in gift-certificates.astro;
@@ -71,7 +80,12 @@ const GIFT_SECTIONS = [
 ];
 export const giftSectionMarker = makeMarker('giftSectionMarker', GIFT_SECTIONS);
 export const GIFT_SECTION_TYPES = typesFor('giftSectionMarker');
-export const GIFT_DEFAULT_ORDER = defaultOrder('giftSectionMarker', 'gift', ['intro', 'options', 'howItWorks', 'finePrint']);
+export const GIFT_DEFAULT_ORDER = defaultOrder('giftSectionMarker', 'gift', [
+  'intro',
+  'options',
+  'howItWorks',
+  'finePrint',
+]);
 
 // ── E-Design ─────────────────────────────────────────────────────────────────
 // Hero, coming-soon state, and the closing CTA stay in e-design.astro; the
@@ -85,4 +99,10 @@ const EDESIGN_SECTIONS = [
 ];
 export const eDesignSectionMarker = makeMarker('eDesignSectionMarker', EDESIGN_SECTIONS);
 export const EDESIGN_SECTION_TYPES = typesFor('eDesignSectionMarker');
-export const EDESIGN_DEFAULT_ORDER = defaultOrder('eDesignSectionMarker', 'edesign', ['intro', 'howItWorks', 'whatsIncluded', 'tiers', 'faq']);
+export const EDESIGN_DEFAULT_ORDER = defaultOrder('eDesignSectionMarker', 'edesign', [
+  'intro',
+  'howItWorks',
+  'whatsIncluded',
+  'tiers',
+  'faq',
+]);

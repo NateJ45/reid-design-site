@@ -6,18 +6,18 @@
 
 Declared in the `@theme` block inside `src/styles/globals.css`. Reference via utility classes (`bg-primary`, `text-accent`, `border-secondary`) rather than hardcoded hex anywhere in component code.
 
-| Role | Hex | Notes |
-|---|---|---|
-| Primary (action) | `#9C7661` | Warm Bronze — buttons, primary CTAs, focus rings |
-| Primary Dark | `#7A5D4C` | Bronze Dark — button hover, body-size link text where Bronze fails contrast |
-| Accent (heading + text) | `#3D3D3D` | Charcoal — primary text and headings on light surfaces |
-| Accent Dark | `#2A2A2A` | Charcoal Dark — dark section backgrounds (Footer, occasional CTA banner) |
-| Secondary | `#B8A99A` | Warm Taupe — borders, dividers, muted text, eyebrow labels |
-| Tertiary | `#A8B5A0` | Soft Sage — sparingly, for process icons or tag accents |
-| Background | `#FAF8F5` | Soft Linen — primary surface |
-| Background Soft | `#F5F0EB` | Cream — alternating section surface |
-| Border (subtle) | `#E8E4E0` | Light Gray — input underlines, faint dividers |
-| White | `#FFFFFF` | Hero text overlays, contrast against dark sections |
+| Role                    | Hex       | Notes                                                                       |
+| ----------------------- | --------- | --------------------------------------------------------------------------- |
+| Primary (action)        | `#9C7661` | Warm Bronze — buttons, primary CTAs, focus rings                            |
+| Primary Dark            | `#7A5D4C` | Bronze Dark — button hover, body-size link text where Bronze fails contrast |
+| Accent (heading + text) | `#3D3D3D` | Charcoal — primary text and headings on light surfaces                      |
+| Accent Dark             | `#2A2A2A` | Charcoal Dark — dark section backgrounds (Footer, occasional CTA banner)    |
+| Secondary               | `#B8A99A` | Warm Taupe — borders, dividers, muted text, eyebrow labels                  |
+| Tertiary                | `#A8B5A0` | Soft Sage — sparingly, for process icons or tag accents                     |
+| Background              | `#FAF8F5` | Soft Linen — primary surface                                                |
+| Background Soft         | `#F5F0EB` | Cream — alternating section surface                                         |
+| Border (subtle)         | `#E8E4E0` | Light Gray — input underlines, faint dividers                               |
+| White                   | `#FFFFFF` | Hero text overlays, contrast against dark sections                          |
 
 Every token must clear WCAG AA against every surface it appears on. Body text needs 4.5:1, large text and UI components need 3:1. Run the math in both light and dark before introducing a new token. Bronze (`#9C7661`) is borderline for body text on Soft Linen; use Bronze Dark (`#7A5D4C`) for anchor-style text in prose. Bronze is fine on backgrounds where the foreground is white at large size (buttons, CTA banners).
 
@@ -53,6 +53,7 @@ The wiring, in order of execution:
 Astro's View Transitions runtime swaps the document `<head>` and `<body>` between navigations but **resets `<html>`'s className** to whatever the new page's source HTML had (empty — `.dark` is applied at runtime). Without intervention, a user who set dark mode would see the next page render in light despite `localStorage` still holding `"dark"`. This was an actual bug we fixed.
 
 The fix lives in the anti-FOUC script and has three triggers:
+
 - **Initial inline call** — runs in `<head>` before body parses. Catches the first paint.
 - **`DOMContentLoaded` listener** — re-runs after the body is in the DOM. Required so theme-aware imgs that appear below the first parsed scripts (notably the footer logo) get their `src` set. Bound with `{ once: true }`.
 - **`astro:after-swap` listener** — re-runs after every View Transitions navigation. Re-applies the `.dark` class and re-sets the logo `src` because both get reset by the swap.
@@ -66,7 +67,8 @@ Header and Footer each render ONE `<img>` for the logo, with no `src` attribute 
 ```html
 <img
   alt="Reid Design LLC"
-  width="100" height="106"
+  width="100"
+  height="106"
   class="h-[6.25rem] w-auto"
   loading="eager"
   data-theme-logo
@@ -74,10 +76,11 @@ Header and Footer each render ONE `<img>` for the logo, with no `src` attribute 
   data-logo-light-srcset="/_astro/logo-light.{1xhash}.webp 1x, /_astro/logo-light.{2xhash}.webp 2x"
   data-logo-dark-src="/_astro/logo-dark.{hash}.webp"
   data-logo-dark-srcset="/_astro/logo-dark.{1xhash}.webp 1x, /_astro/logo-dark.{2xhash}.webp 2x"
->
+/>
 ```
 
 The URLs come from `getImage()` calls at build time (Astro's image pipeline pre-renders the four variants). The src is set by:
+
 - An inline `<script is:inline>` immediately after the header img (runs synchronously, before browser begins fetching).
 - BaseLayout's anti-FOUC script for the footer img (runs on `DOMContentLoaded` since the footer doesn't exist when the head script first fires).
 
@@ -92,6 +95,7 @@ Reid Design is primarily a light-toned warm brand. Dark mode is supported becaus
 Every new component renders correctly in BOTH modes. This is not a "we'll get to it" — it's a foundation rule. The bug it prevents is real: the original placeholder used `text-accent` (Charcoal `#3D3D3D`) for body copy, which doesn't flip in dark mode, producing Charcoal-on-near-black at 1.57:1 contrast. Lighthouse caught it; the rule below prevents it from recurring.
 
 **Dynamic tokens (flip with theme — use these for text and surfaces):**
+
 - `bg-background`, `text-foreground` — body text + page background
 - `bg-card`, `text-card-foreground` — card surfaces
 - `bg-popover`, `text-popover-foreground` — popovers and tooltips
@@ -104,6 +108,7 @@ Every new component renders correctly in BOTH modes. This is not a "we'll get to
 These are shadcn's semantic tokens, defined in `:root` for light and overridden in `.dark` for dark. Always use these for anything that should adapt to mode.
 
 **Static brand tokens (do NOT flip — use only where the brand color must hold in both modes):**
+
 - `bg-primary`, `text-primary-foreground` — CTA buttons (Warm Bronze stays Warm Bronze)
 - `text-primary-dark` — anchor-style body text in prose (Bronze Dark)
 - `bg-accent-dark`, `text-bg` — dark section panels (Footer, occasional CTA banner where Charcoal Dark is the design)
@@ -118,12 +123,14 @@ These are shadcn's semantic tokens, defined in `:root` for light and overridden 
 **Same trap for `text-primary-dark`:** it's static Bronze Dark `#7A5D4C`, which reads fine on Soft Linen but fails contrast on the dark-mode background. **For link-style text in both modes, use `text-link`** (defined above). `text-primary-dark` is fine on a static bronze CTA panel or a light-mode-only surface, but not for any text that ships on a theme-aware background.
 
 **CTA buttons use `bg-primary-dark` + `text-white`, not `bg-primary` + `text-primary-foreground`.** Two compounding rules:
+
 1. `bg-primary` (Warm Bronze `#9C7661`) with white at button label sizes hits only 4.05:1 — just under WCAG AA 4.5:1 for body text. The original brand spec acknowledged this ("Bronze fine on backgrounds where the foreground is white at large size") and called for Bronze Dark on small-text-on-bronze. Use `bg-primary-dark` (`#7A5D4C`) for CTA buttons; white on it lands at 5.5:1.
 2. `--primary-foreground` flips to a dark color in dark mode, which would tank contrast against any bronze background. Always pair the bronze CTA BG with literal `text-white`, not the semantic token.
 
 The primary hover state on CTAs goes to `bg-accent-dark` (Charcoal Dark) — even more contrast on hover, consistent with the "darker on hover" pattern visitors expect.
 
 **Quick checklist before adding a color class:**
+
 1. Does this text or surface need to be readable in BOTH modes? → semantic token (`text-foreground`, `bg-background`, `bg-muted`, etc.)
 2. Is this a brand-color CTA, footer panel, or eyebrow that should hold its hue in both modes? → brand token (`bg-primary`, `bg-accent-dark`) — note `text-secondary` is reserved for borders + dividers; eyebrow LABELS use `text-foreground/65` (see Eyebrow contrast lesson below).
 3. Adding opacity? → `text-foreground/80`, not `text-accent/80`
@@ -134,14 +141,16 @@ The primary hover state on CTAs goes to `bg-accent-dark` (Charcoal Dark) — eve
 Warm Taupe `#B8A99A` at 12px on Cream / Soft Linen lands at **2.02:1** — fails WCAG AA. The original sweep migrated `text-secondary` → `text-foreground/65`, which improved dark mode but still failed AA in light mode (~3.57:1 on Soft Linen).
 
 A second sweep bumped the opacity tier:
+
 - `text-foreground/65` → `text-foreground/80` (52 occurrences across 25 files) — gets to **~5.4:1 on Soft Linen, passes AA**.
 - `text-foreground/70` → `text-foreground/85` (7 occurrences) — for small italic body text, **~6.1:1, passes AAA**.
 
 The brand `--secondary` token still exists and is fine for **borders, dividers, larger decorative ornaments** — just not for body-size text.
 
 If you add a new eyebrow label, the pattern is:
+
 ```html
-<p class="text-xs uppercase tracking-eyebrow text-foreground/80">Eyebrow text</p>
+<p class="text-xs tracking-eyebrow text-foreground/80 uppercase">Eyebrow text</p>
 ```
 
 `scripts/sweep-eyebrow-contrast.mjs` originally caught `text-secondary` → `text-foreground/65`. Inline ad-hoc scripts handled the `/65` → `/80` and `/70` → `/85` follow-up sweeps. If you spot any new `text-foreground/65` or `/70` on `bg-muted`/`bg-background` surfaces, bump them.
@@ -172,6 +181,7 @@ Tailwind v4 generates utilities **alphabetically** in the stylesheet. Two utilit
 - `text-sm` (base) + `text-h3` (override) → `text-sm` wins.
 
 Solutions:
+
 1. **Add a variant prop instead of overriding via className.** This is why CtaLink got an `onDark` prop and shadcn's `accordion.tsx` had its base font-size removed (so consumer `text-h3` actually wins).
 2. **Drop the conflicting base class.** If you control the base component, remove the class that's interfering.
 3. **Use `!important`** as last resort (`!text-bg`). Rare in this codebase.

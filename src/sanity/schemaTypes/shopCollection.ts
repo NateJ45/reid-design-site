@@ -17,7 +17,8 @@ export const shopCollection = defineType({
       name: 'title',
       title: 'Collection title',
       type: 'string',
-      description: 'Section heading shown on the /shop page. Example: "Living Room Picks" or "Paint Colors I Return to".',
+      description:
+        'Section heading shown on the /shop page. Example: "Living Room Picks" or "Paint Colors I Return to".',
       validation: (Rule) => Rule.required(),
     }),
     defineField({

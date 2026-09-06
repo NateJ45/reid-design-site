@@ -29,8 +29,12 @@ export const styleQuiz = defineType({
       title: 'SEO title',
       type: 'string',
       group: 'seo',
-      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Leave blank to use the built-in default.',
-      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+      description:
+        'Browser tab and Google result title. Aim for 50 to 60 characters. Leave blank to use the built-in default.',
+      validation: (Rule) =>
+        Rule.max(60).warning(
+          'Titles longer than about 60 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoDescription',
@@ -38,17 +42,22 @@ export const styleQuiz = defineType({
       type: 'text',
       rows: 3,
       group: 'seo',
-      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Leave blank to use the built-in default.',
-      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+      description:
+        'The sentence under the title in Google results. Aim for 150 to 160 characters. Leave blank to use the built-in default.',
+      validation: (Rule) =>
+        Rule.max(160).warning(
+          'Descriptions longer than about 160 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoImage',
       title: 'Social share image (this page)',
       type: 'image',
       group: 'seo',
-      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      description:
+        'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
       options: { hotspot: true },
-      fields: [ defineField({ name: 'alt', title: 'Alt text', type: 'string' }) ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
 
     // ── Intro ──────────────────────────────────────────────────────────────
@@ -76,7 +85,12 @@ export const styleQuiz = defineType({
       group: 'intro',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
 
@@ -86,7 +100,8 @@ export const styleQuiz = defineType({
       title: 'Questions',
       type: 'array',
       group: 'questions',
-      description: 'Image-answer questions. Each answer carries weights toward one or more archetypes.',
+      description:
+        'Image-answer questions. Each answer carries weights toward one or more archetypes.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -96,7 +111,8 @@ export const styleQuiz = defineType({
               name: 'prompt',
               title: 'Question prompt',
               type: 'string',
-              description: 'The question text shown to the visitor. Example: "When you walk into a well-designed room, what do you notice first?"',
+              description:
+                'The question text shown to the visitor. Example: "When you walk into a well-designed room, what do you notice first?"',
               validation: (Rule) => Rule.required(),
             }),
             defineField({
@@ -109,28 +125,41 @@ export const styleQuiz = defineType({
               name: 'answers',
               title: 'Answers',
               type: 'array',
-              description: 'Answer options for this question. Each answer adds weight to one or more archetypes.',
+              description:
+                'Answer options for this question. Each answer adds weight to one or more archetypes.',
               of: [
                 defineArrayMember({
                   type: 'object',
                   name: 'quizAnswer',
                   fields: [
-                    defineField({ name: 'label', title: 'Answer label', type: 'string', validation: (Rule) => Rule.required() }),
+                    defineField({
+                      name: 'label',
+                      title: 'Answer label',
+                      type: 'string',
+                      validation: (Rule) => Rule.required(),
+                    }),
                     defineField({
                       name: 'image',
                       title: 'Answer image',
                       type: 'image',
-                      description: 'Photo that represents this answer choice. Required for image-answer questions.',
+                      description:
+                        'Photo that represents this answer choice. Required for image-answer questions.',
                       options: { hotspot: true },
                       fields: [
-                        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+                        defineField({
+                          name: 'alt',
+                          title: 'Alt text',
+                          type: 'string',
+                          validation: (R) => R.required(),
+                        }),
                       ],
                     }),
                     defineField({
                       name: 'archetypeWeights',
                       title: 'Archetype weights',
                       type: 'array',
-                      description: 'Which archetype(s) this answer contributes to, and by how much. Total weights across all answers need not sum to any specific value.',
+                      description:
+                        'Which archetype(s) this answer contributes to, and by how much. Total weights across all answers need not sum to any specific value.',
                       of: [
                         defineArrayMember({
                           type: 'object',
@@ -140,14 +169,16 @@ export const styleQuiz = defineType({
                               name: 'archetypeSlug',
                               title: 'Archetype slug',
                               type: 'string',
-                              description: 'Must match the slug of an archetype defined in the Archetypes tab.',
+                              description:
+                                'Must match the slug of an archetype defined in the Archetypes tab.',
                               validation: (Rule) => Rule.required(),
                             }),
                             defineField({
                               name: 'weight',
                               title: 'Weight',
                               type: 'number',
-                              description: 'How strongly this answer points at the archetype. Typical range 1-5.',
+                              description:
+                                'How strongly this answer points at the archetype. Typical range 1-5.',
                               validation: (Rule) => Rule.required().min(0),
                               initialValue: 1,
                             }),
@@ -186,13 +217,19 @@ export const styleQuiz = defineType({
       title: 'Qualifier questions',
       type: 'array',
       group: 'qualifiers',
-      description: 'Intent-detection questions (budget, timeline, room) shown after the image questions. Used to route the visitor to the right CTA.',
+      description:
+        'Intent-detection questions (budget, timeline, room) shown after the image questions. Used to route the visitor to the right CTA.',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'qualifier',
           fields: [
-            defineField({ name: 'prompt', title: 'Question prompt', type: 'string', validation: (Rule) => Rule.required() }),
+            defineField({
+              name: 'prompt',
+              title: 'Question prompt',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({
               name: 'type',
               title: 'Qualifier type',
@@ -216,8 +253,19 @@ export const styleQuiz = defineType({
                   type: 'object',
                   name: 'qualifierOption',
                   fields: [
-                    defineField({ name: 'label', title: 'Label', type: 'string', validation: (Rule) => Rule.required() }),
-                    defineField({ name: 'value', title: 'Value (internal)', type: 'string', description: 'Internal identifier used by the routing logic.', validation: (Rule) => Rule.required() }),
+                    defineField({
+                      name: 'label',
+                      title: 'Label',
+                      type: 'string',
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: 'value',
+                      title: 'Value (internal)',
+                      type: 'string',
+                      description: 'Internal identifier used by the routing logic.',
+                      validation: (Rule) => Rule.required(),
+                    }),
                   ],
                   preview: {
                     select: { label: 'label', value: 'value' },
@@ -230,7 +278,10 @@ export const styleQuiz = defineType({
           ],
           preview: {
             select: { prompt: 'prompt', type: 'type' },
-            prepare: ({ prompt, type }) => ({ title: prompt ?? '(no prompt)', subtitle: type ?? '' }),
+            prepare: ({ prompt, type }) => ({
+              title: prompt ?? '(no prompt)',
+              subtitle: type ?? '',
+            }),
           },
         }),
       ],
@@ -242,13 +293,20 @@ export const styleQuiz = defineType({
       title: 'Archetypes',
       type: 'array',
       group: 'archetypes',
-      description: 'Design personality archetypes. The quiz computes a score for each and shows the highest-scoring one as the result.',
+      description:
+        'Design personality archetypes. The quiz computes a score for each and shows the highest-scoring one as the result.',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'archetype',
           fields: [
-            defineField({ name: 'name', title: 'Archetype name', type: 'string', description: 'Example: "Modern Organic" or "Classic Transitional".', validation: (Rule) => Rule.required() }),
+            defineField({
+              name: 'name',
+              title: 'Archetype name',
+              type: 'string',
+              description: 'Example: "Modern Organic" or "Classic Transitional".',
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({
               name: 'slug',
               title: 'Slug',
@@ -261,7 +319,7 @@ export const styleQuiz = defineType({
               name: 'description',
               title: 'Archetype description',
               type: 'array',
-              description: 'Shown on the result screen. Describe this archetype in Staci\'s voice.',
+              description: "Shown on the result screen. Describe this archetype in Staci's voice.",
               options: {
                 // Per spec: Canvas enabled on archetype descriptions with voice purpose
                 canvasApp: {
@@ -287,13 +345,19 @@ export const styleQuiz = defineType({
               name: 'images',
               title: 'Archetype images',
               type: 'array',
-              description: "Staci's own project photos that represent this archetype. Shown in the result.",
+              description:
+                "Staci's own project photos that represent this archetype. Shown in the result.",
               of: [
                 defineArrayMember({
                   type: 'image',
                   options: { hotspot: true },
                   fields: [
-                    defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+                    defineField({
+                      name: 'alt',
+                      title: 'Alt text',
+                      type: 'string',
+                      validation: (R) => R.required(),
+                    }),
                   ],
                 }),
               ],
@@ -345,10 +409,32 @@ export const styleQuiz = defineType({
           initialValue: 'optional',
           validation: (Rule) => Rule.required(),
         }),
-        defineField({ name: 'heading', title: 'Gate heading', type: 'string', description: 'Headline above the email form.' }),
-        defineField({ name: 'blurb', title: 'Gate blurb', type: 'text', rows: 2, description: 'One sentence explaining what they get when they share their email.' }),
-        defineField({ name: 'consentNote', title: 'Consent note', type: 'text', rows: 2, description: 'Small-print consent line. Link to /privacy included automatically.' }),
-        defineField({ name: 'espTag', title: 'ESP tag (optional)', type: 'string', description: 'Tag applied in your email provider for quiz completers.' }),
+        defineField({
+          name: 'heading',
+          title: 'Gate heading',
+          type: 'string',
+          description: 'Headline above the email form.',
+        }),
+        defineField({
+          name: 'blurb',
+          title: 'Gate blurb',
+          type: 'text',
+          rows: 2,
+          description: 'One sentence explaining what they get when they share their email.',
+        }),
+        defineField({
+          name: 'consentNote',
+          title: 'Consent note',
+          type: 'text',
+          rows: 2,
+          description: 'Small-print consent line. Link to /privacy included automatically.',
+        }),
+        defineField({
+          name: 'espTag',
+          title: 'ESP tag (optional)',
+          type: 'string',
+          description: 'Tag applied in your email provider for quiz completers.',
+        }),
       ],
     }),
 
@@ -364,7 +450,8 @@ export const styleQuiz = defineType({
           name: 'highIntentRule',
           title: 'High-intent qualifier values',
           type: 'string',
-          description: 'Comma-separated qualifier option values that trigger the "book a consult" CTA. Example: "asap,1-3months". Values must match the qualifier option value fields above.',
+          description:
+            'Comma-separated qualifier option values that trigger the "book a consult" CTA. Example: "asap,1-3months". Values must match the qualifier option value fields above.',
         }),
         defineField({
           name: 'bookCtaLabel',

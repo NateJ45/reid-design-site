@@ -23,7 +23,8 @@ export const pressItem = defineType({
       name: 'logo',
       title: 'Outlet logo',
       type: 'image',
-      description: 'Outlet logo for the press strip. Prefer a white or transparent-background SVG/PNG so it renders in both themes.',
+      description:
+        'Outlet logo for the press strip. Prefer a white or transparent-background SVG/PNG so it renders in both themes.',
       options: { hotspot: false },
       fields: [
         defineField({

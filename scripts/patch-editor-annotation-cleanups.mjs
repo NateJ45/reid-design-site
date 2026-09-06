@@ -51,10 +51,7 @@ if (services?.builderRealtorSection?.description) {
     const nextChildren = block.children.map((child) => {
       if (typeof child?.text !== 'string') return child;
       // Strip the bracketed prefix and any spaces that follow it.
-      const cleaned = child.text.replace(
-        /^\s*\[NEW[^\]]*\]\s*/,
-        '',
-      );
+      const cleaned = child.text.replace(/^\s*\[NEW[^\]]*\]\s*/, '');
       return cleaned !== child.text ? { ...child, text: cleaned } : child;
     });
     return { ...block, children: nextChildren };
@@ -62,11 +59,10 @@ if (services?.builderRealtorSection?.description) {
   const changed = JSON.stringify(next) !== JSON.stringify(desc);
   if (changed) {
     try {
-      await client
-        .patch(services._id)
-        .set({ 'builderRealtorSection.description': next })
-        .commit();
-      console.log('✓ servicesPage: stripped "[NEW per audit, softer framing]" prefix from builderRealtorSection.description');
+      await client.patch(services._id).set({ 'builderRealtorSection.description': next }).commit();
+      console.log(
+        '✓ servicesPage: stripped "[NEW per audit, softer framing]" prefix from builderRealtorSection.description',
+      );
     } catch (err) {
       console.error('✗ servicesPage patch failed:', err.message);
     }
@@ -77,9 +73,7 @@ if (services?.builderRealtorSection?.description) {
 
 // ---- 2. faqItem.background replacement ---------------------------------
 
-const faq = await client.fetch(
-  `*[_id == "faqItem.background"][0]{ _id, _rev, answer }`,
-);
+const faq = await client.fetch(`*[_id == "faqItem.background"][0]{ _id, _rev, answer }`);
 
 if (faq) {
   const isTodoOnly =
@@ -102,8 +96,7 @@ if (faq) {
             _key: faq.answer[0]?.children?.[0]?._key ?? 'replacedBackground01s',
             _type: 'span',
             marks: [],
-            text:
-              "Staci is still updating this one. The short version: she's a Plainfield-based interior designer running Reid Design as a one-person studio. If background matters for your project, ask in the contact form and she'll get into it personally.",
+            text: "Staci is still updating this one. The short version: she's a Plainfield-based interior designer running Reid Design as a one-person studio. If background matters for your project, ask in the contact form and she'll get into it personally.",
           },
         ],
         markDefs: [],
@@ -111,7 +104,9 @@ if (faq) {
     ];
     try {
       await client.patch(faq._id).set({ answer: newAnswer }).commit();
-      console.log('✓ faqItem.background: replaced [TODO …] placeholder with a brand-voice "in progress" answer');
+      console.log(
+        '✓ faqItem.background: replaced [TODO …] placeholder with a brand-voice "in progress" answer',
+      );
     } catch (err) {
       console.error('✗ faqItem.background patch failed:', err.message);
     }

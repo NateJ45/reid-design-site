@@ -158,7 +158,11 @@ if (singletonType) {
   };
   page = await loaders[singletonType]().catch(() => null);
   // Only the two pages that render the press strip pay for the extra query.
-  if (singletonType === 'homePage' || singletonType === 'aboutPage' || singletonType === 'pressPage') {
+  if (
+    singletonType === 'homePage' ||
+    singletonType === 'aboutPage' ||
+    singletonType === 'pressPage'
+  ) {
     pressItems = await getPressItems(client).catch(() => []);
   }
 } else {
@@ -238,11 +242,7 @@ const title = `${label} - Preview`;
   }
   {
     singletonType === 'processPage' && (
-      <ProcessSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        editDoc={builderEditDoc}
-      />
+      <ProcessSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
     )
   }
   {
@@ -258,11 +258,7 @@ const title = `${label} - Preview`;
   }
   {
     singletonType === 'eDesignPage' && (
-      <EDesignSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        editDoc={builderEditDoc}
-      />
+      <EDesignSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
     )
   }
   {
@@ -294,16 +290,14 @@ const title = `${label} - Preview`;
   {/* Custom page built in the page builder. */}
   {
     !singletonType && (
-      <SectionRenderer
-        sections={page.pageBuilder}
-        idPrefix="page"
-        editDoc={builderEditDoc}
-      />
+      <SectionRenderer sections={page.pageBuilder} idPrefix="page" editDoc={builderEditDoc} />
     )
   }
 
-  {/* Bespoke page: hero, a note about what is not shown, the Extra sections
-      array, and the closing call to action. */}
+  {
+    /* Bespoke page: hero, a note about what is not shown, the Extra sections
+      array, and the closing call to action. */
+  }
   {
     showHero && (
       <Hero
@@ -320,22 +314,17 @@ const title = `${label} - Preview`;
   {
     isBespoke && (
       <div class="mx-auto max-w-3xl px-m py-m">
-        <p class="border-border-soft bg-bg-soft text-foreground/80 rounded-md border px-m py-s text-sm">
-          This page's middle is drawn in code (the list, form or grid it is built
-          around), so it previews as its editable surface only: the hero above,
-          any extra sections below, and the closing call to action. The parts
-          held in code render on the live site.
+        <p class="rounded-md border border-border-soft bg-bg-soft px-m py-s text-sm text-foreground/80">
+          This page's middle is drawn in code (the list, form or grid it is built around), so it
+          previews as its editable surface only: the hero above, any extra sections below, and the
+          closing call to action. The parts held in code render on the live site.
         </p>
       </div>
     )
   }
   {
     isBespoke && (
-      <SectionRenderer
-        sections={extraSections}
-        idPrefix="preview-extra"
-        editDoc={extraEditDoc}
-      />
+      <SectionRenderer sections={extraSections} idPrefix="preview-extra" editDoc={extraEditDoc} />
     )
   }
   {

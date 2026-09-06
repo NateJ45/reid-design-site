@@ -236,9 +236,7 @@ export function projectSchema(project: Project, heroImageUrl: string | null): st
     url: project.slug?.current ? `${site.url}/portfolio/${project.slug.current}` : undefined,
     image: heroImageUrl ?? undefined,
     creator: { '@id': `${site.url}/#business` },
-    locationCreated: project.location
-      ? { '@type': 'Place', name: project.location }
-      : undefined,
+    locationCreated: project.location ? { '@type': 'Place', name: project.location } : undefined,
     dateCreated: project.year ? String(project.year) : undefined,
     datePublished: project.publishedAt,
   });
@@ -261,7 +259,9 @@ export function blogPostingSchema(
   entry: JournalEntryForSchema,
   coverImageUrl: string | null,
 ): string {
-  const url = entry.slug?.current ? `${site.url}/journal/${entry.slug.current}` : `${site.url}/journal`;
+  const url = entry.slug?.current
+    ? `${site.url}/journal/${entry.slug.current}`
+    : `${site.url}/journal`;
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -276,7 +276,10 @@ export function blogPostingSchema(
       : { '@id': `${site.url}/#business` },
     publisher: { '@id': `${site.url}/#business` },
     keywords: Array.isArray(entry.categories)
-      ? entry.categories.map((c) => c?.title).filter(Boolean).join(', ')
+      ? entry.categories
+          .map((c) => c?.title)
+          .filter(Boolean)
+          .join(', ')
       : undefined,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   });

@@ -6,14 +6,14 @@ it before adding a check, and update it in the same commit that adds one.
 
 ## The suites
 
-| Suite | Command | Runtime | Covers |
-|---|---|---|---|
-| Unit | `npm run test:unit` (vitest) | Node, no browser | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, and **theme-tokens** (below) |
-| E2E, chromium | `npm run test:e2e` (or `npx playwright test`) | Desktop Chrome | All four Playwright specs: smoke, axe light, axe dark, reflow at 320/768/1024/1440 |
-| E2E, mobile-webkit | same command, second project | Real WebKit, iPhone 14 profile | smoke and both axe sweeps. `reflow.spec.ts` is excluded via `testIgnore`: it drives its own explicit viewport widths, which fights device emulation |
-| Parity | `npm run parity capture` / `compare` | Node, reads `dist/client` | Rendered-HTML drift on a change that is supposed to be render-neutral (below) |
-| Drift check | `npm run sync-check` | Node, dependency-free | Whether this repo's copies of the shared starter files still match the library of record (below) |
-| CI | push / PR, `.github/workflows/ci.yml` | GitHub Actions | Two jobs: **build** (typegen, stale-types guard, Astro build, unit tests) and **playwright** (both browser projects, html report artifact). The separate "Build Sanity Studio" step went away 2026-08-28: `astro build` builds the embedded Studio at `/studio` as part of the site |
+| Suite              | Command                                       | Runtime                        | Covers                                                                                                                                                                                                                                                                              |
+| ------------------ | --------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit               | `npm run test:unit` (vitest)                  | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, and **theme-tokens** (below)                                                                                                                           |
+| E2E, chromium      | `npm run test:e2e` (or `npx playwright test`) | Desktop Chrome                 | All four Playwright specs: smoke, axe light, axe dark, reflow at 320/768/1024/1440                                                                                                                                                                                                  |
+| E2E, mobile-webkit | same command, second project                  | Real WebKit, iPhone 14 profile | smoke and both axe sweeps. `reflow.spec.ts` is excluded via `testIgnore`: it drives its own explicit viewport widths, which fights device emulation                                                                                                                                 |
+| Parity             | `npm run parity capture` / `compare`          | Node, reads `dist/client`      | Rendered-HTML drift on a change that is supposed to be render-neutral (below)                                                                                                                                                                                                       |
+| Drift check        | `npm run sync-check`                          | Node, dependency-free          | Whether this repo's copies of the shared starter files still match the library of record (below)                                                                                                                                                                                    |
+| CI                 | push / PR, `.github/workflows/ci.yml`         | GitHub Actions                 | Two jobs: **build** (typegen, stale-types guard, Astro build, unit tests) and **playwright** (both browser projects, html report artifact). The separate "Build Sanity Studio" step went away 2026-08-28: `astro build` builds the embedded Studio at `/studio` as part of the site |
 
 `npm test` runs unit then e2e, which is the whole local gate in one command.
 CI splits them into separate jobs so a Playwright failure does not hide a build
@@ -161,14 +161,14 @@ repo** before believing any result: another project's `wrangler dev` already
 listening on the same port answers instead, and its 404 page is indistinguishable
 from a bug in this build. That cost real time on 2026-08-28.
 
-| Check | Expected |
-|---|---|
-| `/`, `/services/`, any static route | 200. Proves removing `not_found_handling` did not break asset serving |
-| a route that does not exist | 404 rendering the real 404 page |
-| `/studio/` | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
-| `/preview`, `/preview/about`, `/preview/faq` | 200 |
-| `/preview/live?page=homePage` with no cookie | 403 |
-| `/api/draft-mode/enable?sanity-preview-secret=bogus` | 401 |
+| Check                                                | Expected                                                                                                                                                                                       |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`, `/services/`, any static route                  | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                          |
+| a route that does not exist                          | 404 rendering the real 404 page                                                                                                                                                                |
+| `/studio/`                                           | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
+| `/preview`, `/preview/about`, `/preview/faq`         | 200                                                                                                                                                                                            |
+| `/preview/live?page=homePage` with no cookie         | 403                                                                                                                                                                                            |
+| `/api/draft-mode/enable?sanity-preview-secret=bogus` | 401                                                                                                                                                                                            |
 
 The full handshake (302 on a real secret, draft-aware stega, `/preview/live`
 streaming, and the `data-sanity` count matching a GROQ count of the section

@@ -21,10 +21,23 @@ const client = createClient({ projectId, dataset, apiVersion: '2026-05-01', useC
 
 // Singletons that use seoTitle / seoDescription.
 const SINGLETONS = [
-  'homePage', 'aboutPage', 'servicesPage', 'processPage', 'faqPage',
-  'contactPage', 'portfolioPage', 'journalPage', 'privacyPage', 'pressPage',
-  'resourcesPage', 'eDesignPage', 'giftPage', 'shopPage', 'styleQuiz',
-  'budgetCalculator', 'notFoundPage',
+  'homePage',
+  'aboutPage',
+  'servicesPage',
+  'processPage',
+  'faqPage',
+  'contactPage',
+  'portfolioPage',
+  'journalPage',
+  'privacyPage',
+  'pressPage',
+  'resourcesPage',
+  'eDesignPage',
+  'giftPage',
+  'shopPage',
+  'styleQuiz',
+  'budgetCalculator',
+  'notFoundPage',
 ];
 
 const rows = await client.fetch(
@@ -37,7 +50,10 @@ console.log('=== Page singletons ===');
 const missing = [];
 for (const type of SINGLETONS) {
   const r = byType.get(type);
-  if (!r) { console.log(`  ${type.padEnd(18)} (no published doc)`); continue; }
+  if (!r) {
+    console.log(`  ${type.padEnd(18)} (no published doc)`);
+    continue;
+  }
   const noT = !r.t || !String(r.t).trim();
   const noD = !r.d || !String(r.d).trim();
   const flag = noT || noD ? 'MISSING' : 'ok';
@@ -59,4 +75,6 @@ console.log('\n=== Collections ===');
 console.log(`  project       ${blank(projects).length}/${projects.length} missing SEO`);
 console.log(`  journalEntry  ${blank(entries).length}/${entries.length} missing SEO`);
 
-console.log(`\n${missing.length} singleton(s) need SEO copy: ${missing.map((m) => m.type).join(', ') || 'none'}`);
+console.log(
+  `\n${missing.length} singleton(s) need SEO copy: ${missing.map((m) => m.type).join(', ') || 'none'}`,
+);

@@ -14,11 +14,11 @@ import sharp from 'sharp';
 const DEFAULTS = {
   width: 1200,
   height: 630,
-  bg: '#FAF8F5',          // Soft Linen
-  primary: '#9C7661',     // Warm Bronze
+  bg: '#FAF8F5', // Soft Linen
+  primary: '#9C7661', // Warm Bronze
   primaryDark: '#7A5D4C', // Bronze Dark
-  accent: '#3D3D3D',      // Charcoal
-  taupe: '#B8A99A',       // Warm Taupe
+  accent: '#3D3D3D', // Charcoal
+  taupe: '#B8A99A', // Warm Taupe
   fontDisplay: 'Cormorant Garamond, Garamond, Times New Roman, serif',
 };
 
@@ -27,7 +27,9 @@ async function renderText(text, fontSize, color, font, weight = 'normal') {
   const markup = `<span foreground="${color}" font_desc="${font} ${weight} ${fontSize}px">${escaped}</span>`;
   const { data, info } = await sharp({
     text: { text: markup, rgba: true, dpi: 72 },
-  }).png().toBuffer({ resolveWithObject: true });
+  })
+    .png()
+    .toBuffer({ resolveWithObject: true });
   return { buffer: data, width: info.width, height: info.height };
 }
 

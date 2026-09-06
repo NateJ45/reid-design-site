@@ -24,8 +24,10 @@ if (!visible.press) return Astro.redirect('/');
 
 const pressArr: any[] = Array.isArray(pressItems) ? pressItems : [];
 
-const title       = page?.seoTitle       ?? 'Press · Reid Design';
-const description = page?.seoDescription ?? 'Reid Design in the media: features, mentions, and coverage from publications across Indiana.';
+const title = page?.seoTitle ?? 'Press · Reid Design';
+const description =
+  page?.seoDescription ??
+  'Reid Design in the media: features, mentions, and coverage from publications across Indiana.';
 
 const schemas = [
   breadcrumbSchema([

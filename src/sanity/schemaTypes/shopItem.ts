@@ -31,7 +31,8 @@ export const shopItem = defineType({
           name: 'alt',
           title: 'Alt text',
           type: 'string',
-          description: 'Describe the product. Example: "Cream and gray woven rug with basketweave texture."',
+          description:
+            'Describe the product. Example: "Cream and gray woven rug with basketweave texture."',
           validation: (R) => R.required(),
         }),
       ],
@@ -47,7 +48,8 @@ export const shopItem = defineType({
       name: 'affiliateUrl',
       title: 'Affiliate / shop link',
       type: 'url',
-      description: 'The affiliate or direct link to the product. Rendered with rel="sponsored nofollow" and opens in a new tab.',
+      description:
+        'The affiliate or direct link to the product. Rendered with rel="sponsored nofollow" and opens in a new tab.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -55,14 +57,16 @@ export const shopItem = defineType({
       title: 'Staci note (optional)',
       type: 'text',
       rows: 2,
-      description: 'Optional short note from Staci about why she likes or recommends this item. Shown on the card.',
+      description:
+        'Optional short note from Staci about why she likes or recommends this item. Shown on the card.',
     }),
     defineField({
       name: 'collection',
       title: 'Collection',
       type: 'reference',
       to: [{ type: 'shopCollection' }],
-      description: 'Which Shop Collection this item belongs to. Items are grouped by collection on the /shop page.',
+      description:
+        'Which Shop Collection this item belongs to. Items are grouped by collection on the /shop page.',
     }),
     // Hidden field managed by the orderable-document-list plugin.
     orderRankField({ type: 'shopItem' }),

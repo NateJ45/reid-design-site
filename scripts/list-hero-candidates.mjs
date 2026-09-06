@@ -69,7 +69,9 @@ for (const tag of folderTags) {
 // Untagged or differently-tagged
 const tagged = new Set();
 for (const tag of folderTags) {
-  assets.filter((a) => Array.isArray(a.tags) && a.tags.includes(tag)).forEach((a) => tagged.add(a._id));
+  assets
+    .filter((a) => Array.isArray(a.tags) && a.tags.includes(tag))
+    .forEach((a) => tagged.add(a._id));
 }
 const untagged = assets.filter((a) => !tagged.has(a._id));
 console.log(`\n=== Other / untagged (${untagged.length}) ===`);

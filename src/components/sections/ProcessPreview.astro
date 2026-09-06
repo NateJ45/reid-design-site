@@ -34,16 +34,23 @@ const {
       class="mx-auto"
     />
 
-    {processSteps.length > 0 && (
-      <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 gap-section-md">
-        {processSteps.slice(0, 4).map((step: any, i: number, arr: any[]) => (
-          <ProcessStep step={step} variant="preview" isLast={i === arr.length - 1} />
-        ))}
-      </div>
-    )}
+    {
+      processSteps.length > 0 && (
+        <div class="mt-section-lg grid grid-cols-1 gap-section-md md:grid-cols-2">
+          {processSteps.slice(0, 4).map((step: any, i: number, arr: any[]) => (
+            <ProcessStep step={step} variant="preview" isLast={i === arr.length - 1} />
+          ))}
+        </div>
+      )
+    }
 
     <div class="mt-section-lg flex justify-center">
-      <CtaLink cta={cta} variant="secondary" fallbackHref="/process" fallbackLabel="See the Full Process" />
+      <CtaLink
+        cta={cta}
+        variant="secondary"
+        fallbackHref="/process"
+        fallbackLabel="See the Full Process"
+      />
     </div>
   </div>
 </section>

@@ -62,7 +62,10 @@ const placements = [
 ];
 
 for (const p of placements) {
-  await client.patch(p.docId).set({ [p.field]: imageField(p.file, p.alt) }).commit();
+  await client
+    .patch(p.docId)
+    .set({ [p.field]: imageField(p.file, p.alt) })
+    .commit();
   console.log(`Set ${p.docId}.${p.field} = ${p.file}`);
 }
 

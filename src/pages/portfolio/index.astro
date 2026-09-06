@@ -24,12 +24,16 @@ const [projects, page, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.portfolio) return Astro.redirect('/');
 
-const title       = page?.seoTitle       ?? 'Portfolio';
-const description = page?.seoDescription ?? 'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';
+const title = page?.seoTitle ?? 'Portfolio';
+const description =
+  page?.seoDescription ??
+  'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';
 
-const heroEyebrow  = page?.heroEyebrow  ?? 'Recent work';
+const heroEyebrow = page?.heroEyebrow ?? 'Recent work';
 const heroHeadline = page?.heroHeadline ?? 'Projects across Plainfield and Indianapolis.';
-const heroSubhead  = page?.heroSubhead  ?? 'A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there.';
+const heroSubhead =
+  page?.heroSubhead ??
+  'A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there.';
 
 const schemas = [
   breadcrumbSchema([
@@ -88,74 +92,96 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
     scriptAccent={page?.heroScriptAccent ?? 'Plainfield'}
   />
 
-  {hasProjects ? (
-    <section class="mx-auto max-w-content px-m pb-section-lg" aria-labelledby="portfolio-projects-heading">
-      {/* Visually-hidden H2 — gives the project grid a proper heading-level
+  {
+    hasProjects ? (
+      <section
+        class="mx-auto max-w-content px-m pb-section-lg"
+        aria-labelledby="portfolio-projects-heading"
+      >
+        {/* Visually-hidden H2 — gives the project grid a proper heading-level
           parent so screen-reader navigation goes H1 → H2 → H3 (each card)
           instead of skipping straight to H3. Audit-caught regression. */}
-      <h2 id="portfolio-projects-heading" class="sr-only">Projects</h2>
+        <h2 id="portfolio-projects-heading" class="sr-only">
+          Projects
+        </h2>
 
-      {/* Filter chips + before/after link in the same row. */}
-      <div class="mb-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-m">
-        <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
-        {/* Before/after link — contextual shortcut for visitors who came
+        {/* Filter chips + before/after link in the same row. */}
+        <div class="mb-l flex flex-col gap-m sm:flex-row sm:items-center sm:justify-between">
+          <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
+          {/* Before/after link — contextual shortcut for visitors who came
             specifically to see transformation reveals. Hidden until there's
             content at /portfolio/before-after, but safe to show preemptively
             because that page has its own graceful empty state. */}
-        <a
-          href="/portfolio/before-after"
-          class="shrink-0 inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
-        >
-          Before &amp; After <span aria-hidden="true">→</span>
-        </a>
-      </div>
+          <a
+            href="/portfolio/before-after"
+            class="inline-flex shrink-0 items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+          >
+            Before &amp; After <span aria-hidden="true">→</span>
+          </a>
+        </div>
 
-      {/* Grid. data-* attributes drive the client-side filter; the
+        {/* Grid. data-* attributes drive the client-side filter; the
           is-filtered-out class is added by the chips island to fade-and-scale
           non-matching items. */}
-      <ul
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l list-none p-0"
-        data-portfolio-cursor-zone
-        data-stagger-grid
-      >
-        {projects.map((p: any) => (
-          <li
-            data-project-item
-            data-roomtype={p.roomType ?? ''}
-            data-designstyle={p.designStyle ?? ''}
-            class="transition-all duration-300 ease-out"
-          >
-            <ProjectCard project={p} />
-          </li>
-        ))}
-      </ul>
+        <ul
+          class="grid list-none grid-cols-1 gap-l p-0 sm:grid-cols-2 lg:grid-cols-3"
+          data-portfolio-cursor-zone
+          data-stagger-grid
+        >
+          {projects.map((p: any) => (
+            <li
+              data-project-item
+              data-roomtype={p.roomType ?? ''}
+              data-designstyle={p.designStyle ?? ''}
+              class="transition-all duration-300 ease-out"
+            >
+              <ProjectCard project={p} />
+            </li>
+          ))}
+        </ul>
 
-      {/* Empty state when filters match nothing. The island toggles
+        {/* Empty state when filters match nothing. The island toggles
           display:none/block on this element. */}
-      <p
-        data-portfolio-empty-filter
-        class="hidden mt-section-md text-center text-foreground/85 italic"
-      >
-        No projects match those filters yet. <a href="#" onclick="event.preventDefault(); document.querySelectorAll('[data-project-item]').forEach(el => el.classList.remove('is-filtered-out')); history.replaceState(null, '', window.location.pathname); window.location.reload();" class="text-link underline underline-offset-2">Clear filters</a> to see everything.
-      </p>
-
-      {/* Bronze "View →" custom cursor — desktop only, hover-aware. */}
-      <PortfolioCursor client:idle />
-    </section>
-  ) : (
-    <section class="mx-auto max-w-content px-m pb-section-lg">
-      <div class="rounded-md border border-border bg-muted p-section-md text-center">
-        <h2 class="font-display text-h3 text-foreground">Case studies are on the way.</h2>
-        <p class="mt-s text-foreground/80 max-w-prose mx-auto">
-          The first projects under Reid Design LLC are wrapping up now, with full write-ups
-          coming shortly. In the meantime, you can read about
-          <a href="/process" class="text-link underline underline-offset-2 hover:text-primary"> how Reid Design works</a>
-          or
-          <a href="/contact" class="text-link underline underline-offset-2 hover:text-primary"> start a conversation about your space</a>.
+        <p
+          data-portfolio-empty-filter
+          class="mt-section-md hidden text-center text-foreground/85 italic"
+        >
+          No projects match those filters yet.{' '}
+          <a
+            href="#"
+            onclick="event.preventDefault(); document.querySelectorAll('[data-project-item]').forEach(el => el.classList.remove('is-filtered-out')); history.replaceState(null, '', window.location.pathname); window.location.reload();"
+            class="text-link underline underline-offset-2"
+          >
+            Clear filters
+          </a>{' '}
+          to see everything.
         </p>
-      </div>
-    </section>
-  )}
+
+        {/* Bronze "View →" custom cursor — desktop only, hover-aware. */}
+        <PortfolioCursor client:idle />
+      </section>
+    ) : (
+      <section class="mx-auto max-w-content px-m pb-section-lg">
+        <div class="rounded-md border border-border bg-muted p-section-md text-center">
+          <h2 class="font-display text-h3 text-foreground">Case studies are on the way.</h2>
+          <p class="mx-auto mt-s max-w-prose text-foreground/80">
+            The first projects under Reid Design LLC are wrapping up now, with full write-ups coming
+            shortly. In the meantime, you can read about
+            <a href="/process" class="text-link underline underline-offset-2 hover:text-primary">
+              {' '}
+              how Reid Design works
+            </a>
+            or
+            <a href="/contact" class="text-link underline underline-offset-2 hover:text-primary">
+              {' '}
+              start a conversation about your space
+            </a>
+            .
+          </p>
+        </div>
+      </section>
+    )
+  }
 
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="portfolio-extra" />

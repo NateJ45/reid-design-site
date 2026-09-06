@@ -43,7 +43,6 @@ const schemas = [
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
-
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
     eyebrow="Free Resources"
@@ -59,79 +58,81 @@ const schemas = [
     <div class="mx-auto max-w-content px-m py-section-md">
       <h2 id="guides-grid-heading" class="sr-only">Available guides</h2>
 
-      {list.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
-          {list.map((magnet: any) => {
-            const href = `/guides/${magnet.slug}`;
-            return (
-              <a
-                href={href}
-                class="card-lift card-lift-slow group block bg-card border border-border-soft rounded-md overflow-hidden hover:border-primary/40 transition-colors shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
-                aria-label={`Download: ${magnet.title}`}
-              >
-                {/* Brand accent stripe — matches every marketing card in the system. */}
-                <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+      {
+        list.length > 0 ? (
+          <div class="grid grid-cols-1 gap-l md:grid-cols-2 lg:grid-cols-3">
+            {list.map((magnet: any) => {
+              const href = `/guides/${magnet.slug}`;
+              return (
+                <a
+                  href={href}
+                  class="card-lift card-lift-slow group block overflow-hidden rounded-md border border-border-soft bg-card shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40"
+                  aria-label={`Download: ${magnet.title}`}
+                >
+                  {/* Brand accent stripe — matches every marketing card in the system. */}
+                  <div class="h-0.5 bg-primary" aria-hidden="true" />
 
-                {/* Cover image — placeholder when no cover is set. */}
-                {magnet.coverImage?.asset ? (
-                  <div class="aspect-[16/10] overflow-hidden bg-muted">
-                    <SanityImage
-                      source={magnet.coverImage}
-                      width={800}
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
-                    />
-                  </div>
-                ) : (
-                  <div class="aspect-[16/10] bg-muted flex items-center justify-center">
-                    <span class="text-muted-foreground text-sm">Free Guide</span>
-                  </div>
-                )}
-
-                {/* Card body */}
-                <div class="p-l">
-                  <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-xs">
-                    Free Download
-                  </p>
-                  <h3 class="font-display text-h3 text-foreground group-hover:text-primary-dark transition-colors">
-                    {magnet.title}
-                  </h3>
-                  {magnet.summary && (
-                    <p class="mt-s text-sm text-foreground/80 leading-relaxed line-clamp-3">
-                      {magnet.summary}
-                    </p>
+                  {/* Cover image — placeholder when no cover is set. */}
+                  {magnet.coverImage?.asset ? (
+                    <div class="aspect-[16/10] overflow-hidden bg-muted">
+                      <SanityImage
+                        source={magnet.coverImage}
+                        width={800}
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        class="h-full w-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
+                      />
+                    </div>
+                  ) : (
+                    <div class="flex aspect-[16/10] items-center justify-center bg-muted">
+                      <span class="text-sm text-muted-foreground">Free Guide</span>
+                    </div>
                   )}
-                  <p class="mt-m inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link group-hover:text-primary-dark transition-colors">
-                    Get the guide <span aria-hidden="true">→</span>
-                  </p>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      ) : (
-        <div class="text-center py-section-lg">
-          <p class="font-display text-h3 text-foreground">Guides are on their way.</p>
-          <p class="mt-m text-foreground/80 max-w-prose mx-auto leading-relaxed">
-            Staci is putting together a set of practical downloads to help you think through
-            your space before we ever talk. Check back soon.
-          </p>
-          <div class="mt-l flex flex-wrap justify-center gap-s">
-            <a
-              href="/journal"
-              class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s border border-primary text-link hover:bg-accent text-xs font-semibold uppercase tracking-[0.18em] rounded-sm transition-colors"
-            >
-              Browse the journal
-            </a>
-            <a
-              href="/contact"
-              class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s bg-primary-dark text-white text-xs font-semibold uppercase tracking-[0.18em] rounded-sm hover:bg-accent-dark transition-colors"
-            >
-              Start a conversation
-            </a>
+
+                  {/* Card body */}
+                  <div class="p-l">
+                    <p class="mb-xs text-xs tracking-eyebrow text-foreground/80 uppercase">
+                      Free Download
+                    </p>
+                    <h3 class="font-display text-h3 text-foreground transition-colors group-hover:text-primary-dark">
+                      {magnet.title}
+                    </h3>
+                    {magnet.summary && (
+                      <p class="mt-s line-clamp-3 text-sm leading-relaxed text-foreground/80">
+                        {magnet.summary}
+                      </p>
+                    )}
+                    <p class="mt-m inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors group-hover:text-primary-dark">
+                      Get the guide <span aria-hidden="true">→</span>
+                    </p>
+                  </div>
+                </a>
+              );
+            })}
           </div>
-        </div>
-      )}
+        ) : (
+          <div class="py-section-lg text-center">
+            <p class="font-display text-h3 text-foreground">Guides are on their way.</p>
+            <p class="mx-auto mt-m max-w-prose leading-relaxed text-foreground/80">
+              Staci is putting together a set of practical downloads to help you think through your
+              space before we ever talk. Check back soon.
+            </p>
+            <div class="mt-l flex flex-wrap justify-center gap-s">
+              <a
+                href="/journal"
+                class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm border border-primary px-l py-s text-xs font-semibold tracking-[0.18em] text-link uppercase transition-colors hover:bg-accent"
+              >
+                Browse the journal
+              </a>
+              <a
+                href="/contact"
+                class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-accent-dark"
+              >
+                Start a conversation
+              </a>
+            </div>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -141,5 +142,4 @@ const schemas = [
     headline="Let's talk about your space."
     subhead="Every project starts with a conversation. Book a consultation and see what's possible."
   />
-
 </BaseLayout>

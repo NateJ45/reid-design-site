@@ -37,45 +37,44 @@ interface Props {
 const { collections } = Astro.props as Props;
 ---
 
-{collections.map((collection, idx) => (
-  <section
-    class:list={[
-      'scroll-mt-24',
-      idx % 2 === 0 ? 'bg-background' : 'surface-warm bg-muted',
-    ]}
-    aria-labelledby={`shop-collection-${collection.slug ?? idx}`}
-  >
-    <div class="mx-auto max-w-content px-m py-section-md">
-      {/* Collection header — eyebrow-style bronze hairline + title */}
-      <header class="mb-section-md">
-        <div class="flex items-center gap-m">
-          <div class="h-px flex-1 bg-primary/30" aria-hidden="true"></div>
-          <h2
-            id={`shop-collection-${collection.slug ?? idx}`}
-            class="font-display text-h2 text-foreground shrink-0"
-          >
-            {collection.title ?? 'Collection'}
-          </h2>
-          <div class="h-px flex-1 bg-primary/30" aria-hidden="true"></div>
-        </div>
-        {collection.blurb && (
-          <p class="mt-m text-center text-foreground/80 text-base leading-relaxed max-w-2xl mx-auto">
-            {collection.blurb}
+{
+  collections.map((collection, idx) => (
+    <section
+      class:list={['scroll-mt-24', idx % 2 === 0 ? 'bg-background' : 'surface-warm bg-muted']}
+      aria-labelledby={`shop-collection-${collection.slug ?? idx}`}
+    >
+      <div class="mx-auto max-w-content px-m py-section-md">
+        {/* Collection header — eyebrow-style bronze hairline + title */}
+        <header class="mb-section-md">
+          <div class="flex items-center gap-m">
+            <div class="h-px flex-1 bg-primary/30" aria-hidden="true" />
+            <h2
+              id={`shop-collection-${collection.slug ?? idx}`}
+              class="shrink-0 font-display text-h2 text-foreground"
+            >
+              {collection.title ?? 'Collection'}
+            </h2>
+            <div class="h-px flex-1 bg-primary/30" aria-hidden="true" />
+          </div>
+          {collection.blurb && (
+            <p class="mx-auto mt-m max-w-2xl text-center text-base leading-relaxed text-foreground/80">
+              {collection.blurb}
+            </p>
+          )}
+        </header>
+
+        {collection.items && collection.items.length > 0 ? (
+          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {collection.items.map((item) => (
+              <ShopItemCard {item} />
+            ))}
+          </div>
+        ) : (
+          <p class="py-section-md text-center text-muted-foreground italic">
+            Items in this collection are coming soon.
           </p>
         )}
-      </header>
-
-      {collection.items && collection.items.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-l">
-          {collection.items.map((item) => (
-            <ShopItemCard {item} />
-          ))}
-        </div>
-      ) : (
-        <p class="text-center text-muted-foreground italic py-section-md">
-          Items in this collection are coming soon.
-        </p>
-      )}
-    </div>
-  </section>
-))}
+      </div>
+    </section>
+  ))
+}

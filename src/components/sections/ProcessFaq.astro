@@ -18,24 +18,30 @@ const {
 } = Astro.props as Props;
 ---
 
-{faqs.length > 0 && (
-  <section class="bg-muted" aria-labelledby="process-faq-heading">
-    <div class="mx-auto max-w-content px-m py-section-lg">
-      <SectionHeading
-        eyebrow={eyebrow}
-        headline={headline}
-        headingId="process-faq-heading"
-        align="center"
-        class="mx-auto"
-      />
+{
+  faqs.length > 0 && (
+    <section class="bg-muted" aria-labelledby="process-faq-heading">
+      <div class="mx-auto max-w-content px-m py-section-lg">
+        <SectionHeading
+          eyebrow={eyebrow}
+          headline={headline}
+          headingId="process-faq-heading"
+          align="center"
+          class="mx-auto"
+        />
 
-      <div class="mt-section-lg max-w-3xl mx-auto">
-        <FaqAccordion client:visible faqs={faqs} idPrefix="process-faq" />
+        <div class="mx-auto mt-section-lg max-w-3xl">
+          <FaqAccordion client:visible faqs={faqs} idPrefix="process-faq" />
+        </div>
+
+        <p class="mt-l text-center text-sm text-muted-foreground">
+          More questions?{' '}
+          <a href="/faq" class="text-link underline underline-offset-2 hover:text-primary-dark">
+            See the full FAQ
+          </a>
+          .
+        </p>
       </div>
-
-      <p class="mt-l text-center text-sm text-muted-foreground">
-        More questions? <a href="/faq" class="text-link underline underline-offset-2 hover:text-primary-dark">See the full FAQ</a>.
-      </p>
-    </div>
-  </section>
-)}
+    </section>
+  )
+}

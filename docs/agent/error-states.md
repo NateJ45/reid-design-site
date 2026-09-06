@@ -13,6 +13,7 @@ Patterns for the moments when things go sideways or content hasn't landed yet.
 ### Form submission failure
 
 The contact form posts to Web3Forms. Three failure modes, each with a distinct user-visible message:
+
 - **Network failure** ("Couldn't send right now. Try again, or email staci@reiddesignllc.com directly.")
 - **Rate limit** (rare, Web3Forms free tier is 250/month): same message, Staci's email is the failsafe.
 - **Validation rejection** (missing required field, bad email format): inline per-field message, focus moves to the first invalid field, and the error container has `role="alert"` so screen readers announce.

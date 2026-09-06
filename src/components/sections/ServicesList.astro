@@ -38,69 +38,84 @@ const {
       class="mx-auto"
     />
 
-    {services.length >= 3 && (
-      <nav class="mt-m flex flex-col items-center gap-s" aria-label="On this page">
-        <p class="text-xs uppercase tracking-eyebrow text-foreground/80">On this page</p>
-        <ul class="flex flex-wrap justify-center gap-xs list-none p-0">
-          {services.map((service: any) =>
-            service.slug?.current ? (
+    {
+      services.length >= 3 && (
+        <nav class="mt-m flex flex-col items-center gap-s" aria-label="On this page">
+          <p class="text-xs tracking-eyebrow text-foreground/80 uppercase">On this page</p>
+          <ul class="flex list-none flex-wrap justify-center gap-xs p-0">
+            {services.map((service: any) =>
+              service.slug?.current ? (
+                <li>
+                  <a
+                    href={`#${service.slug.current}`}
+                    class="press-tactile inline-flex min-h-[36px] items-center rounded-full border border-border-soft px-s py-1.5 text-xs tracking-eyebrow text-foreground/85 uppercase transition-colors hover:border-primary hover:text-link"
+                  >
+                    {service.name}
+                  </a>
+                </li>
+              ) : null,
+            )}
+            {hasBuilders && (
               <li>
                 <a
-                  href={`#${service.slug.current}`}
-                  class="press-tactile inline-flex items-center min-h-[36px] px-s py-1.5 text-xs uppercase tracking-eyebrow text-foreground/85 border border-border-soft rounded-full hover:border-primary hover:text-link transition-colors"
+                  href="#builders"
+                  class="press-tactile inline-flex min-h-[36px] items-center rounded-full border border-border-soft px-s py-1.5 text-xs tracking-eyebrow text-foreground/85 uppercase transition-colors hover:border-primary hover:text-link"
                 >
-                  {service.name}
+                  Builders &amp; Realtors
                 </a>
               </li>
-            ) : null,
-          )}
-          {hasBuilders && (
-            <li>
-              <a
-                href="#builders"
-                class="press-tactile inline-flex items-center min-h-[36px] px-s py-1.5 text-xs uppercase tracking-eyebrow text-foreground/85 border border-border-soft rounded-full hover:border-primary hover:text-link transition-colors"
-              >
-                Builders &amp; Realtors
-              </a>
-            </li>
-          )}
-          {hasServiceArea && (
-            <li>
-              <a
-                href="#service-area"
-                class="press-tactile inline-flex items-center min-h-[36px] px-s py-1.5 text-xs uppercase tracking-eyebrow text-foreground/85 border border-border-soft rounded-full hover:border-primary hover:text-link transition-colors"
-              >
-                Service area
-              </a>
-            </li>
-          )}
-        </ul>
-      </nav>
-    )}
+            )}
+            {hasServiceArea && (
+              <li>
+                <a
+                  href="#service-area"
+                  class="press-tactile inline-flex min-h-[36px] items-center rounded-full border border-border-soft px-s py-1.5 text-xs tracking-eyebrow text-foreground/85 uppercase transition-colors hover:border-primary hover:text-link"
+                >
+                  Service area
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )
+    }
 
-    {services.length > 0 ? (
-      <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
-        {services.map((service: any) => (
-          <ServiceCard service={service} withAnchor={true} />
-        ))}
-      </div>
-    ) : null}
-
-    {visibleEDesign && services.some((s: any) => s.slug?.current === 'e-design') && (
-      <div class="mt-section-md flex justify-center">
-        <a
-          href="/e-design"
-          class="press-tactile inline-flex items-center gap-xs min-h-[36px] px-m py-1.5 text-xs uppercase tracking-eyebrow text-link border border-border-soft rounded-full hover:border-primary hover:text-primary-dark transition-colors"
+    {
+      services.length > 0 ? (
+        <div
+          class="mt-section-lg grid grid-cols-1 gap-l md:grid-cols-2 lg:grid-cols-3"
+          data-stagger-grid
         >
-          See the full E-Design overview <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    )}
+          {services.map((service: any) => (
+            <ServiceCard service={service} withAnchor={true} />
+          ))}
+        </div>
+      ) : null
+    }
 
-    {services.length === 0 && (
-      <p class="mt-section-lg text-center text-muted-foreground italic">
-        Services are being updated. <a href="/contact" class="text-link underline underline-offset-2">Get in touch</a> and we'll talk through what you need.
-      </p>
-    )}
+    {
+      visibleEDesign && services.some((s: any) => s.slug?.current === 'e-design') && (
+        <div class="mt-section-md flex justify-center">
+          <a
+            href="/e-design"
+            class="press-tactile inline-flex min-h-[36px] items-center gap-xs rounded-full border border-border-soft px-m py-1.5 text-xs tracking-eyebrow text-link uppercase transition-colors hover:border-primary hover:text-primary-dark"
+          >
+            See the full E-Design overview <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      )
+    }
+
+    {
+      services.length === 0 && (
+        <p class="mt-section-lg text-center text-muted-foreground italic">
+          Services are being updated.{' '}
+          <a href="/contact" class="text-link underline underline-offset-2">
+            Get in touch
+          </a>{' '}
+          and we'll talk through what you need.
+        </p>
+      )
+    }
   </div>
 </section>

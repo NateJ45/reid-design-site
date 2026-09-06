@@ -57,7 +57,7 @@ const formBudgetOptions = [
   '$10K – $30K (multiple rooms or styling)',
   '$30K – $75K (whole-home design)',
   '$75K+ (major project)',
-  "Not sure yet, happy to talk it through",
+  'Not sure yet, happy to talk it through',
 ];
 
 const formTimelineOptions = [

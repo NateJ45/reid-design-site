@@ -39,31 +39,30 @@ const columns = [
 if (columns.length === 0) return null;
 ---
 
-<aside
-  class="mx-auto max-w-content px-m py-section-md"
-  aria-label="Project at a glance"
->
+<aside class="mx-auto max-w-content px-m py-section-md" aria-label="Project at a glance">
   <div
     class:list={[
-      'border-t border-b border-border-soft py-l grid gap-l text-left',
+      'grid gap-l border-t border-b border-border-soft py-l text-left',
       columns.length === 3 && 'md:grid-cols-3',
       columns.length === 2 && 'md:grid-cols-2',
       columns.length === 1 && 'md:grid-cols-1',
     ]}
   >
-    {columns.map((col) => (
-      <div>
-        <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          {col.eyebrow}
-        </p>
-        <p class:list={[
-          col.eyebrow === 'The room'
-            ? 'font-display text-h3 text-foreground'
-            : 'font-display italic text-h4 text-foreground/90 leading-snug',
-        ]}>
-          {col.body}
-        </p>
-      </div>
-    ))}
+    {
+      columns.map((col) => (
+        <div>
+          <p class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">{col.eyebrow}</p>
+          <p
+            class:list={[
+              col.eyebrow === 'The room'
+                ? 'font-display text-h3 text-foreground'
+                : 'font-display text-h4 leading-snug text-foreground/90 italic',
+            ]}
+          >
+            {col.body}
+          </p>
+        </div>
+      ))
+    }
   </div>
 </aside>

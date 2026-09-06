@@ -23,7 +23,7 @@ If you add a new card-like component or section that should feel part of the bra
 All marketing cards share a soft warm resting shadow that deepens on hover via `.card-lift`:
 
 ```html
-<article class="card-lift ... shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
+<article class="card-lift shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] ..."></article>
 ```
 
 The `card-lift` utility class lives in `globals.css`. Defines `:hover { translateY(-2px); box-shadow: 0 16px 34px -18px ... }`. Always-on-card components opt in via the class.
@@ -107,7 +107,9 @@ Current usage: between the home page services grid (bg-muted) and the service ar
 Astro View Transitions are wired via `<ClientRouter />` in BaseLayout. Any client-side script that needs to re-run on every navigation must listen to `astro:page-load`:
 
 ```js
-function initThing() { /* … */ }
+function initThing() {
+  /* … */
+}
 initThing();
 document.addEventListener('astro:page-load', initThing);
 ```
@@ -141,7 +143,7 @@ The image-variant Hero supports three optional editorial flourishes on the headl
    - `/portfolio` → `"Plainfield"`
    - `/journal` → `"studio"`
    - `/faq` → `"Know"`
-   
+
    Don't combine with `rotatingWords` (they may target the same first word). The Hero component enforces this — `rotatingWords` wins if both are passed.
 
 3. **Subhead italic emphasis via markdown `_word_`** — the Hero subhead parses `_…_` markers into italic Cormorant `<em>` spans. Editor-friendly: Staci can write "Pick the tier that fits _where you are_." in Sanity and the wrapped phrase renders in italic Cormorant. No HTML in the field. This is the ONE flourish that's editor-controlled rather than hardcoded — works passively via the existing `heroSubhead` field on every page singleton.

@@ -124,53 +124,61 @@ const rows = list.map((s, i) => {
 });
 ---
 
-{rows.map(({ s, surface, headingId, handle }) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {s._type === 'heroSection' ? (
-    <Hero
-      eyebrow={s.eyebrow}
-      headline={s.headline}
-      subhead={s.subhead}
-      backgroundImage={s.backgroundImage}
-      primaryCta={s.primaryCta}
-      secondaryCta={s.secondaryCta}
-      scriptAccent={s.scriptAccent}
-      size={s.size ?? 'short'}
-      headingId={headingId}
-    />
-  ) : s._type === 'ctaBandSection' ? (
-    <FinalCta
-      eyebrow={s.eyebrow}
-      headline={s.headline}
-      subhead={s.subhead}
-      cta={s.cta}
-      scriptAccent={s.scriptAccent}
-      backgroundImage={s.backgroundImage}
-      headingId={headingId}
-    />
-  ) : s._type === 'statSection' ? (
-    <StatsRow stats={(s.stats ?? []).filter((x: any) => typeof x?.number === 'number')} />
-  ) : s._type === 'spacerSection' ? (
-    s.variant === 'space' ? (
-      <div class="py-section-md" aria-hidden="true"></div>
-    ) : (
-      <SectionDivider variant={s.variant === 'line' ? 'line' : 'ornament'} />
-    )
-  ) : s._type === 'richTextSection' ? (
-    <RichTextSection {...s} surface={surface} headingId={headingId} />
-  ) : s._type === 'imageTextSection' ? (
-    <ImageText {...s} surface={surface} headingId={headingId} />
-  ) : s._type === 'gallerySection' ? (
-    <GalleryGrid {...s} surface={surface} headingId={headingId} />
-  ) : s._type === 'quoteSection' ? (
-    <QuoteBlock {...s} surface={surface} />
-  ) : s._type === 'videoSection' ? (
-    <VideoEmbed {...s} surface={surface} headingId={headingId} />
-  ) : null}
-  {handle && (
-    <div data-sanity={handle} data-layout-handle title="Layout" aria-hidden="true" style={HANDLE_STYLE}>
-      &#9776;
-    </div>
-  )}
-  </Wrap>
-))}
+{
+  rows.map(({ s, surface, headingId, handle }) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'heroSection' ? (
+        <Hero
+          eyebrow={s.eyebrow}
+          headline={s.headline}
+          subhead={s.subhead}
+          backgroundImage={s.backgroundImage}
+          primaryCta={s.primaryCta}
+          secondaryCta={s.secondaryCta}
+          scriptAccent={s.scriptAccent}
+          size={s.size ?? 'short'}
+          headingId={headingId}
+        />
+      ) : s._type === 'ctaBandSection' ? (
+        <FinalCta
+          eyebrow={s.eyebrow}
+          headline={s.headline}
+          subhead={s.subhead}
+          cta={s.cta}
+          scriptAccent={s.scriptAccent}
+          backgroundImage={s.backgroundImage}
+          headingId={headingId}
+        />
+      ) : s._type === 'statSection' ? (
+        <StatsRow stats={(s.stats ?? []).filter((x: any) => typeof x?.number === 'number')} />
+      ) : s._type === 'spacerSection' ? (
+        s.variant === 'space' ? (
+          <div class="py-section-md" aria-hidden="true" />
+        ) : (
+          <SectionDivider variant={s.variant === 'line' ? 'line' : 'ornament'} />
+        )
+      ) : s._type === 'richTextSection' ? (
+        <RichTextSection {...s} surface={surface} headingId={headingId} />
+      ) : s._type === 'imageTextSection' ? (
+        <ImageText {...s} surface={surface} headingId={headingId} />
+      ) : s._type === 'gallerySection' ? (
+        <GalleryGrid {...s} surface={surface} headingId={headingId} />
+      ) : s._type === 'quoteSection' ? (
+        <QuoteBlock {...s} surface={surface} />
+      ) : s._type === 'videoSection' ? (
+        <VideoEmbed {...s} surface={surface} headingId={headingId} />
+      ) : null}
+      {handle && (
+        <div
+          data-sanity={handle}
+          data-layout-handle
+          title="Layout"
+          aria-hidden="true"
+          style={HANDLE_STYLE}
+        >
+          &#9776;
+        </div>
+      )}
+    </Wrap>
+  ))
+}

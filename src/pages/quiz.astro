@@ -140,9 +140,7 @@ if (hasValidQuiz) {
       highIntentRule: quiz.routing?.highIntentRule ?? '',
       bookCtaLabel: quiz.routing?.bookCtaLabel ?? 'Book a consultation',
       guideCtaLabel: quiz.routing?.guideCtaLabel ?? 'Get the free guide',
-      guideRef: quiz.routing?.guideRef
-        ? { slug: quiz.routing.guideRef.slug ?? '' }
-        : null,
+      guideRef: quiz.routing?.guideRef ? { slug: quiz.routing.guideRef.slug ?? '' } : null,
     },
   };
 }
@@ -163,41 +161,40 @@ const heroSubhead = quiz?.introSubhead ?? '';
   />
 
   <main id="quiz-main">
-    {hasValidQuiz && quizConfig ? (
-      <StyleQuiz client:visible config={quizConfig} />
-    ) : (
-      <section
-        class="mx-auto max-w-content px-m py-section-lg text-center"
-        aria-labelledby="quiz-coming-heading"
-      >
-        <div class="mx-auto max-w-xl">
-          <div class="h-0.5 bg-primary w-16 mx-auto mb-l" aria-hidden="true"></div>
-          <h2
-            id="quiz-coming-heading"
-            class="font-display text-h2 text-foreground"
-          >
-            Coming soon
-          </h2>
-          <p class="mt-m text-foreground/80 text-lg">
-            Staci is putting the finishing touches on this quiz. Check back soon
-            to find your design style and get a personal recommendation.
-          </p>
-          <div class="mt-l flex flex-wrap justify-center gap-s">
-            <a
-              href="/contact"
-              class="inline-flex items-center px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-sm hover:bg-accent-dark transition-colors press-tactile"
-            >
-              Talk to Staci directly
-            </a>
-            <a
-              href="/portfolio"
-              class="inline-flex items-center px-l py-s border border-primary text-link font-semibold uppercase tracking-widest text-sm hover:bg-accent transition-colors press-tactile"
-            >
-              Browse the portfolio
-            </a>
+    {
+      hasValidQuiz && quizConfig ? (
+        <StyleQuiz client:visible config={quizConfig} />
+      ) : (
+        <section
+          class="mx-auto max-w-content px-m py-section-lg text-center"
+          aria-labelledby="quiz-coming-heading"
+        >
+          <div class="mx-auto max-w-xl">
+            <div class="mx-auto mb-l h-0.5 w-16 bg-primary" aria-hidden="true" />
+            <h2 id="quiz-coming-heading" class="font-display text-h2 text-foreground">
+              Coming soon
+            </h2>
+            <p class="mt-m text-lg text-foreground/80">
+              Staci is putting the finishing touches on this quiz. Check back soon to find your
+              design style and get a personal recommendation.
+            </p>
+            <div class="mt-l flex flex-wrap justify-center gap-s">
+              <a
+                href="/contact"
+                class="press-tactile inline-flex items-center bg-primary-dark px-l py-s text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark"
+              >
+                Talk to Staci directly
+              </a>
+              <a
+                href="/portfolio"
+                class="press-tactile inline-flex items-center border border-primary px-l py-s text-sm font-semibold tracking-widest text-link uppercase transition-colors hover:bg-accent"
+              >
+                Browse the portfolio
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
   </main>
 </BaseLayout>

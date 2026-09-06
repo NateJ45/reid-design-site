@@ -25,8 +25,12 @@ export const aboutPage = defineType({
       title: 'SEO title',
       type: 'string',
       group: 'seo',
-      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
-      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+      description:
+        'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
+      validation: (Rule) =>
+        Rule.max(60).warning(
+          'Titles longer than about 60 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoDescription',
@@ -34,19 +38,22 @@ export const aboutPage = defineType({
       type: 'text',
       rows: 3,
       group: 'seo',
-      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
-      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+      description:
+        'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
+      validation: (Rule) =>
+        Rule.max(160).warning(
+          'Descriptions longer than about 160 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoImage',
       title: 'Social share image (this page)',
       type: 'image',
       group: 'seo',
-      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      description:
+        'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
       options: { hotspot: true },
-      fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
-      ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
 
     // Layout & order. Each "Built-in section" marker is one of the About page's
@@ -59,23 +66,48 @@ export const aboutPage = defineType({
       type: 'array',
       group: 'layout',
       description:
-        'The order of sections on the About page. Drag to reorder. Remove a built-in section to hide it. Add a block to insert something new between sections. Edit each built-in section\'s content in its own tab above.',
+        "The order of sections on the About page. Drag to reorder. Remove a built-in section to hide it. Add a block to insert something new between sections. Edit each built-in section's content in its own tab above.",
       of: ABOUT_SECTION_TYPES,
       initialValue: ABOUT_DEFAULT_ORDER,
     }),
 
-    defineField({ name: 'heroEyebrow', title: 'Hero eyebrow', type: 'string', group: 'hero', initialValue: 'The Designer.' }),
-    defineField({ name: 'heroHeadline', title: 'Hero headline', type: 'string', group: 'hero', initialValue: 'People Hire People.' }),
-    defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', rows: 2, group: 'hero', initialValue: "Here's who you'd be working with." }),
+    defineField({
+      name: 'heroEyebrow',
+      title: 'Hero eyebrow',
+      type: 'string',
+      group: 'hero',
+      initialValue: 'The Designer.',
+    }),
+    defineField({
+      name: 'heroHeadline',
+      title: 'Hero headline',
+      type: 'string',
+      group: 'hero',
+      initialValue: 'People Hire People.',
+    }),
+    defineField({
+      name: 'heroSubhead',
+      title: 'Hero subhead',
+      type: 'text',
+      rows: 2,
+      group: 'hero',
+      initialValue: "Here's who you'd be working with.",
+    }),
     defineField({
       name: 'heroImage',
       title: 'Hero background image',
       type: 'image',
       group: 'hero',
-      description: 'Full-bleed photo behind the hero text. Pick a landscape shot; the page applies a dark gradient over the bottom for readability.',
+      description:
+        'Full-bleed photo behind the hero text. Pick a landscape shot; the page applies a dark gradient over the bottom for readability.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
     defineField({
@@ -87,8 +119,20 @@ export const aboutPage = defineType({
         'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
     }),
 
-    defineField({ name: 'storyEyebrow', title: 'Story eyebrow', type: 'string', group: 'story', initialValue: 'My Story.' }),
-    defineField({ name: 'storyHeadline', title: 'Story headline', type: 'string', group: 'story', initialValue: 'Why I Started Reid Design.' }),
+    defineField({
+      name: 'storyEyebrow',
+      title: 'Story eyebrow',
+      type: 'string',
+      group: 'story',
+      initialValue: 'My Story.',
+    }),
+    defineField({
+      name: 'storyHeadline',
+      title: 'Story headline',
+      type: 'string',
+      group: 'story',
+      initialValue: 'Why I Started Reid Design.',
+    }),
     defineField({
       name: 'storyContent',
       title: 'Story content',
@@ -115,7 +159,12 @@ export const aboutPage = defineType({
       group: 'story',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
     defineField({
@@ -131,7 +180,7 @@ export const aboutPage = defineType({
       type: 'text',
       rows: 2,
       group: 'story',
-      description: "Single sentence with real credentials. Must be accurate, not aspirational.",
+      description: 'Single sentence with real credentials. Must be accurate, not aspirational.',
     }),
     defineField({
       name: 'serviceAreaMention',
@@ -141,8 +190,18 @@ export const aboutPage = defineType({
       description: 'Single line mentioning service area on About.',
     }),
 
-    defineField({ name: 'philosophyEyebrow', title: 'Philosophy eyebrow', type: 'string', group: 'philosophy' }),
-    defineField({ name: 'philosophyHeadline', title: 'Philosophy headline', type: 'string', group: 'philosophy' }),
+    defineField({
+      name: 'philosophyEyebrow',
+      title: 'Philosophy eyebrow',
+      type: 'string',
+      group: 'philosophy',
+    }),
+    defineField({
+      name: 'philosophyHeadline',
+      title: 'Philosophy headline',
+      type: 'string',
+      group: 'philosophy',
+    }),
 
     defineField({
       name: 'personalEyebrow',
@@ -171,14 +230,26 @@ export const aboutPage = defineType({
       title: 'Currently',
       type: 'array',
       group: 'personal',
-      description: 'A short "what I am into right now" list. Refresh it anytime. Example label "Reading", value "the book title".',
+      description:
+        'A short "what I am into right now" list. Refresh it anytime. Example label "Reading", value "the book title".',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'currentlyRow',
           fields: [
-            defineField({ name: 'label', title: 'Label', type: 'string', description: 'e.g. Reading, Listening to, Loving right now', validation: (R) => R.required() }),
-            defineField({ name: 'value', title: 'Value', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              description: 'e.g. Reading, Listening to, Loving right now',
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'value',
+              title: 'Value',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
           ],
           preview: { select: { title: 'label', subtitle: 'value' } },
         }),
@@ -189,14 +260,25 @@ export const aboutPage = defineType({
       title: 'Rapid fire',
       type: 'array',
       group: 'personal',
-      description: 'Short prompt-and-answer pairs. Example prompt "Coffee order", answer "Oat latte, extra hot".',
+      description:
+        'Short prompt-and-answer pairs. Example prompt "Coffee order", answer "Oat latte, extra hot".',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'rapidFireRow',
           fields: [
-            defineField({ name: 'prompt', title: 'Prompt', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'answer', title: 'Answer', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'prompt',
+              title: 'Prompt',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'answer',
+              title: 'Answer',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
           ],
           preview: { select: { title: 'prompt', subtitle: 'answer' } },
         }),
@@ -213,7 +295,12 @@ export const aboutPage = defineType({
           type: 'object',
           name: 'localSpotRow',
           fields: [
-            defineField({ name: 'name', title: 'Name', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'name',
+              title: 'Name',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
             defineField({ name: 'note', title: 'Short note (optional)', type: 'string' }),
           ],
           preview: { select: { title: 'name', subtitle: 'note' } },
@@ -226,17 +313,24 @@ export const aboutPage = defineType({
       type: 'text',
       rows: 4,
       group: 'personal',
-      description: 'A short, casual paragraph or two about life outside work: family, the dogs, hobbies. Write the way you talk.',
+      description:
+        'A short, casual paragraph or two about life outside work: family, the dogs, hobbies. Write the way you talk.',
     }),
     defineField({
       name: 'candidPhoto',
       title: 'Candid photo (optional)',
       type: 'image',
       group: 'personal',
-      description: 'A relaxed, non-portrait photo. Skip the polished headshot here; warmth beats polish.',
+      description:
+        'A relaxed, non-portrait photo. Skip the polished headshot here; warmth beats polish.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
 
@@ -245,32 +339,59 @@ export const aboutPage = defineType({
       title: 'Stats',
       type: 'array',
       group: 'stats',
-      description: 'Up to 4 numbers displayed as large display figures on the About page. Leave empty to hide the section.',
+      description:
+        'Up to 4 numbers displayed as large display figures on the About page. Leave empty to hide the section.',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'statItem',
           fields: [
-            defineField({ name: 'number', title: 'Number', type: 'number', validation: (R) => R.required() }),
+            defineField({
+              name: 'number',
+              title: 'Number',
+              type: 'number',
+              validation: (R) => R.required(),
+            }),
             defineField({
               name: 'suffix',
               title: 'Suffix (optional)',
               type: 'string',
               description: 'e.g. + or k. Appended directly after the number.',
             }),
-            defineField({ name: 'label', title: 'Label', type: 'string', description: 'e.g. Years in Business', validation: (R) => R.required() }),
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              description: 'e.g. Years in Business',
+              validation: (R) => R.required(),
+            }),
           ],
           preview: {
             select: { title: 'label', subtitle: 'number' },
-            prepare: ({ title, subtitle }) => ({ title, subtitle: subtitle != null ? String(subtitle) : '' }),
+            prepare: ({ title, subtitle }) => ({
+              title,
+              subtitle: subtitle != null ? String(subtitle) : '',
+            }),
           },
         }),
       ],
       validation: (Rule) => Rule.max(4),
     }),
 
-    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: "Let's Work Together." }),
-    defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Ready to Start?' }),
+    defineField({
+      name: 'finalCtaEyebrow',
+      title: 'Final CTA eyebrow',
+      type: 'string',
+      group: 'final',
+      initialValue: "Let's Work Together.",
+    }),
+    defineField({
+      name: 'finalCtaHeadline',
+      title: 'Final CTA headline',
+      type: 'string',
+      group: 'final',
+      initialValue: 'Ready to Start?',
+    }),
     defineField({
       name: 'finalCtaScriptAccent',
       title: 'Final CTA heading script accent (optional)',
@@ -279,7 +400,13 @@ export const aboutPage = defineType({
       description:
         'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
     }),
-    defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final' }),
+    defineField({
+      name: 'finalCtaSubhead',
+      title: 'Final CTA subhead',
+      type: 'text',
+      rows: 2,
+      group: 'final',
+    }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
     defineField({
       name: 'finalCtaBackgroundImage',

@@ -34,28 +34,36 @@ export const project = defineType({
       name: 'metaTitle',
       title: 'SEO title (optional)',
       type: 'string',
-      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load location and room type. Leave blank to use the project title.',
+      description:
+        'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load location and room type. Leave blank to use the project title.',
       options: {
         canvasApp: {
           purpose:
             'Optional per-project SEO title override. 50-60 chars. Front-load location + room type for local search ("Plainfield Kitchen Refresh" beats "Beautiful Modern Kitchen Project").',
         },
       },
-      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+      validation: (Rule) =>
+        Rule.max(60).warning(
+          'Titles longer than about 60 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'metaDescription',
       title: 'SEO description (optional)',
       type: 'text',
       rows: 2,
-      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine. Leave blank to use the brief summary.',
+      description:
+        'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine. Leave blank to use the brief summary.',
       options: {
         canvasApp: {
           purpose:
             'Optional per-project SEO description. 150-160 chars. Written for a human about to click, not a search engine. Specific (location + room type + transformation) beats generic.',
         },
       },
-      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+      validation: (Rule) =>
+        Rule.max(160).warning(
+          'Descriptions longer than about 160 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'location',
@@ -86,17 +94,18 @@ export const project = defineType({
       name: 'designStyle',
       title: 'Design style',
       type: 'string',
-      description: 'Primary style of the finished space. Used as the second filter axis on the portfolio.',
+      description:
+        'Primary style of the finished space. Used as the second filter axis on the portfolio.',
       options: {
         list: [
           { title: 'Modern traditional', value: 'modernTraditional' },
-          { title: 'Transitional',       value: 'transitional' },
-          { title: 'Modern coastal',     value: 'modernCoastal' },
-          { title: 'Modern farmhouse',   value: 'modernFarmhouse' },
-          { title: 'Modern organic',     value: 'modernOrganic' },
-          { title: 'Eclectic',           value: 'eclectic' },
-          { title: 'Mid-century',        value: 'midCentury' },
-          { title: 'Other',              value: 'other' },
+          { title: 'Transitional', value: 'transitional' },
+          { title: 'Modern coastal', value: 'modernCoastal' },
+          { title: 'Modern farmhouse', value: 'modernFarmhouse' },
+          { title: 'Modern organic', value: 'modernOrganic' },
+          { title: 'Eclectic', value: 'eclectic' },
+          { title: 'Mid-century', value: 'midCentury' },
+          { title: 'Other', value: 'other' },
         ],
       },
       validation: (Rule) => Rule.required(),
@@ -112,15 +121,22 @@ export const project = defineType({
       name: 'heroImage',
       title: 'Hero image',
       type: 'image',
-      description: 'The cover photo. Shows on the portfolio grid and at the top of the project page. Add the rest of the photos in Project photos below.',
+      description:
+        'The cover photo. Shows on the portfolio grid and at the top of the project page. Add the rest of the photos in Project photos below.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
         defineField({
           name: 'caption',
           title: 'Caption (optional)',
           type: 'string',
-          description: 'Small italic line under the hero. Sourcing or sizing detail works well ("Oak floor, brass pendants, soapstone counters").',
+          description:
+            'Small italic line under the hero. Sourcing or sizing detail works well ("Oak floor, brass pendants, soapstone counters").',
         }),
       ],
       validation: (Rule) => Rule.required(),
@@ -136,13 +152,20 @@ export const project = defineType({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'alt',
+              title: 'Alt text',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
             defineField({ name: 'caption', title: 'Caption', type: 'string' }),
           ],
         }),
       ],
       validation: (Rule) =>
-        Rule.min(3).error('Add at least 3 photos so the project shows more than a single cover shot.'),
+        Rule.min(3).error(
+          'Add at least 3 photos so the project shows more than a single cover shot.',
+        ),
     }),
     defineField({
       name: 'beforeAfters',
@@ -161,7 +184,12 @@ export const project = defineType({
               type: 'image',
               options: { hotspot: true },
               fields: [
-                defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+                defineField({
+                  name: 'alt',
+                  title: 'Alt text',
+                  type: 'string',
+                  validation: (R) => R.required(),
+                }),
               ],
               validation: (Rule) => Rule.required(),
             }),
@@ -171,7 +199,12 @@ export const project = defineType({
               type: 'image',
               options: { hotspot: true },
               fields: [
-                defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+                defineField({
+                  name: 'alt',
+                  title: 'Alt text',
+                  type: 'string',
+                  validation: (R) => R.required(),
+                }),
               ],
               validation: (Rule) => Rule.required(),
             }),
@@ -209,7 +242,8 @@ export const project = defineType({
       name: 'briefLine',
       title: 'The brief (one sentence)',
       type: 'string',
-      description: 'What the client came in with. Example: "Beautiful reno but the family room felt unfinished."',
+      description:
+        'What the client came in with. Example: "Beautiful reno but the family room felt unfinished."',
       options: {
         canvasApp: {
           purpose:
@@ -222,7 +256,8 @@ export const project = defineType({
       name: 'designCall',
       title: 'The call (one sentence)',
       type: 'string',
-      description: 'Staci\'s design move in response. Example: "Edit, don\'t add. Source one vintage piece. Anchor the seating."',
+      description:
+        'Staci\'s design move in response. Example: "Edit, don\'t add. Source one vintage piece. Anchor the seating."',
       options: {
         canvasApp: {
           purpose:
@@ -235,7 +270,8 @@ export const project = defineType({
       name: 'introStory',
       title: 'Intro story',
       type: 'array',
-      description: 'The brief, the approach, the result. Aim for at least three or four short paragraphs, and drop photos in between them where they help. This is the main story of the project.',
+      description:
+        'The brief, the approach, the result. Aim for at least three or four short paragraphs, and drop photos in between them where they help. This is the main story of the project.',
       options: {
         canvasApp: {
           purpose:
@@ -271,7 +307,12 @@ export const project = defineType({
                 title: 'Link',
                 fields: [
                   { name: 'href', type: 'url', title: 'URL' },
-                  { name: 'openInNewTab', type: 'boolean', title: 'Open in new tab', initialValue: false },
+                  {
+                    name: 'openInNewTab',
+                    type: 'boolean',
+                    title: 'Open in new tab',
+                    initialValue: false,
+                  },
                 ],
               },
               {
@@ -281,7 +322,12 @@ export const project = defineType({
                 type: 'object',
                 title: 'Sourced from',
                 fields: [
-                  { name: 'vendor', type: 'string', title: 'Vendor / source name', validation: (R) => R.required() },
+                  {
+                    name: 'vendor',
+                    type: 'string',
+                    title: 'Vendor / source name',
+                    validation: (R) => R.required(),
+                  },
                   { name: 'url', type: 'url', title: 'Vendor URL (optional)' },
                 ],
               },
@@ -292,13 +338,25 @@ export const project = defineType({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'caption', title: 'Caption', type: 'string', description: 'Brief italic line under the image. Sourcing, materials, or what to notice.' }),
+            defineField({
+              name: 'alt',
+              title: 'Alt text',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'caption',
+              title: 'Caption',
+              type: 'string',
+              description:
+                'Brief italic line under the image. Sourcing, materials, or what to notice.',
+            }),
             defineField({
               name: 'decisionLine',
               title: 'The decision (optional)',
               type: 'string',
-              description: 'Optional second line above the caption, rendered as a small uppercase eyebrow. Use for the "why this image is here" moment ("Why we layered three rugs", "The mirror that fixed the proportion").',
+              description:
+                'Optional second line above the caption, rendered as a small uppercase eyebrow. Use for the "why this image is here" moment ("Why we layered three rugs", "The mirror that fixed the proportion").',
             }),
           ],
         }),
@@ -327,7 +385,8 @@ export const project = defineType({
       name: 'featured',
       title: 'Featured (pin to home page)',
       type: 'boolean',
-      description: 'If checked, this project is pinned to the homepage Featured Work section regardless of publish date. Use sparingly — the section shows the most recent 4 projects by default.',
+      description:
+        'If checked, this project is pinned to the homepage Featured Work section regardless of publish date. Use sparingly — the section shows the most recent 4 projects by default.',
       initialValue: false,
     }),
     defineField({
@@ -341,7 +400,8 @@ export const project = defineType({
       name: 'publishedAt',
       title: 'Published at',
       type: 'datetime',
-      description: 'The date shown on the project, and the sort key for the portfolio (newest first). Setting it in the future does not delay go-live on its own. To publish a project later, use the Schedule publish action (the arrow beside the Publish button), which Sanity runs and rebuilds the site at that time.',
+      description:
+        'The date shown on the project, and the sort key for the portfolio (newest first). Setting it in the future does not delay go-live on its own. To publish a project later, use the Schedule publish action (the arrow beside the Publish button), which Sanity runs and rebuilds the site at that time.',
       initialValue: () => new Date().toISOString(),
       validation: (Rule) => Rule.required(),
     }),
@@ -349,7 +409,13 @@ export const project = defineType({
     orderRankField({ type: 'project' }),
   ],
   preview: {
-    select: { title: 'title', location: 'location', year: 'year', featured: 'featured', media: 'heroImage' },
+    select: {
+      title: 'title',
+      location: 'location',
+      year: 'year',
+      featured: 'featured',
+      media: 'heroImage',
+    },
     prepare: ({ title, location, year, featured, media }) => ({
       title: title ?? 'Untitled project',
       subtitle: `${featured ? '★ ' : ''}${location ?? ''} · ${year ?? ''}`,

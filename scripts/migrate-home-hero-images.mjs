@@ -54,7 +54,10 @@ if (doc.heroImage.crop) slide.crop = doc.heroImage.crop;
 if (doc.heroImage.alt) slide.alt = doc.heroImage.alt;
 
 try {
-  await client.patch(doc._id).set({ heroImages: [slide] }).commit();
+  await client
+    .patch(doc._id)
+    .set({ heroImages: [slide] })
+    .commit();
   console.log('✓ homePage.heroImages seeded from heroImage.');
 } catch (err) {
   console.error('✗ migration failed:', err.message);

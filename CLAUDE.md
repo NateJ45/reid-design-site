@@ -73,42 +73,42 @@ Standalone scripts:
 
 ## Routes summary
 
-| Path | Source | Notes |
-|---|---|---|
-| `/` | `src/pages/index.astro` | Home page singleton from Sanity |
-| `/about` | `src/pages/about.astro` | About page singleton |
-| `/process` | `src/pages/process.astro` | Process page + steps + filtered FAQs |
-| `/services` | `src/pages/services.astro` | Services page + service collection |
-| `/faq` | `src/pages/faq.astro` | FAQ page + faqItem collection grouped by category |
-| `/contact` | `src/pages/contact.astro` | Contact page + Web3Forms form + Calendly embed |
-| `/portfolio` | `src/pages/portfolio/index.astro` | Project grid with Room × Style filter chips |
-| `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` | Project detail: hero + meta band + intro story + before/after + gallery + featured-in-journal + sticky chip |
-| `/journal` | `src/pages/journal/index.astro` | Post grid with category chips |
-| `/journal/[slug]` | `src/pages/journal/[slug].astro` | Post detail: reading progress + header + cover + body (7 custom block types) + related |
-| `/portfolio/before-after` | `src/pages/portfolio/before-after.astro` | All projects with before/after pairs, each a `BeforeAfterSlider`. Suppresses to an empty state when no project has pairs |
-| `/e-design` | `src/pages/e-design.astro` | E-Design offering: intro + how-it-works + what's-included + pricing tiers + FAQ refs + final CTA. Coming-soon state when `eDesignPage` doc absent. CTAs route to `/contact?type=e-design` |
-| `/shop` | `src/pages/shop.astro` | Affiliate "Shop My Favorites" page. Prominent FTC disclosure band above collections; items via `ShopGrid`/`ShopItemCard` with `rel="sponsored nofollow noopener"`. Honors `shopPage.enabled` |
-| `/gift-certificates` | `src/pages/gift-certificates.astro` | Gift certificate info (no payment processing): options + how-it-works + fine print. CTAs route to `/contact?type=gift-certificate` |
-| `/quiz` | `src/pages/quiz.astro` | Style quiz. Passes the `styleQuiz` config to the `StyleQuiz` island. Coming-soon state when fewer than 2 questions/archetypes |
-| `/calculator` | `src/pages/calculator.astro` | Budget calculator. Passes the `budgetCalculator` config to the `BudgetCalculator` island. Coming-soon state when no rooms configured |
-| `/resources` | `src/pages/resources.astro` | Resources hub: ordered card grid linking to quiz, calculator, guides, FAQ, journal. Falls back to hardcoded nav-style cards when `resourcesPage.cards` empty |
-| `/guides` | `src/pages/guides/index.astro` | Lead-magnet index. Lists published `leadMagnet` docs |
-| `/guides/[slug]` | `src/pages/guides/[slug].astro` | Lead-magnet landing + gated download via `LeadMagnetForm`. Generates 0 paths when no magnets published |
-| `/press` | `src/pages/press.astro` | Press coverage list (outlet, date, quote, link) + `PressStrip` logo row. Suppresses list to an empty state when no `pressItem` docs |
-| `/privacy` | `src/pages/privacy.astro` | Privacy policy from `privacyPage` singleton, with a plain-voice static fallback when the doc is absent |
-| `/[slug]` | `src/pages/[slug].astro` | Custom pages Staci builds herself in the page builder (the `page` doc type). One static page per published doc; reserved slugs are blocked at schema + getStaticPaths. Renders via `SectionRenderer`. Surfaced in nav via `getNavPages()` |
-| `/sitemap-index.xml` | `@astrojs/sitemap` (auto) | Production sitemap. Filters out `/studio` and `/preview` |
-| `/404` | `src/pages/404.astro` | Custom 404 (two-column with photograph) |
+| Path                      | Source                                   | Notes                                                                                                                                                                                                                                     |
+| ------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                       | `src/pages/index.astro`                  | Home page singleton from Sanity                                                                                                                                                                                                           |
+| `/about`                  | `src/pages/about.astro`                  | About page singleton                                                                                                                                                                                                                      |
+| `/process`                | `src/pages/process.astro`                | Process page + steps + filtered FAQs                                                                                                                                                                                                      |
+| `/services`               | `src/pages/services.astro`               | Services page + service collection                                                                                                                                                                                                        |
+| `/faq`                    | `src/pages/faq.astro`                    | FAQ page + faqItem collection grouped by category                                                                                                                                                                                         |
+| `/contact`                | `src/pages/contact.astro`                | Contact page + Web3Forms form + Calendly embed                                                                                                                                                                                            |
+| `/portfolio`              | `src/pages/portfolio/index.astro`        | Project grid with Room × Style filter chips                                                                                                                                                                                               |
+| `/portfolio/[slug]`       | `src/pages/portfolio/[slug].astro`       | Project detail: hero + meta band + intro story + before/after + gallery + featured-in-journal + sticky chip                                                                                                                               |
+| `/journal`                | `src/pages/journal/index.astro`          | Post grid with category chips                                                                                                                                                                                                             |
+| `/journal/[slug]`         | `src/pages/journal/[slug].astro`         | Post detail: reading progress + header + cover + body (7 custom block types) + related                                                                                                                                                    |
+| `/portfolio/before-after` | `src/pages/portfolio/before-after.astro` | All projects with before/after pairs, each a `BeforeAfterSlider`. Suppresses to an empty state when no project has pairs                                                                                                                  |
+| `/e-design`               | `src/pages/e-design.astro`               | E-Design offering: intro + how-it-works + what's-included + pricing tiers + FAQ refs + final CTA. Coming-soon state when `eDesignPage` doc absent. CTAs route to `/contact?type=e-design`                                                 |
+| `/shop`                   | `src/pages/shop.astro`                   | Affiliate "Shop My Favorites" page. Prominent FTC disclosure band above collections; items via `ShopGrid`/`ShopItemCard` with `rel="sponsored nofollow noopener"`. Honors `shopPage.enabled`                                              |
+| `/gift-certificates`      | `src/pages/gift-certificates.astro`      | Gift certificate info (no payment processing): options + how-it-works + fine print. CTAs route to `/contact?type=gift-certificate`                                                                                                        |
+| `/quiz`                   | `src/pages/quiz.astro`                   | Style quiz. Passes the `styleQuiz` config to the `StyleQuiz` island. Coming-soon state when fewer than 2 questions/archetypes                                                                                                             |
+| `/calculator`             | `src/pages/calculator.astro`             | Budget calculator. Passes the `budgetCalculator` config to the `BudgetCalculator` island. Coming-soon state when no rooms configured                                                                                                      |
+| `/resources`              | `src/pages/resources.astro`              | Resources hub: ordered card grid linking to quiz, calculator, guides, FAQ, journal. Falls back to hardcoded nav-style cards when `resourcesPage.cards` empty                                                                              |
+| `/guides`                 | `src/pages/guides/index.astro`           | Lead-magnet index. Lists published `leadMagnet` docs                                                                                                                                                                                      |
+| `/guides/[slug]`          | `src/pages/guides/[slug].astro`          | Lead-magnet landing + gated download via `LeadMagnetForm`. Generates 0 paths when no magnets published                                                                                                                                    |
+| `/press`                  | `src/pages/press.astro`                  | Press coverage list (outlet, date, quote, link) + `PressStrip` logo row. Suppresses list to an empty state when no `pressItem` docs                                                                                                       |
+| `/privacy`                | `src/pages/privacy.astro`                | Privacy policy from `privacyPage` singleton, with a plain-voice static fallback when the doc is absent                                                                                                                                    |
+| `/[slug]`                 | `src/pages/[slug].astro`                 | Custom pages Staci builds herself in the page builder (the `page` doc type). One static page per published doc; reserved slugs are blocked at schema + getStaticPaths. Renders via `SectionRenderer`. Surfaced in nav via `getNavPages()` |
+| `/sitemap-index.xml`      | `@astrojs/sitemap` (auto)                | Production sitemap. Filters out `/studio` and `/preview`                                                                                                                                                                                  |
+| `/404`                    | `src/pages/404.astro`                    | Custom 404 (two-column with photograph)                                                                                                                                                                                                   |
 
 Studio plumbing, added 2026-08-28. All SSR (`prerender = false`), all `noindex`, none of them in the sitemap:
 
-| Path | Source | Notes |
-|---|---|---|
-| `/studio/*` | `@sanity/astro` integration + root `sanity.config.ts` | The embedded Sanity Studio. Rebuilds with every deploy, so it cannot drift stale |
-| `/preview/[...slug]` | `src/pages/preview/[...slug].astro` | Draft-aware render of any page for the Presentation tool. Builder pages preview through their real renderer; bespoke pages preview their editable surface with a note saying so |
-| `/preview/live` | `src/pages/preview/live.ts` | SSE proxy over Sanity's listen API so the preview auto-refreshes. 403 without the Studio cookie. Event-driven, never a poll |
-| `/api/draft-mode/enable` | `src/pages/api/draft-mode/enable.ts` | Validates Sanity's one-time preview secret and sets the perspective cookie. 401 on a bad secret |
-| `/api/draft-mode/disable` | `src/pages/api/draft-mode/disable.ts` | Clears the cookie. The "Exit preview" link target |
+| Path                      | Source                                                | Notes                                                                                                                                                                           |
+| ------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/studio/*`               | `@sanity/astro` integration + root `sanity.config.ts` | The embedded Sanity Studio. Rebuilds with every deploy, so it cannot drift stale                                                                                                |
+| `/preview/[...slug]`      | `src/pages/preview/[...slug].astro`                   | Draft-aware render of any page for the Presentation tool. Builder pages preview through their real renderer; bespoke pages preview their editable surface with a note saying so |
+| `/preview/live`           | `src/pages/preview/live.ts`                           | SSE proxy over Sanity's listen API so the preview auto-refreshes. 403 without the Studio cookie. Event-driven, never a poll                                                     |
+| `/api/draft-mode/enable`  | `src/pages/api/draft-mode/enable.ts`                  | Validates Sanity's one-time preview secret and sets the perspective cookie. 401 on a bad secret                                                                                 |
+| `/api/draft-mode/disable` | `src/pages/api/draft-mode/disable.ts`                 | Clears the cookie. The "Exit preview" link target                                                                                                                               |
 
 ---
 
@@ -244,30 +244,30 @@ Banned vocabulary on the site: "transformative," "curated experience," "investme
 
 Read these on demand. They are NOT auto-loaded, and they are referenced as plain paths so they stay lazy. Open with the Read tool when a task touches the area.
 
-| Area | Doc |
-|---|---|
-| **Open loops: queued work + waiting-on-a-human items** | `docs/PENDING.md` (read early; edit in the same commit that opens or closes an item) |
-| **Which test suite covers what** | `docs/TESTING.md` |
-| Stack detail + astro.config landmines | `docs/agent/stack-and-config.md` |
-| Page + section architecture, nav, visibility toggles | `docs/agent/page-architecture.md` |
-| Brand colors + theme system (light/dark discipline) | `docs/agent/theme-and-color.md` |
-| Polish layer (brand stripe, card-lift, scroll, Lenis, script accents) | `docs/agent/polish-layer.md` |
-| Typography + spacing tokens | `docs/agent/design-tokens.md` |
-| Component catalog + long-read layout | `docs/agent/components.md` |
-| Error + empty states | `docs/agent/error-states.md` |
-| Image handling | `docs/agent/images.md` |
-| Accessibility | `docs/agent/accessibility.md` |
-| SEO + JSON-LD | `docs/agent/seo.md` |
-| Performance budgets + Lighthouse | `docs/agent/performance.md` |
-| Content data + Sanity integration, the embedded Studio, live preview | `docs/agent/sanity.md` |
-| Deployment + env vars + rebuild model | `docs/agent/deployment.md` |
-| Pre-launch setup checklist | `docs/agent/setup-checklist.md` |
-| Editor-driven vs hardcoded | `docs/agent/editor-vs-hardcoded.md` |
-| Change history | `docs/agent/changelog.md` |
-| Component sourcing (shadcn, Starwind, Magic UI, PrimeReact, copy-paste sources, token-remap cheat sheet) | `docs/agent/component-sources.md` |
+| Area                                                                                                     | Doc                                                                                  |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Open loops: queued work + waiting-on-a-human items**                                                   | `docs/PENDING.md` (read early; edit in the same commit that opens or closes an item) |
+| **Which test suite covers what**                                                                         | `docs/TESTING.md`                                                                    |
+| Stack detail + astro.config landmines                                                                    | `docs/agent/stack-and-config.md`                                                     |
+| Page + section architecture, nav, visibility toggles                                                     | `docs/agent/page-architecture.md`                                                    |
+| Brand colors + theme system (light/dark discipline)                                                      | `docs/agent/theme-and-color.md`                                                      |
+| Polish layer (brand stripe, card-lift, scroll, Lenis, script accents)                                    | `docs/agent/polish-layer.md`                                                         |
+| Typography + spacing tokens                                                                              | `docs/agent/design-tokens.md`                                                        |
+| Component catalog + long-read layout                                                                     | `docs/agent/components.md`                                                           |
+| Error + empty states                                                                                     | `docs/agent/error-states.md`                                                         |
+| Image handling                                                                                           | `docs/agent/images.md`                                                               |
+| Accessibility                                                                                            | `docs/agent/accessibility.md`                                                        |
+| SEO + JSON-LD                                                                                            | `docs/agent/seo.md`                                                                  |
+| Performance budgets + Lighthouse                                                                         | `docs/agent/performance.md`                                                          |
+| Content data + Sanity integration, the embedded Studio, live preview                                     | `docs/agent/sanity.md`                                                               |
+| Deployment + env vars + rebuild model                                                                    | `docs/agent/deployment.md`                                                           |
+| Pre-launch setup checklist                                                                               | `docs/agent/setup-checklist.md`                                                      |
+| Editor-driven vs hardcoded                                                                               | `docs/agent/editor-vs-hardcoded.md`                                                  |
+| Change history                                                                                           | `docs/agent/changelog.md`                                                            |
+| Component sourcing (shadcn, Starwind, Magic UI, PrimeReact, copy-paste sources, token-remap cheat sheet) | `docs/agent/component-sources.md`                                                    |
 
 ---
 
-*Structure: this file is the always-loaded constitution. Deep reference lives under `docs/agent/` (see the topic index above). Change history is in `docs/agent/changelog.md`.*
+_Structure: this file is the always-loaded constitution. Deep reference lives under `docs/agent/` (see the topic index above). Change history is in `docs/agent/changelog.md`._
 
 See `OPERATIONS.md` for the tactical playbook (deploy, patch content, run audits, common gotchas).

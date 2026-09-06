@@ -7,10 +7,12 @@ interface Props {
 const { intro } = Astro.props as Props;
 ---
 
-{intro && (
-  <section class="bg-background" aria-label="About our press coverage">
-    <div class="mx-auto max-w-3xl px-m pt-section-md pb-0">
-      <p class="text-foreground/85 text-lg leading-relaxed">{intro}</p>
-    </div>
-  </section>
-)}
+{
+  intro && (
+    <section class="bg-background" aria-label="About our press coverage">
+      <div class="mx-auto max-w-3xl px-m pt-section-md pb-0">
+        <p class="text-lg leading-relaxed text-foreground/85">{intro}</p>
+      </div>
+    </section>
+  )
+}

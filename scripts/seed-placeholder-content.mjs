@@ -87,8 +87,7 @@ const eDesignService = {
         {
           _type: 'span',
           _key: 'edesign-intro-1',
-          text:
-            "E-Design is the same considered approach as Full Room Design, delivered remotely. You send measurements and photos, we talk through how you live in the space, and you get back a complete plan you implement at your pace.",
+          text: 'E-Design is the same considered approach as Full Room Design, delivered remotely. You send measurements and photos, we talk through how you live in the space, and you get back a complete plan you implement at your pace.',
         },
       ],
     },
@@ -100,8 +99,7 @@ const eDesignService = {
         {
           _type: 'span',
           _key: 'edesign-suit-1',
-          text:
-            "It suits clients in nearby cities like Bloomington, Lafayette, and Cincinnati, plus Greater Indianapolis homeowners who'd rather shop and install themselves on a flexible timeline.",
+          text: "It suits clients in nearby cities like Bloomington, Lafayette, and Cincinnati, plus Greater Indianapolis homeowners who'd rather shop and install themselves on a flexible timeline.",
         },
       ],
     },
@@ -152,7 +150,7 @@ const placeholderProjects = [
       ),
       pt(
         'pfr-2',
-        "We started with a layout shift: pulling the new sofa off the longest wall, anchoring it with a swivel chair pair, and adding a tucked-in reading nook by the window. The palette stayed warm and forgiving — performance linen on the sofa, washable wool rug, ceramic and brass accents — so everything would still feel intentional after a juice spill or three.",
+        'We started with a layout shift: pulling the new sofa off the longest wall, anchoring it with a swivel chair pair, and adding a tucked-in reading nook by the window. The palette stayed warm and forgiving — performance linen on the sofa, washable wool rug, ceramic and brass accents — so everything would still feel intentional after a juice spill or three.',
       ),
       pt(
         'pfr-3',
@@ -179,11 +177,11 @@ const placeholderProjects = [
       ),
       pt(
         'fk-2',
-        "Styling sessions like this are about restraint, not addition. We sourced a vintage cutting board collection, an antique mortar and pestle, and a small selection of ceramic vessels in three height groups. We rearranged what was already on the counters, added an oversized fruit bowl, and edited the open shelving down by about a third.",
+        'Styling sessions like this are about restraint, not addition. We sourced a vintage cutting board collection, an antique mortar and pestle, and a small selection of ceramic vessels in three height groups. We rearranged what was already on the counters, added an oversized fruit bowl, and edited the open shelving down by about a third.',
       ),
       pt(
         'fk-3',
-        "By the time we left, the homeowner had texted three friends to come see it. The room finally read as theirs, not a showroom.",
+        'By the time we left, the homeowner had texted three friends to come see it. The room finally read as theirs, not a showroom.',
       ),
     ],
     displayOrder: 2,
@@ -206,12 +204,9 @@ const placeholderProjects = [
       ),
       pt(
         'zb-2',
-        "The room got a soft moody color drench (walls, trim, and ceiling in the same warm charcoal), a heavy linen-blend bedscape with a tucked Belgian throw, two oversized nightstand lamps for ambient-only light, and a single artwork above the bed at a deliberately slightly-too-small scale. No gallery walls, no styled trays.",
+        'The room got a soft moody color drench (walls, trim, and ceiling in the same warm charcoal), a heavy linen-blend bedscape with a tucked Belgian throw, two oversized nightstand lamps for ambient-only light, and a single artwork above the bed at a deliberately slightly-too-small scale. No gallery walls, no styled trays.',
       ),
-      pt(
-        'zb-3',
-        "The owners report sleeping noticeably better. We're claiming that one.",
-      ),
+      pt('zb-3', "The owners report sleeping noticeably better. We're claiming that one."),
     ],
     displayOrder: 3,
     publishedAt: '2025-11-10T12:00:00Z',

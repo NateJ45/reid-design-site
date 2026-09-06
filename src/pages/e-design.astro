@@ -26,16 +26,18 @@ const [page, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.eDesign) return Astro.redirect('/');
 
-const title       = page?.seoTitle       ?? 'E-Design · Online Interior Design · Reid Design';
-const description = page?.seoDescription ?? 'Professional interior design delivered remotely. Flat-fee pricing, digital mood boards, and a complete room plan, no travel required.';
+const title = page?.seoTitle ?? 'E-Design · Online Interior Design · Reid Design';
+const description =
+  page?.seoDescription ??
+  'Professional interior design delivered remotely. Flat-fee pricing, digital mood boards, and a complete room plan, no travel required.';
 
-const heroEyebrow  = page?.heroEyebrow  ?? 'Online Design.';
+const heroEyebrow = page?.heroEyebrow ?? 'Online Design.';
 const heroHeadline = page?.heroHeadline ?? 'Beautiful Rooms, No Matter Where You Are.';
-const heroSubhead  = page?.heroSubhead  ?? '';
+const heroSubhead = page?.heroSubhead ?? '';
 
 const schemas = [
   breadcrumbSchema([
-    { name: 'Home',     url: site.url },
+    { name: 'Home', url: site.url },
     { name: 'E-Design', url: `${site.url}/e-design` },
   ]),
 ];
@@ -57,62 +59,66 @@ const CONTACT_HREF = '/contact?type=e-design';
   />
 
   {/* ------- Content sections (reorderable) or coming-soon state ------------ */}
-  {!page ? (
-    <section class="bg-background" aria-labelledby="edesign-coming-soon">
-      <div class="mx-auto max-w-content px-m py-section-lg text-center max-w-2xl">
-        <SectionHeading
-          eyebrow="Coming Soon."
-          headline="E-Design details are on the way."
-          subhead="We're pulling together the full overview. In the meantime, reach out. We're happy to walk you through the remote design process directly."
-          headingId="edesign-coming-soon"
-          align="center"
-          class="mx-auto"
-        />
-        <div class="mt-l flex justify-center">
-          <a
-            href={CONTACT_HREF}
-            class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-primary-dark text-white hover:bg-accent-dark transition-colors"
-          >
-            Inquire about E-Design
-          </a>
+  {
+    !page ? (
+      <section class="bg-background" aria-labelledby="edesign-coming-soon">
+        <div class="mx-auto max-w-2xl max-w-content px-m py-section-lg text-center">
+          <SectionHeading
+            eyebrow="Coming Soon."
+            headline="E-Design details are on the way."
+            subhead="We're pulling together the full overview. In the meantime, reach out. We're happy to walk you through the remote design process directly."
+            headingId="edesign-coming-soon"
+            align="center"
+            class="mx-auto"
+          />
+          <div class="mt-l flex justify-center">
+            <a
+              href={CONTACT_HREF}
+              class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-accent-dark"
+            >
+              Inquire about E-Design
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
-  ) : (
-    <EDesignSectionRenderer sections={page.pageBuilder} page={page} />
-  )}
+      </section>
+    ) : (
+      <EDesignSectionRenderer sections={page.pageBuilder} page={page} />
+    )
+  }
 
   {/* ------- Final CTA ------------------------------------------------------- */}
-  {page?.finalCta ? (
-    <FinalCta
-      eyebrow={page.finalCtaEyebrow}
-      headline={page.finalCtaHeadline}
-      subhead={page.finalCtaSubhead}
-      cta={page.finalCta}
-      scriptAccent={page.finalCtaScriptAccent}
-      backgroundImage={page.finalCtaBackgroundImage}
-    />
-  ) : (
-    <section class="bg-accent-dark text-bg" aria-labelledby="edesign-final-cta">
-      <div class="h-0.5 bg-primary" aria-hidden="true"></div>
-      <div class="mx-auto max-w-content px-m py-section-lg text-center">
-        <p class="text-xs uppercase tracking-[0.22em] text-bg/75">Ready to Start?</p>
-        <div class="mt-s mb-m h-px w-12 bg-bg/40 mx-auto" aria-hidden="true"></div>
-        <h2 id="edesign-final-cta" class="font-display text-h1 leading-tight text-bg">
-          Get a Room You Love From Wherever You Are.
-        </h2>
-        <p class="mt-m text-lg text-bg/85 max-w-2xl mx-auto">
-          Reach out and we'll walk through what E-Design looks like for your space.
-        </p>
-        <div class="mt-l flex justify-center">
-          <a
-            href={CONTACT_HREF}
-            class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-primary-dark text-white hover:bg-primary transition-colors"
-          >
-            Inquire about E-Design
-          </a>
+  {
+    page?.finalCta ? (
+      <FinalCta
+        eyebrow={page.finalCtaEyebrow}
+        headline={page.finalCtaHeadline}
+        subhead={page.finalCtaSubhead}
+        cta={page.finalCta}
+        scriptAccent={page.finalCtaScriptAccent}
+        backgroundImage={page.finalCtaBackgroundImage}
+      />
+    ) : (
+      <section class="bg-accent-dark text-bg" aria-labelledby="edesign-final-cta">
+        <div class="h-0.5 bg-primary" aria-hidden="true" />
+        <div class="mx-auto max-w-content px-m py-section-lg text-center">
+          <p class="text-xs tracking-[0.22em] text-bg/75 uppercase">Ready to Start?</p>
+          <div class="mx-auto mt-s mb-m h-px w-12 bg-bg/40" aria-hidden="true" />
+          <h2 id="edesign-final-cta" class="font-display text-h1 leading-tight text-bg">
+            Get a Room You Love From Wherever You Are.
+          </h2>
+          <p class="mx-auto mt-m max-w-2xl text-lg text-bg/85">
+            Reach out and we'll walk through what E-Design looks like for your space.
+          </p>
+          <div class="mt-l flex justify-center">
+            <a
+              href={CONTACT_HREF}
+              class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary"
+            >
+              Inquire about E-Design
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 </BaseLayout>

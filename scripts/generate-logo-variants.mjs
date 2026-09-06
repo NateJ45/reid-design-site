@@ -81,8 +81,16 @@ async function makeVariant(inkColor, outputPath, label) {
 
 // Charcoal #3D3D3D for light-mode surfaces, Cream #F5F0EB for dark-mode surfaces.
 // These match the brand tokens declared in src/styles/globals.css.
-await makeVariant({ r: 0x3d, g: 0x3d, b: 0x3d }, resolve(assetsDir, 'logo-light.png'), 'logo-light.png (Charcoal)');
-await makeVariant({ r: 0xf5, g: 0xf0, b: 0xeb }, resolve(assetsDir, 'logo-dark.png'), 'logo-dark.png (Cream)');
+await makeVariant(
+  { r: 0x3d, g: 0x3d, b: 0x3d },
+  resolve(assetsDir, 'logo-light.png'),
+  'logo-light.png (Charcoal)',
+);
+await makeVariant(
+  { r: 0xf5, g: 0xf0, b: 0xeb },
+  resolve(assetsDir, 'logo-dark.png'),
+  'logo-dark.png (Cream)',
+);
 
 console.log('\nDone. Header.astro / Footer.astro import these directly via @/assets/.');
 console.log('Then run `node scripts/optimize-logo-files.mjs` to shrink them before building.');

@@ -19,12 +19,7 @@ import { useState } from 'react';
 import { useClient } from 'sanity';
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity';
 import { ArchiveIcon, RestoreIcon, TrashIcon } from '@sanity/icons';
-import {
-  deserializeFromTrash,
-  publishedId,
-  serializeForTrash,
-  trashTitle,
-} from '../lib/trash';
+import { deserializeFromTrash, publishedId, serializeForTrash, trashTitle } from '../lib/trash';
 
 const API_VERSION = '2026-05-01';
 
@@ -136,9 +131,7 @@ export const RestoreAction: DocumentActionComponent = (props: DocumentActionProp
         await deleteBoth(client, doc._id);
         onComplete();
       } catch (err) {
-        window.alert(
-          `Could not restore: ${err instanceof Error ? err.message : String(err)}`,
-        );
+        window.alert(`Could not restore: ${err instanceof Error ? err.message : String(err)}`);
       } finally {
         setBusy(false);
       }
@@ -171,9 +164,7 @@ export const DeleteForeverAction: DocumentActionComponent = (props: DocumentActi
           await deleteBoth(client, id);
           onComplete();
         } catch (err) {
-          window.alert(
-            `Could not delete: ${err instanceof Error ? err.message : String(err)}`,
-          );
+          window.alert(`Could not delete: ${err instanceof Error ? err.message : String(err)}`);
         } finally {
           setBusy(false);
         }

@@ -22,13 +22,7 @@
 import { useState } from 'react';
 import { Menu, Mail, Phone, ChevronRight } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import ThemeToggle from './ThemeToggle';
 import { telHref } from '@/lib/phone';
 
@@ -101,8 +95,7 @@ export default function MobileNav({
   const [open, setOpen] = useState(false);
 
   const tagline =
-    siteSettings?.tagline ??
-    'Plainfield interior design for homes that feel genuinely yours.';
+    siteSettings?.tagline ?? 'Plainfield interior design for homes that feel genuinely yours.';
   const email = showEmail ? siteSettings?.email : undefined;
   const phone = siteSettings?.phone;
   const ig = showSocials ? siteSettings?.socialInstagram : undefined;
@@ -114,24 +107,24 @@ export default function MobileNav({
   const close = () => setOpen(false);
 
   return (
-    <div className="lg:hidden absolute right-m top-1/2 -translate-y-1/2">
+    <div className="absolute top-1/2 right-m -translate-y-1/2 lg:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
             type="button"
             aria-label="Open menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground hover:bg-accent transition-colors"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent"
           >
             <Menu size={22} />
           </button>
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="w-[min(380px,90vw)] sm:max-w-none bg-background border-t-4 border-t-primary p-0 gap-0 flex flex-col overflow-y-auto"
+          className="flex w-[min(380px,90vw)] flex-col gap-0 overflow-y-auto border-t-4 border-t-primary bg-background p-0 sm:max-w-none"
         >
           {/* Eyebrow header. */}
-          <SheetHeader className="px-l pt-xl pb-m">
-            <SheetTitle className="text-xs uppercase tracking-eyebrow text-foreground/80 font-body font-normal">
+          <SheetHeader className="pt-xl px-l pb-m">
+            <SheetTitle className="font-body text-xs font-normal tracking-eyebrow text-foreground/80 uppercase">
               Menu
             </SheetTitle>
           </SheetHeader>
@@ -143,7 +136,7 @@ export default function MobileNav({
               <a
                 href={ctaHref}
                 onClick={close}
-                className="block w-full px-m py-m text-center rounded-md bg-primary-dark text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-accent-dark transition-colors"
+                className="block w-full rounded-md bg-primary-dark px-m py-m text-center text-xs font-semibold tracking-eyebrow text-white uppercase transition-colors hover:bg-accent-dark"
               >
                 {ctaLabel}
               </a>
@@ -151,7 +144,7 @@ export default function MobileNav({
           )}
 
           {/* Tagline in display serif for editorial feel. */}
-          <p className="px-l pb-l font-display italic text-h4 text-foreground/85 leading-snug">
+          <p className="px-l pb-l font-display text-h4 leading-snug text-foreground/85 italic">
             {tagline}
           </p>
 
@@ -164,7 +157,7 @@ export default function MobileNav({
                     key={item.href}
                     href={item.href}
                     onClick={close}
-                    className="flex items-center px-l py-s text-lg font-display text-foreground hover:bg-muted hover:text-link transition-colors"
+                    className="flex items-center px-l py-s font-display text-lg text-foreground transition-colors hover:bg-muted hover:text-link"
                   >
                     {item.label}
                   </a>
@@ -177,7 +170,7 @@ export default function MobileNav({
                 <div key={item.label}>
                   {/* Group heading — visually distinct from flat items. Not
                       a link itself; the sub-items carry the real hrefs. */}
-                  <p className="px-l pt-m pb-xs text-xs uppercase tracking-eyebrow text-foreground/80">
+                  <p className="px-l pt-m pb-xs text-xs tracking-eyebrow text-foreground/80 uppercase">
                     {item.label}
                   </p>
                   {item.items.map((sub) => (
@@ -185,9 +178,13 @@ export default function MobileNav({
                       key={sub.href}
                       href={sub.href}
                       onClick={close}
-                      className="flex items-center gap-xs pl-[calc(theme(spacing.l)+0.5rem)] pr-l py-xs text-base font-body text-foreground hover:bg-muted hover:text-link transition-colors"
+                      className="flex items-center gap-xs py-xs pr-l pl-[calc(theme(spacing.l)+0.5rem)] font-body text-base text-foreground transition-colors hover:bg-muted hover:text-link"
                     >
-                      <ChevronRight size={12} className="shrink-0 text-foreground/40" aria-hidden="true" />
+                      <ChevronRight
+                        size={12}
+                        className="shrink-0 text-foreground/40"
+                        aria-hidden="true"
+                      />
                       {sub.label}
                     </a>
                   ))}
@@ -201,7 +198,7 @@ export default function MobileNav({
 
           {/* Contact + socials + theme. */}
           <div className="border-t border-border-soft px-l pt-m pb-s">
-            <p className="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            <p className="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
               Get in touch
             </p>
             {email && (
@@ -230,7 +227,7 @@ export default function MobileNav({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground hover:bg-primary-dark hover:text-white hover:border-primary-dark transition-colors"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground transition-colors hover:border-primary-dark hover:bg-primary-dark hover:text-white"
                 >
                   <IconBrandInstagram size={20} stroke={1.5} />
                 </a>
@@ -241,7 +238,7 @@ export default function MobileNav({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground hover:bg-primary-dark hover:text-white hover:border-primary-dark transition-colors"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground transition-colors hover:border-primary-dark hover:bg-primary-dark hover:text-white"
                 >
                   <IconBrandFacebook size={20} stroke={1.5} />
                 </a>
@@ -257,13 +254,13 @@ export default function MobileNav({
               getImage() calls, so this is a WebP file with the same hash
               as the desktop header logo (free cache hit). */}
           {logoLightUrl && (
-            <div className="border-t border-border-soft px-l py-l flex justify-center">
+            <div className="flex justify-center border-t border-border-soft px-l py-l">
               <img
                 src={logoLightUrl}
                 alt="Reid Design"
                 width={64}
                 height={68}
-                className="block dark:hidden h-16 w-auto"
+                className="block h-16 w-auto dark:hidden"
                 loading="lazy"
                 decoding="async"
               />
@@ -274,7 +271,7 @@ export default function MobileNav({
                   aria-hidden="true"
                   width={64}
                   height={68}
-                  className="hidden dark:block h-16 w-auto"
+                  className="hidden h-16 w-auto dark:block"
                   loading="lazy"
                   decoding="async"
                 />

@@ -47,7 +47,12 @@ function section({ heading, tone, body, bullets, links }) {
   if (body) s.body = body;
   if (bullets) s.bullets = bullets;
   if (links) {
-    s.links = links.map((l, i) => ({ _key: `l${i + 1}`, _type: 'playbookLink', label: l.label, url: l.url }));
+    s.links = links.map((l, i) => ({
+      _key: `l${i + 1}`,
+      _type: 'playbookLink',
+      label: l.label,
+      url: l.url,
+    }));
   }
   return s;
 }
@@ -84,8 +89,7 @@ const guidePhotography = {
     section({
       heading: 'Light it with the windows, not the bulbs',
       tone: 'primary',
-      body:
-        'This is the single biggest thing that separates an amateur interior photo from a professional one.\n\nTurn off every lamp and overhead light and shoot with natural light only. Mixing daylight with warm indoor bulbs creates an orange and blue color cast that is very hard to fix later.\n\nShoot when the sun is not blasting straight through the windows. Early morning, late afternoon, or an overcast day is ideal, because the soft, even light avoids harsh shadows and blown-out windows. If a window is too bright, close a sheer curtain to soften it.',
+      body: 'This is the single biggest thing that separates an amateur interior photo from a professional one.\n\nTurn off every lamp and overhead light and shoot with natural light only. Mixing daylight with warm indoor bulbs creates an orange and blue color cast that is very hard to fix later.\n\nShoot when the sun is not blasting straight through the windows. Early morning, late afternoon, or an overcast day is ideal, because the soft, even light avoids harsh shadows and blown-out windows. If a window is too bright, close a sheer curtain to soften it.',
     }),
     section({
       heading: 'Keep your vertical lines straight',
@@ -201,8 +205,7 @@ const guideSoftware = {
     section({
       heading: 'Do not pay twice for the same thing',
       tone: 'caution',
-      body:
-        'The most common money mistake is buying an all in one platform and also paying for a separate client manager like HoneyBook or Dubsado, plus separate invoicing. They overlap a lot. Pick one spine and let it do the job.\n\nAlso remember that Google Workspace already gives you file storage, spreadsheets for budgets, a calendar, and intake forms. Lean on it before you buy anything new.',
+      body: 'The most common money mistake is buying an all in one platform and also paying for a separate client manager like HoneyBook or Dubsado, plus separate invoicing. They overlap a lot. Pick one spine and let it do the job.\n\nAlso remember that Google Workspace already gives you file storage, spreadsheets for budgets, a calendar, and intake forms. Lean on it before you buy anything new.',
     }),
     section({
       heading: 'Measuring a room quickly',
@@ -233,8 +236,7 @@ const guideEdesign = {
   sections: [
     section({
       heading: 'What e-design is',
-      body:
-        'Everything happens digitally: email, video calls, and shareable boards. You deliver a plan, not a finished room. The client orders the products and installs or styles the space themselves, or hands your plan to their contractor.\n\nCompared to full service, e-design is remote, lower priced, and far more scalable, because you are not driving to sites, placing orders, or managing deliveries.',
+      body: 'Everything happens digitally: email, video calls, and shareable boards. You deliver a plan, not a finished room. The client orders the products and installs or styles the space themselves, or hands your plan to their contractor.\n\nCompared to full service, e-design is remote, lower priced, and far more scalable, because you are not driving to sites, placing orders, or managing deliveries.',
     }),
     section({
       heading: 'What goes in a package',
@@ -301,8 +303,7 @@ const guideEdesign = {
     section({
       heading: 'Set expectations up front',
       tone: 'caution',
-      body:
-        'Most e-design friction comes from fuzzy expectations. Say these plainly in your package description and your agreement.\n\nThe client must measure accurately, because the plan depends on it. Products can sell out or change price, so some swaps may be needed. You deliver the plan, you are not installing it. Spell out exactly how many revisions are included, and that anything beyond that is quoted first. Get the concept board approved before the heavy work, so revisions do not pile up.',
+      body: 'Most e-design friction comes from fuzzy expectations. Say these plainly in your package description and your agreement.\n\nThe client must measure accurately, because the plan depends on it. Products can sell out or change price, so some swaps may be needed. You deliver the plan, you are not installing it. Spell out exactly how many revisions are included, and that anything beyond that is quoted first. Get the concept board approved before the heavy work, so revisions do not pile up.',
     }),
     section({
       heading: 'Tools that deliver e-design',
@@ -338,8 +339,7 @@ const guideTrade = {
     section({
       heading: 'What a resale certificate is, and why it matters',
       tone: 'primary',
-      body:
-        'A resale certificate lets you buy goods without paying sales tax at checkout, because you are going to resell them. Sales tax gets collected once, at the final sale to your client.\n\nSo you buy the sofa tax-free from the vendor, then you collect and pass on the sales tax from your client. Vendors are legally required to have this on file before they sell to you tax-free, which is why nearly every trade application asks for it. On the form you usually give your resale number and the state that issued it.\n\nThe name and the rules vary by state. A few states have no sales tax at all, so there is nothing to get. Check your own state Department of Revenue for the exact document and any fee.',
+      body: 'A resale certificate lets you buy goods without paying sales tax at checkout, because you are going to resell them. Sales tax gets collected once, at the final sale to your client.\n\nSo you buy the sofa tax-free from the vendor, then you collect and pass on the sales tax from your client. Vendors are legally required to have this on file before they sell to you tax-free, which is why nearly every trade application asks for it. On the form you usually give your resale number and the state that issued it.\n\nThe name and the rules vary by state. A few states have no sales tax at all, so there is nothing to get. Check your own state Department of Revenue for the exact document and any fee.',
     }),
     section({
       heading: 'The setup steps, in order',
@@ -352,7 +352,10 @@ const guideTrade = {
         'Then apply to trade programs. Keep one reusable packet ready: EIN, resale number and state, business address, website link, and a short paragraph about your studio.',
       ],
       links: [
-        { label: 'Get an EIN from the IRS (free)', url: 'https://www.irs.gov/businesses/small-businesses-self-employed/get-an-employer-identification-number' },
+        {
+          label: 'Get an EIN from the IRS (free)',
+          url: 'https://www.irs.gov/businesses/small-businesses-self-employed/get-an-employer-identification-number',
+        },
       ],
     }),
     section({
@@ -430,8 +433,7 @@ const guidePortfolioJournal = {
     section({
       heading: 'What each one is for',
       tone: 'primary',
-      body:
-        'Think of the portfolio as your proof and the journal as your voice.\n\nA portfolio project is a finished room told as a short case study: the problem the client had, the call you made, and the result, with photos. It exists to show a future client one simple thing, that you can do this for them too.\n\nThe journal is everything else: how you think, what you would do differently, where you found a piece, the answer to a question clients always ask. It builds trust, shows your personality, and brings in people from Google who are not ready to hire yet but will remember you when they are.',
+      body: 'Think of the portfolio as your proof and the journal as your voice.\n\nA portfolio project is a finished room told as a short case study: the problem the client had, the call you made, and the result, with photos. It exists to show a future client one simple thing, that you can do this for them too.\n\nThe journal is everything else: how you think, what you would do differently, where you found a piece, the answer to a question clients always ask. It builds trust, shows your personality, and brings in people from Google who are not ready to hire yet but will remember you when they are.',
     }),
     section({
       heading: 'Which one is it? A quick rule',
@@ -499,8 +501,7 @@ const guidePortfolioJournal = {
     section({
       heading: 'A simple rhythm',
       tone: 'primary',
-      body:
-        'You do not need to post constantly. You need to post consistently, and let each project do double duty.\n\nFor every finished project, publish one portfolio piece, then spin at least one journal post out of the notes and photos you already gathered. Aim for a new post every few weeks. The same set of photos and notes feeds the portfolio, the journal, and your Instagram, so work you did once shows up in three places.',
+      body: 'You do not need to post constantly. You need to post consistently, and let each project do double duty.\n\nFor every finished project, publish one portfolio piece, then spin at least one journal post out of the notes and photos you already gathered. Aim for a new post every few weeks. The same set of photos and notes feeds the portfolio, the journal, and your Instagram, so work you did once shows up in three places.',
     }),
   ],
 };

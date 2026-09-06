@@ -30,11 +30,7 @@ import { envVal } from './src/sanity/urls';
 import StudioLogo from './src/sanity/components/StudioLogo';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';
-import {
-  ArchiveAction,
-  RestoreAction,
-  DeleteForeverAction,
-} from './src/sanity/actions/archive';
+import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/actions/archive';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design

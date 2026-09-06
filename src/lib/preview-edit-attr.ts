@@ -33,7 +33,7 @@
 // Drag-and-drop needs no extra props in @sanity/visual-editing 5.4.5: it is on
 // as soon as the attribute exists.
 // =============================================================================
-import { createDataAttribute } from "@sanity/visual-editing/create-data-attribute";
+import { createDataAttribute } from '@sanity/visual-editing/create-data-attribute';
 
 export interface EditDoc {
   /** The PUBLISHED document id (no `drafts.` prefix). */
@@ -45,16 +45,16 @@ export interface EditDoc {
    * Pass `additionalSections` for the "Extra sections" zone on the bespoke
    * pages. See rule 3 above.
    */
-  field?: "pageBuilder" | "additionalSections";
+  field?: 'pageBuilder' | 'additionalSections';
 }
 
 /** The `data-sanity` value that targets one section array item on a doc. */
 export function sectionEditAttr(doc: EditDoc, key: string): string {
   return createDataAttribute({
-    id: doc.id.replace(/^drafts\./, ""),
+    id: doc.id.replace(/^drafts\./, ''),
     type: doc.type,
-    baseUrl: "/studio",
-  })(`${doc.field ?? "pageBuilder"}[_key=="${key}"]`).toString();
+    baseUrl: '/studio',
+  })(`${doc.field ?? 'pageBuilder'}[_key=="${key}"]`).toString();
 }
 
 /**
@@ -74,10 +74,10 @@ export function sectionEditAttr(doc: EditDoc, key: string): string {
  */
 export function sectionFieldEditAttr(doc: EditDoc, key: string, field: string): string {
   return createDataAttribute({
-    id: doc.id.replace(/^drafts\./, ""),
+    id: doc.id.replace(/^drafts\./, ''),
     type: doc.type,
-    baseUrl: "/studio",
-  })(`${doc.field ?? "pageBuilder"}[_key=="${key}"].${field}`).toString();
+    baseUrl: '/studio',
+  })(`${doc.field ?? 'pageBuilder'}[_key=="${key}"].${field}`).toString();
 }
 
 /**
@@ -89,8 +89,8 @@ export function sectionFieldEditAttr(doc: EditDoc, key: string, field: string): 
  */
 export function docEditAttr(id: string, type: string, path: string): string {
   return createDataAttribute({
-    id: id.replace(/^drafts\./, ""),
+    id: id.replace(/^drafts\./, ''),
     type,
-    baseUrl: "/studio",
+    baseUrl: '/studio',
   })(path).toString();
 }

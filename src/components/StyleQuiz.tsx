@@ -135,7 +135,10 @@ function computeArchetype(
 
 function isHighIntent(qualifierAnswers: string[], highIntentRule: string | undefined): boolean {
   if (!highIntentRule?.trim()) return false;
-  const ruleValues = highIntentRule.split(',').map((v) => v.trim()).filter(Boolean);
+  const ruleValues = highIntentRule
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
   return qualifierAnswers.some((ans) => ruleValues.includes(ans));
 }
 
@@ -143,9 +146,7 @@ function isHighIntent(qualifierAnswers: string[], highIntentRule: string | undef
 // Renders only paragraph + bold + italic — the subset the archetype description
 // schema allows. No external @portabletext/react import to keep bundle lean.
 
-function renderPortableText(
-  blocks: ArchetypeWithUrls['description'],
-): React.ReactNode {
+function renderPortableText(blocks: ArchetypeWithUrls['description']): React.ReactNode {
   if (!blocks || blocks.length === 0) return null;
   return blocks.map((block, bi) => {
     if (block._type !== 'block') return null;
@@ -153,12 +154,22 @@ function renderPortableText(
       const text = span.text ?? '';
       const marks = span.marks ?? [];
       let node: React.ReactNode = text;
-      if (marks.includes('strong')) node = <strong key={si} className="font-semibold">{node}</strong>;
-      if (marks.includes('em')) node = <em key={si} className="italic">{node}</em>;
+      if (marks.includes('strong'))
+        node = (
+          <strong key={si} className="font-semibold">
+            {node}
+          </strong>
+        );
+      if (marks.includes('em'))
+        node = (
+          <em key={si} className="italic">
+            {node}
+          </em>
+        );
       return <span key={si}>{node}</span>;
     });
     return (
-      <p key={bi} className="my-s text-foreground/90 text-base leading-relaxed">
+      <p key={bi} className="my-s text-base leading-relaxed text-foreground/90">
         {children}
       </p>
     );
@@ -229,9 +240,9 @@ function GateForm({ gate, archetypeName, mode, onSuccess, onSkip }: GateFormProp
   const blurb = gate.blurb || "Pop your email in and we'll send your full result.";
 
   return (
-    <div className="mx-auto max-w-md w-full">
-      <h3 className="font-display text-h3 text-foreground mb-s">{heading}</h3>
-      {blurb && <p className="text-foreground/80 mb-m">{blurb}</p>}
+    <div className="mx-auto w-full max-w-md">
+      <h3 className="mb-s font-display text-h3 text-foreground">{heading}</h3>
+      {blurb && <p className="mb-m text-foreground/80">{blurb}</p>}
 
       {/* Error region — focused on error for screen-reader announcement */}
       {errorMsg && (
@@ -266,8 +277,11 @@ function GateForm({ gate, archetypeName, mode, onSuccess, onSkip }: GateFormProp
         </div>
 
         <div>
-          <label htmlFor="quiz-gate-name" className="block text-sm font-semibold text-foreground mb-1">
-            First name <span className="text-muted-foreground font-normal">(optional)</span>
+          <label
+            htmlFor="quiz-gate-name"
+            className="mb-1 block text-sm font-semibold text-foreground"
+          >
+            First name <span className="font-normal text-muted-foreground">(optional)</span>
           </label>
           <input
             id="quiz-gate-name"
@@ -276,12 +290,15 @@ function GateForm({ gate, archetypeName, mode, onSuccess, onSkip }: GateFormProp
             autoComplete="given-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full min-h-[44px] px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-[44px] w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="quiz-gate-email" className="block text-sm font-semibold text-foreground mb-1">
+          <label
+            htmlFor="quiz-gate-email"
+            className="mb-1 block text-sm font-semibold text-foreground"
+          >
             Email
           </label>
           <input
@@ -294,16 +311,18 @@ function GateForm({ gate, archetypeName, mode, onSuccess, onSkip }: GateFormProp
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-describedby="quiz-gate-consent"
-            className="w-full min-h-[44px] px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-h-[44px] w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
           />
         </div>
 
         <p id="quiz-gate-consent" className="text-xs text-muted-foreground">
           {gate.consentNote
             ? gate.consentNote
-            : 'No spam, ever. Staci reads every reply personally.'}
-          {' '}
-          <a href="/privacy" className="text-link underline underline-offset-2 hover:text-primary transition-colors">
+            : 'No spam, ever. Staci reads every reply personally.'}{' '}
+          <a
+            href="/privacy"
+            className="text-link underline underline-offset-2 transition-colors hover:text-primary"
+          >
             Privacy policy
           </a>
           .
@@ -312,7 +331,7 @@ function GateForm({ gate, archetypeName, mode, onSuccess, onSkip }: GateFormProp
         <button
           type="submit"
           disabled={status === 'submitting'}
-          className="inline-flex items-center justify-center min-h-[44px] w-full px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-sm hover:bg-accent-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors press-tactile"
+          className="press-tactile inline-flex min-h-[44px] w-full items-center justify-center bg-primary-dark px-l py-s text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'submitting' ? 'Sending…' : 'Send my results'}
         </button>
@@ -321,7 +340,7 @@ function GateForm({ gate, archetypeName, mode, onSuccess, onSkip }: GateFormProp
       {mode === 'optional' && onSkip && (
         <button
           onClick={onSkip}
-          className="mt-m block w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-ring rounded"
+          className="mt-m block w-full rounded text-center text-sm text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
         >
           Skip and see my result
         </button>
@@ -363,8 +382,8 @@ function ResultScreen({
   // Intent routing
   const highIntent = isHighIntent(qualifierAnswers, routing.highIntentRule);
   const ctaLabel = highIntent
-    ? (routing.bookCtaLabel || 'Book a consultation')
-    : (routing.guideCtaLabel || 'Get the free guide');
+    ? routing.bookCtaLabel || 'Book a consultation'
+    : routing.guideCtaLabel || 'Get the free guide';
   const ctaHref = highIntent
     ? '/contact?type=quiz'
     : routing.guideRef?.slug
@@ -385,7 +404,7 @@ function ResultScreen({
   return (
     <div className="mx-auto max-w-content px-m py-section-lg">
       {/* Brand stripe */}
-      <div className="h-0.5 bg-primary mb-l" aria-hidden="true" />
+      <div className="mb-l h-0.5 bg-primary" aria-hidden="true" />
 
       {gateBlocksResult ? (
         // 'required' gate: show the form, no result preview
@@ -398,24 +417,22 @@ function ResultScreen({
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-section-md items-start">
+        <div className="grid grid-cols-1 items-start gap-section-md lg:grid-cols-2">
           {/* Result copy column */}
           <div>
-            <p className="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            <p className="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
               Your design style
             </p>
             <h2
               ref={headingRef}
               tabIndex={-1}
-              className="font-display text-h1 text-foreground leading-headline-tight mb-m focus:outline-none"
+              className="mb-m font-display text-h1 leading-headline-tight text-foreground focus:outline-none"
             >
               {archetype.name}
             </h2>
 
             {archetype.description && archetype.description.length > 0 && (
-              <div className="prose-none">
-                {renderPortableText(archetype.description)}
-              </div>
+              <div className="prose-none">{renderPortableText(archetype.description)}</div>
             )}
 
             {/* Email gate — optional or required-for-bonus */}
@@ -423,7 +440,7 @@ function ResultScreen({
               <div className="mt-l border-t border-border pt-l">
                 {bonusMode && gateEmailSubmitted && (
                   // Bonus unlocked message
-                  <p className="text-sm text-foreground/80 mb-m">
+                  <p className="mb-m text-sm text-foreground/80">
                     Your results are on their way to your inbox.
                   </p>
                 )}
@@ -443,13 +460,13 @@ function ResultScreen({
             <div className="mt-l flex flex-wrap gap-s">
               <a
                 href={ctaHref}
-                className="inline-flex items-center min-h-[44px] px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-sm hover:bg-accent-dark transition-colors press-tactile"
+                className="press-tactile inline-flex min-h-[44px] items-center bg-primary-dark px-l py-s text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark"
               >
                 {ctaLabel}
               </a>
               <button
                 onClick={onRetake}
-                className="inline-flex items-center min-h-[44px] px-l py-s border border-primary text-link font-semibold uppercase tracking-widest text-sm hover:bg-accent transition-colors press-tactile focus:outline-none focus:ring-2 focus:ring-ring rounded"
+                className="press-tactile inline-flex min-h-[44px] items-center rounded border border-primary px-l py-s text-sm font-semibold tracking-widest text-link uppercase transition-colors hover:bg-accent focus:ring-2 focus:ring-ring focus:outline-none"
               >
                 Retake the quiz
               </button>
@@ -460,10 +477,7 @@ function ResultScreen({
           {archetype.images.length > 0 && (
             <div className="grid grid-cols-2 gap-s">
               {archetype.images.slice(0, 4).map((img, i) => (
-                <div
-                  key={i}
-                  className="overflow-hidden rounded-md bg-muted aspect-[4/3]"
-                >
+                <div key={i} className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
                   <img
                     src={img.url}
                     srcSet={`${img.url} 1x, ${img.url2x} 2x`}
@@ -472,7 +486,7 @@ function ResultScreen({
                     height={225}
                     loading={i === 0 ? 'eager' : 'lazy'}
                     decoding="async"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               ))}
@@ -486,7 +500,7 @@ function ResultScreen({
         <div className="mt-l text-center">
           <button
             onClick={onRetake}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-ring rounded"
+            className="rounded text-sm text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
           >
             Start over
           </button>
@@ -544,7 +558,8 @@ export default function StyleQuiz({ config }: Props) {
 
   const currentQuestion = isInQuestions ? questions[step] : null;
   const qualifierIndex = isInQualifiers ? step - totalQuestionSteps : -1;
-  const currentQualifier = isInQualifiers && qualifierIndex >= 0 ? qualifiers[qualifierIndex] : null;
+  const currentQualifier =
+    isInQualifiers && qualifierIndex >= 0 ? qualifiers[qualifierIndex] : null;
 
   // Progress: how many steps completed out of total (before result)
   const progressStep = isInQuestions ? step : step;
@@ -586,7 +601,9 @@ export default function StyleQuiz({ config }: Props) {
     if (nextQualifierIndex < qualifiers.length) {
       // More qualifiers
       setStep(nextStep);
-      announceStep(`Step ${nextStep + 1} of ${totalSteps}: ${qualifiers[nextQualifierIndex]?.prompt}`);
+      announceStep(
+        `Step ${nextStep + 1} of ${totalSteps}: ${qualifiers[nextQualifierIndex]?.prompt}`,
+      );
       focusHeading();
     } else {
       // All done — compute result
@@ -613,12 +630,7 @@ export default function StyleQuiz({ config }: Props) {
     return (
       <div role="main" aria-label="Quiz result">
         {/* Live region — always in DOM */}
-        <div
-          ref={liveRef}
-          aria-live="polite"
-          aria-atomic="true"
-          className="sr-only"
-        >
+        <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
           {announcement}
         </div>
         <ResultScreen
@@ -640,9 +652,7 @@ export default function StyleQuiz({ config }: Props) {
     ? `Question ${step + 1} of ${totalQuestionSteps}`
     : `Step ${step + 1} of ${totalSteps}`;
 
-  const promptText = isInQuestions
-    ? currentQuestion?.prompt
-    : currentQualifier?.prompt;
+  const promptText = isInQuestions ? currentQuestion?.prompt : currentQualifier?.prompt;
 
   const helpText = isInQuestions ? currentQuestion?.helpText : undefined;
 
@@ -652,34 +662,27 @@ export default function StyleQuiz({ config }: Props) {
       aria-labelledby="quiz-step-heading"
     >
       {/* Live region for screen readers */}
-      <div
-        ref={liveRef}
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </div>
 
       {/* Progress indicator */}
       <div className="mb-section-md">
-        <div className="flex items-center justify-between mb-s">
-          <p className="text-xs uppercase tracking-eyebrow text-foreground/80">
-            {stepLabel}
-          </p>
+        <div className="mb-s flex items-center justify-between">
+          <p className="text-xs tracking-eyebrow text-foreground/80 uppercase">{stepLabel}</p>
           <p className="text-xs text-muted-foreground" aria-hidden="true">
             {progressPercent}%
           </p>
         </div>
         <div
-          className="h-1 bg-muted rounded-full overflow-hidden"
+          className="h-1 overflow-hidden rounded-full bg-muted"
           role="progressbar"
           aria-valuenow={progressStep}
           aria-valuemax={totalSteps}
           aria-label={stepLabel}
         >
           <div
-            className="h-full bg-primary rounded-full transition-[width] duration-300 ease-out motion-reduce:transition-none"
+            className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out motion-reduce:transition-none"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -690,18 +693,16 @@ export default function StyleQuiz({ config }: Props) {
         id="quiz-step-heading"
         ref={stepHeadingRef}
         tabIndex={-1}
-        className="font-display text-h2 text-foreground mb-s focus:outline-none"
+        className="mb-s font-display text-h2 text-foreground focus:outline-none"
       >
         {promptText}
       </h2>
-      {helpText && (
-        <p className="text-base text-foreground/75 mb-l">{helpText}</p>
-      )}
+      {helpText && <p className="mb-l text-base text-foreground/75">{helpText}</p>}
 
       {/* Image answer grid (questions phase) */}
       {isInQuestions && currentQuestion && (
         <div
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-m mt-l"
+          className="mt-l grid grid-cols-2 gap-m md:grid-cols-3 lg:grid-cols-4"
           role="group"
           aria-label={`Answer options for: ${currentQuestion.prompt}`}
         >
@@ -714,8 +715,8 @@ export default function StyleQuiz({ config }: Props) {
                 // 44px min height via aspect ratio + the explicit min-h fallback
                 'group relative flex flex-col overflow-hidden rounded-md bg-muted',
                 'border-2 border-transparent',
-                'hover:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                'transition-all duration-150 ease-out press-tactile card-lift',
+                'hover:border-primary focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none',
+                'press-tactile card-lift transition-all duration-150 ease-out',
                 'min-h-[44px]',
               ].join(' ')}
             >
@@ -730,19 +731,19 @@ export default function StyleQuiz({ config }: Props) {
                     height={300}
                     loading={i < 4 ? 'eager' : 'lazy'}
                     decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 motion-reduce:transform-none transition-transform duration-300 ease-out"
+                    className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 motion-reduce:transform-none"
                   />
                 </div>
               ) : (
                 // Fallback when no image: a bronze-tinted placeholder
-                <div className="aspect-[4/3] bg-muted flex items-center justify-center">
-                  <span className="text-muted-foreground text-sm text-center px-s">
+                <div className="flex aspect-[4/3] items-center justify-center bg-muted">
+                  <span className="px-s text-center text-sm text-muted-foreground">
                     {answer.label}
                   </span>
                 </div>
               )}
               {/* Answer label */}
-              <span className="px-s py-xs text-sm font-medium text-foreground text-center leading-snug">
+              <span className="px-s py-xs text-center text-sm leading-snug font-medium text-foreground">
                 {answer.label}
               </span>
             </button>
@@ -753,7 +754,7 @@ export default function StyleQuiz({ config }: Props) {
       {/* Qualifier options (qualifiers phase) */}
       {isInQualifiers && currentQualifier && (
         <div
-          className="mt-l flex flex-col gap-s max-w-lg"
+          className="mt-l flex max-w-lg flex-col gap-s"
           role="group"
           aria-label={`Answer options for: ${currentQualifier.prompt}`}
         >
@@ -763,15 +764,18 @@ export default function StyleQuiz({ config }: Props) {
               type="button"
               onClick={() => handleQualifierSelect(opt.value)}
               className={[
-                'group flex items-center min-h-[44px] w-full px-m py-s',
+                'group flex min-h-[44px] w-full items-center px-m py-s',
                 'rounded-md border-2 border-border bg-background text-foreground',
                 'hover:border-primary hover:bg-accent',
-                'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                'transition-all duration-150 ease-out text-left text-base font-medium',
+                'focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none',
+                'text-left text-base font-medium transition-all duration-150 ease-out',
                 'press-tactile',
               ].join(' ')}
             >
-              <span className="inline-block w-3 h-3 rounded-full border-2 border-current mr-m flex-shrink-0 group-hover:border-primary group-focus:border-primary transition-colors" aria-hidden="true" />
+              <span
+                className="mr-m inline-block h-3 w-3 flex-shrink-0 rounded-full border-2 border-current transition-colors group-hover:border-primary group-focus:border-primary"
+                aria-hidden="true"
+              />
               {opt.label}
             </button>
           ))}

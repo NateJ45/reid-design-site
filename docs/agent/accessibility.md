@@ -17,17 +17,20 @@ This applies to editor-authored Portable Text too, so the block-style options a 
 **Forms.** Every input gets an associated `<label for="...">`. Use native input types (`email`, `tel`, `url`) and `autocomplete` hints so browsers and password managers help. Required fields get `required`. Error containers get `role="alert"`.
 
 **Images.**
+
 - Sanity content images: alt text comes from the Sanity field. Editors are responsible for writing meaningful alt text.
 - Image immediately adjacent to a heading that names the same thing (testimonial photo with attribution, hero photo below an h1): `alt=""`. Empty alt explicitly marks the image decorative so screen readers skip it instead of announcing the title twice.
 - Decorative gradients, shapes, or pseudo-elements: `aria-hidden="true"` on the wrapper.
 
 **Interactive elements.**
+
 - Icon-only buttons and links require `aria-label`. SVG icons carry no accessible name on their own; the label lives on the wrapper.
 - Hover and focus states must not be color-only. Pair color changes with underline, motion, or icon swap.
 - Stick to native interactive elements (`<button>`, `<a>`, `<details>`, `<summary>`) whenever possible.
 - The before/after slider needs keyboard support: arrow keys move the divider, the handle is focusable, and the focus indicator is visible.
 
 **Color tokens by responsibility** (definitions and contrast math in `globals.css`):
+
 - `--primary` (Warm Bronze): buttons, focus rings, CTA backgrounds at large size, **brand-stripe rhythm**. Paired with white foreground.
 - `--primary-dark` (Bronze Dark): hover state on bronze CTAs only — use `--link` for theme-aware always-on text.
 - `--link`: theme-aware bronze (Bronze Dark in light, lifted Bronze in dark). Use for inline links, anchor-style body text, ServiceCard prices, ProcessStep numerals, any always-on text that needs to read in both modes.
@@ -52,6 +55,7 @@ The mobile nav uses shadcn Sheet (Radix Dialog under the hood) and gets focus tr
 ### Screen reader pass
 
 Lighthouse catches missing alt text and contrast but doesn't catch:
+
 - Heading order that's logical visually but jumps levels in the DOM
 - "Click here" or "Learn more" link text that's meaningless out of context
 - Form fields where the visible label is far from the input in the DOM
@@ -62,6 +66,7 @@ Before launch and after any structural change, do one screen-reader pass with NV
 ### Form error UX
 
 When the contact form fails validation or submission:
+
 - Error container has `role="alert"` and `aria-live="polite"`
 - Focus moves to the first invalid field on submit-attempt with errors
 - Error text is visible AND descriptive ("Please enter an email address" not "Invalid input")
@@ -71,6 +76,7 @@ When the contact form fails validation or submission:
 ### Animation discipline
 
 The site uses motion for hero entrances, View Transitions, and component micro-interactions. Discipline:
+
 - **Durations:** 150–300ms for state changes (hover, focus), 400–600ms for content reveals, never longer than 800ms for a single animation. Long animations feel laggy.
 - **Easing:** `ease-out` for entrances, `ease-in` for exits. Avoid spring physics for primary content at large scales (disorienting).
 - **What to animate:** opacity, transform (translate/scale). NOT layout properties (width, height, top) — expensive and janky.

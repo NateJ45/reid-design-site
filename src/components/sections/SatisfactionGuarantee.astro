@@ -7,12 +7,14 @@ interface Props {
 const { text } = Astro.props as Props;
 ---
 
-{text && (
-  <section class="bg-background" aria-label="Satisfaction guarantee">
-    <div class="mx-auto max-w-content px-m py-l">
-      <p class="text-center text-foreground/80 text-sm border border-border-soft rounded-md py-m px-l bg-muted">
-        {text}
-      </p>
-    </div>
-  </section>
-)}
+{
+  text && (
+    <section class="bg-background" aria-label="Satisfaction guarantee">
+      <div class="mx-auto max-w-content px-m py-l">
+        <p class="rounded-md border border-border-soft bg-muted px-l py-m text-center text-sm text-foreground/80">
+          {text}
+        </p>
+      </div>
+    </section>
+  )
+}

@@ -12,11 +12,13 @@ const { processSteps = [] } = Astro.props as Props;
 ---
 
 <section class="bg-background" aria-label="Our process step by step">
-  <div class="mx-auto max-w-content px-m py-section-lg space-y-section-lg">
-    {processSteps.map((step: any, i: number) => (
-      <div class={i > 0 ? 'pt-section-lg border-t border-border-soft' : ''}>
-        <ProcessStep step={step} variant="full" isLast={i === processSteps.length - 1} />
-      </div>
-    ))}
+  <div class="mx-auto max-w-content space-y-section-lg px-m py-section-lg">
+    {
+      processSteps.map((step: any, i: number) => (
+        <div class={i > 0 ? 'border-t border-border-soft pt-section-lg' : ''}>
+          <ProcessStep step={step} variant="full" isLast={i === processSteps.length - 1} />
+        </div>
+      ))
+    }
   </div>
 </section>

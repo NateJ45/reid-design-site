@@ -70,7 +70,9 @@ function collectPhotos() {
 }
 
 const photos = collectPhotos();
-console.log(`Found ${photos.length} photos to upload across ${new Set(photos.map((p) => p.folder)).size} folders.`);
+console.log(
+  `Found ${photos.length} photos to upload across ${new Set(photos.map((p) => p.folder)).size} folders.`,
+);
 
 // Build the temp draft journalEntry. Its body holds a single imageGallery with
 // all images referenced via _sanityAsset directives. Marked as a draft via
@@ -104,8 +106,7 @@ const tempDoc = {
         {
           _type: 'span',
           _key: shortKey('s'),
-          text:
-            'This document exists only to bulk-upload the Reid Design photo library to Sanity. It is a draft, so it never appears on the live site. Delete it whenever — the photos stay in the asset library.',
+          text: 'This document exists only to bulk-upload the Reid Design photo library to Sanity. It is a draft, so it never appears on the live site. Delete it whenever — the photos stay in the asset library.',
           marks: [],
         },
       ],

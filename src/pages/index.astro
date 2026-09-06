@@ -27,8 +27,9 @@ const [page, siteSettings, pressItems] = await Promise.all([
 // Staci explicitly turns something off in Studio.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
-const title       = page?.seoTitle       ?? site.name;
-const description = page?.seoDescription ?? 'Plainfield interior design for homes that feel genuinely yours.';
+const title = page?.seoTitle ?? site.name;
+const description =
+  page?.seoDescription ?? 'Plainfield interior design for homes that feel genuinely yours.';
 ---
 
 <BaseLayout {title} {description} {siteSettings} seoImage={page?.seoImage}>

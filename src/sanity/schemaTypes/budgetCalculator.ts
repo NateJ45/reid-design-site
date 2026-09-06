@@ -27,8 +27,12 @@ export const budgetCalculator = defineType({
       title: 'SEO title',
       type: 'string',
       group: 'seo',
-      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Leave blank to use the built-in default.',
-      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+      description:
+        'Browser tab and Google result title. Aim for 50 to 60 characters. Leave blank to use the built-in default.',
+      validation: (Rule) =>
+        Rule.max(60).warning(
+          'Titles longer than about 60 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoDescription',
@@ -36,17 +40,22 @@ export const budgetCalculator = defineType({
       type: 'text',
       rows: 3,
       group: 'seo',
-      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Leave blank to use the built-in default.',
-      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+      description:
+        'The sentence under the title in Google results. Aim for 150 to 160 characters. Leave blank to use the built-in default.',
+      validation: (Rule) =>
+        Rule.max(160).warning(
+          'Descriptions longer than about 160 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoImage',
       title: 'Social share image (this page)',
       type: 'image',
       group: 'seo',
-      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      description:
+        'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
       options: { hotspot: true },
-      fields: [ defineField({ name: 'alt', title: 'Alt text', type: 'string' }) ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
 
     // ── Intro ──────────────────────────────────────────────────────────────
@@ -70,7 +79,8 @@ export const budgetCalculator = defineType({
       type: 'text',
       rows: 2,
       group: 'intro',
-      description: 'One or two sentences framing the calculator as a rough-estimate tool, not a firm quote.',
+      description:
+        'One or two sentences framing the calculator as a rough-estimate tool, not a firm quote.',
     }),
     defineField({
       name: 'heroImage',
@@ -79,7 +89,12 @@ export const budgetCalculator = defineType({
       group: 'intro',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
     defineField({
@@ -87,7 +102,8 @@ export const budgetCalculator = defineType({
       title: 'Script-font accent word (optional)',
       type: 'string',
       group: 'intro',
-      description: 'A single word from the headline to render in Pinyon Script. Must match exactly. Leave blank to skip.',
+      description:
+        'A single word from the headline to render in Pinyon Script. Must match exactly. Leave blank to skip.',
     }),
 
     // ── Rooms ──────────────────────────────────────────────────────────────
@@ -102,9 +118,27 @@ export const budgetCalculator = defineType({
           type: 'object',
           name: 'room',
           fields: [
-            defineField({ name: 'label', title: 'Room label', type: 'string', description: 'Example: "Living room" or "Primary bedroom".', validation: (Rule) => Rule.required() }),
-            defineField({ name: 'baseLow', title: 'Base cost — low ($)', type: 'number', description: 'Low end of the estimated base cost range for this room type.', validation: (Rule) => Rule.required().min(0) }),
-            defineField({ name: 'baseHigh', title: 'Base cost — high ($)', type: 'number', description: 'High end of the estimated base cost range for this room type.', validation: (Rule) => Rule.required().min(0) }),
+            defineField({
+              name: 'label',
+              title: 'Room label',
+              type: 'string',
+              description: 'Example: "Living room" or "Primary bedroom".',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'baseLow',
+              title: 'Base cost — low ($)',
+              type: 'number',
+              description: 'Low end of the estimated base cost range for this room type.',
+              validation: (Rule) => Rule.required().min(0),
+            }),
+            defineField({
+              name: 'baseHigh',
+              title: 'Base cost — high ($)',
+              type: 'number',
+              description: 'High end of the estimated base cost range for this room type.',
+              validation: (Rule) => Rule.required().min(0),
+            }),
           ],
           preview: {
             select: { label: 'label', baseLow: 'baseLow', baseHigh: 'baseHigh' },
@@ -124,15 +158,36 @@ export const budgetCalculator = defineType({
       title: 'Scope options',
       type: 'array',
       group: 'scope',
-      description: 'Scope levels that adjust the base cost. Example: "Refresh" adds $0, "Full redesign" adds $500-$1,000.',
+      description:
+        'Scope levels that adjust the base cost. Example: "Refresh" adds $0, "Full redesign" adds $500-$1,000.',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'scopeOption',
           fields: [
-            defineField({ name: 'label', title: 'Scope label', type: 'string', description: 'Example: "Light refresh" or "Full redesign".', validation: (Rule) => Rule.required() }),
-            defineField({ name: 'addLow', title: 'Additional cost — low ($)', type: 'number', description: 'Added to the base low. Can be 0.', validation: (Rule) => Rule.required().min(0), initialValue: 0 }),
-            defineField({ name: 'addHigh', title: 'Additional cost — high ($)', type: 'number', description: 'Added to the base high. Can be 0.', validation: (Rule) => Rule.required().min(0), initialValue: 0 }),
+            defineField({
+              name: 'label',
+              title: 'Scope label',
+              type: 'string',
+              description: 'Example: "Light refresh" or "Full redesign".',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'addLow',
+              title: 'Additional cost — low ($)',
+              type: 'number',
+              description: 'Added to the base low. Can be 0.',
+              validation: (Rule) => Rule.required().min(0),
+              initialValue: 0,
+            }),
+            defineField({
+              name: 'addHigh',
+              title: 'Additional cost — high ($)',
+              type: 'number',
+              description: 'Added to the base high. Can be 0.',
+              validation: (Rule) => Rule.required().min(0),
+              initialValue: 0,
+            }),
           ],
           preview: {
             select: { label: 'label', addLow: 'addLow', addHigh: 'addHigh' },
@@ -152,15 +207,31 @@ export const budgetCalculator = defineType({
       title: 'Add-ons',
       type: 'array',
       group: 'addons',
-      description: 'Optional extras the visitor can add to their estimate. Example: "Window treatments", "Art curation".',
+      description:
+        'Optional extras the visitor can add to their estimate. Example: "Window treatments", "Art curation".',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'addOn',
           fields: [
-            defineField({ name: 'label', title: 'Add-on label', type: 'string', validation: (Rule) => Rule.required() }),
-            defineField({ name: 'low', title: 'Cost — low ($)', type: 'number', validation: (Rule) => Rule.required().min(0) }),
-            defineField({ name: 'high', title: 'Cost — high ($)', type: 'number', validation: (Rule) => Rule.required().min(0) }),
+            defineField({
+              name: 'label',
+              title: 'Add-on label',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'low',
+              title: 'Cost — low ($)',
+              type: 'number',
+              validation: (Rule) => Rule.required().min(0),
+            }),
+            defineField({
+              name: 'high',
+              title: 'Cost — high ($)',
+              type: 'number',
+              validation: (Rule) => Rule.required().min(0),
+            }),
           ],
           preview: {
             select: { label: 'label', low: 'low', high: 'high' },
@@ -180,8 +251,10 @@ export const budgetCalculator = defineType({
       type: 'text',
       rows: 3,
       group: 'output',
-      description: 'Text shown above the estimate range. Use {{low}} and {{high}} as placeholders for the computed numbers. Example: "Based on your choices, a project like this typically runs {{low}} to {{high}}."',
-      initialValue: 'Based on what you described, a project like this typically runs {{low}} to {{high}}. That said, every home is different.',
+      description:
+        'Text shown above the estimate range. Use {{low}} and {{high}} as placeholders for the computed numbers. Example: "Based on your choices, a project like this typically runs {{low}} to {{high}}."',
+      initialValue:
+        'Based on what you described, a project like this typically runs {{low}} to {{high}}. That said, every home is different.',
     }),
     defineField({
       name: 'disclaimer',
@@ -189,8 +262,10 @@ export const budgetCalculator = defineType({
       type: 'text',
       rows: 2,
       group: 'output',
-      description: 'Small-print note under the estimate. Remind visitors this is a rough guide, not a firm quote.',
-      initialValue: 'This is a rough estimate to help you plan — not a quote. Actual cost depends on your space, finish level, and shopping budget. A consultation will give you specifics.',
+      description:
+        'Small-print note under the estimate. Remind visitors this is a rough guide, not a firm quote.',
+      initialValue:
+        'This is a rough estimate to help you plan — not a quote. Actual cost depends on your space, finish level, and shopping budget. A consultation will give you specifics.',
     }),
     defineField({
       name: 'ctaLabel',
@@ -205,7 +280,8 @@ export const budgetCalculator = defineType({
       title: 'Consultation price note',
       type: 'string',
       group: 'output',
-      description: 'Optional note shown near the CTA. Example: "Starting with a $150 in-home consultation."',
+      description:
+        'Optional note shown near the CTA. Example: "Starting with a $150 in-home consultation."',
     }),
   ],
   preview: { prepare: () => ({ title: 'Budget Calculator' }) },

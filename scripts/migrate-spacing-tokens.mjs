@@ -17,11 +17,30 @@ const SRC = resolve(__dirname, '..', 'src');
 // from --container-* (or --spacing-* via a different resolution that we
 // want to keep). Only the pure margin/padding/gap/inset family is renamed.
 const PREFIXES = [
-  'p',  'px', 'py', 'pt', 'pb', 'pl', 'pr',
-  'm',  'mx', 'my', 'mt', 'mb', 'ml', 'mr',
-  'gap', 'gap-x', 'gap-y',
-  'space-x', 'space-y',
-  'top', 'bottom', 'left', 'right', 'inset',
+  'p',
+  'px',
+  'py',
+  'pt',
+  'pb',
+  'pl',
+  'pr',
+  'm',
+  'mx',
+  'my',
+  'mt',
+  'mb',
+  'ml',
+  'mr',
+  'gap',
+  'gap-x',
+  'gap-y',
+  'space-x',
+  'space-y',
+  'top',
+  'bottom',
+  'left',
+  'right',
+  'inset',
   'size',
 ];
 
@@ -62,7 +81,9 @@ for (const file of targets) {
   }
 }
 
-console.log(`\n[migrate-spacing-tokens] ${totalReplacements} replacements across ${affected.length} files:\n`);
+console.log(
+  `\n[migrate-spacing-tokens] ${totalReplacements} replacements across ${affected.length} files:\n`,
+);
 for (const { file, count } of affected) {
   console.log(`  ${file.padEnd(50)} ${count}`);
 }

@@ -39,7 +39,8 @@ if (!projectId || !token) {
 }
 
 const client = createClient({
-  projectId, dataset,
+  projectId,
+  dataset,
   apiVersion: '2025-02-19',
   useCdn: false,
   token,
@@ -54,19 +55,18 @@ function shortKey(prefix = 'k') {
 /** Convert a plain string to a Portable Text block array, splitting on blank lines. */
 function stringToPortableText(s) {
   if (typeof s !== 'string') return [];
-  const clean = s
-    .replace(/^\s*\[NEW per audit[^\]]*\]\s*/i, '')
-    .trim();
+  const clean = s.replace(/^\s*\[NEW per audit[^\]]*\]\s*/i, '').trim();
   if (!clean) return [];
-  const paragraphs = clean.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const paragraphs = clean
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
   return paragraphs.map((text) => ({
     _type: 'block',
     _key: shortKey('b'),
     style: 'normal',
     markDefs: [],
-    children: [
-      { _type: 'span', _key: shortKey('s'), text, marks: [] },
-    ],
+    children: [{ _type: 'span', _key: shortKey('s'), text, marks: [] }],
   }));
 }
 
@@ -92,7 +92,9 @@ for (const doc of all) {
       delete doc.longDescription;
       changed = true;
       serviceFixes++;
-      console.log(`  service  ${doc._id}: longDescription cleared (string was empty after stripping prefix)`);
+      console.log(
+        `  service  ${doc._id}: longDescription cleared (string was empty after stripping prefix)`,
+      );
     }
   }
 
@@ -107,7 +109,9 @@ for (const doc of all) {
   if (changed) patched.push(doc);
 }
 
-console.log(`\nScanned ${all.length} collection docs. Fixed ${serviceFixes} services + ${testimonialFixes} testimonials = ${patched.length} docs.`);
+console.log(
+  `\nScanned ${all.length} collection docs. Fixed ${serviceFixes} services + ${testimonialFixes} testimonials = ${patched.length} docs.`,
+);
 
 if (patched.length === 0) {
   console.log('Nothing to write — all collection docs already valid.');

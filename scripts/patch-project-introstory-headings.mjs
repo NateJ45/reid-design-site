@@ -88,8 +88,7 @@ async function run() {
     const next = [];
     let normalIdx = 0;
     for (const block of story) {
-      const isNormal =
-        block?._type === 'block' && (block.style === 'normal' || !block.style);
+      const isNormal = block?._type === 'block' && (block.style === 'normal' || !block.style);
       if (isNormal && normalIdx < SECTION_LABELS.length) {
         next.push(heading(SECTION_LABELS[normalIdx]));
         normalIdx += 1;

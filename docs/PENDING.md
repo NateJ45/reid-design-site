@@ -99,8 +99,6 @@ proven render-neutral against a pristine-build snapshot instead.
 Fix: regenerate the baselines from a clean main/staging build
 (`node scripts/page-parity.mjs baseline`) in a commit that says why.
 
-
-
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the
   2026-08-28 upgrade started (an uncommitted "Meet Staci bio" launch-blocker

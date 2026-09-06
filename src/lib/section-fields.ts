@@ -371,7 +371,9 @@ export function heroAccentApplies(source: Record<string, unknown> | null | undef
   if (!source) return false;
   const rotating = source.heroRotatingWords ?? source.rotatingWords;
   if (Array.isArray(rotating) && rotating.length > 1) return false;
-  return hasImage(source.heroImages) || hasImage(source.heroImage) || hasImage(source.backgroundImage);
+  return (
+    hasImage(source.heroImages) || hasImage(source.heroImage) || hasImage(source.backgroundImage)
+  );
 }
 
 /**

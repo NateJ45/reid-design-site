@@ -62,10 +62,10 @@ export default function PortfolioCursor() {
       ref={chipRef}
       aria-hidden="true"
       className={[
-        'fixed top-0 left-0 z-50 pointer-events-none',
+        'pointer-events-none fixed top-0 left-0 z-50',
         'flex items-center gap-1 px-3 py-1.5',
         'rounded-full bg-primary-dark text-white',
-        'text-[0.7rem] font-semibold uppercase tracking-eyebrow',
+        'text-[0.7rem] font-semibold tracking-eyebrow uppercase',
         'shadow-lg shadow-foreground/20',
         'transition-opacity duration-200 ease-out',
         active ? 'opacity-100' : 'opacity-0',

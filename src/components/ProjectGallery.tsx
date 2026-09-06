@@ -38,8 +38,8 @@ export default function ProjectGallery({ images }: Props) {
     return images
       .filter((img) => img.asset)
       .map((img) => {
-        const thumbUrl  = urlFor(img).width(800).quality(70).format('webp').url();
-        const thumb2x   = urlFor(img).width(1600).quality(70).format('webp').url();
+        const thumbUrl = urlFor(img).width(800).quality(70).format('webp').url();
+        const thumb2x = urlFor(img).width(1600).quality(70).format('webp').url();
         return {
           src: thumbUrl,
           srcSet: [{ src: thumb2x, width: 1600, height: 1066 }],

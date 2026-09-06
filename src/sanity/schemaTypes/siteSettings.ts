@@ -37,7 +37,8 @@ export const siteSettings = defineType({
       name: 'primaryCtaLabel',
       title: 'Main button label',
       type: 'string',
-      description: 'The words on the main "Book a consultation" button in the header and the mobile menu. Keep it short, two to four words.',
+      description:
+        'The words on the main "Book a consultation" button in the header and the mobile menu. Keep it short, two to four words.',
       initialValue: 'Book a consultation',
       validation: (Rule) => Rule.max(40),
     }),
@@ -45,7 +46,8 @@ export const siteSettings = defineType({
       name: 'headerTagline',
       title: 'Header tagline strip',
       type: 'string',
-      description: 'The small line across the very top of the site on desktop. Currently "Plainfield Interior Design · Serving Greater Indianapolis".',
+      description:
+        'The small line across the very top of the site on desktop. Currently "Plainfield Interior Design · Serving Greater Indianapolis".',
       initialValue: 'Plainfield Interior Design · Serving Greater Indianapolis',
       validation: (Rule) => Rule.max(90),
     }),
@@ -54,14 +56,14 @@ export const siteSettings = defineType({
       title: 'Public email',
       type: 'string',
       description: 'Public email address shown on the Contact page.',
-      validation: (Rule) =>
-        Rule.required().regex(/.+@.+\..+/, { name: 'email', invert: false }),
+      validation: (Rule) => Rule.required().regex(/.+@.+\..+/, { name: 'email', invert: false }),
     }),
     defineField({
       name: 'phone',
       title: 'Phone (optional)',
       type: 'string',
-      description: 'Public phone number, if you want one shown. Leave blank to hide. Write it the way you want it read, for example "(317) 555-0142".',
+      description:
+        'Public phone number, if you want one shown. Leave blank to hide. Write it the way you want it read, for example "(317) 555-0142".',
       validation: (Rule) =>
         Rule.regex(/^[0-9+().\-\s]{7,}$/, { name: 'phone' }).warning(
           'That does not look like a phone number. Use digits, spaces, and the symbols + ( ) - only.',
@@ -320,11 +322,10 @@ export const siteSettings = defineType({
       name: 'seoImage',
       title: 'Default social share image',
       type: 'image',
-      description: 'The image shown when any page of the site is shared on social media or in a text message (the Open Graph image). Use a wide image, about 1200 by 630 pixels. Individual pages can override this in their own SEO section. Leave blank to use the auto-generated branded cards.',
+      description:
+        'The image shown when any page of the site is shared on social media or in a text message (the Open Graph image). Use a wide image, about 1200 by 630 pixels. Individual pages can override this in their own SEO section. Leave blank to use the auto-generated branded cards.',
       options: { hotspot: true },
-      fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
-      ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
     defineField({
       name: 'footerCredit',
@@ -336,7 +337,8 @@ export const siteSettings = defineType({
       name: 'footerCreditUrl',
       title: 'Footer credit URL',
       type: 'url',
-      description: 'Optional. When set, the footer credit becomes a link to this URL (opens in a new tab).',
+      description:
+        'Optional. When set, the footer credit becomes a link to this URL (opens in a new tab).',
     }),
 
     // ── Newsletter ──────────────────────────────────────────────────────────
@@ -358,7 +360,8 @@ export const siteSettings = defineType({
           name: 'providerLabel',
           title: 'Provider label',
           type: 'string',
-          description: 'Internal label only. Example: "MailerLite" or "Buttondown". Not shown to visitors.',
+          description:
+            'Internal label only. Example: "MailerLite" or "Buttondown". Not shown to visitors.',
         }),
         defineField({
           name: 'formActionUrl',
@@ -370,7 +373,8 @@ export const siteSettings = defineType({
           name: 'audienceId',
           title: 'Audience / list ID',
           type: 'string',
-          description: 'Your provider list or audience ID. Used when the provider needs it in the POST body.',
+          description:
+            'Your provider list or audience ID. Used when the provider needs it in the POST body.',
         }),
         defineField({
           name: 'heading',
@@ -397,14 +401,16 @@ export const siteSettings = defineType({
           title: 'Success message',
           type: 'text',
           rows: 2,
-          description: 'Message shown after a successful signup. Example: "You\'re in. Check your inbox."',
+          description:
+            'Message shown after a successful signup. Example: "You\'re in. Check your inbox."',
         }),
         defineField({
           name: 'consentNote',
           title: 'Consent note',
           type: 'text',
           rows: 2,
-          description: 'Small-print consent line near the submit button. Link to /privacy included automatically.',
+          description:
+            'Small-print consent line near the submit button. Link to /privacy included automatically.',
         }),
       ],
     }),

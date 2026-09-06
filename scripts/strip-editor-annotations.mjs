@@ -48,7 +48,11 @@ if (APPLY && !writeToken) {
 }
 
 const readClient = createClient({
-  projectId, dataset, apiVersion: '2025-02-19', useCdn: false, token: readToken,
+  projectId,
+  dataset,
+  apiVersion: '2025-02-19',
+  useCdn: false,
+  token: readToken,
 });
 const writeClient = APPLY
   ? createClient({ projectId, dataset, apiVersion: '2025-02-19', useCdn: false, token: writeToken })
@@ -60,15 +64,15 @@ const writeClient = APPLY
 const ANNOTATION_RE = new RegExp(
   '\\[\\s*' +
     '(?:' +
-      'NEW(?:[^\\]]*)|' +
-      'per\\s+audit(?:[^\\]]*)|' +
-      'TODO(?:[^\\]]*)|' +
-      'DRAFT(?:[^\\]]*)|' +
-      'WIP(?:[^\\]]*)|' +
-      'v\\d+(?:[^\\]]*)|' +
-      'softer\\s+framing|' +
-      'audit:\\s*[^\\]]*|' +
-      'note:\\s*[^\\]]*' +
+    'NEW(?:[^\\]]*)|' +
+    'per\\s+audit(?:[^\\]]*)|' +
+    'TODO(?:[^\\]]*)|' +
+    'DRAFT(?:[^\\]]*)|' +
+    'WIP(?:[^\\]]*)|' +
+    'v\\d+(?:[^\\]]*)|' +
+    'softer\\s+framing|' +
+    'audit:\\s*[^\\]]*|' +
+    'note:\\s*[^\\]]*' +
     ')' +
     '\\s*\\]',
   'gi',
@@ -119,7 +123,11 @@ function walk(node, path, onChange) {
 
 // ---------- Main ----------
 
-console.log(APPLY ? 'APPLY mode — will patch Sanity\n' : 'DRY RUN — no changes will be written. Pass --apply to patch.\n');
+console.log(
+  APPLY
+    ? 'APPLY mode — will patch Sanity\n'
+    : 'DRY RUN — no changes will be written. Pass --apply to patch.\n',
+);
 
 // Pull every published document. Drafts can also carry annotations; we patch
 // both. Excluding sanity.imageAsset (binary metadata) so we don't waste cycles

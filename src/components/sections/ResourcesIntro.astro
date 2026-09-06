@@ -7,10 +7,14 @@ interface Props {
 const { intro } = Astro.props as Props;
 ---
 
-{intro && (
-  <section class="bg-background border-b border-border">
-    <div class="mx-auto max-w-content px-m py-section-md">
-      <p class="max-w-2xl mx-auto text-center text-foreground/80 text-lg leading-relaxed">{intro}</p>
-    </div>
-  </section>
-)}
+{
+  intro && (
+    <section class="border-b border-border bg-background">
+      <div class="mx-auto max-w-content px-m py-section-md">
+        <p class="mx-auto max-w-2xl text-center text-lg leading-relaxed text-foreground/80">
+          {intro}
+        </p>
+      </div>
+    </section>
+  )
+}

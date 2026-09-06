@@ -36,17 +36,19 @@ const [page, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.shop) return Astro.redirect('/');
 
-const title       = page?.seoTitle       ?? 'Shop My Favorites · Reid Design';
-const description = page?.seoDescription ?? 'Staci\'s hand-picked home decor and furniture finds. Affiliate links, and she only shares things she would actually use.';
+const title = page?.seoTitle ?? 'Shop My Favorites · Reid Design';
+const description =
+  page?.seoDescription ??
+  "Staci's hand-picked home decor and furniture finds. Affiliate links, and she only shares things she would actually use.";
 
-const heroEyebrow  = page?.heroEyebrow  ?? 'Shop My Favorites.';
+const heroEyebrow = page?.heroEyebrow ?? 'Shop My Favorites.';
 const heroHeadline = page?.heroHeadline ?? 'Things Worth Having in Your Home.';
-const heroSubhead  = page?.heroSubhead  ?? '';
+const heroSubhead = page?.heroSubhead ?? '';
 
 // FTC disclosure: use Sanity content when present; always have a fallback so
 // the legal requirement is met even before the doc is published.
 const FTC_DISCLOSURE_FALLBACK =
-  "Some links on this page are affiliate links. If you purchase through a link, I may earn a small commission, at no extra cost to you. I only share things I would use or genuinely recommend.";
+  'Some links on this page are affiliate links. If you purchase through a link, I may earn a small commission, at no extra cost to you. I only share things I would use or genuinely recommend.';
 const disclosure = page?.disclosure ?? FTC_DISCLOSURE_FALLBACK;
 
 const collections = page?.collections ?? [];
@@ -66,9 +68,7 @@ const shopProducts = (collections as any[]).flatMap((c: any) =>
       name: it.title,
       brand: it.vendor,
       url: it.affiliateUrl,
-      image: it.image?.asset
-        ? urlFor(it.image).width(800).quality(75).auto('format').url()
-        : null,
+      image: it.image?.asset ? urlFor(it.image).width(800).quality(75).auto('format').url() : null,
     })),
 );
 
@@ -83,7 +83,6 @@ const schemas = [
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
-
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
     eyebrow={heroEyebrow}
@@ -96,98 +95,93 @@ const schemas = [
   />
 
   {/* Page disabled in Sanity: show a polite coming-soon rather than a 404. */}
-  {isDisabled ? (
-    <section class="bg-background" aria-labelledby="shop-disabled-heading">
-      <div class="mx-auto max-w-content px-m py-section-lg text-center">
-        <SectionHeading
-          eyebrow="Coming Soon."
-          headline="The shop is being refreshed."
-          subhead="Staci is curating a fresh set of favorites. Check back soon."
-          headingId="shop-disabled-heading"
-          align="center"
-          class="mx-auto"
-        />
-        <div class="mt-l flex justify-center">
-          <a
-            href="/"
-            class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-primary-dark text-white hover:bg-accent-dark transition-colors"
-          >
-            Back to Home
-          </a>
+  {
+    isDisabled ? (
+      <section class="bg-background" aria-labelledby="shop-disabled-heading">
+        <div class="mx-auto max-w-content px-m py-section-lg text-center">
+          <SectionHeading
+            eyebrow="Coming Soon."
+            headline="The shop is being refreshed."
+            subhead="Staci is curating a fresh set of favorites. Check back soon."
+            headingId="shop-disabled-heading"
+            align="center"
+            class="mx-auto"
+          />
+          <div class="mt-l flex justify-center">
+            <a
+              href="/"
+              class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-accent-dark"
+            >
+              Back to Home
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
-  ) : (
-    <>
-      {/* ------- 2. FTC Disclosure band -------------------------------------- */}
-      {/* This must appear prominently near the top of the page, above any
+      </section>
+    ) : (
+      <>
+        {/* ------- 2. FTC Disclosure band -------------------------------------- */}
+        {/* This must appear prominently near the top of the page, above any
           affiliate links. FTC guidelines require clear and conspicuous
           disclosure before the consumer views the endorsed content. */}
-      <aside
-        aria-label="Affiliate disclosure"
-        class="bg-muted border-y border-border-soft"
-      >
-        <div class="mx-auto max-w-content px-m py-m flex items-start gap-m">
-          {/* Disclosure icon — a simple information indicator */}
-          <svg
-            aria-hidden="true"
-            class="mt-px shrink-0 w-4 h-4 text-foreground/60"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
-          <p class="text-sm text-foreground/80 leading-relaxed">
-            {disclosure}
-          </p>
-        </div>
-      </aside>
+        <aside aria-label="Affiliate disclosure" class="border-y border-border-soft bg-muted">
+          <div class="mx-auto flex max-w-content items-start gap-m px-m py-m">
+            {/* Disclosure icon — a simple information indicator */}
+            <svg
+              aria-hidden="true"
+              class="mt-px h-4 w-4 shrink-0 text-foreground/60"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <p class="text-sm leading-relaxed text-foreground/80">{disclosure}</p>
+          </div>
+        </aside>
 
-      {/* ------- 3. Intro copy (optional) ------------------------------------ */}
-      {page?.intro && (
-        <section class="bg-background" aria-labelledby="shop-intro-heading">
-          <div class="mx-auto max-w-content px-m pt-section-md">
-            <div class="max-w-2xl mx-auto text-center">
+        {/* ------- 3. Intro copy (optional) ------------------------------------ */}
+        {page?.intro && (
+          <section class="bg-background" aria-labelledby="shop-intro-heading">
+            <div class="mx-auto max-w-content px-m pt-section-md">
+              <div class="mx-auto max-w-2xl text-center">
+                <SectionHeading
+                  eyebrow="Staci's Picks."
+                  headline="Things She Actually Uses."
+                  headingId="shop-intro-heading"
+                  align="center"
+                  class="mx-auto"
+                />
+                <p class="mt-m text-lg leading-relaxed text-foreground/80">{page.intro}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ------- 4. Collections + items -------------------------------------- */}
+        {/* No collections: coming-soon empty state */}
+        {collections.length > 0 ? (
+          <ShopGrid collections={collections} />
+        ) : (
+          <section class="bg-background" aria-labelledby="shop-empty-heading">
+            <div class="mx-auto max-w-content px-m py-section-lg text-center">
               <SectionHeading
-                eyebrow="Staci's Picks."
-                headline="Things She Actually Uses."
-                headingId="shop-intro-heading"
+                eyebrow="Coming Soon."
+                headline="Picks are on the way."
+                subhead="Staci is putting together her favorites. Check back soon."
+                headingId="shop-empty-heading"
                 align="center"
                 class="mx-auto"
               />
-              <p class="mt-m text-foreground/80 text-lg leading-relaxed">
-                {page.intro}
-              </p>
             </div>
-          </div>
-        </section>
-      )}
-
-      {/* ------- 4. Collections + items -------------------------------------- */}
-      {/* No collections: coming-soon empty state */}
-      {collections.length > 0 ? (
-        <ShopGrid collections={collections} />
-      ) : (
-        <section class="bg-background" aria-labelledby="shop-empty-heading">
-          <div class="mx-auto max-w-content px-m py-section-lg text-center">
-            <SectionHeading
-              eyebrow="Coming Soon."
-              headline="Picks are on the way."
-              subhead="Staci is putting together her favorites. Check back soon."
-              headingId="shop-empty-heading"
-              align="center"
-              class="mx-auto"
-            />
-          </div>
-        </section>
-      )}
-    </>
-  )}
+          </section>
+        )}
+      </>
+    )
+  }
 </BaseLayout>

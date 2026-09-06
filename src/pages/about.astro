@@ -24,8 +24,10 @@ const [page, siteSettings, pressItems] = await Promise.all([
 
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
-const title       = page?.seoTitle       ?? 'About Staci · Reid Design';
-const description = page?.seoDescription ?? 'Meet Staci Perkins, founder of Reid Design — a Plainfield-based interior designer working across Greater Indianapolis.';
+const title = page?.seoTitle ?? 'About Staci · Reid Design';
+const description =
+  page?.seoDescription ??
+  'Meet Staci Perkins, founder of Reid Design — a Plainfield-based interior designer working across Greater Indianapolis.';
 
 const philosophyPoints = page?.philosophyPoints ?? [];
 

@@ -124,8 +124,12 @@ const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 const chrome = resolveChrome(siteSettings);
 const editorColumns = chrome.footerColumns;
 
-const showWork  = !editorColumns && (visible.portfolio || visible.journal || visible.shop || visible.giftCertificates);
-const showTools = !editorColumns && (visible.styleQuiz || visible.budgetCalculator || visible.guides || visible.resources);
+const showWork =
+  !editorColumns &&
+  (visible.portfolio || visible.journal || visible.shop || visible.giftCertificates);
+const showTools =
+  !editorColumns &&
+  (visible.styleQuiz || visible.budgetCalculator || visible.guides || visible.resources);
 const showLatest = !editorColumns && visible.portfolio;
 
 // Count the columns that actually render so the grid balances at lg and the
@@ -135,8 +139,9 @@ const colCount = editorColumns
   ? editorColumns.length + 1
   : 2 + (showWork ? 1 : 0) + (showTools ? 1 : 0) + (showLatest ? 1 : 0);
 const lgColsClass =
-  ({ 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' })[colCount] ??
-  'lg:grid-cols-5';
+  { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' }[
+    colCount
+  ] ?? 'lg:grid-cols-5';
 
 // When only a couple of columns survive the visibility toggles, an even grid
 // strands them with a big empty gap. In that case lay the row out as a balanced
@@ -172,284 +177,405 @@ const latestProjects = allProjects.slice(0, 3);
   {/* Brand accent stripe — matches header + mobile drawer. */}
   <div class="h-1 bg-primary" aria-hidden="true"></div>
 
-  {/* Newsletter signup — renders only when siteSettings.newsletter.enabled is
-       true. Island hydrates when scrolled into view. */}
-  {siteSettings?.newsletter?.enabled && (
-    <div class="mx-auto max-w-content px-m pt-l pb-m border-b border-border">
-      <NewsletterSignup
-        client:visible
-        newsletter={siteSettings.newsletter}
-        source="footer"
-        compact
-      />
-    </div>
-  )}
+  {
+    /* Newsletter signup — renders only when siteSettings.newsletter.enabled is
+       true. Island hydrates when scrolled into view. */
+  }
+  {
+    siteSettings?.newsletter?.enabled && (
+      <div class="mx-auto max-w-content border-b border-border px-m pt-l pb-m">
+        <NewsletterSignup
+          client:visible
+          newsletter={siteSettings.newsletter}
+          source="footer"
+          compact
+        />
+      </div>
+    )
+  }
 
-  {/* Link columns. Up to five: Studio / Work / Free tools / Latest projects /
+  {
+    /* Link columns. Up to five: Studio / Work / Free tools / Latest projects /
        Get in touch (contact details). Single centered column on mobile.
        With 4+ visible columns this is an even grid; when toggles leave only a
        couple of columns it becomes a balanced "nav | brand | contact" flex row
-       (see brandInline) so it never strands two columns with a big gap. */}
+       (see brandInline) so it never strands two columns with a big gap. */
+  }
   <div
     class:list={[
-      'mx-auto max-w-content px-m pt-l pb-m gap-l text-center md:text-left',
+      'mx-auto max-w-content gap-l px-m pt-l pb-m text-center md:text-left',
       brandInline
         ? 'flex flex-col items-center md:flex-row md:items-start md:justify-between'
         : ['grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3', lgColsClass],
     ]}
   >
-    {/* EDITOR COLUMNS — Site settings -> Footer link columns. When Staci has
-        set any, they stand in for the four built-in link columns below. */}
-    {editorColumns?.map((col, i) => (
-      <nav aria-labelledby={`footer-col-${i}`}>
-        <p id={`footer-col-${i}`} class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          {col.title}
-        </p>
-        <ul class="text-sm space-y-2 list-none p-0">
-          {col.links.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                target={isExternalHref(link.href) ? '_blank' : undefined}
-                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-                class="text-foreground/85 hover:text-link transition-colors"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    ))}
-
-    {/* STUDIO */}
-    {!editorColumns && (
-      <nav aria-labelledby="footer-studio">
-        <p id="footer-studio" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          Studio
-        </p>
-        <ul class="text-sm space-y-2 list-none p-0">
-          <li><a href="/about" class="text-foreground/85 hover:text-link transition-colors">About Staci</a></li>
-          <li><a href="/process" class="text-foreground/85 hover:text-link transition-colors">Process</a></li>
-          <li><a href="/services" class="text-foreground/85 hover:text-link transition-colors">Services &amp; Pricing</a></li>
-          <li><a href="/faq" class="text-foreground/85 hover:text-link transition-colors">FAQ</a></li>
-          {visible.press && (
-            <li><a href="/press" class="text-foreground/85 hover:text-link transition-colors">Press</a></li>
-          )}
-          {footerPages.map((p) => (
-            <li><a href={`/${p.slug}`} class="text-foreground/85 hover:text-link transition-colors">{p.navLabel || p.title}</a></li>
-          ))}
-        </ul>
-      </nav>
-    )}
-
-    {/* WORK — only when at least one of its links is visible. */}
-    {showWork && (
-      <nav aria-labelledby="footer-work">
-        <p id="footer-work" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          Work
-        </p>
-        <ul class="text-sm space-y-2 list-none p-0">
-          {visible.portfolio && (
-            <li><a href="/portfolio" class="text-foreground/85 hover:text-link transition-colors">Portfolio</a></li>
-          )}
-          {visible.portfolio && (
-            <li><a href="/portfolio/before-after" class="text-foreground/85 hover:text-link transition-colors">Before &amp; After</a></li>
-          )}
-          {visible.journal && (
-            <li><a href="/journal" class="text-foreground/85 hover:text-link transition-colors">Journal</a></li>
-          )}
-          {visible.shop && (
-            <li><a href="/shop" class="text-foreground/85 hover:text-link transition-colors">Shop</a></li>
-          )}
-          {visible.giftCertificates && (
-            <li><a href="/gift-certificates" class="text-foreground/85 hover:text-link transition-colors">Gift Certificates</a></li>
-          )}
-        </ul>
-      </nav>
-    )}
-
-    {/* FREE TOOLS & GUIDES — only when at least one of its links is visible. */}
-    {showTools && (
-      <nav aria-labelledby="footer-tools">
-        <p id="footer-tools" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          Free tools &amp; guides
-        </p>
-        <ul class="text-sm space-y-2 list-none p-0">
-          {visible.styleQuiz && (
-            <li><a href="/quiz" class="text-foreground/85 hover:text-link transition-colors">Style Quiz</a></li>
-          )}
-          {visible.budgetCalculator && (
-            <li><a href="/calculator" class="text-foreground/85 hover:text-link transition-colors">Cost Calculator</a></li>
-          )}
-          {visible.guides && (
-            <li><a href="/guides" class="text-foreground/85 hover:text-link transition-colors">Guides</a></li>
-          )}
-          {visible.resources && (
-            <li><a href="/resources" class="text-foreground/85 hover:text-link transition-colors">Resources</a></li>
-          )}
-        </ul>
-      </nav>
-    )}
-
-    {/* LATEST PROJECTS — only when portfolio is visible. */}
-    {showLatest && (
-      <nav aria-labelledby="footer-latest">
-        <p id="footer-latest" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-          Latest projects
-        </p>
-        {latestProjects.length > 0 ? (
-          <ul class="text-sm space-y-2 list-none p-0">
-            {latestProjects.map((p: any) => (
+    {
+      /* EDITOR COLUMNS — Site settings -> Footer link columns. When Staci has
+        set any, they stand in for the four built-in link columns below. */
+    }
+    {
+      editorColumns?.map((col, i) => (
+        <nav aria-labelledby={`footer-col-${i}`}>
+          <p
+            id={`footer-col-${i}`}
+            class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase"
+          >
+            {col.title}
+          </p>
+          <ul class="list-none space-y-2 p-0 text-sm">
+            {col.links.map((link) => (
               <li>
                 <a
-                  href={`/portfolio/${p.slug?.current ?? ''}`}
-                  class="text-foreground/85 hover:text-link transition-colors"
+                  href={link.href}
+                  target={isExternalHref(link.href) ? '_blank' : undefined}
+                  rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                  class="text-foreground/85 transition-colors hover:text-link"
                 >
-                  {p.title}
+                  {link.label}
                 </a>
               </li>
             ))}
-            <li class="pt-xs">
-              <a
-                href="/portfolio"
-                class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
-              >
-                View all <span aria-hidden="true">→</span>
+          </ul>
+        </nav>
+      ))
+    }
+
+    {/* STUDIO */}
+    {
+      !editorColumns && (
+        <nav aria-labelledby="footer-studio">
+          <p id="footer-studio" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+            Studio
+          </p>
+          <ul class="list-none space-y-2 p-0 text-sm">
+            <li>
+              <a href="/about" class="text-foreground/85 transition-colors hover:text-link">
+                About Staci
               </a>
             </li>
+            <li>
+              <a href="/process" class="text-foreground/85 transition-colors hover:text-link">
+                Process
+              </a>
+            </li>
+            <li>
+              <a href="/services" class="text-foreground/85 transition-colors hover:text-link">
+                Services &amp; Pricing
+              </a>
+            </li>
+            <li>
+              <a href="/faq" class="text-foreground/85 transition-colors hover:text-link">
+                FAQ
+              </a>
+            </li>
+            {visible.press && (
+              <li>
+                <a href="/press" class="text-foreground/85 transition-colors hover:text-link">
+                  Press
+                </a>
+              </li>
+            )}
+            {footerPages.map((p) => (
+              <li>
+                <a href={`/${p.slug}`} class="text-foreground/85 transition-colors hover:text-link">
+                  {p.navLabel || p.title}
+                </a>
+              </li>
+            ))}
           </ul>
-        ) : (
-          <p class="text-sm text-foreground/85 italic">
-            Case studies are coming soon. <a href="/portfolio" class="text-link hover:text-primary-dark underline underline-offset-2">See the portfolio →</a>
-          </p>
-        )}
-      </nav>
-    )}
+        </nav>
+      )
+    }
 
-    {/* Brand signature, pulled into the row when the footer is sparse so it
-        reads as nav | brand | contact instead of two stranded columns. */}
-    {brandInline && (
-      <FooterBrand
-        brandName={brandName}
-        tagline={siteSettings?.tagline}
-        logoLightSrc={footerLogoLight1x.src}
-        logoLightSrcset={footerLogoLightSrcset}
-        logoDarkSrc={footerLogoDark1x.src}
-        logoDarkSrcset={footerLogoDarkSrcset}
-        class="md:max-w-[22rem]"
-      />
-    )}
+    {/* WORK — only when at least one of its links is visible. */}
+    {
+      showWork && (
+        <nav aria-labelledby="footer-work">
+          <p id="footer-work" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+            Work
+          </p>
+          <ul class="list-none space-y-2 p-0 text-sm">
+            {visible.portfolio && (
+              <li>
+                <a href="/portfolio" class="text-foreground/85 transition-colors hover:text-link">
+                  Portfolio
+                </a>
+              </li>
+            )}
+            {visible.portfolio && (
+              <li>
+                <a
+                  href="/portfolio/before-after"
+                  class="text-foreground/85 transition-colors hover:text-link"
+                >
+                  Before &amp; After
+                </a>
+              </li>
+            )}
+            {visible.journal && (
+              <li>
+                <a href="/journal" class="text-foreground/85 transition-colors hover:text-link">
+                  Journal
+                </a>
+              </li>
+            )}
+            {visible.shop && (
+              <li>
+                <a href="/shop" class="text-foreground/85 transition-colors hover:text-link">
+                  Shop
+                </a>
+              </li>
+            )}
+            {visible.giftCertificates && (
+              <li>
+                <a
+                  href="/gift-certificates"
+                  class="text-foreground/85 transition-colors hover:text-link"
+                >
+                  Gift Certificates
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )
+    }
+
+    {/* FREE TOOLS & GUIDES — only when at least one of its links is visible. */}
+    {
+      showTools && (
+        <nav aria-labelledby="footer-tools">
+          <p id="footer-tools" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+            Free tools &amp; guides
+          </p>
+          <ul class="list-none space-y-2 p-0 text-sm">
+            {visible.styleQuiz && (
+              <li>
+                <a href="/quiz" class="text-foreground/85 transition-colors hover:text-link">
+                  Style Quiz
+                </a>
+              </li>
+            )}
+            {visible.budgetCalculator && (
+              <li>
+                <a href="/calculator" class="text-foreground/85 transition-colors hover:text-link">
+                  Cost Calculator
+                </a>
+              </li>
+            )}
+            {visible.guides && (
+              <li>
+                <a href="/guides" class="text-foreground/85 transition-colors hover:text-link">
+                  Guides
+                </a>
+              </li>
+            )}
+            {visible.resources && (
+              <li>
+                <a href="/resources" class="text-foreground/85 transition-colors hover:text-link">
+                  Resources
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )
+    }
+
+    {/* LATEST PROJECTS — only when portfolio is visible. */}
+    {
+      showLatest && (
+        <nav aria-labelledby="footer-latest">
+          <p id="footer-latest" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+            Latest projects
+          </p>
+          {latestProjects.length > 0 ? (
+            <ul class="list-none space-y-2 p-0 text-sm">
+              {latestProjects.map((p: any) => (
+                <li>
+                  <a
+                    href={`/portfolio/${p.slug?.current ?? ''}`}
+                    class="text-foreground/85 transition-colors hover:text-link"
+                  >
+                    {p.title}
+                  </a>
+                </li>
+              ))}
+              <li class="pt-xs">
+                <a
+                  href="/portfolio"
+                  class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+                >
+                  View all <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            </ul>
+          ) : (
+            <p class="text-sm text-foreground/85 italic">
+              Case studies are coming soon.{' '}
+              <a
+                href="/portfolio"
+                class="text-link underline underline-offset-2 hover:text-primary-dark"
+              >
+                See the portfolio →
+              </a>
+            </p>
+          )}
+        </nav>
+      )
+    }
+
+    {
+      /* Brand signature, pulled into the row when the footer is sparse so it
+        reads as nav | brand | contact instead of two stranded columns. */
+    }
+    {
+      brandInline && (
+        <FooterBrand
+          brandName={brandName}
+          tagline={siteSettings?.tagline}
+          logoLightSrc={footerLogoLight1x.src}
+          logoLightSrcset={footerLogoLightSrcset}
+          logoDarkSrc={footerLogoDark1x.src}
+          logoDarkSrcset={footerLogoDarkSrcset}
+          class="md:max-w-[22rem]"
+        />
+      )
+    }
 
     {/* GET IN TOUCH — email, phone, location, socials. */}
     <div>
-      <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
-        Get in touch
-      </p>
-      <div class="text-sm space-y-1">
-        {email && <p><CopyEmailButton client:visible email={email} variant="link" /></p>}
-        {phone && (
-          <p>
-            <a
-              href={telHref(phone)}
-              class="inline-flex items-center gap-xs text-link hover:text-primary-dark transition-colors"
-            >
-              <Phone size={14} aria-hidden="true" />
-              {phone}
-            </a>
-          </p>
-        )}
+      <p class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">Get in touch</p>
+      <div class="space-y-1 text-sm">
+        {
+          email && (
+            <p>
+              <CopyEmailButton client:visible email={email} variant="link" />
+            </p>
+          )
+        }
+        {
+          phone && (
+            <p>
+              <a
+                href={telHref(phone)}
+                class="inline-flex items-center gap-xs text-link transition-colors hover:text-primary-dark"
+              >
+                <Phone size={14} aria-hidden="true" />
+                {phone}
+              </a>
+            </p>
+          )
+        }
       </div>
       <p class="mt-s text-sm text-foreground/75">
         {city}, {state}<br />
         Serving {serviceRegion}
       </p>
-      {chrome.showFooterSocials && (ig || fb) && (
-        <ul class="mt-m flex justify-center md:justify-start gap-s text-sm list-none p-0">
-          {ig && (
-            <li>
-              <a
-                href={ig}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground hover:bg-primary-dark hover:border-primary-dark hover:text-white transition-colors"
-              >
-                <IconBrandInstagram size={20} stroke={1.5} />
-              </a>
-            </li>
-          )}
-          {fb && (
-            <li>
-              <a
-                href={fb}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground hover:bg-primary-dark hover:border-primary-dark hover:text-white transition-colors"
-              >
-                <IconBrandFacebook size={20} stroke={1.5} />
-              </a>
-            </li>
-          )}
-        </ul>
-      )}
+      {
+        chrome.showFooterSocials && (ig || fb) && (
+          <ul class="mt-m flex list-none justify-center gap-s p-0 text-sm md:justify-start">
+            {ig && (
+              <li>
+                <a
+                  href={ig}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-primary-dark hover:bg-primary-dark hover:text-white"
+                >
+                  <IconBrandInstagram size={20} stroke={1.5} />
+                </a>
+              </li>
+            )}
+            {fb && (
+              <li>
+                <a
+                  href={fb}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-primary-dark hover:bg-primary-dark hover:text-white"
+                >
+                  <IconBrandFacebook size={20} stroke={1.5} />
+                </a>
+              </li>
+            )}
+          </ul>
+        )
+      }
     </div>
   </div>
 
-  {/* Logo + tagline — its own centered row below the columns when the footer is
-       full. When sparse it moves up into the row above instead (see brandInline). */}
-  {!brandInline && (
-    <div class="mx-auto max-w-content px-m pb-l">
-      <FooterBrand
-        brandName={brandName}
-        tagline={siteSettings?.tagline}
-        logoLightSrc={footerLogoLight1x.src}
-        logoLightSrcset={footerLogoLightSrcset}
-        logoDarkSrc={footerLogoDark1x.src}
-        logoDarkSrcset={footerLogoDarkSrcset}
-      />
-    </div>
-  )}
+  {
+    /* Logo + tagline — its own centered row below the columns when the footer is
+       full. When sparse it moves up into the row above instead (see brandInline). */
+  }
+  {
+    !brandInline && (
+      <div class="mx-auto max-w-content px-m pb-l">
+        <FooterBrand
+          brandName={brandName}
+          tagline={siteSettings?.tagline}
+          logoLightSrc={footerLogoLight1x.src}
+          logoLightSrcset={footerLogoLightSrcset}
+          logoDarkSrc={footerLogoDark1x.src}
+          logoDarkSrcset={footerLogoDarkSrcset}
+        />
+      </div>
+    )
+  }
 
-  {/* Thin bottom bar — copyright, privacy, optional "Site by..." credit on one
-       line so they don't add a tall block to a footer column. */}
+  {
+    /* Thin bottom bar — copyright, privacy, optional "Site by..." credit on one
+       line so they don't add a tall block to a footer column. */
+  }
   <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-xs text-xs text-foreground/80 text-center">
+    <div
+      class="mx-auto flex max-w-content flex-col items-center justify-center gap-xs px-m py-m text-center text-xs text-foreground/80 sm:flex-row sm:justify-between"
+    >
       <p>© {currentYear} {brandName}</p>
       <div class="flex items-center gap-m">
-        {/* Site settings -> Footer small-print links replaces this single
-            built-in Privacy link when Staci sets any. */}
-        {chrome.legalNav ? (
-          chrome.legalNav.map((link) => (
-            <a
-              href={link.href}
-              target={isExternalHref(link.href) ? '_blank' : undefined}
-              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-              class="underline underline-offset-2 hover:text-link transition-colors"
-            >
-              {link.label}
-            </a>
-          ))
-        ) : (
-          <a href="/privacy" class="underline underline-offset-2 hover:text-link transition-colors">
-            Privacy policy
-          </a>
-        )}
-        {siteCredit && (
-          siteCreditUrl ? (
-            <a
-              href={siteCreditUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="underline underline-offset-2 hover:text-link transition-colors"
-            >
-              {siteCredit}
-            </a>
+        {
+          /* Site settings -> Footer small-print links replaces this single
+            built-in Privacy link when Staci sets any. */
+        }
+        {
+          chrome.legalNav ? (
+            chrome.legalNav.map((link) => (
+              <a
+                href={link.href}
+                target={isExternalHref(link.href) ? '_blank' : undefined}
+                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                class="underline underline-offset-2 transition-colors hover:text-link"
+              >
+                {link.label}
+              </a>
+            ))
           ) : (
-            <span>{siteCredit}</span>
+            <a
+              href="/privacy"
+              class="underline underline-offset-2 transition-colors hover:text-link"
+            >
+              Privacy policy
+            </a>
           )
-        )}
+        }
+        {
+          siteCredit &&
+            (siteCreditUrl ? (
+              <a
+                href={siteCreditUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="underline underline-offset-2 transition-colors hover:text-link"
+              >
+                {siteCredit}
+              </a>
+            ) : (
+              <span>{siteCredit}</span>
+            ))
+        }
       </div>
     </div>
   </div>

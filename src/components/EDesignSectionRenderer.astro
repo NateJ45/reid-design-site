@@ -45,121 +45,170 @@ const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
 ---
 
-{rows.map((s: any, i: number) => (
-  <Wrap {...wrapAttrs(s._key)}>
-  {
-  s._type === 'eDesignSectionMarker' ? (
-    s.section === 'intro' ? (
-      page.intro && page.intro.length > 0 ? (
-        <section class="bg-background" aria-labelledby="edesign-intro-heading">
-          <div class="mx-auto max-w-content px-m py-section-lg">
-            <div class="max-w-3xl mx-auto">
-              <SectionHeading eyebrow="The Offering." headline="What is E-Design?" headingId="edesign-intro-heading" />
-              <div class="mt-l">
-                <PortableText value={page.intro} className="text-foreground/85 text-lg leading-relaxed" />
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null
-    ) : s.section === 'howItWorks' ? (
-      page.howItWorks && page.howItWorks.length > 0 ? (
-        <section class="surface-warm bg-muted" aria-labelledby="edesign-how-heading">
-          <div class="mx-auto max-w-content px-m py-section-lg">
-            <SectionHeading eyebrow="The Process." headline="How E-Design Works." headingId="edesign-how-heading" align="center" class="mx-auto" />
-            <ol class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l list-none p-0">
-              {page.howItWorks.map((step: any) => (
-                <li class="card-lift relative flex flex-col bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
-                  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
-                  <div class="p-l flex flex-col gap-s">
-                    <span class="font-mono text-4xl font-bold text-link leading-none" aria-hidden="true">
-                      {String(step.stepNumber).padStart(2, '0')}
-                    </span>
-                    <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
-                    {step.body && <p class="text-foreground/80 text-base leading-relaxed">{step.body}</p>}
+{
+  rows.map((s: any, i: number) => (
+    <Wrap {...wrapAttrs(s._key)}>
+      {s._type === 'eDesignSectionMarker' ? (
+        s.section === 'intro' ? (
+          page.intro && page.intro.length > 0 ? (
+            <section class="bg-background" aria-labelledby="edesign-intro-heading">
+              <div class="mx-auto max-w-content px-m py-section-lg">
+                <div class="mx-auto max-w-3xl">
+                  <SectionHeading
+                    eyebrow="The Offering."
+                    headline="What is E-Design?"
+                    headingId="edesign-intro-heading"
+                  />
+                  <div class="mt-l">
+                    <PortableText
+                      value={page.intro}
+                      className="text-foreground/85 text-lg leading-relaxed"
+                    />
                   </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-      ) : null
-    ) : s.section === 'whatsIncluded' ? (
-      page.whatsIncluded && page.whatsIncluded.length > 0 ? (
-        <section class="bg-background" aria-labelledby="edesign-included-heading">
-          <div class="mx-auto max-w-content px-m py-section-lg">
-            <div class="max-w-3xl mx-auto">
-              <SectionHeading eyebrow="The Deliverables." headline="What's Included." headingId="edesign-included-heading" />
-              <ul class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-y-m gap-x-l list-none p-0">
-                {page.whatsIncluded.map((item: string) => (
-                  <li class="flex items-start gap-s">
-                    <span class="mt-1.5 inline-block w-1.5 h-1.5 rounded-full bg-tertiary shrink-0" aria-hidden="true"></span>
-                    <span class="text-foreground/85">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-      ) : null
-    ) : s.section === 'tiers' ? (
-      page.tiers && page.tiers.length > 0 ? (
-        <section class="surface-warm bg-muted" aria-labelledby="edesign-tiers-heading">
-          <div class="mx-auto max-w-content px-m py-section-lg">
-            <SectionHeading eyebrow="The Tiers." headline="Choose the Right Package." headingId="edesign-tiers-heading" align="center" class="mx-auto" />
-            <div class="mt-section-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l">
-              {page.tiers.map((tier: any) => (
-                <article class="card-lift group relative flex flex-col h-full bg-card text-card-foreground border border-border-soft rounded-md overflow-hidden transition-colors hover:border-primary/40 shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
-                  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
-                  <div class="flex flex-col flex-1 p-l">
-                    <header>
-                      <h3 class="font-display text-h3 text-foreground">{tier.name}</h3>
-                      <p class="mt-xs text-sm font-mono uppercase tracking-eyebrow text-link">{tier.price}</p>
-                    </header>
-                    {tier.features && tier.features.length > 0 && (
-                      <ul class="mt-m space-y-1.5 text-sm text-foreground">
-                        {tier.features.map((feature: string) => (
-                          <li class="flex items-start gap-s">
-                            <span class="mt-1.5 inline-block w-1.5 h-1.5 rounded-full bg-tertiary shrink-0" aria-hidden="true"></span>
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    {tier.bestFor && (
-                      <div class="mt-m pt-m border-t border-border-soft">
-                        <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-xs">Best for</p>
-                        <p class="text-sm text-foreground/80 italic">{tier.bestFor}</p>
+                </div>
+              </div>
+            </section>
+          ) : null
+        ) : s.section === 'howItWorks' ? (
+          page.howItWorks && page.howItWorks.length > 0 ? (
+            <section class="surface-warm bg-muted" aria-labelledby="edesign-how-heading">
+              <div class="mx-auto max-w-content px-m py-section-lg">
+                <SectionHeading
+                  eyebrow="The Process."
+                  headline="How E-Design Works."
+                  headingId="edesign-how-heading"
+                  align="center"
+                  class="mx-auto"
+                />
+                <ol class="mt-section-lg grid list-none grid-cols-1 gap-l p-0 md:grid-cols-2 lg:grid-cols-3">
+                  {page.howItWorks.map((step: any) => (
+                    <li class="card-lift relative flex flex-col overflow-hidden rounded-md border border-border-soft bg-card text-card-foreground shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]">
+                      <div class="h-0.5 bg-primary" aria-hidden="true" />
+                      <div class="flex flex-col gap-s p-l">
+                        <span
+                          class="font-mono text-4xl leading-none font-bold text-link"
+                          aria-hidden="true"
+                        >
+                          {String(step.stepNumber).padStart(2, '0')}
+                        </span>
+                        <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
+                        {step.body && (
+                          <p class="text-base leading-relaxed text-foreground/80">{step.body}</p>
+                        )}
                       </div>
-                    )}
-                    <div class="mt-l pt-m flex-1 flex items-end">
-                      <a href={CONTACT_HREF} class="inline-flex items-center min-h-[44px] py-s text-xs font-semibold uppercase tracking-eyebrow text-link hover:text-primary-dark transition-colors">
-                        {tier.ctaLabel ?? 'Inquire about E-Design'} <span aria-hidden="true" class="ml-xs">→</span>
-                      </a>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null
-    ) : s.section === 'faq' ? (
-      page.faqRefs && page.faqRefs.length > 0 ? (
-        <section class="bg-background" aria-labelledby="edesign-faq-heading">
-          <div class="mx-auto max-w-content px-m py-section-lg">
-            <div class="max-w-3xl mx-auto">
-              <SectionHeading eyebrow="Common Questions." headline="E-Design FAQ." headingId="edesign-faq-heading" />
-              <div class="mt-l">
-                <FaqAccordion client:visible faqs={page.faqRefs} idPrefix="edesign-faq" />
+                    </li>
+                  ))}
+                </ol>
               </div>
-            </div>
-          </div>
-        </section>
-      ) : null
-    ) : null
-  ) : (
-    <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} />
-  )}
-  </Wrap>
-))}
+            </section>
+          ) : null
+        ) : s.section === 'whatsIncluded' ? (
+          page.whatsIncluded && page.whatsIncluded.length > 0 ? (
+            <section class="bg-background" aria-labelledby="edesign-included-heading">
+              <div class="mx-auto max-w-content px-m py-section-lg">
+                <div class="mx-auto max-w-3xl">
+                  <SectionHeading
+                    eyebrow="The Deliverables."
+                    headline="What's Included."
+                    headingId="edesign-included-heading"
+                  />
+                  <ul class="mt-l grid list-none grid-cols-1 gap-x-l gap-y-m p-0 sm:grid-cols-2">
+                    {page.whatsIncluded.map((item: string) => (
+                      <li class="flex items-start gap-s">
+                        <span
+                          class="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary"
+                          aria-hidden="true"
+                        />
+                        <span class="text-foreground/85">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </section>
+          ) : null
+        ) : s.section === 'tiers' ? (
+          page.tiers && page.tiers.length > 0 ? (
+            <section class="surface-warm bg-muted" aria-labelledby="edesign-tiers-heading">
+              <div class="mx-auto max-w-content px-m py-section-lg">
+                <SectionHeading
+                  eyebrow="The Tiers."
+                  headline="Choose the Right Package."
+                  headingId="edesign-tiers-heading"
+                  align="center"
+                  class="mx-auto"
+                />
+                <div class="mt-section-lg grid grid-cols-1 gap-l md:grid-cols-2 lg:grid-cols-3">
+                  {page.tiers.map((tier: any) => (
+                    <article class="card-lift group relative flex h-full flex-col overflow-hidden rounded-md border border-border-soft bg-card text-card-foreground shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40">
+                      <div class="h-0.5 bg-primary" aria-hidden="true" />
+                      <div class="flex flex-1 flex-col p-l">
+                        <header>
+                          <h3 class="font-display text-h3 text-foreground">{tier.name}</h3>
+                          <p class="mt-xs font-mono text-sm tracking-eyebrow text-link uppercase">
+                            {tier.price}
+                          </p>
+                        </header>
+                        {tier.features && tier.features.length > 0 && (
+                          <ul class="mt-m space-y-1.5 text-sm text-foreground">
+                            {tier.features.map((feature: string) => (
+                              <li class="flex items-start gap-s">
+                                <span
+                                  class="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary"
+                                  aria-hidden="true"
+                                />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {tier.bestFor && (
+                          <div class="mt-m border-t border-border-soft pt-m">
+                            <p class="mb-xs text-xs tracking-eyebrow text-foreground/80 uppercase">
+                              Best for
+                            </p>
+                            <p class="text-sm text-foreground/80 italic">{tier.bestFor}</p>
+                          </div>
+                        )}
+                        <div class="mt-l flex flex-1 items-end pt-m">
+                          <a
+                            href={CONTACT_HREF}
+                            class="inline-flex min-h-[44px] items-center py-s text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+                          >
+                            {tier.ctaLabel ?? 'Inquire about E-Design'}{' '}
+                            <span aria-hidden="true" class="ml-xs">
+                              →
+                            </span>
+                          </a>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+          ) : null
+        ) : s.section === 'faq' ? (
+          page.faqRefs && page.faqRefs.length > 0 ? (
+            <section class="bg-background" aria-labelledby="edesign-faq-heading">
+              <div class="mx-auto max-w-content px-m py-section-lg">
+                <div class="mx-auto max-w-3xl">
+                  <SectionHeading
+                    eyebrow="Common Questions."
+                    headline="E-Design FAQ."
+                    headingId="edesign-faq-heading"
+                  />
+                  <div class="mt-l">
+                    <FaqAccordion client:visible faqs={page.faqRefs} idPrefix="edesign-faq" />
+                  </div>
+                </div>
+              </div>
+            </section>
+          ) : null
+        ) : null
+      ) : (
+        <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} />
+      )}
+    </Wrap>
+  ))
+}

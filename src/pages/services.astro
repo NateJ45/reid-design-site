@@ -22,11 +22,13 @@ const [page, siteSettings] = await Promise.all([
   getSiteSettings().catch(() => null),
 ]);
 
-const title       = page?.seoTitle       ?? 'Services & Pricing · Reid Design';
+const title = page?.seoTitle ?? 'Services & Pricing · Reid Design';
 // Fallback only, used when servicesPage.seoDescription is empty. Deliberately
 // names no prices: this string lives in code and would go stale the next time
 // Staci changes a number in Sanity (it already had, at "$150").
-const description = page?.seoDescription ?? 'Interior design services for every space and stage, from in-home consultations to full-room design across Greater Indianapolis.';
+const description =
+  page?.seoDescription ??
+  'Interior design services for every space and stage, from in-home consultations to full-room design across Greater Indianapolis.';
 
 const services = page?.services ?? [];
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -52,13 +54,17 @@ const schemas = [
     visible={visible}
   />
 
-  {/* Sticky contextual CTA — appears past 50% scroll on this long page.
-      Label is Sanity-editable on servicesPage; clearing the field hides it. */}
-  {page?.stickyCtaLabel !== '' && (
-    <StickyCTAChip
-      client:idle
-      label={page?.stickyCtaLabel ?? 'Ready to talk it through?'}
-      href="/contact"
-    />
-  )}
+  {
+    /* Sticky contextual CTA — appears past 50% scroll on this long page.
+      Label is Sanity-editable on servicesPage; clearing the field hides it. */
+  }
+  {
+    page?.stickyCtaLabel !== '' && (
+      <StickyCTAChip
+        client:idle
+        label={page?.stickyCtaLabel ?? 'Ready to talk it through?'}
+        href="/contact"
+      />
+    )
+  }
 </BaseLayout>

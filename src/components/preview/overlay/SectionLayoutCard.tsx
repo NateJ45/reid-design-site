@@ -146,7 +146,8 @@ export default function SectionLayoutCard(props: OverlayComponentProps): React.R
       const found = sectionByKey(doc, section.array, section.key);
       const type = typeof found?._type === 'string' ? found._type : '';
       const values: Record<string, string | number | ''> = {};
-      for (const field of layoutFieldsFor(type)) values[field.name] = storedLayout(found, field.name);
+      for (const field of layoutFieldsFor(type))
+        values[field.name] = storedLayout(found, field.name);
       setChosen({ type, raw: found, values });
     });
     return () => {

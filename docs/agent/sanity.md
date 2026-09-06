@@ -12,10 +12,10 @@ Hardcoded constants that don't change between deploys: domain name, GitHub repo 
 
 ```ts
 export const site = {
-  name: "Reid Design LLC",
-  studio: "Reid Design LLC",
-  domain: "reiddesignllc.com",
-  storageKeyPrefix: "reid-design",
+  name: 'Reid Design LLC',
+  studio: 'Reid Design LLC',
+  domain: 'reiddesignllc.com',
+  storageKeyPrefix: 'reid-design',
   // ... etc
 } as const;
 ```
@@ -27,9 +27,11 @@ All publicly-visible content lives in Sanity, not in code or markdown files. Thi
 Sanity content types (full spec in `02-sanity-schemas.md` from the migration planning docs):
 
 **Settings & globals (1):**
+
 - `siteSettings` (singleton) — email, phone (shown site-wide as a tap-to-call link in the header, footer, mobile menu, and contact page), social links, service areas, availability status (header pill + eyebrow strip), travel fees, footer tagline. Most user-visible identity text comes from here.
 
 **Reusable content collections (6):**
+
 - `service` — In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder & Realtor Partnerships, plus E-Design. Optional `featuredImage` renders a small visual at the top of each pricing card (`ServiceCard.astro` falls back gracefully when absent).
 - `testimonial` — Client testimonials with attribution, source, date. Optional `photo` (circular avatar), `location` (e.g., "Fishers, IN"), and `relatedProject` (reference) are real trust-currency for a local studio. When `relatedProject` is set, both `TestimonialCard.astro` and `FeaturedTestimonial.astro` render a "See this project →" link that jumps to the case study.
 - `faqItem` — FAQ questions with category, displayed on both FAQ page and (selectively) Process page
@@ -45,6 +47,7 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
   - Journal cross-link is automatic: any journal post that sets its **Related project** is surfaced in a "Featured in the journal" section on the project page (reverse GROQ in `getProjectBySlug`, no field on the project, so the link is maintained only on the journal side).
 
 **Page singletons (7):**
+
 - `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage` — One document per page. All seven page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`. Journal posts (`journalEntry`) have a `coverImage` with optional caption + a `sourcedFrom` annotation in the body marks.
 - `homePage` additionally has a `heroImages` array (images with optional alt). One image renders the static hero; two or more render a cross-fading slideshow with a subtle Ken Burns zoom (`HeroBackground.astro`, CSS in `globals.css`). It supersedes the home page's single `heroImage`, which was migrated into `heroImages[0]` by `scripts/migrate-home-hero-images.mjs` and hidden in the Studio (data preserved, used only as a fallback). Projected as `heroImages[]` in `getHomePage`. The slideshow is home-only; other pages keep their single `heroImage`.
 - `aboutPage` has a `personal` field group with: `personalEyebrow`, `personalHeadline`, `personalIntro`, `currentlyList[]` (label + value pairs), `rapidFire[]` (prompt + answer pairs), `localSpots[]` (name + optional note), `beyondDesign` (text paragraph), `candidPhoto` (image with required alt). All of these are projected in `getAboutPage()` in `src/lib/queries.ts` via the shared `IMAGE_PROJECTION`. The whole section self-suppresses when `personalHeadline` is not set and all list fields are empty.
@@ -52,11 +55,13 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 - Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `journalPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a fixed `bg-accent-dark/70` charcoal scrim so the cream headline and bronze button stay readable; when empty, the Final CTA stays the solid Charcoal Dark panel. The journal image is shared across the journal index and every post (it lives on `journalPage`). Projected with `IMAGE_PROJECTION` in each page query.
 
 **Studio guide singletons (3, protected):**
+
 - `studioGuide` — drives the "How the website works" panel (StudioGuide.tsx). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]` (with a tone enum). Plain text throughout (no Portable Text).
 - `studioNotes` — drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout.
 - `studioPlaybook` — drives the "Grow your studio" panel (StudioPlaybook.tsx). Fields: `title`, `intro`, `guides[]` (each `playbookGuide`: `title`, `summary`, `sections[]`; each `playbookSection`: `heading`, `tone` enum, `body`, `bullets[]`, `links[]` of label+url). Five professional-development guides (photography, portfolio and journal writing, software toolkit, e-design, trade sourcing), seeded by `scripts/seed-studio-playbook.mjs`. Plain text throughout. All three guide singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
 
 **Reusable object types (embedded, not standalone documents):**
+
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
 
 ### Where the Studio lives (rewritten 2026-08-28)
@@ -64,17 +69,17 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 **One package, one Studio, embedded at `/studio`.** The nested `studio/` package
 is gone. Its contents moved into this one:
 
-| Was | Is now |
-|---|---|
-| `studio/sanity.config.ts` | `sanity.config.ts` (repo root) |
-| `studio/sanity.cli.ts` | `sanity.cli.ts` (repo root) |
-| `studio/schemaTypes/*` | `src/sanity/schemaTypes/*` |
-| `studio/components/*` | `src/sanity/components/*` |
-| `studio/actions/archive.tsx`, `studio/lib/trash.ts` | `src/sanity/actions/`, `src/sanity/lib/` |
-| `studio/structure.ts`, `studio/global.d.ts`, `studio/reid-logo.png` | `src/sanity/` |
-| `npm --prefix studio run typegen` | `npm run typegen` from the root |
-| `npm run studio:dev` | `npm run dev`, then `/studio` |
-| `npm run studio:deploy` | nothing. The Studio ships with the site |
+| Was                                                                 | Is now                                   |
+| ------------------------------------------------------------------- | ---------------------------------------- |
+| `studio/sanity.config.ts`                                           | `sanity.config.ts` (repo root)           |
+| `studio/sanity.cli.ts`                                              | `sanity.cli.ts` (repo root)              |
+| `studio/schemaTypes/*`                                              | `src/sanity/schemaTypes/*`               |
+| `studio/components/*`                                               | `src/sanity/components/*`                |
+| `studio/actions/archive.tsx`, `studio/lib/trash.ts`                 | `src/sanity/actions/`, `src/sanity/lib/` |
+| `studio/structure.ts`, `studio/global.d.ts`, `studio/reid-logo.png` | `src/sanity/`                            |
+| `npm --prefix studio run typegen`                                   | `npm run typegen` from the root          |
+| `npm run studio:dev`                                                | `npm run dev`, then `/studio`            |
+| `npm run studio:deploy`                                             | nothing. The Studio ships with the site  |
 
 **Why it had to be one package.** Two `node_modules` trees means two module
 instances of `styled-components` and `@sanity/ui`, same pinned versions or not.
@@ -232,6 +237,7 @@ Worth knowing if the Studio's Dark appearance setting ever comes up: `buildLegac
 Two schema-level controls govern what Canvas sees, both expressed as `options.canvasApp.*` on a defineType or defineField:
 
 **Excluded from Canvas entirely** (`options.canvasApp.exclude: true` at the type level):
+
 - All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage`) — marketing copy is structural and locked; edit fields directly in Studio.
 - `siteSettings` — configuration, not prose.
 - `studioGuide`, `studioNotes`, `studioPlaybook` — Studio handbook content; edit directly in Studio (all excluded by design to avoid a renderer dependency).
@@ -240,6 +246,7 @@ Two schema-level controls govern what Canvas sees, both expressed as `options.ca
 - `journalCategory` — taxonomy, not content.
 
 **Available in Canvas with per-field voice hints** (`options.canvasApp.purpose: '...'` on prose fields):
+
 - `journalEntry` — title, excerpt, body, seoTitle, seoDescription
 - `project` — title, briefSummary, introStory, metaTitle, metaDescription
 - `service` — shortDescription, bestFor, longDescription
@@ -262,6 +269,7 @@ The Sanity client is at `src/lib/sanity.ts`. It exports both `client` (for queri
 ### Auto-populated lists
 
 Several pages pull their content from collections automatically rather than requiring per-page configuration. Examples:
+
 - Services on the Services page: all `service` documents in `displayOrder`.
 - Services in the homepage grid: `service` documents where `showOnHomepage` is true, in `displayOrder`.
 - Process steps everywhere: all `processStep` documents in `stepNumber` order.
@@ -299,6 +307,7 @@ Draft autosave persists to `localStorage["reid-design-contact-draft"]` so a long
 ### Form spam protection
 
 Web3Forms provides three layers:
+
 - **Honeypot field** (`botcheck` hidden input) that bots fill but humans don't see. `ContactForm.tsx` includes it; verify before deploy.
 - **hCaptcha** as a fallback if the honeypot proves insufficient. The form supports it via the `h-captcha-response` field; enable in the Web3Forms dashboard if spam becomes a problem.
 - **Rate limiting** on Web3Forms' side (250/month on the free tier).

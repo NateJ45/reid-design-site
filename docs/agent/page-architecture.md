@@ -7,6 +7,7 @@
 The home page section order is conversion-tuned (reordered 2026-05): visual proof and social proof come early, price transparency mid-funnel, the long-read journal sits late for visitors in research mode. Don't reorder without a conversion reason. If a section's content isn't ready yet, build a placeholder block in the right slot.
 
 **Home page** (in render order):
+
 1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
 2. Meet Staci (photo, intro copy, CTA to About)
 3. Featured Work (auto-populated — hero project + companion panel; visual proof, the hook)
@@ -25,6 +26,7 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 **Featured Work + Featured Journal** pull the most-relevant 4 projects + 4 journal entries from Sanity, ordered featured-first (`featured: true` pinned to the top) then by publish date. Both suppress entirely when the collection is empty, and degrade to a centered single-hero spread (`max-w-4xl`, wide `16/10` aspect) when there's only one item. With companions they render as a two-column grid: a full-bleed hero card (image fills via `lg:h-full` + a `min-h` floor so it's always flush with the right column, never leaving a `bg-card` strip) beside a single **cohesive companion panel** — one card, one bronze stripe, one shadow, with each project/post as a row split by hairline dividers and a per-row hover tint. The panel fills the column (`lg:h-full`) and distributes rows with `flex-1` so its bottom lines up with the hero. Editor controls eyebrow / headline / subhead / CTA via the `homePage` singleton's `featuredWork*` + `featuredJournal*` field groups; section headings are center-aligned to match the rest of the page.
 
 **Site-wide pages** (6 total, all linked from the primary nav):
+
 - Home (`/`)
 - Process (`/process`)
 - Services (`/services`)
@@ -35,6 +37,7 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus auto-populated content from reusable collections (services, testimonials, FAQs, process steps, philosophy points). The structure of each page is fixed in code; the content within each section is editable in Sanity.
 
 **About page** (in render order):
+
 1. Hero
 2. Story
 3. Philosophy cards
@@ -44,6 +47,7 @@ Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus 
 7. Final CTA
 
 Now also live (built during placeholder-content phase):
+
 - Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`) — schema + 3 placeholder projects (now prefixed `[SAMPLE: delete before launch]` in the seeder, no photos; delete or replace before cutover). Real projects require at least 3 photos.
 - Journal/blog (`/journal` index, `/journal/[slug]` post) — flexible `journalEntry` schema with seven custom inline block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) plus standard Portable Text. Categories live in `journalCategory` taxonomy
 - E-Design — seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
@@ -71,8 +75,9 @@ Optional sections of the site can be turned on or off without touching code. The
 **Helper.** `src/lib/sectionVisibility.ts` exports `getSectionVisibility(raw)`, which converts the raw Sanity object into a flat `SectionVisibility` map of plain booleans. The critical rule is `value !== false`: undefined, null, or true all produce `true` (visible). Only an explicit `false` produces `false` (hidden). This rule is what makes new sites safe to deploy before content is ready.
 
 **What "off" does.** When a toggle is off, the section disappears everywhere simultaneously:
+
 - Removed from the desktop nav (`Header.astro`) and mobile drawer (`MobileNav.tsx`)
-- Removed from the footer link columns (`Footer.astro`). When *every* link in a footer column is toggled off, the whole column drops out, heading included, instead of leaving a dangling title over nothing. `Footer.astro` computes a per-column `showWork` / `showTools` / `showLatest` flag and a dynamic `lg:grid-cols-{n}` class so the remaining columns rebalance and Get-in-touch stays at the right edge. The Studio and Get-in-touch columns always render (core-page links / contact details), so they are never empty. When only two or three columns survive (`brandInline = colCount <= 3`), the layout switches from the even grid to a balanced "nav | brand | contact" flex row: the brand signature (`FooterBrand.astro`, the logo + tagline) moves up from its own centered row into the column row so a sparse footer fills the width instead of stranding two columns with a big gap. With 4+ columns the grid already looks full, so the brand keeps its own centered row below.
+- Removed from the footer link columns (`Footer.astro`). When _every_ link in a footer column is toggled off, the whole column drops out, heading included, instead of leaving a dangling title over nothing. `Footer.astro` computes a per-column `showWork` / `showTools` / `showLatest` flag and a dynamic `lg:grid-cols-{n}` class so the remaining columns rebalance and Get-in-touch stays at the right edge. The Studio and Get-in-touch columns always render (core-page links / contact details), so they are never empty. When only two or three columns survive (`brandInline = colCount <= 3`), the layout switches from the even grid to a balanced "nav | brand | contact" flex row: the brand signature (`FooterBrand.astro`, the logo + tagline) moves up from its own centered row into the column row so a sparse footer fills the width instead of stranding two columns with a big gap. With 4+ columns the grid already looks full, so the brand keeps its own centered row below.
 - Removed from the homepage: Featured Work block (portfolio), Featured Journal block (journal), PressStrip (press)
 - Removed from the About page PressStrip (press)
 - The section's own index page (`/portfolio`, `/journal`, `/shop`, `/e-design`, `/gift-certificates`, `/press`, `/resources`, `/guides`, `/quiz`, `/calculator`) redirects home via `return Astro.redirect('/')` at the top of the page
@@ -83,6 +88,7 @@ Optional sections of the site can be turned on or off without touching code. The
 **Draft safety.** Turning a section off does not delete or unpublish any content in Sanity. Drafts and published documents are untouched. Turning it back on makes everything reappear after the next rebuild (roughly 1 to 3 minutes).
 
 Header nav uses a grouped structure (reorganized in the conversion build to hold the new offerings + capture tools without crowding the row). Flat links plus two dropdown groups, left to right: **Home / Portfolio / Services ▾ / Shop / Resources ▾ / About**.
+
 - **Services ▾** → Services, E-Design, Process, Gift Certificates
 - **Resources ▾** → Style Quiz, Cost Calculator, Guides, FAQ, Journal
 

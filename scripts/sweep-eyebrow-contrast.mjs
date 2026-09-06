@@ -33,13 +33,13 @@ const files = walk(srcRoot);
 
 const REPLACEMENTS = [
   // tracking-eyebrow (our canonical eyebrow utility)
-  { from: /tracking-eyebrow text-secondary/g,         to: 'tracking-eyebrow text-foreground/65' },
+  { from: /tracking-eyebrow text-secondary/g, to: 'tracking-eyebrow text-foreground/65' },
   // tracking-widest (used in older patterns + sidebar/footer captions)
-  { from: /tracking-widest text-secondary/g,          to: 'tracking-widest text-foreground/65' },
+  { from: /tracking-widest text-secondary/g, to: 'tracking-widest text-foreground/65' },
   // arbitrary tracking like tracking-[0.22em]
-  { from: /tracking-\[0\.22em\] text-secondary/g,     to: 'tracking-[0.22em] text-foreground/65' },
-  { from: /tracking-\[0\.18em\] text-secondary/g,     to: 'tracking-[0.18em] text-foreground/65' },
-  { from: /tracking-\[0\.2em\] text-secondary/g,      to: 'tracking-[0.2em] text-foreground/65' },
+  { from: /tracking-\[0\.22em\] text-secondary/g, to: 'tracking-[0.22em] text-foreground/65' },
+  { from: /tracking-\[0\.18em\] text-secondary/g, to: 'tracking-[0.18em] text-foreground/65' },
+  { from: /tracking-\[0\.2em\] text-secondary/g, to: 'tracking-[0.2em] text-foreground/65' },
 ];
 
 let totalChanges = 0;
@@ -65,11 +65,16 @@ for (const file of files) {
   if (next !== src) {
     totalChanges += fileChanges;
     writeFileSync(file, next, 'utf8');
-    touched.push({ file: file.replace(root + '\\', '').replace(root + '/', ''), changes: fileChanges });
+    touched.push({
+      file: file.replace(root + '\\', '').replace(root + '/', ''),
+      changes: fileChanges,
+    });
   }
 }
 
-console.log(`Swept ${totalChanges} eyebrow text-secondary → text-foreground/65 across ${touched.length} files:`);
+console.log(
+  `Swept ${totalChanges} eyebrow text-secondary → text-foreground/65 across ${touched.length} files:`,
+);
 for (const t of touched) {
   console.log(`  ${t.file}  (${t.changes})`);
 }

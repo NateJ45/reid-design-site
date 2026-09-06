@@ -50,11 +50,58 @@ await client.createOrReplace({
   navLabel: 'Studio Tour',
   addToFooter: true,
   pageBuilder: [
-    { _key: 's1', _type: 'heroSection', eyebrow: 'A peek behind the scenes', headline: 'A look inside the studio', subhead: 'How Reid Design works, room by room.', size: 'short' },
-    { _key: 's2', _type: 'richTextSection', heading: 'Where it starts', body: [block('b1', 'Every project begins with a conversation about how the space actually needs to function. The design follows from there, not the other way around.')], width: 'narrow', align: 'center' },
-    { _key: 's3', _type: 'imageTextSection', eyebrow: 'In context', heading: 'Designed for how you live', imageSide: 'left', image: { _type: 'image', asset: { _type: 'reference', _ref: imgRef }, alt: 'Staci Perkins in a warmly designed interior.' }, body: [block('b2', 'We start from your habits and your home, then choose pieces that hold up to everyday life.')] },
-    { _key: 's4', _type: 'quoteSection', quote: 'Staci made our home feel like us, not like a showroom.', attribution: 'A Plainfield client', detail: 'Living room refresh' },
-    { _key: 's5', _type: 'ctaBandSection', headline: 'Ready to start?', subhead: 'Book a consultation and we will take it from there.' },
+    {
+      _key: 's1',
+      _type: 'heroSection',
+      eyebrow: 'A peek behind the scenes',
+      headline: 'A look inside the studio',
+      subhead: 'How Reid Design works, room by room.',
+      size: 'short',
+    },
+    {
+      _key: 's2',
+      _type: 'richTextSection',
+      heading: 'Where it starts',
+      body: [
+        block(
+          'b1',
+          'Every project begins with a conversation about how the space actually needs to function. The design follows from there, not the other way around.',
+        ),
+      ],
+      width: 'narrow',
+      align: 'center',
+    },
+    {
+      _key: 's3',
+      _type: 'imageTextSection',
+      eyebrow: 'In context',
+      heading: 'Designed for how you live',
+      imageSide: 'left',
+      image: {
+        _type: 'image',
+        asset: { _type: 'reference', _ref: imgRef },
+        alt: 'Staci Perkins in a warmly designed interior.',
+      },
+      body: [
+        block(
+          'b2',
+          'We start from your habits and your home, then choose pieces that hold up to everyday life.',
+        ),
+      ],
+    },
+    {
+      _key: 's4',
+      _type: 'quoteSection',
+      quote: 'Staci made our home feel like us, not like a showroom.',
+      attribution: 'A Plainfield client',
+      detail: 'Living room refresh',
+    },
+    {
+      _key: 's5',
+      _type: 'ctaBandSection',
+      headline: 'Ready to start?',
+      subhead: 'Book a consultation and we will take it from there.',
+    },
   ],
 });
 

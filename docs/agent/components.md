@@ -30,18 +30,21 @@ shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with por
 The current component set, by role. All in `src/components/` unless noted.
 
 **Page chrome:**
+
 - `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer). New logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`. The eyebrow strip carries the availability status (also a compact pill on the mobile row), email, and phone; on mobile the availability shows a compact "Open" that expands to the full status from md up.
 - `Footer.astro` — bronze stripe, a compact brand bar (just the studio logo, which wraps in `<a href="/">` so click returns home), a responsive link grid (1 / 2 / 3 / 5 columns as the viewport widens, so a column never gets too narrow for the email), latest projects from Sanity, auto-year copyright + "Site by …" credit now on a thin bottom bar (not stacked in a column). The fifth grid column (Get in touch) lists email + phone (`tel:` via `telHref`) + socials. The compact brand bar instead of the old tall stacked block keeps the footer to roughly half its previous height (~half the viewport on desktop).
 - `MobileNav.tsx` — shadcn Sheet drawer (`client:only="react"` — Radix portal can't SSR). Bronze stripe top, primary CTA, tagline, nav links, email + phone (`tel:` via `telHref`) + socials + theme toggle, logo at bottom.
 - `BaseLayout.astro` — anti-FOUC theme bootstrap, View Transitions, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**.
 
 **Hero + page-top:**
+
 - `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap, and `backgroundImages?: SanityImageObject[]` for the home hero slideshow (falls back to the single `backgroundImage` for every other page). Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
 - `HeroBackground.astro` — the hero background layer. Renders a single static `SanityImage` for 0-1 images, or a cross-fading Ken Burns slideshow for 2+ (see Polish layer, Home hero slideshow), plus the two readability overlays. The slide CSS lives in `globals.css`. Used only by `Hero.astro`.
 - `SectionHeading.astro` — eyebrow + bronze hairline accent + headline + subhead. Used by text-variant Hero and every interior section heading. Supports `tone="inverse"` for dark FinalCta panels.
 - `ReadingProgress.astro` — fixed 3px bronze track at the top of `<article>`-wrapped pages. Used on journal posts.
 
 **Marketing cards (all share the brand-stripe + resting-shadow rhythm):**
+
 - `ServiceCard.astro` — service tier (price + features + best-for + CTA).
 - `ProjectCard.astro` — portfolio grid card. Includes humanized roomType chip top-left on the hero image. Hero image uses the `.img-zoom` + `.img-tint` hover treatment (see Polish layer).
 - `JournalCard.astro` — journal index card (featured variant spans 2 cols). Hero image uses `.img-zoom` + `.img-tint.img-tint-light` (the lighter tint variant).
@@ -49,14 +52,16 @@ The current component set, by role. All in `src/components/` unless noted.
 - `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
 
 **Home page Featured sections (auto-from-Sanity hero + companion panel):**
+
 - `FeaturedWork.astro` — large editorial hero project (cover image with room chip + title + brief overlaid on a full-height dark gradient) beside a single cohesive companion panel (one card / one bronze stripe / one shadow; each project a row split by hairline dividers with a per-row `hover:bg-muted/60` tint). With companions the hero image fills the grid-stretched card (`lg:h-full` + `lg:min-h-[28rem]` floor) so it's always flush with the panel — no `bg-card` strip below an aspect-locked image. With no companions it degrades to a centered `max-w-4xl` single hero at `lg:aspect-[16/10]`. Mobile always uses portrait (`aspect-[4/5]`) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below. The hero image carries the `.img-curtain` reveal as its last child; the gradient / chips / text overlay are pinned at `z-[1]` / `z-[2]` / `z-[3]` so the curtain (`z-10`) cleanly covers them during the reveal.
 - `FeaturedJournal.astro` — mirrors `FeaturedWork` exactly (same hero-fill + cohesive panel + no-companions degrade) with cover image + category chip + date + title + lede excerpt overlaid. Title uses `text-h3 md:text-h2 line-clamp-3` because journal titles run long; excerpt is `line-clamp-3`.
 
 Both sections feed off the `featured: boolean` on `project` and `journalEntry`. Queries (`getHomePage()` → `featuredProjects` + `featuredJournalEntries`) order `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot. The overlay text reserves a right corridor (`pr-28 md:pr-36`) so a long title never wraps under the ★ Featured pill at top-right.
 
-**Gotcha — bottom-anchored overlay vs. image height.** Both hero cards pin the title block to `absolute bottom-0` of the image. If the overlay content is taller than the image, `overflow-hidden` clips the *top* of it (the chips row disappears). Two levers keep it safe: a portrait mobile aspect (`4/5`, never wide) and capping the no-companions desktop case at `16/10` (not `2/1`). If you make a hero image wider/shorter and the eyebrow chips vanish, this is why.
+**Gotcha — bottom-anchored overlay vs. image height.** Both hero cards pin the title block to `absolute bottom-0` of the image. If the overlay content is taller than the image, `overflow-hidden` clips the _top_ of it (the chips row disappears). Two levers keep it safe: a portrait mobile aspect (`4/5`, never wide) and capping the no-companions desktop case at `16/10` (not `2/1`). If you make a hero image wider/shorter and the eyebrow chips vanish, this is why.
 
 **Project detail page pieces:**
+
 - `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.
 - `BeforeAfterSlider.tsx` — drag-to-reveal with cream-mat framing + opacity-tracking Before/After pills.
 - `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox.
@@ -71,12 +76,14 @@ Both `/portfolio/[slug]` and `/journal/[slug]` use the same long-read structure 
 2. **Cover/hero image** — `max-w-4xl mx-auto px-m` (~896 px), `<SanityImage width={1800} loading="eager" sizes="(min-width: 920px) 896px, 100vw">`. Reads as an editorial feature, not a billboard.
 3. **Body grid with optional TOC** — extract h2/h3/h4 headings via `extractHeadings(body)`, set `hasToc = headings.length > 0`, then use this grid template:
    ```astro
-   <div class:list={[
-     'mx-auto max-w-content px-m py-section-lg grid grid-cols-1 gap-section-md lg:justify-center',
-     hasToc
-       ? 'lg:grid-cols-[260px_minmax(0,65ch)]'   // portfolio
-       : 'lg:grid-cols-[minmax(0,65ch)]',
-   ]}>
+   <div
+     class:list={[
+       'mx-auto grid max-w-content grid-cols-1 gap-section-md px-m py-section-lg lg:justify-center',
+       hasToc
+         ? 'lg:grid-cols-[260px_minmax(0,65ch)]' // portfolio
+         : 'lg:grid-cols-[minmax(0,65ch)]',
+     ]}
+   >
      {hasToc && <CaseStudyTOC client:idle headings={headings} />}
      <article>...</article>
    </div>
@@ -89,24 +96,29 @@ Both `/portfolio/[slug]` and `/journal/[slug]` use the same long-read structure 
 The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortableText.tsx` for journal posts) detect image orientation from the Sanity asset `_ref` and apply different figure widths — portrait shots cap at `max-w-[600px] mx-auto`, landscape shots fill or extend the column per the editor's chosen size variant. See the [Portrait orientation caps](#portrait-orientation-caps) note in Image handling.
 
 **Process page pieces:**
+
 - `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage). Accepts `isLast?: boolean`; when false it renders a `.step-connector` thread in the left column (the article grid is `items-stretch` so it fills the step height). Pass `isLast={i === arr.length - 1}` at every call site.
 - `ProcessStepIllustration.astro` — inline SVG line illustrations in Soft Sage above each numeral (1-4).
 
 **About page pieces:**
+
 - `StatsRow.astro` + `StatsCounter.tsx` — the studio stat-counter row on `/about` (between PressStrip and FinalCta). `StatsRow.astro` is the server shell that suppresses the section when `aboutPage.stats` is empty; `StatsCounter.tsx` is a `client:visible` React island that counts each figure up from zero (easeOutQuart, 1.8s) once scrolled into view, via `requestAnimationFrame` (no animation library). Reduced-motion users get the final numbers immediately. See Polish layer → Studio stat counters.
 - `AboutPersonal.astro` — renders the "off the clock" personal section on `/about`. Four modules, each self-hides when its content is empty: "Currently" (label/value list), "Rapid fire" (prompt/answer pairs), "Favorite local spots" (name + optional note), and "Beyond design" (casual paragraph + optional candid photo). The whole section renders nothing when all modules are empty. Follows the brand card pattern (bronze top stripe, card-lift shadow). Content comes from the `personal` field group on `aboutPage` (see editor-driven fields below).
 
 **Portfolio index pieces:**
+
 - `PortfolioFilterChips.tsx` — Room × Style filter chips. Filters via data attributes; persists in URL hash. Auto-hides when fewer than 2 values exist in either axis.
 - `PortfolioCursor.tsx` — bronze "View →" custom cursor over portfolio grid on desktop hover-capable devices. Bails out on touch + reduced-motion.
 
 **Contact page pieces:**
+
 - `ContactForm.tsx` — Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source. See Form section for full field list.
 - `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in Footer, Contact sidebar, and Contact-page failsafe paragraph.
 - `CalendlyInline.tsx` — click-to-load Calendly iframe placeholder. Heavy widget stays off the budget until visitor opts in.
 - `ServiceAreaMap.astro` — small map for the contact sidebar.
 
 **Site-wide affordances:**
+
 - `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
 - `SectionDivider.astro` — bronze ornament between sections that share a background color (variants: `ornament` (default ✺) / `line` / `dots`).
 - `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Falls back to italic single line when no `cities` array passed.
@@ -116,6 +128,7 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `ThemeToggle.tsx`, `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
 
 **Capture tools + offerings (conversion build):**
+
 - `NewsletterSignup.tsx` (`client:visible`) — email-capture card. Renders `null` when `siteSettings.newsletter.enabled` is false or no form-action / Web3Forms key exists. Honeypot + focus-on-error. Used in the footer.
 - `LeadMagnetForm.tsx` (`client:visible`) — gated guide download on `/guides/[slug]`. Reveals the download link on successful email capture. Honeypot + optional first-name field.
 - `StyleQuiz.tsx` (`client:visible`) — multi-step archetype quiz on `/quiz`: questions → optional qualifiers → email gate (mode from Sanity) → result screen with recommendation + CTA. Page pre-builds Sanity image URLs so the island carries no Sanity client.
@@ -126,6 +139,7 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `subscribeEmail()` in `src/lib/subscribe.ts` — shared client-safe capture helper for the four forms above. Posts to the ESP form-action URL when configured, else falls back to Web3Forms. The form component owns the honeypot; this helper only does the network call.
 
 **Sanity Studio components (in `studio/components/`):**
+
 - `StudioLogo.tsx` — replaces the default Sanity wordmark in the Studio header with the Reid Design logo. Wired via `studio.components.logo` in `studio/sanity.config.ts`.
 - `StudioGuide.tsx` — Panel 1 of the "Start Here" handbook. Fetches its content from the `studioGuide` singleton via `useClient` and renders the guide title, intro, site map, how-tos, and tips. The guide is now editor-driven: Staci (or Nathan) can update the handbook text directly in Studio without a code change.
 - `BusinessOverview.tsx` — Panel 2 of the "Start Here" handbook. Fetches live business facts from Sanity via `useClient` (contact info, service areas, availability, plus the three static sections now read from the `studioNotes` singleton: business summary, ideal client, voice summary + words to avoid).
@@ -137,6 +151,7 @@ All four panels are wired in `studio/structure.ts` under a "Start Here" parent l
 The desktop nav dropdowns live directly in `Header.astro` as SSR'd `<details>` (see Page architecture → Header nav), not as a React island.
 
 **Utility / lower-level:**
+
 - `JournalCategoryChip.astro`, `JournalCard.astro`, `TestimonialGrid.astro`, etc.
 
 ### Mobile-only alignment pattern
@@ -161,6 +176,7 @@ Labels are Sanity-editable now: `servicesPage.stickyCtaLabel` for /services, `jo
 ### CtaLink `onDark` prop
 
 `src/components/CtaLink.astro` accepts an `onDark?: boolean` prop. When true:
+
 - **Secondary variant** swaps from `border-primary text-link` (bronze on light) to `border-white/70 text-white hover:bg-white/10` (cream on dark).
 - **Focus ring** offsets against `transparent` instead of `--background` so the ring still reads on photographic surfaces.
 

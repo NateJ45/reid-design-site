@@ -55,8 +55,8 @@ const VALID = new Set(['internal', 'external', 'email', 'phone']);
 const TITLE_TO_VALUE = {
   'Internal page': 'internal',
   'Internal Page': 'internal',
-  'External URL':  'external',
-  'External Url':  'external',
+  'External URL': 'external',
+  'External Url': 'external',
   Email: 'email',
   Phone: 'phone',
 };
@@ -82,7 +82,15 @@ function visitCtas(value, visitor, path = '$') {
 
 // ---- Fetch every page singleton ----
 
-const ids = ['homePage', 'aboutPage', 'processPage', 'servicesPage', 'faqPage', 'contactPage', 'journalPage'];
+const ids = [
+  'homePage',
+  'aboutPage',
+  'processPage',
+  'servicesPage',
+  'faqPage',
+  'contactPage',
+  'journalPage',
+];
 const docs = await client.fetch('*[_id in $ids]', { ids });
 
 if (docs.length === 0) {
@@ -102,20 +110,26 @@ for (const doc of docs) {
     if (VALID.has(before)) return; // already valid
     const after = TITLE_TO_VALUE[before];
     if (!after) {
-      console.warn(`  ! ${doc._id}${path} has unrecognized linkType=${JSON.stringify(before)} — left alone`);
+      console.warn(
+        `  ! ${doc._id}${path} has unrecognized linkType=${JSON.stringify(before)} — left alone`,
+      );
       return;
     }
     cta.linkType = after;
     docChanges++;
     changed++;
-    console.log(`  • ${doc._id}${path}.linkType: ${JSON.stringify(before)} → ${JSON.stringify(after)}`);
+    console.log(
+      `  • ${doc._id}${path}.linkType: ${JSON.stringify(before)} → ${JSON.stringify(after)}`,
+    );
   });
   if (docChanges > 0) {
     console.log(`${doc._id}: ${docChanges} CTA(s) updated`);
   }
 }
 
-console.log(`\nScanned ${total} CTA blocks across ${docs.length} singletons. ${changed} needed fixing.`);
+console.log(
+  `\nScanned ${total} CTA blocks across ${docs.length} singletons. ${changed} needed fixing.`,
+);
 
 if (changed === 0) {
   console.log('Nothing to write — all CTAs already valid.');

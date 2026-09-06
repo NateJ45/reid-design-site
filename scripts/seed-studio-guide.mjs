@@ -71,8 +71,7 @@ const studioGuideDoc = {
       _key: 'm4',
       _type: 'mapRow',
       area: 'Journal',
-      description:
-        'Your blog posts and their categories. Write a post, pick a category, publish.',
+      description: 'Your blog posts and their categories. Write a post, pick a category, publish.',
     },
   ],
   howTos: [
@@ -288,7 +287,7 @@ const studioGuideDoc = {
         'Choose "Embedded form", give it a name like "Newsletter signup", and click Create.',
         'Pick the Default or Basic layout. You do not need to fuss over the design, the site has its own signup boxes. This is mostly to create the list behind them.',
         'Click "Save and continue" at the top right until you reach the last step.',
-        'On that last step you will see the form\'s script, which comes in two parts. That is the integration detail.',
+        "On that last step you will see the form's script, which comes in two parts. That is the integration detail.",
         'Copy that script (both parts) and send it to Nathan. He will wire it into the signup boxes on the site.',
       ],
     },

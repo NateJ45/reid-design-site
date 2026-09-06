@@ -181,7 +181,7 @@ const patches = [
     set: {
       longDescription: [
         block(
-          "You already know what you want. You just need someone who knows where to find it. As a designer, " +
+          'You already know what you want. You just need someone who knows where to find it. As a designer, ' +
             "I have access to trade-only vendors and lines that aren't in retail stores, and I'm happy to put " +
             'those relationships to work for you on an hourly basis. Billed at $100 per hour, no minimum. ' +
             "Great for filling in the last few pieces of a space, replacing one item that's not working, or " +
@@ -241,7 +241,13 @@ const patches = [
 
 // --- validation: same house rules as part one -------------------------------
 
-const BANNED = ['transformative', 'curated experience', 'investment in your space', 'elevated living', 'tailored solutions'];
+const BANNED = [
+  'transformative',
+  'curated experience',
+  'investment in your space',
+  'elevated living',
+  'tailored solutions',
+];
 
 function collectStrings(value, path, out) {
   if (typeof value === 'string') out.push([path, value]);
@@ -259,7 +265,8 @@ for (const { id, set } of patches) {
   collectStrings(set, id, strings);
   for (const [path, text] of strings) {
     if (text.includes('—')) problems.push(`${path}: em-dash in site copy`);
-    for (const w of BANNED) if (text.toLowerCase().includes(w)) problems.push(`${path}: banned phrase "${w}"`);
+    for (const w of BANNED)
+      if (text.toLowerCase().includes(w)) problems.push(`${path}: banned phrase "${w}"`);
   }
 }
 if (problems.length) {
@@ -273,7 +280,9 @@ if (problems.length) {
 const draftId = (id) => `drafts.${id}`;
 
 console.log(`\n[downstream] project=${projectId} dataset=${dataset}`);
-console.log(`[mode] ${DISCARD ? 'DISCARD' : APPLY ? (PUBLISH ? 'APPLY + PUBLISH' : 'APPLY (drafts)') : 'DRY RUN'}\n`);
+console.log(
+  `[mode] ${DISCARD ? 'DISCARD' : APPLY ? (PUBLISH ? 'APPLY + PUBLISH' : 'APPLY (drafts)') : 'DRY RUN'}\n`,
+);
 
 if (DISCARD) {
   for (const { id } of patches) {
@@ -309,7 +318,10 @@ for (const { label, id, set } of patches) {
     continue;
   }
   const { _rev, _createdAt, _updatedAt, ...rest } = base;
-  await client.createOrReplace({ ...rest, ...set, _id: draftId(id) }, { autoGenerateArrayKeys: true });
+  await client.createOrReplace(
+    { ...rest, ...set, _id: draftId(id) },
+    { autoGenerateArrayKeys: true },
+  );
   console.log(`    [${id}] draft written\n`);
 }
 

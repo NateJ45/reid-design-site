@@ -30,8 +30,12 @@ export const homePage = defineType({
       title: 'SEO title',
       type: 'string',
       group: 'seo',
-      description: 'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
-      validation: (Rule) => Rule.max(60).warning('Titles longer than about 60 characters get cut off in Google search results.'),
+      description:
+        'Browser tab and Google result title. Aim for 50 to 60 characters. Front-load the location or service.',
+      validation: (Rule) =>
+        Rule.max(60).warning(
+          'Titles longer than about 60 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoDescription',
@@ -39,19 +43,22 @@ export const homePage = defineType({
       type: 'text',
       rows: 3,
       group: 'seo',
-      description: 'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
-      validation: (Rule) => Rule.max(160).warning('Descriptions longer than about 160 characters get cut off in Google search results.'),
+      description:
+        'The sentence under the title in Google results. Aim for 150 to 160 characters. Write it for a person, not a search engine.',
+      validation: (Rule) =>
+        Rule.max(160).warning(
+          'Descriptions longer than about 160 characters get cut off in Google search results.',
+        ),
     }),
     defineField({
       name: 'seoImage',
       title: 'Social share image (this page)',
       type: 'image',
       group: 'seo',
-      description: 'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
+      description:
+        'Optional. The image shown when this page is shared on social media or in a text. Overrides the site default in Site Settings. Use a wide image, about 1200 by 630 pixels. Leave blank to use the site default.',
       options: { hotspot: true },
-      fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
-      ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
 
     // Layout & order. Each "Built-in section" marker is one of the home page's
@@ -64,7 +71,7 @@ export const homePage = defineType({
       type: 'array',
       group: 'layout',
       description:
-        'The order of sections on the home page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Heads up: the home order is tuned for conversion, so reorder thoughtfully. Edit each section\'s content in its own tab.',
+        "The order of sections on the home page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Heads up: the home order is tuned for conversion, so reorder thoughtfully. Edit each section's content in its own tab.",
       of: HOME_SECTION_TYPES,
       initialValue: HOME_DEFAULT_ORDER,
     }),
@@ -78,7 +85,13 @@ export const homePage = defineType({
       group: 'hero',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', rows: 3, group: 'hero' }),
+    defineField({
+      name: 'heroSubhead',
+      title: 'Hero subhead',
+      type: 'text',
+      rows: 3,
+      group: 'hero',
+    }),
     defineField({
       name: 'heroImage',
       title: 'Hero image (legacy)',
@@ -87,7 +100,12 @@ export const homePage = defineType({
       hidden: true,
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
     defineField({
@@ -101,14 +119,17 @@ export const homePage = defineType({
         defineArrayMember({
           type: 'image',
           options: { hotspot: true },
-          fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
-          ],
+          fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
         }),
       ],
     }),
     defineField({ name: 'heroPrimaryCta', title: 'Primary CTA', type: 'ctaBlock', group: 'hero' }),
-    defineField({ name: 'heroSecondaryCta', title: 'Secondary CTA', type: 'ctaBlock', group: 'hero' }),
+    defineField({
+      name: 'heroSecondaryCta',
+      title: 'Secondary CTA',
+      type: 'ctaBlock',
+      group: 'hero',
+    }),
     defineField({
       name: 'heroRotatingWords',
       title: 'Rotating first-word swap (optional)',
@@ -135,11 +156,27 @@ export const homePage = defineType({
       group: 'meetStaci',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
     }),
-    defineField({ name: 'meetStaciEyebrow', title: 'Eyebrow', type: 'string', group: 'meetStaci', initialValue: 'Meet Staci.' }),
-    defineField({ name: 'meetStaciHeadline', title: 'Headline', type: 'string', group: 'meetStaci' }),
+    defineField({
+      name: 'meetStaciEyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'meetStaci',
+      initialValue: 'Meet Staci.',
+    }),
+    defineField({
+      name: 'meetStaciHeadline',
+      title: 'Headline',
+      type: 'string',
+      group: 'meetStaci',
+    }),
     defineField({
       name: 'meetStaciContent',
       title: 'Intro content',
@@ -159,7 +196,12 @@ export const homePage = defineType({
         }),
       ],
     }),
-    defineField({ name: 'meetStaciCta', title: '"Get to Know Me" CTA', type: 'ctaBlock', group: 'meetStaci' }),
+    defineField({
+      name: 'meetStaciCta',
+      title: '"Get to Know Me" CTA',
+      type: 'ctaBlock',
+      group: 'meetStaci',
+    }),
 
     // Featured Work (auto-populates with featured-then-newest projects from the Project collection)
     defineField({
@@ -228,8 +270,19 @@ export const homePage = defineType({
     }),
 
     // Process preview
-    defineField({ name: 'processPreviewEyebrow', title: 'Eyebrow', type: 'string', group: 'process', initialValue: 'How It Works.' }),
-    defineField({ name: 'processPreviewHeadline', title: 'Headline', type: 'string', group: 'process' }),
+    defineField({
+      name: 'processPreviewEyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'process',
+      initialValue: 'How It Works.',
+    }),
+    defineField({
+      name: 'processPreviewHeadline',
+      title: 'Headline',
+      type: 'string',
+      group: 'process',
+    }),
     defineField({
       name: 'processPreviewSubhead',
       title: 'Subhead',
@@ -241,7 +294,12 @@ export const homePage = defineType({
       initialValue:
         'No guesswork and no pressure. From our first conversation to the day everything comes together, you will always know exactly where things stand and what happens next.',
     }),
-    defineField({ name: 'processPreviewCta', title: 'Link to full Process page', type: 'ctaBlock', group: 'process' }),
+    defineField({
+      name: 'processPreviewCta',
+      title: 'Link to full Process page',
+      type: 'ctaBlock',
+      group: 'process',
+    }),
 
     // Testimonials
     defineField({
@@ -252,8 +310,20 @@ export const homePage = defineType({
       description: 'The large pull-quote at the top of the testimonial section.',
       group: 'testimonials',
     }),
-    defineField({ name: 'testimonialsEyebrow', title: 'Eyebrow', type: 'string', group: 'testimonials', initialValue: 'Kind Words.' }),
-    defineField({ name: 'testimonialsHeadline', title: 'Headline', type: 'string', group: 'testimonials', initialValue: 'Words from real homes.' }),
+    defineField({
+      name: 'testimonialsEyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'testimonials',
+      initialValue: 'Kind Words.',
+    }),
+    defineField({
+      name: 'testimonialsHeadline',
+      title: 'Headline',
+      type: 'string',
+      group: 'testimonials',
+      initialValue: 'Words from real homes.',
+    }),
     defineField({
       name: 'testimonialsScriptAccent',
       title: 'Testimonials heading script accent (optional)',
@@ -285,12 +355,24 @@ export const homePage = defineType({
       title: 'Attribution line',
       type: 'string',
       group: 'testimonials',
-      description: 'Optional line under the testimonials grid. Example: "From Reid Design\'s Facebook recommendations."',
+      description:
+        'Optional line under the testimonials grid. Example: "From Reid Design\'s Facebook recommendations."',
     }),
 
     // Services grid
-    defineField({ name: 'servicesGridEyebrow', title: 'Eyebrow', type: 'string', group: 'services', initialValue: 'Reid Design.' }),
-    defineField({ name: 'servicesGridHeadline', title: 'Headline', type: 'string', group: 'services' }),
+    defineField({
+      name: 'servicesGridEyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      group: 'services',
+      initialValue: 'Reid Design.',
+    }),
+    defineField({
+      name: 'servicesGridHeadline',
+      title: 'Headline',
+      type: 'string',
+      group: 'services',
+    }),
     defineField({
       name: 'servicesGridScriptAccent',
       title: 'Services heading script accent (optional)',
@@ -299,14 +381,26 @@ export const homePage = defineType({
       description:
         'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
     }),
-    defineField({ name: 'servicesGridSubhead', title: 'Subhead', type: 'text', rows: 2, group: 'services' }),
-    defineField({ name: 'servicesGridCta', title: 'Services grid CTA', type: 'ctaBlock', group: 'services' }),
+    defineField({
+      name: 'servicesGridSubhead',
+      title: 'Subhead',
+      type: 'text',
+      rows: 2,
+      group: 'services',
+    }),
+    defineField({
+      name: 'servicesGridCta',
+      title: 'Services grid CTA',
+      type: 'ctaBlock',
+      group: 'services',
+    }),
     defineField({
       name: 'servicesGridFootnote',
       title: 'Footnote',
       type: 'string',
       group: 'services',
-      description: 'Small-print line under the services grid. Example: "Final pricing is always discussed before any work begins."',
+      description:
+        'Small-print line under the services grid. Example: "Final pricing is always discussed before any work begins."',
     }),
 
     // Service area cue + final CTA
@@ -317,8 +411,20 @@ export const homePage = defineType({
       group: 'final',
       description: 'Example: "Serving Plainfield, Indianapolis, and the surrounding suburbs."',
     }),
-    defineField({ name: 'finalCtaEyebrow', title: 'Final CTA eyebrow', type: 'string', group: 'final', initialValue: 'Ready to Begin?' }),
-    defineField({ name: 'finalCtaHeadline', title: 'Final CTA headline', type: 'string', group: 'final', initialValue: 'Ready to Love Your Space?' }),
+    defineField({
+      name: 'finalCtaEyebrow',
+      title: 'Final CTA eyebrow',
+      type: 'string',
+      group: 'final',
+      initialValue: 'Ready to Begin?',
+    }),
+    defineField({
+      name: 'finalCtaHeadline',
+      title: 'Final CTA headline',
+      type: 'string',
+      group: 'final',
+      initialValue: 'Ready to Love Your Space?',
+    }),
     defineField({
       name: 'finalCtaScriptAccent',
       title: 'Final CTA heading script accent (optional)',
@@ -327,7 +433,14 @@ export const homePage = defineType({
       description:
         'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
     }),
-    defineField({ name: 'finalCtaSubhead', title: 'Final CTA subhead', type: 'text', rows: 2, group: 'final', initialValue: "Let's start with a conversation." }),
+    defineField({
+      name: 'finalCtaSubhead',
+      title: 'Final CTA subhead',
+      type: 'text',
+      rows: 2,
+      group: 'final',
+      initialValue: "Let's start with a conversation.",
+    }),
     defineField({ name: 'finalCta', title: 'Final CTA button', type: 'ctaBlock', group: 'final' }),
     defineField({
       name: 'finalCtaBackgroundImage',

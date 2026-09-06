@@ -330,7 +330,7 @@ const patches = [
                 "The best spaces aren't built overnight or filled with expensive furniture. They're layered with pieces you love, thoughtful details, and intentional design that makes everyday life feel a little more beautiful.",
               ),
               block(
-                'Reid Design was created to help homeowners transform the homes they already have into spaces they genuinely love coming home to. Whether it\'s refreshing one room or styling an entire home, my goal is always the same: create spaces that feel warm, functional, and uniquely yours.',
+                "Reid Design was created to help homeowners transform the homes they already have into spaces they genuinely love coming home to. Whether it's refreshing one room or styling an entire home, my goal is always the same: create spaces that feel warm, functional, and uniquely yours.",
               ),
             ],
           },
@@ -370,7 +370,8 @@ for (const { id, set } of patches) {
   const strings = [];
   collectStrings(set, id, strings);
   for (const [path, text] of strings) {
-    if (text.includes('—')) problems.push(`${path}: em-dash in site copy — "${text.slice(0, 60)}…"`);
+    if (text.includes('—'))
+      problems.push(`${path}: em-dash in site copy — "${text.slice(0, 60)}…"`);
     for (const word of BANNED) {
       if (text.toLowerCase().includes(word)) problems.push(`${path}: banned phrase "${word}"`);
     }
@@ -379,7 +380,9 @@ for (const { id, set } of patches) {
   // writes fine via the API and then shows as invalid in Studio, which is worse
   // than failing here.
   if (typeof set.shortDescription === 'string' && set.shortDescription.length > 200) {
-    problems.push(`${id}.shortDescription: ${set.shortDescription.length} chars, schema max is 200`);
+    problems.push(
+      `${id}.shortDescription: ${set.shortDescription.length} chars, schema max is 200`,
+    );
   }
 }
 
@@ -397,9 +400,15 @@ if (problems.length) {
 const draftId = (id) => `drafts.${id}`;
 
 console.log(`\n[reid-design-2.0] project=${projectId} dataset=${dataset}`);
-console.log(`[mode] ${DISCARD ? 'DISCARD DRAFTS' : APPLY ? 'APPLY (writing drafts)' : 'DRY RUN (no writes)'}`);
-console.log(`[decisions] signature room = ${SIGNATURE_ROOM_NAME} at ${money(SIGNATURE_ROOM_PRICE)}`);
-console.log(`[decisions] reorder=${REORDER_INTO_PRICE_LADDER} rewriteAbout=${REWRITE_ABOUT_STORY}\n`);
+console.log(
+  `[mode] ${DISCARD ? 'DISCARD DRAFTS' : APPLY ? 'APPLY (writing drafts)' : 'DRY RUN (no writes)'}`,
+);
+console.log(
+  `[decisions] signature room = ${SIGNATURE_ROOM_NAME} at ${money(SIGNATURE_ROOM_PRICE)}`,
+);
+console.log(
+  `[decisions] reorder=${REORDER_INTO_PRICE_LADDER} rewriteAbout=${REWRITE_ABOUT_STORY}\n`,
+);
 
 if (DISCARD) {
   for (const { id } of patches) {
@@ -456,7 +465,13 @@ for (const { label, id, set, create } of patches) {
     const same = JSON.stringify(before) === JSON.stringify(v);
     if (!same) {
       const fmt = (x) =>
-        x === undefined ? '(unset)' : typeof x === 'string' ? `"${x.length > 70 ? x.slice(0, 70) + '…' : x}"` : Array.isArray(x) ? `[${x.length} items]` : JSON.stringify(x)?.slice(0, 70);
+        x === undefined
+          ? '(unset)'
+          : typeof x === 'string'
+            ? `"${x.length > 70 ? x.slice(0, 70) + '…' : x}"`
+            : Array.isArray(x)
+              ? `[${x.length} items]`
+              : JSON.stringify(x)?.slice(0, 70);
       changed.push(`      ${k}: ${fmt(before)} -> ${fmt(v)}`);
     }
   }

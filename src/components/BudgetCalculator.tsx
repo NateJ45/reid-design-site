@@ -53,15 +53,14 @@ function fmt(n: number): string {
 
 /** Replace {{low}} and {{high}} placeholders in the result copy. */
 function interpolateCopy(template: string, low: number, high: number): string {
-  return template
-    .replace('{{low}}', `Roughly ${fmt(low)}`)
-    .replace('{{high}}', fmt(high));
+  return template.replace('{{low}}', `Roughly ${fmt(low)}`).replace('{{high}}', fmt(high));
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function BudgetCalculator({ config }: Props) {
-  const { rooms, scopeOptions, addOns, resultCopy, disclaimer, ctaLabel, consultPriceNote } = config;
+  const { rooms, scopeOptions, addOns, resultCopy, disclaimer, ctaLabel, consultPriceNote } =
+    config;
 
   // Form state
   const [selectedRoom, setSelectedRoom] = useState<number>(0); // index into rooms[]
@@ -147,18 +146,14 @@ export default function BudgetCalculator({ config }: Props) {
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
-    <section
-      className="bg-background"
-      aria-label="Budget estimate calculator"
-    >
+    <section className="bg-background" aria-label="Budget estimate calculator">
       <div className="mx-auto max-w-content px-m py-section-lg">
         <div className="mx-auto max-w-2xl">
-
           {/* ── Step 1: Room ────────────────────────────────────────────────── */}
           <div className="mb-l">
             <label
               htmlFor={`${uid}-room`}
-              className="block text-sm font-semibold text-foreground mb-xs"
+              className="mb-xs block text-sm font-semibold text-foreground"
             >
               What kind of room?
             </label>
@@ -166,7 +161,7 @@ export default function BudgetCalculator({ config }: Props) {
               id={`${uid}-room`}
               value={selectedRoom}
               onChange={(e) => setSelectedRoom(Number(e.target.value))}
-              className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
             >
               {rooms.map((r, i) => (
                 <option key={i} value={i}>
@@ -179,28 +174,25 @@ export default function BudgetCalculator({ config }: Props) {
           {/* ── Step 2: Scope ───────────────────────────────────────────────── */}
           <div className="mb-l">
             <fieldset>
-              <legend className="block text-sm font-semibold text-foreground mb-xs">
+              <legend className="mb-xs block text-sm font-semibold text-foreground">
                 How much of the room are you redesigning?
               </legend>
               <div className="space-y-s">
                 {scopeOptions.map((opt, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-s cursor-pointer group"
-                  >
+                  <label key={i} className="group flex cursor-pointer items-center gap-s">
                     <input
                       type="radio"
                       name={`${uid}-scope`}
                       value={i}
                       checked={selectedScope === i}
                       onChange={() => setSelectedScope(i)}
-                      className="w-4 h-4 accent-primary shrink-0"
+                      className="h-4 w-4 shrink-0 accent-primary"
                     />
-                    <span className="text-foreground/90 text-base group-hover:text-foreground transition-colors">
+                    <span className="text-base text-foreground/90 transition-colors group-hover:text-foreground">
                       {opt.label}
                     </span>
                     {opt.addLow > 0 && (
-                      <span className="text-xs text-muted-foreground ml-auto shrink-0">
+                      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                         +{fmt(opt.addLow)} to {fmt(opt.addHigh)}
                       </span>
                     )}
@@ -214,26 +206,23 @@ export default function BudgetCalculator({ config }: Props) {
           {addOns.length > 0 && (
             <div className="mb-l">
               <fieldset>
-                <legend className="block text-sm font-semibold text-foreground mb-xs">
+                <legend className="mb-xs block text-sm font-semibold text-foreground">
                   Anything else on your list?{' '}
                   <span className="font-normal text-muted-foreground">(optional)</span>
                 </legend>
                 <div className="space-y-s">
                   {addOns.map((addon, i) => (
-                    <label
-                      key={i}
-                      className="flex items-center gap-s cursor-pointer group"
-                    >
+                    <label key={i} className="group flex cursor-pointer items-center gap-s">
                       <input
                         type="checkbox"
                         checked={selectedAddOns.has(i)}
                         onChange={() => toggleAddOn(i)}
-                        className="w-4 h-4 accent-primary shrink-0 rounded"
+                        className="h-4 w-4 shrink-0 rounded accent-primary"
                       />
-                      <span className="text-foreground/90 text-base group-hover:text-foreground transition-colors">
+                      <span className="text-base text-foreground/90 transition-colors group-hover:text-foreground">
                         {addon.label}
                       </span>
-                      <span className="text-xs text-muted-foreground ml-auto shrink-0">
+                      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                         +{fmt(addon.low)} to {fmt(addon.high)}
                       </span>
                     </label>
@@ -255,31 +244,34 @@ export default function BudgetCalculator({ config }: Props) {
             className="rounded-md border border-primary/30 bg-muted p-l"
           >
             {/* Brand stripe — consistent with card rhythm */}
-            <div className="h-0.5 bg-primary -mx-l -mt-l mb-l rounded-t-md" aria-hidden="true"></div>
+            <div
+              className="-mx-l -mt-l mb-l h-0.5 rounded-t-md bg-primary"
+              aria-hidden="true"
+            ></div>
 
-            <p className="text-foreground/80 text-base leading-relaxed">{estimateText}</p>
+            <p className="text-base leading-relaxed text-foreground/80">{estimateText}</p>
 
             {/* Prominent range figure */}
             <p
-              className="mt-s font-display text-h2 text-foreground leading-tight"
+              className="mt-s font-display text-h2 leading-tight text-foreground"
               aria-label={`Estimate range: ${rangeLabel}`}
             >
               {fmt(totalLow)}{' '}
-              <span className="text-foreground/50 text-h3" aria-hidden="true">to</span>{' '}
+              <span className="text-h3 text-foreground/50" aria-hidden="true">
+                to
+              </span>{' '}
               {fmt(totalHigh)}
             </p>
 
             {disclaimer && (
-              <p className="mt-s text-xs text-muted-foreground leading-relaxed">
-                {disclaimer}
-              </p>
+              <p className="mt-s text-xs leading-relaxed text-muted-foreground">{disclaimer}</p>
             )}
 
             {/* CTA row */}
             <div className="mt-l flex flex-wrap items-center gap-s">
               <a
                 href="/contact?type=consultation"
-                className="inline-flex items-center px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-sm hover:bg-accent-dark transition-colors press-tactile"
+                className="press-tactile inline-flex items-center bg-primary-dark px-l py-s text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark"
               >
                 {ctaLabel || 'Book a consultation'}
               </a>
@@ -296,7 +288,7 @@ export default function BudgetCalculator({ config }: Props) {
               <button
                 type="button"
                 onClick={() => setEmailOpen(true)}
-                className="text-sm text-link hover:text-primary-dark underline underline-offset-2 transition-colors"
+                className="text-sm text-link underline underline-offset-2 transition-colors hover:text-primary-dark"
               >
                 Email me this estimate
               </button>
@@ -311,7 +303,13 @@ export default function BudgetCalculator({ config }: Props) {
                 {/* Honeypot field — hidden from humans, bots fill it */}
                 <div
                   aria-hidden="true"
-                  style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
+                  style={{
+                    position: 'absolute',
+                    left: '-9999px',
+                    width: 1,
+                    height: 1,
+                    overflow: 'hidden',
+                  }}
                 >
                   <label>
                     Leave this blank
@@ -327,11 +325,7 @@ export default function BudgetCalculator({ config }: Props) {
                 </div>
 
                 {emailStatus === 'success' ? (
-                  <p
-                    role="status"
-                    aria-live="polite"
-                    className="text-sm text-foreground/80"
-                  >
+                  <p role="status" aria-live="polite" className="text-sm text-foreground/80">
                     {emailMsg || "You're all set. Check your inbox."}
                   </p>
                 ) : (
@@ -339,11 +333,11 @@ export default function BudgetCalculator({ config }: Props) {
                     <p className="text-sm text-foreground/80">
                       We will send this estimate to your inbox. No strings attached.
                     </p>
-                    <div className="flex flex-wrap gap-s items-start">
-                      <div className="flex-1 min-w-[200px]">
+                    <div className="flex flex-wrap items-start gap-s">
+                      <div className="min-w-[200px] flex-1">
                         <label
                           htmlFor={`${uid}-email`}
-                          className="block text-sm font-semibold text-foreground mb-xs"
+                          className="mb-xs block text-sm font-semibold text-foreground"
                         >
                           Your email
                         </label>
@@ -356,15 +350,17 @@ export default function BudgetCalculator({ config }: Props) {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           aria-invalid={emailStatus === 'error'}
-                          aria-describedby={emailStatus === 'error' ? `${uid}-email-error` : undefined}
-                          className="w-full px-s py-s border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                          aria-describedby={
+                            emailStatus === 'error' ? `${uid}-email-error` : undefined
+                          }
+                          className="w-full rounded-md border border-input bg-background px-s py-s text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
                           placeholder="you@example.com"
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={emailStatus === 'submitting'}
-                        className="mt-[1.625rem] inline-flex items-center px-m py-s bg-primary-dark text-white font-semibold text-sm uppercase tracking-wider hover:bg-accent-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors press-tactile rounded-sm"
+                        className="press-tactile mt-[1.625rem] inline-flex items-center rounded-sm bg-primary-dark px-m py-s text-sm font-semibold tracking-wider text-white uppercase transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {emailStatus === 'submitting' ? 'Sending...' : 'Send'}
                       </button>
@@ -376,7 +372,8 @@ export default function BudgetCalculator({ config }: Props) {
                         aria-live="polite"
                         className="text-sm text-destructive"
                       >
-                        {emailMsg || "Something went wrong. Try again or email staci@reiddesignllc.com."}
+                        {emailMsg ||
+                          'Something went wrong. Try again or email staci@reiddesignllc.com.'}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
@@ -387,7 +384,6 @@ export default function BudgetCalculator({ config }: Props) {
               </form>
             )}
           </div>
-
         </div>
       </div>
     </section>

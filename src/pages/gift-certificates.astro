@@ -25,19 +25,21 @@ const [page, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.giftCertificates) return Astro.redirect('/');
 
-const title       = page?.seoTitle       ?? 'Gift Certificates · Reid Design';
-const description = page?.seoDescription ?? 'Give the gift of a beautifully designed room. Reid Design gift certificates available for in-home consultations and design packages.';
+const title = page?.seoTitle ?? 'Gift Certificates · Reid Design';
+const description =
+  page?.seoDescription ??
+  'Give the gift of a beautifully designed room. Reid Design gift certificates available for in-home consultations and design packages.';
 
-const heroEyebrow  = page?.heroEyebrow  ?? 'Give the Gift of Good Design.';
+const heroEyebrow = page?.heroEyebrow ?? 'Give the Gift of Good Design.';
 const heroHeadline = page?.heroHeadline ?? 'Gift Certificates for the Home They Deserve.';
-const heroSubhead  = page?.heroSubhead  ?? '';
+const heroSubhead = page?.heroSubhead ?? '';
 
 const CONTACT_HREF = '/contact?type=gift-certificate';
-const ctaLabel     = page?.ctaLabel ?? 'Inquire about a Gift Certificate';
+const ctaLabel = page?.ctaLabel ?? 'Inquire about a Gift Certificate';
 
 const schemas = [
   breadcrumbSchema([
-    { name: 'Home',              url: site.url },
+    { name: 'Home', url: site.url },
     { name: 'Gift Certificates', url: `${site.url}/gift-certificates` },
   ]),
 ];
@@ -56,53 +58,56 @@ const schemas = [
   />
 
   {/* ------- Content sections (reorderable) + closing CTA, or coming-soon --- */}
-  {!page ? (
-    <section class="bg-background" aria-labelledby="gift-coming-soon">
-      <div class="mx-auto max-w-content px-m py-section-lg text-center">
-        <SectionHeading
-          eyebrow="Coming Soon."
-          headline="Gift certificate details are on the way."
-          subhead="In the meantime, reach out directly and we'll sort out the details with you."
-          headingId="gift-coming-soon"
-          align="center"
-          class="mx-auto"
-        />
-        <div class="mt-l flex justify-center">
-          <a
-            href={CONTACT_HREF}
-            class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-primary-dark text-white hover:bg-accent-dark transition-colors"
-          >
-            {ctaLabel}
-          </a>
-        </div>
-      </div>
-    </section>
-  ) : (
-    <>
-      <GiftSectionRenderer sections={page.pageBuilder} page={page} />
-
-      {/* Final CTA dark panel. */}
-      <section class="bg-accent-dark text-bg" aria-labelledby="gift-final-cta">
-        <div class="h-0.5 bg-primary" aria-hidden="true"></div>
+  {
+    !page ? (
+      <section class="bg-background" aria-labelledby="gift-coming-soon">
         <div class="mx-auto max-w-content px-m py-section-lg text-center">
-          <p class="text-xs uppercase tracking-[0.22em] text-bg/75">Ready to Give the Gift?</p>
-          <div class="mt-s mb-m h-px w-12 bg-bg/40 mx-auto" aria-hidden="true"></div>
-          <h2 id="gift-final-cta" class="font-display text-h1 leading-tight text-bg">
-            Make Someone's Home Brighter.
-          </h2>
-          <p class="mt-m text-lg text-bg/85 max-w-2xl mx-auto">
-            Reach out and we'll send the details on how to purchase and deliver a gift certificate.
-          </p>
+          <SectionHeading
+            eyebrow="Coming Soon."
+            headline="Gift certificate details are on the way."
+            subhead="In the meantime, reach out directly and we'll sort out the details with you."
+            headingId="gift-coming-soon"
+            align="center"
+            class="mx-auto"
+          />
           <div class="mt-l flex justify-center">
             <a
               href={CONTACT_HREF}
-              class="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-primary-dark text-white hover:bg-primary transition-colors"
+              class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-accent-dark"
             >
               {ctaLabel}
             </a>
           </div>
         </div>
       </section>
-    </>
-  )}
+    ) : (
+      <>
+        <GiftSectionRenderer sections={page.pageBuilder} page={page} />
+
+        {/* Final CTA dark panel. */}
+        <section class="bg-accent-dark text-bg" aria-labelledby="gift-final-cta">
+          <div class="h-0.5 bg-primary" aria-hidden="true" />
+          <div class="mx-auto max-w-content px-m py-section-lg text-center">
+            <p class="text-xs tracking-[0.22em] text-bg/75 uppercase">Ready to Give the Gift?</p>
+            <div class="mx-auto mt-s mb-m h-px w-12 bg-bg/40" aria-hidden="true" />
+            <h2 id="gift-final-cta" class="font-display text-h1 leading-tight text-bg">
+              Make Someone's Home Brighter.
+            </h2>
+            <p class="mx-auto mt-m max-w-2xl text-lg text-bg/85">
+              Reach out and we'll send the details on how to purchase and deliver a gift
+              certificate.
+            </p>
+            <div class="mt-l flex justify-center">
+              <a
+                href={CONTACT_HREF}
+                class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary"
+              >
+                {ctaLabel}
+              </a>
+            </div>
+          </div>
+        </section>
+      </>
+    )
+  }
 </BaseLayout>

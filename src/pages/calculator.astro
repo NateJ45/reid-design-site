@@ -26,8 +26,10 @@ const [calc, siteSettings] = await Promise.all([
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 if (!visible.budgetCalculator) return Astro.redirect('/');
 
-const title       = calc?.seoTitle ?? 'Budget Calculator · Reid Design';
-const description = calc?.seoDescription ?? 'Get a rough idea of what a design project costs before reaching out. Use the Reid Design budget calculator to build your estimate by room, scope, and add-ons.';
+const title = calc?.seoTitle ?? 'Budget Calculator · Reid Design';
+const description =
+  calc?.seoDescription ??
+  'Get a rough idea of what a design project costs before reaching out. Use the Reid Design budget calculator to build your estimate by room, scope, and add-ons.';
 
 // Validate the calc doc: we need at least one room to be meaningful.
 const hasValidCalc =
@@ -39,9 +41,11 @@ const hasValidCalc =
 
 // Hero fields fall back to sensible defaults so the page looks intentional
 // even before Staci fills out the doc in Studio.
-const heroEyebrow  = calc?.introEyebrow  ?? 'Plan your project';
+const heroEyebrow = calc?.introEyebrow ?? 'Plan your project';
 const heroHeadline = calc?.introHeadline ?? 'What does a design project cost?';
-const heroSubhead  = calc?.introSubhead  ?? 'Use this as a starting point, not a firm quote. Every space is different, and a consultation is the only way to get specifics.';
+const heroSubhead =
+  calc?.introSubhead ??
+  'Use this as a starting point, not a firm quote. Every space is different, and a consultation is the only way to get specifics.';
 
 // Typed config object passed to the island. Keeps the island free of any
 // Sanity-client import and avoids shipping the URL builder to the browser.
@@ -109,41 +113,40 @@ const schemas = [
 
   {/* ------- 2. Calculator island or coming-soon state ----------------------- */}
   <main id="calculator-main">
-    {hasValidCalc && calcConfig ? (
-      <BudgetCalculator client:visible config={calcConfig} />
-    ) : (
-      <section
-        class="mx-auto max-w-content px-m py-section-lg text-center"
-        aria-labelledby="calc-coming-heading"
-      >
-        <div class="mx-auto max-w-xl">
-          <div class="h-0.5 bg-primary w-16 mx-auto mb-l" aria-hidden="true"></div>
-          <h2
-            id="calc-coming-heading"
-            class="font-display text-h2 text-foreground"
-          >
-            Coming soon
-          </h2>
-          <p class="mt-m text-foreground/80 text-lg">
-            Staci is putting together the number ranges for this tool. In the meantime,
-            reach out and she will walk you through pricing in a quick call.
-          </p>
-          <div class="mt-l flex flex-wrap justify-center gap-s">
-            <a
-              href="/contact?type=consultation"
-              class="inline-flex items-center px-l py-s bg-primary-dark text-white font-semibold uppercase tracking-widest text-sm hover:bg-accent-dark transition-colors press-tactile"
-            >
-              Book a consultation
-            </a>
-            <a
-              href="/services"
-              class="inline-flex items-center px-l py-s border border-primary text-link font-semibold uppercase tracking-widest text-sm hover:bg-accent transition-colors press-tactile"
-            >
-              See service pricing
-            </a>
+    {
+      hasValidCalc && calcConfig ? (
+        <BudgetCalculator client:visible config={calcConfig} />
+      ) : (
+        <section
+          class="mx-auto max-w-content px-m py-section-lg text-center"
+          aria-labelledby="calc-coming-heading"
+        >
+          <div class="mx-auto max-w-xl">
+            <div class="mx-auto mb-l h-0.5 w-16 bg-primary" aria-hidden="true" />
+            <h2 id="calc-coming-heading" class="font-display text-h2 text-foreground">
+              Coming soon
+            </h2>
+            <p class="mt-m text-lg text-foreground/80">
+              Staci is putting together the number ranges for this tool. In the meantime, reach out
+              and she will walk you through pricing in a quick call.
+            </p>
+            <div class="mt-l flex flex-wrap justify-center gap-s">
+              <a
+                href="/contact?type=consultation"
+                class="press-tactile inline-flex items-center bg-primary-dark px-l py-s text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark"
+              >
+                Book a consultation
+              </a>
+              <a
+                href="/services"
+                class="press-tactile inline-flex items-center border border-primary px-l py-s text-sm font-semibold tracking-widest text-link uppercase transition-colors hover:bg-accent"
+              >
+                See service pricing
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
   </main>
 </BaseLayout>

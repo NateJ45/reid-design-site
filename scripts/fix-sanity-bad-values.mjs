@@ -78,7 +78,10 @@ function stripNewPerAudit(s) {
 }
 
 let cleanups = 0;
-function note(msg) { console.log('  • ' + msg); cleanups++; }
+function note(msg) {
+  console.log('  • ' + msg);
+  cleanups++;
+}
 
 // ---- homePage cleanups ----
 
@@ -111,7 +114,10 @@ if (isStringTodo(about.backgroundLine)) {
   delete about.backgroundLine;
   note('removed backgroundLine (was a TODO string — Staci writes her own)');
 }
-if (typeof about.serviceAreaMention === 'string' && about.serviceAreaMention.startsWith('[NEW per audit]')) {
+if (
+  typeof about.serviceAreaMention === 'string' &&
+  about.serviceAreaMention.startsWith('[NEW per audit]')
+) {
   about.serviceAreaMention = stripNewPerAudit(about.serviceAreaMention);
   note('stripped "[NEW per audit] " prefix from serviceAreaMention');
 }
@@ -124,7 +130,10 @@ if (isStringTodo(contact.schedulingLink)) {
   delete contact.schedulingLink;
   note('removed schedulingLink (was a TODO string, schema expects URL)');
 }
-if (typeof contact.formIntroNote === 'string' && contact.formIntroNote.startsWith('[NEW per audit]')) {
+if (
+  typeof contact.formIntroNote === 'string' &&
+  contact.formIntroNote.startsWith('[NEW per audit]')
+) {
   contact.formIntroNote = stripNewPerAudit(contact.formIntroNote);
   note('stripped "[NEW per audit] " prefix from formIntroNote');
 }
@@ -132,7 +141,9 @@ if (typeof contact.formIntroNote === 'string' && contact.formIntroNote.startsWit
 // Sanity tolerates null but the safest cleanup is to remove the field entirely.
 if (contact.availabilityNote === null) {
   delete contact.availabilityNote;
-  note('removed availabilityNote (was null — Studio shows it as "missing string"; cleared field instead)');
+  note(
+    'removed availabilityNote (was null — Studio shows it as "missing string"; cleared field instead)',
+  );
 }
 
 // ---- Write NDJSON ----

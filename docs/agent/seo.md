@@ -51,10 +51,7 @@ Every page receives a relevant structured data block via the `schemas` prop on B
     { "@type": "City", "name": "Noblesville" }
   ],
   "priceRange": "$$",
-  "sameAs": [
-    "https://www.instagram.com/reiddesignin/",
-    "https://www.facebook.com/ReidDesignLLC"
-  ]
+  "sameAs": ["https://www.instagram.com/reiddesignin/", "https://www.facebook.com/ReidDesignLLC"]
 }
 ```
 
@@ -74,6 +71,7 @@ Test every schema with Google's Rich Results Test (https://search.google.com/tes
 ### Google Business Profile
 
 A complete GBP listing is the single biggest local-SEO lever for a Plainfield service business. The site supports the listing but doesn't replace it. Confirm at launch:
+
 - Business name exactly "Reid Design LLC" (matches the site's NAP)
 - Address, phone, hours match `siteSettings`
 - Service area set to the same cities listed in `siteSettings.serviceAreas`
@@ -86,6 +84,7 @@ If GBP and the site disagree on phone, address, or hours, Google treats the site
 ### Internal linking strategy
 
 Plainfield-first means Plainfield gets named in:
+
 - The home hero eyebrow
 - The footer service area list (first item)
 - The OG description

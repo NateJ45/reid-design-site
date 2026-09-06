@@ -63,22 +63,50 @@ async function render(slug, tagline) {
 // `slug` matches the route (slashes already dash-free here). `defaultTitle` is
 // the fallback when Sanity's seoTitle / heroHeadline are both empty.
 const SINGLETONS = [
-  { type: 'homePage',         slug: 'home',              defaultTitle: 'Plainfield interior design for homes that feel genuinely yours.' },
-  { type: 'aboutPage',        slug: 'about',             defaultTitle: 'About Reid Design LLC and Staci Perkins' },
-  { type: 'processPage',      slug: 'process',           defaultTitle: 'How Reid Design works, from first call to final reveal' },
-  { type: 'servicesPage',     slug: 'services',          defaultTitle: 'Interior design services in Plainfield and Indianapolis' },
-  { type: 'faqPage',          slug: 'faq',               defaultTitle: 'Common questions about working with Reid Design' },
-  { type: 'contactPage',      slug: 'contact',           defaultTitle: 'Start a conversation with Reid Design' },
-  { type: 'portfolioPage',    slug: 'portfolio',         defaultTitle: 'Recent interior design projects across Indianapolis' },
-  { type: 'journalPage',      slug: 'journal',           defaultTitle: 'The Reid Design journal' },
-  { type: 'eDesignPage',      slug: 'e-design',          defaultTitle: 'Online interior design, delivered digitally' },
-  { type: 'shopPage',         slug: 'shop',              defaultTitle: 'Shop the pieces and sources Staci loves' },
-  { type: 'giftPage',         slug: 'gift-certificates', defaultTitle: 'Give the gift of interior design' },
-  { type: 'resourcesPage',    slug: 'resources',         defaultTitle: 'Design resources and recommendations' },
-  { type: 'pressPage',        slug: 'press',             defaultTitle: 'Reid Design in the press' },
-  { type: 'privacyPage',      slug: 'privacy',           defaultTitle: 'Privacy policy' },
-  { type: 'styleQuiz',        slug: 'quiz',              defaultTitle: 'Find your interior design style' },
-  { type: 'budgetCalculator', slug: 'calculator',        defaultTitle: 'Estimate your room furnishing budget' },
+  {
+    type: 'homePage',
+    slug: 'home',
+    defaultTitle: 'Plainfield interior design for homes that feel genuinely yours.',
+  },
+  { type: 'aboutPage', slug: 'about', defaultTitle: 'About Reid Design LLC and Staci Perkins' },
+  {
+    type: 'processPage',
+    slug: 'process',
+    defaultTitle: 'How Reid Design works, from first call to final reveal',
+  },
+  {
+    type: 'servicesPage',
+    slug: 'services',
+    defaultTitle: 'Interior design services in Plainfield and Indianapolis',
+  },
+  { type: 'faqPage', slug: 'faq', defaultTitle: 'Common questions about working with Reid Design' },
+  { type: 'contactPage', slug: 'contact', defaultTitle: 'Start a conversation with Reid Design' },
+  {
+    type: 'portfolioPage',
+    slug: 'portfolio',
+    defaultTitle: 'Recent interior design projects across Indianapolis',
+  },
+  { type: 'journalPage', slug: 'journal', defaultTitle: 'The Reid Design journal' },
+  {
+    type: 'eDesignPage',
+    slug: 'e-design',
+    defaultTitle: 'Online interior design, delivered digitally',
+  },
+  { type: 'shopPage', slug: 'shop', defaultTitle: 'Shop the pieces and sources Staci loves' },
+  { type: 'giftPage', slug: 'gift-certificates', defaultTitle: 'Give the gift of interior design' },
+  {
+    type: 'resourcesPage',
+    slug: 'resources',
+    defaultTitle: 'Design resources and recommendations',
+  },
+  { type: 'pressPage', slug: 'press', defaultTitle: 'Reid Design in the press' },
+  { type: 'privacyPage', slug: 'privacy', defaultTitle: 'Privacy policy' },
+  { type: 'styleQuiz', slug: 'quiz', defaultTitle: 'Find your interior design style' },
+  {
+    type: 'budgetCalculator',
+    slug: 'calculator',
+    defaultTitle: 'Estimate your room furnishing budget',
+  },
 ];
 
 for (const page of SINGLETONS) {

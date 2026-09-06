@@ -47,8 +47,10 @@ const stripPeriod = (v) => (typeof v === 'string' ? v.replace(/\.\s*$/, '') : v)
 const patch = {};
 const nextWork = stripPeriod(doc.featuredWorkEyebrow);
 const nextJournal = stripPeriod(doc.featuredJournalEyebrow);
-if (typeof nextWork === 'string' && nextWork !== doc.featuredWorkEyebrow) patch.featuredWorkEyebrow = nextWork;
-if (typeof nextJournal === 'string' && nextJournal !== doc.featuredJournalEyebrow) patch.featuredJournalEyebrow = nextJournal;
+if (typeof nextWork === 'string' && nextWork !== doc.featuredWorkEyebrow)
+  patch.featuredWorkEyebrow = nextWork;
+if (typeof nextJournal === 'string' && nextJournal !== doc.featuredJournalEyebrow)
+  patch.featuredJournalEyebrow = nextJournal;
 
 if (Object.keys(patch).length === 0) {
   console.log('Nothing to patch; eyebrows already have no trailing period.');
