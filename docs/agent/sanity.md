@@ -104,24 +104,43 @@ Select-String -Path dist/client/_astro/*.js `
 
 Note the SECOND pattern is deliberately specific. The family's shorthand check is
 `grep -l "errors.md#"`, which reports TWO files here and looks like a failure: the
-extra hit is `polished` (a normal dependency of `sanity` 6.4.0) whose error
+extra hit is `polished` (a normal dependency of `sanity` 6.9.1) whose error
 messages happen to use the same URL shape. Match the styled-components path.
 
-**The version set is a set.** `sanity` 6.4.0, `@sanity/ui` **3.3.5**,
-`styled-components` 6.4.3, `@sanity/client` 7.23.0, `react`/`react-dom`/`react-is`
-exactly 19.2.7, `sanity-plugin-media` 5.0.11,
+**The version set is a set.** As of 2026-09-06 (phase 1 of the coordinated
+stack migration): `sanity` **6.9.1**, `@sanity/vision` 6.9.1, `@sanity/ui`
+**3.5.4**, `styled-components` 6.4.3, `@sanity/client` **7.26.2**,
+`@sanity/visual-editing` **5.7.3**, `@sanity/preview-url-secret` **4.1.5**,
+`react`/`react-dom`/`react-is` exactly 19.2.7, `sanity-plugin-media` 5.0.11,
 `sanity-plugin-asset-source-unsplash` 7.0.15, and `overrides` for
-`sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.4.5. Those two need
+`sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.7.3. Those two need
 `overrides` rather than a plain dependency pin, because npm will happily nest a
-newer copy under a dependant and drag a second `@sanity/ui` in with it. "Latest
-v3" is not close enough: 3.5.3 clears error #18 and then fails differently,
-because `sanity` 6.4.0 expects the 3.3.x theme shape. Check a change against a
-sibling repo's RESOLVED versions, never its semver ranges, and delete the
-lockfile when an override appears to do nothing (npm keeps an already-resolved
-nested tree).
+newer copy under a dependant and drag a second `@sanity/ui` in with it.
+`@sanity/visual-editing` appears BOTH as a dependency and in `overrides`, and
+the two must be edited in the same step or npm refuses the whole install with
+EOVERRIDE.
+
+**The rule is not "hold `@sanity/ui` at 3.3.5".** It is "`@sanity/ui` must be
+whatever the installed `sanity` core declares" (6.4.0 declared `^3.3.0`, 6.9.1
+declares `^3.5.1`). The worked example that taught it: pinning `@sanity/ui` to
+3.5.3 while `sanity` stayed at 6.4.0 cleared error #18 and then failed
+differently, `TypeError: Cannot read properties of undefined (reading 'v2')`
+from inside styled-components, because 6.4.0 expects the 3.3.x theme shape.
+Check a change against RESOLVED versions on disk, never against semver ranges,
+and never delete or regenerate the lockfile: move packages with targeted
+`npm install <pkg>@<version>` only.
+
+`sanity` **6.9.2 is the next wall**: that PATCH release moves to `@sanity/ui` 4,
+which is phase 2 and a real migration (ESM-only, a new required
+`@sanity/ui/styles.css`, heavy components moved to subpaths). The exact pins are
+what stop npm walking straight through it.
+
+`@sanity/ui` 3.5.4 nests its own `@sanity/icons` 5 where 3.3.5 used the hoisted
+3.8. Harmless: icons are stateless SVG with no React context. `@sanity/icons`
+stays on its 3.x pin here, deliberately.
 
 **`sanity-plugin-iframe-pane` was dropped** with the fold. It depended on
-`@sanity/ui` by caret, which floats off 3.3.5, and the read-only iframe of the
+`@sanity/ui` by caret, which floats off the pinned 3.5.4, and the read-only iframe of the
 last deploy it provided is strictly worse than the Presentation preview below.
 
 ### The live preview (added 2026-08-28)

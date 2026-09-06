@@ -8,7 +8,11 @@
 // layer hangs on. Everything the resolver returns renders INSIDE the preview
 // iframe, in the site's bundle, positioned over the element's outline.
 //
-// FOUR FACTS ABOUT THE HOST, all verified against the pinned 5.4.5 source:
+// FOUR FACTS ABOUT THE HOST, all verified against the pinned 5.4.5 source when
+// this was written, and re-verified against 5.7.3 on 2026-09-06 (the resolver is
+// still gated on useOptimisticActorReady, the overlay Root is still
+// pointer-events: none and position: absolute, OverlayComponentProps still hands
+// in PointerEvents, and getContext still bails on !field):
 //
 //   1. The resolver only runs while the optimistic actor is ready, and the
 //      overlay only draws for hovered or focused elements. So "these controls

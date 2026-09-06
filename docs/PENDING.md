@@ -14,6 +14,24 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-06 Sanity phase-1 stack bump
+
+- **Sign in to the staging Studio, then open Presentation.** The stack moved to
+  `sanity` 6.9.1 / `@sanity/ui` 3.5.4 / `@sanity/client` 7.26.2 /
+  `@sanity/visual-editing` 5.7.3 / `@sanity/preview-url-secret` 4.1.5. Every
+  automated gate is green and the single-instance invariant holds on disk and in
+  the bundle (one `@sanity/ui` 3.5.4, one `styled-components` 6.4.3, one
+  styled-components `errors.md#` chunk). But the failure this pinning regime
+  exists for shows up ONLY after sign-in: the login screen is core code and
+  renders fine even when the theme context is broken. So open `/studio` on
+  staging, sign in, open a document with a custom component pane (Brand Kit or
+  Business Overview), then open **Presentation** and hover a section so the
+  in-canvas layout card and the script-accent picker draw. If the desk throws
+  styled-components error #18 or `Cannot read properties of undefined (reading
+'v2')`, the bump is bad and the revert is the two-file diff on package.json +
+  package-lock.json. Bonus while you are in there: 6.6.0 added **tables in
+  Portable Text**, so a table should now be insertable in body copy.
+
 ### From the 2026-08-28 Astro 7 / Sanity 6.4 / live-preview upgrade
 
 Three of these four were done on 2026-09-05 when the unified-Studio branch
@@ -174,10 +192,10 @@ Fix: regenerate the baselines from a clean main/staging build
   output. This is likely a bug in Astro", which was a silently downgraded vite,
   not a bug in Astro.
 - **2026-08-28 — the nested `studio/` package is gone.** Folded into the root on
-  the Sanity 6.4.0 pin set, Studio embedded at `/studio` via `@sanity/astro`.
+  the Sanity 6.9.1 pin set, Studio embedded at `/studio` via `@sanity/astro`.
   One node_modules, one `@sanity/ui`, one `styled-components` (verified on disk
   and in the bundle). `sanity-plugin-iframe-pane` was dropped with it: it
-  depends on `@sanity/ui` by caret, which would float off the pinned 3.3.5, and
+  depends on `@sanity/ui` by caret, which would float off the pinned 3.5.4, and
   the Presentation tool replaces what it did. PORTS.md card 10.
 - **2026-08-28 — live preview + in-canvas section controls.** Verified end to
   end locally against `wrangler dev`: 401 on a bad preview secret, 302 and a

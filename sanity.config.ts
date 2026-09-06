@@ -138,7 +138,7 @@ export default defineConfig({
     // not the same thing as a preview of what you are typing. The Presentation
     // tool below shows live draft content with click-to-edit, so keeping a
     // second, worse preview around was not worth holding a third package
-    // (@sanity/ui ^3.2.0 by caret) off the pinned 3.3.5.
+    // (@sanity/ui ^3.2.0 by caret) off the pinned 3.5.4.
     structureTool({
       structure: deskStructure,
     }),
@@ -173,7 +173,7 @@ export default defineConfig({
     // form.image.assetSources — that was my earlier bug). Picking a photo
     // uploads it to the Sanity library + attaches to the field in one shot.
     // Held at 7.0.15: newer versions demand @sanity/ui ^3.4, which would drag
-    // the pinned 3.3.5 forward and break the theme context.
+    // the pinned 3.5.4 forward and break the theme context.
     unsplashImageAsset(),
     // Media browser — adds a top-level "Media" icon in the Studio sidebar
     // for browsing every uploaded image at once with tag + filter + bulk-edit.

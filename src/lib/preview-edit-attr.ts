@@ -30,7 +30,7 @@
 //     silently edits nothing: no error, no visible failure, just a plus button
 //     that inserts into a different field.
 //
-// Drag-and-drop needs no extra props in @sanity/visual-editing 5.4.5: it is on
+// Drag-and-drop needs no extra props in @sanity/visual-editing 5.7.3: it is on
 // as soon as the attribute exists.
 // =============================================================================
 import { createDataAttribute } from '@sanity/visual-editing/create-data-attribute';
