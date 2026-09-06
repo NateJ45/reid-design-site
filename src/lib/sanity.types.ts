@@ -17,7 +17,7 @@ export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: schema.json
 export type TrashedItem = {
   _id: string;
-  _type: "trashedItem";
+  _type: 'trashedItem';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -30,21 +30,21 @@ export type TrashedItem = {
 
 export type SanityImageAssetReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
 };
 
 export type ShopCollectionReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "shopCollection";
+  [internalGroqTypeReferenceTo]?: 'shopCollection';
 };
 
 export type ShopItem = {
   _id: string;
-  _type: "shopItem";
+  _type: 'shopItem';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -55,7 +55,7 @@ export type ShopItem = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   vendor?: string;
   affiliateUrl?: string;
@@ -65,7 +65,7 @@ export type ShopItem = {
 };
 
 export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
+  _type: 'sanity.imageCrop';
   top?: number;
   bottom?: number;
   left?: number;
@@ -73,7 +73,7 @@ export type SanityImageCrop = {
 };
 
 export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
+  _type: 'sanity.imageHotspot';
   x?: number;
   y?: number;
   height?: number;
@@ -82,7 +82,7 @@ export type SanityImageHotspot = {
 
 export type ShopCollection = {
   _id: string;
-  _type: "shopCollection";
+  _type: 'shopCollection';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -93,14 +93,14 @@ export type ShopCollection = {
 };
 
 export type Slug = {
-  _type: "slug";
+  _type: 'slug';
   current?: string;
   source?: string;
 };
 
 export type PressItem = {
   _id: string;
-  _type: "pressItem";
+  _type: 'pressItem';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -111,7 +111,7 @@ export type PressItem = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   quote?: string;
   url?: string;
@@ -121,7 +121,7 @@ export type PressItem = {
 
 export type JournalCategory = {
   _id: string;
-  _type: "journalCategory";
+  _type: 'journalCategory';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -132,14 +132,14 @@ export type JournalCategory = {
 
 export type ServiceReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "service";
+  [internalGroqTypeReferenceTo]?: 'service';
 };
 
 export type ProcessStep = {
   _id: string;
-  _type: "processStep";
+  _type: 'processStep';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -151,14 +151,14 @@ export type ProcessStep = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
     markDefs?: null;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   features?: Array<string>;
@@ -173,7 +173,7 @@ export type ProcessStep = {
 
 export type PhilosophyPoint = {
   _id: string;
-  _type: "philosophyPoint";
+  _type: 'philosophyPoint';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -185,7 +185,7 @@ export type PhilosophyPoint = {
 
 export type FaqItem = {
   _id: string;
-  _type: "faqItem";
+  _type: 'faqItem';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -194,34 +194,29 @@ export type FaqItem = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal" | "h4";
-    listItem?: "bullet" | "number";
+    style?: 'normal' | 'h4';
+    listItem?: 'bullet' | 'number';
     markDefs?: Array<{
       href?: string;
       openInNewTab?: boolean;
-      _type: "link";
+      _type: 'link';
       _key: string;
     }>;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
-  category?:
-    | "Pricing & Cost"
-    | "The Process"
-    | "Logistics"
-    | "Service Area"
-    | "Getting Started";
+  category?: 'Pricing & Cost' | 'The Process' | 'Logistics' | 'Service Area' | 'Getting Started';
   displayOrder?: number;
   alsoShowOnProcessPage?: boolean;
 };
 
 export type StudioPlaybook = {
   _id: string;
-  _type: "studioPlaybook";
+  _type: 'studioPlaybook';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -232,26 +227,26 @@ export type StudioPlaybook = {
     summary?: string;
     sections?: Array<{
       heading?: string;
-      tone?: "default" | "primary" | "positive" | "caution";
+      tone?: 'default' | 'primary' | 'positive' | 'caution';
       body?: string;
       bullets?: Array<string>;
       links?: Array<{
         label?: string;
         url?: string;
-        _type: "playbookLink";
+        _type: 'playbookLink';
         _key: string;
       }>;
-      _type: "playbookSection";
+      _type: 'playbookSection';
       _key: string;
     }>;
-    _type: "playbookGuide";
+    _type: 'playbookGuide';
     _key: string;
   }>;
 };
 
 export type StudioNotes = {
   _id: string;
-  _type: "studioNotes";
+  _type: 'studioNotes';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -263,7 +258,7 @@ export type StudioNotes = {
 
 export type StudioGuide = {
   _id: string;
-  _type: "studioGuide";
+  _type: 'studioGuide';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -272,27 +267,27 @@ export type StudioGuide = {
   studioMap?: Array<{
     area?: string;
     description?: string;
-    _type: "mapRow";
+    _type: 'mapRow';
     _key: string;
   }>;
   howTos?: Array<{
     title?: string;
     steps?: Array<string>;
-    _type: "howTo";
+    _type: 'howTo';
     _key: string;
   }>;
   tips?: Array<{
     heading?: string;
-    tone?: "default" | "primary" | "caution" | "positive";
+    tone?: 'default' | 'primary' | 'caution' | 'positive';
     body?: string;
-    _type: "tip";
+    _type: 'tip';
     _key: string;
   }>;
 };
 
 export type NotFoundPage = {
   _id: string;
-  _type: "notFoundPage";
+  _type: 'notFoundPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -308,7 +303,7 @@ export type NotFoundPage = {
     crop?: SanityImageCrop;
     alt?: string;
     caption?: string;
-    _type: "image";
+    _type: 'image';
   };
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
@@ -320,7 +315,7 @@ export type NotFoundPage = {
 
 export type BusinessInfo = {
   _id: string;
-  _type: "businessInfo";
+  _type: 'businessInfo';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -331,7 +326,7 @@ export type BusinessInfo = {
   travelFees?: Array<{
     distanceLabel?: string;
     fee?: string;
-    _type: "travelFeeTier";
+    _type: 'travelFeeTier';
     _key: string;
   }>;
   availabilityStatus?: string;
@@ -341,7 +336,7 @@ export type BusinessInfo = {
 
 export type SiteSettings = {
   _id: string;
-  _type: "siteSettings";
+  _type: 'siteSettings';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -357,7 +352,7 @@ export type SiteSettings = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   navItems?: Array<
     | ({
@@ -370,7 +365,7 @@ export type SiteSettings = {
             _key: string;
           } & NavLink
         >;
-        _type: "navGroup";
+        _type: 'navGroup';
         _key: string;
       }
   >;
@@ -381,7 +376,7 @@ export type SiteSettings = {
         _key: string;
       } & NavLink
     >;
-    _type: "footerColumn";
+    _type: 'footerColumn';
     _key: string;
   }>;
   legalNav?: Array<
@@ -402,7 +397,7 @@ export type SiteSettings = {
   travelFees?: Array<{
     distanceLabel?: string;
     fee?: string;
-    _type: "travelFeeTier";
+    _type: 'travelFeeTier';
     _key: string;
   }>;
   socialInstagram?: string;
@@ -413,7 +408,7 @@ export type SiteSettings = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   footerCredit?: string;
   footerCreditUrl?: string;
@@ -447,148 +442,148 @@ export type SiteSettings = {
 
 export type HomePageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "homePage";
+  [internalGroqTypeReferenceTo]?: 'homePage';
 };
 
 export type AboutPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "aboutPage";
+  [internalGroqTypeReferenceTo]?: 'aboutPage';
 };
 
 export type ProcessPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "processPage";
+  [internalGroqTypeReferenceTo]?: 'processPage';
 };
 
 export type ServicesPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "servicesPage";
+  [internalGroqTypeReferenceTo]?: 'servicesPage';
 };
 
 export type EDesignPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "eDesignPage";
+  [internalGroqTypeReferenceTo]?: 'eDesignPage';
 };
 
 export type GiftPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "giftPage";
+  [internalGroqTypeReferenceTo]?: 'giftPage';
 };
 
 export type PressPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "pressPage";
+  [internalGroqTypeReferenceTo]?: 'pressPage';
 };
 
 export type ResourcesPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "resourcesPage";
+  [internalGroqTypeReferenceTo]?: 'resourcesPage';
 };
 
 export type FaqPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "faqPage";
+  [internalGroqTypeReferenceTo]?: 'faqPage';
 };
 
 export type ContactPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "contactPage";
+  [internalGroqTypeReferenceTo]?: 'contactPage';
 };
 
 export type JournalPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "journalPage";
+  [internalGroqTypeReferenceTo]?: 'journalPage';
 };
 
 export type PortfolioPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "portfolioPage";
+  [internalGroqTypeReferenceTo]?: 'portfolioPage';
 };
 
 export type PrivacyPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "privacyPage";
+  [internalGroqTypeReferenceTo]?: 'privacyPage';
 };
 
 export type ShopPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "shopPage";
+  [internalGroqTypeReferenceTo]?: 'shopPage';
 };
 
 export type StyleQuizReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "styleQuiz";
+  [internalGroqTypeReferenceTo]?: 'styleQuiz';
 };
 
 export type BudgetCalculatorReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "budgetCalculator";
+  [internalGroqTypeReferenceTo]?: 'budgetCalculator';
 };
 
 export type PageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "page";
+  [internalGroqTypeReferenceTo]?: 'page';
 };
 
 export type LeadMagnetReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "leadMagnet";
+  [internalGroqTypeReferenceTo]?: 'leadMagnet';
 };
 
 export type ProjectReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "project";
+  [internalGroqTypeReferenceTo]?: 'project';
 };
 
 export type JournalEntryReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "journalEntry";
+  [internalGroqTypeReferenceTo]?: 'journalEntry';
 };
 
 export type NavLink = {
-  _type: "navLink";
+  _type: 'navLink';
   label?: string;
-  linkType?: "internal" | "external" | "custom";
+  linkType?: 'internal' | 'external' | 'custom';
   internalPage?:
     | HomePageReference
     | AboutPageReference
@@ -615,82 +610,69 @@ export type NavLink = {
 };
 
 export type EDesignSectionMarker = {
-  _type: "eDesignSectionMarker";
-  section?: "intro" | "howItWorks" | "whatsIncluded" | "tiers" | "faq";
+  _type: 'eDesignSectionMarker';
+  section?: 'intro' | 'howItWorks' | 'whatsIncluded' | 'tiers' | 'faq';
 };
 
 export type GiftSectionMarker = {
-  _type: "giftSectionMarker";
-  section?: "intro" | "options" | "howItWorks" | "finePrint";
+  _type: 'giftSectionMarker';
+  section?: 'intro' | 'options' | 'howItWorks' | 'finePrint';
 };
 
 export type PressSectionMarker = {
-  _type: "pressSectionMarker";
-  section?: "hero" | "pressStrip" | "intro" | "list";
+  _type: 'pressSectionMarker';
+  section?: 'hero' | 'pressStrip' | 'intro' | 'list';
 };
 
 export type ResourcesSectionMarker = {
-  _type: "resourcesSectionMarker";
-  section?: "hero" | "intro" | "cards";
+  _type: 'resourcesSectionMarker';
+  section?: 'hero' | 'intro' | 'cards';
 };
 
 export type ProcessSectionMarker = {
-  _type: "processSectionMarker";
-  section?: "hero" | "steps" | "faq" | "finalCta";
+  _type: 'processSectionMarker';
+  section?: 'hero' | 'steps' | 'faq' | 'finalCta';
 };
 
 export type ServicesSectionMarker = {
-  _type: "servicesSectionMarker";
-  section?:
-    | "hero"
-    | "servicesList"
-    | "builders"
-    | "serviceArea"
-    | "guarantee"
-    | "finalCta";
+  _type: 'servicesSectionMarker';
+  section?: 'hero' | 'servicesList' | 'builders' | 'serviceArea' | 'guarantee' | 'finalCta';
 };
 
 export type HomeSectionMarker = {
-  _type: "homeSectionMarker";
+  _type: 'homeSectionMarker';
   section?:
-    | "hero"
-    | "meetStaci"
-    | "featuredWork"
-    | "testimonials"
-    | "processPreview"
-    | "services"
-    | "featuredJournal"
-    | "press"
-    | "serviceAreaCue"
-    | "finalCta";
+    | 'hero'
+    | 'meetStaci'
+    | 'featuredWork'
+    | 'testimonials'
+    | 'processPreview'
+    | 'services'
+    | 'featuredJournal'
+    | 'press'
+    | 'serviceAreaCue'
+    | 'finalCta';
 };
 
 export type AboutSectionMarker = {
-  _type: "aboutSectionMarker";
-  section?:
-    | "hero"
-    | "story"
-    | "philosophy"
-    | "personal"
-    | "press"
-    | "stats"
-    | "finalCta";
+  _type: 'aboutSectionMarker';
+  section?: 'hero' | 'story' | 'philosophy' | 'personal' | 'press' | 'stats' | 'finalCta';
 };
 
 export type SpacerSection = {
-  _type: "spacerSection";
-  variant?: "ornament" | "line" | "space";
+  _type: 'spacerSection';
+  variant?: 'ornament' | 'line' | 'space';
 };
 
 export type VideoSection = {
-  _type: "videoSection";
+  _type: 'videoSection';
   url?: string;
   heading?: string;
   caption?: string;
 };
 
 export type CtaBandSection = {
-  _type: "ctaBandSection";
+  _type: 'ctaBandSection';
   eyebrow?: string;
   headline?: string;
   scriptAccent?: string;
@@ -702,31 +684,31 @@ export type CtaBandSection = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
 };
 
 export type StatSection = {
-  _type: "statSection";
+  _type: 'statSection';
   heading?: string;
   stats?: Array<{
     number?: number;
     suffix?: string;
     label?: string;
-    _type: "statItem";
+    _type: 'statItem';
     _key: string;
   }>;
 };
 
 export type QuoteSection = {
-  _type: "quoteSection";
+  _type: 'quoteSection';
   quote?: string;
   attribution?: string;
   detail?: string;
 };
 
 export type GallerySection = {
-  _type: "gallerySection";
+  _type: 'gallerySection';
   heading?: string;
   images?: Array<{
     asset?: SanityImageAssetReference;
@@ -735,48 +717,48 @@ export type GallerySection = {
     crop?: SanityImageCrop;
     alt?: string;
     caption?: string;
-    _type: "image";
+    _type: 'image';
     _key: string;
   }>;
   columns?: 2 | 3 | 4;
 };
 
 export type ImageTextSection = {
-  _type: "imageTextSection";
+  _type: 'imageTextSection';
   image?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
-  imageSide?: "left" | "right";
+  imageSide?: 'left' | 'right';
   eyebrow?: string;
   heading?: string;
   body?: Array<{
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal" | "h2" | "h3" | "blockquote";
-    listItem?: "bullet" | "number";
+    style?: 'normal' | 'h2' | 'h3' | 'blockquote';
+    listItem?: 'bullet' | 'number';
     markDefs?: Array<{
       href?: string;
-      _type: "link";
+      _type: 'link';
       _key: string;
     }>;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   cta?: CtaBlock;
 };
 
 export type RichTextSection = {
-  _type: "richTextSection";
+  _type: 'richTextSection';
   eyebrow?: string;
   heading?: string;
   scriptAccent?: string;
@@ -784,26 +766,26 @@ export type RichTextSection = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal" | "h2" | "h3" | "blockquote";
-    listItem?: "bullet" | "number";
+    style?: 'normal' | 'h2' | 'h3' | 'blockquote';
+    listItem?: 'bullet' | 'number';
     markDefs?: Array<{
       href?: string;
-      _type: "link";
+      _type: 'link';
       _key: string;
     }>;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
-  width?: "normal" | "narrow";
-  align?: "left" | "center";
+  width?: 'normal' | 'narrow';
+  align?: 'left' | 'center';
 };
 
 export type HeroSection = {
-  _type: "heroSection";
+  _type: 'heroSection';
   eyebrow?: string;
   headline?: string;
   scriptAccent?: string;
@@ -814,16 +796,16 @@ export type HeroSection = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   primaryCta?: CtaBlock;
   secondaryCta?: CtaBlock;
-  size?: "tall" | "short";
+  size?: 'tall' | 'short';
 };
 
 export type BudgetCalculator = {
   _id: string;
-  _type: "budgetCalculator";
+  _type: 'budgetCalculator';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -835,7 +817,7 @@ export type BudgetCalculator = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   introEyebrow?: string;
   introHeadline?: string;
@@ -846,28 +828,28 @@ export type BudgetCalculator = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   rooms?: Array<{
     label?: string;
     baseLow?: number;
     baseHigh?: number;
-    _type: "room";
+    _type: 'room';
     _key: string;
   }>;
   scopeOptions?: Array<{
     label?: string;
     addLow?: number;
     addHigh?: number;
-    _type: "scopeOption";
+    _type: 'scopeOption';
     _key: string;
   }>;
   addOns?: Array<{
     label?: string;
     low?: number;
     high?: number;
-    _type: "addOn";
+    _type: 'addOn';
     _key: string;
   }>;
   resultCopy?: string;
@@ -878,7 +860,7 @@ export type BudgetCalculator = {
 
 export type StyleQuiz = {
   _id: string;
-  _type: "styleQuiz";
+  _type: 'styleQuiz';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -890,7 +872,7 @@ export type StyleQuiz = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   introEyebrow?: string;
   introHeadline?: string;
@@ -901,7 +883,7 @@ export type StyleQuiz = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   questions?: Array<{
     prompt?: string;
@@ -914,30 +896,30 @@ export type StyleQuiz = {
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
         alt?: string;
-        _type: "image";
+        _type: 'image';
       };
       archetypeWeights?: Array<{
         archetypeSlug?: string;
         weight?: number;
-        _type: "archetypeWeight";
+        _type: 'archetypeWeight';
         _key: string;
       }>;
-      _type: "quizAnswer";
+      _type: 'quizAnswer';
       _key: string;
     }>;
-    _type: "quizQuestion";
+    _type: 'quizQuestion';
     _key: string;
   }>;
   qualifiers?: Array<{
     prompt?: string;
-    type?: "budget" | "timeline" | "room";
+    type?: 'budget' | 'timeline' | 'room';
     options?: Array<{
       label?: string;
       value?: string;
-      _type: "qualifierOption";
+      _type: 'qualifierOption';
       _key: string;
     }>;
-    _type: "qualifier";
+    _type: 'qualifier';
     _key: string;
   }>;
   archetypes?: Array<{
@@ -947,14 +929,14 @@ export type StyleQuiz = {
       children?: Array<{
         marks?: Array<string>;
         text?: string;
-        _type: "span";
+        _type: 'span';
         _key: string;
       }>;
-      style?: "normal";
-      listItem?: "bullet" | "number";
+      style?: 'normal';
+      listItem?: 'bullet' | 'number';
       markDefs?: null;
       level?: number;
-      _type: "block";
+      _type: 'block';
       _key: string;
     }>;
     images?: Array<{
@@ -963,16 +945,16 @@ export type StyleQuiz = {
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       alt?: string;
-      _type: "image";
+      _type: 'image';
       _key: string;
     }>;
     recommendedServiceRef?: ServiceReference;
     resultCtaLabel?: string;
-    _type: "archetype";
+    _type: 'archetype';
     _key: string;
   }>;
   gate?: {
-    mode?: "optional" | "required-for-bonus" | "required";
+    mode?: 'optional' | 'required-for-bonus' | 'required';
     heading?: string;
     blurb?: string;
     consentNote?: string;
@@ -988,14 +970,14 @@ export type StyleQuiz = {
 
 export type SanityFileAssetReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset';
 };
 
 export type LeadMagnet = {
   _id: string;
-  _type: "leadMagnet";
+  _type: 'leadMagnet';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1008,12 +990,12 @@ export type LeadMagnet = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   file?: {
     asset?: SanityFileAssetReference;
     media?: unknown;
-    _type: "file";
+    _type: 'file';
   };
   gateHeading?: string;
   gateBlurb?: string;
@@ -1028,7 +1010,7 @@ export type LeadMagnet = {
 
 export type Service = {
   _id: string;
-  _type: "service";
+  _type: 'service';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1045,20 +1027,20 @@ export type Service = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   longDescription?: Array<{
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
     markDefs?: null;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   displayOrder?: number;
@@ -1070,7 +1052,7 @@ export type Service = {
 
 export type ShopPage = {
   _id: string;
-  _type: "shopPage";
+  _type: 'shopPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1082,7 +1064,7 @@ export type ShopPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1093,7 +1075,7 @@ export type ShopPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   enabled?: boolean;
@@ -1108,7 +1090,7 @@ export type ShopPage = {
 
 export type PrivacyPage = {
   _id: string;
-  _type: "privacyPage";
+  _type: 'privacyPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1120,7 +1102,7 @@ export type PrivacyPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1131,7 +1113,7 @@ export type PrivacyPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   lastUpdated?: string;
@@ -1139,19 +1121,19 @@ export type PrivacyPage = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal" | "h2" | "h3";
-    listItem?: "bullet" | "number";
+    style?: 'normal' | 'h2' | 'h3';
+    listItem?: 'bullet' | 'number';
     markDefs?: Array<{
       href?: string;
       openInNewTab?: boolean;
-      _type: "link";
+      _type: 'link';
       _key: string;
     }>;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   additionalSections?: Array<
@@ -1187,7 +1169,7 @@ export type PrivacyPage = {
 
 export type PortfolioPage = {
   _id: string;
-  _type: "portfolioPage";
+  _type: 'portfolioPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1199,7 +1181,7 @@ export type PortfolioPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1210,7 +1192,7 @@ export type PortfolioPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   beforeAfterSeoTitle?: string;
@@ -1251,7 +1233,7 @@ export type PortfolioPage = {
 
 export type ResourcesPage = {
   _id: string;
-  _type: "resourcesPage";
+  _type: 'resourcesPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1263,7 +1245,7 @@ export type ResourcesPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -1306,7 +1288,7 @@ export type ResourcesPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   intro?: string;
@@ -1319,17 +1301,17 @@ export type ResourcesPage = {
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       alt?: string;
-      _type: "image";
+      _type: 'image';
     };
     link?: string;
-    _type: "resourceCard";
+    _type: 'resourceCard';
     _key: string;
   }>;
 };
 
 export type PressPage = {
   _id: string;
-  _type: "pressPage";
+  _type: 'pressPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1341,7 +1323,7 @@ export type PressPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -1384,7 +1366,7 @@ export type PressPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   intro?: string;
@@ -1392,7 +1374,7 @@ export type PressPage = {
 
 export type GiftPage = {
   _id: string;
-  _type: "giftPage";
+  _type: 'giftPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1404,7 +1386,7 @@ export type GiftPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -1447,7 +1429,7 @@ export type GiftPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   intro?: string;
@@ -1455,14 +1437,14 @@ export type GiftPage = {
     label?: string;
     amount?: string;
     blurb?: string;
-    _type: "giftOption";
+    _type: 'giftOption';
     _key: string;
   }>;
   howItWorks?: Array<{
     stepNumber?: number;
     title?: string;
     body?: string;
-    _type: "giftStep";
+    _type: 'giftStep';
     _key: string;
   }>;
   finePrint?: string;
@@ -1471,14 +1453,14 @@ export type GiftPage = {
 
 export type FaqItemReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "faqItem";
+  [internalGroqTypeReferenceTo]?: 'faqItem';
 };
 
 export type EDesignPage = {
   _id: string;
-  _type: "eDesignPage";
+  _type: 'eDesignPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1490,7 +1472,7 @@ export type EDesignPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -1533,28 +1515,28 @@ export type EDesignPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   intro?: Array<{
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
     markDefs?: null;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   howItWorks?: Array<{
     stepNumber?: number;
     title?: string;
     body?: string;
-    _type: "howItWorksStep";
+    _type: 'howItWorksStep';
     _key: string;
   }>;
   whatsIncluded?: Array<string>;
@@ -1565,7 +1547,7 @@ export type EDesignPage = {
     features?: Array<string>;
     bestFor?: string;
     ctaLabel?: string;
-    _type: "eDesignTier";
+    _type: 'eDesignTier';
     _key: string;
   }>;
   faqRefs?: Array<
@@ -1583,14 +1565,14 @@ export type EDesignPage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
 };
 
 export type CtaBlock = {
-  _type: "ctaBlock";
+  _type: 'ctaBlock';
   label?: string;
-  linkType?: "internal" | "external" | "email" | "phone";
+  linkType?: 'internal' | 'external' | 'email' | 'phone';
   internalLink?:
     | HomePageReference
     | AboutPageReference
@@ -1609,7 +1591,7 @@ export type CtaBlock = {
 
 export type Page = {
   _id: string;
-  _type: "page";
+  _type: 'page';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1645,7 +1627,7 @@ export type Page = {
       } & SpacerSection)
   >;
   addToMainNav?: boolean;
-  navGroup?: "top" | "services" | "resources";
+  navGroup?: 'top' | 'services' | 'resources';
   navLabel?: string;
   addToFooter?: boolean;
   seoTitle?: string;
@@ -1656,20 +1638,20 @@ export type Page = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
 };
 
 export type JournalCategoryReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "journalCategory";
+  [internalGroqTypeReferenceTo]?: 'journalCategory';
 };
 
 export type JournalEntry = {
   _id: string;
-  _type: "journalEntry";
+  _type: 'journalEntry';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1683,7 +1665,7 @@ export type JournalEntry = {
     crop?: SanityImageCrop;
     alt?: string;
     caption?: string;
-    _type: "image";
+    _type: 'image';
   };
   categories?: Array<
     {
@@ -1699,27 +1681,27 @@ export type JournalEntry = {
         children?: Array<{
           marks?: Array<string>;
           text?: string;
-          _type: "span";
+          _type: 'span';
           _key: string;
         }>;
-        style?: "normal" | "lead" | "h2" | "h3" | "h4" | "blockquote";
-        listItem?: "bullet" | "number";
+        style?: 'normal' | 'lead' | 'h2' | 'h3' | 'h4' | 'blockquote';
+        listItem?: 'bullet' | 'number';
         markDefs?: Array<
           | {
               href?: string;
               openInNewTab?: boolean;
-              _type: "link";
+              _type: 'link';
               _key: string;
             }
           | {
               vendor?: string;
               url?: string;
-              _type: "sourcedFrom";
+              _type: 'sourcedFrom';
               _key: string;
             }
         >;
         level?: number;
-        _type: "block";
+        _type: 'block';
         _key: string;
       }
     | {
@@ -1729,14 +1711,14 @@ export type JournalEntry = {
         crop?: SanityImageCrop;
         alt?: string;
         caption?: string;
-        size?: "standard" | "wide" | "full";
-        _type: "inlineImage";
+        size?: 'standard' | 'wide' | 'full';
+        _type: 'inlineImage';
         _key: string;
       }
     | {
         quote?: string;
         attribution?: string;
-        _type: "pullQuote";
+        _type: 'pullQuote';
         _key: string;
       }
     | {
@@ -1746,7 +1728,7 @@ export type JournalEntry = {
           hotspot?: SanityImageHotspot;
           crop?: SanityImageCrop;
           alt?: string;
-          _type: "image";
+          _type: 'image';
         };
         afterImage?: {
           asset?: SanityImageAssetReference;
@@ -1754,10 +1736,10 @@ export type JournalEntry = {
           hotspot?: SanityImageHotspot;
           crop?: SanityImageCrop;
           alt?: string;
-          _type: "image";
+          _type: 'image';
         };
         caption?: string;
-        _type: "beforeAfter";
+        _type: 'beforeAfter';
         _key: string;
       }
     | {
@@ -1767,14 +1749,14 @@ export type JournalEntry = {
           hotspot?: SanityImageHotspot;
           crop?: SanityImageCrop;
           alt?: string;
-          _type: "image";
+          _type: 'image';
         };
         itemName?: string;
         vendor?: string;
         price?: string;
         url?: string;
         notes?: string;
-        _type: "sourceCard";
+        _type: 'sourceCard';
         _key: string;
       }
     | {
@@ -1783,22 +1765,22 @@ export type JournalEntry = {
           children?: Array<{
             marks?: Array<string>;
             text?: string;
-            _type: "span";
+            _type: 'span';
             _key: string;
           }>;
-          style?: "normal";
-          listItem?: "bullet";
+          style?: 'normal';
+          listItem?: 'bullet';
           markDefs?: Array<{
             href?: string;
             openInNewTab?: boolean;
-            _type: "link";
+            _type: 'link';
             _key: string;
           }>;
           level?: number;
-          _type: "block";
+          _type: 'block';
           _key: string;
         }>;
-        _type: "tipCallout";
+        _type: 'tipCallout';
         _key: string;
       }
     | {
@@ -1809,23 +1791,23 @@ export type JournalEntry = {
           crop?: SanityImageCrop;
           alt?: string;
           caption?: string;
-          _type: "image";
+          _type: 'image';
           _key: string;
         }>;
-        layout?: "grid2" | "grid3" | "row";
+        layout?: 'grid2' | 'grid3' | 'row';
         caption?: string;
-        _type: "imageGallery";
+        _type: 'imageGallery';
         _key: string;
       }
     | {
-        style?: "line" | "ornament" | "space";
-        _type: "divider";
+        style?: 'line' | 'ornament' | 'space';
+        _type: 'divider';
         _key: string;
       }
     | {
         url?: string;
         caption?: string;
-        _type: "videoEmbed";
+        _type: 'videoEmbed';
         _key: string;
       }
   >;
@@ -1841,7 +1823,7 @@ export type JournalEntry = {
 
 export type JournalPage = {
   _id: string;
-  _type: "journalPage";
+  _type: 'journalPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1853,7 +1835,7 @@ export type JournalPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1864,7 +1846,7 @@ export type JournalPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   stickyCtaLabel?: string;
@@ -1877,7 +1859,7 @@ export type JournalPage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   additionalSections?: Array<
     | ({
@@ -1912,7 +1894,7 @@ export type JournalPage = {
 
 export type ContactPage = {
   _id: string;
-  _type: "contactPage";
+  _type: 'contactPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1924,7 +1906,7 @@ export type ContactPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1935,7 +1917,7 @@ export type ContactPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   formIntroNote?: string;
@@ -1950,21 +1932,21 @@ export type ContactPage = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
     markDefs?: null;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   postInquiryRoadmap?: Array<{
     title?: string;
     body?: string;
     timeEstimate?: string;
-    _type: "roadmapStep";
+    _type: 'roadmapStep';
     _key: string;
   }>;
   schedulingLink?: string;
@@ -2004,7 +1986,7 @@ export type ContactPage = {
 
 export type FaqPage = {
   _id: string;
-  _type: "faqPage";
+  _type: 'faqPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2016,7 +1998,7 @@ export type FaqPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -2027,7 +2009,7 @@ export type FaqPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   categoryOrder?: Array<string>;
@@ -2041,7 +2023,7 @@ export type FaqPage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   secondaryCta?: CtaBlock;
   note?: string;
@@ -2078,7 +2060,7 @@ export type FaqPage = {
 
 export type ServicesPage = {
   _id: string;
-  _type: "servicesPage";
+  _type: 'servicesPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2090,7 +2072,7 @@ export type ServicesPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -2133,7 +2115,7 @@ export type ServicesPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   stickyCtaLabel?: string;
@@ -2147,14 +2129,14 @@ export type ServicesPage = {
       children?: Array<{
         marks?: Array<string>;
         text?: string;
-        _type: "span";
+        _type: 'span';
         _key: string;
       }>;
-      style?: "normal";
-      listItem?: "bullet" | "number";
+      style?: 'normal';
+      listItem?: 'bullet' | 'number';
       markDefs?: null;
       level?: number;
-      _type: "block";
+      _type: 'block';
       _key: string;
     }>;
     forBuildersText?: string;
@@ -2177,14 +2159,14 @@ export type ServicesPage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   note?: string;
 };
 
 export type ProcessPage = {
   _id: string;
-  _type: "processPage";
+  _type: 'processPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2196,7 +2178,7 @@ export type ProcessPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -2239,7 +2221,7 @@ export type ProcessPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   faqSectionEyebrow?: string;
@@ -2254,14 +2236,14 @@ export type ProcessPage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   note?: string;
 };
 
 export type AboutPage = {
   _id: string;
-  _type: "aboutPage";
+  _type: 'aboutPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2273,7 +2255,7 @@ export type AboutPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -2316,7 +2298,7 @@ export type AboutPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroScriptAccent?: string;
   storyEyebrow?: string;
@@ -2325,14 +2307,14 @@ export type AboutPage = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
     markDefs?: null;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   staciPhoto?: {
@@ -2341,7 +2323,7 @@ export type AboutPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   staciAttribution?: string;
   backgroundLine?: string;
@@ -2354,19 +2336,19 @@ export type AboutPage = {
   currentlyList?: Array<{
     label?: string;
     value?: string;
-    _type: "currentlyRow";
+    _type: 'currentlyRow';
     _key: string;
   }>;
   rapidFire?: Array<{
     prompt?: string;
     answer?: string;
-    _type: "rapidFireRow";
+    _type: 'rapidFireRow';
     _key: string;
   }>;
   localSpots?: Array<{
     name?: string;
     note?: string;
-    _type: "localSpotRow";
+    _type: 'localSpotRow';
     _key: string;
   }>;
   beyondDesign?: string;
@@ -2376,13 +2358,13 @@ export type AboutPage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   stats?: Array<{
     number?: number;
     suffix?: string;
     label?: string;
-    _type: "statItem";
+    _type: 'statItem';
     _key: string;
   }>;
   finalCtaEyebrow?: string;
@@ -2395,20 +2377,20 @@ export type AboutPage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
 };
 
 export type TestimonialReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "testimonial";
+  [internalGroqTypeReferenceTo]?: 'testimonial';
 };
 
 export type HomePage = {
   _id: string;
-  _type: "homePage";
+  _type: 'homePage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2420,7 +2402,7 @@ export type HomePage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   pageBuilder?: Array<
     | ({
@@ -2463,7 +2445,7 @@ export type HomePage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   heroImages?: Array<{
     asset?: SanityImageAssetReference;
@@ -2471,7 +2453,7 @@ export type HomePage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
     _key: string;
   }>;
   heroPrimaryCta?: CtaBlock;
@@ -2484,7 +2466,7 @@ export type HomePage = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   meetStaciEyebrow?: string;
   meetStaciHeadline?: string;
@@ -2492,14 +2474,14 @@ export type HomePage = {
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal";
-    listItem?: "bullet" | "number";
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
     markDefs?: null;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   meetStaciCta?: CtaBlock;
@@ -2543,20 +2525,20 @@ export type HomePage = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
 };
 
 export type Testimonial = {
   _id: string;
-  _type: "testimonial";
+  _type: 'testimonial';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   quote?: string;
   attribution?: string;
   date?: string;
-  source?: "Facebook" | "Google" | "Houzz" | "Direct (email or text)" | "Other";
+  source?: 'Facebook' | 'Google' | 'Houzz' | 'Direct (email or text)' | 'Other';
   location?: string;
   photo?: {
     asset?: SanityImageAssetReference;
@@ -2564,17 +2546,17 @@ export type Testimonial = {
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
-    _type: "image";
+    _type: 'image';
   };
   featured?: boolean;
   relatedProject?: ProjectReference;
-  sourceType?: "Google" | "Facebook" | "Houzz" | "Direct";
+  sourceType?: 'Google' | 'Facebook' | 'Houzz' | 'Direct';
   reviewUrl?: string;
 };
 
 export type Project = {
   _id: string;
-  _type: "project";
+  _type: 'project';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2584,23 +2566,23 @@ export type Project = {
   metaDescription?: string;
   location?: string;
   roomType?:
-    | "livingRoom"
-    | "bedroom"
-    | "kitchen"
-    | "diningRoom"
-    | "office"
-    | "wholeHome"
-    | "multipleRooms"
-    | "other";
+    | 'livingRoom'
+    | 'bedroom'
+    | 'kitchen'
+    | 'diningRoom'
+    | 'office'
+    | 'wholeHome'
+    | 'multipleRooms'
+    | 'other';
   designStyle?:
-    | "modernTraditional"
-    | "transitional"
-    | "modernCoastal"
-    | "modernFarmhouse"
-    | "modernOrganic"
-    | "eclectic"
-    | "midCentury"
-    | "other";
+    | 'modernTraditional'
+    | 'transitional'
+    | 'modernCoastal'
+    | 'modernFarmhouse'
+    | 'modernOrganic'
+    | 'eclectic'
+    | 'midCentury'
+    | 'other';
   year?: number;
   heroImage?: {
     asset?: SanityImageAssetReference;
@@ -2609,7 +2591,7 @@ export type Project = {
     crop?: SanityImageCrop;
     alt?: string;
     caption?: string;
-    _type: "image";
+    _type: 'image';
   };
   gallery?: Array<{
     asset?: SanityImageAssetReference;
@@ -2618,7 +2600,7 @@ export type Project = {
     crop?: SanityImageCrop;
     alt?: string;
     caption?: string;
-    _type: "image";
+    _type: 'image';
     _key: string;
   }>;
   beforeAfters?: Array<{
@@ -2628,7 +2610,7 @@ export type Project = {
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       alt?: string;
-      _type: "image";
+      _type: 'image';
     };
     afterImage?: {
       asset?: SanityImageAssetReference;
@@ -2636,10 +2618,10 @@ export type Project = {
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       alt?: string;
-      _type: "image";
+      _type: 'image';
     };
     caption?: string;
-    _type: "beforeAfterPair";
+    _type: 'beforeAfterPair';
     _key: string;
   }>;
   briefSummary?: string;
@@ -2650,27 +2632,27 @@ export type Project = {
         children?: Array<{
           marks?: Array<string>;
           text?: string;
-          _type: "span";
+          _type: 'span';
           _key: string;
         }>;
-        style?: "normal" | "h2" | "h3" | "blockquote";
-        listItem?: "bullet" | "number";
+        style?: 'normal' | 'h2' | 'h3' | 'blockquote';
+        listItem?: 'bullet' | 'number';
         markDefs?: Array<
           | {
               href?: string;
               openInNewTab?: boolean;
-              _type: "link";
+              _type: 'link';
               _key: string;
             }
           | {
               vendor?: string;
               url?: string;
-              _type: "sourcedFrom";
+              _type: 'sourcedFrom';
               _key: string;
             }
         >;
         level?: number;
-        _type: "block";
+        _type: 'block';
         _key: string;
       }
     | {
@@ -2681,7 +2663,7 @@ export type Project = {
         alt?: string;
         caption?: string;
         decisionLine?: string;
-        _type: "image";
+        _type: 'image';
         _key: string;
       }
   >;
@@ -2700,7 +2682,7 @@ export type Project = {
 
 export type MediaTag = {
   _id: string;
-  _type: "media.tag";
+  _type: 'media.tag';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2708,7 +2690,7 @@ export type MediaTag = {
 };
 
 export type SanityImagePaletteSwatch = {
-  _type: "sanity.imagePaletteSwatch";
+  _type: 'sanity.imagePaletteSwatch';
   background?: string;
   foreground?: string;
   population?: number;
@@ -2716,7 +2698,7 @@ export type SanityImagePaletteSwatch = {
 };
 
 export type SanityImagePalette = {
-  _type: "sanity.imagePalette";
+  _type: 'sanity.imagePalette';
   darkMuted?: SanityImagePaletteSwatch;
   lightVibrant?: SanityImagePaletteSwatch;
   darkVibrant?: SanityImagePaletteSwatch;
@@ -2727,14 +2709,14 @@ export type SanityImagePalette = {
 };
 
 export type SanityImageDimensions = {
-  _type: "sanity.imageDimensions";
+  _type: 'sanity.imageDimensions';
   height?: number;
   width?: number;
   aspectRatio?: number;
 };
 
 export type SanityImageMetadata = {
-  _type: "sanity.imageMetadata";
+  _type: 'sanity.imageMetadata';
   location?: Geopoint;
   dimensions?: SanityImageDimensions;
   palette?: SanityImagePalette;
@@ -2747,7 +2729,7 @@ export type SanityImageMetadata = {
 
 export type SanityFileAsset = {
   _id: string;
-  _type: "sanity.fileAsset";
+  _type: 'sanity.fileAsset';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2768,7 +2750,7 @@ export type SanityFileAsset = {
 };
 
 export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
+  _type: 'sanity.assetSourceData';
   name?: string;
   id?: string;
   url?: string;
@@ -2776,7 +2758,7 @@ export type SanityAssetSourceData = {
 
 export type SanityImageAsset = {
   _id: string;
-  _type: "sanity.imageAsset";
+  _type: 'sanity.imageAsset';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -2798,7 +2780,7 @@ export type SanityImageAsset = {
 };
 
 export type Geopoint = {
-  _type: "geopoint";
+  _type: 'geopoint';
   lat?: number;
   lng?: number;
   alt?: number;
