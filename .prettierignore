@@ -27,6 +27,12 @@ scripts/.asset-map.json
 # Scratch output (gitignored).
 tmp
 
+# PORTABLE file (see docs/TESTING.md, "The drift check"): byte-exact with
+# ncs-astro-sanity-starter, which is the library of record. It is the one
+# starter-synced file whose quoting prettier would change, and `npm run
+# sync-check` would then report DRIFT. Reformat it in the starter first.
+scripts/sync-check.mjs
+
 # Planning history and migration notes: prose archives, not maintained source.
 migration-docs
 docs/superpowers
