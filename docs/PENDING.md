@@ -16,11 +16,14 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ### From the 2026-08-28 Astro 7 / Sanity 6.4 / live-preview upgrade
 
-These four gate the live preview and the deploy. Until they are done, the site
-still builds and serves fine, but `/preview/*` answers a 503 naming what is
-missing and the embedded Studio cannot reach the Sanity API.
+Three of these four were done on 2026-09-05 when the unified-Studio branch
+was ported to `main` (SANITY_TOKEN set on production and staging, CORS origins
+for the apex, www, and both workers.dev hosts, deploy command changed; Workers
+Build 509b91db deployed with it and `/studio/`, `/preview/**`,
+`/api/draft-mode/*` all answer). The retirement of the old hosted Studio is the
+one still open. Kept here in full because they document WHY each is needed.
 
-- **`npx wrangler secret put SANITY_TOKEN`.** The Worker RUNTIME secret the
+- **DONE 2026-09-05. `npx wrangler secret put SANITY_TOKEN`.** The Worker RUNTIME secret the
   preview stack reads through `cloudflare:workers`. Nothing else can supply it:
   the preview routes are `prerender = false` and run per request, long after the
   build-time `.env` is gone. Use a Viewer token from
@@ -29,7 +32,7 @@ missing and the embedded Studio cannot reach the Sanity API.
   (gitignored, created 2026-08-28); `.dev.vars.example` is the committed
   template. Rotating it invalidates outstanding preview cookies, which is
   harmless: editors reopen the Presentation tool.
-- **`npx sanity cors add <origin> --credentials`, twice.** Once for
+- **DONE 2026-09-05 (apex, www, both workers.dev). `npx sanity cors add <origin> --credentials`, twice.** Once for
   `https://reid-design-site.nathanjnixon86.workers.dev` (and again for
   `https://reiddesignllc.com` at DNS cutover), once for `http://localhost:4321`.
   Verified locally 2026-08-28: the embedded Studio at `/studio` mounts and
@@ -40,7 +43,7 @@ missing and the embedded Studio cannot reach the Sanity API.
   one document plus the Presentation tool**: a signed-in desk with custom
   components is the only thing that proves the styled-components theme context
   end to end, and it is the check the starter's own session could not run.
-- **Change the Cloudflare Workers Build deploy command.** Cloudflare's GitHub
+- **DONE 2026-09-05. Change the Cloudflare Workers Build deploy command.** Cloudflare's GitHub
   integration builds this repo on every push to `main`. `npm run build` is
   unchanged, but `@astrojs/cloudflare` 14 now splits the output into
   `dist/client` + `dist/server` and writes its own `dist/server/wrangler.json`,
