@@ -73,7 +73,7 @@
     "react-dom": "19.2.7",
     "react-is": "19.2.7",
     "react-photo-album": "^3.6.0",
-    "sanity": "6.4.0",
+    "sanity": "6.12.0",
     "sanity-plugin-asset-source-unsplash": "7.0.15",
     "sanity-plugin-media": "5.0.11",
     "shadcn": "^4.8.1",
