@@ -23,6 +23,16 @@ updates:
         update-types: ['minor', 'patch']
     open-pull-requests-limit: 5
     ignore:
+      # The Sanity stack is version-locked as a SET, not per package. sanity
+      # 6.4.0 depends on @sanity/ui ^3.3.0 and @sanity/client ^7.23.0, so a
+      # lone major bump nests a second @sanity/ui instead of replacing it;
+      # two instances means two styled-components contexts and the signed-in
+      # Studio dies while the login screen still works (PORTS.md card 10).
+      # The whole set moves in one deliberate migration, never by Dependabot.
+      # Same rule WCP and presacademy already use.
+      - dependency-name: 'sanity'
+      - dependency-name: '@sanity/*'
+      - dependency-name: 'sanity-plugin-*'
       # TypeScript 7 (the native Go compiler) drops the JavaScript compiler API
       # that Astro's tooling drives astro check and the build through, so it
       # breaks the site. 6.0.3 is the studio standard (2026-09-06); the studio
