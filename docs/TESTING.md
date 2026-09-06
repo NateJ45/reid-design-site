@@ -27,8 +27,10 @@ failure does not hide a build failure, and vice versa.
 Three files are deliberately outside prettier's reach (see `.prettierignore`):
 `Hero.astro`, `HeroBackground.astro` and `BaseLayout.astro` nest a
 `<script is:inline>` inside a template expression, which prettier-plugin-astro
-cannot parse, and `scripts/sync-check.mjs` must stay byte-exact with the
-starter (below). Format those by hand.
+cannot parse. Format those by hand. `scripts/sync-check.mjs` used to be a fourth
+for a different reason (it must stay byte-exact with the starter, and prettier
+rewrites its quoting); since 2026-09-06 the starter's canonical copy IS
+prettier's output, so the file is formatted and no longer ignored anywhere.
 
 ## What the Playwright suites assert
 
@@ -135,6 +137,10 @@ and diffs each against the starter's copy of the same path, reporting
 are normalized; everything else is byte-exact, marker line included. Locate the
 library with `NCS_STARTER_DIR`, or leave it to find a sibling
 `ncs-astro-sanity-starter` directory.
+
+Since 2026-09-06 this is a CI gate, not only a hand-run check: the build job
+checks the starter out at `.ncs-starter` and runs `node scripts/sync-check.mjs`
+against it on every push and PR (see the starter's PORTS.md card 36).
 
 Marked files here as of 2026-08-27: `scripts/free-dist.mjs`,
 `scripts/with-workerd.mjs`, `scripts/lib/sanity-lib.mjs`, `scripts/sync-check.mjs`,
