@@ -1,0 +1,45 @@
+name: Lighthouse
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+
+# A newer push to the same branch obsoletes the in-flight run; cancel it
+# instead of paying for both.
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+
+    # Same public identifiers ci.yml uses. They are not secrets (they ship in
+    # every GROQ request URL), and pinning them means lhci audits the REAL
+    # content rather than the credential-less placeholder build.
+    env:
+      PUBLIC_SANITY_PROJECT_ID: ba403vjc
+      PUBLIC_SANITY_DATASET: production
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Same build ci.yml runs: consumes the committed src/lib/sanity.types.ts,
+      # emits dist/client (audited here) and dist/server (the SSR bundle for
+      # /studio and /preview, which lhci never sees).
+      - name: Build
+        run: npm run build
+
+      # Accessibility is a hard gate (minScore 1) in lighthouserc.json;
+      # performance / best-practices / SEO are warnings.
+      - name: Lighthouse CI
+        run: npx lhci autorun

@@ -31,7 +31,7 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "serve:dist": "http-server dist/client -p 4321 -s -c-1 --silent",
-    "check:links": "linkinator ./dist/client --recurse --skip \"^(?!http://localhost)\" --skip \"/studio\" --skip \"/preview\" --skip \"/api/\"",
+    "check:links": "linkinator ./dist/client --recurse --skip \"^https?://(?!127[.]0[.]0[.]1)\" --skip \"/studio\" --skip \"/preview\" --skip \"/api/\"",
     "parity": "node scripts/page-parity.mjs",
     "sync-check": "node scripts/sync-check.mjs"
   },
