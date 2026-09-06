@@ -70,6 +70,10 @@ const {
 if (!source?.asset) {
   return null;
 }
+// Narrowed alias for the closure below: TypeScript does not carry the guard
+// above into a nested function, so `urlFor(source)` there would still see the
+// nullable prop type and fail astro check.
+const image: SanityImageObject = source;
 
 // If the caller didn't pass an explicit height we derive one from the
 // asset's intrinsic dimensions so the rendered <img> always carries both
@@ -82,7 +86,7 @@ const derivedHeight =
 
 // Build a single optimized URL at a target width. Reusable for srcset entries.
 function buildUrl(targetWidth: number) {
-  let b = urlFor(source).width(targetWidth).quality(quality);
+  let b = urlFor(image).width(targetWidth).quality(quality);
   if (height) {
     // Caller-supplied height = aspect-ratio crop. Scale proportionally so
     // every srcset variant keeps the same crop ratio.

@@ -24,7 +24,7 @@ function handleTocClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
 
   event.preventDefault();
 
-  const lenis = (window as Window & { lenis?: { scrollTo: (t: HTMLElement) => void } }).lenis;
+  const lenis = (window as unknown as { lenis?: { scrollTo: (t: HTMLElement) => void } }).lenis;
 
   if (lenis) {
     lenis.scrollTo(target);

@@ -22,6 +22,9 @@ pnpm-debug.log*
 
 # wrangler local cache (Cloudflare adapter)
 .wrangler/
+# `npm run generate-types` (wrangler types) output. Not used by the type check:
+# src/cloudflare-workers.d.ts carries the one ambient module the code needs.
+worker-configuration.d.ts
 
 # generated artifacts
 tmp/

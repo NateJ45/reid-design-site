@@ -20,8 +20,9 @@
 //   checks before the token's been wired into Cloudflare's env vars.
 
 import { createClient, type SanityClient } from '@sanity/client';
-import { createImageUrlBuilder } from '@sanity/image-url';
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+// @sanity/image-url 2.x exports the source type from its root; the old
+// `lib/types/types` deep path is not in the package's exports map any more.
+import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET ?? 'production';

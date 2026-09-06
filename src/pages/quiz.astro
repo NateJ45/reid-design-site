@@ -13,7 +13,7 @@ import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { urlFor } from '@/lib/sanity';
 import { site } from '@/data/site';
-import type { StyleQuizConfig } from '@/components/StyleQuiz';
+import type { ArchetypeWithUrls, StyleQuizConfig } from '@/components/StyleQuiz';
 
 const [quiz, siteSettings] = await Promise.all([
   getStyleQuiz().catch(() => null),
@@ -48,15 +48,10 @@ const hasValidQuiz =
 // the Sanity URL builder (keeps island bundle lean — no extra client-side dep).
 // Each archetype image becomes a simple { url, alt } pair. We build multiple
 // sizes for srcset in the island.
-type ArchetypeImageUrl = { url: string; url2x: string; alt: string };
-type ArchetypeWithUrls = {
-  name: string;
-  slug: string;
-  description: unknown;
-  images: ArchetypeImageUrl[];
-  recommendedServiceRef?: { _id: string; name: string; slug: string } | null;
-  resultCtaLabel?: string;
-};
+// Both shapes come from the island itself so the config object type-checks
+// against what StyleQuiz actually consumes (a looser local copy drifted from
+// it and failed astro check on `description`).
+type ArchetypeImageUrl = ArchetypeWithUrls['images'][number];
 
 function buildArchetypeImages(arch: any): ArchetypeImageUrl[] {
   if (!Array.isArray(arch?.images)) return [];

@@ -5,7 +5,10 @@ import { defineType, defineField } from 'sanity';
 import { ComponentIcon } from '@sanity/icons';
 import { SECTION_TYPES } from './sections';
 
-function makeMarker(name, sections) {
+/** One selectable built-in section: the stored value and the label editors see. */
+type SectionOption = { value: string; title: string };
+
+function makeMarker(name: string, sections: SectionOption[]) {
   return defineType({
     name,
     title: 'Built-in section',
@@ -32,8 +35,8 @@ function makeMarker(name, sections) {
   });
 }
 
-const typesFor = (markerName) => [{ type: markerName }, ...SECTION_TYPES];
-const defaultOrder = (markerName, docId, order) =>
+const typesFor = (markerName: string) => [{ type: markerName }, ...SECTION_TYPES];
+const defaultOrder = (markerName: string, docId: string, order: string[]) =>
   order.map((section) => ({ _type: markerName, _key: `${docId}-${section}`, section }));
 
 // ── Resources ────────────────────────────────────────────────────────────────

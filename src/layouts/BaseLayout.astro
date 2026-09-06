@@ -236,6 +236,10 @@ const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
         <script is:inline define:vars={{ gaMeasurementId }}>
           window.dataLayer = window.dataLayer || [];
+          // Google's canonical snippet, kept verbatim: gtag.js expects the
+          // live `arguments` object on the dataLayer, and a rest-parameter
+          // array is silently ignored by its processor.
+          // eslint-disable-next-line prefer-rest-params
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', gaMeasurementId);
@@ -299,8 +303,8 @@ const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
           // Expose the instance so in-page controls (e.g. the homepage hero
           // scroll cue) can trigger a smooth programmatic scroll through Lenis
           // instead of fighting it with a native scrollTo.
-          (window as Window & { lenis?: typeof lenis }).lenis = lenis;
-          function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+          (window as unknown as { lenis?: typeof lenis }).lenis = lenis;
+          function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
           requestAnimationFrame(raf);
 
           // Astro View Transitions reuse this single Lenis instance across

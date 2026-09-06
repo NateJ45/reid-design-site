@@ -10,11 +10,9 @@
 
 import PortableText from '@/components/PortableText';
 import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
-
-interface PortableTextBlock {
-  _type?: string;
-  [key: string]: any;
-}
+// The same block type PortableText.tsx accepts, so the prop passes through
+// without a cast (a looser local shape used to fail astro check here).
+import type { PortableTextBlock } from '@portabletext/types';
 
 interface Props {
   step: {
