@@ -4,6 +4,9 @@ on:
   push:
     branches: [main, staging]
   pull_request:
+  # Dispatchable so a staging tip can be re-audited on demand, without
+  # pushing an empty commit. mas and presacademy already allow this.
+  workflow_dispatch:
 
 # A newer push to the same branch obsoletes the in-flight run; cancel it
 # instead of paying for both.
