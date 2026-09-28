@@ -160,14 +160,16 @@ Fix: regenerate the baselines from a clean main/staging build
   filled-button surface toward `--primary-accent` (#7A5D4C, 6:1 with white), or
   pin white button labels at >=18.66px bold. When either lands, raise that one
   assertion to `AA_BODY_TEXT`.
-- **Ten routes ship as meta-refresh stubs and are in the sitemap.**
-  `tests/routes.ts` `hiddenRoutes` documents this fully: sections switched off
-  in `siteSettings.sectionVisibility` make the page call `Astro.redirect('/')`,
-  which a static build bakes into a ~275-byte stub with no `lang`, no `<main>`,
-  no `h1`, and a `<meta http-equiv="refresh">`. Those stubs fail five axe rules
-  and Google crawls every one of them. The axe sweeps are scoped around them so
-  the suite stays honest rather than green-by-omission. Fix: turn the sections
-  on, or stop emitting sitemap entries for hidden ones. See
+- **Ten routes ship as meta-refresh stubs (out of the sitemap since
+  2026-09-28).** `tests/routes.ts` `hiddenRoutes` documents this fully:
+  sections switched off in `siteSettings.sectionVisibility` make the page call
+  `Astro.redirect('/')`, which a static build bakes into a ~275-byte stub with
+  no `lang`, no `<main>`, no `h1`, no analytics tag, and a
+  `<meta http-equiv="refresh">`. Those stubs fail five axe rules. The axe sweeps
+  are scoped around them so the suite stays honest rather than
+  green-by-omission. The sitemap half is done (the `astro.config.mjs` filter
+  reads the same flags). Still open: the stubs answer 200 at their URLs; the
+  clean end state is turning the sections on once their content is real. See
   `migration-docs/05-reid-design-2.0-changes.md`.
 - **`scripts/lib/sanity-lib.mjs` is installed but no script uses it yet.** It is
   the shared seed/patch plumbing (token-authed client, dry-run-by-default apply

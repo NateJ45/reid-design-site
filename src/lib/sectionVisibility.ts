@@ -62,3 +62,41 @@ export function getSectionVisibility(raw?: RawSectionVisibility | null): Section
     budgetCalculator: raw?.showBudgetCalculator !== false,
   };
 }
+
+/**
+ * The URL prefix(es) each toggle controls. A hidden section's pages still
+ * exist in dist/: because the site is `output: 'static'`, `Astro.redirect('/')`
+ * bakes a ~275-byte meta-refresh stub (status 200, noindex) at the route rather
+ * than issuing a real redirect. The sitemap filter in astro.config.mjs uses this
+ * map so those stubs never reach sitemap-0.xml.
+ *
+ * Keep in step with the `if (!visible.x) return Astro.redirect('/')` guards in
+ * src/pages. Detail routes under a prefix (/portfolio/before-after,
+ * /journal/<slug>, /guides/<slug>) are covered by the prefix.
+ */
+export const SECTION_ROUTES: Record<keyof SectionVisibility, string[]> = {
+  portfolio: ['/portfolio'],
+  journal: ['/journal'],
+  shop: ['/shop'],
+  eDesign: ['/e-design'],
+  giftCertificates: ['/gift-certificates'],
+  press: ['/press'],
+  resources: ['/resources'],
+  guides: ['/guides'],
+  styleQuiz: ['/quiz'],
+  budgetCalculator: ['/calculator'],
+};
+
+/**
+ * True when `pathname` belongs to a section that is switched off. Matches the
+ * prefix exactly or followed by `/`, so `/shopping/` is never caught by `/shop`.
+ */
+export function isHiddenSectionPath(pathname: string, visible: SectionVisibility): boolean {
+  return (Object.keys(SECTION_ROUTES) as (keyof SectionVisibility)[]).some(
+    (key) =>
+      !visible[key] &&
+      SECTION_ROUTES[key].some(
+        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+      ),
+  );
+}

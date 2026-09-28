@@ -2,6 +2,34 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-28 — GA4 localhost guard, hidden sections out of the sitemap
+
+A report that GA4 was "missing" on /portfolio/, /journal/ and seven more pages
+turned out to be the section-visibility redirect stubs: nine flags in
+`siteSettings.sectionVisibility` have been `false` since 2026-06-11, so those
+routes build as 275-byte meta-refresh stubs that never render BaseLayout. GA
+was fine. Two real problems came out of the check instead.
+
+**Localhost hits.** GA4 property 542115376 holds 236 (2026-07-28) and 234
+(2026-08-27) one-pageview `localhost` sessions, the days the Playwright suites
+landed and the full-stack port ran. CI never sets the id; a developer `.env`
+did. The snippet now checks `location.hostname` against the production hosts
+before doing anything, and builds the gtag.js `<script>` in JS instead of
+printing it, so off-production nothing downloads (this also keeps Zaraz from
+rewriting the tag). Timing is unchanged (still loads from the head), and the
+variable keeps its name so the Workers Builds setting is untouched. A new smoke
+test fails against the old layout with the id built in and passes against the
+new one. Deliberately NOT the full port to the starter's `Analytics.astro`: that
+renames the variable, which has to be coordinated with the Workers Builds
+dashboard, and it is its own piece of work.
+
+**Sitemap.** The ten stubs were in sitemap-0.xml. `astro.config.mjs` now reads
+the visibility flags from Sanity at config time and filters with
+`isHiddenSectionPath()` (new, unit-tested, in `src/lib/sectionVisibility.ts`).
+Parity baselines re-captured: they had drifted since the Astro 7.3.1 bump, so a
+same-sitting baseline from HEAD was taken first to prove the only diff was the
+GA block on the nine BaseLayout pages.
+
 ## 2026-08-28 — the modern stack: Astro 7, Sanity 6.4, one package, live preview
 
 The upgrade the starter's PORTS.md card 17 rollout plan called for, done in one
