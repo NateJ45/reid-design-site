@@ -2,6 +2,27 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-28 — canonical drift pulled forward (CI green again)
+
+CI's `sync-check` gate went red on `scripts/sync-check.mjs` and
+`src/lib/preview-navigation.ts` with no change on this side: both copies were
+byte-identical to older starter commits (`751d023`, `0376fa6`), and the starter
+had since moved to `0170440` and `01215db`. Pulled both forward (identical on
+the starter's `main` and `staging`, so staging CI agrees). The navigation one is
+a real fix, not just plumbing: on a deployed Studio `params.preview` is an
+ABSOLUTE url while every row href is root-relative, so the bounce machine never
+saw its target and page switches took two clicks again. The helper
+(`toPreviewPath`) lives in the canonical file, but the fix only lands through
+the three `PreviewNavigator.tsx` edits (not canonical), ported by hand along
+with the starter's two new tests. The row highlight loses its `endsWith`
+workaround, which was the same mismatch patched in one place.
+
+Because the drift gate runs first and short-circuits the rest of the build
+job, every later CI step (audit, typegen staleness, astro check, lint, format,
+vitest, build, links) had been SKIPPED, not passed, since the starter moved.
+All were run locally for this change: sync-check 21/21 against both starter
+branches, vitest 264/264, Playwright 144/144, parity 20/20, links clean.
+
 ## 2026-09-28 — GA4 localhost guard, hidden sections out of the sitemap
 
 A report that GA4 was "missing" on /portfolio/, /journal/ and seven more pages
