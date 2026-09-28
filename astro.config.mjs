@@ -7,6 +7,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sanity from '@sanity/astro';
+import { getSectionVisibility, isHiddenSectionPath } from './src/lib/sectionVisibility.ts';
 
 // The Sanity project id is PUBLIC by design: it ships in every client bundle and
 // in every GROQ request URL. Read through process.env here (astro.config runs in
@@ -14,6 +15,30 @@ import sanity from '@sanity/astro';
 // src/lib/sanity.ts uses, so a clone with no .env still builds.
 const SANITY_PROJECT_ID = process.env.PUBLIC_SANITY_PROJECT_ID || 'placeholder-project-id';
 const SANITY_DATASET = process.env.PUBLIC_SANITY_DATASET || 'production';
+
+// Section visibility, read once at config time for the sitemap filter below.
+// A section switched off in Studio (siteSettings.sectionVisibility) still
+// leaves a file at its route: in a static build `Astro.redirect('/')` bakes a
+// meta-refresh stub (HTTP 200, noindex), and @astrojs/sitemap listed all ten
+// of them until 2026-09-28. Same source and same fail-open rule the pages use
+// (src/lib/sectionVisibility.ts), so the sitemap and the redirects can't
+// disagree. If Sanity can't be reached the filter hides nothing, which is the
+// pre-2026-09-28 behaviour, and the page fetches would fail the build anyway.
+const sectionVisibility = getSectionVisibility(await fetchSectionVisibility());
+
+async function fetchSectionVisibility() {
+  if (SANITY_PROJECT_ID === 'placeholder-project-id') return null;
+  const query = encodeURIComponent('*[_id == "siteSettings"][0].sectionVisibility');
+  const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${SANITY_DATASET}?query=${query}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()).result ?? null;
+  } catch (err) {
+    console.warn(`[sitemap] could not read sectionVisibility, listing every route: ${err}`);
+    return null;
+  }
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -48,9 +73,13 @@ export default defineConfig({
     sitemap({
       // /studio and /preview are Studio plumbing (SSR, noindex). The sitemap
       // only walks prerendered routes so they are mostly excluded already, but
-      // the filter makes it explicit and future-proof.
+      // the filter makes it explicit and future-proof. Hidden sections'
+      // redirect stubs come out too (see sectionVisibility above).
       filter: (page) =>
-        !page.includes('/404') && !page.includes('/studio') && !page.includes('/preview'),
+        !page.includes('/404') &&
+        !page.includes('/studio') &&
+        !page.includes('/preview') &&
+        !isHiddenSectionPath(new URL(page).pathname, sectionVisibility),
     }),
     react(),
   ],
