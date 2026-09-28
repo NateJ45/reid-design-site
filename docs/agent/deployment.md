@@ -72,6 +72,7 @@ Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variabl
 - `SANITY_API_READ_TOKEN` — only if any page needs to read draft content (typically not, since published content is publicly readable). Mark as Secret.
 - `PUBLIC_WEB3FORMS_KEY` — contact form access key from [web3forms.com](https://web3forms.com/). Without it the contact form falls back to a no-op action and shows an inline notice.
 - `PUBLIC_CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token. Without it the analytics beacon doesn't render.
+- `PUBLIC_GA_MEASUREMENT_ID` — GA4 stream id (`G-YSVYFME1FT`). Production Workers Builds only; see "Privacy and analytics" below. Even when set, it fires only on the production hostnames.
 - `PUBLIC_CALENDLY_URL` — Staci's public Calendly URL.
 - `PUBLIC_NEWSLETTER_FORM_ACTION` — optional. Build-time override for the ESP form-action endpoint, for environments where the URL can't live in Sanity (e.g. staging). `siteSettings.newsletter.formActionUrl` takes precedence; the newsletter only renders at all when `siteSettings.newsletter.enabled` is true.
 - `NEWSLETTER_API_KEY` — optional, server-side only (never a `PUBLIC_` var). Only needed if you add a Cloudflare Worker route that proxies subscribe calls server-side. The current `subscribeEmail()` helper posts directly to the ESP form-action / Web3Forms and does not need it.
@@ -95,7 +96,8 @@ Content-Security-Policy is intentionally not included; doing it right requires t
 The site is effectively zero-cookie. No consent banner is mounted — `ConsentNotice.tsx` was removed as unnecessary: the newsletter posts via `fetch` (no vendor script), analytics is cookieless Cloudflare, and a US-based local business with no ad tracking does not need a cookie-consent banner. The current, accurate posture:
 
 - **Cloudflare Web Analytics** uses no cookies and stores no personal data.
-- **No Google Analytics, no Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker — don't bolt it on.
+- **Google Analytics 4** (property 542115376, stream `G-YSVYFME1FT`) renders from `BaseLayout.astro` when `PUBLIC_GA_MEASUREMENT_ID` is set at build time. It is set ONLY as a build variable on the Cloudflare Workers Builds production deploy, never in `ci.yml`, `lighthouse.yml` or `deploy-staging.yml`. The snippet also checks `location.hostname` at runtime and does nothing off `reiddesignllc.com` / `www.reiddesignllc.com`, because a developer's local `.env` carrying the id let Playwright runs file 470 fake localhost sessions into the property (2026-07-28, 2026-08-27). `tests/smoke.spec.ts` holds that guard. Pages of switched-off sections are redirect stubs, not BaseLayout pages, so they carry no tag by design.
+- **No Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker — don't bolt it on.
 - **Sanity client** reads public published content, no auth cookies.
 - **Web3Forms** contact-form submissions go server-side via `fetch`; no cookies set. The contact form also triggers a Web3Forms autoresponder (visitor confirmation email) when that's enabled on the access key.
 - **Email capture:** `subscribeEmail()` posts to the ESP form-action URL in `siteSettings.newsletter.formActionUrl` (ConvertKit / MailerLite / Kit), falling back to Web3Forms when unset. The ESP may set its own cookies on subscribe.

@@ -23,7 +23,8 @@
 //      different pages. (Same class of trap as WCP's fake-tracker-id
 //      divergence, PORTS.md card 3.)
 //
-// Baselines committed under scripts/.parity/, captured 2026-08-27 (19 routes).
+// Baselines committed under scripts/.parity/, captured 2026-08-27 (19 routes);
+// re-captured 2026-09-28 (20 routes) after the GA4 hostname guard.
 /**
  * page-parity.mjs - rendered-HTML parity harness.
  *
