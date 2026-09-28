@@ -5,7 +5,7 @@ import { usePresentationNavigate, usePresentationParams } from 'sanity/presentat
 import { Box, Button, Card, Flex, Spinner, Stack, Text } from '@sanity/ui';
 import { AddIcon, LaunchIcon } from '@sanity/icons';
 import { SINGLETON_PREVIEW_PATHS } from '../resolve';
-import { startNav, stepNav, type PendingNav } from '../../lib/preview-navigation';
+import { startNav, stepNav, toPreviewPath, type PendingNav } from '../../lib/preview-navigation';
 import { LiveDraftBridge } from './LiveDraftBridge';
 
 // =============================================================================
@@ -188,8 +188,11 @@ export function PreviewNavigator() {
     };
   }, [client, refetch]);
 
-  // params.preview is the iframe's current URL; compare pathnames only.
-  const current = (params.preview ?? '').split('?')[0];
+  // params.preview is the iframe's current URL. It is NORMALISED TO A PATH,
+  // not merely stripped of its query: on a deployed Studio the host stores it
+  // as an absolute url, and every comparison below (the bounce machine and the
+  // row highlight) is against a root-relative row href. See toPreviewPath.
+  const current = toPreviewPath(params.preview);
 
   // BOUNCE-AWARE navigation (2026-08-28, editor feedback). Clicking a page
   // took two clicks every time: the panel changed, the iframe did not, the
@@ -319,9 +322,7 @@ export function PreviewNavigator() {
                 </Text>
                 <Stack space={1}>
                   {group.rows.map((r) => {
-                    const active = pending
-                      ? pending.href === r.href
-                      : current === r.href || (r.href !== '/preview' && current.endsWith(r.href));
+                    const active = pending ? pending.href === r.href : current === r.href;
                     return (
                       <Flex key={r.id} align="center" gap={1}>
                         <Card
