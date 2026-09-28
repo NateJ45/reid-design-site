@@ -23,7 +23,6 @@ vitest, build, links) had been SKIPPED, not passed, since the starter moved.
 All were run locally for this change: sync-check 21/21 against both starter
 branches, vitest 264/264, Playwright 144/144, parity 20/20, links clean.
 
-
 ## 2026-09-28 — GA4 localhost guard, hidden sections out of the sitemap
 
 A report that GA4 was "missing" on /portfolio/, /journal/ and seven more pages
