@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSectionVisibility } from './sectionVisibility';
+import { getSectionVisibility, isHiddenSectionPath, SECTION_ROUTES } from './sectionVisibility';
 
 describe('getSectionVisibility', () => {
   it('treats an undefined input as every section visible', () => {
@@ -65,3 +65,70 @@ describe('getSectionVisibility', () => {
     });
   });
 });
+
+// The sitemap filter in astro.config.mjs leans on isHiddenSectionPath to keep
+// the meta-refresh stubs of switched-off sections out of sitemap-0.xml. These
+// pin the prefix matching so a hidden section drops its index AND its detail
+// pages, and a visible neighbour with a similar name is never caught.
+describe('isHiddenSectionPath', () => {
+  const allOff = getSectionVisibility(allOffRaw());
+
+  it('hides the index of every switched-off section', () => {
+    for (const prefixes of Object.values(SECTION_ROUTES)) {
+      for (const prefix of prefixes) {
+        expect(isHiddenSectionPath(`${prefix}/`, allOff), prefix).toBe(true);
+        expect(isHiddenSectionPath(prefix, allOff), prefix).toBe(true);
+      }
+    }
+  });
+
+  it('hides detail pages under a hidden section', () => {
+    expect(isHiddenSectionPath('/portfolio/before-after/', allOff)).toBe(true);
+    expect(isHiddenSectionPath('/journal/some-post/', allOff)).toBe(true);
+    expect(isHiddenSectionPath('/guides/a-guide/', allOff)).toBe(true);
+  });
+
+  it('never hides a page that is not a section, or a look-alike slug', () => {
+    for (const path of [
+      '/',
+      '/about/',
+      '/contact/',
+      '/privacy/',
+      '/portfolio-tips/',
+      '/shopping/',
+    ]) {
+      expect(isHiddenSectionPath(path, allOff), path).toBe(false);
+    }
+  });
+
+  it('hides nothing when every flag is unset (the fail-open default)', () => {
+    const allOn = getSectionVisibility(null);
+    for (const prefixes of Object.values(SECTION_ROUTES)) {
+      for (const prefix of prefixes) {
+        expect(isHiddenSectionPath(`${prefix}/`, allOn), prefix).toBe(false);
+      }
+    }
+  });
+
+  it('matches the live 2026-09-28 settings: e-design visible, the other nine hidden', () => {
+    const live = getSectionVisibility({ ...allOffRaw(), showEDesign: true });
+    expect(isHiddenSectionPath('/e-design/', live)).toBe(false);
+    expect(isHiddenSectionPath('/portfolio/', live)).toBe(true);
+    expect(isHiddenSectionPath('/calculator/', live)).toBe(true);
+  });
+});
+
+function allOffRaw() {
+  return {
+    showPortfolio: false,
+    showJournal: false,
+    showShop: false,
+    showEDesign: false,
+    showGiftCertificates: false,
+    showPress: false,
+    showResources: false,
+    showGuides: false,
+    showStyleQuiz: false,
+    showBudgetCalculator: false,
+  };
+}

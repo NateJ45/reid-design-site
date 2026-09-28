@@ -50,7 +50,11 @@ That file splits the list in two, and the split is load-bearing:
 - **`tests/smoke.spec.ts`** — every content route answers 200 with "Reid
   Design" in its `<title>` (proof of a real rendered page, not an error body);
   every hidden route answers 200 with the stub's "Redirecting to: /" title (or
-  the home title, once the refresh has fired).
+  the home title, once the refresh has fired); and GA4 sends no request from
+  localhost. That last check is trivially green in CI (no GA id is built in)
+  and bites on a local run whose `.env` carries `PUBLIC_GA_MEASUREMENT_ID`,
+  which is how 470 fake sessions reached the live property. Proven 2026-09-28:
+  it fails against the pre-guard layout with the id built in.
 - **`tests/a11y.spec.ts`** — axe-core's **default** rule set on every content
   route, zero violations. Deliberately not narrowed with `.withTags([...])`:
   filtering to `wcag2a` alone quietly drops the AA rules, which is a mistake

@@ -119,8 +119,16 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 
 // Cloudflare Web Analytics token — only render the beacon when present.
 const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
-// Google Analytics — only render when present. Set PUBLIC_GA_MEASUREMENT_ID in .env.
+// Google Analytics — only render when present. PUBLIC_GA_MEASUREMENT_ID is set
+// as a build variable on the Cloudflare Workers Builds production deploy. It is
+// NOT set in CI, Lighthouse or the staging workflow.
 const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+// ...and even when it IS set, the snippet only fires on the production hosts.
+// A local `.env` carrying the id leaked 236 + 234 one-page "sessions" from
+// Playwright/Lighthouse runs on localhost into property 542115376
+// (2026-07-28, 2026-08-27), plus stray *.workers.dev hits. The build variable
+// alone can't stop a developer's .env, so the runtime check below is the guard.
+const gaHosts = [site.domain, `www.${site.domain}`];
 ---
 
 <!doctype html>
@@ -230,21 +238,29 @@ const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
       })();
     </script>
 
-    {/* Google Analytics — conditional on PUBLIC_GA_MEASUREMENT_ID. */}
+    {/* Google Analytics — conditional on PUBLIC_GA_MEASUREMENT_ID, and at
+        runtime on the production hostname (see gaHosts in the frontmatter).
+        The loader <script> is built in JS rather than printed as a tag: that
+        is what lets the hostname check stop the library downloading at all
+        off-production, and it also keeps Cloudflare Zaraz from rewriting the
+        tag (vault gotcha zaraz-can-stop-delivering-hits-silently). */}
     {gaMeasurementId && (
-      <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
-        <script is:inline define:vars={{ gaMeasurementId }}>
+      <script is:inline define:vars={{ gaMeasurementId, gaHosts }}>
+        if (gaHosts.indexOf(location.hostname) !== -1) {
           window.dataLayer = window.dataLayer || [];
-          // Google's canonical snippet, kept verbatim: gtag.js expects the
-          // live `arguments` object on the dataLayer, and a rest-parameter
-          // array is silently ignored by its processor.
+          // Google's canonical snippet: gtag.js expects the live `arguments`
+          // object on the dataLayer, and a rest-parameter array is silently
+          // ignored by its processor.
           // eslint-disable-next-line prefer-rest-params
-          function gtag(){dataLayer.push(arguments);}
+          window.gtag = function gtag(){dataLayer.push(arguments);};
           gtag('js', new Date());
           gtag('config', gaMeasurementId);
-        </script>
-      </>
+          var gaScript = document.createElement('script');
+          gaScript.async = true;
+          gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaMeasurementId);
+          document.head.appendChild(gaScript);
+        }
+      </script>
     )}
 
     {/* Cloudflare Web Analytics — conditional, no cookie banner needed. */}

@@ -24,8 +24,9 @@ export const routes: string[] = [
  * dist/client/<route>/index.html instead. That stub has no lang attribute, no
  * <main>, no h1, and a `<meta http-equiv="refresh">`, so it fails five axe
  * rules. Those failures are REAL, not test noise: the same stubs are live on
- * reiddesignllc.com right now and every one of them is listed in the sitemap
- * Google crawls.
+ * reiddesignllc.com right now. Since 2026-09-28 they are kept out of the
+ * sitemap (the filter in astro.config.mjs reads the same Sanity flags), and
+ * they carry no analytics tag because BaseLayout never renders on them.
  *
  * They are separated out rather than deleted so the suite stays green while
  * the site is healthy, and so this list shrinks to nothing the moment the

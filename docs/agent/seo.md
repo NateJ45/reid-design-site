@@ -110,6 +110,8 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 
 `@astrojs/sitemap` generates `sitemap-index.xml` + `sitemap-0.xml` automatically from every prerendered page on `astro build`. The default `<priority>` and `<changefreq>` are fine for a marketing site of this size.
 
+The filter in `astro.config.mjs` drops `/studio`, `/preview`, `/404`, and every route of a section switched off in `siteSettings.sectionVisibility` (2026-09-28). A hidden section still leaves a meta-refresh redirect stub at its URL, so without the filter the sitemap advertised ten noindex stubs. The config reads the flags from Sanity at build time and matches routes with `isHiddenSectionPath()` from `src/lib/sectionVisibility.ts`, the same module the pages use, so a section turned back on in Studio reappears in the sitemap on the next rebuild. **A new toggleable section needs its route prefix added to `SECTION_ROUTES` there.**
+
 `public/robots.txt` ships with the build (allow-all):
 
 ```
