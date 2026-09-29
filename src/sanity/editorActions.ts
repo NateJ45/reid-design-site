@@ -7,19 +7,28 @@
 // the trash) and a new helper is added here in one place.
 //
 // What gets added, and where:
-//   - "Copy share link" (PORTS.md card 19): on everything. It returns null for
-//     any type with no page of its own (Site settings, Business info, the
-//     Studio help documents), so appending it unconditionally is safe.
+//   - "Check this page..." (PORTS.md card 25): on EDITOR_HELPER_TYPES, i.e.
+//     every page with a section list plus project stories and journal posts.
+//     See src/sanity/pageBuilderConfig.ts.
+//   - "Copy share link" (card 19): on everything. It returns null for any type
+//     with no page of its own (Site settings, Business info, the Studio help
+//     documents), so appending it unconditionally is safe.
 //
-// None of these replace or wrap a stock action. Publish is untouched.
+// None of these replace or wrap a stock action. Publish is untouched, which is
+// the promise card 25 makes: a courtesy check never blocks publishing.
 // =============================================================================
 
 import type { DocumentActionComponent } from 'sanity';
+import { CheckPageAction } from './actions/checkPage';
 import { shareDraftLinkAction } from './components/shareDraftLink';
+import { EDITOR_HELPER_TYPES } from './pageBuilderConfig';
 
 export function withEditorActions(
-  _schemaType: string,
+  schemaType: string,
   actions: DocumentActionComponent[],
 ): DocumentActionComponent[] {
-  return [...actions, shareDraftLinkAction];
+  const helpers: DocumentActionComponent[] = EDITOR_HELPER_TYPES.has(schemaType)
+    ? [CheckPageAction]
+    : [];
+  return [...actions, ...helpers, shareDraftLinkAction];
 }

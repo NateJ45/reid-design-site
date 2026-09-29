@@ -12,7 +12,9 @@ import { DocumentsIcon } from '@sanity/icons';
 import { SECTION_TYPES } from './sections';
 
 // Every built-in route segment. A custom page slug may not match any of these.
-const RESERVED_SLUGS = new Set([
+// Exported for src/sanity/pageBuilderConfig.ts, whose "Check this page" link
+// check treats these as addresses the site code owns.
+export const RESERVED_SLUGS = new Set([
   'about',
   'services',
   'process',
