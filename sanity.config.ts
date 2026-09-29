@@ -31,6 +31,8 @@ import StudioLogo from './src/sanity/components/StudioLogo';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';
 import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/actions/archive';
+// Editor experience (2026-09-29): the publish-menu helpers, one import.
+import { withEditorActions } from './src/sanity/editorActions';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -211,17 +213,26 @@ export default defineConfig({
       if (schemaType === 'trashedItem') {
         return [RestoreAction, DeleteForeverAction];
       }
+      //
+      // Everything else ends with the editor helpers appended by
+      // withEditorActions (src/sanity/editorActions.ts): Copy share link, and
+      // on pages and stories Check this page / Undo / Redo. None of them
+      // replace a stock action, so the rules below are unaffected.
       if (SINGLETON_TYPES.has(schemaType)) {
-        return prev.filter(
-          ({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || ''),
+        return withEditorActions(
+          schemaType,
+          prev.filter(({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || '')),
         );
       }
       // Swap Sanity's permanent Delete for the recoverable Archive on the
       // content Staci edits day to day. Publish/duplicate/etc stay as they are.
       if (ARCHIVABLE_TYPES.has(schemaType)) {
-        return [...prev.filter(({ action }) => action !== 'delete'), ArchiveAction];
+        return withEditorActions(schemaType, [
+          ...prev.filter(({ action }) => action !== 'delete'),
+          ArchiveAction,
+        ]);
       }
-      return prev;
+      return withEditorActions(schemaType, prev);
     },
   },
 });
