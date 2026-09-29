@@ -16,6 +16,16 @@ import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
 import { getNavPages, getAnnouncements } from '@/lib/queries';
+import {
+  CARD_SPEC_ID,
+  cleanCardTitle,
+  cleanKicker,
+  ogCardPath,
+  serializeSpec,
+  stateName,
+  type CardPhoto,
+  type CardSpec,
+} from '@/lib/og-card';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Announcements from '@/components/Announcements.astro';
@@ -31,8 +41,18 @@ import '@/styles/starwind.css';
 interface Props {
   title: string;
   description: string;
-  /** Override the default OG image. If omitted, BaseLayout looks for a per-page OG at /og/&lt;slug&gt;.png, falling back to /og-default.png. */
+  /** Explicit share image URL. Wins over everything, including the generated card. Leave it unset to get the page's generated card at /og/&lt;route&gt;.png. */
   ogImage?: string;
+  /**
+   * What the generated share card says and shows (design D). All optional:
+   * `headline` (the page's hero headline; preferred over the SEO title),
+   * `kicker` (the small caps line; defaults to "Interior design · <city>, <state>"),
+   * `image` (the arch photo) and `image2` (the small circle photo), both raw
+   * Sanity image objects. With no image the card builder picks one of Staci's
+   * finished-project photos. `circle: true` asks for the small circle photo
+   * even without `image2` (the builder fills it from the same pool).
+   */
+  card?: { headline?: string | null; kicker?: string | null; image?: any; image2?: any; circle?: boolean };
   /** Raw Sanity image object for a per-page social share override (seoImage on the page singleton). Resolved through the Sanity image pipeline to a 1200x630 OG URL. Lower priority than ogImage, higher than the siteSettings default. */
   seoImage?: any;
   /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
@@ -54,6 +74,7 @@ const {
   title,
   description,
   ogImage,
+  card,
   seoImage,
   schemas = [],
   siteSettings = null,
@@ -78,15 +99,6 @@ const navPages = await getNavPages();
 // build via sanityFetch (cards 55 + 56), like every other build-time read.
 const announcements = await getAnnouncements();
 
-// Per-page OG image: convention is /og/<route-slug>.png generated at build time.
-// `/` → /og/home.png, `/contact` → /og/contact.png, `/portfolio/foo` → /og/portfolio-foo.png.
-// Falls back to og-default.png if the slug-specific file isn't there.
-function ogPathForRoute(pathname: string): string {
-  const trimmed = pathname.replace(/^\/|\/$/g, '');
-  if (!trimmed) return '/og/home.png';
-  return `/og/${trimmed.replace(/\//g, '-')}.png`;
-}
-
 // Resolve a raw Sanity image object to a 1200x630 OG URL through the image
 // pipeline. Returns null when there's no asset (so the ?? chain falls through
 // to the next source) or if the URL builder throws on a malformed object.
@@ -94,13 +106,46 @@ function ogUrlFromImage(img: any): string | null {
   if (!img?.asset) return null;
   try { return urlFor(img).width(1200).height(630).fit('crop').auto('format').url(); } catch { return null; }
 }
+// The plain CDN URL of a photo, for the card builder to crop itself.
+function cardPhoto(img: any): CardPhoto | null {
+  if (!img?.asset) return null;
+  try { return { src: urlFor(img).url(), hotspot: img.hotspot ?? null }; } catch { return null; }
+}
 
-// OG image priority: explicit ogImage prop (a real photo passed by detail
-// pages) > per-page seoImage override (page singleton) > global seoImage
-// default (siteSettings) > the build-time /og/<route>.png convention.
+// SHARE CARD (2026-09-29, design D). Priority:
+//   1. `ogImage` prop: a page that deliberately supplies its own share image.
+//   2. `seoImage`: the per-page override Staci sets in that page's SEO tab.
+//   3. The generated card at /og/<route>.png, drawn after the build by
+//      src/integrations/og-cards.ts from the card spec emitted below.
+//   4. siteSettings.seoImage, then /og-default.png: ONLY for pages that get no
+//      card (noindex pages such as the 404), and as the image copied into a
+//      card's place if that card fails to draw. The global value deliberately
+//      does NOT override the generated cards: before 2026-09-29 it sat above
+//      them, so setting one site-wide photo would have hidden every page's card.
 const perPageOg = ogUrlFromImage(seoImage);
 const globalOg = ogUrlFromImage(siteSettings?.seoImage);
-const resolvedOg = ogImage ?? perPageOg ?? globalOg ?? ogPathForRoute(Astro.url.pathname);
+const fallbackOg = globalOg ?? site.assets.ogDefault;
+const explicitOg = ogImage ?? perPageOg;
+const wantsCard = !explicitOg && !noindex;
+
+let cardSpec: CardSpec | null = null;
+if (wantsCard) {
+  const t = cleanCardTitle([card?.headline, title]);
+  const defaultKicker = `Interior design · ${siteSettings?.city || 'Plainfield'}, ${stateName(siteSettings?.state)}`;
+  const k = cleanKicker(card?.kicker || defaultKicker);
+  cardSpec = {
+    v: 1,
+    out: ogCardPath(Astro.url.pathname),
+    route: Astro.url.pathname,
+    title: t.title,
+    kicker: k.kicker,
+    photos: [cardPhoto(card?.image), cardPhoto(card?.image2)].filter((p): p is CardPhoto => !!p),
+    circle: Boolean(card?.circle || card?.image2),
+    fallback: globalOg,
+    warnings: [...t.warnings, ...k.warnings],
+  };
+}
+const resolvedOg = explicitOg ?? cardSpec?.out ?? fallbackOg;
 const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
 
 // Build the document title. If the editor-supplied seoTitle already contains
@@ -198,6 +243,11 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={ogImageAlt} />
+    {/* Share-card spec: consumed AND REMOVED after the build by
+        src/integrations/og-cards.ts, so it never ships. See src/lib/og-card.ts. */}
+    {cardSpec && (
+      <script is:inline type="application/json" id={CARD_SPEC_ID} set:html={serializeSpec(cardSpec)} />
+    )}
     {/* article:* meta — only emitted on journal/blog post detail pages */}
     {ogType === 'article' && ogArticle?.publishedAt && (
       <meta property="article:published_time" content={ogArticle.publishedAt} />

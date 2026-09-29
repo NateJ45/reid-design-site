@@ -67,6 +67,6 @@ Things to configure before or during the public launch. Everything below should 
 
 ### Recurring upkeep
 
-- [ ] Re-run `npm run og` after editing brand colors, tagline, or wordmark.
+- [ ] Share cards redraw on every build; after editing the card design (`CARD` in `scripts/lib/og-render.mjs`) also run `npm run og` to redraw the `og-default.png` fallback.
 - [ ] Re-run `npm run typegen` after any Sanity schema change.
 - [ ] Annually: refresh availability status on `siteSettings` if Staci's booking situation changes.

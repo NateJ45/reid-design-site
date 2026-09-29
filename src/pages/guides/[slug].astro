@@ -73,7 +73,13 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  card={{ headline: magnet.title, kicker: 'Free guide', image: magnet.coverImage }}
+>
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
     eyebrow="Free Guide"

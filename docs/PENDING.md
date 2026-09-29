@@ -109,6 +109,25 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
   prefer the disc in the browser tab, the touch icons then need a separate
   drawing (see `scripts/generate-favicons.mjs`).
 
+### From the 2026-09-29 share-card redesign (branch `claude/og-redesign`)
+
+- **After merging, check the first Workers Build log for the card line.** It should
+  read `[og-cards] N card(s) drawn with satori, 0 fallback(s)`. satori + resvg need no
+  browser and the lockfile carries the prebuilt `@resvg/resvg-js-linux-x64-gnu`, but
+  the build has only been run on Windows so far. Any fallback there does not fail the
+  build; it copies `og-default.png` into that card's place and says why in a WARN
+  line, so read the log rather than trusting a green build. Then paste a page URL into
+  a share debugger (opengraph.xyz) to see the live card.
+- **Two page heroes Staci might not want on a share card.** The e-design page's
+  hero is `reid-design-older-open-plan-living-dining.jpg` (from the "older / before"
+  set), and the contact page's is `reid-design-blue-hutch-hydrangeas.jpg`, a mantel
+  of children's photos. The cards use each page's own hero on purpose (her choice
+  wins), so the fix, if she wants one, is a different hero or a per-page SEO image in
+  the Studio.
+- **No project image has a hotspot set.** The arch crops around the centre, so the
+  grey-sectional hero shows its ceiling fan. Setting a hotspot on a project's hero in
+  the Studio moves the crop on the next build.
+
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
 - **Sign in to the staging Studio, then open Presentation.** The stack moved to

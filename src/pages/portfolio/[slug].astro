@@ -96,7 +96,18 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} ogImage={heroOg} {schemas} {siteSettings}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  card={{
+    headline: project.title,
+    kicker: ['Portfolio', project.location].filter(Boolean).join(' \u00b7 '),
+    image: project.heroImage,
+    image2: project.gallery?.[0],
+  }}
+>
   {/* Hero */}
   <section
     class="mx-auto max-w-content px-m pt-section-md pb-l"
