@@ -33,6 +33,7 @@ import { documentBadges } from './src/sanity/components/documentBadges';
 import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/actions/archive';
 // Editor experience (2026-09-29): the publish-menu helpers, one import.
 import { withEditorActions } from './src/sanity/editorActions';
+import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -184,6 +185,15 @@ export default defineConfig({
     // Vision (GROQ query runner) is a developer tool, not an editor tool.
     // Gate it to local dev so it doesn't clutter Staci's deployed Studio.
     ...(IS_DEV ? [visionTool()] : []),
+    // Ctrl+Z / Ctrl+Shift+Z (Cmd on a Mac) for everything that is not typing:
+    // sections added, dragged or removed, photos cleared, options changed
+    // (PORTS.md card 27). The buttons are the "Undo last change" / "Redo"
+    // document actions (src/sanity/editorActions.ts); this plugin only adds the
+    // keyboard layer, and it stays out of text boxes so their own undo keeps
+    // working. It wraps studio.components.layout, which this config does not
+    // otherwise set, so there is nothing to compose with. See
+    // src/sanity/components/UndoRedo.tsx.
+    undoRedoShortcuts(),
   ],
 
   schema: {
