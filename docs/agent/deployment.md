@@ -79,6 +79,15 @@ Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variabl
 
 All documented in `.env.example`; copy to `.env` and fill in real values for local dev.
 
+**Worker runtime secrets** (not build variables; set with `npx wrangler secret put <NAME>`, `.dev.vars` locally, template in `.dev.vars.example`):
+
+- `SANITY_TOKEN` — the preview stack (see above).
+- `CF_ANALYTICS_TOKEN` (added 2026-09-29) — a read-only Cloudflare API token, exactly one permission (Zone > Analytics > Read, zone reiddesignllc.com), for the Studio "Site stats" panel. Optional: without it `/api/stats` answers 503 and the panel says it is not set up yet. `CF_ZONE_ID` optionally overrides the zone id constant in `src/pages/api/stats.ts`.
+
+**Site search (2026-09-29).** `npm run build` ends with `postbuild` = `pagefind --site dist/client`. The index is built against `dist/client` because adapter 14 splits the output, and it lands in `dist/client/pagefind/`, which the Workers `assets` binding serves like any other static file (nothing extra in `wrangler.jsonc`). The Workers Build runs `npm run build`, so it indexes on every deploy; the Linux Pagefind binary is in the lockfile (all seven platforms are). **If a full Content-Security-Policy is ever added** (see below), `script-src` needs `'wasm-unsafe-eval'` or `/search` will load and then fail to start Pagefind's WebAssembly; today only `frame-ancestors` is set, so nothing blocks it.
+
+**Weekly link report.** `.github/workflows/link-health.yml` runs `scripts/check-live-links.mjs` on Mondays 09:15 UTC (and on demand from the Actions tab). It reads every published document in the dataset, probes each outbound link, and writes a table to the run's Summary page. A link that is gone fails the run (GitHub emails the owner); one whose host refuses scripts is reported without failing. It needs no secrets (it uses the `PUBLIC_SANITY_*` repository variables, already set).
+
 ### Security headers
 
 `public/_headers` ships with the deploy. Five site-wide headers Cloudflare applies to every route:
