@@ -247,6 +247,11 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   `/services` from 0.027 to 0.0006 but cannot touch this one. Fix options:
   reserve the widest word's width on the rotating span (inline-block,
   min-width), or move the rotator to the end of a line. A design call.
+  **Decided 2026-09-29: leave it.** Reserving the widest word's width (all
+  words stacked in one grid cell) did take CLS to 0, but left a wide gap after
+  "Creating" at every width, which looks worse than a 0.031 shift that is
+  already inside Google's "good" range (< 0.1). Revisit only with a rotator
+  that sits at the end of a line.
 - **Studio deep links 404 on reload.** `/studio/` is prerendered as one static
   page, so a refresh or a pasted link to `/studio/structure/...` answers 404
   (production too, 2026-09-29). Probably wants the Studio route SSR, or a
