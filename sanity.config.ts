@@ -125,6 +125,14 @@ export default defineConfig({
     },
   },
 
+  // RELEASES OFF (2026-09-29, as on stonesteps-50k). Sanity 6 ships a Releases
+  // tool in the top bar for bundling document changes into a scheduled
+  // publish. This site has one editor and a build that redeploys on publish,
+  // so a second publishing model beside the Publish button Staci already knows
+  // is a tab that can only confuse her. Turn it back on the day there is a
+  // reason to stage a set of changes together.
+  releases: { enabled: false },
+
   // Global form customization. Registering the character-count input once here
   // applies it to every capped text field across all schemas. The component
   // falls through to the default input for anything that isn't a string/text
