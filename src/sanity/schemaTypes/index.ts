@@ -2,6 +2,7 @@
 // Order doesn't affect runtime; alphabetical here for readability.
 
 import { aboutPage } from './aboutPage';
+import { announcement } from './announcement';
 import { budgetCalculator } from './budgetCalculator';
 import { businessInfo } from './businessInfo';
 import { contactPage } from './contactPage';
@@ -95,6 +96,7 @@ export const schemaTypes = [
   studioPlaybook,
 
   // Reusable content collections
+  announcement, // the top-of-site bar / popup Staci posts (dated, per-page)
   testimonial,
   faqItem,
   philosophyPoint,

@@ -234,6 +234,7 @@ export default defineConfig({
 // restored one would need its slug re-checked against the reserved list) and
 // `trashedItem` itself.
 const ARCHIVABLE_TYPES = new Set<string>([
+  'announcement',
   'service',
   'processStep',
   'philosophyPoint',
