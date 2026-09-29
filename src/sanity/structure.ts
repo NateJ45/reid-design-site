@@ -314,6 +314,19 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 icon: ImagesIcon,
                 S,
                 context,
+                // The "Project story" starting layout (src/sanity/templates.ts).
+                // The orderable list's own "Create new" makes a blank project,
+                // so the prompted one is offered beside it in the same menu.
+                menuItems: [
+                  S.menuItem()
+                    .title('New project story (with writing prompts)')
+                    .icon(ImagesIcon)
+                    .intent({
+                      type: 'create',
+                      params: { type: 'project', template: 'project-story' },
+                    })
+                    .serialize(),
+                ],
               }),
               orderableDocumentListDeskItem({
                 type: 'processStep',

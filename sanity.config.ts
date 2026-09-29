@@ -34,6 +34,7 @@ import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/
 // Editor experience (2026-09-29): the publish-menu helpers, one import.
 import { withEditorActions } from './src/sanity/editorActions';
 import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
+import { STARTING_TEMPLATES } from './src/sanity/templates';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -198,6 +199,9 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
+    // "+ New" starting layouts: Service page, Neighborhood page, Project story,
+    // offered beside the blank option. See src/sanity/templates.ts.
+    templates: (prev) => [...prev, ...STARTING_TEMPLATES],
   },
 
   // Singleton enforcement: hide these from the global "+" create menu so editors
