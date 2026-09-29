@@ -463,7 +463,10 @@ export async function getAllProjects() {
   );
 }
 
-export async function getProjectBySlug(slug: string) {
+// `c` (2026-09-29): the draft preview passes its draft-aware client so a
+// project's own preview (/preview/portfolio/<slug>) reads the draft through
+// this same projection. See src/components/detail/ProjectDetail.astro.
+export async function getProjectBySlug(slug: string, c: SanityClient = client) {
   // Note: stickyCtaLabel is spread in via `...` since the schema field is on
   // the project doc itself. journalPage's stickyCtaLabel is passed in
   // separately so `journalPageStickyCta` from journal/[slug].astro is keyed
@@ -498,6 +501,7 @@ export async function getProjectBySlug(slug: string) {
     }`,
     { slug },
     null,
+    c,
   );
 }
 
@@ -556,7 +560,8 @@ export async function getAllJournalCategories() {
   );
 }
 
-export async function getJournalEntryBySlug(slug: string) {
+// `c`: same as getProjectBySlug, for /preview/journal/<slug> (2026-09-29).
+export async function getJournalEntryBySlug(slug: string, c: SanityClient = client) {
   // Full doc including body. The body's inline image blocks get their asset
   // resolved + alt fallback at the GROQ layer so the renderer doesn't have to
   // chase asset refs for every block. Image gallery items + beforeAfter pairs
@@ -595,6 +600,7 @@ export async function getJournalEntryBySlug(slug: string) {
     }`,
     { slug },
     null,
+    c,
   );
 }
 
@@ -866,9 +872,17 @@ export async function getLeadMagnets() {
 }
 
 // Single published lead magnet by slug for /guides/[slug].
-export async function getLeadMagnet(slug: string) {
+//
+// The draft preview (/preview/guides/<slug>, 2026-09-29) passes its own client
+// and `includeUnpublished`, so a guide whose "Published" switch is still off
+// can be reviewed before it goes live. The live build never passes it.
+export async function getLeadMagnet(
+  slug: string,
+  c: SanityClient = client,
+  { includeUnpublished = false }: { includeUnpublished?: boolean } = {},
+) {
   return sanityFetch(
-    `*[_type == "leadMagnet" && slug.current == $slug && published == true][0]{
+    `*[_type == "leadMagnet" && slug.current == $slug && ($includeUnpublished || published == true)][0]{
       _id, title,
       "slug": slug.current,
       summary,
@@ -877,8 +891,9 @@ export async function getLeadMagnet(slug: string) {
       gateHeading, gateBlurb, buttonLabel, successMessage, espTag,
       seoTitle, seoDescription
     }`,
-    { slug },
+    { slug, includeUnpublished },
     null,
+    c,
   );
 }
 

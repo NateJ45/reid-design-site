@@ -30,7 +30,10 @@
 //      divergence, PORTS.md card 3.)
 //
 // Baselines committed under scripts/.parity/, captured 2026-08-27 (19 routes);
-// re-captured 2026-09-28 (20 routes) after the GA4 hostname guard.
+// re-captured 2026-09-28 (20 routes) after the GA4 hostname guard; re-captured
+// 2026-09-29 (21 routes, /search joined) from a clean build with
+// PUBLIC_GA_ID=G-YSVYFME1FT set, the way production builds. Compare with the
+// same variable set (docs/TESTING.md, "The parity harness").
 /**
  * page-parity.mjs - rendered-HTML parity harness.
  *

@@ -121,8 +121,24 @@ npm run parity compare      # PASS/DIFF per page, exit 1 on any diff
 Neither mode builds; the caller builds. Baselines live in `scripts/.parity/` and
 **are committed**: git history is the record of when one legitimately moved, so
 re-capture only when you mean to move the baseline and say so in the commit
-message. Baselines captured 2026-08-27, 19 routes, verified 19/19 across a
-capture / rebuild / compare cycle.
+message. Current baselines: captured 2026-09-29 (branch `claude/reid-followups`),
+21 routes, from a clean build with `PUBLIC_GA_ID=G-YSVYFME1FT` set, because the
+production Workers Build sets it and the baselines should look like what ships.
+Proven stable: two further clean builds each compared 21/21. **So build with the
+same variable before comparing:**
+
+```bash
+PUBLIC_GA_ID=G-YSVYFME1FT npm run build     # PowerShell: $env:PUBLIC_GA_ID='G-YSVYFME1FT'; npm run build
+npm run parity compare
+```
+
+Without it, the 10 real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet, which is a
+build-input difference, not drift. (The tag only fires on the production
+hostname at runtime, so a local build carrying it files no sessions.) The six
+detail pages (projects, the journal post, guides) are not in the set while their
+sections are switched off in Sanity, because no page is built for them; a
+render-neutrality check on those needs a temporary all-sections-on build, as the
+2026-09-29 detail-component extraction did (docs/agent/changelog.md).
 
 **Rule 5 (2026-09-29): the `<astro-island>` uid is normalized.** Astro 7.3 derives
 it from something path-dependent, so a baseline captured in one checkout never
@@ -132,9 +148,7 @@ island). With the rule, a branch that adds a feature which renders nothing when
 unused can be proven byte-identical: the announcements branch was 20/20 against a
 pristine-main build. A feature that DOES change markup shows exactly its own
 lines (the search icon, `data-pagefind-body` and the 404 search box, 2026-09-29).
-The committed baselines are still stale (see docs/PENDING.md); capture a fresh
-set from a clean main build, with `PUBLIC_GA_ID` set the way production sets it,
-before relying on `compare` without a scratch baseline.
+(The baselines were stale from 2026-08-28 until the 2026-09-29 recapture above.)
 
 Two traps, both documented in the script header: this build fetches live Sanity
 content, so capture and compare must bracket one sitting; and compare only
@@ -209,14 +223,16 @@ experience layer"). Two are ports of the starter's canonical node:test suites;
 four are Reid's own drift gates, which READ the real schema or the real sources
 rather than a fixture:
 
-| File                        | What it holds                                                                                                                                  |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `page-checks.test.ts`       | Card 25's pure checks (vitest port of the starter suite, same cases)                                                                           |
-| `undoRedo.test.ts`          | Card 27's transaction-log machinery against a faithful in-memory fake (vitest port, same cases)                                                |
-| `page-check-config.test.ts` | `pageBuilderConfig.ts` against the schema: every host has its array, every marker is self-filling, "Main content" reaches the photo fields     |
-| `insert-menu.test.ts`       | Every library block in exactly one "+ Add section" group; all fourteen builder arrays use the shared menu; no colour choice in it              |
-| `templates.test.ts`         | Every "+ New" template targets a real type, sets only real fields, uses only offered blocks with unique keys, and has no em-dashes             |
-| `section-coach.test.ts`     | Each block's "empty" rule, and the PREVIEW-ONLY wiring: only SectionRenderer imports the coach, only behind the signal, no live page passes it |
+| File                        | What it holds                                                                                                                                                                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `page-checks.test.ts`       | Card 25's pure checks (vitest port of the starter suite, same cases)                                                                                                                                                                                                                                                           |
+| `undoRedo.test.ts`          | Card 27's transaction-log machinery against a faithful in-memory fake (vitest port, same cases)                                                                                                                                                                                                                                |
+| `page-check-config.test.ts` | `pageBuilderConfig.ts` against the schema: every host has its array, every marker is self-filling, "Main content" reaches the photo fields                                                                                                                                                                                     |
+| `insert-menu.test.ts`       | Every library block in exactly one "+ Add section" group; all fourteen builder arrays use the shared menu; no colour choice in it                                                                                                                                                                                              |
+| `templates.test.ts`         | Every "+ New" template targets a real type, sets only real fields, uses only offered blocks with unique keys, and has no em-dashes                                                                                                                                                                                             |
+| `section-coach.test.ts`     | Each block's "empty" rule, and the PREVIEW-ONLY wiring: only SectionRenderer imports the coach, only behind the signal, no live page passes it                                                                                                                                                                                 |
+| `preview-routes.test.ts`    | (2026-09-29) What `/preview/[...slug]` can draw: the share link is offered for every type whose link opens a page (projects, posts and guides included) and for none whose link would 404 (quiz, calculator, a guide or page with no address); drift gates read the real route, PreviewLayout, resolve.ts and editorActions.ts |
+| `studio-deep-link.test.ts`  | (2026-09-29) The path-to-hash mapping for Studio deep links (`/studio/media` becomes `/studio/#/media`), and that `astro.config.mjs` and `public/_redirects` still agree with it                                                                                                                                               |
 
 What they cannot reach, because it needs a signed-in Studio: the actions
 rendering in the publish menu, a real share link opened in a logged-out
@@ -243,16 +259,18 @@ repo** before believing any result: another project's `wrangler dev` already
 listening on the same port answers instead, and its 404 page is indistinguishable
 from a bug in this build. That cost real time on 2026-08-28.
 
-| Check                                                                                       | Expected                                                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`, `/services/`, any static route                                                         | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                          |
-| a route that does not exist                                                                 | 404 rendering the real 404 page                                                                                                                                                                |
-| `/studio/`                                                                                  | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
-| `/preview`, `/preview/about`, `/preview/faq`                                                | 200                                                                                                                                                                                            |
-| `/preview/live?page=homePage` with no cookie                                                | 403                                                                                                                                                                                            |
-| same, cookie `sanity-preview-perspective=true` (or `drafts`, or any forged value)           | 403 (card 57: the VALUE is checked). `/preview/about` with the same forged cookie renders `<html data-draft="0">`, published content                                                           |
-| same, cookie = the real fingerprint (SHA-256 of `reid-design-preview:v1:` + `SANITY_TOKEN`) | 200 `text/event-stream`; `/preview/about` renders `data-draft="1"` with the overlay island                                                                                                     |
-| `/api/draft-mode/enable?sanity-preview-secret=bogus`                                        | 401                                                                                                                                                                                            |
+| Check                                                                                         | Expected                                                                                                                                                                                                                              |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`, `/services/`, any static route                                                           | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                                                                 |
+| a route that does not exist                                                                   | 404 rendering the real 404 page                                                                                                                                                                                                       |
+| `/studio/`                                                                                    | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead                                        |
+| `/preview`, `/preview/about`, `/preview/faq`                                                  | 200                                                                                                                                                                                                                                   |
+| `/preview/live?page=homePage` with no cookie                                                  | 403                                                                                                                                                                                                                                   |
+| same, cookie `sanity-preview-perspective=true` (or `drafts`, or any forged value)             | 403 (card 57: the VALUE is checked). `/preview/about` with the same forged cookie renders `<html data-draft="0">`, published content                                                                                                  |
+| same, cookie = the real fingerprint (SHA-256 of `reid-design-preview:v1:` + `SANITY_TOKEN`)   | 200 `text/event-stream`; `/preview/about` renders `data-draft="1"` with the overlay island                                                                                                                                            |
+| `/api/draft-mode/enable?sanity-preview-secret=bogus`                                          | 401                                                                                                                                                                                                                                   |
+| `/preview/portfolio/<slug>`, `/preview/journal/<slug>`, `/preview/guides/<slug>` (2026-09-29) | 200 with the detail page's real h1; `data-draft="0"` with no cookie, `data-draft="1"` plus stega with the fingerprint cookie. A made-up slug, and `/preview/quiz`, answer the plain-text 404                                          |
+| `/studio/media`, `/studio/structure/pages`, `/studio/presentation` (2026-09-29)               | 200, title "Sanity Studio", the `/studio/*` CSP (look for `design-system-static.sanity.io`). In chromium the address becomes `/studio/#/media` etc. before the Studio mounts. A random non-studio path still 404s with the public CSP |
 
 The full handshake (302 on a real secret, draft-aware stega, `/preview/live`
 streaming, and the `data-sanity` count matching a GROQ count of the section

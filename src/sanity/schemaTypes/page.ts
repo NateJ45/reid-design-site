@@ -10,34 +10,14 @@
 import { defineType, defineField } from 'sanity';
 import { DocumentsIcon } from '@sanity/icons';
 import { SECTION_TYPES, SECTION_ARRAY_OPTIONS } from './sections';
+import { RESERVED_SLUGS } from '../preview-routes';
 
 // Every built-in route segment. A custom page slug may not match any of these.
 // Exported for src/sanity/pageBuilderConfig.ts, whose "Check this page" link
-// check treats these as addresses the site code owns.
-export const RESERVED_SLUGS = new Set([
-  'about',
-  'services',
-  'process',
-  'portfolio',
-  'faq',
-  'contact',
-  'journal',
-  'e-design',
-  'shop',
-  'gift-certificates',
-  'quiz',
-  'calculator',
-  'resources',
-  'guides',
-  'press',
-  'privacy',
-  'search',
-  'pagefind',
-  '404',
-  'sitemap-index.xml',
-  'og',
-  '_astro',
-]);
+// check treats these as addresses the site code owns. The list itself lives in
+// src/sanity/preview-routes.ts (2026-09-29) so the preview route and the share
+// action read the same set; it is re-exported here for existing importers.
+export { RESERVED_SLUGS };
 
 export const page = defineType({
   name: 'page',
