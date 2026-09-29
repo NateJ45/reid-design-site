@@ -10,6 +10,13 @@ export const shopItem = defineType({
   name: 'shopItem',
   title: 'Shop Item',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'vendor', weight: 3 },
+    { path: 'note', weight: 2 },
+  ],
   // Config / structural — not prose Staci writes, so exclude from Canvas.
   options: { canvasApp: { exclude: true } },
   fields: [

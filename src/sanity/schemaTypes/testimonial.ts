@@ -7,6 +7,13 @@ export const testimonial = defineType({
   name: 'testimonial',
   title: 'Testimonial',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'attribution', weight: 5 },
+    { path: 'location', weight: 3 },
+    { path: 'quote', weight: 2 },
+  ],
   // Verbatim client quotes — AI must NOT touch or "improve" these.
   options: { canvasApp: { exclude: true } },
   fields: [

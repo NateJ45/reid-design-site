@@ -39,6 +39,13 @@ export const page = defineType({
   name: 'page',
   title: 'Custom page',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'navLabel', weight: 3 },
+    { path: 'seoDescription', weight: 2 },
+  ],
   icon: DocumentsIcon,
   groups: [
     { name: 'content', title: 'Content', default: true },

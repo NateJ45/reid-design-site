@@ -7,6 +7,12 @@ export const philosophyPoint = defineType({
   name: 'philosophyPoint',
   title: 'Philosophy Point',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'description', weight: 2 },
+  ],
   // Three locked About-page values — not free-form writing fodder for Canvas.
   options: { canvasApp: { exclude: true } },
   fields: [
