@@ -3,7 +3,8 @@
 // Site-wide layout. Provides:
 //   - <html lang>, document head, OG/Twitter meta
 //   - Anti-FOUC theme bootstrap (runs before first paint)
-//   - Cormorant Garamond font preload (LCP element on hero)
+//   - cdn.sanity.io preconnect (no font preload: measured, it cost LCP)
+//   - The icon set links (favicon.svg/.ico, apple-touch-icon, manifest)
 //   - Analytics (GA4 + Cloudflare beacon, both conditional) via Analytics.astro
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
@@ -142,11 +143,35 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#2A2A2A" media="(prefers-color-scheme: dark)" />
 
+    {/* THE ICON SET, all rendered from public/favicon.svg by `npm run favicon`
+        (scripts/generate-favicons.mjs, PORTS.md card 47). The .ico answers the
+        bare /favicon.ico request every browser makes whether it is linked or
+        not; apple-touch-icon is the iOS home screen, which ignores both of the
+        others; the manifest carries the Android icons. */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    {/* Note: Cormorant Garamond is loaded via @fontsource @import in globals.css.
-        Vite hashes the woff2 filename at build time so a static preload here
-        would 404. If hero h1 LCP needs faster fonts, switch to font-display: optional
-        or generate the preload tag from the built CSS manifest. */}
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    {/* Every page's photos come from Sanity's image CDN, and the home hero (the
+        LCP element) is one of them, so open that connection while the HTML is
+        still parsing. No crossorigin: images are no-cors requests, and a
+        crossorigin preconnect would open a second, unused socket. */}
+    <link rel="preconnect" href="https://cdn.sanity.io" />
+
+    {/* NO FONT PRELOAD, ON PURPOSE (measured 2026-09-29). A preload of
+        Cormorant's latin 400 file IS possible: a Vite `?url` import of
+        '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2'
+        returns exactly the hashed URL the @fontsource CSS points at (the old
+        note here said the hash made it impossible; that was only true of a
+        hand-typed path). It was built and measured, and it made things worse:
+        on Lighthouse mobile the 23KB font went out at high priority beside the
+        stylesheet and the hero photo, both finished about 150ms later, and LCP
+        (always the hero PHOTO here, never text) rose by roughly 250-300ms on
+        /, /about and /services. What a preload would buy, no reflow when the
+        font lands, the metric-matched fallback faces in globals.css already
+        buy for free. Revisit only if a page's LCP element becomes text. */}
+
 
     {/* RSS autodiscovery — browsers and feed readers surface this automatically. */}
     <link rel="alternate" type="application/rss+xml" title={`${site.name} Journal`} href="/journal/rss.xml" />
@@ -274,6 +299,21 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <script>
       function startLenis() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // Wheel devices only: a fine pointer at desktop widths (2026-09-29,
+        // from presacademy). Touch scrolling is already inertial, so on a
+        // phone Lenis only spends main-thread time fighting the browser's own
+        // physics, and phones are most of this site's visitors.
+        //
+        // The navigation scroll reset below (CLAUDE.md rule 5) is still
+        // correct without Lenis: it exists ONLY to cancel Lenis's in-flight
+        // momentum. With no Lenis, Astro's ClientRouter does the plain job
+        // itself (top of page on a link click, restored position on
+        // back/forward). tests/scroll-reset.spec.ts pins both paths: a phone
+        // (no Lenis) and a desktop mouse (Lenis).
+        const wheelDevice =
+          window.matchMedia('(pointer: fine)').matches &&
+          window.matchMedia('(min-width: 1024px)').matches;
+        if (!wheelDevice) return;
         import('lenis').then(({ default: Lenis }) => {
           // wheelMultiplier > 1 makes each wheel/trackpad notch cover more
           // distance (default 1), so scrolling feels faster. lerp is separate:

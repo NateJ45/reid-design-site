@@ -33,6 +33,7 @@ Files live in `src/assets/` (NOT `public/`). The `src/assets/` location is what 
 - `format` (default `'auto'`) — Sanity serves AVIF on supporting browsers (~25% smaller than WebP), WebP elsewhere, JPEG as final fallback. Force `'webp'` only if you have a reason to bypass AVIF.
 - `loading` (default `'lazy'`) — set to `'eager'` for above-the-fold hero images.
 - `fetchpriority` — pass `"high"` on the page's LCP image so the browser fetches it ahead of other resources. Hero.astro does this on the eager background image.
+- `defer` (default `false`, 2026-09-29) — render with NO `src`/`srcset`, the URLs parked in `data-src` / `data-srcset`, for a picture that sits in the viewport from first paint but is not shown for seconds (the home hero's second and later slides). `loading="lazy"` cannot hold those back, because they are inside the viewport. The CALLER must move the URLs across later; `HeroBackground.astro` is the reference (800ms after `load`).
 
 **Responsive srcset ladder** (hardcoded in SanityImage.astro):
 
