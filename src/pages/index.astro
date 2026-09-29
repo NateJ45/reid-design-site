@@ -32,7 +32,13 @@ const description =
   page?.seoDescription ?? 'Plainfield interior design for homes that feel genuinely yours.';
 ---
 
-<BaseLayout {title} {description} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage, circle: true }}
+>
   <HomeSectionRenderer
     sections={page?.pageBuilder}
     page={page}

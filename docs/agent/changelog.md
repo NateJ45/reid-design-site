@@ -168,6 +168,47 @@ from an address a published page lives at now (the rename-and-back loop). Verifi
 the pipeline with a temporary entry: `_redirects` got both slash forms, wrangler
 answered 301 and carried the query string, and the sitemap did not list it.
 
+## 2026-09-29 — share cards redesigned, and drawn by every build
+
+The old cards were a plain linen rectangle reading "Reid Design LLC" in a fallback
+system serif (Pango asks fontconfig for Cormorant Garamond by name, and fontconfig
+never sees node_modules: starter PORTS.md card 46), with a tagline that carried an
+em-dash straight out of an seoTitle. They were rendered by hand and committed, so a
+project Staci published got a card only when Nathan re-ran `og:pages`, and
+BaseLayout's "falls back to og-default.png" comment was never true: a missing file
+was simply a broken share image. The 404's og:image pointed at `/og/404.png`, which
+never existed.
+
+Four concepts were rendered with Staci's own photos and the real faces; Nathan chose
+**D, "arch window"**: linen ground, one photo in an arch (her arched mirrors recur
+through her rooms; her logo is a ring), an optional second photo in a small circle,
+the full logo, a bronze rule, the title in Cormorant Garamond 500 and a small caps
+line in Source Sans 3. The logo masks are rebuilt from the source JPG without the
+grey watercolour wash (`scripts/generate-og-logo.mjs`).
+
+Now every BaseLayout page gets a card on every build. BaseLayout points og:image at
+`/og/<route>.png` and writes a card spec into the page; `src/integrations/og-cards.ts`
+draws the PNGs at `astro:build:done`, strips the specs, and fails the build if any
+`/og/` og:image has no file (a card that fails to draw gets `siteSettings.seoImage`
+or `og-default.png` copied into its place first). Project and journal detail pages
+stopped passing their raw photo and get a card. `siteSettings.seoImage` no longer
+overrides the cards; it only replaces the fallback. Titles prefer the hero headline,
+drop a "Reid Design" suffix, and turn an em-dash into a comma with a warning rather
+than failing Staci's deploy. `public/og/*.png`, `scripts/generate-og-pages.mjs`,
+`scripts/lib/render-og.mjs` and `npm run og:pages` are gone; `npm run og:cards`
+previews or redraws. Parity: 19/20 routes byte-identical; the 404's og:image moved
+from the non-existent `/og/404.png` to `/og-default.png`.
+
+The build draws with **satori 0.33.5 + @resvg/resvg-js 2.6.2**, which Nathan approved
+and installed exact-pinned together with `@fontsource/source-sans-3` 5.3.0 (satori reads
+no WOFF2 and no variable fonts, so Source Sans 3 600 needs the static .woff). No browser,
+so Cloudflare Workers Builds can draw the cards; resvg's prebuilt
+`@resvg/resvg-js-linux-x64-gnu` is in the lockfile. Chromium stays as a local review
+renderer (`OG_RENDERER=chromium`). To make the two identical, the title's line breaks are
+computed once from Cormorant's measured advance widths (a balance-style search) instead of
+each renderer wrapping its own way, and satori's kicker uses no-break spaces so its word
+gaps get the same tracking as Chromium's.
+
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,

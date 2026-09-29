@@ -37,6 +37,13 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <PressSectionRenderer sections={page?.pageBuilder} page={page} pressItems={pressArr} />
 </BaseLayout>
