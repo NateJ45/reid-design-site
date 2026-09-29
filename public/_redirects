@@ -1,0 +1,15 @@
+# Hand-written rules. Cloudflare Workers Static Assets reads this file; it is never served.
+#
+# @astrojs/cloudflare APPENDS the editor-managed redirects (Studio -> Pages -> Redirects,
+# read at build time in astro.config.mjs) BELOW these lines in dist/client/_redirects, so
+# a rule here is listed first. Keep this file to rules the Studio cannot express.
+#
+# Studio deep links (2026-09-29). The Studio is one prerendered page at /studio/ that
+# routes on the URL hash (/studio/#/structure/pages). A PATH-style link such as
+# /studio/structure/pages, /studio/media or /studio/intent/edit/... has no file behind it
+# and used to answer the site's 404 page, in production too. This 200 proxies every
+# /studio/* path to the Studio shell (the address bar keeps the typed path, and the
+# /studio/* Content-Security-Policy in _headers still applies). The shell then moves the
+# path into the hash before the Studio starts: src/sanity/lib/studio-deep-link.ts.
+# The unit test in that folder pins this exact line.
+/studio/* /studio/ 200
