@@ -2,6 +2,72 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — follow-ups: share links on detail pages, Studio deep links, parity baselines
+
+Branch `claude/reid-followups`, three items from `docs/PENDING.md`.
+
+**"Copy share link" 404 on a project, journal post or guide.** The action
+built `/preview/portfolio/<slug>` (and the journal / guide twins), and the
+preview route drew only page singletons and custom pages, so the link opened
+"No document found" (production answered exactly that for all three on
+2026-09-29). Chose to TEACH THE ROUTE rather than hide the action, because the
+detail pages' markup could be reused cleanly: each page body moved, unchanged,
+into `src/components/detail/{ProjectDetail,JournalEntryDetail,GuideDetail}.astro`,
+and the live `[slug].astro` pages keep only static paths, SEO, JSON-LD and the
+share card. Proven render-neutral with the parity harness on a build with every
+section switched on (a temporary, uncommitted `getSectionVisibility` override),
+so the six detail pages were actually built and compared: 27/27 PASS. The
+queries gained an optional client (`getProjectBySlug`, `getJournalEntryBySlug`,
+`getLeadMagnet`, the last with `includeUnpublished` for the preview only).
+
+The second half is the list. `src/sanity/preview-routes.ts` is now the one map
+of what `/preview/[...slug]` can draw, read by the route, `resolve.ts`, the share
+action (`shareWhenPreviewable` in `editorActions.ts`, which wraps the PORTABLE
+action without editing it), the page navigator and PreviewLayout's click
+interceptor. It replaced three hand-kept copies. The quiz, the calculator and an
+address-less guide no longer offer a share link that would 404. Presentation now
+opens a project, post or guide on its own preview.
+
+Two preview-only bugs surfaced by rendering the detail pages in the preview, both
+fixed: the `.img-curtain` photo wipe stayed shut (PreviewLayout has no reveal
+observer; it now forces the end state like `[data-reveal]`), and the reading
+time read "68 min" for a 4-minute post because stega's U+FEFF counts as `\s`
+(`reading-time.ts` now strips the run first; unit test added).
+
+Evidence under `npm run preview` with the fingerprint cookie computed locally
+from `.dev.vars`: all six detail previews 200 with their real h1,
+`data-draft="0"` without the cookie and `"1"` with it; a made-up slug and
+`/preview/quiz` answer the plain-text 404. Chromium screenshots at 1280 and 375
+show no console errors or horizontal overflow (the preview shell has no dark
+mode by design; the live pages' dark mode is unchanged markup, parity-proven).
+
+**Studio deep links 404.** On a static site `@sanity/astro` serves the Studio in
+hash mode: `/studio/` is one prerendered page and screens live after the `#`. A
+path-style link (`/studio/structure/pages`, `/studio/media`) answered the site's 404. `public/_redirects` now proxies `/studio/* /studio/ 200` (the adapter appends
+editor redirects after it), and `src/sanity/lib/studio-deep-link.ts`, called at
+the top of `sanity.config.ts`, rewrites the address to `/studio/#/<path>` before
+the Studio builds its history. SSR for the Studio (`studioRouterHistory:
+'browser'`) was rejected because SSR responses get no `_headers`, so the Studio
+would lose its CSP. Under `npm run preview`: `/studio/media`,
+`/studio/structure/pages`, `/studio/presentation` and an intent URL answer 200
+with the `/studio/*` CSP; a random path still 404s with the public CSP; chromium
+lands on `/studio/#/media` etc. with the Studio mounted and only localhost CORS
+errors in the console.
+
+**Parity baselines recaptured.** Stale since 2026-08-28; the old set scored
+10/20 against a production-like build of this branch. Measured diffs: the
+favicon, manifest and Sanity-preconnect links on 9 pages, the empty `{}` FAQ and
+services JSON-LD from the old swallowed read (FAQ now has 19 questions), the 404
+share image, and the `/studio` island uid. (The commit message of the baseline
+commit also names the availability pill and the MobileNav island from the older
+PENDING notes; neither appeared in the measured diff.) Recaptured once, in its own commit, from a clean build with
+`PUBLIC_GA_ID=G-YSVYFME1FT` set (the production Workers Build sets it; CI and
+the local `.env` do not, which is why the rule is written down): 21 routes,
+`/search` new. Two further clean builds with the same variable: 21/21 PASS both
+times. A build WITHOUT the variable scores 11/21, and every diff line is a
+removed line of the GA snippet on the 10 real content pages, nothing added,
+which is the documented reason to compare with the variable set.
+
 ## 2026-09-29 — tier-1 correctness: build reads fail loud, preview cookie checked, MobileNav in the HTML
 
 Four starter cards ported, plus two hygiene fixes and a docs sweep.

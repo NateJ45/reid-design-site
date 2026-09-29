@@ -13,58 +13,53 @@
 //
 //  - `locations` (document -> URL): the reverse, so opening a document from the
 //    desk points the preview at the right page. Singletons map to their fixed
-//    preview path; `page` docs resolve from the slug. Collection docs (service,
-//    testimonial, faqItem, project, journalEntry, ...) have no dedicated
-//    draft-preview route, so they land on the page they appear on.
+//    preview path; `page` docs resolve from the slug; projects, journal posts
+//    and guides resolve to their own detail preview (2026-09-29). Other
+//    collection docs (service, testimonial, faqItem, ...) have no page of
+//    their own, so they land on the page they appear on.
 //
 // The preview routes themselves live in the site app: src/pages/preview/.
-// SINGLETON_PREVIEW_PATHS is the SAME map as SINGLETON_BY_PATH in
-// src/pages/preview/[...slug].astro, and as FIRST_SEGMENT_PREVIEWABLE in
-// src/layouts/PreviewLayout.astro's click interceptor. THREE PLACES, ONE TRUTH:
-// change one and change all three. The third is the one that degrades silently
-// (a missed entry there does not error, it just lets a click escape to the live
-// site and freezes the Studio's navigator), so it is the one to check twice.
+// WHICH PATHS EXIST comes from src/sanity/preview-routes.ts, the one map the
+// preview route, this resolver, the share action, the page navigator and
+// PreviewLayout's click interceptor all read (2026-09-29). Before that the map
+// was hand-copied into three files; never hard-code a /preview path here.
 // =============================================================================
 import {
   defineDocuments,
   defineLocations,
   type PresentationPluginOptions,
 } from 'sanity/presentation';
+import { DETAIL_PREVIEW_PREFIX, SINGLETON_PREVIEW_PATHS } from './preview-routes';
+
+// Re-exported for the page navigator, which imported it from here first.
+export { SINGLETON_PREVIEW_PATHS };
+
+// Singleton preview paths come from ./preview-routes (the builder pages at
+// full fidelity, the bespoke pages as their editable surface; see
+// src/pages/preview/[...slug].astro). Deliberately absent there: styleQuiz and
+// budgetCalculator, whose documents hold quiz questions and room configs rather
+// than page copy; their `locations` entries below still point an editor at a
+// page.
 
 /**
- * Preview path per singleton type.
- *
- * The first eight are BUILDER pages: their layout is a `pageBuilder` array of
- * section markers plus library blocks, so they preview at full fidelity through
- * their own page renderer. The rest are BESPOKE: their middles are drawn in
- * code (the FAQ accordion, the contact form, the journal and portfolio grids),
- * so they preview as their editable surface only. See
- * src/pages/preview/[...slug].astro.
- *
- * Deliberately absent: styleQuiz and budgetCalculator. Their documents hold
- * quiz questions and room configs rather than page copy, so a page preview of
- * them would show almost nothing; their `locations` entries below still point
- * an editor at the live page.
+ * Locations for a collection type with a detail page of its own: its own draft
+ * preview first, then the index page it is listed on.
  */
-export const SINGLETON_PREVIEW_PATHS: Record<string, string> = {
-  // Builder pages
-  homePage: '/preview',
-  aboutPage: '/preview/about',
-  processPage: '/preview/process',
-  servicesPage: '/preview/services',
-  eDesignPage: '/preview/e-design',
-  giftPage: '/preview/gift-certificates',
-  pressPage: '/preview/press',
-  resourcesPage: '/preview/resources',
-  // Bespoke pages (editable surface + any "Extra sections")
-  faqPage: '/preview/faq',
-  contactPage: '/preview/contact',
-  journalPage: '/preview/journal',
-  portfolioPage: '/preview/portfolio',
-  privacyPage: '/preview/privacy',
-  shopPage: '/preview/shop',
-  notFoundPage: '/preview/404',
-};
+function detailLocations(type: string, indexTitle: string, indexHref: string) {
+  const prefix = DETAIL_PREVIEW_PREFIX[type];
+  return defineLocations({
+    select: { title: 'title', slug: 'slug.current' },
+    resolve: (doc) => {
+      const index = { title: indexTitle, href: indexHref };
+      if (!doc?.slug) {
+        return { locations: [index], message: 'Give this a web address to preview its own page.' };
+      }
+      return {
+        locations: [{ title: doc.title ?? doc.slug, href: `${prefix}/${doc.slug}` }, index],
+      };
+    },
+  });
+}
 
 const previewHref = (slug?: string) => (slug === 'home' ? '/preview' : `/preview/${slug}`);
 
@@ -83,6 +78,11 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     ...Object.entries(SINGLETON_PREVIEW_PATHS)
       .filter(([type]) => type !== 'homePage')
       .map(([type, href]) => ({ route: href, filter: `_type == "${type}"` })),
+    // Detail pages (2026-09-29): /preview/portfolio/<slug> and friends.
+    ...Object.entries(DETAIL_PREVIEW_PREFIX).map(([type, prefix]) => ({
+      route: `${prefix}/:slug`,
+      filter: `_type == "${type}" && slug.current == $slug`,
+    })),
     { route: '/preview/:slug', filter: '_type == "page" && slug.current == $slug' },
   ]),
   locations: {
@@ -95,20 +95,11 @@ export const resolve: PresentationPluginOptions['resolve'] = {
         return { locations: [{ title: doc?.title ?? slug, href: previewHref(slug) }] };
       },
     }),
-    // Collection docs have no draft-preview route of their own. Send each to
-    // the page it renders on, with a note when a detail page exists live.
-    project: {
-      locations: [{ title: 'Portfolio', href: '/preview/portfolio' }],
-      message: 'Project detail pages appear on the live site after publish.',
-    },
-    journalEntry: {
-      locations: [{ title: 'Journal', href: '/preview/journal' }],
-      message: 'Journal entry pages appear on the live site after publish.',
-    },
-    leadMagnet: {
-      locations: [{ title: 'Resources', href: '/preview/resources' }],
-      message: 'Guide landing pages appear on the live site after publish.',
-    },
+    // Collection docs with a detail page preview that page (2026-09-29).
+    project: detailLocations('project', 'Portfolio', SINGLETON_PREVIEW_PATHS.portfolioPage),
+    journalEntry: detailLocations('journalEntry', 'Journal', SINGLETON_PREVIEW_PATHS.journalPage),
+    leadMagnet: detailLocations('leadMagnet', 'Resources', SINGLETON_PREVIEW_PATHS.resourcesPage),
+    // The rest have no page of their own: send each to the page it renders on.
     service: { locations: [{ title: 'Services', href: '/preview/services' }] },
     processStep: { locations: [{ title: 'Process', href: '/preview/process' }] },
     philosophyPoint: { locations: [{ title: 'About', href: '/preview/about' }] },

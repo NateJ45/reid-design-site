@@ -8,7 +8,7 @@
 - Previews: any other branch gets its own preview URL via Cloudflare Workers.
 - Build command: `npm run build`.
 - **Deploy command (CHANGED 2026-08-28): `npx wrangler deploy -c dist/server/wrangler.json`.** `@astrojs/cloudflare` 14 splits the output into `dist/client` (static assets) and `dist/server` (the SSR bundle plus a generated `wrangler.json` the adapter derives from the root `wrangler.jsonc`). A plain `wrangler deploy` reads the root config, ships the assets without the SSR entrypoint, and every SSR route 404s. **This has to be set in the Cloudflare dashboard** (Workers & Pages, reid-design-site, Settings, Build), because Cloudflare's git integration owns the deploy step, not this repo. `npm run deploy` already passes the flag for a manual deploy. Tracked in `docs/PENDING.md`.
-- `output: 'static'` in `astro.config.mjs` still prerenders every public page to HTML at build time. Since 2026-08-28 a handful of routes deliberately opt out with `export const prerender = false`: `/studio/*` (the embedded Sanity Studio), `/preview/**` and `/api/draft-mode/*` (the live-preview stack). The adapter is no longer effectively inert; it is what serves those.
+- `output: 'static'` in `astro.config.mjs` still prerenders every public page to HTML at build time. Since 2026-08-28 a handful of routes deliberately opt out with `export const prerender = false`: `/preview/**` and `/api/draft-mode/*` (the live-preview stack). The adapter is no longer effectively inert; it is what serves those. (Corrected 2026-09-29: the embedded Studio is NOT one of them. On a static site `@sanity/astro` prerenders `/studio/` as one page with hash routing; path-style `/studio/*` links reach it through the `/studio/* /studio/ 200` rule in `public/_redirects`. See docs/agent/sanity.md, "The Studio routes on the URL HASH".)
 
 ### Three adapter-config landmines, all removed 2026-08-28
 
@@ -91,6 +91,8 @@ All documented in `.env.example`; copy to `.env` and fill in real values for loc
 **Weekly link report.** `.github/workflows/link-health.yml` runs `scripts/check-live-links.mjs` on Mondays 09:15 UTC (and on demand from the Actions tab). It reads every published document in the dataset, probes each outbound link, and writes a table to the run's Summary page. A link that is gone fails the run (GitHub emails the owner); one whose host refuses scripts is reported without failing. It needs no secrets (it uses the `PUBLIC_SANITY_*` repository variables, already set).
 
 ### Security headers
+
+`public/_redirects` ships with the deploy too (2026-09-29). It holds hand-written rules only, today the single `/studio/* /studio/ 200` Studio deep-link proxy; `@astrojs/cloudflare` APPENDS the editor-managed redirects (Studio, Pages, Redirects) below it in `dist/client/_redirects`, so a hand rule is listed first. Workers Static Assets supports 3xx redirects and 200 proxying there, not other rewrite codes.
 
 `public/_headers` ships with the deploy. Cloudflare applies it to every **static** response (every prerendered page, `/studio/`, and the `/_astro/*` files). It does **not** apply to responses the Worker generates itself, so the SSR routes (`/preview/**`, `/preview/live`, `/api/draft-mode/*`) carry none of these headers. Site-wide:
 

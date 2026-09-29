@@ -30,6 +30,13 @@ signed in as an editor:
    Presentation tool, the share icon beside any page in the page list does the
    same. Bonus: after tier1's card-57 cookie check merges, repeat once; the link
    must still work (the enable route writes the same fingerprint cookie).
+   **Also on a project (branch `claude/reid-followups`, 2026-09-29):** open a
+   project, "Copy share link", paste logged out: you land on
+   `/preview/portfolio/<slug>` showing the project page (it used to 404). The
+   style quiz and the calculator should NOT offer the action any more.
+   And paste `https://reiddesignllc.com/studio/structure/pages` into a new tab
+   while signed in: the Pages list opens (it used to be the site's 404), and
+   the address bar reads `/studio/#/structure/pages`.
 3. **Check this page.** On a project with a gallery photo missing its alt text,
    publish-menu arrow, "Check this page...": the dialog lists it under "Main
    content". Add an empty Photo gallery block to a custom page: it is listed as
@@ -252,17 +259,6 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   "Creating" at every width, which looks worse than a 0.031 shift that is
   already inside Google's "good" range (< 0.1). Revisit only with a rotator
   that sits at the end of a line.
-- **"Copy share link" on a project, journal post or guide gives a 404.** Found
-  in the signed-in staging Studio 2026-09-29. The action builds
-  `/preview/portfolio/<slug>` (and the journal / guide equivalents), but
-  `/preview/[...slug].astro` only renders page singletons and custom pages, so
-  the link opens a "No document found" 404. Links for pages work (About and a
-  custom page proved end to end, logged out). Fix: either hide the action on
-  types the preview route cannot draw, or teach the route those types.
-- **Studio deep links 404 on reload.** `/studio/` is prerendered as one static
-  page, so a refresh or a pasted link to `/studio/structure/...` answers 404
-  (production too, 2026-09-29). Probably wants the Studio route SSR, or a
-  `/studio/*` rewrite to `/studio/`.
 - **Starter fold-back candidates (PORTS.md card 22).** (1) The rename-and-rename-
   back loop that `src/lib/redirect-guard.ts` guards against at build lives in
   the canonical `slugRedirect.tsx`: when a page moves back to an address, the
@@ -273,37 +269,7 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   `max-age=0`); one rule carrying both lines works; any family repo that
   adds an `/_astro/*` rule must carry the Cache-Control itself.
 
-### Parity baselines are stale (found 2026-08-28)
-
-(Re-measured 2026-09-29 on `origin/main` 0848aa5 plus only the Studio-side
-search-weights commit: 10/20, the same nine routes plus `studio`. The editor-experience branch was proven render-neutral against a
-fresh pristine-build snapshot instead, 20/20.)
-`node scripts/page-parity.mjs compare` reports 11/20 on a PRISTINE
-tree: a commit after the baselines were captured changed the
-availability-pill markup (bg-primary-dark -> bg-muted, "Book a
-consultation" -> "Open") on 9 routes (404, about, contact, e-design,
-faq, home, privacy, process, services). The chrome-options port was
-proven render-neutral against a pristine-build snapshot instead.
-Fix: regenerate the baselines from a clean main/staging build
-(`node scripts/page-parity.mjs capture`) in a commit that says why.
-
-**Update 2026-09-29 (tier-1 branch).** The committed baselines (last moved in
-#40) still do not match a local build of `origin/main` on the same Sanity
-content: they carry the GA4 tag (captured with `PUBLIC_GA_ID` set), an empty
-FAQ list and `{}` FAQ/services JSON-LD, a NewsletterSignup island with no
-server-rendered children, and different island uids on `/studio`. Card 52
-(MobileNav at `client:idle`) then moves 9 pages on purpose. The tier-1 branch
-did NOT recapture, so parallel branches do not all conflict on
-`scripts/.parity/`; it proved render-neutrality against a fresh capture of
-`origin/main` instead (11/20 pass, the 9 diffs all the MobileNav island).
-Recapture once, after the parallel branches merge, from a build with
-`PUBLIC_GA_ID` set if the baselines should keep the tag.
-(`node scripts/page-parity.mjs baseline`) in a commit that says why.
-Update 2026-09-29: still stale, and two more causes found. The committed
-baselines were captured with `PUBLIC_GA_ID` set (production builds carry the GA
-snippet, a local build without the variable does not) and before Astro 7.3
-(island uids). Rule 5 in the normalizer fixes the second; for the first, capture
-with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
+### Other queued items
 
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the
@@ -368,6 +334,35 @@ with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-09-29 — parity baselines recaptured (branch `claude/reid-followups`).**
+  Stale since 2026-08-28. Against a production-like build of this branch the
+  old set scored 10/20, and the measured diffs were: the favicon, manifest and
+  Sanity-preconnect links on 9 pages, the empty `{}` FAQ and services JSON-LD
+  (the old swallowed read; FAQ now carries 19 questions), the 404 page's share
+  image, and the `/studio` island uid.
+  Recaptured once from a clean build with `PUBLIC_GA_ID=G-YSVYFME1FT` set, the
+  way the production Workers Build builds; 21 routes now (`/search` joined).
+  Two further clean builds each compared 21/21 PASS. **Compare with the same
+  variable set**, or the 10 real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet.
+  Detail in `docs/TESTING.md`, "The parity harness".
+
+- **2026-09-29 — "Copy share link" 404 on a project, journal post or guide
+  (branch `claude/reid-followups`).** The preview route now draws
+  `/preview/portfolio/<slug>`, `/preview/journal/<slug>` and
+  `/preview/guides/<slug>` through the same body component the live page uses
+  (`src/components/detail/*`, extraction parity 27/27 with every section on),
+  and the share action is offered only where the route can draw the link, from
+  one list (`src/sanity/preview-routes.ts`; the quiz and calculator lost it).
+  Under `npm run preview`: all six detail previews 200, `data-draft="1"` with
+  the fingerprint cookie; production answered "No document found" for the same
+  paths before. Detail in `docs/agent/sanity.md`.
+- **2026-09-29 — Studio deep links 404 (same branch).** `public/_redirects`
+  proxies `/studio/* /studio/ 200`, and `src/sanity/lib/studio-deep-link.ts`
+  moves the path into the hash before the Studio starts. Under `npm run
+preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
+  200 with the Studio CSP; chromium lands on `/studio/#/media` etc. with no
+  console errors beyond localhost CORS.
 
 - **2026-09-29 — three "Older" needs-a-human items were already done; the
   registry had not caught up.** Verified that day, read-only:

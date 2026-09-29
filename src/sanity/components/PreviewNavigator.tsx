@@ -5,6 +5,7 @@ import { usePresentationNavigate, usePresentationParams } from 'sanity/presentat
 import { Box, Button, Card, Flex, Spinner, Stack, Text } from '@sanity/ui';
 import { AddIcon, LaunchIcon, ShareIcon } from '@sanity/icons';
 import { SINGLETON_PREVIEW_PATHS } from '../resolve';
+import { canPreviewPath } from '../preview-routes';
 import { startNav, stepNav, toPreviewPath, type PendingNav } from '../../lib/preview-navigation';
 import { LiveDraftBridge } from './LiveDraftBridge';
 import { SHARE_LINK_TTL_PHRASE, useShareDraftLink } from './shareDraftLink';
@@ -358,16 +359,22 @@ export function PreviewNavigator() {
                           </Flex>
                         </Card>
                         {/* Outside the row button for the same reason as the
-                            live link below: no nested interactive elements. */}
-                        <Button
-                          mode="bleed"
-                          padding={2}
-                          icon={ShareIcon}
-                          disabled={sharing}
-                          onClick={() => void share(r.href, r.label)}
-                          title={`Copy a link that shows this page's draft to someone without a Sanity login. ${SHARE_LINK_TTL_PHRASE}`}
-                          aria-label={`Copy a draft share link for ${r.label}`}
-                        />
+                            live link below: no nested interactive elements.
+                            Only where the preview route can draw the row
+                            (src/sanity/preview-routes.ts, 2026-09-29): every
+                            row here can today, but the check keeps this button
+                            and the publish-menu action honest together. */}
+                        {canPreviewPath(r.href) && (
+                          <Button
+                            mode="bleed"
+                            padding={2}
+                            icon={ShareIcon}
+                            disabled={sharing}
+                            onClick={() => void share(r.href, r.label)}
+                            title={`Copy a link that shows this page's draft to someone without a Sanity login. ${SHARE_LINK_TTL_PHRASE}`}
+                            aria-label={`Copy a draft share link for ${r.label}`}
+                          />
+                        )}
                         {r.liveHref && (
                           /* Outside the row button: a button may not nest a
                              link. Opens the REAL page in a new tab. */

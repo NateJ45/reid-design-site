@@ -38,6 +38,14 @@ import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
 import { STARTING_TEMPLATES } from './src/sanity/templates';
 import { StatsTool } from './src/sanity/components/StatsTool';
 import { withSlugRedirect } from './src/sanity/components/slugRedirect';
+import { normalizeStudioDeepLink } from './src/sanity/lib/studio-deep-link';
+
+// Path-style deep links (/studio/structure/pages, /studio/media) reach this
+// page through the `/studio/* /studio/ 200` rule in public/_redirects. Move the
+// path into the hash NOW, while this module evaluates, because the Studio
+// creates its hash history from the URL as it renders. A no-op in the sanity
+// CLI (no window) and on any ordinary /studio/#/... URL. 2026-09-29.
+normalizeStudioDeepLink();
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design

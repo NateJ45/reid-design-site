@@ -150,7 +150,11 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
         reveal and stagger entrances hide content at opacity 0 until it runs, so
         without this block the preview would render INVISIBLE sections. Keep it
         in step with the motion vocabulary in src/styles/globals.css: today that
-        is [data-reveal], [data-stagger-grid] and .hero-entry-stagger. Looping
+        is [data-reveal], [data-stagger-grid], .hero-entry-stagger and the
+        .img-curtain image wipe (added 2026-09-29 with the detail-page previews:
+        the curtain covers a project's hero photo and FeaturedWork's until that
+        same observer lifts it, so without this the preview drew an empty
+        box where the photo should be). Looping
         keyframe effects (the Ken Burns hero) are left running: they need no JS
         and reach a visible state on their own. */
     }
@@ -167,6 +171,9 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
         opacity: 1 !important;
         animation: none !important;
         transform: none !important;
+      }
+      .img-curtain {
+        display: none !important;
       }
     </style>
 
@@ -186,6 +193,8 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
     }
 
     <script>
+      import { previewPathForLivePath } from '@/sanity/preview-routes';
+
       // =======================================================================
       // Keep clicks INSIDE the preview surface (PORTS.md card 11)
       // =======================================================================
@@ -199,8 +208,8 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
       // So: same-origin links with a preview equivalent are remapped into
       // /preview/* (the visual-editing history adapter then reports the new
       // location, and Presentation resolves the document, so the navigator and
-      // the edit panel follow the click). Links with NO preview route (detail
-      // pages like /journal/<slug>, /api, /studio, external origins) split by
+      // the edit panel follow the click). Links with NO preview route (/quiz,
+      // /calculator, /guides, /api, /studio, external origins) split by
       // context:
       //  - EMBEDDED in the Studio: the navigation is SUPPRESSED entirely. A
       //    click on a card there is an EDIT gesture (the stega overlay already
@@ -209,42 +218,12 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
       //  - Standalone /preview tab: NEW TAB, so the preview surface is never
       //    hijacked.
       //
-      // THE ROUTE MAP IS PER-SITE. FIRST_SEGMENT_PREVIEWABLE mirrors
-      // SINGLETON_BY_PATH in src/pages/preview/[...slug].astro (plus: any
-      // single-segment path is a custom `page` slug, which /preview/<slug> also
-      // renders). Keep the two in sync.
-      const FIRST_SEGMENT_PREVIEWABLE = new Set([
-        'about',
-        'process',
-        'services',
-        'e-design',
-        'gift-certificates',
-        'press',
-        'resources',
-        'faq',
-        'contact',
-        'journal',
-        'portfolio',
-        'privacy',
-        'shop',
-      ]);
-      // Single-segment routes that must NOT be remapped. `api`, `studio`,
-      // `preview` and `404` are plumbing. `quiz`, `calculator` and `guides` are
-      // REAL pages that deliberately have no /preview route (their documents
-      // hold quiz questions, room configs and gated downloads rather than page
-      // sections, see src/sanity/resolve.ts), so /preview/quiz would fall
-      // through to the custom-`page` branch and 404. Leaving them here sends
-      // them to a new tab from a standalone preview and suppresses them inside
-      // the Studio, which is the correct behavior for a page with no preview.
-      const NEVER_REMAP = new Set([
-        'api',
-        'studio',
-        'preview',
-        '404',
-        'quiz',
-        'calculator',
-        'guides',
-      ]);
+      // WHICH LINKS HAVE A PREVIEW comes from src/sanity/preview-routes.ts
+      // (2026-09-29), the same map the preview route draws from. It replaced a
+      // hand-kept FIRST_SEGMENT_PREVIEWABLE / NEVER_REMAP pair here that had to
+      // mirror the route by hand and degraded silently when it did not. Detail
+      // pages (/portfolio/<slug>, /journal/<slug>, /guides/<slug>) now have
+      // previews, so a related-post or next-project link stays in the preview.
 
       document.addEventListener(
         'click',
@@ -280,15 +259,11 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
           if (path.startsWith('/preview') || first === 'api') return;
           if (path === window.location.pathname && url.hash) return;
 
-          const segments = path === '/' ? [] : path.slice(1).split('/');
-          const previewable =
-            path === '/' ||
-            (segments.length === 1 && !NEVER_REMAP.has(first)) ||
-            (segments.length === 1 && FIRST_SEGMENT_PREVIEWABLE.has(first));
+          const previewPath = previewPathForLivePath(path);
 
           event.preventDefault();
-          if (previewable) {
-            window.location.assign(path === '/' ? '/preview' : `/preview${path}`);
+          if (previewPath) {
+            window.location.assign(previewPath);
           } else if (!embedded) {
             // Standalone tab: detail routes without a preview open in a new tab.
             window.open(url.href, '_blank', 'noopener');

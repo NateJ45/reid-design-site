@@ -31,9 +31,19 @@
        that conversion is a separate job (PORTS.md card 12) and is deliberately
        not attempted here.
 
-   Keep the path -> type map in sync with SINGLETON_PREVIEW_PATHS in
-   src/sanity/resolve.ts and FIRST_SEGMENT_PREVIEWABLE in
-   src/layouts/PreviewLayout.astro. noindex comes from PreviewLayout.
+    4. DETAIL PAGES (2026-09-29) - a project (/preview/portfolio/<slug>), a
+       journal post (/preview/journal/<slug>) and a guide
+       (/preview/guides/<slug>). Rendered through the SAME body component the
+       live page uses (src/components/detail/*), so full fidelity minus the
+       site chrome. Added because the Studio's "Copy share link" on a project
+       used to mint a link to a path this route could not draw (a 404).
+
+   WHICH PATHS THIS ROUTE CAN DRAW is decided in ONE place,
+   src/sanity/preview-routes.ts (previewTargetFor). The Presentation resolver,
+   the share action, the page navigator and PreviewLayout's click interceptor
+   all read the same module, so they cannot promise a preview this route does
+   not have. Teach the route a new type there first. noindex comes from
+   PreviewLayout.
    ============================================================================ */
 export const prerender = false;
 
@@ -53,6 +63,10 @@ import PressSectionRenderer from '@/components/PressSectionRenderer.astro';
 import ResourcesSectionRenderer from '@/components/ResourcesSectionRenderer.astro';
 import { getPreviewClient, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
+import { BUILDER_SINGLETON_TYPES, previewTargetFor } from '@/sanity/preview-routes';
+import ProjectDetail from '@/components/detail/ProjectDetail.astro';
+import JournalEntryDetail from '@/components/detail/JournalEntryDetail.astro';
+import GuideDetail from '@/components/detail/GuideDetail.astro';
 import {
   getSiteSettings,
   getPressItems,
@@ -72,6 +86,9 @@ import {
   getShopPage,
   getNotFoundPage,
   getPage,
+  getProjectBySlug,
+  getJournalEntryBySlug,
+  getLeadMagnet,
 } from '@/lib/queries';
 
 // A clone with no project id or no runtime token: say so, do not 500.
@@ -96,42 +113,16 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 const slug = ((Astro.params.slug as string | undefined) || '').replace(/\/+$/, '');
 const client = getPreviewClient(draftMode);
 
-// Fixed preview path -> singleton type. Mirror of SINGLETON_PREVIEW_PATHS in
-// src/sanity/resolve.ts (that map carries the /preview prefix, this one does
-// not) and of FIRST_SEGMENT_PREVIEWABLE in src/layouts/PreviewLayout.astro.
-const SINGLETON_BY_PATH: Record<string, string> = {
-  '': 'homePage',
-  about: 'aboutPage',
-  process: 'processPage',
-  services: 'servicesPage',
-  'e-design': 'eDesignPage',
-  'gift-certificates': 'giftPage',
-  press: 'pressPage',
-  resources: 'resourcesPage',
-  faq: 'faqPage',
-  contact: 'contactPage',
-  journal: 'journalPage',
-  portfolio: 'portfolioPage',
-  privacy: 'privacyPage',
-  shop: 'shopPage',
-  '404': 'notFoundPage',
-};
-
-const singletonType = SINGLETON_BY_PATH[slug];
+// What this path is: a singleton, a detail page, a custom page, or nothing
+// this route can draw (src/sanity/preview-routes.ts is the one map).
+const target = previewTargetFor(slug);
+const singletonType = target?.kind === 'singleton' ? target.type : undefined;
+const detailType = target?.kind === 'detail' ? target.type : undefined;
 
 // Singleton documents are pinned to a document id equal to their type (the
 // convention src/sanity/structure.ts enforces with documentId(schemaType)), so
 // there is no id to look up for those. A custom page's id comes off the doc.
-const isBuilderSingleton = new Set([
-  'homePage',
-  'aboutPage',
-  'processPage',
-  'servicesPage',
-  'eDesignPage',
-  'giftPage',
-  'pressPage',
-  'resourcesPage',
-]).has(singletonType ?? '');
+const isBuilderSingleton = BUILDER_SINGLETON_TYPES.has(singletonType ?? '');
 
 // ---------------------------------------------------------------------------
 // Load. Every fetch goes through the DRAFT-aware client, including the shared
@@ -143,6 +134,9 @@ const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 let page: any = null;
 let pressItems: any[] = [];
+// Only a journal post needs a second document (its sticky chip label and
+// closing background come from the Journal page singleton).
+let journalPage: any = null;
 
 if (singletonType) {
   const loaders: Record<string, () => Promise<any>> = {
@@ -171,8 +165,21 @@ if (singletonType) {
   ) {
     pressItems = await getPressItems(client).catch(() => []);
   }
-} else {
-  page = await getPage(slug, client).catch(() => null);
+} else if (target?.kind === 'detail') {
+  if (detailType === 'project') {
+    page = await getProjectBySlug(target.slug, client).catch(() => null);
+  } else if (detailType === 'journalEntry') {
+    [page, journalPage] = await Promise.all([
+      getJournalEntryBySlug(target.slug, client).catch(() => null),
+      getJournalPage(client).catch(() => null),
+    ]);
+  } else if (detailType === 'leadMagnet') {
+    // includeUnpublished: a guide whose "Published" switch is still off is
+    // exactly the one an editor wants a reviewer to read first.
+    page = await getLeadMagnet(target.slug, client, { includeUnpublished: true }).catch(() => null);
+  }
+} else if (target?.kind === 'page') {
+  page = await getPage(target.slug, client).catch(() => null);
 }
 
 if (!page) {
@@ -186,7 +193,7 @@ if (!page) {
 // type; a Studio-created page has a random id, and the draft perspective can
 // return the drafts. twin's id, so strip the prefix to match both twins.
 const pageId = singletonType ?? String(page._id ?? '').replace(/^drafts\./, '');
-const docType = singletonType ?? 'page';
+const docType = singletonType ?? detailType ?? 'page';
 
 // ---------------------------------------------------------------------------
 // In-canvas section controls (PORTS.md card 17)
@@ -293,9 +300,22 @@ const title = `${label} - Preview`;
     )
   }
 
+  {/* Detail pages: the same body component the live page renders. */}
+  {detailType === 'project' && <ProjectDetail project={page} />}
+  {detailType === 'journalEntry' && <JournalEntryDetail entry={page} journalPage={journalPage} />}
+  {
+    detailType === 'leadMagnet' && (
+      <GuideDetail
+        magnet={page}
+        slug={target?.kind === 'detail' ? target.slug : ''}
+        formActionUrl={siteSettings?.newsletter?.formActionUrl ?? null}
+      />
+    )
+  }
+
   {/* Custom page built in the page builder. */}
   {
-    !singletonType && (
+    target?.kind === 'page' && (
       <SectionRenderer sections={page.pageBuilder} idPrefix="page" editDoc={builderEditDoc} />
     )
   }
