@@ -2,6 +2,7 @@
 
 import { defineType, defineField } from 'sanity';
 import { PROCESS_SECTION_TYPES, PROCESS_DEFAULT_ORDER } from './processSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const processPage = defineType({
   name: 'processPage',
@@ -63,6 +64,8 @@ export const processPage = defineType({
       description:
         "The order of sections on the Process page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Edit each section's content in its own tab.",
       of: PROCESS_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: PROCESS_DEFAULT_ORDER,
     }),
 

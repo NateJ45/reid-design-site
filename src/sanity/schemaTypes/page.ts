@@ -9,7 +9,7 @@
 
 import { defineType, defineField } from 'sanity';
 import { DocumentsIcon } from '@sanity/icons';
-import { SECTION_TYPES } from './sections';
+import { SECTION_TYPES, SECTION_ARRAY_OPTIONS } from './sections';
 
 // Every built-in route segment. A custom page slug may not match any of these.
 // Exported for src/sanity/pageBuilderConfig.ts, whose "Check this page" link
@@ -89,6 +89,8 @@ export const page = defineType({
       group: 'content',
       description: 'Build the page by adding sections. Drag to reorder. Add as many as you like.',
       of: SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
     }),
 
     // ── Menu placement ────────────────────────────────────────────────────────
