@@ -54,6 +54,7 @@ wrangler ~4.129.0, react 19.2.8, styled-components 6.5.3). PENDING's
 `SANITY_AUTH_TOKEN`, `SITE_URL` and DNS-cutover items moved to closed (all
 three were already true), and "still Squarespace / before cutover" wording
 fixed in `deployment.md`, `OPERATIONS.md` and `CLAUDE.md`.
+
 ## 2026-09-29 — the Studio editor-experience layer (branch `claude/studio-editor`)
 
 Eight additions aimed at Staci, none of which changes a live page (parity 20/20

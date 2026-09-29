@@ -185,6 +185,7 @@ $env:PUBLIC_SANITY_PROJECT_ID='zzqq0000'; npm run build; Remove-Item Env:PUBLIC_
 Expected: exit 1 with `[sanity] fetch failed during a production build: ...`.
 Then a normal `npm run build` and `npm run parity compare` must be unchanged,
 which proves the absent-document (coming-soon) paths still render.
+
 ## The editor-experience unit tests (2026-09-29)
 
 Six vitest files cover the Studio editor layer (docs/agent/sanity.md, "Editor
