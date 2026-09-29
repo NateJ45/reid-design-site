@@ -7,6 +7,13 @@
 //
 // Reuses PortableText for the body when Sanity content is present; falls back
 // to static HTML copy for the period before Staci publishes the doc.
+//
+// "How traffic is measured" is NOT editable copy, on purpose (PORTS.md card 54).
+// It renders after either body and is derived from src/lib/analytics-config.ts,
+// the same booleans that decide whether Analytics.astro ships a tag, so this page
+// can never deny a cookie the site is setting. Until 2026-09-28 it did: GA4 was
+// live while the Sanity body said "There is no Google Analytics". Google's own
+// Analytics terms require disclosing the use of Analytics and its cookies.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
@@ -15,6 +22,7 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 import { getPrivacyPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
+import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
 
 const [page, siteSettings] = await Promise.all([
   getPrivacyPage().catch(() => null),
@@ -51,6 +59,14 @@ const contactEmail = siteSettings?.email ?? 'staci@reiddesignllc.com';
 
 // Whether to use Sanity body content
 const hasSanityBody = Boolean(page?.body);
+
+// The derived "How traffic is measured" section borrows the styling of whichever
+// body rendered above it, so it reads as part of the policy, not an appendix.
+// These match PortableTextStatic's h2 / normal-block classes and the fallback's.
+const measuredH2 = hasSanityBody
+  ? 'mt-section-md mb-m font-display text-h2 text-foreground'
+  : 'mt-l mb-s font-display text-h3 text-foreground';
+const measuredP = hasSanityBody ? 'my-m text-foreground' : 'mt-s text-foreground/80';
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
@@ -109,11 +125,7 @@ const hasSanityBody = Boolean(page?.body);
               <h2 class="mb-s font-display text-h3 text-foreground">What doesn't happen</h2>
               <ul class="list-disc space-y-1 pl-l text-foreground/80">
                 <li>Your information is never sold.</li>
-                <li>There is no ad targeting or tracking pixels on this site.</li>
-                <li>
-                  Traffic is measured with Cloudflare Web Analytics, which counts page visits
-                  without setting cookies or identifying individual visitors.
-                </li>
+                <li>There is no ad targeting or retargeting on this site.</li>
               </ul>
             </div>
 
@@ -150,6 +162,47 @@ const hasSanityBody = Boolean(page?.body);
           </div>
         )
       }
+
+      {
+        /*
+        Measurement, described from the build's real configuration rather than
+        asserted (see the header). Each branch says what the tool actually does,
+        including the cookie.
+      */
+      }
+      <div class="leading-relaxed text-foreground">
+        <h2 class={measuredH2}>How traffic is measured</h2>
+        {
+          !hasGa && !hasCfAnalytics && (
+            <p class={measuredP}>
+              This site runs no analytics. Visits are not counted, and nothing is stored on your
+              device for measurement.
+            </p>
+          )
+        }
+        {
+          hasCfAnalytics && (
+            <p class={measuredP}>
+              Page visits are counted with Cloudflare Web Analytics, which sets no cookies and does
+              not identify individual visitors.
+            </p>
+          )
+        }
+        {
+          hasGa && (
+            <p class={measuredP}>
+              {/* "also" only reads right when the cookieless paragraph above rendered. */}
+              Visits are {hasCfAnalytics ? 'also ' : ''}measured with Google Analytics, which sets
+              cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by an
+              id) so a returning visit is recognized as the same visitor. It records which pages are
+              opened, roughly where the visit came from, and what kind of device was used. It is not
+              used for advertising, and the data is not sold. You can block these cookies in your
+              browser settings or with a tracker-blocking extension, and the site works exactly the
+              same.
+            </p>
+          )
+        }
+      </div>
     </div>
   </section>
 

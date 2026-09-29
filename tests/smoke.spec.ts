@@ -32,9 +32,9 @@ test.describe('Smoke: every hidden route still answers', () => {
 });
 
 // GA4 must never fire off-production. A local .env carrying
-// PUBLIC_GA_MEASUREMENT_ID once let these very suites file 236 + 234 fake
+// the GA id (then PUBLIC_GA_MEASUREMENT_ID, now PUBLIC_GA_ID) once let these very suites file 236 + 234 fake
 // localhost sessions into the live property (2026-07-28, 2026-08-27). The
-// hostname guard in BaseLayout.astro is what stops it; this holds it there.
+// hostname guard in the PORTABLE GoogleAnalytics.astro (starter card 58) is what stops it; this holds it there.
 // In CI the variable is unset so the snippet is absent and this passes
 // trivially. It bites on the local runs that caused the leak.
 test('GA4 sends nothing from localhost, even when the id is built in', async ({ page }) => {
