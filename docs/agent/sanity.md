@@ -109,9 +109,9 @@ messages happen to use the same URL shape. Match the styled-components path.
 
 **The version set is a set.** As of 2026-09-06 (phase 1 of the coordinated
 stack migration): `sanity` **6.9.1**, `@sanity/vision` 6.9.1, `@sanity/ui`
-**3.5.4**, `styled-components` 6.4.3, `@sanity/client` **7.26.2**,
+**3.5.4**, `styled-components` 6.5.3, `@sanity/client` **7.26.2**,
 `@sanity/visual-editing` **5.7.3**, `@sanity/preview-url-secret` **4.1.5**,
-`react`/`react-dom`/`react-is` exactly 19.2.7, `sanity-plugin-media` 5.0.11,
+`react`/`react-dom`/`react-is` exactly 19.2.8 (styled-components and react took patch bumps in the same day's dependabot group, #32; lockfile re-checked 2026-09-29), `sanity-plugin-media` 5.0.11,
 `sanity-plugin-asset-source-unsplash` 7.0.15, and `overrides` for
 `sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.7.3. Those two need
 `overrides` rather than a plain dependency pin, because npm will happily nest a
@@ -166,7 +166,14 @@ Five parts that only work together:
    sibling site's Sanity quota.
 5. **`src/lib/preview-auth.ts`** — the preview cookie's value is a SHA-256
    fingerprint of the server-side token, not the package's forgeable static
-   `true`.
+   `true`. **Both preview routes check that VALUE** with
+   `isStudioPreview(cookies.get(perspectiveCookieName)?.value)` (2026-09-29,
+   PORTS.md card 57). Before that they only asked `cookies.has(...)`, so anyone
+   who typed the cookie into a browser with any value read drafts through the
+   server's token and could hold `/preview/live` open. A failed check on the
+   page route shows published content (as a missing cookie always did); on
+   `/preview/live` it is the 403. Any NEW preview route must use the same
+   check, never `cookies.has`.
 
 **`NON_STEGA_FIELDS` in `src/lib/cms-preview.ts` is not optional.** Stega hides
 roughly a kilobyte of invisible marker characters inside every string it
@@ -281,7 +288,16 @@ The `purpose` strings carry a compressed version of the voice manifesto ("warm, 
 
 GROQ queries live in `src/lib/queries.ts`. Each page has a typed query function that pulls the singleton plus any auto-populated collections it needs (e.g., homePage query includes featured testimonial, services-where-showOnHomepage, and process steps in order).
 
-The Sanity client is at `src/lib/sanity.ts`. It exports both `client` (for queries) and `urlFor()` (for image URL building).
+The Sanity client is at `src/lib/sanity.ts`. It exports `client`, `sanityFetch()` (the one read path every helper in `queries.ts` uses) and `urlFor()` (for image URL building).
+
+**Failed reads fail the build; absent documents do not (2026-09-29, PORTS.md cards 55 + 56).** Read this before adding a query or a page.
+
+- The build client is **always on the Sanity CDN** (`useCdn: true`), token or no token. The old `useCdn: !readToken` rested on the false belief that the CDN rejects a token; the API CDN has accepted authenticated requests since API version 2021-03-25, and every local build with the token in `.env` was quietly spending the far smaller uncached-API quota. The draft client in `src/lib/cms-preview.ts` keeps its own `useCdn: false`, which is correct for the drafts perspective.
+- `sanityFetch(query, params, fallback, c?)` retries a failed read twice (0.5 s, 1.5 s; `@sanity/client` also retries network errors and 429/502/503 on its own). If it still fails in a **production build** it throws `[sanity] fetch failed during a production build: ...` and the build stops, so the live site keeps its last good build. In **dev** it warns and returns `fallback` (`null` for a singleton, `[]` for a collection) so local work keeps moving.
+- An **absent** document is not a failure. Sanity answers `null` / `[]` and it comes back as-is, so every coming-soon and empty state (`/e-design`, `/quiz`, `/calculator`, `/guides`, `/press`, the journal and portfolio empty states) renders exactly as before.
+- **Never put `.catch(() => null)` or `.catch(() => [])` on a read in a static route.** That is the pattern this replaced: it swallowed the production throw, and a Sanity outage during a deploy would have shipped every page in its empty state. (Measured 2026-09-29: `origin/main` built green with a bogus project id and shipped 19 empty pages; this branch stops with the error above.) The only catches left are deliberate: `src/pages/preview/**` (live request, fails open to published or empty), and `Footer.astro`'s project list, which rethrows when `Astro.isPrerendered` and degrades to `[]` only inside a live preview request.
+- The four dynamic routes (`[slug]`, `journal/[slug]`, `portfolio/[slug]`, `guides/[slug]`) throw in a production build when a slug that `getStaticPaths` listed comes back empty, rather than publishing a real page as a redirect.
+- A caller-supplied client other than `client` (the preview route passes the draft client) goes straight through `sanityFetch` with no retry and no fallback.
 
 **Section-array projection.** Any page-builder array (the marker `pageBuilder` arrays, custom-page `pageBuilder`, and the `additionalSections` "Extra sections" zone on faq/contact/privacy/journal/portfolio) is projected with the single `sectionsProjection(field = 'pageBuilder')` helper in `queries.ts`. It spreads each block and resolves the per-type references (hero/CTA-band background images + cta blocks, image+text image + cta, gallery images). To wire a new section-array field on any page, add the field with the shared helper in the schema, then add `${sectionsProjection('<fieldName>')}` to that page's query and render it through `SectionRenderer`. See [Page builder](page-architecture.md) for the component side.
 

@@ -6,7 +6,7 @@
 // Types: until `sanity typegen generate` runs, return types are `any`.
 // Run `npm run typegen` after schema changes to regenerate src/lib/sanity.types.ts.
 
-import { client } from './sanity';
+import { client, sanityFetch } from './sanity';
 import type { SanityClient } from '@sanity/client';
 
 // Common Portable Text + image projection shorthand
@@ -141,7 +141,12 @@ export const SITE_SETTINGS_PROJECTION = `{
 // Build-time callers pass nothing and keep the memo.
 export async function getSiteSettings(c?: SanityClient) {
   if (!c && _siteSettingsPromise) return _siteSettingsPromise;
-  const promise = (c ?? client).fetch(`*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`);
+  const promise = sanityFetch(
+    `*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`,
+    {},
+    null,
+    c ?? client,
+  );
   if (!c) _siteSettingsPromise = promise;
   return promise;
 }
@@ -151,7 +156,8 @@ export async function getSiteSettings(c?: SanityClient) {
 // getSiteSettings (which pulls them in under flat names), but pages or blocks
 // that need businessInfo directly can use this.
 export async function getBusinessInfo() {
-  return client.fetch(`*[_type == "businessInfo"][0]{
+  return sanityFetch(
+    `*[_type == "businessInfo"][0]{
     city,
     state,
     serviceRegion,
@@ -160,13 +166,17 @@ export async function getBusinessInfo() {
     availabilityStatus,
     geoLat,
     geoLng
-  }`);
+  }`,
+    {},
+    null,
+  );
 }
 
 // ---- Home page ------------------------------------------------------------
 
 export async function getHomePage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "homePage"][0]{
+  return sanityFetch(
+    `*[_type == "homePage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -236,13 +246,18 @@ export async function getHomePage(c: SanityClient = client) {
     finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- About page -----------------------------------------------------------
 
 export async function getAboutPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "aboutPage"][0]{
+  return sanityFetch(
+    `*[_type == "aboutPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -269,13 +284,18 @@ export async function getAboutPage(c: SanityClient = client) {
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Process page ---------------------------------------------------------
 
 export async function getProcessPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "processPage"][0]{
+  return sanityFetch(
+    `*[_type == "processPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -289,13 +309,18 @@ export async function getProcessPage(c: SanityClient = client) {
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Services page --------------------------------------------------------
 
 export async function getServicesPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "servicesPage"][0]{
+  return sanityFetch(
+    `*[_type == "servicesPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -315,13 +340,18 @@ export async function getServicesPage(c: SanityClient = client) {
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- FAQ page -------------------------------------------------------------
 
 export async function getFaqPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "faqPage"][0]{
+  return sanityFetch(
+    `*[_type == "faqPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -337,13 +367,18 @@ export async function getFaqPage(c: SanityClient = client) {
     finalCta${CTA_PROJECTION},
     secondaryCta${CTA_PROJECTION},
     ${sectionsProjection('additionalSections')}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Contact page ---------------------------------------------------------
 
 export async function getContactPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "contactPage"][0]{
+  return sanityFetch(
+    `*[_type == "contactPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -366,13 +401,18 @@ export async function getContactPage(c: SanityClient = client) {
     schedulingLinkLabel,
     availabilityNote,
     ${sectionsProjection('additionalSections')}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Portfolio index page -------------------------------------------------
 
 export async function getPortfolioPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "portfolioPage"][0]{
+  return sanityFetch(
+    `*[_type == "portfolioPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -382,13 +422,18 @@ export async function getPortfolioPage(c: SanityClient = client) {
     beforeAfterSeoTitle, beforeAfterSeoDescription,
     beforeAfterEyebrow, beforeAfterHeadline, beforeAfterSubhead,
     ${sectionsProjection('additionalSections')}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- 404 page -------------------------------------------------------------
 
 export async function getNotFoundPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "notFoundPage"][0]{
+  return sanityFetch(
+    `*[_type == "notFoundPage"][0]{
     seoTitle,
     seoDescription,
     eyebrow,
@@ -398,16 +443,24 @@ export async function getNotFoundPage(c: SanityClient = client) {
     primaryCtaLabel, primaryCtaHref,
     secondaryCtaLabel, secondaryCtaHref,
     tertiaryCtaLabel, tertiaryCtaHref
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Projects (post-launch portfolio) -------------------------------------
 
 export async function getAllProjects() {
-  return client.fetch(`*[_type == "project"] | order(orderRank asc, coalesce(displayOrder, 999) asc, publishedAt desc){
+  return sanityFetch(
+    `*[_type == "project"] | order(orderRank asc, coalesce(displayOrder, 999) asc, publishedAt desc){
     _id, title, slug, location, year, roomType, designStyle, briefSummary,
     heroImage${IMAGE_PROJECTION}
-  }`);
+  }`,
+    {},
+    [],
+  );
 }
 
 export async function getProjectBySlug(slug: string) {
@@ -420,7 +473,7 @@ export async function getProjectBySlug(slug: string) {
   // project" field points at this project. Deriving it here means the link is
   // kept only on the journal side, so there is nothing for an editor to
   // maintain on the project, and the project page surfaces coverage on its own.
-  return client.fetch(
+  return sanityFetch(
     `*[_type == "project" && slug.current == $slug][0]{
       ...,
       heroImage${IMAGE_PROJECTION},
@@ -444,6 +497,7 @@ export async function getProjectBySlug(slug: string) {
       }
     }`,
     { slug },
+    null,
   );
 }
 
@@ -462,7 +516,8 @@ const JOURNAL_CARD_PROJECTION = `{
 }`;
 
 export async function getJournalPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "journalPage"][0]{
+  return sanityFetch(
+    `*[_type == "journalPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -474,21 +529,31 @@ export async function getJournalPage(c: SanityClient = client) {
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION},
     ${sectionsProjection('additionalSections')}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 export async function getAllJournalEntries() {
   // Featured first, then newest first. Excerpt + cover only (no body).
-  return client.fetch(
+  return sanityFetch(
     `*[_type == "journalEntry"] | order(featured desc, publishedAt desc) ${JOURNAL_CARD_PROJECTION}`,
+    {},
+    [],
   );
 }
 
 export async function getAllJournalCategories() {
-  return client.fetch(`*[_type == "journalCategory"] | order(title asc){
+  return sanityFetch(
+    `*[_type == "journalCategory"] | order(title asc){
     _id, title, slug, description,
     "postCount": count(*[_type == "journalEntry" && references(^._id)])
-  }`);
+  }`,
+    {},
+    [],
+  );
 }
 
 export async function getJournalEntryBySlug(slug: string) {
@@ -496,7 +561,7 @@ export async function getJournalEntryBySlug(slug: string) {
   // resolved + alt fallback at the GROQ layer so the renderer doesn't have to
   // chase asset refs for every block. Image gallery items + beforeAfter pairs
   // + sourceCard images + inline images all get the same treatment.
-  return client.fetch(
+  return sanityFetch(
     `*[_type == "journalEntry" && slug.current == $slug][0]{
       _id, title, slug, excerpt, author, publishedAt, updatedAt, featured,
       seoTitle, seoDescription,
@@ -529,13 +594,16 @@ export async function getJournalEntryBySlug(slug: string) {
       )
     }`,
     { slug },
+    null,
   );
 }
 
 // Static path generation for /journal/[slug]. Returns just the slugs.
 export async function getAllJournalSlugs(): Promise<string[]> {
-  const list: Array<{ slug: { current: string } }> = await client.fetch(
+  const list: Array<{ slug: { current: string } }> = await sanityFetch(
     `*[_type == "journalEntry" && defined(slug.current)]{ slug }`,
+    {},
+    [],
   );
   return list.map((e) => e.slug?.current).filter(Boolean);
 }
@@ -543,7 +611,8 @@ export async function getAllJournalSlugs(): Promise<string[]> {
 // ---- E-Design page --------------------------------------------------------
 
 export async function getEDesignPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "eDesignPage"][0]{
+  return sanityFetch(
+    `*[_type == "eDesignPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -565,13 +634,18 @@ export async function getEDesignPage(c: SanityClient = client) {
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Shop page + collections + items -------------------------------------
 
 export async function getShopPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "shopPage"][0]{
+  return sanityFetch(
+    `*[_type == "shopPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -594,13 +668,18 @@ export async function getShopPage(c: SanityClient = client) {
           vendor, affiliateUrl, note
         }
     }
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Gift certificates page -----------------------------------------------
 
 export async function getGiftPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "giftPage"][0]{
+  return sanityFetch(
+    `*[_type == "giftPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -617,13 +696,18 @@ export async function getGiftPage(c: SanityClient = client) {
     },
     finePrint,
     ctaLabel
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Resources hub page ---------------------------------------------------
 
 export async function getResourcesPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "resourcesPage"][0]{
+  return sanityFetch(
+    `*[_type == "resourcesPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -637,13 +721,18 @@ export async function getResourcesPage(c: SanityClient = client) {
       icon${IMAGE_PROJECTION},
       link
     }
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Privacy page ---------------------------------------------------------
 
 export async function getPrivacyPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "privacyPage"][0]{
+  return sanityFetch(
+    `*[_type == "privacyPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -653,13 +742,18 @@ export async function getPrivacyPage(c: SanityClient = client) {
     lastUpdated,
     body,
     ${sectionsProjection('additionalSections')}
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // ---- Press page + press items ---------------------------------------------
 
 export async function getPressPage(c: SanityClient = client) {
-  return c.fetch(`*[_type == "pressPage"][0]{
+  return sanityFetch(
+    `*[_type == "pressPage"][0]{
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
@@ -668,22 +762,32 @@ export async function getPressPage(c: SanityClient = client) {
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
     intro
-  }`);
+  }`,
+    {},
+    null,
+    c,
+  );
 }
 
 // Press items ordered by orderRank for the strip + /press listing.
 export async function getPressItems(c: SanityClient = client) {
-  return c.fetch(`*[_type == "pressItem"] | order(orderRank asc){
+  return sanityFetch(
+    `*[_type == "pressItem"] | order(orderRank asc){
     _id, outlet,
     logo${IMAGE_PROJECTION},
     quote, url, date, orderRank
-  }`);
+  }`,
+    {},
+    [],
+    c,
+  );
 }
 
 // ---- Style quiz config ----------------------------------------------------
 
 export async function getStyleQuiz() {
-  return client.fetch(`*[_type == "styleQuiz"][0]{
+  return sanityFetch(
+    `*[_type == "styleQuiz"][0]{
     seoTitle, seoDescription,
     seoImage${IMAGE_PROJECTION},
     introEyebrow, introHeadline, introSubhead,
@@ -713,13 +817,17 @@ export async function getStyleQuiz() {
       highIntentRule, bookCtaLabel, guideCtaLabel,
       "guideRef": guideRef->{ _id, title, "slug": slug.current }
     }
-  }`);
+  }`,
+    {},
+    null,
+  );
 }
 
 // ---- Budget calculator config ---------------------------------------------
 
 export async function getBudgetCalculator() {
-  return client.fetch(`*[_type == "budgetCalculator"][0]{
+  return sanityFetch(
+    `*[_type == "budgetCalculator"][0]{
     seoTitle, seoDescription,
     seoImage${IMAGE_PROJECTION},
     introEyebrow, introHeadline, introSubhead,
@@ -732,14 +840,18 @@ export async function getBudgetCalculator() {
     disclaimer,
     ctaLabel,
     consultPriceNote
-  }`);
+  }`,
+    {},
+    null,
+  );
 }
 
 // ---- Lead magnets ---------------------------------------------------------
 
 // All published lead magnets ordered for /guides index.
 export async function getLeadMagnets() {
-  return client.fetch(`*[_type == "leadMagnet" && published == true]
+  return sanityFetch(
+    `*[_type == "leadMagnet" && published == true]
     | order(orderRank asc){
       _id, title,
       "slug": slug.current,
@@ -747,12 +859,15 @@ export async function getLeadMagnets() {
       coverImage${IMAGE_PROJECTION},
       gateHeading, gateBlurb, buttonLabel, successMessage, espTag,
       seoTitle, seoDescription, orderRank
-    }`);
+    }`,
+    {},
+    [],
+  );
 }
 
 // Single published lead magnet by slug for /guides/[slug].
 export async function getLeadMagnet(slug: string) {
-  return client.fetch(
+  return sanityFetch(
     `*[_type == "leadMagnet" && slug.current == $slug && published == true][0]{
       _id, title,
       "slug": slug.current,
@@ -763,13 +878,16 @@ export async function getLeadMagnet(slug: string) {
       seoTitle, seoDescription
     }`,
     { slug },
+    null,
   );
 }
 
 // Static path generation for /guides/[slug].
 export async function getAllLeadMagnetSlugs(): Promise<string[]> {
-  const list: Array<{ slug: { current: string } }> = await client.fetch(
+  const list: Array<{ slug: { current: string } }> = await sanityFetch(
     `*[_type == "leadMagnet" && published == true && defined(slug.current)]{ slug }`,
+    {},
+    [],
   );
   return list.map((m) => m.slug?.current).filter(Boolean);
 }
@@ -778,7 +896,8 @@ export async function getAllLeadMagnetSlugs(): Promise<string[]> {
 
 // Projects that have at least one beforeAfter pair — for /portfolio/before-after.
 export async function getProjectsWithBeforeAfter() {
-  return client.fetch(`*[_type == "project" && count(beforeAfters) > 0]
+  return sanityFetch(
+    `*[_type == "project" && count(beforeAfters) > 0]
     | order(orderRank asc, coalesce(displayOrder, 999) asc, publishedAt desc){
       _id, title,
       "slug": slug.current,
@@ -789,14 +908,17 @@ export async function getProjectsWithBeforeAfter() {
         afterImage${IMAGE_PROJECTION},
         caption
       }
-    }`);
+    }`,
+    {},
+    [],
+  );
 }
 
 // ---- Custom pages (page builder) ------------------------------------------
 
 // One published custom page by slug, with its section array fully resolved.
 export async function getPage(slug: string, c: SanityClient = client) {
-  return c.fetch(
+  return sanityFetch(
     `*[_type == "page" && slug.current == $slug][0]{
       _id,
       _type,
@@ -807,13 +929,17 @@ export async function getPage(slug: string, c: SanityClient = client) {
       ${sectionsProjection('pageBuilder')}
     }`,
     { slug },
+    null,
+    c,
   );
 }
 
 // Slugs of every published custom page, for getStaticPaths in [...slug].astro.
 export async function getAllPageSlugs(): Promise<string[]> {
-  const list: Array<{ slug: string }> = await client.fetch(
+  const list: Array<{ slug: string }> = await sanityFetch(
     `*[_type == "page" && defined(slug.current)]{ "slug": slug.current }`,
+    {},
+    [],
   );
   return list.map((p) => p.slug).filter(Boolean);
 }
@@ -821,12 +947,16 @@ export async function getAllPageSlugs(): Promise<string[]> {
 // Custom pages flagged to appear in the main nav and/or footer. Header.astro
 // and Footer.astro inject these alongside the built-in links.
 export async function getNavPages() {
-  return client.fetch(`*[_type == "page" && defined(slug.current) && (addToMainNav == true || addToFooter == true)]{
+  return sanityFetch(
+    `*[_type == "page" && defined(slug.current) && (addToMainNav == true || addToFooter == true)]{
     title,
     "slug": slug.current,
     navLabel,
     addToMainNav,
     navGroup,
     addToFooter
-  }`);
+  }`,
+    {},
+    [],
+  );
 }

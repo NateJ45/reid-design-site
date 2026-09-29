@@ -171,6 +171,21 @@ sources of build nondeterminism.
   by hand at `http://localhost:4321/studio` (`npm run dev`), as Staci would see
   them. There is no `studio:dev` any more; the Studio is part of the site.
 
+## What no suite covers: a failed Sanity read must fail the build (2026-09-29)
+
+Cards 55 + 56 make a production build stop on a failed Sanity read rather than
+ship empty pages. No suite exercises it (a test would need Sanity to fail on
+cue). Prove it by hand after touching `src/lib/sanity.ts`, `queries.ts` or a
+page's reads:
+
+```powershell
+$env:PUBLIC_SANITY_PROJECT_ID='zzqq0000'; npm run build; Remove-Item Env:PUBLIC_SANITY_PROJECT_ID
+```
+
+Expected: exit 1 with `[sanity] fetch failed during a production build: ...`.
+Then a normal `npm run build` and `npm run parity compare` must be unchanged,
+which proves the absent-document (coming-soon) paths still render.
+
 ## What no suite covers: the live-preview stack (2026-08-28)
 
 Nothing automated exercises `/studio`, `/preview/**`, `/preview/live` or
@@ -191,14 +206,16 @@ repo** before believing any result: another project's `wrangler dev` already
 listening on the same port answers instead, and its 404 page is indistinguishable
 from a bug in this build. That cost real time on 2026-08-28.
 
-| Check                                                | Expected                                                                                                                                                                                       |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`, `/services/`, any static route                  | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                          |
-| a route that does not exist                          | 404 rendering the real 404 page                                                                                                                                                                |
-| `/studio/`                                           | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
-| `/preview`, `/preview/about`, `/preview/faq`         | 200                                                                                                                                                                                            |
-| `/preview/live?page=homePage` with no cookie         | 403                                                                                                                                                                                            |
-| `/api/draft-mode/enable?sanity-preview-secret=bogus` | 401                                                                                                                                                                                            |
+| Check                                                                                       | Expected                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`, `/services/`, any static route                                                         | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                          |
+| a route that does not exist                                                                 | 404 rendering the real 404 page                                                                                                                                                                |
+| `/studio/`                                                                                  | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
+| `/preview`, `/preview/about`, `/preview/faq`                                                | 200                                                                                                                                                                                            |
+| `/preview/live?page=homePage` with no cookie                                                | 403                                                                                                                                                                                            |
+| same, cookie `sanity-preview-perspective=true` (or `drafts`, or any forged value)           | 403 (card 57: the VALUE is checked). `/preview/about` with the same forged cookie renders `<html data-draft="0">`, published content                                                           |
+| same, cookie = the real fingerprint (SHA-256 of `reid-design-preview:v1:` + `SANITY_TOKEN`) | 200 `text/event-stream`; `/preview/about` renders `data-draft="1"` with the overlay island                                                                                                     |
+| `/api/draft-mode/enable?sanity-preview-secret=bogus`                                        | 401                                                                                                                                                                                            |
 
 The full handshake (302 on a real secret, draft-aware stega, `/preview/live`
 streaming, and the `data-sanity` count matching a GROQ count of the section

@@ -52,7 +52,7 @@ one still open. Kept here in full because they document WHY each is needed.
   harmless: editors reopen the Presentation tool.
 - **DONE 2026-09-05 (apex, www, both workers.dev). `npx sanity cors add <origin> --credentials`, twice.** Once for
   `https://reid-design-site.nathanjnixon86.workers.dev` (and again for
-  `https://reiddesignllc.com` at DNS cutover), once for `http://localhost:4321`.
+  `https://reiddesignllc.com`, done with the 2026-09-05 pass above), once for `http://localhost:4321`.
   Verified locally 2026-08-28: the embedded Studio at `/studio` mounts and
   renders its own React shell, then shows Sanity's "Connect this Studio to your
   project / Add CORS origin" screen, with the browser console carrying only the
@@ -82,28 +82,6 @@ one still open. Kept here in full because they document WHY each is needed.
   `public/_headers` (they are kept only for that transition, and the file says
   so).
 
-### Older
-
-- **Create the `SANITY_AUTH_TOKEN` repo secret.** Until it exists,
-  `.github/workflows/sanity-backup.yml` runs nightly, logs a warning, and
-  exports nothing, so there is currently **no dataset backup**. That matters
-  more than it sounds: CLAUDE.md's first hard rule says an accidental "Remove
-  field" in Studio "cannot be undone without a dataset restore", and right now
-  there is nothing to restore from. A read token is enough. Get one at
-  sanity.io/manage, project `ba403vjc`, API, Tokens; add it under GitHub
-  Settings, Secrets and variables, Actions.
-- **Set the `SITE_URL` repo variable.** `.github/workflows/uptime.yml` skips
-  with a warning until it is set. Today the built site answers at
-  `https://reid-design-site.nathanjnixon86.workers.dev` (verified 200 on `/`,
-  `/services/`, `/faq/`, `/privacy/` on 2026-08-27); `reiddesignllc.com` still
-  serves the old Squarespace site. Point the variable at the workers.dev origin
-  now for pre-launch monitoring, and move it at cutover. It is a **variable**,
-  not a secret, so a failing check can name the URL in the log.
-- **DNS cutover to reiddesignllc.com.** Still the gating item for launch, and
-  it is what turns `src/data/site.ts`'s canonical URLs, the sitemap, and the
-  JSON-LD `@id` into true statements. Pre-existing; recorded here so the queue
-  is complete.
-
 ## Open — code and content work queued
 
 ### Parity baselines are stale (found 2026-08-28)
@@ -115,7 +93,19 @@ consultation" -> "Open") on 9 routes (404, about, contact, e-design,
 faq, home, privacy, process, services). The chrome-options port was
 proven render-neutral against a pristine-build snapshot instead.
 Fix: regenerate the baselines from a clean main/staging build
-(`node scripts/page-parity.mjs baseline`) in a commit that says why.
+(`node scripts/page-parity.mjs capture`) in a commit that says why.
+
+**Update 2026-09-29 (tier-1 branch).** The committed baselines (last moved in
+#40) still do not match a local build of `origin/main` on the same Sanity
+content: they carry the GA4 tag (captured with `PUBLIC_GA_ID` set), an empty
+FAQ list and `{}` FAQ/services JSON-LD, a NewsletterSignup island with no
+server-rendered children, and different island uids on `/studio`. Card 52
+(MobileNav at `client:idle`) then moves 9 pages on purpose. The tier-1 branch
+did NOT recapture, so parallel branches do not all conflict on
+`scripts/.parity/`; it proved render-neutrality against a fresh capture of
+`origin/main` instead (11/20 pass, the 9 diffs all the MobileNav island).
+Recapture once, after the parallel branches merge, from a build with
+`PUBLIC_GA_ID` set if the baselines should keep the tag.
 
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the
@@ -180,6 +170,29 @@ Fix: regenerate the baselines from a clean main/staging build
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-09-29 — three "Older" needs-a-human items were already done; the
+  registry had not caught up.** Verified that day, read-only:
+  - `SANITY_AUTH_TOKEN` exists. `.github/workflows/sanity-backup.yml` has
+    succeeded on its nightly schedule every night checked (2026-09-25 through
+    2026-09-29, `gh run list --workflow sanity-backup.yml`), with the export
+    job running about two minutes, so there IS a dataset to restore from.
+  - `SITE_URL` is set, to `https://reiddesignllc.com` (the main session set it
+    2026-09-29; `gh variable list`), and `uptime.yml` runs green against it.
+  - The DNS cutover happened weeks ago: `reiddesignllc.com` answers from
+    Cloudflare with this Worker's own headers (`Server: cloudflare`, our
+    `frame-ancestors` CSP). The canonical URLs, sitemap and JSON-LD `@id` in
+    `src/data/site.ts` are true statements now.
+- **2026-09-29 — tier-1 correctness pass (branch `claude/tier1-correctness`).**
+  PORTS.md cards 52, 55, 56 and 57 ported: `MobileNav` at `client:idle`; build
+  reads always on the Sanity CDN; one `sanityFetch` read path that throws in a
+  production build and retries twice; every static route's page-level
+  `.catch(() => null)` removed so a failed read fails the build instead of
+  shipping empty pages; dynamic routes refuse to publish a listed doc as a
+  redirect; the preview routes check the cookie's VALUE (`isStudioPreview`)
+  rather than its presence. Also `.gitattributes` (LF) and Tailwind
+  `@source not` for `scripts/.parity` and `docs/`. Detail in
+  `docs/agent/changelog.md`.
 
 - **2026-08-28 — Astro 6.3.8 → 7.2.9, `@astrojs/cloudflare` 13.5.5 → 14.2.4,
   wrangler `~4.110.0`.** `scripts/with-workerd.mjs` is no longer an unwired

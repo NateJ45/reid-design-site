@@ -13,10 +13,7 @@ import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
-const [page, siteSettings] = await Promise.all([
-  getResourcesPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getResourcesPage(), getSiteSettings()]);
 
 // Section visibility guard.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);

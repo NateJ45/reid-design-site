@@ -145,8 +145,9 @@ const fb = siteSettings?.socialFacebook ?? '';
 const showEmail = chrome.showEmail;
 const showSocials = chrome.showSocials;
 
-// MobileNav is a client:only island, so every prop it receives is SERIALIZED
-// INTO THE HTML. Pass it only what actually DIFFERS from the defaults it
+// MobileNav is a hydrated island (client:idle since 2026-09-29, PORTS.md card
+// 52), so every prop it receives is SERIALIZED INTO THE HTML, in the island's
+// `props` attribute, exactly as it was under client:only. Pass it only what actually DIFFERS from the defaults it
 // already applies on its own, so a Site settings document nobody has touched
 // renders a byte-identical page — the same opt-in promise the rest of these
 // fields make, held to at the level of the island's props attribute.
@@ -571,8 +572,13 @@ function isGroupActive(items: { href: string }[]) {
       }
     </div>
 
+    {
+      /* client:idle, not client:only (2026-09-29, PORTS.md card 52): the
+         closed Sheet server-renders its trigger, so the hamburger is in the
+         HTML before React loads. See the header of MobileNav.tsx. */
+    }
     <MobileNav
-      client:only="react"
+      client:idle
       links={NAV_LINKS}
       siteSettings={mobileNavSettings}
       {...mobileChrome}
