@@ -16,22 +16,13 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ### From the 2026-09-29 share-card redesign (branch `claude/og-redesign`)
 
-- **Do not merge until the cards draw on Workers Builds.** The build draws every
-  share card with Playwright Chromium, which Workers Builds (Ubuntu 24.04, no
-  root, no `playwright install --with-deps`) almost certainly cannot launch. That
-  does NOT break the build: every card falls back to `og-default.png` with a
-  warning. But production would then show the same fallback card on every page.
-  The fix is the satori backend, already written in
-  `scripts/lib/og-render-satori.mjs`. It is waiting on dependency installs that the
-  agent's permission system refused, so they need Nathan in person:
-  `npm install --save-exact satori@0.33.5 @resvg/resvg-js@2.6.2` (approved), and
-  a static Source Sans 3 package, `@fontsource/source-sans-3` (NOT yet approved).
-  satori reads TTF/OTF/WOFF only, never WOFF2, and cannot pick a weight from a
-  variable font. The site's `@fontsource-variable/source-sans-3` ships nothing but a
-  variable woff2, so without the static package the kicker line cannot be set in
-  the real face. Then: set `OG_RENDERER=satori` as the default in
-  `scripts/lib/og-render.mjs`, build, compare with the Chromium cards, and check that
-  the lockfile carries `@resvg/resvg-js-linux-x64-gnu`.
+- **After merging, check the first Workers Build log for the card line.** It should
+  read `[og-cards] N card(s) drawn with satori, 0 fallback(s)`. satori + resvg need no
+  browser and the lockfile carries the prebuilt `@resvg/resvg-js-linux-x64-gnu`, but
+  the build has only been run on Windows so far. Any fallback there does not fail the
+  build; it copies `og-default.png` into that card's place and says why in a WARN
+  line, so read the log rather than trusting a green build. Then paste a page URL into
+  a share debugger (opengraph.xyz) to see the live card.
 - **Two page heroes Staci might not want on a share card.** The e-design page's
   hero is `reid-design-older-open-plan-living-dining.jpg` (from the "older / before"
   set), and the contact page's is `reid-design-blue-hutch-hydrangeas.jpg`, a mantel

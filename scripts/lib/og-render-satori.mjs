@@ -1,50 +1,29 @@
 // Foundation, edit with care
 // =============================================================================
-// satori + resvg backend for the share card (no browser)
+// satori + resvg backend for the share card: THE BUILD DEFAULT (no browser)
 // =============================================================================
-// STATUS 2026-09-29: WRITTEN, NOT YET RUN. Its three packages are not installed:
-//   satori, @resvg/resvg-js       approved by Nathan; the install is waiting on
-//                                 a permission he has to grant in person
-//   @fontsource/source-sans-3     NOT yet approved. satori reads TTF/OTF/WOFF
-//                                 only, never WOFF2, and cannot pick a weight
-//                                 out of a variable font. The site's
-//                                 @fontsource-variable/source-sans-3 ships ONLY
-//                                 a variable woff2, so the static package (which
-//                                 ships source-sans-3-latin-600-normal.woff) is
-//                                 the smallest way to give satori the real face.
-// Until then OG_RENDERER stays 'chromium' (scripts/lib/og-render.mjs).
+// satori lays the card out and emits an SVG (text as glyph paths, shaped with
+// harfbuzz); resvg rasterises it. Both are pure npm packages with prebuilt
+// binaries (resvg ships @resvg/resvg-js-linux-x64-gnu for Workers Builds), so a
+// build needs no browser and no system fonts.
 //
-// Why it can match the Chromium card: prepareCard() already did every image
+// Fonts are handed over as bytes (starter PORTS.md card 46): satori reads
+// TTF/OTF/WOFF, never WOFF2, and cannot pick a weight out of a variable font,
+// so Cormorant Garamond 500 comes from @fontsource/cormorant-garamond's .woff
+// and Source Sans 3 600 from the static @fontsource/source-sans-3 .woff (the
+// site's own @fontsource-variable/source-sans-3 ships only a variable woff2).
+//
+// Why it matches the Chromium review backend: prepareCard() did every image
 // operation satori lacks (CSS filter, mask-image, object-fit/position,
-// border-radius on an image), so this file only places three PNGs and sets
-// three strings. The one known visual gap is title wrapping: satori has no
-// `text-wrap: balance`, so a two-line title may break unevenly. balanceLines()
-// below pre-breaks it by character count to get close.
+// border-radius on an image) and computed the title's line breaks from the
+// font's real advance widths, so this file places three PNGs and sets lines of
+// text exactly as given.
 // =============================================================================
 
 import { readFileSync } from 'node:fs';
 import { CARD, fontFile } from './og-render.mjs';
 
 const uri = (png) => `data:image/png;base64,${png.toString('base64')}`;
-
-/** Break a title into n lines of near-equal length (satori has no text-wrap: balance). */
-export function balanceLines(text, maxChars) {
-  const words = text.split(/\s+/);
-  const lines = Math.max(1, Math.ceil(text.length / maxChars));
-  if (lines === 1) return [text];
-  const target = text.length / lines;
-  const out = [];
-  let cur = '';
-  for (const w of words) {
-    const next = cur ? `${cur} ${w}` : w;
-    if (cur && next.length > target && out.length < lines - 1) {
-      out.push(cur);
-      cur = w;
-    } else cur = next;
-  }
-  out.push(cur);
-  return out;
-}
 
 export async function createSatoriBackend({ root }) {
   const { default: satori } = await import('satori');
@@ -85,8 +64,6 @@ export async function createSatoriBackend({ root }) {
     name: 'satori',
     async render(p) {
       const copyW = C.width - C.copy.left - C.copy.right;
-      // ~0.47em per Cormorant character is the measured average at these sizes.
-      const perLine = Math.floor((copyW - C.copy.pad * 2) / (p.titleSize * 0.47));
       const tree = el(
         'div',
         {
@@ -141,11 +118,12 @@ export async function createSatoriBackend({ root }) {
                   fontWeight: 500,
                   fontSize: p.titleSize,
                   lineHeight: 1.06,
+                  letterSpacing: p.titleSize * -0.005,
                   color: C.charcoal,
                   marginBottom: 16,
                   textAlign: 'center',
                 },
-                balanceLines(p.title, perLine).map((line) => el('div', {}, line)),
+                p.titleLines.map((line) => el('div', { whiteSpace: 'nowrap' }, line)),
               ),
               el(
                 'div',
@@ -157,7 +135,10 @@ export async function createSatoriBackend({ root }) {
                   color: C.bronzeDark,
                   lineHeight: 1.5,
                 },
-                p.kicker,
+                // satori gave a plain space no tracking of its own, so word gaps
+                // came out visibly tighter than Chromium's; a no-break space is
+                // tracked like a letter.
+                p.kicker.replace(/ /g, ' '),
               ),
             ],
           ),

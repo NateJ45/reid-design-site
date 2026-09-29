@@ -71,8 +71,9 @@ share images are committed except the fallback `public/og-default.png`
 npm run og:cards -- preview tmp/og-preview   # writes the PNGs + _contact-sheet.png
 ```
 
-The drawing needs a Playwright Chromium today (`npx playwright install chromium`);
-see `docs/agent/seo.md` and `docs/PENDING.md` for the move to satori.
+The cards are drawn with satori + resvg, so no browser is needed and Workers Builds
+can do it. `OG_RENDERER=chromium` switches to a local Playwright review renderer for
+an A/B check.
 
 Full architecture reference in [`CLAUDE.md`](./CLAUDE.md); operational playbook in [`OPERATIONS.md`](./OPERATIONS.md).
 

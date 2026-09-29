@@ -20,9 +20,16 @@
 //                   is what lets a satori/resvg backend (no browser) draw the
 //                   same card. See og-render-satori.mjs.
 //
-// Backends: 'chromium' (Playwright, the fonts embedded as woff2 data URIs per
-// starter PORTS.md card 46) and 'satori' (pending its dependencies). Pick with
-// OG_RENDERER; the default is chromium until satori is installed and verified.
+// Backends, picked with OG_RENDERER:
+//   'satori'   THE DEFAULT, used by every build. satori + @resvg/resvg-js, no
+//              browser, so Cloudflare Workers Builds can draw the cards.
+//   'chromium' a LOCAL REVIEW TOOL only (OG_RENDERER=chromium). Playwright with
+//              the woff2 faces embedded (starter PORTS.md card 46). Kept because
+//              it is one small lazily-loaded file and makes a quick A/B of the
+//              two renderers possible; the build never loads it.
+// The two were compared side by side on 2026-09-29 (home, a project, a
+// three-line journal title) and match: same line breaks, same logo, same
+// glyph weight to the eye.
 // =============================================================================
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
@@ -55,6 +62,72 @@ export function titleSize(title) {
   if (n <= 96) return 38;
   return 33;
 }
+
+// ---------------------------------------------------------------------------
+// Title line breaks, decided HERE so every backend draws the same lines.
+// ---------------------------------------------------------------------------
+// Chromium would balance the title itself (text-wrap: balance); satori cannot.
+// Letting each backend wrap on its own made the same title break differently
+// ("feel collected, cozy," against "feel collected, / cozy, and ..."). So the
+// breaks are computed once, from Cormorant Garamond's real advance widths, and
+// both backends set the lines as given, never wrapping.
+
+// Advance widths in em of @fontsource Cormorant Garamond 500 (latin), measured
+// 2026-09-29 in Chromium from the woff2 at 1000px (a sum of these matched the
+// measured width of "Creating homes that" to 0.05%). Re-measure if the weight
+// or the font package changes. Unlisted characters count as a wide 0.7em.
+const CG500 = JSON.parse(
+  '{"0":0.477,"1":0.332,"2":0.402,"3":0.391,"4":0.453,"5":0.409,"6":0.465,"7":0.429,"8":0.489,"9":0.465," ":0.234,"!":0.252,"\\"":0.341,"#":0.526,"$":0.414,"%":0.574,"&":0.703,"\'":0.195,"(":0.309,")":0.309,"*":0.5,"+":0.398,",":0.274,"-":0.323,".":0.252,"/":0.323,":":0.2,";":0.227,"?":0.332,"@":0.722,"A":0.706,"B":0.57,"C":0.684,"D":0.696,"E":0.542,"F":0.513,"G":0.719,"H":0.761,"I":0.335,"J":0.327,"K":0.652,"L":0.537,"M":0.842,"N":0.73,"O":0.766,"P":0.546,"Q":0.766,"R":0.614,"S":0.499,"T":0.576,"U":0.7,"V":0.664,"W":0.925,"X":0.65,"Y":0.612,"Z":0.598,"a":0.42,"b":0.512,"c":0.41,"d":0.512,"e":0.406,"f":0.3,"g":0.442,"h":0.502,"i":0.27,"j":0.259,"k":0.491,"l":0.261,"m":0.768,"n":0.52,"o":0.482,"p":0.511,"q":0.492,"r":0.369,"s":0.333,"t":0.338,"u":0.497,"v":0.451,"w":0.69,"x":0.439,"y":0.432,"z":0.405,"\u2019":0.242,"\u2018":0.244,"\u201c":0.398,"\u201d":0.398,"\u2013":0.515,"\u00b7":0.195,"\u00e9":0.406,"\u2026":0.72}',
+);
+const TRACKING = -0.005; // the title's letter-spacing, per character
+export const textEm = (s) => [...s].reduce((w, ch) => w + (CG500[ch] ?? 0.7) + TRACKING, 0);
+
+/**
+ * Break `title` into the fewest lines that fit `maxEm`, then, among breaks with
+ * that many lines, pick the one whose LONGEST line is shortest. That is what
+ * text-wrap: balance does. Max 4 lines.
+ */
+export function balanceTitle(title, maxEm) {
+  const words = title.split(/\s+/).filter(Boolean);
+  const n = words.length;
+  const width = (i, j) => textEm(words.slice(i, j).join(' ')); // words[i..j)
+  for (let lines = 1; lines <= Math.min(4, n); lines++) {
+    // best[k][i] = smallest achievable max-line width for words[i..] in k lines
+    const memo = new Map();
+    const solve = (i, k) => {
+      const key = `${i},${k}`;
+      if (memo.has(key)) return memo.get(key);
+      let res = { w: Infinity, breaks: [] };
+      if (k === 1) {
+        const w = width(i, n);
+        res = w <= maxEm ? { w, breaks: [n] } : res;
+      } else {
+        for (let j = i + 1; j <= n - (k - 1); j++) {
+          const w = width(i, j);
+          if (w > maxEm) break;
+          const rest = solve(j, k - 1);
+          const m = Math.max(w, rest.w);
+          if (m < res.w) res = { w: m, breaks: [j, ...rest.breaks] };
+        }
+      }
+      memo.set(key, res);
+      return res;
+    };
+    const r = solve(0, lines);
+    if (r.w < Infinity) {
+      let start = 0;
+      return r.breaks.map((end) => {
+        const line = words.slice(start, end).join(' ');
+        start = end;
+        return line;
+      });
+    }
+  }
+  return [title]; // a single unbreakable monster: let it be one line
+}
+
+/** Width available to the title, in px. */
+export const TITLE_WIDTH = 1200 - 520 - 40 - 30 * 2;
 
 // ---------------------------------------------------------------------------
 // Photos
@@ -207,10 +280,12 @@ export async function prepareCard(card, { root }) {
     : await emptyArchPng(root);
   const circle = second ? await circlePng(await loadPhoto(second.src), second.hotspot) : null;
   const logo = await colouredLogo(root, 'reid-lockup', CARD.logoHeight, CARD.charcoal);
+  const size = titleSize(card.title);
   return {
     title: card.title,
+    titleLines: balanceTitle(card.title, TITLE_WIDTH / size),
     kicker: card.kicker.toUpperCase(),
-    titleSize: titleSize(card.title),
+    titleSize: size,
     arch,
     circle,
     logo,
@@ -242,7 +317,7 @@ export function fontFile(root, pkg, pattern) {
  * @param {{ root: string, backend?: string }} opts
  * @returns {Promise<Renderer>}
  */
-export async function createRenderer({ root, backend = process.env.OG_RENDERER || 'chromium' }) {
+export async function createRenderer({ root, backend = process.env.OG_RENDERER || 'satori' }) {
   if (backend === 'chromium') {
     const { createChromiumBackend } = await import('./og-render-chromium.mjs');
     return createChromiumBackend({ root });

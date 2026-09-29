@@ -57,7 +57,7 @@ img{position:absolute;display:block}
 .logo{position:static}
 .rule{width:${C.rule.width}px;height:${C.rule.height}px;background:${C.bronze};margin:${C.rule.above}px 0 ${C.rule.below}px}
 .title{font-family:'Cormorant Garamond',serif;font-weight:500;color:${C.charcoal};font-size:${p.titleSize}px;
-  line-height:1.06;letter-spacing:-.005em;margin:0 0 16px;text-wrap:balance}
+  line-height:1.06;letter-spacing:-.005em;margin:0 0 16px;white-space:nowrap}
 .kicker{font-family:'Source Sans 3',sans-serif;font-weight:600;font-size:${C.kicker.size}px;letter-spacing:${C.kicker.tracking}em;
   color:${C.bronzeDark};line-height:1.5}
 </style></head><body><div class="card">
@@ -66,7 +66,7 @@ ${p.circle ? `<img src="${uri(p.circle)}" style="left:${C.circle.left}px;top:${C
 <div class="copy">
   <img class="logo" src="${uri(p.logo.png)}" style="width:${p.logo.width}px;height:${p.logo.height}px" alt="">
   <div class="rule"></div>
-  <div class="title">${esc(p.title)}</div>
+  <div class="title">${p.titleLines.map((l) => `<div>${esc(l)}</div>`).join('')}</div>
   <div class="kicker">${esc(p.kicker)}</div>
 </div></div></body></html>`;
 }

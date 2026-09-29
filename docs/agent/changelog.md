@@ -33,9 +33,15 @@ than failing Staci's deploy. `public/og/*.png`, `scripts/generate-og-pages.mjs`,
 previews or redraws. Parity: 19/20 routes byte-identical; the 404's og:image moved
 from the non-existent `/og/404.png` to `/og-default.png`.
 
-The drawing backend is Playwright Chromium today. Nathan approved satori +
-@resvg/resvg-js for production (no browser on Workers Builds); the backend is
-written (`scripts/lib/og-render-satori.mjs`) but not installed yet, see PENDING.
+The build draws with **satori 0.33.5 + @resvg/resvg-js 2.6.2**, which Nathan approved
+and installed exact-pinned together with `@fontsource/source-sans-3` 5.3.0 (satori reads
+no WOFF2 and no variable fonts, so Source Sans 3 600 needs the static .woff). No browser,
+so Cloudflare Workers Builds can draw the cards; resvg's prebuilt
+`@resvg/resvg-js-linux-x64-gnu` is in the lockfile. Chromium stays as a local review
+renderer (`OG_RENDERER=chromium`). To make the two identical, the title's line breaks are
+computed once from Cormorant's measured advance widths (a balance-style search) instead of
+each renderer wrapping its own way, and satori's kicker uses no-break spaces so its word
+gaps get the same tracking as Chromium's.
 
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 

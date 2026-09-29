@@ -17,7 +17,7 @@ Pinned versions reflect what's known to work together as of May 2026. Bump delib
 - react-photo-album for justified gallery layouts in case studies.
 - yet-another-react-lightbox for fullscreen project gallery viewing (with Zoom and Thumbnails plugins).
 - sharp for image processing. Sanity handles its own image transformation pipeline for content images; sharp is for any locally-bundled assets (logo, OG image generator).
-- The share cards are drawn at build time by `src/integrations/og-cards.ts` through `scripts/lib/og-render.mjs`: sharp prepares every image, a backend (Playwright Chromium today; satori + resvg pending, see docs/PENDING.md) sets the text in the real @fontsource faces. opentype.js is no longer used.
+- The share cards are drawn at build time by `src/integrations/og-cards.ts` through `scripts/lib/og-render.mjs`: sharp prepares every image, satori + @resvg/resvg-js set the text (no browser; `OG_RENDERER=chromium` is a local review alternative) in the real @fontsource faces. opentype.js is no longer used.
 - `@astrojs/rss` reserved for `/rss.xml` if Reid Design adds a journal/blog post-launch (not at launch per strategy).
 - `@astrojs/sitemap` for `sitemap-index.xml` (production sitemap).
 - Three-state dark/light/system theme system: `ThemeToggle.tsx` React island plus an anti-FOUC bootstrap script in BaseLayout, persisted to `localStorage["reid-design-theme"]`. Site is light-primary; dark mode is supported for visitor preference but not the primary read of the brand.
