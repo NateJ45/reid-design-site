@@ -14,6 +14,50 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-29 editor-experience branch (`claude/studio-editor`)
+
+Every automated gate is green, but none of these can be exercised without a
+signed-in Studio. Click through them on staging (or production after merge),
+signed in as an editor:
+
+1. **Search.** Studio search box: type a project's town ("Fishers") or a
+   testimonial client's first name. The matching project/testimonial should rank
+   first.
+2. **Share link (HTTPS only, so deployed, not localhost).** Open About. Publish
+   menu arrow, "Copy share link": a green toast says the link is copied and
+   works for about an hour. Paste it into a private/incognito window with no
+   Sanity login: you land on `/preview/about` showing the draft. Then in the
+   Presentation tool, the share icon beside any page in the page list does the
+   same. Bonus: after tier1's card-57 cookie check merges, repeat once; the link
+   must still work (the enable route writes the same fingerprint cookie).
+3. **Check this page.** On a project with a gallery photo missing its alt text,
+   publish-menu arrow, "Check this page...": the dialog lists it under "Main
+   content". Add an empty Photo gallery block to a custom page: it is listed as
+   "Section N: Gallery ... nothing typed". Publish is still clickable with the
+   dialog open.
+4. **Undo / Redo.** On Home, drag a section to a new spot, then publish-menu
+   arrow, "Undo last change": it moves back, toast "Change undone". "Redo" moves
+   it again. Then click outside any text box and press Ctrl+Z / Ctrl+Shift+Z:
+   same. Inside a text box Ctrl+Z must undo typing only.
+5. **Grouped "+ Add section" menu.** In a custom page's Sections, click "Add
+   item": five groups (Built-in sections hidden on a custom page) and a search
+   box. On Home's "Page layout", the Built-in sections group shows. In
+   Presentation, hover a section and click the insert button: the same grouped
+   menu opens in the canvas.
+6. **Starting layouts.** Pages, Custom pages, "+": the picker offers Custom page,
+   Service page, Neighborhood page (e.g. Carmel). Create a Neighborhood page:
+   five sections arrive with [bracketed] prompts. Content, Projects, list menu:
+   "New project story (with writing prompts)". Discard both drafts afterwards.
+7. **Section coach.** On that Neighborhood draft, open Presentation: the empty
+   Photo gallery shows a dashed "Nothing here yet, Photo gallery" note. Add one
+   photo: the note turns into the gallery.
+8. **Releases off.** The top bar has no Releases tool.
+9. **Refresh the in-Studio guide.** `scripts/seed-studio-guide.mjs` gained four
+   how-tos (starting layouts, Check this page, Undo, share link) and an updated
+   "Build a brand-new page". It was NOT run (agents do not write production).
+   It uses `createOrReplace`, so any edits Staci made to the guide in the Studio
+   would be overwritten; check the live `studioGuide` first, then run it.
+
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
 - **Sign in to the staging Studio, then open Presentation.** The stack moved to
@@ -106,8 +150,24 @@ one still open. Kept here in full because they document WHY each is needed.
 
 ## Open — code and content work queued
 
+### Picture-grid "+ Add section" menu (deferred 2026-09-29)
+
+The grouped insert menu shipped with the list view only. The grid view
+(`views: [{ name: 'grid', previewImageUrl }]`, thumbnails in
+`public/studio-thumbs/`) needs one real screenshot per section type, and the
+presacademy/WCP `studio-thumbs.mjs` script captures them from PUBLISHED pages by
+position. On 2026-09-29 no published document anywhere uses a library block
+(every builder array is markers only, and there are no custom pages), so that
+script would produce nothing but placeholders. Unblocks when Staci has built one
+or two custom pages; or build a fixture-render harness instead (the Astro
+container API against SectionRenderer). Adding `views` is then a two-line edit to
+`SECTION_INSERT_MENU` in `src/sanity/schemaTypes/sections.ts`.
+
 ### Parity baselines are stale (found 2026-08-28)
 
+(Re-measured 2026-09-29 on `origin/main` 0848aa5 plus only the Studio-side
+search-weights commit: 10/20, the same nine routes plus `studio`. The editor-experience branch was proven render-neutral against a
+fresh pristine-build snapshot instead, 20/20.)
 `node scripts/page-parity.mjs compare` reports 11/20 on a PRISTINE
 tree: a commit after the baselines were captured changed the
 availability-pill markup (bg-primary-dark -> bg-muted, "Book a

@@ -2,6 +2,35 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — the Studio editor-experience layer (branch `claude/studio-editor`)
+
+Eight additions aimed at Staci, none of which changes a live page (parity 20/20
+against a pristine-build snapshot). Detail and file map: docs/agent/sanity.md,
+"Editor experience layer".
+
+- **Search weights** (starter card 34) on the thirteen content types.
+- **Copy share link** (card 19): a one-hour, no-login link to a draft, from the
+  publish menu and from the Presentation page list. It goes through the
+  unchanged `/api/draft-mode/enable`, so its cookie is the same server
+  fingerprint the card 57 check accepts.
+- **Check this page...** (card 25): alt text, empty sections, odd internal
+  links; never blocks Publish. Reid's config derives a "Main content" unit from
+  the schema so the photo-heavy tabs (project gallery, journal body) are checked.
+- **Undo / Redo** (card 27) in the publish menu and on Ctrl+Z outside text boxes.
+- **Grouped "+ Add section" menu** (card 17's missing piece) on all fourteen
+  builder arrays, in the form and in the canvas. List view only: the picture
+  grid waits for real published library blocks to screenshot (PENDING.md).
+- **"+ New" starting layouts**: Service page, Neighborhood page, Project story.
+- **Empty-section coaching** in the preview only: a dashed "Nothing here yet"
+  note replaces an untouched library block.
+- **Releases tool off.**
+
+Six canonical files came over byte-identical (sync-check 31 SAME):
+shareDraftLink.tsx, page-checks.ts, checkPage.tsx, pageOps.ts, undoRedo.ts,
+UndoRedo.tsx. The two canonical node:test suites are vitest ports. The publish
+menu helpers are appended by one function, `withEditorActions`
+(`src/sanity/editorActions.ts`), so the resolver keeps only Reid's own rules.
+
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,

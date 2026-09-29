@@ -235,6 +235,69 @@ one that degrades silently: a missed entry does not error, it just lets a click
 escape the iframe to the live site, and the Studio's navigator and edit panel
 freeze on the previous page while the preview shows the real site.
 
+### Editor experience layer (added 2026-09-29)
+
+Eight Studio additions for Staci, none of which changes the live site. Where each
+lives, and the rule that makes it safe:
+
+- **Search weights (PORTS.md card 34).** `__experimental_search` on the thirteen
+  multi-instance content types (`service`, `project`, `journalEntry`, `page`, ...):
+  title/name 5, location/vendor/nav label 3, summary or short description 2. Add the
+  same two or three lines to any new content type the day it lands.
+- **The publish-menu helpers** arrive through ONE function, `withEditorActions` in
+  `src/sanity/editorActions.ts`, called at the end of every branch of the actions
+  resolver in `sanity.config.ts` (except the trash). None replaces or wraps a stock
+  action; Publish is untouched.
+  - **Copy share link (card 19).** `src/sanity/components/shareDraftLink.tsx`
+    (PORTABLE). Mints a secret with `createPreviewSecret` and builds
+    `/api/draft-mode/enable?sanity-preview-secret=...&sanity-preview-pathname=/preview/...`.
+    The enable route is NOT modified: it still validates the secret and still sets
+    `previewCookieValue()`, the server fingerprint, so a share-link visitor carries
+    exactly the cookie the Studio iframe does and passes the card 57 value check
+    (`isStudioPreview`). Works for about an hour (`SECRET_TTL` is hard-coded in
+    `@sanity/preview-url-secret`), HTTPS only (the cookie is `secure; sameSite=none`,
+    so it cannot be tested against plain-http localhost). Also a per-row share button
+    in `PreviewNavigator.tsx`.
+  - **Check this page... (card 25).** `src/lib/page-checks.ts` +
+    `src/sanity/actions/checkPage.tsx` + `src/sanity/pageOps.ts` (all PORTABLE;
+    only `readSlug` from pageOps is used here, its duplicate/archive helpers are not
+    wired because Reid keeps its own Archive). Reid's answers live in
+    `src/sanity/pageBuilderConfig.ts`: fourteen section hosts, the eight markers as
+    self-filling, and a "Main content" header unit DERIVED from the schema (every
+    visible, non-SEO, non-menu top-level field of the helper types), which is what
+    makes the alt-text check reach the project gallery, before/afters, the journal
+    body and the page tabs. It never blocks Publish. `page-check-config.test.ts`
+    gates the config against the schema.
+  - **Undo / Redo (card 27).** `src/sanity/undoRedo.ts` +
+    `src/sanity/components/UndoRedo.tsx` (PORTABLE). Drafts only, rev-guarded,
+    refuses to delete the only copy. The keyboard layer is the `undoRedoShortcuts()`
+    plugin, which wraps `studio.components.layout` (this config sets no other layout;
+    if one is ever added, check they compose). `mendoza` is imported bare as the
+    hoisted transitive dependency of `sanity`; if a future install stops hoisting it,
+    the build fails until it is added to `package.json`.
+  - The helpers are offered on `EDITOR_HELPER_TYPES`: every section host plus
+    `project` and `journalEntry`. Share link is on every type with a page.
+- **Grouped "+ Add section" menu (card 17).** `SECTION_INSERT_MENU` /
+  `SECTION_ARRAY_OPTIONS` in `src/sanity/schemaTypes/sections.ts`, set as `options` on
+  all fourteen builder arrays, so the in-canvas insert buttons open the same grouped,
+  searchable menu. Groups only, never colour: SectionRenderer owns the cadence.
+  `insert-menu.test.ts` fails if a block has no group. The list view only; see
+  PENDING.md for the picture grid.
+- **"+ New" starting layouts.** `src/sanity/templates.ts` via `schema.templates`:
+  Service page, Neighborhood page (e.g. Carmel), Project story. Prompts in
+  [brackets]. Nested objects do not get their fields' `initialValue` from a template,
+  so every block radio is set explicitly. The Projects list is an orderable list
+  whose own "Create new" is blank, so `structure.ts` adds a "New project story" menu
+  item. `templates.test.ts` holds every template to the schema.
+- **Empty-section coaching (preview only).** `src/lib/section-coach.ts` +
+  `src/components/SectionCoach.astro`. SectionRenderer swaps an empty library block
+  for a dashed "Nothing here yet" note only behind the preview signal (`editDoc`, or
+  the `coach` prop the eight marker renderers pass as `Boolean(editDoc)`). Rule 8
+  holds: parity 20/20 against a pristine snapshot, and `section-coach.test.ts`
+  reads the sources to prove no live page can pass the signal.
+- **Releases off.** `releases: { enabled: false }` in `sanity.config.ts`. One editor,
+  one publish model.
+
 ### Studio configuration notes
 
 **All-fields default.** The `default: true` property has been removed from every schema field group definition across all schemas. Without it, Sanity Studio opens documents on the "All fields" tab instead of a single group. This gives Staci a complete view of a document without needing to know which group a field lives in.
