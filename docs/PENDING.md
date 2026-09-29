@@ -336,9 +336,11 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
 ## Recently closed
 
 - **2026-09-29 — parity baselines recaptured (branch `claude/reid-followups`).**
-  Stale since 2026-08-28 (availability pill, GA tag, an empty FAQ from a
-  swallowed read, island uids, MobileNav at `client:idle`, the favicon set):
-  the old set scored 10/20 against a production-like build of this branch.
+  Stale since 2026-08-28. Against a production-like build of this branch the
+  old set scored 10/20, and the measured diffs were: the favicon, manifest and
+  Sanity-preconnect links on 9 pages, the empty `{}` FAQ and services JSON-LD
+  (the old swallowed read; FAQ now carries 19 questions), the 404 page's share
+  image, and the `/studio` island uid.
   Recaptured once from a clean build with `PUBLIC_GA_ID=G-YSVYFME1FT` set, the
   way the production Workers Build builds; 21 routes now (`/search` joined).
   Two further clean builds each compared 21/21 PASS. **Compare with the same

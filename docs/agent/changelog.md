@@ -55,9 +55,12 @@ lands on `/studio/#/media` etc. with the Studio mounted and only localhost CORS
 errors in the console.
 
 **Parity baselines recaptured.** Stale since 2026-08-28; the old set scored
-10/20 against a production-like build of this branch (availability pill,
-favicon links, MobileNav island, an empty FAQ from the old swallowed read, and
-more). Recaptured once, in its own commit, from a clean build with
+10/20 against a production-like build of this branch. Measured diffs: the
+favicon, manifest and Sanity-preconnect links on 9 pages, the empty `{}` FAQ and
+services JSON-LD from the old swallowed read (FAQ now has 19 questions), the 404
+share image, and the `/studio` island uid. (The commit message of the baseline
+commit also names the availability pill and the MobileNav island from the older
+PENDING notes; neither appeared in the measured diff.) Recaptured once, in its own commit, from a clean build with
 `PUBLIC_GA_ID=G-YSVYFME1FT` set (the production Workers Build sets it; CI and
 the local `.env` do not, which is why the rule is written down): 21 routes,
 `/search` new. Two further clean builds with the same variable: 21/21 PASS both
