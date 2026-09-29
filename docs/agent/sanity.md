@@ -81,6 +81,23 @@ is gone. Its contents moved into this one:
 | `npm run studio:dev`                                                | `npm run dev`, then `/studio`            |
 | `npm run studio:deploy`                                             | nothing. The Studio ships with the site  |
 
+**The Studio routes on the URL HASH, and path-style links are converted
+(2026-09-29).** Because the site is `output: 'static'`, `@sanity/astro` defaults to
+`studioRouterHistory: 'hash'`: `/studio/` is ONE prerendered page and every screen
+lives after the `#` (`/studio/#/structure/pages`), so those reload fine. A
+PATH-style link (`/studio/structure/pages`, `/studio/media`,
+`/studio/intent/edit/...`, which people type and Sanity's own tooling builds from
+a `studioUrl` of `/studio`) had no file behind it and answered the site's 404, in
+production too. Two halves fix it: `public/_redirects` proxies `/studio/* /studio/
+200` (Workers Static Assets supports 200 proxying; the `/studio/*` CSP in
+`_headers` still applies, checked under `npm run preview`), and
+`src/sanity/lib/studio-deep-link.ts`, called at the top of `sanity.config.ts`,
+rewrites the address to `/studio/#/<path>` with `replaceState` before the Studio
+creates its hash history, so the link opens the screen it named rather than the
+front page. Switching to `studioRouterHistory: 'browser'` was the alternative and
+was rejected: it makes the Studio route SSR, and SSR responses never get
+`_headers`, so the Studio would lose its CSP.
+
 **Why it had to be one package.** Two `node_modules` trees means two module
 instances of `styled-components` and `@sanity/ui`, same pinned versions or not.
 The ThemeProvider mounted by one is invisible to `useTheme` in the other, so the
@@ -234,13 +251,35 @@ both the headline and the needle carrying their own stega run the accent was
 silently never found - so the flourish did not render in the preview at all,
 while the live site was fine.
 
-**Three files hold the same path map and must agree:**
-`SINGLETON_PREVIEW_PATHS` (`src/sanity/resolve.ts`), `SINGLETON_BY_PATH`
-(`src/pages/preview/[...slug].astro`), and `FIRST_SEGMENT_PREVIEWABLE`
-(the click interceptor in `src/layouts/PreviewLayout.astro`). The third is the
-one that degrades silently: a missed entry does not error, it just lets a click
-escape the iframe to the live site, and the Studio's navigator and edit panel
-freeze on the previous page while the preview shows the real site.
+**One module says what the preview can draw: `src/sanity/preview-routes.ts`**
+(2026-09-29). It used to be three hand-kept copies (`SINGLETON_PREVIEW_PATHS` in
+`resolve.ts`, `SINGLETON_BY_PATH` in the preview route, `FIRST_SEGMENT_PREVIEWABLE`
+in PreviewLayout's click interceptor), and a fourth question nobody answered in
+code: the Studio's "Copy share link" assumed every document with a live page had
+a preview, so on a project it minted `/preview/portfolio/<slug>` and the reviewer
+got "No document found" (404). Now the preview route (`previewTargetFor`), the
+Presentation resolver, the share action (`shareWhenPreviewable` in
+`editorActions.ts`), the page navigator's share buttons and the click interceptor
+(`previewPathForLivePath`) all read that module. `preview-routes.test.ts` pins it,
+including drift gates that read the route source. The module is plain TypeScript
+because it is bundled into the Studio, the SSR route AND PreviewLayout's browser
+script: never import `sanity` or Astro into it.
+
+**Detail pages preview at full fidelity (2026-09-29).** `/preview/portfolio/<slug>`,
+`/preview/journal/<slug>` and `/preview/guides/<slug>` render the SAME body
+component the live page builds (`src/components/detail/ProjectDetail.astro`,
+`JournalEntryDetail.astro`, `GuideDetail.astro`), fed by the same queries with the
+draft client passed in. The live `[slug].astro` pages keep only static paths, SEO,
+JSON-LD and the share card; the extraction was proven render-neutral with the
+parity harness (27/27, every section switched on so the detail pages were built).
+A guide previews even while its "Published" switch is off (`getLeadMagnet(slug, c,
+{ includeUnpublished: true })`); the live build never passes that. No previous or
+next link in a detail preview: those come from the build-time list. Types still
+with NO preview, so no share action: the style quiz, the calculator, and a guide
+or project with no web address yet (its fallback path is an index with no
+preview). To give one a preview: add it to `preview-routes.ts`, then a loader and
+a renderer branch in the route; the share action, navigator and Presentation
+follow on their own.
 
 ### Editor experience layer (added 2026-09-29)
 
@@ -264,7 +303,10 @@ lives, and the rule that makes it safe:
     (`isStudioPreview`). Works for about an hour (`SECRET_TTL` is hard-coded in
     `@sanity/preview-url-secret`), HTTPS only (the cookie is `secure; sameSite=none`,
     so it cannot be tested against plain-http localhost). Also a per-row share button
-    in `PreviewNavigator.tsx`.
+    in `PreviewNavigator.tsx`. Reid registers it through `shareWhenPreviewable`
+    (`editorActions.ts`), which hides it on any document whose link the preview
+    route could not draw (2026-09-29; see "One module says what the preview can
+    draw" above). The canonical file's body is untouched.
   - **Check this page... (card 25).** `src/lib/page-checks.ts` +
     `src/sanity/actions/checkPage.tsx` + `src/sanity/pageOps.ts` (all PORTABLE;
     only `readSlug` from pageOps is used here, its duplicate/archive helpers are not

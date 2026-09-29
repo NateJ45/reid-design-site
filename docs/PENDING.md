@@ -30,6 +30,13 @@ signed in as an editor:
    Presentation tool, the share icon beside any page in the page list does the
    same. Bonus: after tier1's card-57 cookie check merges, repeat once; the link
    must still work (the enable route writes the same fingerprint cookie).
+   **Also on a project (branch `claude/reid-followups`, 2026-09-29):** open a
+   project, "Copy share link", paste logged out: you land on
+   `/preview/portfolio/<slug>` showing the project page (it used to 404). The
+   style quiz and the calculator should NOT offer the action any more.
+   And paste `https://reiddesignllc.com/studio/structure/pages` into a new tab
+   while signed in: the Pages list opens (it used to be the site's 404), and
+   the address bar reads `/studio/#/structure/pages`.
 3. **Check this page.** On a project with a gallery photo missing its alt text,
    publish-menu arrow, "Check this page...": the dialog lists it under "Main
    content". Add an empty Photo gallery block to a custom page: it is listed as
@@ -252,17 +259,6 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   "Creating" at every width, which looks worse than a 0.031 shift that is
   already inside Google's "good" range (< 0.1). Revisit only with a rotator
   that sits at the end of a line.
-- **"Copy share link" on a project, journal post or guide gives a 404.** Found
-  in the signed-in staging Studio 2026-09-29. The action builds
-  `/preview/portfolio/<slug>` (and the journal / guide equivalents), but
-  `/preview/[...slug].astro` only renders page singletons and custom pages, so
-  the link opens a "No document found" 404. Links for pages work (About and a
-  custom page proved end to end, logged out). Fix: either hide the action on
-  types the preview route cannot draw, or teach the route those types.
-- **Studio deep links 404 on reload.** `/studio/` is prerendered as one static
-  page, so a refresh or a pasted link to `/studio/structure/...` answers 404
-  (production too, 2026-09-29). Probably wants the Studio route SSR, or a
-  `/studio/*` rewrite to `/studio/`.
 - **Starter fold-back candidates (PORTS.md card 22).** (1) The rename-and-rename-
   back loop that `src/lib/redirect-guard.ts` guards against at build lives in
   the canonical `slugRedirect.tsx`: when a page moves back to an address, the
@@ -368,6 +364,23 @@ with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-09-29 — "Copy share link" 404 on a project, journal post or guide
+  (branch `claude/reid-followups`).** The preview route now draws
+  `/preview/portfolio/<slug>`, `/preview/journal/<slug>` and
+  `/preview/guides/<slug>` through the same body component the live page uses
+  (`src/components/detail/*`, extraction parity 27/27 with every section on),
+  and the share action is offered only where the route can draw the link, from
+  one list (`src/sanity/preview-routes.ts`; the quiz and calculator lost it).
+  Under `npm run preview`: all six detail previews 200, `data-draft="1"` with
+  the fingerprint cookie; production answered "No document found" for the same
+  paths before. Detail in `docs/agent/sanity.md`.
+- **2026-09-29 — Studio deep links 404 (same branch).** `public/_redirects`
+  proxies `/studio/* /studio/ 200`, and `src/sanity/lib/studio-deep-link.ts`
+  moves the path into the hash before the Studio starts. Under `npm run
+preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
+  200 with the Studio CSP; chromium lands on `/studio/#/media` etc. with no
+  console errors beyond localhost CORS.
 
 - **2026-09-29 — three "Older" needs-a-human items were already done; the
   registry had not caught up.** Verified that day, read-only:
