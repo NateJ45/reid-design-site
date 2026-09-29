@@ -15,6 +15,18 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type Redirect = {
+  _id: string;
+  _type: 'redirect';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  from?: string;
+  to?: string;
+  permanent?: boolean;
+  note?: string;
+};
+
 export type TrashedItem = {
   _id: string;
   _type: 'trashedItem';
@@ -2787,6 +2799,7 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | Redirect
   | TrashedItem
   | SanityImageAssetReference
   | ShopCollectionReference

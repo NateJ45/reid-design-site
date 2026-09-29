@@ -37,6 +37,7 @@ import {
   giftSectionMarker,
   eDesignSectionMarker,
 } from './offeringSections';
+import { redirect } from './redirect';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -113,4 +114,8 @@ export const schemaTypes = [
 
   // Soft-delete receipts, created only by the Archive action.
   trashedItem,
+
+  // Old address -> new address forwards. Mostly filed automatically when a
+  // published page is renamed (PORTS.md card 22); applied at build time.
+  redirect,
 ];

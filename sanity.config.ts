@@ -31,6 +31,7 @@ import StudioLogo from './src/sanity/components/StudioLogo';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';
 import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/actions/archive';
+import { withSlugRedirect } from './src/sanity/components/slugRedirect';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -206,6 +207,14 @@ export default defineConfig({
       return prev;
     },
     actions: (prev, { schemaType }) => {
+      // Redirects on rename (PORTS.md card 22): Publish files an old-address ->
+      // new-address redirect first when a published document's web address
+      // changed. Types with a fixed or no address are a no-op inside the
+      // wrapper (it compares pathForDoc before and after), so it wraps every
+      // Publish. Memoized by the action it wraps, so this resolver may run on
+      // every render without remounting the button. See slugRedirect.tsx.
+      prev = prev.map((a) => (a.action === 'publish' ? withSlugRedirect(a) : a));
+
       // Trash rows get their own two actions and nothing else: you can put a
       // document back, or destroy it for good.
       if (schemaType === 'trashedItem') {
