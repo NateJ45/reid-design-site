@@ -151,7 +151,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
           ) : null
         ) : null
       ) : (
-        <SectionRenderer sections={[s]} idPrefix={`gift-extra-${i}`} />
+        <SectionRenderer sections={[s]} idPrefix={`gift-extra-${i}`} coach={Boolean(editDoc)} />
       )}
     </Wrap>
   ))

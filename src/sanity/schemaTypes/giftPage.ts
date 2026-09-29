@@ -5,6 +5,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { GIFT_SECTION_TYPES, GIFT_DEFAULT_ORDER } from './offeringSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const giftPage = defineType({
   name: 'giftPage',
@@ -67,6 +68,8 @@ export const giftPage = defineType({
       description:
         'The order of the gift content sections. Drag to reorder, remove one to hide it, or add a block to insert something new. The hero and the closing call to action stay in place.',
       of: GIFT_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: GIFT_DEFAULT_ORDER,
     }),
 

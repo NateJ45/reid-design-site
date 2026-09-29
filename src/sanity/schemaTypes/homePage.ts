@@ -4,6 +4,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { HOME_SECTION_TYPES, HOME_DEFAULT_ORDER } from './homeSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const homePage = defineType({
   name: 'homePage',
@@ -73,6 +74,8 @@ export const homePage = defineType({
       description:
         "The order of sections on the home page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Heads up: the home order is tuned for conversion, so reorder thoughtfully. Edit each section's content in its own tab.",
       of: HOME_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: HOME_DEFAULT_ORDER,
     }),
 

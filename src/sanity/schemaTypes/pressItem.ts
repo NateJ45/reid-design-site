@@ -9,6 +9,12 @@ export const pressItem = defineType({
   name: 'pressItem',
   title: 'Press Item',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'outlet', weight: 5 },
+    { path: 'quote', weight: 2 },
+  ],
   // Config / structural — not prose Staci writes, so exclude from Canvas.
   options: { canvasApp: { exclude: true } },
   fields: [

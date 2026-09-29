@@ -15,6 +15,12 @@ export const journalEntry = defineType({
   name: 'journalEntry',
   title: 'Journal Entry',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'excerpt', weight: 2 },
+  ],
   groups: [
     { name: 'meta', title: 'Meta' },
     { name: 'content', title: 'Content' },

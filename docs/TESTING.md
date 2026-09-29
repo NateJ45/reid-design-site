@@ -9,7 +9,7 @@ it before adding a check, and update it in the same commit that adds one.
 | Suite              | Command                                                    | Runtime                        | Covers                                                                                                                                                                                                                                                                             |
 | ------------------ | ---------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Static checks      | `npm run check` (= `astro check && npm run lint`)          | Node, no browser               | Type errors across `.astro`/`.ts`/`.tsx` (astro check) and the eslint ruleset in `eslint.config.js`. `npm run format:check` (prettier) is the third static gate; `npm run format` fixes it                                                                                         |
-| Unit               | `npm run test:unit` (vitest)                               | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, section-fields drift gates, and **theme-tokens** (below)                                                                                              |
+| Unit               | `npm run test:unit` (vitest)                               | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, section-fields drift gates, **theme-tokens** (below), and the editor-experience layer (below)                                                         |
 | E2E, chromium      | `npm test` (or `npx playwright test`)                      | Desktop Chrome                 | All four Playwright specs: smoke, axe light, axe dark (+ focus indicators), reflow at 320/768/1024/1440                                                                                                                                                                            |
 | E2E, webkit-iphone | same command, second project                               | Real WebKit, iPhone 14 profile | smoke and both axe sweeps, via `testMatch`. `reflow.spec.ts` drives its own explicit viewport widths, which fights device emulation, so it is chromium-only                                                                                                                        |
 | Link check         | `npm run check:links` (after `npm run build`)              | Node, reads `dist/client`      | Every internal link in the built site resolves (linkinator). External URLs and the SSR-only `/studio`, `/preview`, `/api` paths are skipped                                                                                                                                        |
@@ -185,6 +185,26 @@ $env:PUBLIC_SANITY_PROJECT_ID='zzqq0000'; npm run build; Remove-Item Env:PUBLIC_
 Expected: exit 1 with `[sanity] fetch failed during a production build: ...`.
 Then a normal `npm run build` and `npm run parity compare` must be unchanged,
 which proves the absent-document (coming-soon) paths still render.
+## The editor-experience unit tests (2026-09-29)
+
+Six vitest files cover the Studio editor layer (docs/agent/sanity.md, "Editor
+experience layer"). Two are ports of the starter's canonical node:test suites;
+four are Reid's own drift gates, which READ the real schema or the real sources
+rather than a fixture:
+
+| File                        | What it holds                                                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `page-checks.test.ts`       | Card 25's pure checks (vitest port of the starter suite, same cases)                                                                           |
+| `undoRedo.test.ts`          | Card 27's transaction-log machinery against a faithful in-memory fake (vitest port, same cases)                                                |
+| `page-check-config.test.ts` | `pageBuilderConfig.ts` against the schema: every host has its array, every marker is self-filling, "Main content" reaches the photo fields     |
+| `insert-menu.test.ts`       | Every library block in exactly one "+ Add section" group; all fourteen builder arrays use the shared menu; no colour choice in it              |
+| `templates.test.ts`         | Every "+ New" template targets a real type, sets only real fields, uses only offered blocks with unique keys, and has no em-dashes             |
+| `section-coach.test.ts`     | Each block's "empty" rule, and the PREVIEW-ONLY wiring: only SectionRenderer imports the coach, only behind the signal, no live page passes it |
+
+What they cannot reach, because it needs a signed-in Studio: the actions
+rendering in the publish menu, a real share link opened in a logged-out
+browser, the keyboard shortcut, and the grouped menu opening in the canvas.
+Those are the click-through list in `docs/PENDING.md`.
 
 ## What no suite covers: the live-preview stack (2026-08-28)
 

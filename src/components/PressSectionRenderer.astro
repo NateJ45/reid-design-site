@@ -67,7 +67,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
           <PressList items={pressItems} />
         ) : null
       ) : (
-        <SectionRenderer sections={[s]} idPrefix={`press-extra-${i}`} />
+        <SectionRenderer sections={[s]} idPrefix={`press-extra-${i}`} coach={Boolean(editDoc)} />
       )}
     </Wrap>
   ))

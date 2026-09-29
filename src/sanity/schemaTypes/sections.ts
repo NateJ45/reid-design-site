@@ -11,7 +11,7 @@
 // blocks a page-builder array accepts. Use it everywhere a pageBuilder array is
 // defined so every builder offers the same library.
 
-import { defineType, defineField, defineArrayMember } from 'sanity';
+import { defineType, defineField, defineArrayMember, type InsertMenuOptions } from 'sanity';
 import {
   BlockElementIcon,
   ImageIcon,
@@ -440,6 +440,53 @@ export const pageSectionSchemas = [
 // builder offers the same blocks.
 export const SECTION_TYPES = pageSectionSchemas.map((s) => ({ type: s.name }));
 
+// ── The "+ Add section" menu (2026-09-29, PORTS.md card 17) ─────────────────
+// Every page-builder array shares this menu, in the Studio form AND in the
+// Presentation canvas (the insert-before/after buttons on a section open the
+// same menu). Grouped in plain words so Staci picks by what she wants on the
+// page, with a search box. A group whose types are not in a given array simply
+// does not show, which is why the eight "Built-in section" markers can share
+// one group: each page only ever offers its own.
+//
+// Groups only, never colour. The SectionRenderer owns the alternating
+// background cadence, so nothing here (or on any block) picks a background.
+//
+// A drift test (src/lib/insert-menu.test.ts) fails if a block is added to
+// pageSectionSchemas without a group, or lands in two.
+export const SECTION_MARKER_TYPES = [
+  'homeSectionMarker',
+  'aboutSectionMarker',
+  'processSectionMarker',
+  'servicesSectionMarker',
+  'eDesignSectionMarker',
+  'giftSectionMarker',
+  'pressSectionMarker',
+  'resourcesSectionMarker',
+];
+
+export const SECTION_INSERT_MENU: InsertMenuOptions = {
+  filter: true,
+  groups: [
+    { name: 'built-in', title: 'Built-in sections', of: SECTION_MARKER_TYPES },
+    { name: 'banners', title: 'Banners and buttons', of: ['heroSection', 'ctaBandSection'] },
+    {
+      name: 'words',
+      title: 'Text, quotes and numbers',
+      of: ['richTextSection', 'quoteSection', 'statSection'],
+    },
+    {
+      name: 'photos',
+      title: 'Photos and video',
+      of: ['imageTextSection', 'gallerySection', 'videoSection'],
+    },
+    { name: 'spacing', title: 'Space between sections', of: ['spacerSection'] },
+  ],
+  views: [{ name: 'list' }],
+};
+
+// Spread into every page-builder array field as `options`.
+export const SECTION_ARRAY_OPTIONS = { insertMenu: SECTION_INSERT_MENU };
+
 // Reusable "extra sections" field for the app pages (portfolio, journal, faq,
 // contact, etc.) that keep their bespoke structure instead of the full marker
 // retrofit. Lets Staci append library blocks to the bottom of any of them. The
@@ -453,4 +500,5 @@ export const additionalSectionsField = defineField({
   description:
     'Optional. Add blocks from the library to the bottom of this page (a banner, a gallery, a call to action, and so on). Leave empty to keep the page exactly as it is.',
   of: SECTION_TYPES,
+  options: SECTION_ARRAY_OPTIONS,
 });

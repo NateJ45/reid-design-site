@@ -8,6 +8,12 @@ export const service = defineType({
   name: 'service',
   title: 'Service',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'name', weight: 5 },
+    { path: 'shortDescription', weight: 2 },
+  ],
   fields: [
     defineField({
       name: 'name',

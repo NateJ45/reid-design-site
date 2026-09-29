@@ -9,10 +9,12 @@
 
 import { defineType, defineField } from 'sanity';
 import { DocumentsIcon } from '@sanity/icons';
-import { SECTION_TYPES } from './sections';
+import { SECTION_TYPES, SECTION_ARRAY_OPTIONS } from './sections';
 
 // Every built-in route segment. A custom page slug may not match any of these.
-const RESERVED_SLUGS = new Set([
+// Exported for src/sanity/pageBuilderConfig.ts, whose "Check this page" link
+// check treats these as addresses the site code owns.
+export const RESERVED_SLUGS = new Set([
   'about',
   'services',
   'process',
@@ -39,6 +41,13 @@ export const page = defineType({
   name: 'page',
   title: 'Custom page',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'navLabel', weight: 3 },
+    { path: 'seoDescription', weight: 2 },
+  ],
   icon: DocumentsIcon,
   groups: [
     { name: 'content', title: 'Content', default: true },
@@ -80,6 +89,8 @@ export const page = defineType({
       group: 'content',
       description: 'Build the page by adding sections. Drag to reorder. Add as many as you like.',
       of: SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
     }),
 
     // ── Menu placement ────────────────────────────────────────────────────────
