@@ -25,6 +25,7 @@ import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 // now lives in its own module (src/sanity/urls.ts) and the cycle is gone; the
 // iframe preview pane is gone too (see singletonWithPreview below).
 import {
+  BellIcon,
   CogIcon,
   TrashIcon,
   PinIcon,
@@ -106,6 +107,7 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...ORDERABLE_TYPES,
   'testimonial',
   'faqItem',
+  'announcement', // placed explicitly, right under Site Settings
   'journalEntry',
   'journalCategory',
   'page', // custom pages, placed explicitly under "Pages"
@@ -199,6 +201,11 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       // Site Settings — pinned singleton (no preview; not a page)
       singletonWithPreview(S, 'siteSettings', 'Site Settings', CogIcon),
+
+      // Announcements: the top-of-site bar and popup Staci posts herself.
+      // Top level (not buried under Content) because she reaches for it the
+      // week she needs it, e.g. "Studio closed Thanksgiving week".
+      S.documentTypeListItem('announcement').title('Announcements').icon(BellIcon),
 
       S.divider(),
 

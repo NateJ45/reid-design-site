@@ -57,6 +57,33 @@ signed in as an editor:
    "Build a brand-new page". It was NOT run (agents do not write production).
    It uses `createOrReplace`, so any edits Staci made to the guide in the Studio
    would be overwritten; check the live `studioGuide` first, then run it.
+### From the 2026-09-29 site-features branch (announcements, search, stats, link health)
+
+- **Create the Cloudflare token for "Site stats", then `npx wrangler secret put
+CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
+  stats") shows "not set up yet" and nothing else is affected. Token: Cloudflare
+  dashboard > My Profile > API Tokens > Create Token > Custom token, ONE
+  permission, Zone > Analytics > Read, Zone Resources > Include > Specific zone
+  > reiddesignllc.com. Read-only. The zone is on the Free plan and its
+  > `httpRequests1dGroups` dataset answered a real query with 56 days of page views
+  > and visitors on 2026-09-29, so the panel will have data the moment the secret
+  > is set. Then open Presentation once in the Studio (it hands the browser the
+  > preview cookie the endpoint checks by value) and open Site stats.
+- **Check the Wayfair link in "Grow your studio".** The first link-health run
+  reported `https://www.wayfair.com/professional/` gone (HTTP 404 to a script).
+  It could not be confirmed: Wayfair walls every request from that network with
+  a 429 "Access denied", including a real Chromium, so it may be a false alarm.
+  Open it in a normal browser; if it is dead, fix it in Studio > Start Here >
+  Grow your studio (and in `scripts/seed-studio-playbook.mjs`, or the next
+  reseed puts it back).
+- **Optional: a daily rebuild.** Announcement start dates, and "Show until" removing
+  a bar from the page code, are read at BUILD time. A bar hides itself in the
+  browser once its end passes, but a start date only lands on the day if a build
+  runs that day. A daily Cloudflare deploy hook (OPERATIONS.md, "Scheduled
+  publishing") makes that automatic; without it, publishing anything on the day
+  does the same.
+- **Run the first link-health workflow by hand** (Actions > Link health > Run
+  workflow) to see the Summary table once. It runs itself on Mondays at 09:15 UTC.
 
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
@@ -140,6 +167,26 @@ script would produce nothing but placeholders. Unblocks when Staci has built one
 or two custom pages; or build a fixture-render harness instead (the Astro
 container API against SectionRenderer). Adding `views` is then a two-line edit to
 `SECTION_INSERT_MENU` in `src/sanity/schemaTypes/sections.ts`.
+### From the 2026-09-29 site-features branch
+
+- **Port the link-health fork up to the starter.** `scripts/check-live-links.mjs`
+  is a deliberate fork of the starter's card 42 (marker dropped so sync-check
+  leaves it alone). The canonical sweep, run against this dataset, probed 222
+  links that were all `cdn.sanity.io` image assets and never looked at
+  `shopItem.affiliateUrl`, `testimonial.reviewUrl` or the `navItems` menu. The
+  fix that generalises: walk every published non-system document for
+  whole-string http(s) values instead of listing field names, skip the asset CDN,
+  and write `$GITHUB_STEP_SUMMARY`. Needs a PORTS.md card in the starter (do not
+  edit the starter from a site session); `scripts/propose-drift.mjs` can draft it.
+- **The mobile drawer has no Search entry.** The header shows a search icon beside
+  the hamburger on phones, but `MobileNav.tsx` (owned by another workstream in this
+  batch) was not touched. Add a "Search" row to the drawer.
+- **The `parity` normalizer gained rule 5 (island uid)** in
+  `scripts/page-parity.mjs`; other branches hit the same false diff and may add the
+  same rule. Keep one copy when merging.
+- **The Studio Presentation preview does not draw announcements** (the preview shell
+  is chrome-less by design). Verified on the built site instead; the Studio's
+  location panel for an announcement says so.
 
 ### Parity baselines are stale (found 2026-08-28)
 
@@ -166,6 +213,12 @@ did NOT recapture, so parallel branches do not all conflict on
 `origin/main` instead (11/20 pass, the 9 diffs all the MobileNav island).
 Recapture once, after the parallel branches merge, from a build with
 `PUBLIC_GA_ID` set if the baselines should keep the tag.
+(`node scripts/page-parity.mjs baseline`) in a commit that says why.
+Update 2026-09-29: still stale, and two more causes found. The committed
+baselines were captured with `PUBLIC_GA_ID` set (production builds carry the GA
+snippet, a local build without the variable does not) and before Astro 7.3
+(island uids). Rule 5 in the normalizer fixes the second; for the first, capture
+with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
 
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the

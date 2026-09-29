@@ -20,6 +20,7 @@ import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
+import { TrendUpwardIcon } from '@sanity/icons';
 import { media } from 'sanity-plugin-media';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { schemaTypes } from './src/sanity/schemaTypes';
@@ -35,6 +36,7 @@ import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/
 import { withEditorActions } from './src/sanity/editorActions';
 import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
 import { STARTING_TEMPLATES } from './src/sanity/templates';
+import { StatsTool } from './src/sanity/components/StatsTool';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -205,6 +207,11 @@ export default defineConfig({
     undoRedoShortcuts(),
   ],
 
+  // Site stats: the 28-day traffic panel (src/sanity/components/StatsTool.tsx),
+  // in the top bar beside Presentation. It shows a friendly "not set up yet" card
+  // until the CF_ANALYTICS_TOKEN Worker secret exists (docs/agent/sanity.md).
+  tools: [{ name: 'stats', title: 'Site stats', icon: TrendUpwardIcon, component: StatsTool }],
+
   schema: {
     types: schemaTypes,
     // "+ New" starting layouts: Service page, Neighborhood page, Project story,
@@ -267,6 +274,7 @@ export default defineConfig({
 // restored one would need its slug re-checked against the reserved list) and
 // `trashedItem` itself.
 const ARCHIVABLE_TYPES = new Set<string>([
+  'announcement',
   'service',
   'processStep',
   'philosophyPoint',

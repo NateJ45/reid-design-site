@@ -1,0 +1,334 @@
+---
+// Safe to edit by hand
+// /search: site search, powered by Pagefind.
+//
+// HOW IT WORKS. `npm run build` ends with a postbuild step (package.json) that
+// runs `pagefind --site dist/client`. That crawls the BUILT html, indexes the
+// text inside `<main data-pagefind-body>` (BaseLayout puts the attribute on
+// every indexable page, so the header, footer, announcement bar and menus are
+// never in the index), and writes a small static index to dist/client/pagefind/.
+// This page then loads /pagefind/pagefind.js in the browser and searches that
+// index. No server, no third-party service, nothing to pay for, nothing that
+// can go down.
+//
+// The index only exists in a real build, so search does not work under
+// `astro dev`. The script below says so plainly instead of failing silently.
+//
+// NOT INDEXED, on purpose: this page and the 404 (both pass `noindex`, and
+// BaseLayout drops data-pagefind-body from noindex pages), /studio (a shell
+// with no <main data-pagefind-body>), /preview (SSR only, never in dist/client),
+// and the redirect stubs a hidden section leaves behind (no <main> at all).
+//
+// The page itself is noindex too: a search box has no content of its own to
+// rank, and indexable internal search pages read to Google as thin content.
+//
+// The UI is hand-built against Pagefind's JavaScript API rather than its
+// stock widget, so it takes Reid's tokens and both themes without an
+// override stylesheet fighting it.
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getSiteSettings } from '@/lib/queries';
+import { Search } from 'lucide-react';
+
+const siteSettings = await getSiteSettings();
+
+// Starting points for a blank box. Real things a visitor asks; each is a plain
+// link to /search?q=..., which the script below runs on load.
+const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process', 'service area'];
+---
+
+<BaseLayout
+  title="Search · Reid Design"
+  description="Search the Reid Design site: services, pricing, projects and the journal."
+  {siteSettings}
+  noindex
+>
+  {
+    /* Deliberately NOT the tall page Hero: a search page has to show the box
+      above the fold on a phone. A compact heading, then the field. */
+  }
+  <section class="bg-background" aria-labelledby="search-heading">
+    <div class="mx-auto max-w-3xl px-m pt-l pb-section-md">
+      <p class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">Find it fast</p>
+      <h1
+        id="search-heading"
+        class="font-display text-h1 leading-headline-tight text-foreground"
+        style="font-size: clamp(2.25rem, 5vw, 3.5rem)"
+      >
+        What are you looking for?
+      </h1>
+      <p class="mt-s mb-l text-lg text-foreground/80">
+        Search services, pricing, projects and the journal.
+      </p>
+
+      <form id="search-form" role="search" novalidate>
+        <label
+          for="search-input"
+          class="mb-xs block text-xs font-semibold tracking-eyebrow text-foreground uppercase"
+        >
+          Search the site
+        </label>
+        <div class="relative">
+          <span
+            class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-foreground/60"
+            aria-hidden="true"
+          >
+            <Search size={20} />
+          </span>
+          <input
+            id="search-input"
+            name="q"
+            type="search"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="search"
+            placeholder="Try “kitchen” or “pricing”"
+            class="search-input w-full rounded-md border border-border-soft bg-card py-3.5 pr-4 pl-12 text-lg text-foreground placeholder:text-foreground/55"
+          />
+        </div>
+      </form>
+
+      {
+        /* Gives the footer's h3 an h2 above it (axe heading-order) and gives
+          screen-reader users a heading to jump to. */
+      }
+      <h2 class="sr-only">Results</h2>
+
+      {/* Polite live region: "3 results for kitchen". Empty until a search runs. */}
+      <p
+        id="search-status"
+        class="mt-m min-h-6 text-sm text-foreground/80"
+        role="status"
+        aria-live="polite"
+      >
+      </p>
+
+      <ol id="search-results" class="mt-s divide-y divide-border-soft" aria-label="Search results">
+      </ol>
+
+      <div id="search-more" class="mt-l text-center" hidden>
+        <button
+          type="button"
+          id="search-more-btn"
+          class="press-tactile inline-flex items-center rounded-sm border border-primary px-l py-s text-xs font-semibold tracking-eyebrow text-link uppercase hover:bg-accent"
+        >
+          Show more
+        </button>
+      </div>
+
+      {/* Blank-state help. The script hides it once a search has run. */}
+      <div id="search-empty" class="mt-l">
+        <p class="text-xs font-semibold tracking-eyebrow text-foreground uppercase">
+          Popular searches
+        </p>
+        <ul class="mt-s flex flex-wrap gap-s">
+          {
+            suggestions.map((q) => (
+              <li>
+                <a
+                  href={`/search?q=${encodeURIComponent(q)}`}
+                  class="inline-flex min-h-11 items-center rounded-full border border-border-soft px-m text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-link"
+                >
+                  {q}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <noscript>
+        <p class="mt-l text-foreground/80">
+          Search needs JavaScript turned on. You can also browse from the
+          <a href="/" class="text-link underline underline-offset-4">home page</a>, or
+          <a href="/contact" class="text-link underline underline-offset-4">ask Staci directly</a>.
+        </p>
+      </noscript>
+    </div>
+  </section>
+</BaseLayout>
+
+{
+  /* data-astro-rerun: run again on every View Transitions arrival, so search works
+    when you reach /search by clicking the header icon, not only on a full load. */
+}
+<script is:inline type="module" data-astro-rerun>
+  const form = document.getElementById('search-form');
+  if (form && !form.dataset.bound) {
+    form.dataset.bound = '1';
+
+    const input = document.getElementById('search-input');
+    const status = document.getElementById('search-status');
+    const list = document.getElementById('search-results');
+    const more = document.getElementById('search-more');
+    const moreBtn = document.getElementById('search-more-btn');
+    const empty = document.getElementById('search-empty');
+    const PAGE = 8;
+
+    let pagefind = null;
+    let loadFailed = false;
+    let hits = []; // Pagefind result handles for the current query
+    let shown = 0;
+    let current = '';
+
+    // The path segment tells a visitor what KIND of page a hit is.
+    const KINDS = {
+      portfolio: 'Portfolio',
+      journal: 'Journal',
+      guides: 'Guide',
+      shop: 'Shop',
+      services: 'Services',
+      process: 'Process',
+      about: 'About',
+      contact: 'Contact',
+      faq: 'FAQ',
+      'e-design': 'E-Design',
+      'gift-certificates': 'Gift certificates',
+      press: 'Press',
+      privacy: 'Privacy',
+      resources: 'Resources',
+      quiz: 'Style quiz',
+      calculator: 'Budget calculator',
+    };
+    const kindOf = (url) => {
+      const seg = url.replace(/^\/+/, '').split('/')[0];
+      return seg ? KINDS[seg] || '' : 'Home';
+    };
+
+    async function load() {
+      if (pagefind || loadFailed) return pagefind;
+      try {
+        pagefind = await import('/pagefind/pagefind.js');
+        await pagefind.options({ excerptLength: 26 });
+      } catch {
+        loadFailed = true;
+      }
+      return pagefind;
+    }
+
+    function clearResults() {
+      list.replaceChildren();
+      more.hidden = true;
+      hits = [];
+      shown = 0;
+    }
+
+    function say(text) {
+      status.textContent = text;
+    }
+
+    async function renderMore() {
+      const batch = hits.slice(shown, shown + PAGE);
+      const data = await Promise.all(batch.map((h) => h.data()));
+      for (const d of data) {
+        const li = document.createElement('li');
+        li.className = 'py-m';
+        const a = document.createElement('a');
+        a.href = d.url;
+        a.className =
+          'search-hit group block rounded-md focus-visible:outline-2 focus-visible:outline-offset-4';
+        const kind = document.createElement('span');
+        kind.className =
+          'block text-xs font-semibold tracking-eyebrow text-foreground/75 uppercase';
+        kind.textContent = kindOf(d.url);
+        const title = document.createElement('span');
+        title.className =
+          'mt-1 block font-display text-2xl leading-tight text-foreground group-hover:text-link';
+        title.textContent = (d.meta && d.meta.title) || d.url;
+        const excerpt = document.createElement('span');
+        excerpt.className =
+          'search-excerpt mt-2 block text-base leading-relaxed text-foreground/85';
+        // Pagefind escapes the page text and wraps matches in <mark>, so its
+        // excerpt is safe to set as HTML.
+        excerpt.innerHTML = d.excerpt;
+        a.append(...(kind.textContent ? [kind] : []), title, excerpt);
+        li.append(a);
+        list.append(li);
+      }
+      shown += batch.length;
+      more.hidden = shown >= hits.length;
+    }
+
+    async function run(q) {
+      current = q.trim();
+      if (current.length < 2) {
+        clearResults();
+        empty.hidden = false;
+        say('');
+        return;
+      }
+      empty.hidden = true;
+      const pf = await load();
+      if (!pf) {
+        clearResults();
+        say('Search only works on the published site, not while the site is being edited locally.');
+        return;
+      }
+      // debouncedSearch returns null when a newer keystroke superseded this one.
+      const res = await pf.debouncedSearch(current, {}, 180);
+      if (res === null || current !== q.trim()) return;
+      clearResults();
+      hits = res.results;
+      if (hits.length === 0) {
+        say('Nothing found for “' + current + '”. Try a shorter word, or ');
+        const a = document.createElement('a');
+        a.href = '/contact';
+        a.className = 'text-link underline underline-offset-4';
+        a.textContent = 'ask Staci directly';
+        status.append(a, '.');
+        return;
+      }
+      say(hits.length + (hits.length === 1 ? ' result' : ' results') + ' for “' + current + '”');
+      await renderMore();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      run(input.value);
+    });
+    input.addEventListener('input', () => {
+      // Keep the address bar shareable without adding a history entry per key.
+      const url = new URL(location.href);
+      if (input.value.trim()) url.searchParams.set('q', input.value.trim());
+      else url.searchParams.delete('q');
+      history.replaceState(history.state, '', url);
+      run(input.value);
+    });
+    moreBtn.addEventListener('click', () => renderMore());
+
+    const q = new URLSearchParams(location.search).get('q');
+    if (q) {
+      input.value = q;
+      run(q);
+    } else if (window.matchMedia('(pointer: fine)').matches) {
+      // Land ready to type on a desktop; leave phones alone so the keyboard
+      // does not cover the page the moment it opens.
+      input.focus();
+    }
+  }
+</script>
+
+<style is:global>
+  /* Chrome draws its own blue clear-X in type=search; it clashes with the palette. */
+  .search-input::-webkit-search-cancel-button {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .search-input:focus {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-color: var(--primary);
+  }
+  .search-hit:focus-visible {
+    outline-color: var(--ring);
+  }
+  /* Pagefind wraps matches in <mark>. Soft bronze wash, text stays the page's
+     own foreground so contrast holds in both themes. */
+  .search-excerpt mark {
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
+    color: inherit;
+    border-radius: 2px;
+    padding-inline: 1px;
+  }
+</style>

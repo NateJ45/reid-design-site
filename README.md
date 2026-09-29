@@ -39,7 +39,9 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 
 ## Pages
 
-Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · Journal (+ post) · E-Design · Shop · Gift Certificates · Style Quiz · Budget Calculator · Resources · Guides.
+Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · Journal (+ post) · E-Design · Shop · Gift Certificates · Style Quiz · Budget Calculator · Resources · Guides · Search.
+
+Also live: a dated announcement bar / popup Staci posts from the Studio (Announcements), site search (Pagefind, built at the end of `npm run build`), a Studio "Site stats" traffic panel (needs the `CF_ANALYTICS_TOKEN` secret), and a weekly outbound-link report (`.github/workflows/link-health.yml`).
 
 ## Running it locally
 

@@ -960,3 +960,38 @@ export async function getNavPages() {
     [],
   );
 }
+
+// ---- Announcements (the top-of-site bar and popup) ---------------------------
+// Published, switched-on announcements, most urgent first, then soonest to end.
+// The date window and per-page placement are decided in src/lib/announcements.ts
+// (selectForPage), NOT here, so the GROQ stays one plain query and BaseLayout
+// can filter per page without a second round trip. `pages[]->` is dereferenced
+// down to { docType, slug } so navHref() can turn it into a path; a deleted
+// page comes back as null and is ignored there.
+//
+// Memoized like getSiteSettings: one Sanity request per build process, not one
+// per page. The published perspective of the client already hides drafts.
+let _announcementsPromise: Promise<any[]> | null = null;
+
+export function getAnnouncements(): Promise<any[]> {
+  if (_announcementsPromise) return _announcementsPromise;
+  _announcementsPromise = sanityFetch<any[] | null>(
+    `*[_type == "announcement" && enabled != false]
+        | order(select(tone == "urgent" => 0, tone == "highlight" => 1, 2) asc, showUntil asc){
+        _id,
+        format,
+        tone,
+        heading,
+        message,
+        link${NAV_LINK_PROJECTION},
+        showFrom,
+        showUntil,
+        placement,
+        "pages": pages[]->{ "docType": _type, "slug": slug.current },
+        frequency
+      }`,
+    {},
+    [],
+  ).then((rows) => rows ?? []);
+  return _announcementsPromise;
+}

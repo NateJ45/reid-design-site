@@ -13,6 +13,7 @@ export const routes: string[] = [
   '/contact',
   '/e-design',
   '/privacy',
+  '/search',
 ];
 
 /**

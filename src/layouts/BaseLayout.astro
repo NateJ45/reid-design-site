@@ -14,9 +14,10 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getNavPages } from '@/lib/queries';
+import { getNavPages, getAnnouncements } from '@/lib/queries';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import Announcements from '@/components/Announcements.astro';
 import BackToTop from '@/components/BackToTop';
 import Analytics from '@/components/Analytics.astro';
 import { Toaster } from '@/components/ui/sonner';
@@ -69,6 +70,12 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
 // page with the custom pages missing from the menu. Dev still degrades to []
 // inside sanityFetch.
 const navPages = await getNavPages();
+
+// Announcements Staci posts in the Studio (bar / popup). One memoized query per
+// build; Announcements.astro picks the ones that belong on this page and renders
+// nothing at all when there are none. A failed read throws in a production
+// build via sanityFetch (cards 55 + 56), like every other build-time read.
+const announcements = await getAnnouncements();
 
 // Per-page OG image: convention is /og/<route-slug>.png generated at build time.
 // `/` → /og/home.png, `/contact` → /og/contact.png, `/portfolio/foo` → /og/portfolio-foo.png.
@@ -245,9 +252,14 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
   <body class="min-h-screen flex flex-col">
     <a href="#main" class="skip-link">Skip to main content</a>
 
+    <Announcements announcements={announcements} currentPath={Astro.url.pathname} />
+
     <Header siteSettings={siteSettings} navPages={navPages} />
 
-    <main id="main" class="flex-1">
+    {/* data-pagefind-body: site search (Pagefind) indexes ONLY the text inside this
+        element, so the header, footer, announcement bar and menus never show up in
+        results. noindex pages (404, /search) are left out of the index too. */}
+    <main id="main" class="flex-1" data-pagefind-body={noindex ? undefined : ''}>
       <slot />
     </main>
 

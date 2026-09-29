@@ -31,6 +31,8 @@ export const RESERVED_SLUGS = new Set([
   'guides',
   'press',
   'privacy',
+  'search',
+  'pagefind',
   '404',
   'sitemap-index.xml',
   'og',

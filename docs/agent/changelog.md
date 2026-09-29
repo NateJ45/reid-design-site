@@ -83,6 +83,40 @@ shareDraftLink.tsx, page-checks.ts, checkPage.tsx, pageOps.ts, undoRedo.ts,
 UndoRedo.tsx. The two canonical node:test suites are vitest ports. The publish
 menu helpers are appended by one function, `withEditorActions`
 (`src/sanity/editorActions.ts`), so the resolver keeps only Reid's own rules.
+## 2026-09-29 — announcements, site search, Studio traffic panel, weekly link report
+
+Four features on branch `claude/site-features`, one workstream of five run in
+parallel.
+
+**Announcements.** New `announcement` document (Studio > Announcements): a bar or a
+popup, calm / warm / urgent, show-from and show-until, every page or only/except
+the pages Staci picks (page references, not typed slugs), optional `navLink`.
+Rendered by `Announcements.astro` from BaseLayout, above the sticky header, and
+nothing at all when none applies: `npm run parity` was 20/20 against a pristine
+`origin/main` build. Dates are decided at build time and the Studio field help
+says so; only a bar's expiry also runs in the browser, because that can only hide.
+Dismiss is per visitor, keyed to the wording.
+
+**Search.** Pagefind 1.5.2 (the one new dependency), run as `postbuild` against
+`dist/client`; BaseLayout marks `<main data-pagefind-body>` on indexable pages
+only. `/search` is a hand-built UI over Pagefind's JS API with a header icon
+(desktop strip and mobile row) and a working search box on the 404, which used to
+say there was no search. Real query, real result: `consultation` returns the
+Process, Contact, FAQ, Home and Services pages with the match highlighted.
+
+**Site stats.** A Studio tool + `/api/stats`. Unlike WCP and presacademy, this
+site is a Cloudflare zone, so it reads real page views and daily visitors
+(`httpRequests1dGroups`) instead of Worker requests, with a comparison to the 28
+days before. The endpoint checks the preview cookie by VALUE. Shows "not set up
+yet" until Nathan creates the `CF_ANALYTICS_TOKEN` secret.
+
+**Link health (card 42).** `scripts/check-live-links.mjs` + `link-health.yml`, a
+deliberate fork: the canonical sweep probed 222 image-CDN links and never saw
+`affiliateUrl`. This copy walks every published document. First real run: 10
+links, 1 reported gone (Wayfair trade page, unconfirmed), 3 refusing scripts.
+
+Also: the parity normalizer gained rule 5 (island uid, Astro 7.3), and `search` and
+`pagefind` became reserved page slugs.
 
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 

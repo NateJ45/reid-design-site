@@ -16,7 +16,7 @@
 
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, Search } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import ThemeToggle from './ThemeToggle';
 import MobileNav from './MobileNav';
@@ -344,6 +344,17 @@ function isGroupActive(items: { href: string }[]) {
           )
         }
         {
+          /* Site search (Pagefind, /search). A plain link, no JS, sits beside the
+            theme toggle. The mobile equivalent is in the main row below. */
+        }
+        <a
+          href="/search"
+          aria-label="Search the site"
+          class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-link"
+        >
+          <Search size={14} aria-hidden="true" />
+        </a>
+        {
           /* Hydrate when idle, not on load — the anti-FOUC inline script in
             BaseLayout already applies the correct theme class before first
             paint, so this React island only needs to be live by the time the
@@ -571,6 +582,19 @@ function isGroupActive(items: { href: string }[]) {
         )
       }
     </div>
+
+    {
+      /* Mobile search: a plain link pinned just left of the hamburger (which is
+        absolute right-m, 44 px wide, in MobileNav.tsx). Hidden at lg where the
+        eyebrow strip carries the desktop icon. */
+    }
+    <a
+      href="/search"
+      aria-label="Search the site"
+      class="absolute top-1/2 right-[4.25rem] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-foreground transition-colors hover:text-link lg:hidden"
+    >
+      <Search size={20} aria-hidden="true" />
+    </a>
 
     {
       /* client:idle, not client:only (2026-09-29, PORTS.md card 52): the
