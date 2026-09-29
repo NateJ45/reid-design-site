@@ -37,6 +37,36 @@ updates:
       - dependency-name: 'sanity'
       - dependency-name: '@sanity/*'
       - dependency-name: 'sanity-plugin-*'
+      # The rest of that set lives OUTSIDE the @sanity/* namespace, so the
+      # three rules above never caught it: #32 (2026-09-06) moved react,
+      # react-dom and react-is 19.2.7 -> 19.2.8 and styled-components
+      # 6.4.3 -> 6.5.3 inside a green "minor-and-patch" group. That one
+      # turned out coherent (audited 2026-09-29: sanity 6.9.1 peers react
+      # ^19.2.2 and styled-components ^6.1.15, one copy of each on disk, one
+      # styled-components sheet in the Studio bundle), but CI cannot tell a
+      # good bump from a bad one here: a second styled-components context
+      # builds, lints and tests green and only dies in the browser AFTER
+      # sign-in (error #18, or "Cannot read properties of undefined (reading
+      # 'v2')"). So these move by hand, with the Sanity set, followed by a
+      # signed-in Presentation click-through on staging. The trade-off: no
+      # automatic patch PRs for them, so check `npm audit` when the set moves.
+      - dependency-name: 'react'
+      - dependency-name: 'react-dom'
+      - dependency-name: 'react-is'
+      - dependency-name: 'styled-components'
+      # @astrojs/cloudflare and wrangler are a MATCHED PAIR (CLAUDE.md,
+      # docs/agent/deployment.md): the adapter's peer range picks the wrangler
+      # line (14.2.5+ peers ^4.125.0), and wrangler 4.126+ rejects the
+      # `legacy_env` field some adapter versions write into
+      # dist/server/wrangler.json. A lone bump of either can pass `astro build`
+      # and still break `wrangler deploy -c dist/server/wrangler.json`, which
+      # CI does not run. Move both together, rebuild, read the generated
+      # config. #32 moved the adapter 14.2.4 -> 14.3.0 on its own; the
+      # generated config was checked afterwards and carries no legacy_env.
+      # (`astro` itself stays automatic: a minor that outruns the adapter's
+      # `astro` peer range fails `npm ci` / the build in CI, loudly.)
+      - dependency-name: '@astrojs/cloudflare'
+      - dependency-name: 'wrangler'
       # TypeScript 7 (the native Go compiler) drops the JavaScript compiler API
       # that Astro's tooling drives astro check and the build through, so it
       # breaks the site. 6.0.3 is the studio standard (2026-09-06); the studio

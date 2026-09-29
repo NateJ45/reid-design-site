@@ -14,6 +14,32 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-29 locked-set audit (`claude/dependabot-lock-set`)
+
+- **Sign in to the staging Studio and open Presentation: the only proof #32 is
+  safe.** Dependabot's 2026-09-06 group (#32, on `main` as `2facf2b` and on
+  staging as `8d9bbd4`) moved `react`/`react-dom`/`react-is` 19.2.7 to 19.2.8,
+  `styled-components` 6.4.3 to 6.5.3 and `@astrojs/cloudflare` 14.2.4 to 14.3.0,
+  none of which Dependabot was told to leave alone. Audited and KEPT: every peer
+  range is satisfied, there is one copy of `styled-components` 6.5.3, `@sanity/ui`
+  3.5.4, `react` and `react-dom` 19.2.8 on disk, the built bundle has exactly one
+  styled-components instance, the generated `dist/server/wrangler.json` has no
+  `legacy_env`, and the built Worker boots `/studio/` with a single 6.5.3 style
+  sheet and no runtime errors. What that cannot show is a signed-in desk, because
+  a broken theme context only fails after login (and `localhost:8787` is not on
+  the Sanity CORS list, so it cannot sign in locally). Partial proof already
+  exists: production has carried #32 since 2026-09-06, and the 2026-09-29 night
+  check of build `bfbc119` opened `/studio/presentation` signed in with no
+  errors. What nobody has recorded yet is a custom component pane plus the
+  in-canvas hover, which is where a split theme context throws. So, on staging: open
+  `/studio`, sign in, open **Brand Kit** or **Business Overview** (custom
+  component panes), then open **Presentation** and hover a section so the layout
+  card and the script-accent picker draw. Pass = no styled-components error #18
+  and no `Cannot read properties of undefined (reading 'v2')`. Fail = revert
+  those four packages to 19.2.7 / 6.4.3 in package.json + package-lock.json (the
+  adapter can stay; it has nothing to do with the Studio). This click-through also
+  closes the older "Sanity phase-1 stack bump" item further down.
+
 ### From the 2026-09-29 editor-experience branch (`claude/studio-editor`)
 
 Every automated gate is green, but none of these can be exercised without a
@@ -137,7 +163,9 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
 
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
-- **Sign in to the staging Studio, then open Presentation.** The stack moved to
+- **Sign in to the staging Studio, then open Presentation.** (Same click-through
+  as the 2026-09-29 locked-set item at the top; one pass closes both. Since #32
+  the styled-components count below is one copy of 6.5.3, not 6.4.3.) The stack moved to
   `sanity` 6.9.1 / `@sanity/ui` 3.5.4 / `@sanity/client` 7.26.2 /
   `@sanity/visual-editing` 5.7.3 / `@sanity/preview-url-secret` 4.1.5. Every
   automated gate is green and the single-instance invariant holds on disk and in

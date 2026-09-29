@@ -2,6 +2,55 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — Dependabot #32 audited and kept; the locked set is now ignored
+
+Branch `claude/dependabot-lock-set`, off staging. No package versions changed.
+
+**What happened.** Dependabot's 2026-09-06 minor-and-patch group (#32, `2facf2b`
+on `main`, merged into staging as `8d9bbd4`) moved packages that belong to
+version-locked sets: `react`/`react-dom`/`react-is` 19.2.7 to 19.2.8 and
+`styled-components` 6.4.3 to 6.5.3 (members of the Sanity set), and
+`@astrojs/cloudflare` 14.2.4 to 14.3.0 (half of the adapter/wrangler pair), plus
+`astro` 7.2.9 to 7.3.1 and unrelated patches. `dependabot.yml` ignored only
+`sanity`, `@sanity/*` and `sanity-plugin-*`, so the react trio and
+styled-components were never covered, and the group went green because a broken
+styled-components context builds and tests clean.
+
+**Decision: keep the bump.** Evidence, on a fresh `npm ci` of staging:
+
+- Peer ranges all satisfied: `sanity` 6.9.1 peers `react ^19.2.2` and
+  `styled-components ^6.1.15`; `@sanity/ui` 3.5.4 peers `styled-components ^5.2 || ^6`;
+  `@sanity/visual-editing` 5.7.3 peers `react ^19.2`, `styled-components ^6.1`;
+  `@sanity/astro` 3.4.2 peers `styled-components ^6.1.19`; adapter 14.3.0 peers
+  `astro ^7.2.0` and `wrangler ^4.125.0` (installed 7.3.1 and 4.129.0).
+- One copy on disk of `styled-components` 6.5.3, `@sanity/ui` 3.5.4, `react` and
+  `react-dom` 19.2.8. `react-is` has the usual two nested 16.13.1 copies under
+  `prop-types` and `hoist-non-react-statics`, which never touch the theme context.
+- `npm run build` exit 0; exactly one bundle file carries the styled-components
+  `errors.md` path and `data-styled-version` (`6.5.3`), and it is the same file
+  holding the `@sanity/ui` theme context. `npm run check` 0 errors, `npm run
+test:unit` 455/455.
+- `dist/server/wrangler.json`: no `legacy_env`; `compatibility_date` 2026-05-26
+  and the flags come straight from our `wrangler.jsonc`. 14.3.0's changes
+  (concurrent incremental builds, a `finalize()` helper, a dev-server include fix)
+  touch nothing this config uses.
+- Under `npm run preview` the built Worker serves `/studio/`, which mounts with a
+  single styled-components sheet at 6.5.3 and no runtime errors. The only console
+  errors are CORS on `users/me`, because `localhost:8787` is not an allowed
+  origin, so the signed-in desk could not be reached locally. That click-through
+  is a PENDING item on staging.
+
+Reverting would have meant a hand-made lockfile downgrade for no measured
+problem, and 19.2.8 / 6.5.3 were already what `main` had carried since
+#32 merged.
+
+**The guard.** `dependabot.yml` now also ignores `react`, `react-dom`,
+`react-is`, `styled-components`, `@astrojs/cloudflare` and `wrangler`, each
+commented with why. The cost is no automatic patch PRs for them, so run
+`npm audit` whenever the set moves. `astro` stays automatic: a minor that outruns
+the adapter's peer range fails loudly in CI. CLAUDE.md and docs/agent/sanity.md
+say so; their version numbers had already been corrected earlier the same day.
+
 ## 2026-09-29 — follow-ups: share links on detail pages, Studio deep links, parity baselines
 
 Branch `claude/reid-followups`, three items from `docs/PENDING.md`.
