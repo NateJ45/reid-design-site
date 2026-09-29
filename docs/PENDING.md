@@ -57,6 +57,7 @@ signed in as an editor:
    "Build a brand-new page". It was NOT run (agents do not write production).
    It uses `createOrReplace`, so any edits Staci made to the guide in the Studio
    would be overwritten; check the live `studioGuide` first, then run it.
+
 ### From the 2026-09-29 site-features branch (announcements, search, stats, link health)
 
 - **Create the Cloudflare token for "Site stats", then `npx wrangler secret put
@@ -167,6 +168,7 @@ script would produce nothing but placeholders. Unblocks when Staci has built one
 or two custom pages; or build a fixture-render harness instead (the Astro
 container API against SectionRenderer). Adding `views` is then a two-line edit to
 `SECTION_INSERT_MENU` in `src/sanity/schemaTypes/sections.ts`.
+
 ### From the 2026-09-29 site-features branch
 
 - **Port the link-health fork up to the starter.** `scripts/check-live-links.mjs`

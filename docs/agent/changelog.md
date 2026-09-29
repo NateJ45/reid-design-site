@@ -83,6 +83,7 @@ shareDraftLink.tsx, page-checks.ts, checkPage.tsx, pageOps.ts, undoRedo.ts,
 UndoRedo.tsx. The two canonical node:test suites are vitest ports. The publish
 menu helpers are appended by one function, `withEditorActions`
 (`src/sanity/editorActions.ts`), so the resolver keeps only Reid's own rules.
+
 ## 2026-09-29 — announcements, site search, Studio traffic panel, weekly link report
 
 Four features on branch `claude/site-features`, one workstream of five run in
