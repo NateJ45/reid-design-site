@@ -40,11 +40,22 @@
 #                                          the site; see docs/agent/stack-and-config.md.)
 #   connect-src api.web3forms.com          contact form + newsletter (ContactForm.tsx, lib/subscribe.ts)
 #               *.google-analytics.com, *.analytics.google.com, www.googletagmanager.com,
-#               stats.g.doubleclick.net    GA4 collection (Google's published CSP list)
+#               *.g.doubleclick.net, www.google.com   GA4 collection (Google's published CSP
+#                                          list). www.google.com/g/collect is NOT optional: this
+#                                          property sends every hit there too (Google signals),
+#                                          and the 2026-09-29 sweep caught it blocked on every
+#                                          page before it was added. Visitors routed to a
+#                                          country Google domain (google.co.uk etc.) will have
+#                                          that one ads-signal request blocked; GA4 itself
+#                                          still records the hit via google-analytics.com.
 #               cloudflareinsights.com     the beacon's RUM POST
 #               ba403vjc.api(cdn).sanity.io  no public page reads Sanity from the browser
 #                                          today; allowed for our own project only so a
 #                                          future client-side read does not fail silently
+#               'wasm-unsafe-eval'         Pagefind site search at /search compiles its same-origin
+#                                          WebAssembly (/pagefind/); without it /search loads and
+#                                          then fails to start. It permits compiling WASM only,
+#                                          not eval() of JavaScript.
 #   frame-src   calendly.com               click-to-load scheduler (CalendlyInline.tsx)
 #               www.youtube.com, www.youtube-nocookie.com, player.vimeo.com
 #                                          VideoEmbed section + journal video blocks
@@ -65,6 +76,12 @@
 # reference): Sanity API + live websocket + sanity-cdn.com version ping in connect-src,
 # design-system-static.sanity.io in font-src, blob: workers.
 #
+# NO upgrade-insecure-requests, on purpose. It was in the first draft and it broke
+# `npm run preview`: a link to /about answers 307 -> http://127.0.0.1:4342/about/, the
+# directive rewrote that to https://, and the click navigation silently died. In
+# production it buys nothing: HSTS already forces https, and img-src/media-src only
+# allow https: anyway.
+#
 # What is not covered: /preview/** (see the top of this file). Giving it a policy means
 # setting the header from the SSR code, not from here. Tracked in docs/PENDING.md.
 #
@@ -80,14 +97,14 @@
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.sanity.io https://*.sanity.io; img-src 'self' data: blob: https:; media-src 'self' https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com; connect-src 'self' https://api.web3forms.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://cloudflareinsights.com https://ba403vjc.api.sanity.io https://ba403vjc.apicdn.sanity.io; frame-src 'self' https://calendly.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.openstreetmap.org; form-action 'self' https://api.web3forms.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.sanity.io https://*.sanity.io; img-src 'self' data: blob: https:; media-src 'self' https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com; connect-src 'self' https://api.web3forms.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://cloudflareinsights.com https://ba403vjc.api.sanity.io https://ba403vjc.apicdn.sanity.io; frame-src 'self' https://calendly.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.openstreetmap.org; form-action 'self' https://api.web3forms.com; worker-src 'self'; manifest-src 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
 
 /studio/*
   ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data: https://design-system-static.sanity.io; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.sanity.io https://*.api.sanity.io wss://*.api.sanity.io https://*.apicdn.sanity.io https://cdn.sanity.io https://sanity-cdn.com https://*.sanity-cdn.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; form-action 'self' https://api.sanity.io https://*.api.sanity.io; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data: https://design-system-static.sanity.io; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.sanity.io https://*.api.sanity.io wss://*.api.sanity.io https://*.apicdn.sanity.io https://cdn.sanity.io https://sanity-cdn.com https://*.sanity-cdn.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; form-action 'self' https://api.sanity.io https://*.api.sanity.io; worker-src 'self' blob:; manifest-src 'self'
 
 /_astro/*
   ! Content-Security-Policy

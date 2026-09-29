@@ -43,8 +43,8 @@ test.describe('desktop mouse (Lenis running)', () => {
     // Lenis starts at idle; prove it is the engine under test.
     await page.waitForFunction(() => 'lenis' in window, null, { timeout: 8000 });
     const before = await scrollDownThenFollowLink(page);
-    await page.goBack();
-    await page.waitForURL((u) => u.pathname === '/');
+    await page.goBack({ waitUntil: 'commit' });
+    await page.waitForURL((u) => u.pathname === '/', { waitUntil: 'commit' });
     await expect
       .poll(() => page.evaluate(() => Math.round(window.scrollY)))
       .toBeGreaterThan(before - 50);
@@ -60,8 +60,8 @@ test.describe('phone (no Lenis)', () => {
     await page.waitForTimeout(2500);
     expect(await page.evaluate(() => 'lenis' in window)).toBe(false);
     const before = await scrollDownThenFollowLink(page);
-    await page.goBack();
-    await page.waitForURL((u) => u.pathname === '/');
+    await page.goBack({ waitUntil: 'commit' });
+    await page.waitForURL((u) => u.pathname === '/', { waitUntil: 'commit' });
     await expect
       .poll(() => page.evaluate(() => Math.round(window.scrollY)))
       .toBeGreaterThan(before - 50);
