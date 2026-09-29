@@ -2,6 +2,30 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
+
+The full starter card-54 port. `src/components/Analytics.astro`,
+`analytics/{GoogleAnalytics,CloudflareBeacon}.astro` and `src/lib/analytics-config.ts`
+come in as PORTABLE files and replace BaseLayout's inline GA + beacon blocks. The
+variable is renamed `PUBLIC_GA_MEASUREMENT_ID` to `PUBLIC_GA_ID` (the new one was
+added to the production Workers Build trigger BEFORE the merge, so GA never went
+dark; the old one was removed only after a verified live hit). gtag.js now loads at
+idle after the load event, outside LCP.
+
+The canonical component had no localhost guard, so porting it as-is would have
+reopened the 470-fake-session leak. The guard went UP into the starter first (card
+58, starter PR #34): it keys off `Astro.site`, so Reid needs no config, and fails
+open when `site` is unset.
+
+**The privacy page was false.** The Sanity `privacyPage` body said "There is no
+Google Analytics… Cloudflare Web Analytics provides basic traffic numbers without
+cookies" while GA4 was live and setting `_ga` cookies, and no Cloudflare beacon
+shipped at all. `/privacy` now renders a "How traffic is measured" section derived
+from `analytics-config.ts` after either body (styled to match whichever rendered),
+and the Sanity paragraph was rewritten (Nathan approved the wording) with
+`lastUpdated` moved to 2026-09-28. The static fallback's stale Cloudflare bullet went
+too. Never put analytics wording into Sanity again: it cannot follow the config.
+
 ## 2026-09-28 — canonical drift pulled forward (CI green again)
 
 CI's `sync-check` gate went red on `scripts/sync-check.mjs` and
