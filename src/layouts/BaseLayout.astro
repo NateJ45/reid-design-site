@@ -64,7 +64,11 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
 
 // Custom pages Staci flagged for the menu/footer. Fetched here once so every
 // page's Header + Footer can surface them without each page threading the data.
-const navPages = await getNavPages().catch(() => []);
+// No .catch (2026-09-29, PORTS.md card 56): BaseLayout only renders at build
+// time, and a failed read there must fail the build rather than ship every
+// page with the custom pages missing from the menu. Dev still degrades to []
+// inside sanityFetch.
+const navPages = await getNavPages();
 
 // Per-page OG image: convention is /og/<route-slug>.png generated at build time.
 // `/` → /og/home.png, `/contact` → /og/contact.png, `/portfolio/foo` → /og/portfolio-foo.png.

@@ -24,10 +24,7 @@ import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
 
-const [page, siteSettings] = await Promise.all([
-  getPrivacyPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'Privacy Policy · Reid Design';
 const description =

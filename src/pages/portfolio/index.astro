@@ -15,9 +15,9 @@ import PortfolioCursor from '@/components/PortfolioCursor';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const [projects, page, siteSettings] = await Promise.all([
-  getAllProjects().catch(() => []),
-  getPortfolioPage().catch(() => null),
-  getSiteSettings().catch(() => null),
+  getAllProjects(),
+  getPortfolioPage(),
+  getSiteSettings(),
 ]);
 
 // Section visibility guard. Redirect home when portfolio is explicitly off.

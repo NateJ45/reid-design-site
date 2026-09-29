@@ -18,9 +18,9 @@ import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { site } from '@/data/site';
 
 const [page, siteSettings, pressItems] = await Promise.all([
-  getHomePage().catch(() => null),
-  getSiteSettings().catch(() => null),
-  getPressItems().catch(() => []),
+  getHomePage(),
+  getSiteSettings(),
+  getPressItems(),
 ]);
 
 // Unset visibility fields count as visible, so the live site is unchanged until

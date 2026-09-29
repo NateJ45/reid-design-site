@@ -17,9 +17,9 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import CtaLink from '@/components/CtaLink.astro';
 
 const [projects, siteSettings, page] = await Promise.all([
-  getProjectsWithBeforeAfter().catch(() => []),
-  getSiteSettings().catch(() => null),
-  getPortfolioPage().catch(() => null),
+  getProjectsWithBeforeAfter(),
+  getSiteSettings(),
+  getPortfolioPage(),
 ]);
 
 // Section visibility guard — before/after is part of the portfolio section.

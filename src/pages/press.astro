@@ -13,9 +13,9 @@ import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
 const [page, pressItems, siteSettings] = await Promise.all([
-  getPressPage().catch(() => null),
-  getPressItems().catch(() => []),
-  getSiteSettings().catch(() => null),
+  getPressPage(),
+  getPressItems(),
+  getSiteSettings(),
 ]);
 
 // Section visibility guard.

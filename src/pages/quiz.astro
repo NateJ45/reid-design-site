@@ -15,10 +15,7 @@ import { urlFor } from '@/lib/sanity';
 import { site } from '@/data/site';
 import type { ArchetypeWithUrls, StyleQuizConfig } from '@/components/StyleQuiz';
 
-const [quiz, siteSettings] = await Promise.all([
-  getStyleQuiz().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [quiz, siteSettings] = await Promise.all([getStyleQuiz(), getSiteSettings()]);
 
 // Section visibility guard.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);

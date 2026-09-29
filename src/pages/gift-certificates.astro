@@ -16,10 +16,7 @@ import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 
-const [page, siteSettings] = await Promise.all([
-  getGiftPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getGiftPage(), getSiteSettings()]);
 
 // Section visibility guard.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
