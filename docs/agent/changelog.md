@@ -2,6 +2,59 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — tier-1 correctness: build reads fail loud, preview cookie checked, MobileNav in the HTML
+
+Four starter cards ported, plus two hygiene fixes and a docs sweep.
+
+**Cards 55 + 56, build reads.** `src/lib/sanity.ts` had `useCdn: !readToken`
+with a comment claiming the CDN rejects a token; it does not, so every local
+build with the token in `.env` read the uncached API. It is now `useCdn: true`
+on the build client (the draft client keeps `false`). Every helper in
+`queries.ts` now reads through a new `sanityFetch()`, which retries twice and
+throws in a production build, and all 62 page-level `.catch(() => null / [])`
+on static routes (24 route files plus BaseLayout's `getNavPages`) are gone,
+because they swallowed exactly that throw. Measured: `origin/main` built green
+with a bogus `PUBLIC_SANITY_PROJECT_ID` and shipped 19 empty pages; this branch
+exits 1 with `[sanity] fetch failed during a production build: Error:
+Unauthorized - Session does not match project host`. Absent documents are not
+errors: a normal build is parity-identical outside the MobileNav change below,
+coming-soon pages included. The four dynamic routes now throw in PROD when a
+listed slug reads back empty, instead of publishing it as a redirect. Kept on
+purpose: the catches in `src/pages/preview/**` (live requests), and
+`Footer.astro`'s, which now rethrows when `Astro.isPrerendered` so it only
+degrades inside a live preview.
+
+**Card 57, preview cookie.** `/preview/[...slug]` and `/preview/live` asked
+`cookies.has(perspectiveCookieName)`, so any value unlocked drafts. Both now
+call `isStudioPreview()`, which existed and was never called. On `wrangler dev`:
+no cookie, `true`, `drafts` and a forged 64-hex value all get 403 on
+`/preview/live` and `data-draft="0"` on `/preview/about`; the real fingerprint
+gets 200 `text/event-stream` and `data-draft="1"`. The enable route already
+wrote `previewCookieValue()`, so editors are not locked out.
+
+**Card 52, MobileNav.** `client:only="react"` became `client:idle`; the closed
+Sheet server-renders its trigger, so the hamburger is in every page's HTML. The
+false "Radix can't SSR" rule is corrected in `components.md` and
+`performance.md`. Parity: 9 pages changed, every changed line the island gaining
+its server-rendered button (props attribute byte-identical). Drawer checked at
+375px light and dark: focus moves in, 12 Tabs stay in, Escape returns focus to
+the trigger, console clean.
+
+**Hygiene.** `.gitattributes` (`* text=auto eol=lf`, from the starter; the
+index already held no CRLF, so renormalizing is a no-op). Tailwind
+`@source not` for `scripts/.parity` and `docs/` at the top of `globals.css`:
+the site stylesheet went from 121,684 to 117,984 bytes (gzip 21,329 to
+20,701): roughly 40 utility selectors (`bg-gray-50`, `text-indigo-600`,
+`bg-bg` and the like) that only docs or old baselines named. Each dropped one
+was checked against `src/`; where `src/` uses it, it is only under a variant
+prefix (`focus-visible:ring-offset-2`), which still generates.
+
+**Docs.** Version pins corrected to the lockfile (astro 7.3.1, adapter 14.3.0,
+wrangler ~4.129.0, react 19.2.8, styled-components 6.5.3). PENDING's
+`SANITY_AUTH_TOKEN`, `SITE_URL` and DNS-cutover items moved to closed (all
+three were already true), and "still Squarespace / before cutover" wording
+fixed in `deployment.md`, `OPERATIONS.md` and `CLAUDE.md`.
+
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,

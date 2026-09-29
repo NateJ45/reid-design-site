@@ -4,7 +4,7 @@
 
 ## Deployment
 
-- Production: pushes to `main` trigger a Cloudflare Workers build. Today it serves `reid-design-site.nathanjnixon86.workers.dev`; `reiddesignllc.com` still points at Squarespace until the DNS cutover.
+- Production: pushes to `main` trigger a Cloudflare Workers build. It serves `reiddesignllc.com` (DNS cut over from Squarespace; confirmed answering from Cloudflare 2026-09-29) and still answers at `reid-design-site.nathanjnixon86.workers.dev`.
 - Previews: any other branch gets its own preview URL via Cloudflare Workers.
 - Build command: `npm run build`.
 - **Deploy command (CHANGED 2026-08-28): `npx wrangler deploy -c dist/server/wrangler.json`.** `@astrojs/cloudflare` 14 splits the output into `dist/client` (static assets) and `dist/server` (the SSR bundle plus a generated `wrangler.json` the adapter derives from the root `wrangler.jsonc`). A plain `wrangler deploy` reads the root config, ships the assets without the SSR entrypoint, and every SSR route 404s. **This has to be set in the Cloudflare dashboard** (Workers & Pages, reid-design-site, Settings, Build), because Cloudflare's git integration owns the deploy step, not this repo. `npm run deploy` already passes the flag for a manual deploy. Tracked in `docs/PENDING.md`.
@@ -16,7 +16,7 @@ Each was in the config before the upgrade, and each would have broken the deploy
 
 - **`not_found_handling: "404-page"`** in `wrangler.jsonc`. With it set, Cloudflare answers NAVIGATION requests (`Sec-Fetch-Mode: navigate`) that miss the asset store straight from the static 404 page **without invoking the Worker**. Every SSR route then 404s for real browsers while `curl`, which sends no `Sec-Fetch` headers, sees them working. That failure mode broke a sibling site's preview in production and hid from every command-line probe. Without the field, an asset miss invokes the Worker and Astro renders the 404 page itself, which is what a real `wrangler dev` showed here.
 - **Sessions.** Left on, adapter 14 auto-declares a `SESSION` KV binding in the generated config, and a KV binding with no namespace id fails the deploy. This site has no gated area, so `session: false`. The adapter-13 build genuinely was emitting that binding already; it just never mattered because nothing consumed the generated config.
-- **`legacy_env`.** Adapter 14 writes it on some configs and wrangler 4.126+ rejects the field outright. The generated config from 14.2.4 here contains no `legacy_env` at all, so the `~4.110.0` wrangler pin is belt-and-braces on this combination. It stays because the adapter's own peer range enforces the pair: 14.2.4 peers `wrangler ^4.83.0`, 14.2.5 peers `^4.125.0`.
+- **`legacy_env`.** Adapter 14 writes it on some configs and wrangler 4.126+ rejects the field outright. The generated config here contains no `legacy_env` at all (14.2.4 at the upgrade, and still none on 14.3.0, checked 2026-09-29), which is the only reason the current `@astrojs/cloudflare` 14.3.0 / wrangler `~4.129.0` pair works. The adapter's peer range enforces the pairing: 14.2.4 peered `wrangler ^4.83.0`, 14.2.5 onward peers `^4.125.0`. Re-check the generated file after every adapter bump.
 
 ### Environment: two token names, two different places
 
@@ -54,6 +54,8 @@ The old allow-list approach (listing every `_type` that should trigger a rebuild
 2. **Create the Sanity webhook** at manage.sanity.io → project → API → Webhooks. Name it `Rebuild live site`, dataset `production`, trigger on Create + Update + Delete, HTTP method POST, paste the Cloudflare URL. Apply the deny-list GROQ filter above.
 
 3. **Test:** edit `siteSettings.tagline` → publish → watch Cloudflare's Deployments tab → new build kicks off within ~10 seconds → live in ~1-3 min total.
+
+**A failed Sanity read stops the build (2026-09-29).** If Sanity is down or refusing requests (quota block, outage, a bad token) while Cloudflare builds, the build now FAILS with `[sanity] fetch failed during a production build: ...` instead of publishing empty pages. The live site keeps serving its last good build, and the next publish or push retries. An empty or missing document is not a failure and still renders its coming-soon state. Detail in `docs/agent/sanity.md` under "Where queries live".
 
 **Trade-offs to know:**
 

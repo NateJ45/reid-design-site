@@ -174,7 +174,7 @@ node scripts/seed-studio-guide.mjs
 
 All four scripts are idempotent. `seed-conversion-content.mjs` and `seed-script-accents.mjs` use `setIfMissing`. `seed-about-personal.mjs` checks `personalHeadline` before writing. `seed-studio-guide.mjs` uses `createOrReplace` (always writes the canonical guide content, so re-running after a code update to the seed file will overwrite any in-Studio edits to those singletons).
 
-**Important: the seeded content is placeholder.** Before DNS cutover, replace:
+**Important: the seeded content is placeholder.** The DNS cutover has happened, so anything below that was not replaced is live. Replace:
 
 - Press items (outlet names, quotes, logo images, URLs) — fabricated in the seed
 - E-Design pricing tiers and what's-included lists — placeholder numbers
@@ -233,7 +233,7 @@ Set it in Cloudflare Workers settings under Variables if needed for a staging br
 
 ## Before DNS cutover checklist
 
-Everything below must be done before flipping DNS from Squarespace to the Cloudflare Workers URL.
+Written as the pre-cutover gate. **DNS has since been cut over** (reiddesignllc.com answers from the Cloudflare Worker, confirmed 2026-09-29), so any box below that is still unticked is a gap on the live site now, not a launch blocker. The items were not re-audited in that pass; check each against Studio before ticking it.
 
 **Replace placeholder content (seeded during build):**
 
@@ -256,7 +256,7 @@ Everything below must be done before flipping DNS from Squarespace to the Cloudf
 
 **Pre-flight validation:**
 
-- [ ] Lighthouse: Performance 95+, Accessibility 100, Best Practices 100, SEO 100 on the deployed Cloudflare URL (not reiddesignllc.com, which is still Squarespace until cutover)
+- [ ] Lighthouse: Performance 95+, Accessibility 100, Best Practices 100, SEO 100 on `reiddesignllc.com` (now served by the Cloudflare Worker)
 - [ ] Contact form test submission reaches Staci's inbox
 - [ ] Newsletter capture test submission reaches the ESP subscriber list
 - [ ] Guide gated download works end-to-end (form submit, PDF link appears)
@@ -343,7 +343,7 @@ mcp__plugin_chrome-devtools-mcp_chrome-devtools__lighthouse_audit → device "mo
 
 Note: the MCP lighthouse_audit only returns Accessibility / BP / SEO / Agentic. For Performance metrics use `performance_start_trace` which gives LCP / CLS / breakdown.
 
-**Always test on the workers.dev URL, not `reiddesignllc.com`** — the latter is still the Squarespace site at time of writing. DNS hasn't been cut over yet.
+**`reiddesignllc.com` is this site now** (DNS cut over from Squarespace; confirmed on Cloudflare 2026-09-29), so audit the real domain. The workers.dev URL serves the same Worker and is fine for a quick check, but GA4 only fires on the production hostnames, so it is not a like-for-like performance measurement.
 
 ### Common diagnostic findings (most are unscored)
 
