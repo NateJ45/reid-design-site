@@ -8,6 +8,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sanity from '@sanity/astro';
 import { getSectionVisibility, isHiddenSectionPath } from './src/lib/sectionVisibility.ts';
+import { buildRedirectMap } from './src/lib/redirects.ts';
+import { dropRedirectsOverLivePages } from './src/lib/redirect-guard.ts';
 
 // The Sanity project id is PUBLIC by design: it ships in every client bundle and
 // in every GROQ request URL. Read through process.env here (astro.config runs in
@@ -40,6 +42,74 @@ async function fetchSectionVisibility() {
   }
 }
 
+// -----------------------------------------------------------------------------
+// Editor-managed redirects (PORTS.md card 22, 2026-09-29)
+// -----------------------------------------------------------------------------
+// Each published `redirect` document becomes one entry in Astro's `redirects`
+// map, which the Cloudflare adapter emits into dist/client/_redirects as a real
+// 301/302. Most of them are filed automatically when a published page, project,
+// post or guide gets a new web address (src/sanity/components/slugRedirect.tsx);
+// the shaping rules live in src/lib/redirects.ts so the Studio and the build
+// agree on what a path is. Build time, not request time: every page here is
+// static, and a publish rebuilds the site anyway.
+//
+// FAIL-SAFE like the sectionVisibility read above: any problem (no project id,
+// Sanity down, bad data) yields no redirects and the build carries on. This
+// feature may never fail a build. Unauthenticated on purpose: the dataset is
+// public and the build only ever wants PUBLISHED redirects (a draft one would
+// look filed and never fire, which is why the Studio action creates them
+// published).
+//
+// Reid-only guard (src/lib/redirect-guard.ts): a redirect whose old address is
+// the CURRENT address of a published page is dropped, because Cloudflare
+// applies _redirects before it serves files and it would loop over the page.
+// That happens after a rename and a rename back.
+const redirectRead = await cmsQuery(
+  `{
+    "redirects": *[_type == "redirect" && defined(from) && defined(to)]{from, to, permanent},
+    "live": *[_type in ["page", "project", "journalEntry", "leadMagnet"] && defined(slug.current)]{
+      "path": select(
+        _type == "page" => "/" + slug.current,
+        _type == "project" => "/portfolio/" + slug.current,
+        _type == "journalEntry" => "/journal/" + slug.current,
+        "/guides/" + slug.current
+      )
+    }.path
+  }`,
+  { redirects: [], live: [] },
+);
+const guarded = dropRedirectsOverLivePages(
+  buildRedirectMap(Array.isArray(redirectRead?.redirects) ? redirectRead.redirects : []),
+  Array.isArray(redirectRead?.live) ? redirectRead.live : [],
+);
+if (guarded.dropped.length) {
+  console.warn(
+    `[redirects] skipped ${guarded.dropped.length} redirect(s) from an address a published page lives at now: ${guarded.dropped.join(', ')}`,
+  );
+}
+const cmsRedirects = guarded.redirects;
+
+/**
+ * One GROQ query against the public Sanity HTTP API. Returns `fallback` on
+ * anything that is not a clean 200 with a result.
+ * @template T
+ * @param {string} query GROQ.
+ * @param {T} fallback
+ * @returns {Promise<T>}
+ */
+async function cmsQuery(query, fallback) {
+  if (SANITY_PROJECT_ID === 'placeholder-project-id') return fallback;
+  const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()).result ?? fallback;
+  } catch (err) {
+    console.warn(`[redirects] could not read redirects, building without them: ${err}`);
+    return fallback;
+  }
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://reiddesignllc.com',
@@ -58,6 +128,10 @@ export default defineConfig({
   // The adapter's default would otherwise wire up the IMAGES binding which
   // is meant for SSR sites that want on-demand transforms (we don't).
   adapter: cloudflare({ imageService: 'compile' }),
+  // Old address -> new address forwards, managed in the Studio and read at
+  // build time above. A hand-written launch map, if one is ever needed, goes
+  // BEFORE the spread so a Studio entry can correct it without a code change.
+  redirects: { ...cmsRedirects },
   integrations: [
     mdx(),
     // Embedded Sanity Studio at /studio (2026-08-28). This is now the ONE
@@ -138,11 +212,10 @@ export default defineConfig({
   // meta tag. It got past Lighthouse's csp-xss check on paper, but Astro
   // missed at least one runtime-generated inline script (probably from
   // ClientRouter view-transitions) and one inline style, which the browser
-  // then blocked — breaking theme bootstrap and various islands. The
-  // current `public/_headers` carries a `frame-ancestors` CSP for the
-  // Sanity iframe-pane preview, which is enough for the actual security
-  // surface. Re-enabling a full CSP needs an audit of every inline script
-  // (incl. ClientRouter's runtime scripts), or a switch to a nonce-based
-  // SSR strategy. Not worth chasing for the cookie/csp-xss informational
-  // warnings — our Lighthouse runs already score Best Practices 100.
+  // then blocked — breaking theme bootstrap and various islands. Do not
+  // turn it back on. Since 2026-09-29 the full CSP is delivered as a
+  // HEADER from `public/_headers` instead (origin allow-lists with
+  // 'unsafe-inline', scoped separately for /studio/*), which needs no
+  // hashes and so cannot miss a runtime inline script. See
+  // docs/agent/deployment.md, "Security headers".
 });

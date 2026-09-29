@@ -86,6 +86,29 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
 - **Run the first link-health workflow by hand** (Actions > Link health > Run
   workflow) to see the Summary table once. It runs itself on Mondays at 09:15 UTC.
 
+### From the 2026-09-29 tier-2 hardening (full CSP, icon set, redirects on rename)
+
+- **After the deploy, sign in to `/studio` with DevTools open.** The Studio now
+  runs under its own Content-Security-Policy (`/studio/*` in `public/_headers`).
+  Verified locally up to the sign-in screen with zero violations, on the
+  production hostname so Sanity's CORS answered for real. What no agent could
+  check is the SIGNED-IN desk: open a document with a custom pane (Brand Kit),
+  upload a photo through the Media tool, open Presentation. Any line reading
+  "violates the following Content-Security-Policy directive" names the missing
+  host; add it to the `/studio/*` rule. If the desk is badly broken, the fast
+  rollback is to delete the `/studio/*` Content-Security-Policy line (keep the
+  `! Content-Security-Policy` detach above it), which leaves the Studio with
+  no CSP, exactly as before.
+- **Try a rename once.** No published page, project, post or guide exists yet,
+  so the redirect action has never fired against real data. Next time Staci
+  (or you) renames a PUBLISHED one: Publish should toast "Old link kept
+  working", a row should appear under Pages → Redirects (old links), and after
+  the rebuild the old address should answer 301.
+- **Glance at the new home-screen icon.** `favicon.svg` is now a rounded bronze
+  tile instead of a disc, so the iOS/Android icons have an opaque plate. If you
+  prefer the disc in the browser tab, the touch icons then need a separate
+  drawing (see `scripts/generate-favicons.mjs`).
+
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
 - **Sign in to the staging Studio, then open Presentation.** The stack moved to
@@ -189,6 +212,35 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
 - **The Studio Presentation preview does not draw announcements** (the preview shell
   is chrome-less by design). Verified on the built site instead; the Studio's
   location panel for an announcement says so.
+
+### Found in the 2026-09-29 tier-2 hardening
+
+- **`/preview/**` has no Content-Security-Policy.** Cloudflare applies
+  `_headers` only to static responses; the preview routes are SSR, so they
+  answer with no CSP and no `frame-ancestors` (checked on production). The fix
+  is to set the header from the SSR code (middleware or the preview route),
+  with the Studio grants plus `frame-ancestors 'self'`. Not done here because
+  the preview routes belonged to another workstream that day.
+- **The home hero's rotating word is the whole of the home page's CLS
+  (0.033 on Lighthouse mobile).** `Hero.astro` swaps "Creating" for
+  "Lived-in" / "Considered" / "Quiet", each a different width, so the h1
+  re-wraps and Lighthouse logs four layout shifts on it. The font work cut
+  `/services` from 0.027 to 0.0006 but cannot touch this one. Fix options:
+  reserve the widest word's width on the rotating span (inline-block,
+  min-width), or move the rotator to the end of a line. A design call.
+- **Studio deep links 404 on reload.** `/studio/` is prerendered as one static
+  page, so a refresh or a pasted link to `/studio/structure/...` answers 404
+  (production too, 2026-09-29). Probably wants the Studio route SSR, or a
+  `/studio/*` rewrite to `/studio/`.
+- **Starter fold-back candidates (PORTS.md card 22).** (1) The rename-and-rename-
+  back loop that `src/lib/redirect-guard.ts` guards against at build lives in
+  the canonical `slugRedirect.tsx`: when a page moves back to an address, the
+  action should delete (or retarget) the redirect whose `from` is the new
+  address. (2) Under `wrangler dev`, a second `_headers` rule for `/_astro/*`
+  holding only `! Content-Security-Policy` both failed to remove the CSP AND
+  wiped the adapter's immutable Cache-Control for that path (answered
+  `max-age=0`); one rule carrying both lines works; any family repo that
+  adds an `/_astro/*` rule must carry the Cache-Control itself.
 
 ### Parity baselines are stale (found 2026-08-28)
 

@@ -341,6 +341,18 @@ What the numbers are: Cloudflare counts at the network edge, so they include som
 
 **The gate is the cookie's VALUE.** `/api/stats` calls `isStudioPreview()` from `src/lib/preview-auth.ts` on the Studio preview cookie, never mere presence: with the cookie set to `true`, or to a wrong 64-hex value, it answers 401; only the fingerprint `enable.ts` sets passes (all four cases exercised against a real `wrangler dev` on 2026-09-29). Staci gets the cookie the first time she opens Presentation, and the empty state tells her to do exactly that. A wrong or under-scoped token comes back as a friendly 502 naming the permission (Cloudflare answers HTTP 400, not 401, for a malformed token; observed with a deliberately invalid one).
 
+### Redirects on rename (PORTS.md card 22, added 2026-09-29)
+
+A published page, project, journal post or guide whose web address changes keeps its old address working. Three parts:
+
+- **`redirect` document type** (`src/sanity/schemaTypes/redirect.ts`, from the starter): old address, new address, permanent (301) or temporary (302), and a note. Listed in the desk at the end of **Pages → Redirects (old links)**. Staci can add one by hand for an address that never existed on this site (an old Squarespace link, a printed card).
+- **The Publish wrapper** (`src/sanity/components/slugRedirect.tsx`, PORTABLE). `sanity.config.ts` wraps every Publish action with `withSlugRedirect`. On Publish of a document that already has a published version, it compares `pathForDoc()` (`src/sanity/urls.ts`) before and after; if the address changed, it creates a PUBLISHED `redirect` (old to new, permanent), repoints any older redirect that pointed at the old address (so visitors take one hop, not two), toasts "Old link kept working", and then publishes exactly as before. Types with a fixed address or none are a no-op, so there is no type list to keep. A failed write toasts a warning and publishes anyway. An existing redirect for the same old address is never overwritten (it may have been hand-corrected).
+- **Build-time map** (`astro.config.mjs`). Published `redirect` docs are read once at config time (unauthenticated, fail-safe: any problem means no redirects and the build carries on), shaped by `buildRedirectMap()` in `src/lib/redirects.ts` (PORTABLE, the same path rules the Studio uses), and handed to Astro's `redirects`, which the Cloudflare adapter writes to `dist/client/_redirects` as real 301/302s. Like any content edit, a new redirect goes live on the next rebuild (the publish webhook).
+
+**Reid-only guard** (`src/lib/redirect-guard.ts`): a redirect whose OLD address is where a published page, project, post or guide lives NOW is dropped at build and logged (`[redirects] skipped …`). That is the rename-and-rename-back case: `/a → /b` is filed, then `/b → /a`, and the first entry would otherwise sit in `_redirects` in front of the real page and bounce every visitor in a loop (Cloudflare applies `_redirects` before serving files). The Studio document stays; it is harmless and starts working again if the page moves away. This belongs in the canonical action upstream; flagged for a starter fold-back.
+
+Tests: `src/lib/redirects.test.ts` (the starter's cases, re-run under vitest) and `src/lib/redirect-guard.test.ts`.
+
 ### Canvas (AI-assisted writing)
 
 [Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio — an AI-assisted free-form drafting tool that creates `journalEntry` (and other) drafts in the production dataset. Staci uses it for longer blog work; the drafts flow into Studio for review and publish.

@@ -92,15 +92,23 @@ All documented in `.env.example`; copy to `.env` and fill in real values for loc
 
 ### Security headers
 
-`public/_headers` ships with the deploy. Five site-wide headers Cloudflare applies to every route:
+`public/_headers` ships with the deploy. Cloudflare applies it to every **static** response (every prerendered page, `/studio/`, and the `/_astro/*` files). It does **not** apply to responses the Worker generates itself, so the SSR routes (`/preview/**`, `/preview/live`, `/api/draft-mode/*`) carry none of these headers. Site-wide:
 
 - `Strict-Transport-Security` (HSTS, one year, includeSubDomains)
-- `X-Frame-Options: DENY` (clickjacking)
+- `Content-Security-Policy`, a full policy since 2026-09-29 (below). Its `frame-ancestors` replaces the legacy `X-Frame-Options` (there is no `X-Frame-Options` header; an older version of this doc said `DENY`, which was never true and would break the Presentation iframe)
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Cross-Origin-Opener-Policy: same-origin`
 
-Content-Security-Policy is intentionally not included; doing it right requires testing because of the Sanity CDN, the Web3Forms POST endpoint, the Calendly embed, and the Cloudflare Analytics beacon.
+**The Content-Security-Policy is three rules, scoped by path.** The header comment in `public/_headers` is the full inventory of which origin is there for which component; read it before adding anything.
+
+- `/*` is the public site, and tight: scripts only from `'self'`, GA4 (`www.googletagmanager.com`) and the Cloudflare beacon; connections only to Web3Forms, GA4 collection (including `www.google.com`, where this property also posts every hit: the first sweep caught it blocked on every page), the beacon, and this project's own Sanity API hosts; `'wasm-unsafe-eval'` for Pagefind search (compiles WASM in a worker served from `/pagefind/`, which carries this same policy); frames only Calendly, YouTube, Vimeo and OpenStreetMap; fonts only `'self'`. `'unsafe-inline'` stays on scripts and styles because a static build has no per-request nonce and the anti-FOUC theme script, the GA stub, Astro's island loader and ClientRouter all run inline (the hash-based `security.csp` was tried and broke the site; see stack-and-config.md). There is deliberately no `upgrade-insecure-requests`: it rewrote a local 307 to https and broke click navigation under `npm run preview`, and HSTS already covers production.
+- `/studio/*` detaches the public policy (`! Content-Security-Policy`) and sets the Studio's own: Sanity API, live websocket and `sanity-cdn.com` version ping in `connect-src`, `design-system-static.sanity.io` fonts, `blob:` workers. The detach is required: Cloudflare merges every matching rule's headers, and two CSP headers are both enforced, so the Studio would otherwise still be held to the public one. These grants are the vault gotcha `embedded-studio-blocked-by-your-own-csp.md`.
+- `/_astro/*` detaches the CSP (a Web Worker is governed by the CSP on its own script response, so a Studio worker loaded from `/_astro/` would otherwise get the public policy) AND owns the immutable `Cache-Control`. A separate detach-only rule for the same path did not merge with the adapter's under `npm run preview` (the immutable cache vanished and the CSP stayed), so this one rule carries the year-long cache itself and `@astrojs/cloudflare` sees it and skips its own injection. Verified under `npm run preview`: a hashed font answers `max-age=31536000, immutable` with no CSP.
+
+**Adding an embed or a third party:** put its origin in the right directive of the right rule, then check it under `npm run preview` (a static file server sends no headers, so it cannot show a CSP problem). A blocked request never leaves the browser, so no server log shows it; the only evidence is a console line reading "violates the following Content-Security-Policy directive".
+
+**Not covered: `/preview/**`.** The draft preview is SSR, so a policy for it has to be set from the SSR code (middleware or the preview route), not from `_headers`. Tracked in `docs/PENDING.md`.
 
 ### Privacy and analytics
 

@@ -19,6 +19,7 @@
     "typegen": "sanity schema extract --force && sanity typegen generate",
     "og": "node scripts/generate-og-default.mjs",
     "og:pages": "node scripts/generate-og-pages.mjs",
+    "favicon": "node scripts/generate-favicons.mjs",
     "llms:full": "node scripts/generate-llms-full.mjs",
     "studio:import": "node scripts/import-content.mjs",
     "check": "astro check && npm run lint",

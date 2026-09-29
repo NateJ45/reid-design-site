@@ -57,6 +57,7 @@ import {
   ThumbsUpIcon,
   ColorWheelIcon,
   RocketIcon,
+  ArrowRightIcon,
 } from '@sanity/icons';
 import StudioGuide from './components/StudioGuide';
 import BusinessOverview from './components/BusinessOverview';
@@ -116,6 +117,8 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'media.tag',
   // Trash has its own explicit desk entry near the bottom.
   'trashedItem',
+  // Placed explicitly at the end of "Pages" (PORTS.md card 22).
+  'redirect',
 ]);
 
 /**
@@ -257,6 +260,18 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               S.documentTypeListItem('page')
                 .title('Custom pages (you build these)')
                 .icon(DocumentsIcon),
+
+              S.divider(),
+
+              // Redirects: old address -> new address (PORTS.md card 22). Most
+              // entries are filed automatically when a published page, project,
+              // post or guide gets a new web address
+              // (src/sanity/components/slugRedirect.tsx); Staci adds one by hand
+              // for an address that never existed here, like an old Squarespace
+              // link. Applied at build time by astro.config.mjs.
+              S.documentTypeListItem('redirect')
+                .title('Redirects (old links)')
+                .icon(ArrowRightIcon),
             ]),
         ),
 

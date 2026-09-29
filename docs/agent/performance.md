@@ -41,7 +41,14 @@ Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than
 - **Cormorant Garamond** (display serif): self-hosted via `@fontsource/cormorant-garamond` weights 400 + 600. Weight 500 was previously loaded but never selected anywhere; removing it saved ~50 KB across latin + latin-ext woff/woff2 with zero visual change. Don't add back without a real usage.
 - **Source Sans 3 Variable** (body sans): self-hosted via `@fontsource-variable/source-sans-3`. Single file covers all weights.
 - **Pinyon Script** (one-word editorial accent): self-hosted via `@fontsource/pinyon-script`. Used on hero `scriptAccent` words and on `SectionHeading` / `FinalCta` `scriptAccent` props. Loaded after the primary fonts with `font-display: swap` (fontsource default) so it never blocks first paint. If no accent is set on a given page, the file is still fetched but doesn't render anything — small price for the option.
-- No `<link rel="preload">` on font URLs. Vite hashes the filenames at build time, so a static preload tag would 404. The cost is one extra paint; the benefit is no broken preload (and Lighthouse stays at 100 Best Practices).
+- **Metric-matched fallback faces (2026-09-29).** Each family is followed in its `--font-*` token by a local fallback face (`Cormorant Garamond Fallback` on Georgia, `… Fallback TNR` on Times New Roman / Liberation Serif / Tinos, `Pinyon Script Fallback` on Georgia Italic, `Source Sans 3 Fallback` on Arial) carrying `size-adjust`, `ascent-override`, `descent-override` and `line-gap-override`, so the swap from the system font to the web font changes letter shapes and nothing else. The Cormorant and Pinyon numbers were measured in Chrome on 93 real headlines and the four real script accents from the built site; Source Sans 3's came across from presacademy (same package, spot-checked within 1 percent). The comment above the faces in `globals.css` says how to re-measure; do it if any `@fontsource` package takes a new major. Never measure a `local()` font the machine lacks: it silently measures as the default face.
+- **No font preload, and that is a measured decision (2026-09-29).** A preload is possible (the old note here said Vite's filename hash made it impossible; a `?url` import of the woff2 returns exactly the hashed URL the @fontsource CSS uses, verified in the built CSS). It was built and measured on Lighthouse mobile: the 23KB font competed with the stylesheet and the hero photo, and LCP (always the hero PHOTO on this site, never text) rose about 250-300ms on `/`, `/about` and `/services`. The fallback faces already remove the reflow a preload would have prevented, so the preload was taken out. The reasoning is in a comment in BaseLayout's `<head>`. Revisit only if a page's LCP element becomes text.
+- **`<link rel="preconnect" href="https://cdn.sanity.io">`** (no `crossorigin`: images are no-cors, and a crossorigin preconnect opens a socket the images cannot use).
+
+### Hero slideshow and Lenis (2026-09-29)
+
+- **Only the first hero slide loads before the page does.** With 2+ hero images, `HeroBackground.astro` renders every slide after the first with `SanityImage`'s `defer` prop: no `src`, URLs parked in `data-src` / `data-srcset`, moved across 800ms after the load event. `loading="lazy"` never held them back, because every slide is stacked inside the viewport; on the mobile Lighthouse run all six extra slides (about 225KB) downloaded next to the LCP photo and the fonts. The slideshow timer also refuses to fade to a slide whose image has not arrived, and reduced-motion visitors never fetch the extra slides at all.
+- **Lenis runs on wheel devices only** (`pointer: fine` and 1024px+, from presacademy). Touch scrolling is already inertial. The navigation scroll reset still works on phones: without Lenis there is no momentum to cancel, and Astro's ClientRouter restores top-on-click and position-on-Back itself. `tests/scroll-reset.spec.ts` pins both devices.
 
 ### Current Lighthouse scorecard (May 2026)
 
@@ -58,7 +65,9 @@ Desktop scores match (also 100s across the board). Remaining `ImageDelivery` "Es
 **Levers that got us here — preserve unless you have a stronger reason than "I want to simplify":**
 
 - All site islands hydrate at `client:idle` or `client:visible`, `MobileNav` included since 2026-09-29 (PORTS.md card 52: the old "Radix Sheet portal requires `client:only`" rule was never true on the pinned set). Only the preview-only `VisualEditingOverlay` is `client:only="react"`.
-- Lenis init wrapped in `requestIdleCallback`
+- Lenis init wrapped in `requestIdleCallback`, and skipped entirely on touch / narrow screens
+- Non-first hero slides deferred until after the load event (`SanityImage defer`)
+- Metric-matched fallback faces for all three families (and deliberately no font preload)
 - Logo PNGs moved from `public/` to `src/assets/` so Astro emits WebPs
 - Single-img theme-aware logo (one fetch per page load instead of two)
 - SanityImage emits real width-descriptor srcset with 8 breakpoints (400–2400)
