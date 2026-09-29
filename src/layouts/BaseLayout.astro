@@ -4,7 +4,7 @@
 //   - <html lang>, document head, OG/Twitter meta
 //   - Anti-FOUC theme bootstrap (runs before first paint)
 //   - Cormorant Garamond font preload (LCP element on hero)
-//   - Cloudflare Web Analytics beacon (conditional)
+//   - Analytics (GA4 + Cloudflare beacon, both conditional) via Analytics.astro
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
 //   - Lenis smooth scroll init (prefers-reduced-motion-aware)
@@ -18,6 +18,7 @@ import { getNavPages } from '@/lib/queries';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
+import Analytics from '@/components/Analytics.astro';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
 // Starwind UI CSS — accordion keyframes + @theme inline for new semantic tokens.
@@ -117,18 +118,12 @@ const ogImageAlt = seoImage?.alt ?? siteSettings?.seoImage?.alt ?? fullTitle;
 // Pages can still pass their own additional schemas (Service, FAQPage, BreadcrumbList).
 const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas] : schemas;
 
-// Cloudflare Web Analytics token — only render the beacon when present.
-const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
-// Google Analytics — only render when present. PUBLIC_GA_MEASUREMENT_ID is set
-// as a build variable on the Cloudflare Workers Builds production deploy. It is
-// NOT set in CI, Lighthouse or the staging workflow.
-const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
-// ...and even when it IS set, the snippet only fires on the production hosts.
-// A local `.env` carrying the id leaked 236 + 234 one-page "sessions" from
-// Playwright/Lighthouse runs on localhost into property 542115376
-// (2026-07-28, 2026-08-27), plus stray *.workers.dev hits. The build variable
-// alone can't stop a developer's .env, so the runtime check below is the guard.
-const gaHosts = [site.domain, `www.${site.domain}`];
+// Analytics (GA4 + Cloudflare Web Analytics) lives in src/components/Analytics.astro,
+// which owns the environment variables and the conditions (PORTS.md cards 54 + 58).
+// Nothing is configured here on purpose: that file is PORTABLE and this layout is
+// not. PUBLIC_GA_ID is set ONLY on the production Workers Build; the component also
+// refuses to fire off the hostname of `site` in astro.config, which is what stops a
+// local .env from filing localhost sessions (it did: 470 of them, 2026-07/08).
 ---
 
 <!doctype html>
@@ -238,39 +233,8 @@ const gaHosts = [site.domain, `www.${site.domain}`];
       })();
     </script>
 
-    {/* Google Analytics — conditional on PUBLIC_GA_MEASUREMENT_ID, and at
-        runtime on the production hostname (see gaHosts in the frontmatter).
-        The loader <script> is built in JS rather than printed as a tag: that
-        is what lets the hostname check stop the library downloading at all
-        off-production, and it also keeps Cloudflare Zaraz from rewriting the
-        tag (vault gotcha zaraz-can-stop-delivering-hits-silently). */}
-    {gaMeasurementId && (
-      <script is:inline define:vars={{ gaMeasurementId, gaHosts }}>
-        if (gaHosts.indexOf(location.hostname) !== -1) {
-          window.dataLayer = window.dataLayer || [];
-          // Google's canonical snippet: gtag.js expects the live `arguments`
-          // object on the dataLayer, and a rest-parameter array is silently
-          // ignored by its processor.
-          // eslint-disable-next-line prefer-rest-params
-          window.gtag = function gtag(){dataLayer.push(arguments);};
-          gtag('js', new Date());
-          gtag('config', gaMeasurementId);
-          var gaScript = document.createElement('script');
-          gaScript.async = true;
-          gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaMeasurementId);
-          document.head.appendChild(gaScript);
-        }
-      </script>
-    )}
-
-    {/* Cloudflare Web Analytics — conditional, no cookie banner needed. */}
-    {cfToken && (
-      <script
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token": "${cfToken}"}`}
-      ></script>
-    )}
+    {/* GA4 + Cloudflare Web Analytics. See Analytics.astro. */}
+    <Analytics />
 
     <ClientRouter />
   </head>
