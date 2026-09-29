@@ -20,6 +20,7 @@ import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
+import { TrendUpwardIcon } from '@sanity/icons';
 import { media } from 'sanity-plugin-media';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { schemaTypes } from './src/sanity/schemaTypes';
@@ -31,6 +32,7 @@ import StudioLogo from './src/sanity/components/StudioLogo';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';
 import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/actions/archive';
+import { StatsTool } from './src/sanity/components/StatsTool';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -183,6 +185,11 @@ export default defineConfig({
     // Gate it to local dev so it doesn't clutter Staci's deployed Studio.
     ...(IS_DEV ? [visionTool()] : []),
   ],
+
+  // Site stats: the 28-day traffic panel (src/sanity/components/StatsTool.tsx),
+  // in the top bar beside Presentation. It shows a friendly "not set up yet" card
+  // until the CF_ANALYTICS_TOKEN Worker secret exists (docs/agent/sanity.md).
+  tools: [{ name: 'stats', title: 'Site stats', icon: TrendUpwardIcon, component: StatsTool }],
 
   schema: {
     types: schemaTypes,
