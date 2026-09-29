@@ -1,6 +1,7 @@
 ---
 // Safe to edit by hand
-// Custom 404. Warm, on-brand, two clear paths back. No search (there isn't one).
+// Custom 404. Warm, on-brand, clear paths back, plus a search box that hands off
+// to /search (Pagefind). The box is a plain GET form, so it works with no JS.
 //
 // Layout: two-column on desktop (text + photograph), stacked on mobile. The
 // photo grounds the page as Reid Design — using a styled vignette from the
@@ -52,7 +53,8 @@ const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
     aria-labelledby="not-found-heading"
   >
     {
-      /* Text column. Two clear paths back — no search (there isn't one).
+      /* Text column. Three clear paths back, then a search box (a plain GET form to
+        /search, which reads ?q=).
         Centered on mobile so the lone-element page reads as a sympathetic
         "you're off-path" moment; left-aligned on desktop where the
         two-column layout needs the text anchored beside the photo column. */
@@ -89,6 +91,30 @@ const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
           {tertiaryLabel}
         </a>
       </div>
+
+      {/* Search hand-off. Native GET form to /search?q=..., no JS needed. */}
+      <form
+        action="/search"
+        method="get"
+        role="search"
+        class="mx-auto mt-l flex max-w-md gap-s md:mx-0"
+      >
+        <label for="notfound-search" class="sr-only">Search the site</label>
+        <input
+          id="notfound-search"
+          name="q"
+          type="search"
+          autocomplete="off"
+          placeholder="Or search the site"
+          class="min-w-0 flex-1 rounded-sm border border-border-soft bg-card px-m py-2.5 text-base text-foreground placeholder:text-foreground/60 focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        />
+        <button
+          type="submit"
+          class="press-tactile inline-flex items-center rounded-sm bg-primary-dark px-l py-2.5 text-xs font-semibold tracking-eyebrow text-white uppercase hover:bg-accent-dark"
+        >
+          Search
+        </button>
+      </form>
     </div>
 
     {

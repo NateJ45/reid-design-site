@@ -77,6 +77,7 @@ export default defineConfig({
       // redirect stubs come out too (see sectionVisibility above).
       filter: (page) =>
         !page.includes('/404') &&
+        new URL(page).pathname.replace(/\/$/, '') !== '/search' &&
         !page.includes('/studio') &&
         !page.includes('/preview') &&
         !isHiddenSectionPath(new URL(page).pathname, sectionVisibility),

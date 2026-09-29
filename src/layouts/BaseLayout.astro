@@ -251,7 +251,10 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 
     <Header siteSettings={siteSettings} navPages={navPages} />
 
-    <main id="main" class="flex-1">
+    {/* data-pagefind-body: site search (Pagefind) indexes ONLY the text inside this
+        element, so the header, footer, announcement bar and menus never show up in
+        results. noindex pages (404, /search) are left out of the index too. */}
+    <main id="main" class="flex-1" data-pagefind-body={noindex ? undefined : ''}>
       <slot />
     </main>
 
