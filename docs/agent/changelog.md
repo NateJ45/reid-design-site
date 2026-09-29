@@ -2,6 +2,55 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — tier-2 hardening: full CSP, font fallbacks, deferred hero slides, icon set, redirects on rename
+
+**Content-Security-Policy.** `public/_headers` now ships a full policy instead of
+`frame-ancestors` alone, as three path-scoped rules: a tight one for the public site,
+the Studio's own grants on `/studio/*` (detaching the public one, since Cloudflare
+merges matching rules and the browser enforces every CSP it gets), and `/_astro/*`
+detaching the CSP while owning the immutable Cache-Control. Verified with a sweep
+script under `wrangler dev`: 9 public routes on localhost and again on the production
+hostname (requests routed to the local build, so the host-gated GA4 tag really
+fires; collection hits aborted after CSP allowed them), the Calendly iframe opened,
+and `/studio/` loaded to the sign-in screen with Sanity's real CORS. The sweep's first
+run caught 27 violations: this GA4 property also posts every hit to
+`www.google.com/g/collect`. After the fix, zero. Three findings along the way:
+a second `/_astro/*` rule wiped the adapter's immutable cache; `upgrade-insecure-requests`
+broke click navigation under `npm run preview` (a 307 to `http://127.0.0.1` got
+rewritten to https) and was dropped; and the SSR `/preview/**` routes get no
+`_headers` at all (PENDING). `'wasm-unsafe-eval'` is in for the site-features
+branch's Pagefind search, verified against that branch's build: `/search` returns
+results with it and throws "Failed to load the Pagefind WASM" without it.
+
+**Fonts.** Metric-matched fallback faces for Cormorant Garamond (Georgia, and a
+Times New Roman / Liberation Serif family), Pinyon Script (Georgia Italic / TNR
+Italic) and Source Sans 3 (Arial, presacademy's numbers). Measured, fonts held 3s on
+a 412px phone: font-swap CLS on `/services` 0.027 to 0.0006, `/` 0.0025 to 0.0007,
+`/process` 0.0002 to 0. Lighthouse mobile `/services` CLS 0.027 to 0.0006. The home
+page stays at 0.033 on Lighthouse: that is the hero's rotating word, not the fonts
+(PENDING). A `?url` font preload was built, measured (LCP about +250ms, it competed
+with the hero photo) and removed; the note in BaseLayout says why. Added a
+`cdn.sanity.io` preconnect.
+
+**Hero slideshow and Lenis.** Slides after the first render through SanityImage's
+new `defer` prop and get their URLs 800ms after `load`: on Lighthouse mobile the six
+extra slides (about 225KB) used to start at 1.7s beside the LCP photo and now start
+at 4.6s. Lenis runs on wheel devices only (fine pointer, 1024px+); home TBT on
+Lighthouse mobile went from a 618ms median to 480ms. The navigation scroll reset is
+unchanged, and the new `tests/scroll-reset.spec.ts` pins top-on-click and
+restore-on-Back on both a mouse desktop and a touch phone.
+
+**Icon set (PORTS.md card 47).** The canonical `scripts/generate-favicons.mjs`
+(`npm run favicon`) renders favicon.ico, apple-touch-icon, icon-192/512 and
+site.webmanifest from `favicon.svg`, with a minimal `brand/brand.config.json`.
+The mark's plate became a rounded tile (was a disc) so touch icons are opaque.
+
+**Redirects on rename (PORTS.md card 22).** `redirect` type, the canonical Publish
+wrapper, the build-time `redirects` map; plus a Reid-only guard that drops a redirect
+from an address a published page lives at now (the rename-and-back loop). Verified
+the pipeline with a temporary entry: `_redirects` got both slash forms, wrangler
+answered 301 and carried the query string, and the sitemap did not list it.
+
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,

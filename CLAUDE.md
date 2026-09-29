@@ -34,10 +34,11 @@ Full stack notes and the `astro.config.mjs` landmines are in `docs/agent/stack-a
 2. **No em-dashes in public-facing site copy** (the text visitors read: page copy, component text, Sanity content). Use commas, colons, or restructure. Code comments, commit messages, plans, specs, and internal docs are exempt.
 3. **Build in both light AND dark mode** on every UI change. Detail in `docs/agent/theme-and-color.md`.
 4. **Desktop nav is server-rendered** in `Header.astro`. Do not regress it to a client-only island. Detail in `docs/agent/page-architecture.md`.
-5. **The Lenis scroll reset on navigation** (forward goes to top, back/forward restores) lives in the BaseLayout Lenis init. Do not remove it. Detail in `docs/agent/polish-layer.md`.
+5. **The Lenis scroll reset on navigation** (forward goes to top, back/forward restores) lives in the BaseLayout Lenis init. Do not remove it. Since 2026-09-29 Lenis only starts on wheel devices (fine pointer, 1024px+); on phones the ClientRouter does the same job natively, and `tests/scroll-reset.spec.ts` pins both. Detail in `docs/agent/polish-layer.md`.
 6. **Content is statically built.** A Sanity edit only goes live after a rebuild (push to `main`, or the publish webhook). Detail in `docs/agent/deployment.md`. The `/preview/*` routes are the exception and the reason they exist: they render per request against DRAFT content, so an editor sees the change before it ships.
 7. **A new logic-driving dropdown field goes in `NON_STEGA_FIELDS` the same day.** The list is in `src/lib/cms-preview.ts`. Stega hides about a kilobyte of invisible marker characters inside every string it encodes, so `s.section === 'hero'` is `false` on an encoded value and the component silently takes the wrong branch, **in preview only**. The live site stays fine, which is what makes it hard to find.
 8. **The preview-only `data-sanity` attributes must never reach the static build.** `SectionRenderer` and the eight page renderers emit their wrapper only when a preview route passes `editDoc`; without it the wrapper is a `<Fragment>` and renders nothing. `npm run parity` is the standing gate on that promise.
+9. **A new third-party origin needs a CSP grant, or it fails silently.** `public/_headers` carries a full Content-Security-Policy (2026-09-29): a tight one for the public site, a separate one for `/studio/*`. Add a new embed, script, font or API host to the right directive of the right rule and check it under `npm run preview` (a static server sends no headers). A blocked request never leaves the browser, so the only evidence is a console line. The SSR `/preview/**` routes get no `_headers` at all. Detail in `docs/agent/deployment.md`.
 
 ---
 
@@ -129,6 +130,8 @@ Studio plumbing, added 2026-08-28. All SSR (`prerender = false`), all `noindex`,
 - Copy strings and `href` values in static page components
 - Tailwind utility classes on existing components when content needs different visual weight
 - Brand colors, tagline, and wordmark inputs in `scripts/generate-og-default.mjs` (re-run `npm run og` after editing)
+- `public/favicon.svg`, the ONE drawing the whole icon set is rendered from: after editing it, run `npm run favicon` (PORTABLE `scripts/generate-favicons.mjs`, PORTS.md card 47) and commit `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` and `site.webmanifest`. The manifest name/colour come from the minimal `brand/brand.config.json`
+- Redirects: Staci manages them in Studio under Pages → Redirects (old links); renaming a published page, project, post or guide files one automatically (PORTS.md card 22)
 
 ## Foundation, edit with care (route through a planned Claude session)
 
@@ -153,9 +156,10 @@ Studio plumbing, added 2026-08-28. All SSR (`prerender = false`), all `noindex`,
 - `src/components/starwind/` — Astro-native Starwind UI component set (accordion, tabs, dialog, dropdown); add more via `npx starwind@latest add <name>`
 - `src/components/primereact/` — PrimeReact unstyled escape hatch; use only for complex behavior-heavy widgets (DataTable, TreeSelect) that shadcn/Radix does not cover
 - `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `tsconfig.json`, `components.json`
-- `public/_headers` (security response headers shipped with the deploy)
+- `public/_headers` (security response headers shipped with the deploy, including the full CSP and the `/_astro/*` immutable Cache-Control, which it must keep in the same rule: a second `/_astro/*` rule wiped it under wrangler)
+- **Redirects on rename** (PORTS.md card 22): `src/lib/redirects.ts` + `src/sanity/components/slugRedirect.tsx` (both PORTABLE), `src/sanity/schemaTypes/redirect.ts`, the Reid-only `src/lib/redirect-guard.ts` (drops a redirect that would loop over a live page), and the build-time read in `astro.config.mjs`. Detail in `docs/agent/sanity.md`
 - `public/og-default.png` (regenerate via `npm run og`)
-- `public/favicon.svg` (RD monogram on Warm Bronze disc, `prefers-color-scheme`-aware)
+- `public/favicon.svg` (RD monogram on a Warm Bronze rounded tile, `prefers-color-scheme`-aware; a tile rather than the old disc since 2026-09-29 so the touch icons have an opaque plate)
 - `public/robots.txt` (allow-all + sitemap reference)
 - `public/llms.txt` (AI/LLM crawler index — update if major pages change)
 
