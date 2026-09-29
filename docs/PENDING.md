@@ -252,6 +252,13 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   "Creating" at every width, which looks worse than a 0.031 shift that is
   already inside Google's "good" range (< 0.1). Revisit only with a rotator
   that sits at the end of a line.
+- **"Copy share link" on a project, journal post or guide gives a 404.** Found
+  in the signed-in staging Studio 2026-09-29. The action builds
+  `/preview/portfolio/<slug>` (and the journal / guide equivalents), but
+  `/preview/[...slug].astro` only renders page singletons and custom pages, so
+  the link opens a "No document found" 404. Links for pages work (About and a
+  custom page proved end to end, logged out). Fix: either hide the action on
+  types the preview route cannot draw, or teach the route those types.
 - **Studio deep links 404 on reload.** `/studio/` is prerendered as one static
   page, so a refresh or a pasted link to `/studio/structure/...` answers 404
   (production too, 2026-09-29). Probably wants the Studio route SSR, or a
