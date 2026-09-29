@@ -3,6 +3,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { SERVICES_SECTION_TYPES, SERVICES_DEFAULT_ORDER } from './servicesSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const servicesPage = defineType({
   name: 'servicesPage',
@@ -67,6 +68,8 @@ export const servicesPage = defineType({
       description:
         "The order of sections on the Services page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new. Edit each section's content in its own tab.",
       of: SERVICES_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: SERVICES_DEFAULT_ORDER,
     }),
 

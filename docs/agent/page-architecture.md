@@ -66,6 +66,10 @@ The library is consumed in three ways:
 
 Net effect: every page on the site can be extended from the same block library, and Staci can also build new pages from scratch. The projection helper for any pageBuilder/additionalSections array is `sectionsProjection(field)` in `queries.ts` — it resolves images and ctaBlocks per block type, so any new consumer just calls it with the field name.
 
+### Announcements and search (2026-09-29)
+
+Two site-wide features that are not part of any page's own section list. **Announcements** are drawn by `BaseLayout` above the header on every page an announcement applies to (nothing rendered when none does). **Search** is the `/search` page, fed by a Pagefind index of `<main data-pagefind-body>`; it never indexes the header, footer, announcement bar, menus, the 404, `/search` itself, `/studio`, or the redirect stub a hidden section leaves behind. Both are documented in docs/agent/sanity.md and docs/agent/deployment.md.
+
 ### Section visibility
 
 Optional sections of the site can be turned on or off without touching code. The system is designed so the live site is completely unchanged until a toggle is explicitly set to off.

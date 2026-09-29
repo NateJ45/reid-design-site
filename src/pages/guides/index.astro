@@ -19,10 +19,7 @@ import Hero from '@/components/Hero.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import FinalCta from '@/components/FinalCta.astro';
 
-const [magnets, siteSettings] = await Promise.all([
-  getLeadMagnets().catch(() => []),
-  getSiteSettings().catch(() => null),
-]);
+const [magnets, siteSettings] = await Promise.all([getLeadMagnets(), getSiteSettings()]);
 
 // Section visibility guard.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);

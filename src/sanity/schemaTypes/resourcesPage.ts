@@ -5,6 +5,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { RESOURCES_SECTION_TYPES, RESOURCES_DEFAULT_ORDER } from './offeringSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const resourcesPage = defineType({
   name: 'resourcesPage',
@@ -66,6 +67,8 @@ export const resourcesPage = defineType({
       description:
         'The order of sections on the Resources page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new.',
       of: RESOURCES_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: RESOURCES_DEFAULT_ORDER,
     }),
 

@@ -21,9 +21,15 @@ File naming:
 
 Reid Design's primary CTA (Warm Bronze background, white text, generous uppercase letter-spacing) extends `src/components/ui/button.tsx` with `variant="brand"` + `size="cta"`. The convention from NCS. Don't override the shadcn defaults inline. Leave other shadcn variants unmodified so future `npx shadcn add` commands don't fight with the extensions.
 
-### Radix-based primitives need `client:only="react"`
+### Radix-based primitives server-render fine, so hydrate them at `client:idle`
 
-shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with portal positioning) don't SSR cleanly inside Astro. The portal hook calls during server render throw "Invalid hook call" and blank the page. When a new component leans on those, hydrate it with `client:only="react"` instead of `client:load`. The mobile nav is the existing reference.
+shadcn primitives that wrap Radix's Dialog (Sheet, Dialog, DropdownMenu with portal positioning) server-render without trouble on the versions this site pins. A closed Dialog renders only its trigger, and the portal mounts nothing until it opens, so the trigger is in the server HTML and the island only needs the React runtime by the time a visitor reaches for it. Hydrate these at `client:idle`, the same as any other non-critical island. `MobileNav.tsx` is the reference (PORTS.md card 52, ported 2026-09-29).
+
+This doc used to say the opposite: that the portal hook threw "Invalid hook call" during server render and these primitives had to be `client:only="react"`. That was measured on an older React and Radix pairing and no longer holds. `client:only` skips SSR entirely, which meant the hamburger button was missing from the server HTML until React loaded.
+
+**If a component genuinely cannot server-render**, the symptom is unmistakable: an "Invalid hook call" thrown during the build's server render, naming the component. `client:only="react"` is still the escape hatch for that case. `VisualEditingOverlay` in `src/layouts/PreviewLayout.astro` keeps it on purpose: the overlay is preview-only, Studio-coupled, and has nothing meaningful to render on the server.
+
+Proof is a working drawer, not a passing build: open it at 375px, check focus lands inside and stays there on Tab, Escape closes it and focus returns to the trigger.
 
 ### Reid Design specific components
 
@@ -31,9 +37,10 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Page chrome:**
 
+- `Announcements.astro` (2026-09-29) — the announcement bar(s) and the one popup, drawn once by `BaseLayout` above `Header`. Renders nothing when no announcement applies. Full behavior in docs/agent/sanity.md ("Announcements"). The header now also carries a **search icon** to `/search` (in the eyebrow strip on desktop, beside the hamburger on mobile); the mobile drawer (`MobileNav.tsx`) does not have a Search entry yet.
 - `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer). New logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`. The eyebrow strip carries the availability status (also a compact pill on the mobile row), email, and phone; on mobile the availability shows a compact "Open" that expands to the full status from md up.
 - `Footer.astro` — bronze stripe, a compact brand bar (just the studio logo, which wraps in `<a href="/">` so click returns home), a responsive link grid (1 / 2 / 3 / 5 columns as the viewport widens, so a column never gets too narrow for the email), latest projects from Sanity, auto-year copyright + "Site by …" credit now on a thin bottom bar (not stacked in a column). The fifth grid column (Get in touch) lists email + phone (`tel:` via `telHref`) + socials. The compact brand bar instead of the old tall stacked block keeps the footer to roughly half its previous height (~half the viewport on desktop).
-- `MobileNav.tsx` — shadcn Sheet drawer (`client:only="react"` — Radix portal can't SSR). Bronze stripe top, primary CTA, tagline, nav links, email + phone (`tel:` via `telHref`) + socials + theme toggle, logo at bottom.
+- `MobileNav.tsx` — shadcn Sheet drawer (`client:idle`; the closed Sheet server-renders its trigger, so the hamburger is in the server HTML). Bronze stripe top, primary CTA, tagline, nav links, email + phone (`tel:` via `telHref`) + socials + theme toggle, logo at bottom.
 - `BaseLayout.astro` — anti-FOUC theme bootstrap, View Transitions, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**.
 
 **Hero + page-top:**

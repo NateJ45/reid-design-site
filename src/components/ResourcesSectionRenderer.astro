@@ -67,7 +67,11 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
           <ResourcesCards sanityCards={page?.cards} visible={visible} />
         ) : null
       ) : (
-        <SectionRenderer sections={[s]} idPrefix={`resources-extra-${i}`} />
+        <SectionRenderer
+          sections={[s]}
+          idPrefix={`resources-extra-${i}`}
+          coach={Boolean(editDoc)}
+        />
       )}
     </Wrap>
   ))

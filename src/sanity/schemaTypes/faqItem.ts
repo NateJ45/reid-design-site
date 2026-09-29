@@ -7,6 +7,9 @@ export const faqItem = defineType({
   name: 'faqItem',
   title: 'FAQ Item',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [{ path: 'question', weight: 5 }],
   fields: [
     defineField({
       name: 'question',

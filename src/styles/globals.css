@@ -4,6 +4,22 @@
    carries everywhere the design system is referenced. */
 
 @import 'tailwindcss';
+
+/* NOT SOURCE (2026-09-29; vault gotcha committed-parity-baselines-feed-
+   tailwind, the Stone Steps pattern). Tailwind 4 scans every file git does not
+   ignore for candidate class names, and that includes two kinds of file that
+   are not the site:
+   - scripts/.parity/*.html, the committed parity baselines. They are OUTPUT.
+     A class that exists only in an old baseline keeps its rule alive in the
+     next build, and parity then passes because the baseline fed the build.
+   - docs/, where this repo explains its own markup in prose. Markdown IS
+     scanned, so naming a utility in a doc puts that rule in the shipped
+     stylesheet.
+   Excluded rather than gitignored: both have to stay committed. Paths are
+   relative to this file. Kept up here, next to the import, on purpose. */
+@source not '../../scripts/.parity';
+@source not '../../docs';
+
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 /* Cormorant Garamond — display serif. Only 400 + 600 are actually used:
@@ -22,6 +38,142 @@
 @import '@fontsource/pinyon-script/400.css';
 
 @custom-variant dark (&:is(.dark *));
+
+/* ---------- Metric-matched fallback faces (2026-09-29) ----------------------
+   The three web fonts arrive after first paint (font-display: swap), so every
+   visitor on a cold cache sees the page first in a SYSTEM font and then watch
+   it swap. Unadjusted, Georgia sets Cormorant's headlines 13 percent wider, so
+   the home hero h1 re-wrapped when Cormorant landed: Lighthouse mobile measured
+   CLS 0.033 on / and 0.027 on /services, all of it the h1. These faces scale
+   the system font to the web font's own width (size-adjust) and pin its line
+   box to the web font's vertical metrics (ascent/descent-override), so the swap
+   changes the letter shapes and nothing else.
+
+   HOW THE NUMBERS WERE MADE (scratch scripts, not committed). size-adjust is
+   MEASURED in Chrome, not computed from font tables: 93 real headlines from
+   the built site (h1-h3 and every .font-display element on /, /about,
+   /services, /process, /faq, /contact, /e-design) laid out in the web font and
+   in the local face, size-adjust = web width / local width. The Pinyon number
+   uses the four accent phrases the site actually sets in it. Vertical metrics
+   come from the web font itself (canvas fontBoundingBox at 1000px):
+   Cormorant Garamond 924 / 287, Pinyon Script 863 / 384 per 1000.
+   THE OVERRIDES ARE PRE-SIZE-ADJUST: the browser scales them by size-adjust
+   along with everything else, so each is web metric / size-adjust (the trap
+   stonesteps-50k documented: 92.4 under 88.2% renders as 81.5, not 92.4).
+
+   Every local() font named here was confirmed present on the measuring
+   machine (Windows 11) before it was measured: a local() name the system
+   cannot resolve silently measures as the DEFAULT face and yields a confident
+   wrong number. Georgia and Times New Roman ship on Windows and macOS. A Linux
+   machine has neither Georgia nor a metric twin of it, so it falls through to
+   the "TNR" family, where Liberation Serif and Tinos are Times New Roman's
+   metric-compatible twins and take the same numbers.
+
+   Headlines render at weight 500, which resolves to Cormorant's 400 file (only
+   400 and 600 are loaded), so the 100-549 range carries the headline numbers.
+   Source Sans 3 is the same variable package presacademy measured on
+   2026-09-06 (body 400: 93.8 percent of Arial, 600+: 89.5 of Arial Bold,
+   italic 91.4); the numbers transfer, and a spot check on Reid's headline text
+   landed within one percent (92.8). Re-measure if any of the three
+   @fontsource packages takes a new major. */
+@font-face {
+  font-family: 'Cormorant Garamond Fallback';
+  font-style: normal;
+  font-weight: 100 549;
+  src: local('Georgia');
+  size-adjust: 88.2%;
+  ascent-override: 104.76%;
+  descent-override: 32.54%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Cormorant Garamond Fallback';
+  font-style: normal;
+  font-weight: 550 900;
+  src: local('Georgia Bold'), local('Georgia-Bold');
+  size-adjust: 76.4%;
+  ascent-override: 120.94%;
+  descent-override: 37.57%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Cormorant Garamond Fallback TNR';
+  font-style: normal;
+  font-weight: 100 549;
+  src:
+    local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif'), local('Tinos');
+  size-adjust: 96.2%;
+  ascent-override: 96.05%;
+  descent-override: 29.83%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Cormorant Garamond Fallback TNR';
+  font-style: normal;
+  font-weight: 550 900;
+  src:
+    local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold'),
+    local('Tinos Bold');
+  size-adjust: 91.3%;
+  ascent-override: 101.2%;
+  descent-override: 31.43%;
+  line-gap-override: 0%;
+}
+/* The script accent sits INSIDE a headline, so its width decides where that
+   headline wraps. Unadjusted, the generic `cursive` is Comic Sans on Windows. */
+@font-face {
+  font-family: 'Pinyon Script Fallback';
+  src: local('Georgia Italic'), local('Georgia-Italic');
+  size-adjust: 81.8%;
+  ascent-override: 105.5%;
+  descent-override: 46.94%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Pinyon Script Fallback TNR';
+  src:
+    local('Times New Roman Italic'), local('TimesNewRomanPS-ItalicMT'),
+    local('Liberation Serif Italic'), local('Tinos Italic');
+  size-adjust: 90.8%;
+  ascent-override: 95.04%;
+  descent-override: 42.29%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Source Sans 3 Fallback';
+  font-style: normal;
+  font-weight: 100 599;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 93.8%;
+  ascent-override: 109.17%;
+  descent-override: 42.64%;
+  line-gap-override: 0%;
+}
+/* Semibold and up (buttons, nav, eyebrows) map to the real bold cut rather
+   than a synthetic bold of the regular, whose advances would stay regular
+   width while Source Sans 3 at 600 is 8 percent wider than at 400. */
+@font-face {
+  font-family: 'Source Sans 3 Fallback';
+  font-style: normal;
+  font-weight: 600 900;
+  src:
+    local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('Arimo Bold');
+  size-adjust: 89.5%;
+  ascent-override: 114.41%;
+  descent-override: 44.69%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Source Sans 3 Fallback';
+  font-style: italic;
+  src:
+    local('Arial Italic'), local('Arial-ItalicMT'), local('Liberation Sans Italic'),
+    local('Arimo Italic');
+  size-adjust: 91.4%;
+  ascent-override: 112.04%;
+  descent-override: 43.76%;
+  line-gap-override: 0%;
+}
 
 /* ---------- Reid Design brand tokens ---------------------------------- */
 /* Reachable as utility classes: bg-bg, text-accent, border-secondary,
@@ -44,10 +196,17 @@
   --color-white-pure: #ffffff;
 
   /* Fonts */
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-body: 'Source Sans 3 Variable', 'Helvetica Neue', system-ui, sans-serif;
+  /* Each web font is followed by its metric-matched fallback faces (defined
+     above @theme), so the swap from system font to web font moves nothing. */
+  --font-display:
+    'Cormorant Garamond', 'Cormorant Garamond Fallback', 'Cormorant Garamond Fallback TNR', Georgia,
+    'Times New Roman', serif;
+  --font-body:
+    'Source Sans 3 Variable', 'Source Sans 3 Fallback', 'Helvetica Neue', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
-  --font-script: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --font-script:
+    'Pinyon Script', 'Pinyon Script Fallback', 'Pinyon Script Fallback TNR', 'Snell Roundhand',
+    'Apple Chancery', cursive;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;

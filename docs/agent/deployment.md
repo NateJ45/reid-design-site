@@ -4,7 +4,7 @@
 
 ## Deployment
 
-- Production: pushes to `main` trigger a Cloudflare Workers build. Today it serves `reid-design-site.nathanjnixon86.workers.dev`; `reiddesignllc.com` still points at Squarespace until the DNS cutover.
+- Production: pushes to `main` trigger a Cloudflare Workers build. It serves `reiddesignllc.com` (DNS cut over from Squarespace; confirmed answering from Cloudflare 2026-09-29) and still answers at `reid-design-site.nathanjnixon86.workers.dev`.
 - Previews: any other branch gets its own preview URL via Cloudflare Workers.
 - Build command: `npm run build`.
 - **Deploy command (CHANGED 2026-08-28): `npx wrangler deploy -c dist/server/wrangler.json`.** `@astrojs/cloudflare` 14 splits the output into `dist/client` (static assets) and `dist/server` (the SSR bundle plus a generated `wrangler.json` the adapter derives from the root `wrangler.jsonc`). A plain `wrangler deploy` reads the root config, ships the assets without the SSR entrypoint, and every SSR route 404s. **This has to be set in the Cloudflare dashboard** (Workers & Pages, reid-design-site, Settings, Build), because Cloudflare's git integration owns the deploy step, not this repo. `npm run deploy` already passes the flag for a manual deploy. Tracked in `docs/PENDING.md`.
@@ -16,7 +16,7 @@ Each was in the config before the upgrade, and each would have broken the deploy
 
 - **`not_found_handling: "404-page"`** in `wrangler.jsonc`. With it set, Cloudflare answers NAVIGATION requests (`Sec-Fetch-Mode: navigate`) that miss the asset store straight from the static 404 page **without invoking the Worker**. Every SSR route then 404s for real browsers while `curl`, which sends no `Sec-Fetch` headers, sees them working. That failure mode broke a sibling site's preview in production and hid from every command-line probe. Without the field, an asset miss invokes the Worker and Astro renders the 404 page itself, which is what a real `wrangler dev` showed here.
 - **Sessions.** Left on, adapter 14 auto-declares a `SESSION` KV binding in the generated config, and a KV binding with no namespace id fails the deploy. This site has no gated area, so `session: false`. The adapter-13 build genuinely was emitting that binding already; it just never mattered because nothing consumed the generated config.
-- **`legacy_env`.** Adapter 14 writes it on some configs and wrangler 4.126+ rejects the field outright. The generated config from 14.2.4 here contains no `legacy_env` at all, so the `~4.110.0` wrangler pin is belt-and-braces on this combination. It stays because the adapter's own peer range enforces the pair: 14.2.4 peers `wrangler ^4.83.0`, 14.2.5 peers `^4.125.0`.
+- **`legacy_env`.** Adapter 14 writes it on some configs and wrangler 4.126+ rejects the field outright. The generated config here contains no `legacy_env` at all (14.2.4 at the upgrade, and still none on 14.3.0, checked 2026-09-29), which is the only reason the current `@astrojs/cloudflare` 14.3.0 / wrangler `~4.129.0` pair works. The adapter's peer range enforces the pairing: 14.2.4 peered `wrangler ^4.83.0`, 14.2.5 onward peers `^4.125.0`. Re-check the generated file after every adapter bump.
 
 ### Environment: two token names, two different places
 
@@ -55,6 +55,8 @@ The old allow-list approach (listing every `_type` that should trigger a rebuild
 
 3. **Test:** edit `siteSettings.tagline` → publish → watch Cloudflare's Deployments tab → new build kicks off within ~10 seconds → live in ~1-3 min total.
 
+**A failed Sanity read stops the build (2026-09-29).** If Sanity is down or refusing requests (quota block, outage, a bad token) while Cloudflare builds, the build now FAILS with `[sanity] fetch failed during a production build: ...` instead of publishing empty pages. The live site keeps serving its last good build, and the next publish or push retries. An empty or missing document is not a failure and still renders its coming-soon state. Detail in `docs/agent/sanity.md` under "Where queries live".
+
 **Trade-offs to know:**
 
 - Every publish triggers a full ~45 second build. Reasonable for a marketing site. If Staci batch-edits 20 testimonials, save the publish click until the end to consolidate one build instead of 20.
@@ -79,17 +81,34 @@ Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variabl
 
 All documented in `.env.example`; copy to `.env` and fill in real values for local dev.
 
+**Worker runtime secrets** (not build variables; set with `npx wrangler secret put <NAME>`, `.dev.vars` locally, template in `.dev.vars.example`):
+
+- `SANITY_TOKEN` — the preview stack (see above).
+- `CF_ANALYTICS_TOKEN` (added 2026-09-29) — a read-only Cloudflare API token, exactly one permission (Zone > Analytics > Read, zone reiddesignllc.com), for the Studio "Site stats" panel. Optional: without it `/api/stats` answers 503 and the panel says it is not set up yet. `CF_ZONE_ID` optionally overrides the zone id constant in `src/pages/api/stats.ts`.
+
+**Site search (2026-09-29).** `npm run build` ends with `postbuild` = `pagefind --site dist/client`. The index is built against `dist/client` because adapter 14 splits the output, and it lands in `dist/client/pagefind/`, which the Workers `assets` binding serves like any other static file (nothing extra in `wrangler.jsonc`). The Workers Build runs `npm run build`, so it indexes on every deploy; the Linux Pagefind binary is in the lockfile (all seven platforms are). **If a full Content-Security-Policy is ever added** (see below), `script-src` needs `'wasm-unsafe-eval'` or `/search` will load and then fail to start Pagefind's WebAssembly; today only `frame-ancestors` is set, so nothing blocks it.
+
+**Weekly link report.** `.github/workflows/link-health.yml` runs `scripts/check-live-links.mjs` on Mondays 09:15 UTC (and on demand from the Actions tab). It reads every published document in the dataset, probes each outbound link, and writes a table to the run's Summary page. A link that is gone fails the run (GitHub emails the owner); one whose host refuses scripts is reported without failing. It needs no secrets (it uses the `PUBLIC_SANITY_*` repository variables, already set).
+
 ### Security headers
 
-`public/_headers` ships with the deploy. Five site-wide headers Cloudflare applies to every route:
+`public/_headers` ships with the deploy. Cloudflare applies it to every **static** response (every prerendered page, `/studio/`, and the `/_astro/*` files). It does **not** apply to responses the Worker generates itself, so the SSR routes (`/preview/**`, `/preview/live`, `/api/draft-mode/*`) carry none of these headers. Site-wide:
 
 - `Strict-Transport-Security` (HSTS, one year, includeSubDomains)
-- `X-Frame-Options: DENY` (clickjacking)
+- `Content-Security-Policy`, a full policy since 2026-09-29 (below). Its `frame-ancestors` replaces the legacy `X-Frame-Options` (there is no `X-Frame-Options` header; an older version of this doc said `DENY`, which was never true and would break the Presentation iframe)
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Cross-Origin-Opener-Policy: same-origin`
 
-Content-Security-Policy is intentionally not included; doing it right requires testing because of the Sanity CDN, the Web3Forms POST endpoint, the Calendly embed, and the Cloudflare Analytics beacon.
+**The Content-Security-Policy is three rules, scoped by path.** The header comment in `public/_headers` is the full inventory of which origin is there for which component; read it before adding anything.
+
+- `/*` is the public site, and tight: scripts only from `'self'`, GA4 (`www.googletagmanager.com`) and the Cloudflare beacon; connections only to Web3Forms, GA4 collection (including `www.google.com`, where this property also posts every hit: the first sweep caught it blocked on every page), the beacon, and this project's own Sanity API hosts; `'wasm-unsafe-eval'` for Pagefind search (compiles WASM in a worker served from `/pagefind/`, which carries this same policy); frames only Calendly, YouTube, Vimeo and OpenStreetMap; fonts only `'self'`. `'unsafe-inline'` stays on scripts and styles because a static build has no per-request nonce and the anti-FOUC theme script, the GA stub, Astro's island loader and ClientRouter all run inline (the hash-based `security.csp` was tried and broke the site; see stack-and-config.md). There is deliberately no `upgrade-insecure-requests`: it rewrote a local 307 to https and broke click navigation under `npm run preview`, and HSTS already covers production.
+- `/studio/*` detaches the public policy (`! Content-Security-Policy`) and sets the Studio's own: Sanity API, live websocket and `sanity-cdn.com` version ping in `connect-src`, `design-system-static.sanity.io` fonts, `blob:` workers. The detach is required: Cloudflare merges every matching rule's headers, and two CSP headers are both enforced, so the Studio would otherwise still be held to the public one. These grants are the vault gotcha `embedded-studio-blocked-by-your-own-csp.md`.
+- `/_astro/*` detaches the CSP (a Web Worker is governed by the CSP on its own script response, so a Studio worker loaded from `/_astro/` would otherwise get the public policy) AND owns the immutable `Cache-Control`. A separate detach-only rule for the same path did not merge with the adapter's under `npm run preview` (the immutable cache vanished and the CSP stayed), so this one rule carries the year-long cache itself and `@astrojs/cloudflare` sees it and skips its own injection. Verified under `npm run preview`: a hashed font answers `max-age=31536000, immutable` with no CSP.
+
+**Adding an embed or a third party:** put its origin in the right directive of the right rule, then check it under `npm run preview` (a static file server sends no headers, so it cannot show a CSP problem). A blocked request never leaves the browser, so no server log shows it; the only evidence is a console line reading "violates the following Content-Security-Policy directive".
+
+**Not covered: `/preview/**`.** The draft preview is SSR, so a policy for it has to be set from the SSR code (middleware or the preview route), not from `_headers`. Tracked in `docs/PENDING.md`.
 
 ### Privacy and analytics
 

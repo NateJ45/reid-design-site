@@ -15,6 +15,9 @@ export const journalCategory = defineType({
   name: 'journalCategory',
   title: 'Journal Category',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [{ path: 'title', weight: 5 }],
   // Taxonomy, not content — exclude from Canvas's free-form writing UI.
   options: { canvasApp: { exclude: true } },
   fields: [

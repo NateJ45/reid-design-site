@@ -207,7 +207,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
           ) : null
         ) : null
       ) : (
-        <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} />
+        <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} coach={Boolean(editDoc)} />
       )}
     </Wrap>
   ))

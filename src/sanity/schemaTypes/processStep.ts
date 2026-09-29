@@ -8,6 +8,12 @@ export const processStep = defineType({
   name: 'processStep',
   title: 'Process Step',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'shortDescription', weight: 2 },
+  ],
   // Locked structural content (numbered steps with tier notes) — not Canvas territory.
   options: { canvasApp: { exclude: true } },
   fields: [

@@ -1,0 +1,40 @@
+---
+// Foundation, edit with care
+/* ============================================================================
+   SectionCoach - the "here is what goes here" placeholder (PREVIEW ONLY)
+   ============================================================================
+   Stands in for a page-builder section that has nothing in it yet, so Staci
+   lands on a dashed note naming the section and saying what to add, instead of
+   a band of empty padding.
+
+   Deliberately reads as scaffolding, not content: dashed border, muted tones,
+   no brand accent, no photo. Nobody should mistake it for the real section.
+   Rendered ONLY by SectionRenderer.astro, and only behind the preview signal
+   (see src/lib/section-coach.ts), so it can never reach the live site.
+
+   Theme tokens only (bg-muted, border-border, text-muted-foreground), so it
+   follows light and dark with the rest of the preview. Single column that
+   wraps, so it holds at 320px without horizontal overflow.
+   ============================================================================ */
+interface Props {
+  /** The section's plain-language name (the "+ Add" menu's words). */
+  name: string;
+  /** What to add. */
+  hint: string;
+}
+const { name, hint } = Astro.props;
+---
+
+<div class="bg-background text-foreground" data-section-coach>
+  <div class="mx-auto max-w-content px-m py-section-md">
+    <div
+      class="mx-auto flex max-w-2xl flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted px-4 py-10 text-center"
+    >
+      <p class="text-xs font-bold tracking-eyebrow text-muted-foreground uppercase">
+        Nothing here yet
+      </p>
+      <p class="font-display text-h4">{name}</p>
+      <p class="max-w-md text-sm leading-relaxed text-muted-foreground">{hint}</p>
+    </div>
+  </div>
+</div>

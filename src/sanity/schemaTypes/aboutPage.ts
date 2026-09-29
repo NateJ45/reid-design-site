@@ -2,6 +2,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { ABOUT_SECTION_TYPES, ABOUT_DEFAULT_ORDER } from './aboutSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const aboutPage = defineType({
   name: 'aboutPage',
@@ -68,6 +69,8 @@ export const aboutPage = defineType({
       description:
         "The order of sections on the About page. Drag to reorder. Remove a built-in section to hide it. Add a block to insert something new between sections. Edit each built-in section's content in its own tab above.",
       of: ABOUT_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: ABOUT_DEFAULT_ORDER,
     }),
 

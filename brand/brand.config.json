@@ -1,0 +1,10 @@
+{
+  "_about": "Minimal brand config: ONLY the fields scripts/generate-favicons.mjs (PORTS.md card 47, canonical) reads. This repo predates the starter's brand system, so its real tokens live in src/styles/globals.css; keep --background in step with --color-bg there.",
+  "name": "Reid Design LLC",
+  "tagline": "Plainfield interior design for homes that feel genuinely yours.",
+  "palette": {
+    "light": {
+      "--background": "#FAF8F5"
+    }
+  }
+}

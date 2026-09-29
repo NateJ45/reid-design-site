@@ -2,6 +2,7 @@
 // Order doesn't affect runtime; alphabetical here for readability.
 
 import { aboutPage } from './aboutPage';
+import { announcement } from './announcement';
 import { budgetCalculator } from './budgetCalculator';
 import { businessInfo } from './businessInfo';
 import { contactPage } from './contactPage';
@@ -37,6 +38,7 @@ import {
   giftSectionMarker,
   eDesignSectionMarker,
 } from './offeringSections';
+import { redirect } from './redirect';
 import { resourcesPage } from './resourcesPage';
 import { service } from './service';
 import { servicesPage } from './servicesPage';
@@ -95,6 +97,7 @@ export const schemaTypes = [
   studioPlaybook,
 
   // Reusable content collections
+  announcement, // the top-of-site bar / popup Staci posts (dated, per-page)
   testimonial,
   faqItem,
   philosophyPoint,
@@ -113,4 +116,8 @@ export const schemaTypes = [
 
   // Soft-delete receipts, created only by the Archive action.
   trashedItem,
+
+  // Old address -> new address forwards. Mostly filed automatically when a
+  // published page is renamed (PORTS.md card 22); applied at build time.
+  redirect,
 ];

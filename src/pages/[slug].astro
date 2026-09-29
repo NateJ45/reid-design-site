@@ -30,19 +30,27 @@ export async function getStaticPaths() {
     'guides',
     'press',
     'privacy',
+    'search',
+    'pagefind',
     '404',
     'sitemap-index.xml',
   ]);
-  const slugs = await getAllPageSlugs().catch(() => []);
+  const slugs = await getAllPageSlugs();
   return slugs.filter((slug) => !RESERVED.has(slug)).map((slug) => ({ params: { slug } }));
 }
 
 const { slug } = Astro.params;
-const [pageDoc, siteSettings] = await Promise.all([
-  getPage(slug as string).catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [pageDoc, siteSettings] = await Promise.all([getPage(slug as string), getSiteSettings()]);
 
+// Listed by getStaticPaths but empty on the per-page read: in a production
+// build that is a failed or racing read, not a real 404, so refuse to
+// publish the page as a redirect (2026-09-29, PORTS.md card 56). Dev keeps
+// the redirect so local work without a configured project still runs.
+if (!pageDoc && import.meta.env.PROD) {
+  throw new Error(
+    `Page "${slug}" was listed but came back empty; refusing to publish it as a redirect`,
+  );
+}
 if (!pageDoc) return Astro.redirect('/404');
 
 const title = pageDoc.seoTitle ?? pageDoc.title ?? 'Reid Design';

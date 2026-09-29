@@ -3,10 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useClient } from 'sanity';
 import { usePresentationNavigate, usePresentationParams } from 'sanity/presentation';
 import { Box, Button, Card, Flex, Spinner, Stack, Text } from '@sanity/ui';
-import { AddIcon, LaunchIcon } from '@sanity/icons';
+import { AddIcon, LaunchIcon, ShareIcon } from '@sanity/icons';
 import { SINGLETON_PREVIEW_PATHS } from '../resolve';
 import { startNav, stepNav, toPreviewPath, type PendingNav } from '../../lib/preview-navigation';
 import { LiveDraftBridge } from './LiveDraftBridge';
+import { SHARE_LINK_TTL_PHRASE, useShareDraftLink } from './shareDraftLink';
 
 // =============================================================================
 // PreviewNavigator - the Squarespace-style page list beside the live preview
@@ -21,6 +22,10 @@ import { LiveDraftBridge } from './LiveDraftBridge';
 //  - Grouping: "Main pages" (the built-in singletons, in site-nav order) and
 //    "Custom pages" (`page` docs an editor created).
 //  - A live-page link per published row.
+//  - A "Copy share link" button per row (2026-09-29, PORTS.md card 19): mints
+//    a one-hour link that shows the page's DRAFT to someone with no Sanity
+//    login. See ./shareDraftLink.tsx for the handshake and why an hour is the
+//    ceiling. The same verb is a document action in the publish menu.
 //  - "New page": creates a fresh `page` DRAFT and opens it right here.
 //  - Site settings pinned at the bottom.
 //
@@ -163,6 +168,7 @@ export function PreviewNavigator() {
   const params = usePresentationParams();
   const [rows, setRows] = useState<NavRow[] | null>(null);
   const [creating, setCreating] = useState(false);
+  const { share, sharing } = useShareDraftLink();
 
   const refetch = useCallback(() => {
     fetchRows(client)
@@ -351,6 +357,17 @@ export function PreviewNavigator() {
                             <StatusDot row={r} />
                           </Flex>
                         </Card>
+                        {/* Outside the row button for the same reason as the
+                            live link below: no nested interactive elements. */}
+                        <Button
+                          mode="bleed"
+                          padding={2}
+                          icon={ShareIcon}
+                          disabled={sharing}
+                          onClick={() => void share(r.href, r.label)}
+                          title={`Copy a link that shows this page's draft to someone without a Sanity login. ${SHARE_LINK_TTL_PHRASE}`}
+                          aria-label={`Copy a draft share link for ${r.label}`}
+                        />
                         {r.liveHref && (
                           /* Outside the row button: a button may not nest a
                              link. Opens the REAL page in a new tab. */

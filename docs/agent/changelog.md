@@ -2,6 +2,172 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — tier-1 correctness: build reads fail loud, preview cookie checked, MobileNav in the HTML
+
+Four starter cards ported, plus two hygiene fixes and a docs sweep.
+
+**Cards 55 + 56, build reads.** `src/lib/sanity.ts` had `useCdn: !readToken`
+with a comment claiming the CDN rejects a token; it does not, so every local
+build with the token in `.env` read the uncached API. It is now `useCdn: true`
+on the build client (the draft client keeps `false`). Every helper in
+`queries.ts` now reads through a new `sanityFetch()`, which retries twice and
+throws in a production build, and all 62 page-level `.catch(() => null / [])`
+on static routes (24 route files plus BaseLayout's `getNavPages`) are gone,
+because they swallowed exactly that throw. Measured: `origin/main` built green
+with a bogus `PUBLIC_SANITY_PROJECT_ID` and shipped 19 empty pages; this branch
+exits 1 with `[sanity] fetch failed during a production build: Error:
+Unauthorized - Session does not match project host`. Absent documents are not
+errors: a normal build is parity-identical outside the MobileNav change below,
+coming-soon pages included. The four dynamic routes now throw in PROD when a
+listed slug reads back empty, instead of publishing it as a redirect. Kept on
+purpose: the catches in `src/pages/preview/**` (live requests), and
+`Footer.astro`'s, which now rethrows when `Astro.isPrerendered` so it only
+degrades inside a live preview.
+
+**Card 57, preview cookie.** `/preview/[...slug]` and `/preview/live` asked
+`cookies.has(perspectiveCookieName)`, so any value unlocked drafts. Both now
+call `isStudioPreview()`, which existed and was never called. On `wrangler dev`:
+no cookie, `true`, `drafts` and a forged 64-hex value all get 403 on
+`/preview/live` and `data-draft="0"` on `/preview/about`; the real fingerprint
+gets 200 `text/event-stream` and `data-draft="1"`. The enable route already
+wrote `previewCookieValue()`, so editors are not locked out.
+
+**Card 52, MobileNav.** `client:only="react"` became `client:idle`; the closed
+Sheet server-renders its trigger, so the hamburger is in every page's HTML. The
+false "Radix can't SSR" rule is corrected in `components.md` and
+`performance.md`. Parity: 9 pages changed, every changed line the island gaining
+its server-rendered button (props attribute byte-identical). Drawer checked at
+375px light and dark: focus moves in, 12 Tabs stay in, Escape returns focus to
+the trigger, console clean.
+
+**Hygiene.** `.gitattributes` (`* text=auto eol=lf`, from the starter; the
+index already held no CRLF, so renormalizing is a no-op). Tailwind
+`@source not` for `scripts/.parity` and `docs/` at the top of `globals.css`:
+the site stylesheet went from 121,684 to 117,984 bytes (gzip 21,329 to
+20,701): roughly 40 utility selectors (`bg-gray-50`, `text-indigo-600`,
+`bg-bg` and the like) that only docs or old baselines named. Each dropped one
+was checked against `src/`; where `src/` uses it, it is only under a variant
+prefix (`focus-visible:ring-offset-2`), which still generates.
+
+**Docs.** Version pins corrected to the lockfile (astro 7.3.1, adapter 14.3.0,
+wrangler ~4.129.0, react 19.2.8, styled-components 6.5.3). PENDING's
+`SANITY_AUTH_TOKEN`, `SITE_URL` and DNS-cutover items moved to closed (all
+three were already true), and "still Squarespace / before cutover" wording
+fixed in `deployment.md`, `OPERATIONS.md` and `CLAUDE.md`.
+
+## 2026-09-29 — the Studio editor-experience layer (branch `claude/studio-editor`)
+
+Eight additions aimed at Staci, none of which changes a live page (parity 20/20
+against a pristine-build snapshot). Detail and file map: docs/agent/sanity.md,
+"Editor experience layer".
+
+- **Search weights** (starter card 34) on the thirteen content types.
+- **Copy share link** (card 19): a one-hour, no-login link to a draft, from the
+  publish menu and from the Presentation page list. It goes through the
+  unchanged `/api/draft-mode/enable`, so its cookie is the same server
+  fingerprint the card 57 check accepts.
+- **Check this page...** (card 25): alt text, empty sections, odd internal
+  links; never blocks Publish. Reid's config derives a "Main content" unit from
+  the schema so the photo-heavy tabs (project gallery, journal body) are checked.
+- **Undo / Redo** (card 27) in the publish menu and on Ctrl+Z outside text boxes.
+- **Grouped "+ Add section" menu** (card 17's missing piece) on all fourteen
+  builder arrays, in the form and in the canvas. List view only: the picture
+  grid waits for real published library blocks to screenshot (PENDING.md).
+- **"+ New" starting layouts**: Service page, Neighborhood page, Project story.
+- **Empty-section coaching** in the preview only: a dashed "Nothing here yet"
+  note replaces an untouched library block.
+- **Releases tool off.**
+
+Six canonical files came over byte-identical (sync-check 31 SAME):
+shareDraftLink.tsx, page-checks.ts, checkPage.tsx, pageOps.ts, undoRedo.ts,
+UndoRedo.tsx. The two canonical node:test suites are vitest ports. The publish
+menu helpers are appended by one function, `withEditorActions`
+(`src/sanity/editorActions.ts`), so the resolver keeps only Reid's own rules.
+
+## 2026-09-29 — announcements, site search, Studio traffic panel, weekly link report
+
+Four features on branch `claude/site-features`, one workstream of five run in
+parallel.
+
+**Announcements.** New `announcement` document (Studio > Announcements): a bar or a
+popup, calm / warm / urgent, show-from and show-until, every page or only/except
+the pages Staci picks (page references, not typed slugs), optional `navLink`.
+Rendered by `Announcements.astro` from BaseLayout, above the sticky header, and
+nothing at all when none applies: `npm run parity` was 20/20 against a pristine
+`origin/main` build. Dates are decided at build time and the Studio field help
+says so; only a bar's expiry also runs in the browser, because that can only hide.
+Dismiss is per visitor, keyed to the wording.
+
+**Search.** Pagefind 1.5.2 (the one new dependency), run as `postbuild` against
+`dist/client`; BaseLayout marks `<main data-pagefind-body>` on indexable pages
+only. `/search` is a hand-built UI over Pagefind's JS API with a header icon
+(desktop strip and mobile row) and a working search box on the 404, which used to
+say there was no search. Real query, real result: `consultation` returns the
+Process, Contact, FAQ, Home and Services pages with the match highlighted.
+
+**Site stats.** A Studio tool + `/api/stats`. Unlike WCP and presacademy, this
+site is a Cloudflare zone, so it reads real page views and daily visitors
+(`httpRequests1dGroups`) instead of Worker requests, with a comparison to the 28
+days before. The endpoint checks the preview cookie by VALUE. Shows "not set up
+yet" until Nathan creates the `CF_ANALYTICS_TOKEN` secret.
+
+**Link health (card 42).** `scripts/check-live-links.mjs` + `link-health.yml`, a
+deliberate fork: the canonical sweep probed 222 image-CDN links and never saw
+`affiliateUrl`. This copy walks every published document. First real run: 10
+links, 1 reported gone (Wayfair trade page, unconfirmed), 3 refusing scripts.
+
+Also: the parity normalizer gained rule 5 (island uid, Astro 7.3), and `search` and
+`pagefind` became reserved page slugs.
+
+## 2026-09-29 — tier-2 hardening: full CSP, font fallbacks, deferred hero slides, icon set, redirects on rename
+
+**Content-Security-Policy.** `public/_headers` now ships a full policy instead of
+`frame-ancestors` alone, as three path-scoped rules: a tight one for the public site,
+the Studio's own grants on `/studio/*` (detaching the public one, since Cloudflare
+merges matching rules and the browser enforces every CSP it gets), and `/_astro/*`
+detaching the CSP while owning the immutable Cache-Control. Verified with a sweep
+script under `wrangler dev`: 9 public routes on localhost and again on the production
+hostname (requests routed to the local build, so the host-gated GA4 tag really
+fires; collection hits aborted after CSP allowed them), the Calendly iframe opened,
+and `/studio/` loaded to the sign-in screen with Sanity's real CORS. The sweep's first
+run caught 27 violations: this GA4 property also posts every hit to
+`www.google.com/g/collect`. After the fix, zero. Three findings along the way:
+a second `/_astro/*` rule wiped the adapter's immutable cache; `upgrade-insecure-requests`
+broke click navigation under `npm run preview` (a 307 to `http://127.0.0.1` got
+rewritten to https) and was dropped; and the SSR `/preview/**` routes get no
+`_headers` at all (PENDING). `'wasm-unsafe-eval'` is in for the site-features
+branch's Pagefind search, verified against that branch's build: `/search` returns
+results with it and throws "Failed to load the Pagefind WASM" without it.
+
+**Fonts.** Metric-matched fallback faces for Cormorant Garamond (Georgia, and a
+Times New Roman / Liberation Serif family), Pinyon Script (Georgia Italic / TNR
+Italic) and Source Sans 3 (Arial, presacademy's numbers). Measured, fonts held 3s on
+a 412px phone: font-swap CLS on `/services` 0.027 to 0.0006, `/` 0.0025 to 0.0007,
+`/process` 0.0002 to 0. Lighthouse mobile `/services` CLS 0.027 to 0.0006. The home
+page stays at 0.033 on Lighthouse: that is the hero's rotating word, not the fonts
+(PENDING). A `?url` font preload was built, measured (LCP about +250ms, it competed
+with the hero photo) and removed; the note in BaseLayout says why. Added a
+`cdn.sanity.io` preconnect.
+
+**Hero slideshow and Lenis.** Slides after the first render through SanityImage's
+new `defer` prop and get their URLs 800ms after `load`: on Lighthouse mobile the six
+extra slides (about 225KB) used to start at 1.7s beside the LCP photo and now start
+at 4.6s. Lenis runs on wheel devices only (fine pointer, 1024px+); home TBT on
+Lighthouse mobile went from a 618ms median to 480ms. The navigation scroll reset is
+unchanged, and the new `tests/scroll-reset.spec.ts` pins top-on-click and
+restore-on-Back on both a mouse desktop and a touch phone.
+
+**Icon set (PORTS.md card 47).** The canonical `scripts/generate-favicons.mjs`
+(`npm run favicon`) renders favicon.ico, apple-touch-icon, icon-192/512 and
+site.webmanifest from `favicon.svg`, with a minimal `brand/brand.config.json`.
+The mark's plate became a rounded tile (was a disc) so touch icons are opaque.
+
+**Redirects on rename (PORTS.md card 22).** `redirect` type, the canonical Publish
+wrapper, the build-time `redirects` map; plus a Reid-only guard that drops a redirect
+from an address a published page lives at now (the rename-and-back loop). Verified
+the pipeline with a temporary entry: `_redirects` got both slash forms, wrangler
+answered 301 and carried the query string, and the sitemap did not list it.
+
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,

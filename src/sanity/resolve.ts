@@ -126,6 +126,11 @@ export const resolve: PresentationPluginOptions['resolve'] = {
       locations: [{ title: 'Home', href: '/preview' }],
       message: 'The calculator renders from its own config; check it live at /calculator.',
     },
+    announcement: {
+      locations: [{ title: 'Home', href: '/preview' }],
+      message:
+        'Announcements show on the live site after you publish and it rebuilds. They are not drawn in this preview.',
+    },
     siteSettings: { locations: [{ title: 'Home', href: '/preview' }] },
     businessInfo: { locations: [{ title: 'Contact', href: '/preview/contact' }] },
   },

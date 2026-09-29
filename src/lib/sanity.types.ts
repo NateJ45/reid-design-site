@@ -14,7 +14,25 @@
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
+type ArrayOf<T> = Array<
+  T & {
+    _key: string;
+  }
+>;
+
 // Source: schema.json
+export type Redirect = {
+  _id: string;
+  _type: 'redirect';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  from?: string;
+  to?: string;
+  permanent?: boolean;
+  note?: string;
+};
+
 export type TrashedItem = {
   _id: string;
   _type: 'trashedItem';
@@ -212,6 +230,216 @@ export type FaqItem = {
   category?: 'Pricing & Cost' | 'The Process' | 'Logistics' | 'Service Area' | 'Getting Started';
   displayOrder?: number;
   alsoShowOnProcessPage?: boolean;
+};
+
+export type HomePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'homePage';
+};
+
+export type AboutPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'aboutPage';
+};
+
+export type ProcessPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'processPage';
+};
+
+export type ServicesPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'servicesPage';
+};
+
+export type EDesignPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'eDesignPage';
+};
+
+export type GiftPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'giftPage';
+};
+
+export type PressPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'pressPage';
+};
+
+export type ResourcesPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'resourcesPage';
+};
+
+export type FaqPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'faqPage';
+};
+
+export type ContactPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'contactPage';
+};
+
+export type JournalPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'journalPage';
+};
+
+export type PortfolioPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'portfolioPage';
+};
+
+export type PrivacyPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'privacyPage';
+};
+
+export type ShopPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'shopPage';
+};
+
+export type StyleQuizReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'styleQuiz';
+};
+
+export type BudgetCalculatorReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'budgetCalculator';
+};
+
+export type PageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'page';
+};
+
+export type LeadMagnetReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'leadMagnet';
+};
+
+export type ProjectReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'project';
+};
+
+export type JournalEntryReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'journalEntry';
+};
+
+export type Announcement = {
+  _id: string;
+  _type: 'announcement';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  internalTitle?: string;
+  enabled?: boolean;
+  format?: 'bar' | 'popup';
+  tone?: 'info' | 'highlight' | 'urgent';
+  heading?: string;
+  message?: string;
+  link?: NavLink;
+  showFrom?: string;
+  showUntil?: string;
+  placement?: 'all' | 'only' | 'except';
+  pages?: ArrayOf<
+    | HomePageReference
+    | AboutPageReference
+    | ProcessPageReference
+    | ServicesPageReference
+    | EDesignPageReference
+    | GiftPageReference
+    | PressPageReference
+    | ResourcesPageReference
+    | FaqPageReference
+    | ContactPageReference
+    | JournalPageReference
+    | PortfolioPageReference
+    | PrivacyPageReference
+    | ShopPageReference
+    | StyleQuizReference
+    | BudgetCalculatorReference
+    | PageReference
+    | LeadMagnetReference
+    | ProjectReference
+    | JournalEntryReference
+  >;
+  frequency?: 'once' | 'session' | 'always';
+};
+
+export type NavLink = {
+  _type: 'navLink';
+  label?: string;
+  linkType?: 'internal' | 'external' | 'custom';
+  internalPage?:
+    | HomePageReference
+    | AboutPageReference
+    | ProcessPageReference
+    | ServicesPageReference
+    | EDesignPageReference
+    | GiftPageReference
+    | PressPageReference
+    | ResourcesPageReference
+    | FaqPageReference
+    | ContactPageReference
+    | JournalPageReference
+    | PortfolioPageReference
+    | PrivacyPageReference
+    | ShopPageReference
+    | StyleQuizReference
+    | BudgetCalculatorReference
+    | PageReference
+    | LeadMagnetReference
+    | ProjectReference
+    | JournalEntryReference;
+  externalUrl?: string;
+  href?: string;
 };
 
 export type StudioPlaybook = {
@@ -438,175 +666,6 @@ export type SiteSettings = {
     showBudgetCalculator?: boolean;
   };
   satisfactionGuarantee?: string;
-};
-
-export type HomePageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'homePage';
-};
-
-export type AboutPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'aboutPage';
-};
-
-export type ProcessPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'processPage';
-};
-
-export type ServicesPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'servicesPage';
-};
-
-export type EDesignPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'eDesignPage';
-};
-
-export type GiftPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'giftPage';
-};
-
-export type PressPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'pressPage';
-};
-
-export type ResourcesPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'resourcesPage';
-};
-
-export type FaqPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'faqPage';
-};
-
-export type ContactPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'contactPage';
-};
-
-export type JournalPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'journalPage';
-};
-
-export type PortfolioPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'portfolioPage';
-};
-
-export type PrivacyPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'privacyPage';
-};
-
-export type ShopPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'shopPage';
-};
-
-export type StyleQuizReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'styleQuiz';
-};
-
-export type BudgetCalculatorReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'budgetCalculator';
-};
-
-export type PageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'page';
-};
-
-export type LeadMagnetReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'leadMagnet';
-};
-
-export type ProjectReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'project';
-};
-
-export type JournalEntryReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'journalEntry';
-};
-
-export type NavLink = {
-  _type: 'navLink';
-  label?: string;
-  linkType?: 'internal' | 'external' | 'custom';
-  internalPage?:
-    | HomePageReference
-    | AboutPageReference
-    | ProcessPageReference
-    | ServicesPageReference
-    | EDesignPageReference
-    | GiftPageReference
-    | PressPageReference
-    | ResourcesPageReference
-    | FaqPageReference
-    | ContactPageReference
-    | JournalPageReference
-    | PortfolioPageReference
-    | PrivacyPageReference
-    | ShopPageReference
-    | StyleQuizReference
-    | BudgetCalculatorReference
-    | PageReference
-    | LeadMagnetReference
-    | ProjectReference
-    | JournalEntryReference;
-  externalUrl?: string;
-  href?: string;
 };
 
 export type EDesignSectionMarker = {
@@ -2787,6 +2846,7 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | Redirect
   | TrashedItem
   | SanityImageAssetReference
   | ShopCollectionReference
@@ -2801,12 +2861,6 @@ export type AllSanitySchemaTypes =
   | ProcessStep
   | PhilosophyPoint
   | FaqItem
-  | StudioPlaybook
-  | StudioNotes
-  | StudioGuide
-  | NotFoundPage
-  | BusinessInfo
-  | SiteSettings
   | HomePageReference
   | AboutPageReference
   | ProcessPageReference
@@ -2827,7 +2881,14 @@ export type AllSanitySchemaTypes =
   | LeadMagnetReference
   | ProjectReference
   | JournalEntryReference
+  | Announcement
   | NavLink
+  | StudioPlaybook
+  | StudioNotes
+  | StudioGuide
+  | NotFoundPage
+  | BusinessInfo
+  | SiteSettings
   | EDesignSectionMarker
   | GiftSectionMarker
   | PressSectionMarker

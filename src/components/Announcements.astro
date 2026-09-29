@@ -1,0 +1,398 @@
+---
+// Foundation, edit with care
+// The announcement bar(s) and the one popup, drawn once by BaseLayout.
+//
+// Staci posts these from Studio -> Announcements (schemaTypes/announcement.ts).
+// WHICH ones show on this page, and whether they are inside their dates, is
+// decided at BUILD time by selectForPage() in src/lib/announcements.ts, so a
+// page with nothing to say renders NOTHING (no wrapper, no script): the static
+// output is byte-identical to a site that never had this feature. `npm run
+// parity` is the standing check on that promise.
+//
+// PLACEMENT AND THE STICKY HEADER. The bar sits in normal flow ABOVE the header
+// and scrolls away with the page. The header is `position: sticky; top: 0`, so
+// it simply pins to the top once the bar has gone by. Nothing is fixed, nothing
+// overlays the header, and nothing shifts after load (the bar is in the first
+// paint). Do not make the bar sticky as well: two sticky layers fight over the
+// same top edge and the header's hide-on-scroll transform would leave a gap.
+//
+// TONES use scoped custom properties, not global tokens. Every pair clears WCAG
+// AA (4.5:1) in BOTH themes:
+//   info      Cream / Charcoal (light)  ·  #2A2520 / Cream (dark)   via --muted
+//   highlight Bronze Dark #7A5D4C / white, both themes (a brand surface)
+//   urgent    deep red #8C2F26 / white, both themes
+//
+// DISMISS. The X remembers the dismissal in the visitor's own browser, keyed to
+// the announcement AND its wording, so changing the message shows it again. A
+// bar past its "Show until" time also hides itself in the browser (it can only
+// hide, never reveal something that was not built into the page). The tiny
+// inline script at the bottom does that BEFORE first paint so a dismissed bar
+// never flashes, and re-runs after each View Transitions swap.
+import { selectForPage, contentKey, type Announcement } from '@/lib/announcements';
+import { navHref, isExternalHref, plain } from '@/lib/nav-href';
+
+interface Props {
+  announcements: Announcement[];
+  /** The page being rendered, e.g. "/services". */
+  currentPath: string;
+}
+const { announcements, currentPath } = Astro.props;
+
+// `Date.now()` here is build time on purpose: the site is static, and the
+// startup of a rebuild is the moment the window is decided.
+const { bars, popup } = selectForPage(announcements, currentPath, Date.now());
+
+/** The optional link, resolved through the same table the menus use. */
+function linkFor(a: Announcement) {
+  const href = navHref(a.link ?? undefined);
+  const label = a.link?.label;
+  if (!href || !label) return null;
+  return { href, label, external: isExternalHref(href) };
+}
+
+const popupLink = popup ? linkFor(popup) : null;
+// The inline script, kept as a string so it stays out of the template (the
+// astro formatter cannot parse a <script> nested in a template expression).
+// Contains no backticks, backslashes or dollar-braces, so it is safe here.
+const CLIENT_SCRIPT = `
+      (function () {
+        var PREFIX = 'reid-ann:';
+        function get(store, key) { try { return window[store].getItem(PREFIX + key); } catch (_) { return null; } }
+        function set(store, key) { try { window[store].setItem(PREFIX + key, '1'); } catch (_) {} }
+
+        // Hide bars the visitor dismissed, and bars past their end time. Runs
+        // synchronously (before first paint) and again after each page swap.
+        function sync() {
+          var bars = document.querySelectorAll('.ann-bar');
+          for (var i = 0; i < bars.length; i++) {
+            var bar = bars[i];
+            var until = bar.getAttribute('data-ann-until');
+            var expired = until && !isNaN(Date.parse(until)) && Date.parse(until) < Date.now();
+            bar.hidden = Boolean(expired || get('localStorage', bar.getAttribute('data-ann-key')));
+          }
+        }
+        sync();
+
+        // The popup opens once the page has settled, never over the first
+        // paint. showModal() gives a real focus trap, Escape to close, and an
+        // inert page behind it; it also restores focus to whatever had it.
+        function maybeOpenPopup() {
+          var dlg = document.querySelector('[data-ann-popup]');
+          if (!dlg || dlg.open || typeof dlg.showModal !== 'function') return;
+          var key = dlg.getAttribute('data-ann-key');
+          var freq = dlg.getAttribute('data-ann-frequency');
+          if (freq === 'once' && get('localStorage', key)) return;
+          if (freq === 'session' && get('sessionStorage', key)) return;
+          window.setTimeout(function () {
+            if (!dlg.isConnected || dlg.open) return;
+            dlg.showModal();
+            if (freq === 'once') set('localStorage', key);
+            else if (freq === 'session') set('sessionStorage', key);
+          }, 1500);
+        }
+        maybeOpenPopup();
+
+        if (window.__annBound) return;
+        window.__annBound = true;
+        document.addEventListener('astro:page-load', function () { sync(); maybeOpenPopup(); });
+        document.addEventListener('click', function (e) {
+          var t = e.target instanceof Element ? e.target : null;
+          if (!t) return;
+          var x = t.closest('[data-ann-dismiss]');
+          if (x) {
+            var bar = x.closest('.ann-bar');
+            if (bar) { set('localStorage', bar.getAttribute('data-ann-key')); bar.hidden = true; }
+            return;
+          }
+          var close = t.closest('[data-ann-popup-close]');
+          if (close) { var d = close.closest('dialog'); if (d && d.open) d.close(); return; }
+          // A click on the dialog's own backdrop reports the dialog as target.
+          if (t.matches && t.matches('dialog[data-ann-popup]')) t.close();
+        });
+      })();
+`;
+---
+
+{
+  bars.length > 0 && (
+    <div class="announcements" role="region" aria-label="Announcements">
+      {bars.map((a) => {
+        const link = linkFor(a);
+        return (
+          <div
+            class="ann-bar"
+            data-tone={plain(a.tone) || 'info'}
+            data-ann-key={contentKey(a)}
+            data-ann-until={a.showUntil ?? undefined}
+          >
+            <div class="ann-inner">
+              <span aria-hidden="true" />
+              <p class="ann-text">
+                <span>{a.message}</span>
+                {link && (
+                  <a
+                    href={link.href}
+                    class="ann-link"
+                    {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
+                  >
+                    {link.label}
+                  </a>
+                )}
+              </p>
+              <button
+                type="button"
+                class="ann-close"
+                data-ann-dismiss
+                aria-label="Dismiss this announcement"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )
+}
+
+{
+  popup && (
+    <dialog
+      class="ann-popup"
+      data-tone={plain(popup.tone) || 'info'}
+      data-ann-popup
+      autofocus
+      data-ann-key={contentKey(popup)}
+      data-ann-frequency={plain(popup.frequency) || 'once'}
+      aria-labelledby={popup.heading ? 'ann-popup-heading' : undefined}
+      aria-label={popup.heading ? undefined : 'Announcement'}
+    >
+      <button type="button" class="ann-popup-close" data-ann-popup-close aria-label="Close">
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+      {popup.heading && (
+        <h2 id="ann-popup-heading" class="ann-popup-heading">
+          {popup.heading}
+        </h2>
+      )}
+      <p class="ann-popup-message">{popup.message}</p>
+      {popupLink && (
+        <a
+          href={popupLink.href}
+          class="ann-popup-cta"
+          data-ann-popup-close
+          {...(popupLink.external ? { target: '_blank', rel: 'noopener' } : {})}
+        >
+          {popupLink.label}
+        </a>
+      )}
+    </dialog>
+  )
+}
+
+{(bars.length > 0 || popup) && <script is:inline set:html={CLIENT_SCRIPT} />}
+
+<style is:global>
+  /* [hidden] must win over the display set below. */
+  .ann-bar[hidden] {
+    display: none;
+  }
+
+  .ann-bar {
+    --ann-bg: var(--muted);
+    --ann-fg: var(--foreground);
+    --ann-link: var(--link);
+    background: var(--ann-bg);
+    color: var(--ann-fg);
+    border-bottom: 1px solid var(--border);
+  }
+  /* Brand surface: Bronze Dark with white, 6.1:1 in either theme. */
+  .ann-bar[data-tone='highlight'] {
+    --ann-bg: #7a5d4c;
+    --ann-fg: #ffffff;
+    --ann-link: #ffffff;
+    border-bottom-color: transparent;
+  }
+  /* Urgent: deep red with white, 8.4:1. Fixed, not themed: a warning should
+     look the same in light and dark. */
+  .ann-bar[data-tone='urgent'] {
+    --ann-bg: #8c2f26;
+    --ann-fg: #ffffff;
+    --ann-link: #ffffff;
+    border-bottom-color: transparent;
+  }
+
+  /* Three columns keep the message truly centered while the dismiss button sits
+     at the right edge. min-height is the touch-target height of the button. */
+  .ann-inner {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+    align-items: center;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 0.25rem;
+    min-height: 2.75rem;
+  }
+  .ann-text {
+    margin: 0;
+    padding-block: 0.375rem;
+    text-align: center;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+  .ann-link {
+    margin-left: 0.5rem;
+    font-weight: 600;
+    color: var(--ann-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+  }
+  .ann-link:hover {
+    text-decoration-thickness: 2px;
+  }
+  .ann-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    justify-self: end;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--ann-fg);
+    cursor: pointer;
+    opacity: 0.85;
+  }
+  .ann-close:hover {
+    opacity: 1;
+    background: color-mix(in srgb, currentColor 14%, transparent);
+  }
+  .ann-close:focus-visible,
+  .ann-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* ---- Popup ---- */
+  .ann-popup {
+    /* Tailwind preflight zeroes every margin, dialog included, which pins a modal
+       dialog to the top-left corner. auto margins are what center it. */
+    margin: auto;
+    width: min(28rem, calc(100% - 2rem));
+    padding: 2.25rem 1.75rem 1.75rem;
+    border: 2px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--background);
+    color: var(--foreground);
+    text-align: center;
+    box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.35);
+  }
+  /* Focus lands on the dialog itself (autofocus above), not on the close button,
+     so opening it does not draw a ring around the X. Keyboard users still Tab to
+     the controls, which keep their own focus rings. */
+  .ann-popup:focus {
+    outline: none;
+  }
+  .ann-popup[data-tone='highlight'] {
+    border-color: var(--primary);
+  }
+  .ann-popup[data-tone='urgent'] {
+    border-color: #8c2f26;
+  }
+  .ann-popup::backdrop {
+    background: rgb(20 16 12 / 0.6);
+  }
+  .ann-popup-heading {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-display, inherit);
+    /* The base h2 rule colors headings with the theme-aware accent (Cream in
+       light mode), which is unreadable on this surface. Say it explicitly. */
+    color: var(--foreground);
+    font-size: 1.75rem;
+    line-height: 1.15;
+  }
+  .ann-popup-message {
+    margin: 0;
+    line-height: 1.6;
+    color: color-mix(in srgb, var(--foreground) 85%, transparent);
+  }
+  .ann-popup-cta {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.125rem;
+    background: #7a5d4c;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .ann-popup-cta:hover {
+    background: #2a2a2a;
+  }
+  .ann-popup-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--foreground);
+    cursor: pointer;
+  }
+  .ann-popup-close:hover {
+    background: var(--accent);
+  }
+  .ann-popup-close:focus-visible,
+  .ann-popup-cta:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ann-popup[open] {
+      animation: ann-popup-in 0.22s ease-out both;
+    }
+  }
+  @keyframes ann-popup-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

@@ -35,10 +35,7 @@ import FinalCta from '@/components/FinalCta.astro';
 // Enumerate slugs + carry prev/next refs (newest-first iteration).
 // Returns [] when journal is off — no detail pages build and they 404.
 export async function getStaticPaths() {
-  const [entries, settings] = await Promise.all([
-    getAllJournalEntries().catch(() => []),
-    getSiteSettings().catch(() => null),
-  ]);
+  const [entries, settings] = await Promise.all([getAllJournalEntries(), getSiteSettings()]);
   const visible = getSectionVisibility(settings?.sectionVisibility);
   if (!visible.journal) return [];
 
@@ -67,13 +64,22 @@ const { prev, next } = Astro.props as {
 
 const [entry, siteSettings, journalPage] = await Promise.all([
   getJournalEntryBySlug(slug as string),
-  getSiteSettings().catch(() => null),
+  getSiteSettings(),
   // Pulled here purely so the sticky CTA chip label can come from
   // journalPage.stickyCtaLabel without doubling up the singleton fetch
   // elsewhere. Cached by the GROQ layer across getStaticPaths.
-  getJournalPage().catch(() => null),
+  getJournalPage(),
 ]);
 
+// Listed by getStaticPaths but empty on the per-page read: in a production
+// build that is a failed or racing read, not a real 404, so refuse to
+// publish the page as a redirect (2026-09-29, PORTS.md card 56). Dev keeps
+// the redirect so local work without a configured project still runs.
+if (!entry && import.meta.env.PROD) {
+  throw new Error(
+    `Journal entry "${slug}" was listed but came back empty; refusing to publish it as a redirect`,
+  );
+}
 if (!entry) {
   return Astro.redirect('/404');
 }

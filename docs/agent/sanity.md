@@ -109,9 +109,9 @@ messages happen to use the same URL shape. Match the styled-components path.
 
 **The version set is a set.** As of 2026-09-06 (phase 1 of the coordinated
 stack migration): `sanity` **6.9.1**, `@sanity/vision` 6.9.1, `@sanity/ui`
-**3.5.4**, `styled-components` 6.4.3, `@sanity/client` **7.26.2**,
+**3.5.4**, `styled-components` 6.5.3, `@sanity/client` **7.26.2**,
 `@sanity/visual-editing` **5.7.3**, `@sanity/preview-url-secret` **4.1.5**,
-`react`/`react-dom`/`react-is` exactly 19.2.7, `sanity-plugin-media` 5.0.11,
+`react`/`react-dom`/`react-is` exactly 19.2.8 (styled-components and react took patch bumps in the same day's dependabot group, #32; lockfile re-checked 2026-09-29), `sanity-plugin-media` 5.0.11,
 `sanity-plugin-asset-source-unsplash` 7.0.15, and `overrides` for
 `sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.7.3. Those two need
 `overrides` rather than a plain dependency pin, because npm will happily nest a
@@ -166,7 +166,14 @@ Five parts that only work together:
    sibling site's Sanity quota.
 5. **`src/lib/preview-auth.ts`** — the preview cookie's value is a SHA-256
    fingerprint of the server-side token, not the package's forgeable static
-   `true`.
+   `true`. **Both preview routes check that VALUE** with
+   `isStudioPreview(cookies.get(perspectiveCookieName)?.value)` (2026-09-29,
+   PORTS.md card 57). Before that they only asked `cookies.has(...)`, so anyone
+   who typed the cookie into a browser with any value read drafts through the
+   server's token and could hold `/preview/live` open. A failed check on the
+   page route shows published content (as a missing cookie always did); on
+   `/preview/live` it is the 403. Any NEW preview route must use the same
+   check, never `cookies.has`.
 
 **`NON_STEGA_FIELDS` in `src/lib/cms-preview.ts` is not optional.** Stega hides
 roughly a kilobyte of invisible marker characters inside every string it
@@ -235,6 +242,69 @@ one that degrades silently: a missed entry does not error, it just lets a click
 escape the iframe to the live site, and the Studio's navigator and edit panel
 freeze on the previous page while the preview shows the real site.
 
+### Editor experience layer (added 2026-09-29)
+
+Eight Studio additions for Staci, none of which changes the live site. Where each
+lives, and the rule that makes it safe:
+
+- **Search weights (PORTS.md card 34).** `__experimental_search` on the thirteen
+  multi-instance content types (`service`, `project`, `journalEntry`, `page`, ...):
+  title/name 5, location/vendor/nav label 3, summary or short description 2. Add the
+  same two or three lines to any new content type the day it lands.
+- **The publish-menu helpers** arrive through ONE function, `withEditorActions` in
+  `src/sanity/editorActions.ts`, called at the end of every branch of the actions
+  resolver in `sanity.config.ts` (except the trash). None replaces or wraps a stock
+  action; Publish is untouched.
+  - **Copy share link (card 19).** `src/sanity/components/shareDraftLink.tsx`
+    (PORTABLE). Mints a secret with `createPreviewSecret` and builds
+    `/api/draft-mode/enable?sanity-preview-secret=...&sanity-preview-pathname=/preview/...`.
+    The enable route is NOT modified: it still validates the secret and still sets
+    `previewCookieValue()`, the server fingerprint, so a share-link visitor carries
+    exactly the cookie the Studio iframe does and passes the card 57 value check
+    (`isStudioPreview`). Works for about an hour (`SECRET_TTL` is hard-coded in
+    `@sanity/preview-url-secret`), HTTPS only (the cookie is `secure; sameSite=none`,
+    so it cannot be tested against plain-http localhost). Also a per-row share button
+    in `PreviewNavigator.tsx`.
+  - **Check this page... (card 25).** `src/lib/page-checks.ts` +
+    `src/sanity/actions/checkPage.tsx` + `src/sanity/pageOps.ts` (all PORTABLE;
+    only `readSlug` from pageOps is used here, its duplicate/archive helpers are not
+    wired because Reid keeps its own Archive). Reid's answers live in
+    `src/sanity/pageBuilderConfig.ts`: fourteen section hosts, the eight markers as
+    self-filling, and a "Main content" header unit DERIVED from the schema (every
+    visible, non-SEO, non-menu top-level field of the helper types), which is what
+    makes the alt-text check reach the project gallery, before/afters, the journal
+    body and the page tabs. It never blocks Publish. `page-check-config.test.ts`
+    gates the config against the schema.
+  - **Undo / Redo (card 27).** `src/sanity/undoRedo.ts` +
+    `src/sanity/components/UndoRedo.tsx` (PORTABLE). Drafts only, rev-guarded,
+    refuses to delete the only copy. The keyboard layer is the `undoRedoShortcuts()`
+    plugin, which wraps `studio.components.layout` (this config sets no other layout;
+    if one is ever added, check they compose). `mendoza` is imported bare as the
+    hoisted transitive dependency of `sanity`; if a future install stops hoisting it,
+    the build fails until it is added to `package.json`.
+  - The helpers are offered on `EDITOR_HELPER_TYPES`: every section host plus
+    `project` and `journalEntry`. Share link is on every type with a page.
+- **Grouped "+ Add section" menu (card 17).** `SECTION_INSERT_MENU` /
+  `SECTION_ARRAY_OPTIONS` in `src/sanity/schemaTypes/sections.ts`, set as `options` on
+  all fourteen builder arrays, so the in-canvas insert buttons open the same grouped,
+  searchable menu. Groups only, never colour: SectionRenderer owns the cadence.
+  `insert-menu.test.ts` fails if a block has no group. The list view only; see
+  PENDING.md for the picture grid.
+- **"+ New" starting layouts.** `src/sanity/templates.ts` via `schema.templates`:
+  Service page, Neighborhood page (e.g. Carmel), Project story. Prompts in
+  [brackets]. Nested objects do not get their fields' `initialValue` from a template,
+  so every block radio is set explicitly. The Projects list is an orderable list
+  whose own "Create new" is blank, so `structure.ts` adds a "New project story" menu
+  item. `templates.test.ts` holds every template to the schema.
+- **Empty-section coaching (preview only).** `src/lib/section-coach.ts` +
+  `src/components/SectionCoach.astro`. SectionRenderer swaps an empty library block
+  for a dashed "Nothing here yet" note only behind the preview signal (`editDoc`, or
+  the `coach` prop the eight marker renderers pass as `Boolean(editDoc)`). Rule 8
+  holds: parity 20/20 against a pristine snapshot, and `section-coach.test.ts`
+  reads the sources to prove no live page can pass the signal.
+- **Releases off.** `releases: { enabled: false }` in `sanity.config.ts`. One editor,
+  one publish model.
+
 ### Studio configuration notes
 
 **All-fields default.** The `default: true` property has been removed from every schema field group definition across all schemas. Without it, Sanity Studio opens documents on the "All fields" tab instead of a single group. This gives Staci a complete view of a document without needing to know which group a field lives in.
@@ -248,6 +318,40 @@ Worth knowing if the Studio's Dark appearance setting ever comes up: `buildLegac
 **Vision/GROQ plugin gating, and why the old test was a live bug.** The `visionTool()` plugin (the in-Studio GROQ query runner) is registered only in dev. The test used to be `process.env.NODE_ENV !== 'production'`, which was fine while the Studio was its own package and is wrong in an embedded one: Astro/Vite's client bundle injects `globalThis.process ??= {}`, so `process` exists with an empty env, `NODE_ENV` is `undefined`, and the comparison came out TRUE in production, shipping Vision to Staci. The check now reads `import.meta.env.DEV` first and FAILS CLOSED (`IS_DEV` in `sanity.config.ts`).
 
 **`src/sanity/global.d.ts`.** Contains ambient module declarations for `*.png`, `*.jpg`, and `*.svg` imports, so TypeScript does not complain when Studio components import the `reid-logo.png` asset.
+
+### Announcements: the top bar and popup (added 2026-09-29)
+
+Studio > **Announcements** (top level, right under Site Settings). Each document is one notice Staci posts herself ("Booking November consultations", "Studio closed Thanksgiving week"). Fields: a private name, a **Turned on** switch, **format** (bar across the top, or a popup), **look** (`tone`: calm = Soft Linen, warm = Bronze Dark, urgent = deep red), popup headline, message, an optional link (the same `navLink` object the menus use, so a picked page can never go stale), **Show from / Show until**, **placement** (`all` / `only` / `except`, with a `pages` array of real page references, not typed slugs) and, for popups, **frequency** (`once` / `session` / `always`). The type is soft-deletable (Archive) like the rest of her day-to-day content.
+
+How it renders. `getAnnouncements()` (queries.ts, memoized: one Sanity call per build) feeds BaseLayout; `selectForPage()` in `src/lib/announcements.ts` keeps the ones inside their dates that apply to this page; `Announcements.astro` draws them. With none, it renders nothing at all (no wrapper, no script), so the static build is byte-identical: `npm run parity` was 20/20 against pristine `origin/main` with no announcement published. The bar sits in normal flow ABOVE the header and scrolls away; the header is `position: sticky`, so it simply pins once the bar has passed. Do not make the bar sticky as well.
+
+**Dates are a build-time thing, and the Studio field help says so.** The site is static: "Show from" takes effect at the next rebuild (every publish in the Studio triggers one), "Show until" removes the bar from the page code at the next rebuild. The one browser-side behavior is expiry: a bar whose `data-ann-until` has passed hides itself on load, so a stale bar never lingers between rebuilds. It can only hide, never reveal something that was not built into the page (a scheduled surprise must not leak into the HTML early, which is why a future-dated bar is not built in hidden). For start dates to land exactly on the day, someone has to trigger a rebuild that day (a publish, or the optional daily rebuild hook in OPERATIONS.md).
+
+Dismiss is per visitor, in `localStorage` (`reid-ann:<id>:<hash of the wording>`), so editing the message shows the notice again. A tiny inline script hides dismissed bars before first paint and re-runs after each View Transitions swap. The popup is a native `<dialog>` opened with `showModal()` 1.5 seconds after load (real focus trap, Escape closes, focus returns); only the first matching popup on a page is used.
+
+**Tones.** Every pair clears AA in both themes (measured 2026-09-29 in a real browser: calm 9.6:1 text and 5.3:1 link in light, 13.4:1 and 5.35:1 in dark; warm 6.0:1; urgent 8.2:1). They are scoped custom properties inside the component, not global tokens. `placement` and `frequency` are in `NON_STEGA_FIELDS` (`format`, `tone`, `linkType` already were). The Presentation preview does not draw announcements (the preview shell is chrome-less by design); the Studio's location panel says so and the bar is checked on the built site instead.
+
+### Site stats: the traffic panel (added 2026-09-29)
+
+A Studio **tool** ("Site stats", top bar beside Presentation) registered in `sanity.config.ts` (`tools: [...]`), component `src/sanity/components/StatsTool.tsx`, data from `GET /api/stats` (`src/pages/api/stats.ts`), shaping in `src/lib/site-stats.ts` (pure, unit tested). Pattern from WCP and presacademy, with one big difference: those are Workers on workers.dev with no zone, so they can only count Worker requests. **reiddesignllc.com is a Cloudflare zone (Free plan)**, so this reads the zone dataset `httpRequests1dGroups` and gets real **page views** and daily **unique visitors**, plus the 28 days before for a "up 97%" comparison. Verified against the live zone on 2026-09-29 (history back to at least June; 56 days fit in one query).
+
+What the numbers are: Cloudflare counts at the network edge, so they include some crawlers and read higher than GA4; the tool says so in plain words. Visitors is shown as an AVERAGE per day (adding up daily uniques counts a returning person once per day). Days are UTC.
+
+**Setup Nathan must do (nothing shows until he does).** Create a Cloudflare API token with exactly one permission, Zone > Analytics > Read, scoped to the zone reiddesignllc.com, then `npx wrangler secret put CF_ANALYTICS_TOKEN` (locally: `.dev.vars`). The zone id is a constant in `stats.ts` (an identifier, not a secret; `CF_ZONE_ID` overrides it). Until the secret exists the route answers 503 `unconfigured` and the tool shows "Site stats is not set up yet" (verified locally 2026-09-29).
+
+**The gate is the cookie's VALUE.** `/api/stats` calls `isStudioPreview()` from `src/lib/preview-auth.ts` on the Studio preview cookie, never mere presence: with the cookie set to `true`, or to a wrong 64-hex value, it answers 401; only the fingerprint `enable.ts` sets passes (all four cases exercised against a real `wrangler dev` on 2026-09-29). Staci gets the cookie the first time she opens Presentation, and the empty state tells her to do exactly that. A wrong or under-scoped token comes back as a friendly 502 naming the permission (Cloudflare answers HTTP 400, not 401, for a malformed token; observed with a deliberately invalid one).
+
+### Redirects on rename (PORTS.md card 22, added 2026-09-29)
+
+A published page, project, journal post or guide whose web address changes keeps its old address working. Three parts:
+
+- **`redirect` document type** (`src/sanity/schemaTypes/redirect.ts`, from the starter): old address, new address, permanent (301) or temporary (302), and a note. Listed in the desk at the end of **Pages → Redirects (old links)**. Staci can add one by hand for an address that never existed on this site (an old Squarespace link, a printed card).
+- **The Publish wrapper** (`src/sanity/components/slugRedirect.tsx`, PORTABLE). `sanity.config.ts` wraps every Publish action with `withSlugRedirect`. On Publish of a document that already has a published version, it compares `pathForDoc()` (`src/sanity/urls.ts`) before and after; if the address changed, it creates a PUBLISHED `redirect` (old to new, permanent), repoints any older redirect that pointed at the old address (so visitors take one hop, not two), toasts "Old link kept working", and then publishes exactly as before. Types with a fixed address or none are a no-op, so there is no type list to keep. A failed write toasts a warning and publishes anyway. An existing redirect for the same old address is never overwritten (it may have been hand-corrected).
+- **Build-time map** (`astro.config.mjs`). Published `redirect` docs are read once at config time (unauthenticated, fail-safe: any problem means no redirects and the build carries on), shaped by `buildRedirectMap()` in `src/lib/redirects.ts` (PORTABLE, the same path rules the Studio uses), and handed to Astro's `redirects`, which the Cloudflare adapter writes to `dist/client/_redirects` as real 301/302s. Like any content edit, a new redirect goes live on the next rebuild (the publish webhook).
+
+**Reid-only guard** (`src/lib/redirect-guard.ts`): a redirect whose OLD address is where a published page, project, post or guide lives NOW is dropped at build and logged (`[redirects] skipped …`). That is the rename-and-rename-back case: `/a → /b` is filed, then `/b → /a`, and the first entry would otherwise sit in `_redirects` in front of the real page and bounce every visitor in a loop (Cloudflare applies `_redirects` before serving files). The Studio document stays; it is harmless and starts working again if the page moves away. This belongs in the canonical action upstream; flagged for a starter fold-back.
+
+Tests: `src/lib/redirects.test.ts` (the starter's cases, re-run under vitest) and `src/lib/redirect-guard.test.ts`.
 
 ### Canvas (AI-assisted writing)
 
@@ -281,7 +385,16 @@ The `purpose` strings carry a compressed version of the voice manifesto ("warm, 
 
 GROQ queries live in `src/lib/queries.ts`. Each page has a typed query function that pulls the singleton plus any auto-populated collections it needs (e.g., homePage query includes featured testimonial, services-where-showOnHomepage, and process steps in order).
 
-The Sanity client is at `src/lib/sanity.ts`. It exports both `client` (for queries) and `urlFor()` (for image URL building).
+The Sanity client is at `src/lib/sanity.ts`. It exports `client`, `sanityFetch()` (the one read path every helper in `queries.ts` uses) and `urlFor()` (for image URL building).
+
+**Failed reads fail the build; absent documents do not (2026-09-29, PORTS.md cards 55 + 56).** Read this before adding a query or a page.
+
+- The build client is **always on the Sanity CDN** (`useCdn: true`), token or no token. The old `useCdn: !readToken` rested on the false belief that the CDN rejects a token; the API CDN has accepted authenticated requests since API version 2021-03-25, and every local build with the token in `.env` was quietly spending the far smaller uncached-API quota. The draft client in `src/lib/cms-preview.ts` keeps its own `useCdn: false`, which is correct for the drafts perspective.
+- `sanityFetch(query, params, fallback, c?)` retries a failed read twice (0.5 s, 1.5 s; `@sanity/client` also retries network errors and 429/502/503 on its own). If it still fails in a **production build** it throws `[sanity] fetch failed during a production build: ...` and the build stops, so the live site keeps its last good build. In **dev** it warns and returns `fallback` (`null` for a singleton, `[]` for a collection) so local work keeps moving.
+- An **absent** document is not a failure. Sanity answers `null` / `[]` and it comes back as-is, so every coming-soon and empty state (`/e-design`, `/quiz`, `/calculator`, `/guides`, `/press`, the journal and portfolio empty states) renders exactly as before.
+- **Never put `.catch(() => null)` or `.catch(() => [])` on a read in a static route.** That is the pattern this replaced: it swallowed the production throw, and a Sanity outage during a deploy would have shipped every page in its empty state. (Measured 2026-09-29: `origin/main` built green with a bogus project id and shipped 19 empty pages; this branch stops with the error above.) The only catches left are deliberate: `src/pages/preview/**` (live request, fails open to published or empty), and `Footer.astro`'s project list, which rethrows when `Astro.isPrerendered` and degrades to `[]` only inside a live preview request.
+- The four dynamic routes (`[slug]`, `journal/[slug]`, `portfolio/[slug]`, `guides/[slug]`) throw in a production build when a slug that `getStaticPaths` listed comes back empty, rather than publishing a real page as a redirect.
+- A caller-supplied client other than `client` (the preview route passes the draft client) goes straight through `sanityFetch` with no retry and no fallback.
 
 **Section-array projection.** Any page-builder array (the marker `pageBuilder` arrays, custom-page `pageBuilder`, and the `additionalSections` "Extra sections" zone on faq/contact/privacy/journal/portfolio) is projected with the single `sectionsProjection(field = 'pageBuilder')` helper in `queries.ts`. It spreads each block and resolves the per-type references (hero/CTA-band background images + cta blocks, image+text image + cta, gallery images). To wire a new section-array field on any page, add the field with the shared helper in the schema, then add `${sectionsProjection('<fieldName>')}` to that page's query and render it through `SectionRenderer`. See [Page builder](page-architecture.md) for the component side.
 

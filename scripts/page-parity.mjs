@@ -5,9 +5,15 @@
 // for its own sources of build nondeterminism, so a byte-exact drift check
 // against the starter would be permanently red for no useful reason.
 //
-// REID-LOCAL NORMALIZER RULES: none. Proven on 2026-08-27 by build -> capture
+// REID-LOCAL NORMALIZER RULES: one (rule 5, the <astro-island> uid, added
+// 2026-09-29). Before that: none, proven on 2026-08-27 by build -> capture
 // -> rebuild -> compare, 19/19 PASS with the starter's four rules untouched.
-// Rules get added here only for PROVEN nondeterminism, never pre-emptively:
+// Rule 5 evidence: a build of pristine origin/main from a short scratch path and a build of
+// the same commit from a worktree path produced different uids on every
+// island (Z2u3zyh vs 1oBIkH, on the SAME ThemeToggle, with identical props),
+// and nothing else differed. Astro 7.3 derives the uid from something
+// path-dependent, so a baseline captured in one checkout never compares clean
+// in another. Rules get added here only for PROVEN nondeterminism, never pre-emptively:
 // every rule is a class of real drift the harness stops noticing. If a future
 // run reports a diff on an unchanged tree, add the narrowest rule that covers
 // it and record the evidence in the comment beside it.
@@ -237,6 +243,15 @@ function stripIslandPrefixes(html) {
   return html.replace(/(<astro-island\b[^>]*?)\sprefix="r\d+"/g, '$1 prefix="rN"');
 }
 
+/**
+ * Rule 5 (Reid-local): the island uid. See the header for the evidence: it is a
+ * generated identity that changes with the checkout path, not with the markup.
+ * The tag, component-url and serialized props are still compared.
+ */
+function stripIslandUids(html) {
+  return html.replace(/(<astro-island\b[^>]*?)\suid="[^"]*"/g, '$1 uid="UID"');
+}
+
 /** Rule 4: whitespace that only reflects source indentation. */
 function collapseWhitespace(html) {
   return html
@@ -250,7 +265,9 @@ function collapseWhitespace(html) {
 }
 
 export function normalize(html) {
-  return collapseWhitespace(stripIslandPrefixes(stripAstroCids(stripAssetHashes(html))));
+  return collapseWhitespace(
+    stripIslandUids(stripIslandPrefixes(stripAstroCids(stripAssetHashes(html)))),
+  );
 }
 
 // --------------------------------------------------------------------------

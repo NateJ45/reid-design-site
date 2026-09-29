@@ -14,6 +14,101 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-29 editor-experience branch (`claude/studio-editor`)
+
+Every automated gate is green, but none of these can be exercised without a
+signed-in Studio. Click through them on staging (or production after merge),
+signed in as an editor:
+
+1. **Search.** Studio search box: type a project's town ("Fishers") or a
+   testimonial client's first name. The matching project/testimonial should rank
+   first.
+2. **Share link (HTTPS only, so deployed, not localhost).** Open About. Publish
+   menu arrow, "Copy share link": a green toast says the link is copied and
+   works for about an hour. Paste it into a private/incognito window with no
+   Sanity login: you land on `/preview/about` showing the draft. Then in the
+   Presentation tool, the share icon beside any page in the page list does the
+   same. Bonus: after tier1's card-57 cookie check merges, repeat once; the link
+   must still work (the enable route writes the same fingerprint cookie).
+3. **Check this page.** On a project with a gallery photo missing its alt text,
+   publish-menu arrow, "Check this page...": the dialog lists it under "Main
+   content". Add an empty Photo gallery block to a custom page: it is listed as
+   "Section N: Gallery ... nothing typed". Publish is still clickable with the
+   dialog open.
+4. **Undo / Redo.** On Home, drag a section to a new spot, then publish-menu
+   arrow, "Undo last change": it moves back, toast "Change undone". "Redo" moves
+   it again. Then click outside any text box and press Ctrl+Z / Ctrl+Shift+Z:
+   same. Inside a text box Ctrl+Z must undo typing only.
+5. **Grouped "+ Add section" menu.** In a custom page's Sections, click "Add
+   item": five groups (Built-in sections hidden on a custom page) and a search
+   box. On Home's "Page layout", the Built-in sections group shows. In
+   Presentation, hover a section and click the insert button: the same grouped
+   menu opens in the canvas.
+6. **Starting layouts.** Pages, Custom pages, "+": the picker offers Custom page,
+   Service page, Neighborhood page (e.g. Carmel). Create a Neighborhood page:
+   five sections arrive with [bracketed] prompts. Content, Projects, list menu:
+   "New project story (with writing prompts)". Discard both drafts afterwards.
+7. **Section coach.** On that Neighborhood draft, open Presentation: the empty
+   Photo gallery shows a dashed "Nothing here yet, Photo gallery" note. Add one
+   photo: the note turns into the gallery.
+8. **Releases off.** The top bar has no Releases tool.
+9. **Refresh the in-Studio guide.** `scripts/seed-studio-guide.mjs` gained four
+   how-tos (starting layouts, Check this page, Undo, share link) and an updated
+   "Build a brand-new page". It was NOT run (agents do not write production).
+   It uses `createOrReplace`, so any edits Staci made to the guide in the Studio
+   would be overwritten; check the live `studioGuide` first, then run it.
+
+### From the 2026-09-29 site-features branch (announcements, search, stats, link health)
+
+- **Create the Cloudflare token for "Site stats", then `npx wrangler secret put
+CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
+  stats") shows "not set up yet" and nothing else is affected. Token: Cloudflare
+  dashboard > My Profile > API Tokens > Create Token > Custom token, ONE
+  permission, Zone > Analytics > Read, Zone Resources > Include > Specific zone
+  > reiddesignllc.com. Read-only. The zone is on the Free plan and its
+  > `httpRequests1dGroups` dataset answered a real query with 56 days of page views
+  > and visitors on 2026-09-29, so the panel will have data the moment the secret
+  > is set. Then open Presentation once in the Studio (it hands the browser the
+  > preview cookie the endpoint checks by value) and open Site stats.
+- **Check the Wayfair link in "Grow your studio".** The first link-health run
+  reported `https://www.wayfair.com/professional/` gone (HTTP 404 to a script).
+  It could not be confirmed: Wayfair walls every request from that network with
+  a 429 "Access denied", including a real Chromium, so it may be a false alarm.
+  Open it in a normal browser; if it is dead, fix it in Studio > Start Here >
+  Grow your studio (and in `scripts/seed-studio-playbook.mjs`, or the next
+  reseed puts it back).
+- **Optional: a daily rebuild.** Announcement start dates, and "Show until" removing
+  a bar from the page code, are read at BUILD time. A bar hides itself in the
+  browser once its end passes, but a start date only lands on the day if a build
+  runs that day. A daily Cloudflare deploy hook (OPERATIONS.md, "Scheduled
+  publishing") makes that automatic; without it, publishing anything on the day
+  does the same.
+- **Run the first link-health workflow by hand** (Actions > Link health > Run
+  workflow) to see the Summary table once. It runs itself on Mondays at 09:15 UTC.
+
+### From the 2026-09-29 tier-2 hardening (full CSP, icon set, redirects on rename)
+
+- **After the deploy, sign in to `/studio` with DevTools open.** The Studio now
+  runs under its own Content-Security-Policy (`/studio/*` in `public/_headers`).
+  Verified locally up to the sign-in screen with zero violations, on the
+  production hostname so Sanity's CORS answered for real. What no agent could
+  check is the SIGNED-IN desk: open a document with a custom pane (Brand Kit),
+  upload a photo through the Media tool, open Presentation. Any line reading
+  "violates the following Content-Security-Policy directive" names the missing
+  host; add it to the `/studio/*` rule. If the desk is badly broken, the fast
+  rollback is to delete the `/studio/*` Content-Security-Policy line (keep the
+  `! Content-Security-Policy` detach above it), which leaves the Studio with
+  no CSP, exactly as before.
+- **Try a rename once.** No published page, project, post or guide exists yet,
+  so the redirect action has never fired against real data. Next time Staci
+  (or you) renames a PUBLISHED one: Publish should toast "Old link kept
+  working", a row should appear under Pages → Redirects (old links), and after
+  the rebuild the old address should answer 301.
+- **Glance at the new home-screen icon.** `favicon.svg` is now a rounded bronze
+  tile instead of a disc, so the iOS/Android icons have an opaque plate. If you
+  prefer the disc in the browser tab, the touch icons then need a separate
+  drawing (see `scripts/generate-favicons.mjs`).
+
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
 - **Sign in to the staging Studio, then open Presentation.** The stack moved to
@@ -52,7 +147,7 @@ one still open. Kept here in full because they document WHY each is needed.
   harmless: editors reopen the Presentation tool.
 - **DONE 2026-09-05 (apex, www, both workers.dev). `npx sanity cors add <origin> --credentials`, twice.** Once for
   `https://reid-design-site.nathanjnixon86.workers.dev` (and again for
-  `https://reiddesignllc.com` at DNS cutover), once for `http://localhost:4321`.
+  `https://reiddesignllc.com`, done with the 2026-09-05 pass above), once for `http://localhost:4321`.
   Verified locally 2026-08-28: the embedded Studio at `/studio` mounts and
   renders its own React shell, then shows Sanity's "Connect this Studio to your
   project / Add CORS origin" screen, with the browser console carrying only the
@@ -82,32 +177,76 @@ one still open. Kept here in full because they document WHY each is needed.
   `public/_headers` (they are kept only for that transition, and the file says
   so).
 
-### Older
-
-- **Create the `SANITY_AUTH_TOKEN` repo secret.** Until it exists,
-  `.github/workflows/sanity-backup.yml` runs nightly, logs a warning, and
-  exports nothing, so there is currently **no dataset backup**. That matters
-  more than it sounds: CLAUDE.md's first hard rule says an accidental "Remove
-  field" in Studio "cannot be undone without a dataset restore", and right now
-  there is nothing to restore from. A read token is enough. Get one at
-  sanity.io/manage, project `ba403vjc`, API, Tokens; add it under GitHub
-  Settings, Secrets and variables, Actions.
-- **Set the `SITE_URL` repo variable.** `.github/workflows/uptime.yml` skips
-  with a warning until it is set. Today the built site answers at
-  `https://reid-design-site.nathanjnixon86.workers.dev` (verified 200 on `/`,
-  `/services/`, `/faq/`, `/privacy/` on 2026-08-27); `reiddesignllc.com` still
-  serves the old Squarespace site. Point the variable at the workers.dev origin
-  now for pre-launch monitoring, and move it at cutover. It is a **variable**,
-  not a secret, so a failing check can name the URL in the log.
-- **DNS cutover to reiddesignllc.com.** Still the gating item for launch, and
-  it is what turns `src/data/site.ts`'s canonical URLs, the sitemap, and the
-  JSON-LD `@id` into true statements. Pre-existing; recorded here so the queue
-  is complete.
-
 ## Open — code and content work queued
+
+### Picture-grid "+ Add section" menu (deferred 2026-09-29)
+
+The grouped insert menu shipped with the list view only. The grid view
+(`views: [{ name: 'grid', previewImageUrl }]`, thumbnails in
+`public/studio-thumbs/`) needs one real screenshot per section type, and the
+presacademy/WCP `studio-thumbs.mjs` script captures them from PUBLISHED pages by
+position. On 2026-09-29 no published document anywhere uses a library block
+(every builder array is markers only, and there are no custom pages), so that
+script would produce nothing but placeholders. Unblocks when Staci has built one
+or two custom pages; or build a fixture-render harness instead (the Astro
+container API against SectionRenderer). Adding `views` is then a two-line edit to
+`SECTION_INSERT_MENU` in `src/sanity/schemaTypes/sections.ts`.
+
+### From the 2026-09-29 site-features branch
+
+- **Port the link-health fork up to the starter.** `scripts/check-live-links.mjs`
+  is a deliberate fork of the starter's card 42 (marker dropped so sync-check
+  leaves it alone). The canonical sweep, run against this dataset, probed 222
+  links that were all `cdn.sanity.io` image assets and never looked at
+  `shopItem.affiliateUrl`, `testimonial.reviewUrl` or the `navItems` menu. The
+  fix that generalises: walk every published non-system document for
+  whole-string http(s) values instead of listing field names, skip the asset CDN,
+  and write `$GITHUB_STEP_SUMMARY`. Needs a PORTS.md card in the starter (do not
+  edit the starter from a site session); `scripts/propose-drift.mjs` can draft it.
+- **The mobile drawer has no Search entry.** The header shows a search icon beside
+  the hamburger on phones, but `MobileNav.tsx` (owned by another workstream in this
+  batch) was not touched. Add a "Search" row to the drawer.
+- **The `parity` normalizer gained rule 5 (island uid)** in
+  `scripts/page-parity.mjs`; other branches hit the same false diff and may add the
+  same rule. Keep one copy when merging.
+- **The Studio Presentation preview does not draw announcements** (the preview shell
+  is chrome-less by design). Verified on the built site instead; the Studio's
+  location panel for an announcement says so.
+
+### Found in the 2026-09-29 tier-2 hardening
+
+- **`/preview/**` has no Content-Security-Policy.** Cloudflare applies
+  `_headers` only to static responses; the preview routes are SSR, so they
+  answer with no CSP and no `frame-ancestors` (checked on production). The fix
+  is to set the header from the SSR code (middleware or the preview route),
+  with the Studio grants plus `frame-ancestors 'self'`. Not done here because
+  the preview routes belonged to another workstream that day.
+- **The home hero's rotating word is the whole of the home page's CLS
+  (0.033 on Lighthouse mobile).** `Hero.astro` swaps "Creating" for
+  "Lived-in" / "Considered" / "Quiet", each a different width, so the h1
+  re-wraps and Lighthouse logs four layout shifts on it. The font work cut
+  `/services` from 0.027 to 0.0006 but cannot touch this one. Fix options:
+  reserve the widest word's width on the rotating span (inline-block,
+  min-width), or move the rotator to the end of a line. A design call.
+- **Studio deep links 404 on reload.** `/studio/` is prerendered as one static
+  page, so a refresh or a pasted link to `/studio/structure/...` answers 404
+  (production too, 2026-09-29). Probably wants the Studio route SSR, or a
+  `/studio/*` rewrite to `/studio/`.
+- **Starter fold-back candidates (PORTS.md card 22).** (1) The rename-and-rename-
+  back loop that `src/lib/redirect-guard.ts` guards against at build lives in
+  the canonical `slugRedirect.tsx`: when a page moves back to an address, the
+  action should delete (or retarget) the redirect whose `from` is the new
+  address. (2) Under `wrangler dev`, a second `_headers` rule for `/_astro/*`
+  holding only `! Content-Security-Policy` both failed to remove the CSP AND
+  wiped the adapter's immutable Cache-Control for that path (answered
+  `max-age=0`); one rule carrying both lines works; any family repo that
+  adds an `/_astro/*` rule must carry the Cache-Control itself.
 
 ### Parity baselines are stale (found 2026-08-28)
 
+(Re-measured 2026-09-29 on `origin/main` 0848aa5 plus only the Studio-side
+search-weights commit: 10/20, the same nine routes plus `studio`. The editor-experience branch was proven render-neutral against a
+fresh pristine-build snapshot instead, 20/20.)
 `node scripts/page-parity.mjs compare` reports 11/20 on a PRISTINE
 tree: a commit after the baselines were captured changed the
 availability-pill markup (bg-primary-dark -> bg-muted, "Book a
@@ -115,7 +254,25 @@ consultation" -> "Open") on 9 routes (404, about, contact, e-design,
 faq, home, privacy, process, services). The chrome-options port was
 proven render-neutral against a pristine-build snapshot instead.
 Fix: regenerate the baselines from a clean main/staging build
+(`node scripts/page-parity.mjs capture`) in a commit that says why.
+
+**Update 2026-09-29 (tier-1 branch).** The committed baselines (last moved in
+#40) still do not match a local build of `origin/main` on the same Sanity
+content: they carry the GA4 tag (captured with `PUBLIC_GA_ID` set), an empty
+FAQ list and `{}` FAQ/services JSON-LD, a NewsletterSignup island with no
+server-rendered children, and different island uids on `/studio`. Card 52
+(MobileNav at `client:idle`) then moves 9 pages on purpose. The tier-1 branch
+did NOT recapture, so parallel branches do not all conflict on
+`scripts/.parity/`; it proved render-neutrality against a fresh capture of
+`origin/main` instead (11/20 pass, the 9 diffs all the MobileNav island).
+Recapture once, after the parallel branches merge, from a build with
+`PUBLIC_GA_ID` set if the baselines should keep the tag.
 (`node scripts/page-parity.mjs baseline`) in a commit that says why.
+Update 2026-09-29: still stale, and two more causes found. The committed
+baselines were captured with `PUBLIC_GA_ID` set (production builds carry the GA
+snippet, a local build without the variable does not) and before Astro 7.3
+(island uids). Rule 5 in the normalizer fixes the second; for the first, capture
+with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
 
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the
@@ -180,6 +337,29 @@ Fix: regenerate the baselines from a clean main/staging build
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-09-29 — three "Older" needs-a-human items were already done; the
+  registry had not caught up.** Verified that day, read-only:
+  - `SANITY_AUTH_TOKEN` exists. `.github/workflows/sanity-backup.yml` has
+    succeeded on its nightly schedule every night checked (2026-09-25 through
+    2026-09-29, `gh run list --workflow sanity-backup.yml`), with the export
+    job running about two minutes, so there IS a dataset to restore from.
+  - `SITE_URL` is set, to `https://reiddesignllc.com` (the main session set it
+    2026-09-29; `gh variable list`), and `uptime.yml` runs green against it.
+  - The DNS cutover happened weeks ago: `reiddesignllc.com` answers from
+    Cloudflare with this Worker's own headers (`Server: cloudflare`, our
+    `frame-ancestors` CSP). The canonical URLs, sitemap and JSON-LD `@id` in
+    `src/data/site.ts` are true statements now.
+- **2026-09-29 — tier-1 correctness pass (branch `claude/tier1-correctness`).**
+  PORTS.md cards 52, 55, 56 and 57 ported: `MobileNav` at `client:idle`; build
+  reads always on the Sanity CDN; one `sanityFetch` read path that throws in a
+  production build and retries twice; every static route's page-level
+  `.catch(() => null)` removed so a failed read fails the build instead of
+  shipping empty pages; dynamic routes refuse to publish a listed doc as a
+  redirect; the preview routes check the cookie's VALUE (`isStudioPreview`)
+  rather than its presence. Also `.gitattributes` (LF) and Tailwind
+  `@source not` for `scripts/.parity` and `docs/`. Detail in
+  `docs/agent/changelog.md`.
 
 - **2026-08-28 — Astro 6.3.8 → 7.2.9, `@astrojs/cloudflare` 13.5.5 → 14.2.4,
   wrangler `~4.110.0`.** `scripts/with-workerd.mjs` is no longer an unwired

@@ -112,6 +112,8 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 
 The filter in `astro.config.mjs` drops `/studio`, `/preview`, `/404`, and every route of a section switched off in `siteSettings.sectionVisibility` (2026-09-28). A hidden section still leaves a meta-refresh redirect stub at its URL, so without the filter the sitemap advertised ten noindex stubs. The config reads the flags from Sanity at build time and matches routes with `isHiddenSectionPath()` from `src/lib/sectionVisibility.ts`, the same module the pages use, so a section turned back on in Studio reappears in the sitemap on the next rebuild. **A new toggleable section needs its route prefix added to `SECTION_ROUTES` there.**
 
+`/search` (2026-09-29) is `noindex` and also filtered out of the sitemap (an exact-path match, so a custom page with a similar slug is not caught), because a search box has no content of its own to rank. `search` and `pagefind` are reserved slugs in `page.ts` and `[slug].astro`. The 404 and `/search` are also kept out of the Pagefind index itself: `BaseLayout` only emits `data-pagefind-body` when the page is not `noindex`.
+
 `public/robots.txt` ships with the build (allow-all):
 
 ```
