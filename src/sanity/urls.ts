@@ -51,9 +51,10 @@ export const SITE_URL_FOR_PREVIEW =
  *
  * TWO CALLERS DEPEND ON THIS STAYING ACCURATE: the Studio's "view it live"
  * affordances, and src/sanity/resolve.ts, which turns these paths into the
- * Presentation tool's document-to-URL mapping. A third list,
- * SINGLETON_BY_PATH in src/pages/preview/[...slug].astro, maps the same paths
- * back to document types; the three must agree.
+ * Presentation tool's document-to-URL mapping. Whether the draft preview can
+ * DRAW a given path is a separate question, answered by
+ * src/sanity/preview-routes.ts (2026-09-29); preview-routes.test.ts checks
+ * this function's output against it type by type.
  */
 export function pathForDoc(schemaType: string, doc: any): string | null {
   const slug = doc?.slug?.current;

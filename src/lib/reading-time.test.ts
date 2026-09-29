@@ -55,6 +55,21 @@ describe('readingTimeFromPortableText', () => {
   });
 });
 
+describe('readingTimeFromPortableText in the draft preview (stega)', () => {
+  it('ignores the invisible stega run the preview client appends to every string', () => {
+    // A modern-encoding-shaped run: U+200B prefix, then base-4 digits that
+    // include U+FEFF, which JavaScript's \s treats as whitespace. Before the
+    // 2026-09-29 fix each run split into extra "words" (a 4-minute post
+    // previewed as 68).
+    const run = '​​​​' + '﻿‌﻿‍'.repeat(40);
+    const blocks = Array.from({ length: 10 }, () => ({
+      _type: 'block',
+      children: [{ text: Array(20).fill('word').join(' ') + run }],
+    }));
+    expect(readingTimeFromPortableText(blocks)).toBe(1);
+  });
+});
+
 describe('formatReadingTime', () => {
   it('formats a whole number of minutes as a "min read" label', () => {
     expect(formatReadingTime(5)).toBe('5 min read');
