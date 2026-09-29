@@ -46,7 +46,14 @@ const schemas = [
 const CONTACT_HREF = '/contact?type=e-design';
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   {/* ------- Hero ------------------------------------------------------------ */}
   <Hero
     eyebrow={heroEyebrow}

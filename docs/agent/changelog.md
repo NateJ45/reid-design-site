@@ -2,6 +2,41 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — share cards redesigned, and drawn by every build
+
+The old cards were a plain linen rectangle reading "Reid Design LLC" in a fallback
+system serif (Pango asks fontconfig for Cormorant Garamond by name, and fontconfig
+never sees node_modules: starter PORTS.md card 46), with a tagline that carried an
+em-dash straight out of an seoTitle. They were rendered by hand and committed, so a
+project Staci published got a card only when Nathan re-ran `og:pages`, and
+BaseLayout's "falls back to og-default.png" comment was never true: a missing file
+was simply a broken share image. The 404's og:image pointed at `/og/404.png`, which
+never existed.
+
+Four concepts were rendered with Staci's own photos and the real faces; Nathan chose
+**D, "arch window"**: linen ground, one photo in an arch (her arched mirrors recur
+through her rooms; her logo is a ring), an optional second photo in a small circle,
+the full logo, a bronze rule, the title in Cormorant Garamond 500 and a small caps
+line in Source Sans 3. The logo masks are rebuilt from the source JPG without the
+grey watercolour wash (`scripts/generate-og-logo.mjs`).
+
+Now every BaseLayout page gets a card on every build. BaseLayout points og:image at
+`/og/<route>.png` and writes a card spec into the page; `src/integrations/og-cards.ts`
+draws the PNGs at `astro:build:done`, strips the specs, and fails the build if any
+`/og/` og:image has no file (a card that fails to draw gets `siteSettings.seoImage`
+or `og-default.png` copied into its place first). Project and journal detail pages
+stopped passing their raw photo and get a card. `siteSettings.seoImage` no longer
+overrides the cards; it only replaces the fallback. Titles prefer the hero headline,
+drop a "Reid Design" suffix, and turn an em-dash into a comma with a warning rather
+than failing Staci's deploy. `public/og/*.png`, `scripts/generate-og-pages.mjs`,
+`scripts/lib/render-og.mjs` and `npm run og:pages` are gone; `npm run og:cards`
+previews or redraws. Parity: 19/20 routes byte-identical; the 404's og:image moved
+from the non-existent `/og/404.png` to `/og-default.png`.
+
+The drawing backend is Playwright Chromium today. Nathan approved satori +
+@resvg/resvg-js for production (no browser on Workers Builds); the backend is
+written (`scripts/lib/og-render-satori.mjs`) but not installed yet, see PENDING.
+
 ## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,

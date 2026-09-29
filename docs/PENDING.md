@@ -14,6 +14,34 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-29 share-card redesign (branch `claude/og-redesign`)
+
+- **Do not merge until the cards draw on Workers Builds.** The build draws every
+  share card with Playwright Chromium, which Workers Builds (Ubuntu 24.04, no
+  root, no `playwright install --with-deps`) almost certainly cannot launch. That
+  does NOT break the build: every card falls back to `og-default.png` with a
+  warning. But production would then show the same fallback card on every page.
+  The fix is the satori backend, already written in
+  `scripts/lib/og-render-satori.mjs`. It is waiting on dependency installs that the
+  agent's permission system refused, so they need Nathan in person:
+  `npm install --save-exact satori@0.33.5 @resvg/resvg-js@2.6.2` (approved), and
+  a static Source Sans 3 package, `@fontsource/source-sans-3` (NOT yet approved).
+  satori reads TTF/OTF/WOFF only, never WOFF2, and cannot pick a weight from a
+  variable font. The site's `@fontsource-variable/source-sans-3` ships nothing but a
+  variable woff2, so without the static package the kicker line cannot be set in
+  the real face. Then: set `OG_RENDERER=satori` as the default in
+  `scripts/lib/og-render.mjs`, build, compare with the Chromium cards, and check that
+  the lockfile carries `@resvg/resvg-js-linux-x64-gnu`.
+- **Two page heroes Staci might not want on a share card.** The e-design page's
+  hero is `reid-design-older-open-plan-living-dining.jpg` (from the "older / before"
+  set), and the contact page's is `reid-design-blue-hutch-hydrangeas.jpg`, a mantel
+  of children's photos. The cards use each page's own hero on purpose (her choice
+  wins), so the fix, if she wants one, is a different hero or a per-page SEO image in
+  the Studio.
+- **No project image has a hotspot set.** The arch crops around the centre, so the
+  grey-sectional hero shows its ceiling fan. Setting a hotspot on a project's hero in
+  the Studio moves the crop on the next build.
+
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
 - **Sign in to the staging Studio, then open Presentation.** The stack moved to

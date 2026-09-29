@@ -55,7 +55,14 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   {/* Hero — same image-or-text shape every other page uses. */}
   <Hero
     eyebrow={heroEyebrow}

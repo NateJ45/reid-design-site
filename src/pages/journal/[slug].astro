@@ -121,8 +121,8 @@ const schemas = [
 <BaseLayout
   {title}
   {description}
-  ogImage={coverOg}
   {schemas}
+  card={{ headline: entry.title, kicker: 'The Journal', image: entry.coverImage }}
   {siteSettings}
   ogType="article"
   ogArticle={{ publishedAt: entry.publishedAt, author: entry.author }}

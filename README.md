@@ -59,6 +59,21 @@ npm run preview      # wrangler dev -c dist/server/wrangler.json
 The preview stack needs a `SANITY_TOKEN` in `.dev.vars` (see `.dev.vars.example`)
 and this origin on the Sanity project's CORS allow list.
 
+### Share cards
+
+Every page's social share image is drawn by the build: `npm run build` finishes by
+writing `dist/client/og/<route>.png` (Staci's logo, one of her photos in an arch,
+the page's headline) and fails if any page points at a card that is missing. No
+share images are committed except the fallback `public/og-default.png`
+(`npm run og`). To see the card every project, journal post and guide would get:
+
+```sh
+npm run og:cards -- preview tmp/og-preview   # writes the PNGs + _contact-sheet.png
+```
+
+The drawing needs a Playwright Chromium today (`npx playwright install chromium`);
+see `docs/agent/seo.md` and `docs/PENDING.md` for the move to satori.
+
 Full architecture reference in [`CLAUDE.md`](./CLAUDE.md); operational playbook in [`OPERATIONS.md`](./OPERATIONS.md).
 
 ---

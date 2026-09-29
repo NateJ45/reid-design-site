@@ -25,14 +25,14 @@ If a new dependency pushes a budget, that's a discussion before merging. Some ar
 
 ### Image weight by slot
 
-| Slot                       | Display max        | SanityImage props                                                              | Notes                                        |
-| -------------------------- | ------------------ | ------------------------------------------------------------------------------ | -------------------------------------------- |
-| Home hero (full-bleed)     | viewport           | `width={2400} sizes="100vw" loading="eager" fetchpriority="high" quality={70}` | LCP element                                  |
-| Portfolio/Journal cover    | ~896px             | `width={1800} sizes="(min-width: 920px) 896px, 100vw" loading="eager"`         | Capped at `max-w-4xl`                        |
-| Project gallery thumbnail  | viewport-dependent | `width={900} quality={75}` (via `urlFor`)                                      | Lightbox loads larger on tap                 |
-| Project gallery fullscreen | viewport           | passed to `yet-another-react-lightbox` directly                                |                                              |
-| Testimonial avatar         | 120×120            | `urlFor(...).width(120).height(120).fit('crop')`                               | Static thumbnail                             |
-| OG image (committed)       | 1200×630           | n/a, generated once via `npm run og`                                           | Per-page via `scripts/generate-og-pages.mjs` |
+| Slot                       | Display max        | SanityImage props                                                              | Notes                                             |
+| -------------------------- | ------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------- |
+| Home hero (full-bleed)     | viewport           | `width={2400} sizes="100vw" loading="eager" fetchpriority="high" quality={70}` | LCP element                                       |
+| Portfolio/Journal cover    | ~896px             | `width={1800} sizes="(min-width: 920px) 896px, 100vw" loading="eager"`         | Capped at `max-w-4xl`                             |
+| Project gallery thumbnail  | viewport-dependent | `width={900} quality={75}` (via `urlFor`)                                      | Lightbox loads larger on tap                      |
+| Project gallery fullscreen | viewport           | passed to `yet-another-react-lightbox` directly                                |                                                   |
+| Testimonial avatar         | 120×120            | `urlFor(...).width(120).height(120).fit('crop')`                               | Static thumbnail                                  |
+| OG share card              | 1200×630           | n/a, drawn every build into `dist/client/og/` (`src/integrations/og-cards.ts`) | Fallback `public/og-default.png` via `npm run og` |
 
 Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than the slot renders at.** Format defaults to `auto` (AVIF / WebP / JPEG fallback), quality to 75 — drop to 65 for big hero photos.
 

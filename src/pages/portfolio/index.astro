@@ -81,7 +81,14 @@ const fallbackHeroImage = {
 const heroBackground = page?.heroImage ?? fallbackHeroImage;
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}

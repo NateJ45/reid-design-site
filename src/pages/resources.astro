@@ -35,6 +35,13 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <ResourcesSectionRenderer sections={page?.pageBuilder} page={page} visible={visible} />
 </BaseLayout>

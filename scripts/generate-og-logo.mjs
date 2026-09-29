@@ -17,8 +17,9 @@
 //                                      letterforms, so a card can set it apart
 //                                      from the ring without retyping it)
 //
-// The card renderer colours them with CSS `mask-image`, so one file serves every
-// ink. They are committed: the build machine does not have the source JPG.
+// The card renderer (scripts/lib/og-render.mjs) colours them into ordinary PNGs
+// with sharp, so one file serves every ink and no backend needs CSS mask-image.
+// They are committed: the build machine does not have the source JPG.
 //
 // HOW THE WASH IS REMOVED. The source is near-black ink (~20-60 grey) on white,
 // with a light grey wash (~200-245) behind the ring. A straight negate (what the

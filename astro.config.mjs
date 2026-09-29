@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sanity from '@sanity/astro';
 import { getSectionVisibility, isHiddenSectionPath } from './src/lib/sectionVisibility.ts';
+import ogCards from './src/integrations/og-cards.ts';
 
 // The Sanity project id is PUBLIC by design: it ships in every client bundle and
 // in every GROQ request URL. Read through process.env here (astro.config runs in
@@ -82,6 +83,9 @@ export default defineConfig({
         !isHiddenSectionPath(new URL(page).pathname, sectionVisibility),
     }),
     react(),
+    // Share cards (2026-09-29): draws dist/client/og/*.png after every build
+    // from the card spec BaseLayout leaves in each page. See the file header.
+    ogCards(),
   ],
   vite: {
     plugins: [tailwindcss()],
