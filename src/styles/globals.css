@@ -4,6 +4,22 @@
    carries everywhere the design system is referenced. */
 
 @import 'tailwindcss';
+
+/* NOT SOURCE (2026-09-29; vault gotcha committed-parity-baselines-feed-
+   tailwind, the Stone Steps pattern). Tailwind 4 scans every file git does not
+   ignore for candidate class names, and that includes two kinds of file that
+   are not the site:
+   - scripts/.parity/*.html, the committed parity baselines. They are OUTPUT.
+     A class that exists only in an old baseline keeps its rule alive in the
+     next build, and parity then passes because the baseline fed the build.
+   - docs/, where this repo explains its own markup in prose. Markdown IS
+     scanned, so naming a utility in a doc puts that rule in the shipped
+     stylesheet.
+   Excluded rather than gitignored: both have to stay committed. Paths are
+   relative to this file. Kept up here, next to the import, on purpose. */
+@source not '../../scripts/.parity';
+@source not '../../docs';
+
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 /* Cormorant Garamond — display serif. Only 400 + 600 are actually used:
