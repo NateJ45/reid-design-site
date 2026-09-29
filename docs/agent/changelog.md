@@ -54,6 +54,17 @@ with the `/studio/*` CSP; a random path still 404s with the public CSP; chromium
 lands on `/studio/#/media` etc. with the Studio mounted and only localhost CORS
 errors in the console.
 
+**Parity baselines recaptured.** Stale since 2026-08-28; the old set scored
+10/20 against a production-like build of this branch (availability pill,
+favicon links, MobileNav island, an empty FAQ from the old swallowed read, and
+more). Recaptured once, in its own commit, from a clean build with
+`PUBLIC_GA_ID=G-YSVYFME1FT` set (the production Workers Build sets it; CI and
+the local `.env` do not, which is why the rule is written down): 21 routes,
+`/search` new. Two further clean builds with the same variable: 21/21 PASS both
+times. A build WITHOUT the variable scores 11/21, and every diff line is a
+removed line of the GA snippet on the 10 real content pages, nothing added,
+which is the documented reason to compare with the variable set.
+
 ## 2026-09-29 — tier-1 correctness: build reads fail loud, preview cookie checked, MobileNav in the HTML
 
 Four starter cards ported, plus two hygiene fixes and a docs sweep.

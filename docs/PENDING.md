@@ -269,37 +269,7 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   `max-age=0`); one rule carrying both lines works; any family repo that
   adds an `/_astro/*` rule must carry the Cache-Control itself.
 
-### Parity baselines are stale (found 2026-08-28)
-
-(Re-measured 2026-09-29 on `origin/main` 0848aa5 plus only the Studio-side
-search-weights commit: 10/20, the same nine routes plus `studio`. The editor-experience branch was proven render-neutral against a
-fresh pristine-build snapshot instead, 20/20.)
-`node scripts/page-parity.mjs compare` reports 11/20 on a PRISTINE
-tree: a commit after the baselines were captured changed the
-availability-pill markup (bg-primary-dark -> bg-muted, "Book a
-consultation" -> "Open") on 9 routes (404, about, contact, e-design,
-faq, home, privacy, process, services). The chrome-options port was
-proven render-neutral against a pristine-build snapshot instead.
-Fix: regenerate the baselines from a clean main/staging build
-(`node scripts/page-parity.mjs capture`) in a commit that says why.
-
-**Update 2026-09-29 (tier-1 branch).** The committed baselines (last moved in
-#40) still do not match a local build of `origin/main` on the same Sanity
-content: they carry the GA4 tag (captured with `PUBLIC_GA_ID` set), an empty
-FAQ list and `{}` FAQ/services JSON-LD, a NewsletterSignup island with no
-server-rendered children, and different island uids on `/studio`. Card 52
-(MobileNav at `client:idle`) then moves 9 pages on purpose. The tier-1 branch
-did NOT recapture, so parallel branches do not all conflict on
-`scripts/.parity/`; it proved render-neutrality against a fresh capture of
-`origin/main` instead (11/20 pass, the 9 diffs all the MobileNav island).
-Recapture once, after the parallel branches merge, from a build with
-`PUBLIC_GA_ID` set if the baselines should keep the tag.
-(`node scripts/page-parity.mjs baseline`) in a commit that says why.
-Update 2026-09-29: still stale, and two more causes found. The committed
-baselines were captured with `PUBLIC_GA_ID` set (production builds carry the GA
-snippet, a local build without the variable does not) and before Astro 7.3
-(island uids). Rule 5 in the normalizer fixes the second; for the first, capture
-with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
+### Other queued items
 
 - **`OPERATIONS.md` still describes the old two-package world, and this session
   could not touch it.** It was already modified in the working tree when the
@@ -364,6 +334,16 @@ with `PUBLIC_GA_ID=G-YSVYFME1FT` in the environment, the way production builds.
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-09-29 — parity baselines recaptured (branch `claude/reid-followups`).**
+  Stale since 2026-08-28 (availability pill, GA tag, an empty FAQ from a
+  swallowed read, island uids, MobileNav at `client:idle`, the favicon set):
+  the old set scored 10/20 against a production-like build of this branch.
+  Recaptured once from a clean build with `PUBLIC_GA_ID=G-YSVYFME1FT` set, the
+  way the production Workers Build builds; 21 routes now (`/search` joined).
+  Two further clean builds each compared 21/21 PASS. **Compare with the same
+  variable set**, or the 10 real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet.
+  Detail in `docs/TESTING.md`, "The parity harness".
 
 - **2026-09-29 — "Copy share link" 404 on a project, journal post or guide
   (branch `claude/reid-followups`).** The preview route now draws

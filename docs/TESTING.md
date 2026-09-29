@@ -121,8 +121,24 @@ npm run parity compare      # PASS/DIFF per page, exit 1 on any diff
 Neither mode builds; the caller builds. Baselines live in `scripts/.parity/` and
 **are committed**: git history is the record of when one legitimately moved, so
 re-capture only when you mean to move the baseline and say so in the commit
-message. Baselines captured 2026-08-27, 19 routes, verified 19/19 across a
-capture / rebuild / compare cycle.
+message. Current baselines: captured 2026-09-29 (branch `claude/reid-followups`),
+21 routes, from a clean build with `PUBLIC_GA_ID=G-YSVYFME1FT` set, because the
+production Workers Build sets it and the baselines should look like what ships.
+Proven stable: two further clean builds each compared 21/21. **So build with the
+same variable before comparing:**
+
+```bash
+PUBLIC_GA_ID=G-YSVYFME1FT npm run build     # PowerShell: $env:PUBLIC_GA_ID='G-YSVYFME1FT'; npm run build
+npm run parity compare
+```
+
+Without it, the 10 real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet, which is a
+build-input difference, not drift. (The tag only fires on the production
+hostname at runtime, so a local build carrying it files no sessions.) The six
+detail pages (projects, the journal post, guides) are not in the set while their
+sections are switched off in Sanity, because no page is built for them; a
+render-neutrality check on those needs a temporary all-sections-on build, as the
+2026-09-29 detail-component extraction did (docs/agent/changelog.md).
 
 **Rule 5 (2026-09-29): the `<astro-island>` uid is normalized.** Astro 7.3 derives
 it from something path-dependent, so a baseline captured in one checkout never
@@ -132,9 +148,7 @@ island). With the rule, a branch that adds a feature which renders nothing when
 unused can be proven byte-identical: the announcements branch was 20/20 against a
 pristine-main build. A feature that DOES change markup shows exactly its own
 lines (the search icon, `data-pagefind-body` and the 404 search box, 2026-09-29).
-The committed baselines are still stale (see docs/PENDING.md); capture a fresh
-set from a clean main build, with `PUBLIC_GA_ID` set the way production sets it,
-before relying on `compare` without a scratch baseline.
+(The baselines were stale from 2026-08-28 until the 2026-09-29 recapture above.)
 
 Two traps, both documented in the script header: this build fetches live Sanity
 content, so capture and compare must bracket one sitting; and compare only
