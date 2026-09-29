@@ -179,7 +179,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
           />
         ) : null
       ) : (
-        <SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} />
+        <SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} coach={Boolean(editDoc)} />
       )}
     </Wrap>
   ))

@@ -78,7 +78,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
           />
         ) : null
       ) : (
-        <SectionRenderer sections={[s]} idPrefix={`process-extra-${i}`} />
+        <SectionRenderer sections={[s]} idPrefix={`process-extra-${i}`} coach={Boolean(editDoc)} />
       )}
     </Wrap>
   ))

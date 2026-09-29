@@ -20,6 +20,8 @@ import QuoteBlock from '@/components/sections/QuoteBlock.astro';
 import VideoEmbed from '@/components/sections/VideoEmbed.astro';
 import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
+import SectionCoach from '@/components/SectionCoach.astro';
+import { sectionCoach } from '@/lib/section-coach';
 
 interface Props {
   sections?: any[];
@@ -42,9 +44,28 @@ interface Props {
    * `npm run parity compare` is the standing gate on that promise.
    */
   editDoc?: EditDoc;
+  /**
+   * PREVIEW ONLY (2026-09-29). Show the empty-section coaching note without
+   * the edit wrapper. The eight marker-page renderers draw their own
+   * `data-sanity` wrapper and hand this renderer one section at a time with no
+   * `editDoc`, so they pass `coach={Boolean(editDoc)}` instead. `editDoc` on
+   * its own also switches coaching on. Neither is ever set on the live site.
+   */
+  coach?: boolean;
 }
 
-const { sections = [], idPrefix = 'section', editDoc } = Astro.props as Props;
+const { sections = [], idPrefix = 'section', editDoc, coach = false } = Astro.props as Props;
+
+// -------------------------------------------------------------------------
+// Empty-section coaching (PREVIEW ONLY, 2026-09-29)
+// -------------------------------------------------------------------------
+// A section just added from the "+ Add section" menu, with nothing typed in it
+// yet, renders a dashed "Nothing here yet: add a photo..." note in its place
+// instead of an empty band. The note sits INSIDE the edit wrapper, so the
+// overlay still outlines it and clicking it still opens that section. The
+// registry, and the argument for why this never reaches the static build, is
+// src/lib/section-coach.ts. `npm run parity compare` is the standing proof.
+const previewSignal = Boolean(editDoc) || coach;
 
 // A real element in preview, nothing at all on the live site. The wrapper must
 // NOT be `display: contents`: the overlay outlines the element's rect, and a
@@ -120,14 +141,22 @@ const rows = list.map((s, i) => {
     surface = contentIdx % 2 === 0 ? 'background' : 'muted';
     contentIdx += 1;
   }
-  return { s, surface, headingId: `${idPrefix}-${i}`, handle: handleAttr(s) };
+  return {
+    s,
+    surface,
+    headingId: `${idPrefix}-${i}`,
+    handle: handleAttr(s),
+    coachInfo: previewSignal ? sectionCoach(s) : null,
+  };
 });
 ---
 
 {
-  rows.map(({ s, surface, headingId, handle }) => (
+  rows.map(({ s, surface, headingId, handle, coachInfo }) => (
     <Wrap {...wrapAttrs(s._key)}>
-      {s._type === 'heroSection' ? (
+      {coachInfo ? (
+        <SectionCoach name={coachInfo.name} hint={coachInfo.hint} />
+      ) : s._type === 'heroSection' ? (
         <Hero
           eyebrow={s.eyebrow}
           headline={s.headline}
