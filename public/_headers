@@ -1,26 +1,111 @@
-# Cloudflare applies these headers to every route. Mirrors the NCS portfolio pattern.
-# Content-Security-Policy beyond frame-ancestors is intentionally not set — getting it right
-# requires testing because of the Sanity CDN, Web3Forms POST, Calendly iframe, and the
-# Cloudflare Analytics beacon. Revisit post-launch.
+# Security response headers. Cloudflare Workers Static Assets applies this file to every
+# STATIC response (every prerendered page, /studio/, and /_astro/* files). It does NOT
+# apply to responses the Worker generates itself: /preview/**, /preview/live and
+# /api/draft-mode/* are SSR routes and carry none of these headers (checked 2026-09-29
+# against production: /preview/ answers with no CSP at all). See "What is not covered".
 #
-# frame-ancestors: replaces the legacy X-Frame-Options so a Studio can iframe this
-# site for preview. Modern browsers prefer CSP frame-ancestors over X-Frame-Options
-# when both are present.
+# ---------------------------------------------------------------------------------------
+# Content-Security-Policy (full policy since 2026-09-29, tier-2 hardening)
+# ---------------------------------------------------------------------------------------
+# Two policies, scoped by path, so the public site does not carry the Studio's grants:
 #
-# 2026-08-28: 'self' is now the entry that matters. The Studio is EMBEDDED at
-# /studio on this same origin, so the Presentation tool's preview iframe of
-# /preview/* is a same-origin frame and 'self' is the whole permission it needs.
-# Nothing was added here for the embedded Studio, and nothing needs to be.
+#   /*          the public site. Tight: nothing loads from anywhere this site does not
+#               actually use.
+#   /studio/*   the embedded Sanity Studio. Detaches the public policy with
+#               "! Content-Security-Policy" and sets its own. The detach is required:
+#               Cloudflare MERGES the headers of every matching rule, and two CSP
+#               headers are both enforced (the browser takes the intersection), so
+#               without it the Studio would still be held to the public policy.
+#   /_astro/*   hashed JS/CSS. The CSP is detached here because a Web Worker is
+#               governed by the policy on ITS OWN script response, not the page's.
+#               Any worker the Studio starts from /_astro/ would otherwise be held to
+#               the public policy (no Sanity hosts) and fail silently. JS and CSS
+#               files are not documents, so nothing else reads a CSP on them.
+#               THIS RULE ALSO OWNS THE IMMUTABLE CACHE-CONTROL. @astrojs/cloudflare
+#               normally prepends its own `/_astro/*` block at build, but two rules
+#               with the same path did not merge under wrangler dev: the adapter's
+#               rule plus a detach-only rule here silently dropped the year-long cache on every hashed asset
+#               (seen under `npm run preview`, 2026-09-29). With Cache-Control set
+#               here the adapter sees it and skips its injection ("_headers already
+#               sets Cache-Control on a matching rule"), so there is one rule.
 #
-# 2026-09-05: the old hosted reid-design.sanity.studio was retired in Sanity
-# Manage, so its *.sanity.studio and localhost:3333/3334 entries are gone from
-# the line below. The sanity.io entries stay: Sanity's own hosted tooling can
-# still frame the site. Local dev is same-origin (astro dev serves /studio), so
-# it needs nothing here either.
+# Every origin below is used by something in src/. Inventory (2026-09-29):
+#   script-src  www.googletagmanager.com   GA4 gtag.js (src/components/analytics/GoogleAnalytics.astro)
+#               static.cloudflareinsights.com  Cloudflare Web Analytics beacon, when
+#                                          PUBLIC_CF_ANALYTICS_TOKEN is set (CloudflareBeacon.astro)
+#               'unsafe-inline'            unavoidable on a static build with no per-request
+#                                          nonce: the anti-FOUC theme script, the GA stub,
+#                                          Astro's island loader, and ClientRouter all run inline.
+#                                          (A hash-based `security.csp` was tried and broke
+#                                          the site; see docs/agent/stack-and-config.md.)
+#   connect-src api.web3forms.com          contact form + newsletter (ContactForm.tsx, lib/subscribe.ts)
+#               *.google-analytics.com, *.analytics.google.com, www.googletagmanager.com,
+#               *.g.doubleclick.net, www.google.com   GA4 collection (Google's published CSP
+#                                          list). www.google.com/g/collect is NOT optional: this
+#                                          property sends every hit there too (Google signals),
+#                                          and the 2026-09-29 sweep caught it blocked on every
+#                                          page before it was added. Visitors routed to a
+#                                          country Google domain (google.co.uk etc.) will have
+#                                          that one ads-signal request blocked; GA4 itself
+#                                          still records the hit via google-analytics.com.
+#               cloudflareinsights.com     the beacon's RUM POST
+#               ba403vjc.api(cdn).sanity.io  no public page reads Sanity from the browser
+#                                          today; allowed for our own project only so a
+#                                          future client-side read does not fail silently
+#               'wasm-unsafe-eval'         Pagefind site search at /search compiles its same-origin
+#                                          WebAssembly (/pagefind/); without it /search loads and
+#                                          then fails to start. It permits compiling WASM only,
+#                                          not eval() of JavaScript.
+#   frame-src   calendly.com               click-to-load scheduler (CalendlyInline.tsx)
+#               www.youtube.com, www.youtube-nocookie.com, player.vimeo.com
+#                                          VideoEmbed section + journal video blocks
+#               www.openstreetmap.org      ServiceAreaMap.astro
+#   img-src     https:                     Sanity CDN photos, shop affiliate product images
+#                                          from arbitrary retailers, GA's pixel
+#   font-src    'self'                     all three families are self-hosted via @fontsource
+#   form-action api.web3forms.com          the no-JS fallback path of the contact form
+#
+# ADDING AN EMBED OR A THIRD PARTY: add its origin to the right directive HERE, on the
+# right policy, and check it under `npm run preview` (a static file server sends no
+# headers, so it cannot show a CSP problem). A blocked request never leaves the browser,
+# so no server log will ever show it: the only evidence is a console line reading
+# "violates the following Content-Security-Policy directive".
+#
+# The Studio grants are the ones in the vault gotcha
+# _vault/gotchas/embedded-studio-blocked-by-your-own-csp.md (presacademy is the
+# reference): Sanity API + live websocket + sanity-cdn.com version ping in connect-src,
+# design-system-static.sanity.io in font-src, blob: workers.
+#
+# NO upgrade-insecure-requests, on purpose. It was in the first draft and it broke
+# `npm run preview`: a link to /about answers 307 -> http://127.0.0.1:4342/about/, the
+# directive rewrote that to https://, and the click navigation silently died. In
+# production it buys nothing: HSTS already forces https, and img-src/media-src only
+# allow https: anyway.
+#
+# What is not covered: /preview/** (see the top of this file). Giving it a policy means
+# setting the header from the SSR code, not from here. Tracked in docs/PENDING.md.
+#
+# ---------------------------------------------------------------------------------------
+# frame-ancestors
+# ---------------------------------------------------------------------------------------
+# Replaces the legacy X-Frame-Options so a Studio can iframe this site for preview.
+# 'self' is the entry that matters: the Studio is EMBEDDED at /studio on this same
+# origin, so the Presentation tool's iframe of /preview/* is a same-origin frame. The
+# sanity.io entries stay: Sanity's own hosted tooling can still frame the site.
+# (2026-09-05: the retired reid-design.sanity.studio and localhost:3333/3334 entries
+# were removed.)
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: frame-ancestors 'self' https://www.sanity.io https://*.sanity.io
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.sanity.io https://*.sanity.io; img-src 'self' data: blob: https:; media-src 'self' https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com; connect-src 'self' https://api.web3forms.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://cloudflareinsights.com https://ba403vjc.api.sanity.io https://ba403vjc.apicdn.sanity.io; frame-src 'self' https://calendly.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.openstreetmap.org; form-action 'self' https://api.web3forms.com; worker-src 'self'; manifest-src 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
+
+/studio/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data: https://design-system-static.sanity.io; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.sanity.io https://*.api.sanity.io wss://*.api.sanity.io https://*.apicdn.sanity.io https://cdn.sanity.io https://sanity-cdn.com https://*.sanity-cdn.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; form-action 'self' https://api.sanity.io https://*.api.sanity.io; worker-src 'self' blob:; manifest-src 'self'
+
+/_astro/*
+  ! Content-Security-Policy
+  Cache-Control: public, max-age=31536000, immutable

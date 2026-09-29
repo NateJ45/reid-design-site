@@ -1,7 +1,22 @@
 // Foundation, edit with care
-// Mobile nav drawer. Uses shadcn Sheet (Radix Dialog under the hood) so it
-// must be hydrated with client:only="react" — Radix's portal hook calls during
-// SSR throw "Invalid hook call" inside Astro.
+// Mobile nav drawer. Uses shadcn Sheet (Radix Dialog under the hood).
+//
+// HYDRATED AT client:idle, NOT client:only (2026-09-29, PORTS.md card 52).
+// This file said for a long time that the Sheet had to be client:only="react"
+// because Radix's portal hook threw "Invalid hook call" during Astro's server
+// render. That is not true of the versions this site pins: a closed Sheet
+// server-renders only its trigger button, the portal mounts nothing until the
+// drawer opens, and every page prerenders without a complaint. The starter and
+// stonesteps-50k ship the identical ui/sheet.tsx at client:idle.
+//
+// What client:only cost was the hamburger: it skips SSR entirely, so the
+// trigger was absent from the server HTML until React loaded. client:idle puts
+// the button in the markup and defers the runtime behind requestIdleCallback.
+//
+// If a future island genuinely cannot server-render, the symptom is an
+// "Invalid hook call" thrown during the build's server render, and
+// client:only="react" is still the escape hatch. VisualEditingOverlay in
+// PreviewLayout.astro uses it for that kind of reason.
 //
 // Layout (top to bottom inside the sheet):
 //   1. Brand accent stripe (4px Warm Bronze) + "Menu" eyebrow
@@ -73,9 +88,9 @@ interface Props {
   showSocials?: boolean;
   /**
    * Optimized logo URLs pre-rendered by Astro's getImage() in the parent
-   * Header.astro. We can't import the asset directly in a React component
-   * because client:only skips SSR entirely — so the parent does the work
-   * once at build time and passes the resulting WebP URLs in as strings.
+   * Header.astro. The parent runs getImage() once at build time and passes
+   * the resulting WebP URLs in as strings, so the island never has to import
+   * the asset itself (its props are serialized into the page either way).
    */
   logoLightUrl?: string;
   logoDarkUrl?: string;

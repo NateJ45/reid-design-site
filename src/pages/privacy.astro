@@ -24,10 +24,7 @@ import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
 
-const [page, siteSettings] = await Promise.all([
-  getPrivacyPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'Privacy Policy · Reid Design';
 const description =
@@ -69,7 +66,14 @@ const measuredH2 = hasSanityBody
 const measuredP = hasSanityBody ? 'my-m text-foreground' : 'mt-s text-foreground/80';
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   {/* Hero — text variant, short height. */}
   <Hero
     eyebrow={heroEyebrow}

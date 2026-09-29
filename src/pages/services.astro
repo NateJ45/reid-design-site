@@ -17,10 +17,7 @@ import { breadcrumbSchema, serviceListSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import StickyCTAChip from '@/components/StickyCTAChip';
 
-const [page, siteSettings] = await Promise.all([
-  getServicesPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getServicesPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'Services & Pricing · Reid Design';
 // Fallback only, used when servicesPage.seoDescription is empty. Deliberately
@@ -46,7 +43,14 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <ServicesSectionRenderer
     sections={page?.pageBuilder}
     page={page}

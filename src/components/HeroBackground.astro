@@ -7,8 +7,10 @@
 //
 // The first slide is the LCP image (eager + high priority) and carries its alt,
 // like the single-image hero; the additional slides use empty alt so they are
-// decorative. Reduced-motion users get a single static image (the script never
-// starts and the CSS animation/transition is disabled).
+// decorative, and are DEFERRED (no src until after the load event, see the
+// script). Reduced-motion users get a single static image (the script never
+// starts, the deferred slides are never fetched, and the CSS
+// animation/transition is disabled).
 
 import SanityImage from '@/components/SanityImage.astro';
 
@@ -33,6 +35,12 @@ const first = slides[0];
   <>
     {isSlideshow ? (
       <div class="hero-slideshow" data-hero-slideshow>
+        {/* Slides after the first are DEFERRED: rendered with no src, their
+            URLs parked in data-src / data-srcset until the page has loaded
+            (the script below moves them across). `loading="lazy"` never held
+            them back, because every slide is stacked inside the viewport: on
+            the mobile Lighthouse run all six extra slides (about 225KB)
+            downloaded next to the LCP photo and the fonts. */}
         {slides.map((img, i) => (
           <SanityImage
             source={img}
@@ -40,6 +48,7 @@ const first = slides[0];
             sizes="100vw"
             loading={i === 0 ? 'eager' : 'lazy'}
             fetchpriority={i === 0 ? 'high' : 'low'}
+            defer={i > 0}
             quality={70}
             alt={i === 0 ? undefined : ''}
             class={`hero-slide${i === 0 ? ' is-active' : ''}`}
@@ -85,14 +94,38 @@ const first = slides[0];
         if (slides.length < 2) return;
         var reduce = false;
         try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
-        if (reduce) return; // first slide stays visible, no motion
+        // Reduced motion: the first slide stays, no motion, and the deferred
+        // slides are never fetched at all, since nobody will see them.
+        if (reduce) return;
+
+        // Move the deferred slides' URLs across once the page has loaded, and
+        // a beat after, so they never compete with the LCP photo or the
+        // fonts. The first slide holds for 4.5s, so the swap is invisible.
+        function hydrate() {
+          var parked = box.querySelectorAll('img[data-srcset]');
+          for (var i = 0; i < parked.length; i++) {
+            var im = parked[i];
+            im.setAttribute('fetchpriority', 'low');
+            im.srcset = im.dataset.srcset;
+            if (im.dataset.src) im.src = im.dataset.src;
+            im.removeAttribute('data-srcset');
+            im.removeAttribute('data-src');
+          }
+        }
+        function afterLoad() { setTimeout(hydrate, 800); }
+        if (document.readyState === 'complete') afterLoad();
+        else window.addEventListener('load', afterLoad, { once: true });
 
         var current = 0;
         var STEP_MS = 4500; // 3s hold + 1.5s cross-fade
         window.__reidHeroSlideshowTimer = setInterval(function () {
           if (document.hidden) return; // pause while the tab is hidden
+          var next = (current + 1) % slides.length;
+          // On a slow connection the next slide may not have arrived yet.
+          // Hold the current one for another step rather than fade to blank.
+          if (!slides[next].naturalWidth) return;
           slides[current].classList.remove('is-active');
-          current = (current + 1) % slides.length;
+          current = next;
           slides[current].classList.add('is-active');
         }, STEP_MS);
       }

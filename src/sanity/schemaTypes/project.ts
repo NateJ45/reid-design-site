@@ -8,6 +8,13 @@ export const project = defineType({
   name: 'project',
   title: 'Project',
   type: 'document',
+  // Studio search weights (PORTS.md card 34): what Staci types into the search
+  // box is the words she sees on the page, so those fields rank first.
+  __experimental_search: [
+    { path: 'title', weight: 5 },
+    { path: 'location', weight: 3 },
+    { path: 'briefSummary', weight: 2 },
+  ],
   fields: [
     defineField({
       name: 'title',

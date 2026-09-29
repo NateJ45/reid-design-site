@@ -15,9 +15,9 @@ import PortfolioCursor from '@/components/PortfolioCursor';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const [projects, page, siteSettings] = await Promise.all([
-  getAllProjects().catch(() => []),
-  getPortfolioPage().catch(() => null),
-  getSiteSettings().catch(() => null),
+  getAllProjects(),
+  getPortfolioPage(),
+  getSiteSettings(),
 ]);
 
 // Section visibility guard. Redirect home when portfolio is explicitly off.
@@ -81,7 +81,14 @@ const fallbackHeroImage = {
 const heroBackground = page?.heroImage ?? fallbackHeroImage;
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}

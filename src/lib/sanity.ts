@@ -10,9 +10,17 @@
 //   collection returned empty). Passing SANITY_API_READ_TOKEN bypasses the
 //   filter and reads the full dataset.
 //
-//   When a token is set, Sanity disables CDN caching for the request (auth
-//   responses can vary by user, so CDN can't safely cache). Build-time only,
-//   not a runtime hot path, so the latency is harmless.
+//   The token does NOT take the build off the CDN (2026-09-29, PORTS.md card
+//   55). An earlier note here said Sanity disables CDN caching for token
+//   reads; that was wrong. The API CDN has accepted authenticated requests
+//   since API version 2021-03-25 and serves the same token-widened result.
+//
+// Failed reads (2026-09-29, PORTS.md cards 55 + 56):
+//   Every build read goes through sanityFetch() below. A FAILED fetch in a
+//   production build throws and stops the build, so a Sanity outage or quota
+//   block can never ship empty pages over the live site. An ABSENT document
+//   is not a failure: Sanity answers `null` (singleton) or `[]` (collection)
+//   and the page renders its coming-soon or empty state exactly as before.
 //
 // Anon fallback:
 //   If SANITY_API_READ_TOKEN is missing, the client still constructs and queries
@@ -58,13 +66,75 @@ export const client: SanityClient = createClient({
   projectId: projectId ?? 'placeholder',
   dataset,
   apiVersion,
-  // CDN is incompatible with token-based reads (Sanity rejects token + useCdn:true).
-  // When no token, we can use the CDN safely; it serves the same anon-filtered subset
-  // as the API anyway.
-  useCdn: !readToken,
+  // ALWAYS the CDN (2026-09-29, PORTS.md card 55, from fbcm 897cec9). This
+  // used to be `useCdn: !readToken`, on the belief that the CDN rejects a
+  // token. It does not: the API CDN has accepted authenticated requests since
+  // API version 2021-03-25. With the token in .env every LOCAL build read the
+  // uncached API instead, several hundred queries a build, against the API
+  // quota rather than the far larger CDN one. The draft client in
+  // src/lib/cms-preview.ts keeps its own useCdn: false; the drafts
+  // perspective genuinely cannot use the CDN.
+  useCdn: true,
   perspective: 'published',
   ...(readToken ? { token: readToken } : {}),
 });
+
+/**
+ * The build's one read path (2026-09-29, PORTS.md cards 55 + 56). Every helper
+ * in src/lib/queries.ts goes through here.
+ *
+ * - `fallback` is what DEV gets when the read FAILS: `null` for a singleton,
+ *   `[]` for a collection. It is never used for an absent document; Sanity
+ *   answers that with `null` / `[]` itself and it is returned as-is.
+ * - In a PRODUCTION build a failed read throws, after two retries, so the
+ *   deploy stops and the live site keeps its last good build. Before this,
+ *   every page wrapped its reads in `.catch(() => null)` and a Sanity outage
+ *   during a deploy would have shipped every page in its empty state.
+ * - A caller-supplied client other than the build client (the draft-aware
+ *   preview client from src/lib/cms-preview.ts) passes straight through, with
+ *   no retry and no fallback. /preview/** handles its own failures at request
+ *   time (its page route still catches, deliberately).
+ *
+ * Typing: `fallback` is deliberately NOT typed as T. If it were, TypeScript
+ * would infer T from the literal `null` / `[]` and every property read
+ * downstream would fail as "does not exist on type 'never'" (the starter hit
+ * 163 of those). T stays `any` unless a caller names it, which is exactly what
+ * `client.fetch` returned before this helper existed.
+ */
+export async function sanityFetch<T = any>(
+  query: string,
+  params: Record<string, unknown> = {},
+  fallback: null | never[],
+  c: SanityClient = client,
+): Promise<T> {
+  if (c !== client) return c.fetch<T>(query, params);
+  try {
+    return await fetchWithRetry<T>(query, params);
+  } catch (err) {
+    if (import.meta.env.PROD) {
+      throw new Error(`[sanity] fetch failed during a production build: ${String(err)}`);
+    }
+    console.warn('[sanity] fetch error (dev only, returning the empty fallback):', err);
+    return fallback as T;
+  }
+}
+
+// A build makes a few hundred reads. @sanity/client already retries network
+// errors and 429/502/503 on its own (up to 5 times); this outer loop also
+// rides out any other one-off failure. Two retries, 0.5 s then 1.5 s apart. A
+// real outage or quota block still fails in a couple of seconds and the build
+// stops (PORTS.md card 56).
+async function fetchWithRetry<T>(query: string, params: Record<string, unknown>): Promise<T> {
+  const waits = [500, 1500];
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await client.fetch<T>(query, params);
+    } catch (err) {
+      if (attempt >= waits.length) throw err;
+      await new Promise((r) => setTimeout(r, waits[attempt]));
+    }
+  }
+}
 
 const builder = createImageUrlBuilder({
   projectId: projectId ?? 'placeholder',

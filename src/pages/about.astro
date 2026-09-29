@@ -17,9 +17,9 @@ import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
 const [page, siteSettings, pressItems] = await Promise.all([
-  getAboutPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-  getPressItems().catch(() => []),
+  getAboutPage(),
+  getSiteSettings(),
+  getPressItems(),
 ]);
 
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -39,7 +39,14 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <AboutSectionRenderer
     sections={page?.pageBuilder}
     page={page}

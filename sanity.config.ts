@@ -20,6 +20,7 @@ import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
+import { TrendUpwardIcon } from '@sanity/icons';
 import { media } from 'sanity-plugin-media';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { schemaTypes } from './src/sanity/schemaTypes';
@@ -31,6 +32,12 @@ import StudioLogo from './src/sanity/components/StudioLogo';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';
 import { ArchiveAction, RestoreAction, DeleteForeverAction } from './src/sanity/actions/archive';
+// Editor experience (2026-09-29): the publish-menu helpers, one import.
+import { withEditorActions } from './src/sanity/editorActions';
+import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
+import { STARTING_TEMPLATES } from './src/sanity/templates';
+import { StatsTool } from './src/sanity/components/StatsTool';
+import { withSlugRedirect } from './src/sanity/components/slugRedirect';
 
 // Brand theme for the Studio UI. Uses Sanity's legacy theme builder which
 // maps a handful of CSS custom properties to the Studio's full internal design
@@ -121,6 +128,14 @@ export default defineConfig({
     },
   },
 
+  // RELEASES OFF (2026-09-29, as on stonesteps-50k). Sanity 6 ships a Releases
+  // tool in the top bar for bundling document changes into a scheduled
+  // publish. This site has one editor and a build that redeploys on publish,
+  // so a second publishing model beside the Publish button Staci already knows
+  // is a tab that can only confuse her. Turn it back on the day there is a
+  // reason to stage a set of changes together.
+  releases: { enabled: false },
+
   // Global form customization. Registering the character-count input once here
   // applies it to every capped text field across all schemas. The component
   // falls through to the default input for anything that isn't a string/text
@@ -182,10 +197,27 @@ export default defineConfig({
     // Vision (GROQ query runner) is a developer tool, not an editor tool.
     // Gate it to local dev so it doesn't clutter Staci's deployed Studio.
     ...(IS_DEV ? [visionTool()] : []),
+    // Ctrl+Z / Ctrl+Shift+Z (Cmd on a Mac) for everything that is not typing:
+    // sections added, dragged or removed, photos cleared, options changed
+    // (PORTS.md card 27). The buttons are the "Undo last change" / "Redo"
+    // document actions (src/sanity/editorActions.ts); this plugin only adds the
+    // keyboard layer, and it stays out of text boxes so their own undo keeps
+    // working. It wraps studio.components.layout, which this config does not
+    // otherwise set, so there is nothing to compose with. See
+    // src/sanity/components/UndoRedo.tsx.
+    undoRedoShortcuts(),
   ],
+
+  // Site stats: the 28-day traffic panel (src/sanity/components/StatsTool.tsx),
+  // in the top bar beside Presentation. It shows a friendly "not set up yet" card
+  // until the CF_ANALYTICS_TOKEN Worker secret exists (docs/agent/sanity.md).
+  tools: [{ name: 'stats', title: 'Site stats', icon: TrendUpwardIcon, component: StatsTool }],
 
   schema: {
     types: schemaTypes,
+    // "+ New" starting layouts: Service page, Neighborhood page, Project story,
+    // offered beside the blank option. See src/sanity/templates.ts.
+    templates: (prev) => [...prev, ...STARTING_TEMPLATES],
   },
 
   // Singleton enforcement: hide these from the global "+" create menu so editors
@@ -206,22 +238,39 @@ export default defineConfig({
       return prev;
     },
     actions: (prev, { schemaType }) => {
+      // Redirects on rename (PORTS.md card 22): Publish files an old-address ->
+      // new-address redirect first when a published document's web address
+      // changed. Types with a fixed or no address are a no-op inside the
+      // wrapper (it compares pathForDoc before and after), so it wraps every
+      // Publish. Memoized by the action it wraps, so this resolver may run on
+      // every render without remounting the button. See slugRedirect.tsx.
+      prev = prev.map((a) => (a.action === 'publish' ? withSlugRedirect(a) : a));
+
       // Trash rows get their own two actions and nothing else: you can put a
       // document back, or destroy it for good.
       if (schemaType === 'trashedItem') {
         return [RestoreAction, DeleteForeverAction];
       }
+      //
+      // Everything else ends with the editor helpers appended by
+      // withEditorActions (src/sanity/editorActions.ts): Copy share link, and
+      // on pages and stories Check this page / Undo / Redo. None of them
+      // replace a stock action, so the rules below are unaffected.
       if (SINGLETON_TYPES.has(schemaType)) {
-        return prev.filter(
-          ({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || ''),
+        return withEditorActions(
+          schemaType,
+          prev.filter(({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || '')),
         );
       }
       // Swap Sanity's permanent Delete for the recoverable Archive on the
       // content Staci edits day to day. Publish/duplicate/etc stay as they are.
       if (ARCHIVABLE_TYPES.has(schemaType)) {
-        return [...prev.filter(({ action }) => action !== 'delete'), ArchiveAction];
+        return withEditorActions(schemaType, [
+          ...prev.filter(({ action }) => action !== 'delete'),
+          ArchiveAction,
+        ]);
       }
-      return prev;
+      return withEditorActions(schemaType, prev);
     },
   },
 });
@@ -234,6 +283,7 @@ export default defineConfig({
 // restored one would need its slug re-checked against the reserved list) and
 // `trashedItem` itself.
 const ARCHIVABLE_TYPES = new Set<string>([
+  'announcement',
   'service',
   'processStep',
   'philosophyPoint',

@@ -24,10 +24,7 @@ import JournalCard from '@/components/JournalCard.astro';
 // Static site: enumerate all project slugs at build time.
 // Returns [] when portfolio is off — no detail pages build and they 404.
 export async function getStaticPaths() {
-  const [projects, settings] = await Promise.all([
-    getAllProjects().catch(() => []),
-    getSiteSettings().catch(() => null),
-  ]);
+  const [projects, settings] = await Promise.all([getAllProjects(), getSiteSettings()]);
   const visible = getSectionVisibility(settings?.sectionVisibility);
   if (!visible.portfolio) return [];
 
@@ -56,9 +53,18 @@ const { prev, next } = Astro.props as {
 
 const [project, siteSettings] = await Promise.all([
   getProjectBySlug(slug as string),
-  getSiteSettings().catch(() => null),
+  getSiteSettings(),
 ]);
 
+// Listed by getStaticPaths but empty on the per-page read: in a production
+// build that is a failed or racing read, not a real 404, so refuse to
+// publish the page as a redirect (2026-09-29, PORTS.md card 56). Dev keeps
+// the redirect so local work without a configured project still runs.
+if (!project && import.meta.env.PROD) {
+  throw new Error(
+    `Project "${slug}" was listed but came back empty; refusing to publish it as a redirect`,
+  );
+}
 if (!project) {
   return Astro.redirect('/404');
 }
@@ -90,7 +96,18 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} ogImage={heroOg} {schemas} {siteSettings}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  card={{
+    headline: project.title,
+    kicker: ['Portfolio', project.location].filter(Boolean).join(' \u00b7 '),
+    image: project.heroImage,
+    image2: project.gallery?.[0],
+  }}
+>
   {/* Hero */}
   <section
     class="mx-auto max-w-content px-m pt-section-md pb-l"

@@ -11,7 +11,23 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 - `<title>` — unique per page, 50–60 characters, brand name as suffix ("Services — Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
 - `<meta name="description">` — unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
 - `<link rel="canonical">` — absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
-- Open Graph + Twitter meta — set in BaseLayout. The OG image resolves in priority order: (1) the `ogImage` prop a page passes (project/journal detail pages pass their real hero/cover photo, served from cdn.sanity.io); (2) the page singleton's `seoImage` field — a per-page override Staci sets in that page's SEO section; (3) `siteSettings.seoImage` — the site-wide default social image Staci sets in Site Settings; (4) the auto-generated branded card at `/og/<route>.png` (from `npm run og:pages`); (5) `og-default.png`. Sanity images (2 and 3) run through `urlFor().width(1200).height(630).fit('crop')` via the `ogUrlFromImage` helper. BaseLayout also emits `og:locale`, `og:image:alt`, and a theme-aware `theme-color`.
+- Open Graph + Twitter meta — set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (2026-09-29, design D "arch window": one of Staci's photos in an arch, the logo, the title in Cormorant Garamond, a small caps line in Source Sans 3). See "Share cards" below.
+
+### Share cards (og:image)
+
+Priority, highest first:
+
+1. An explicit `ogImage` prop. No page passes one today: project and journal detail pages stopped passing their raw hero/cover photo on 2026-09-29 and get a card instead.
+2. The page's own `seoImage`: the per-page override Staci sets in that page's SEO section.
+3. The generated card at `/og/<route>.png` (`/` is `/og/home.png`, `/portfolio/foo` is `/og/portfolio-foo.png`).
+4. `siteSettings.seoImage`, then `/og-default.png`. These are used ONLY by pages that get no card (noindex pages such as the 404), and as the image copied into a card's place if that card fails to draw. **The global `siteSettings.seoImage` does not override the cards.** Before 2026-09-29 it sat above them, so setting one site-wide photo would have hidden every page's card.
+
+Sanity images (2 and 4) run through `urlFor().width(1200).height(630).fit('crop')` via `ogUrlFromImage`. BaseLayout also emits `og:locale`, `og:image:alt`, and a theme-aware `theme-color`.
+
+What a card says: the page's hero headline, else its SEO title, with a "Reid Design" / "Reid Design LLC" suffix or prefix stripped (the logo already says it) and any em-dash replaced by a comma, with a build warning, never a failure (a throw would stop Staci's content deploys). The small caps line: "Interior design · Plainfield, Indiana" from Business info, or "Portfolio · <location>", "The Journal", "Free guide" on detail pages. The photo: the page's hero image (projects: the hero, plus the first gallery photo in the circle; journal and guides: the cover), else one of Staci's finished-project photos, picked per route so a page keeps the same one between builds. The Sanity hotspot sets the crop, so a bad crop is fixed in the Studio, not in code. Any asset named or tagged `midwest-cabinet-connection` is refused.
+
+How it works: BaseLayout (`card` prop, pure logic in `src/lib/og-card.ts`) points og:image at `/og/<route>.png` and writes a card spec into the page. `src/integrations/og-cards.ts` runs at `astro:build:done` (Node, after the workerd prerender), draws every card into `dist/client/og/`, strips the specs back out of the HTML, and then runs the coverage check: the build fails if any og:image under `/og/` has no file. Drawing is `scripts/lib/og-render.mjs` (sharp prepares every image; the backend is chosen by `OG_RENDERER`). `npm run og:cards -- preview` draws the card every project, journal post and guide would get, even while its section is switched off. `npm run og` redraws `public/og-default.png`.
+
 - `<html lang="en">`.
 
 ### JSON-LD schemas
@@ -111,6 +127,8 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 `@astrojs/sitemap` generates `sitemap-index.xml` + `sitemap-0.xml` automatically from every prerendered page on `astro build`. The default `<priority>` and `<changefreq>` are fine for a marketing site of this size.
 
 The filter in `astro.config.mjs` drops `/studio`, `/preview`, `/404`, and every route of a section switched off in `siteSettings.sectionVisibility` (2026-09-28). A hidden section still leaves a meta-refresh redirect stub at its URL, so without the filter the sitemap advertised ten noindex stubs. The config reads the flags from Sanity at build time and matches routes with `isHiddenSectionPath()` from `src/lib/sectionVisibility.ts`, the same module the pages use, so a section turned back on in Studio reappears in the sitemap on the next rebuild. **A new toggleable section needs its route prefix added to `SECTION_ROUTES` there.**
+
+`/search` (2026-09-29) is `noindex` and also filtered out of the sitemap (an exact-path match, so a custom page with a similar slug is not caught), because a search box has no content of its own to rank. `search` and `pagefind` are reserved slugs in `page.ts` and `[slug].astro`. The 404 and `/search` are also kept out of the Pagefind index itself: `BaseLayout` only emits `data-pagefind-body` when the page is not `noindex`.
 
 `public/robots.txt` ships with the build (allow-all):
 

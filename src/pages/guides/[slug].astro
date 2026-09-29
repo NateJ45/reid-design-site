@@ -24,10 +24,7 @@ import LeadMagnetForm from '@/components/LeadMagnetForm';
 import FinalCta from '@/components/FinalCta.astro';
 
 export async function getStaticPaths() {
-  const [slugs, settings] = await Promise.all([
-    getAllLeadMagnetSlugs().catch(() => []),
-    getSiteSettings().catch(() => null),
-  ]);
+  const [slugs, settings] = await Promise.all([getAllLeadMagnetSlugs(), getSiteSettings()]);
   // When guides is off, return no paths — detail pages 404.
   const visible = getSectionVisibility(settings?.sectionVisibility);
   if (!visible.guides) return [];
@@ -37,11 +34,17 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
-const [magnet, siteSettings] = await Promise.all([
-  getLeadMagnet(slug).catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [magnet, siteSettings] = await Promise.all([getLeadMagnet(slug), getSiteSettings()]);
 
+// Listed by getStaticPaths but empty on the per-page read: in a production
+// build that is a failed or racing read, not a real 404, so refuse to
+// publish the page as a redirect (2026-09-29, PORTS.md card 56). Dev keeps
+// the redirect so local work without a configured project still runs.
+if (!magnet && import.meta.env.PROD) {
+  throw new Error(
+    `Guide "${slug}" was listed but came back empty; refusing to publish it as a redirect`,
+  );
+}
 // If the magnet isn't found (shouldn't happen via static paths, but be safe)
 // redirect to the index rather than rendering a broken page.
 if (!magnet) {
@@ -70,7 +73,13 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  card={{ headline: magnet.title, kicker: 'Free guide', image: magnet.coverImage }}
+>
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
     eyebrow="Free Guide"

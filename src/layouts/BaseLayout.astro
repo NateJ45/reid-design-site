@@ -3,7 +3,8 @@
 // Site-wide layout. Provides:
 //   - <html lang>, document head, OG/Twitter meta
 //   - Anti-FOUC theme bootstrap (runs before first paint)
-//   - Cormorant Garamond font preload (LCP element on hero)
+//   - cdn.sanity.io preconnect (no font preload: measured, it cost LCP)
+//   - The icon set links (favicon.svg/.ico, apple-touch-icon, manifest)
 //   - Analytics (GA4 + Cloudflare beacon, both conditional) via Analytics.astro
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
@@ -14,9 +15,20 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getNavPages } from '@/lib/queries';
+import { getNavPages, getAnnouncements } from '@/lib/queries';
+import {
+  CARD_SPEC_ID,
+  cleanCardTitle,
+  cleanKicker,
+  ogCardPath,
+  serializeSpec,
+  stateName,
+  type CardPhoto,
+  type CardSpec,
+} from '@/lib/og-card';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import Announcements from '@/components/Announcements.astro';
 import BackToTop from '@/components/BackToTop';
 import Analytics from '@/components/Analytics.astro';
 import { Toaster } from '@/components/ui/sonner';
@@ -29,8 +41,18 @@ import '@/styles/starwind.css';
 interface Props {
   title: string;
   description: string;
-  /** Override the default OG image. If omitted, BaseLayout looks for a per-page OG at /og/&lt;slug&gt;.png, falling back to /og-default.png. */
+  /** Explicit share image URL. Wins over everything, including the generated card. Leave it unset to get the page's generated card at /og/&lt;route&gt;.png. */
   ogImage?: string;
+  /**
+   * What the generated share card says and shows (design D). All optional:
+   * `headline` (the page's hero headline; preferred over the SEO title),
+   * `kicker` (the small caps line; defaults to "Interior design · <city>, <state>"),
+   * `image` (the arch photo) and `image2` (the small circle photo), both raw
+   * Sanity image objects. With no image the card builder picks one of Staci's
+   * finished-project photos. `circle: true` asks for the small circle photo
+   * even without `image2` (the builder fills it from the same pool).
+   */
+  card?: { headline?: string | null; kicker?: string | null; image?: any; image2?: any; circle?: boolean };
   /** Raw Sanity image object for a per-page social share override (seoImage on the page singleton). Resolved through the Sanity image pipeline to a 1200x630 OG URL. Lower priority than ogImage, higher than the siteSettings default. */
   seoImage?: any;
   /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
@@ -52,6 +74,7 @@ const {
   title,
   description,
   ogImage,
+  card,
   seoImage,
   schemas = [],
   siteSettings = null,
@@ -64,16 +87,17 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
 
 // Custom pages Staci flagged for the menu/footer. Fetched here once so every
 // page's Header + Footer can surface them without each page threading the data.
-const navPages = await getNavPages().catch(() => []);
+// No .catch (2026-09-29, PORTS.md card 56): BaseLayout only renders at build
+// time, and a failed read there must fail the build rather than ship every
+// page with the custom pages missing from the menu. Dev still degrades to []
+// inside sanityFetch.
+const navPages = await getNavPages();
 
-// Per-page OG image: convention is /og/<route-slug>.png generated at build time.
-// `/` → /og/home.png, `/contact` → /og/contact.png, `/portfolio/foo` → /og/portfolio-foo.png.
-// Falls back to og-default.png if the slug-specific file isn't there.
-function ogPathForRoute(pathname: string): string {
-  const trimmed = pathname.replace(/^\/|\/$/g, '');
-  if (!trimmed) return '/og/home.png';
-  return `/og/${trimmed.replace(/\//g, '-')}.png`;
-}
+// Announcements Staci posts in the Studio (bar / popup). One memoized query per
+// build; Announcements.astro picks the ones that belong on this page and renders
+// nothing at all when there are none. A failed read throws in a production
+// build via sanityFetch (cards 55 + 56), like every other build-time read.
+const announcements = await getAnnouncements();
 
 // Resolve a raw Sanity image object to a 1200x630 OG URL through the image
 // pipeline. Returns null when there's no asset (so the ?? chain falls through
@@ -82,13 +106,46 @@ function ogUrlFromImage(img: any): string | null {
   if (!img?.asset) return null;
   try { return urlFor(img).width(1200).height(630).fit('crop').auto('format').url(); } catch { return null; }
 }
+// The plain CDN URL of a photo, for the card builder to crop itself.
+function cardPhoto(img: any): CardPhoto | null {
+  if (!img?.asset) return null;
+  try { return { src: urlFor(img).url(), hotspot: img.hotspot ?? null }; } catch { return null; }
+}
 
-// OG image priority: explicit ogImage prop (a real photo passed by detail
-// pages) > per-page seoImage override (page singleton) > global seoImage
-// default (siteSettings) > the build-time /og/<route>.png convention.
+// SHARE CARD (2026-09-29, design D). Priority:
+//   1. `ogImage` prop: a page that deliberately supplies its own share image.
+//   2. `seoImage`: the per-page override Staci sets in that page's SEO tab.
+//   3. The generated card at /og/<route>.png, drawn after the build by
+//      src/integrations/og-cards.ts from the card spec emitted below.
+//   4. siteSettings.seoImage, then /og-default.png: ONLY for pages that get no
+//      card (noindex pages such as the 404), and as the image copied into a
+//      card's place if that card fails to draw. The global value deliberately
+//      does NOT override the generated cards: before 2026-09-29 it sat above
+//      them, so setting one site-wide photo would have hidden every page's card.
 const perPageOg = ogUrlFromImage(seoImage);
 const globalOg = ogUrlFromImage(siteSettings?.seoImage);
-const resolvedOg = ogImage ?? perPageOg ?? globalOg ?? ogPathForRoute(Astro.url.pathname);
+const fallbackOg = globalOg ?? site.assets.ogDefault;
+const explicitOg = ogImage ?? perPageOg;
+const wantsCard = !explicitOg && !noindex;
+
+let cardSpec: CardSpec | null = null;
+if (wantsCard) {
+  const t = cleanCardTitle([card?.headline, title]);
+  const defaultKicker = `Interior design · ${siteSettings?.city || 'Plainfield'}, ${stateName(siteSettings?.state)}`;
+  const k = cleanKicker(card?.kicker || defaultKicker);
+  cardSpec = {
+    v: 1,
+    out: ogCardPath(Astro.url.pathname),
+    route: Astro.url.pathname,
+    title: t.title,
+    kicker: k.kicker,
+    photos: [cardPhoto(card?.image), cardPhoto(card?.image2)].filter((p): p is CardPhoto => !!p),
+    circle: Boolean(card?.circle || card?.image2),
+    fallback: globalOg,
+    warnings: [...t.warnings, ...k.warnings],
+  };
+}
+const resolvedOg = explicitOg ?? cardSpec?.out ?? fallbackOg;
 const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
 
 // Build the document title. If the editor-supplied seoTitle already contains
@@ -142,11 +199,35 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#2A2A2A" media="(prefers-color-scheme: dark)" />
 
+    {/* THE ICON SET, all rendered from public/favicon.svg by `npm run favicon`
+        (scripts/generate-favicons.mjs, PORTS.md card 47). The .ico answers the
+        bare /favicon.ico request every browser makes whether it is linked or
+        not; apple-touch-icon is the iOS home screen, which ignores both of the
+        others; the manifest carries the Android icons. */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    {/* Note: Cormorant Garamond is loaded via @fontsource @import in globals.css.
-        Vite hashes the woff2 filename at build time so a static preload here
-        would 404. If hero h1 LCP needs faster fonts, switch to font-display: optional
-        or generate the preload tag from the built CSS manifest. */}
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    {/* Every page's photos come from Sanity's image CDN, and the home hero (the
+        LCP element) is one of them, so open that connection while the HTML is
+        still parsing. No crossorigin: images are no-cors requests, and a
+        crossorigin preconnect would open a second, unused socket. */}
+    <link rel="preconnect" href="https://cdn.sanity.io" />
+
+    {/* NO FONT PRELOAD, ON PURPOSE (measured 2026-09-29). A preload of
+        Cormorant's latin 400 file IS possible: a Vite `?url` import of
+        '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2'
+        returns exactly the hashed URL the @fontsource CSS points at (the old
+        note here said the hash made it impossible; that was only true of a
+        hand-typed path). It was built and measured, and it made things worse:
+        on Lighthouse mobile the 23KB font went out at high priority beside the
+        stylesheet and the hero photo, both finished about 150ms later, and LCP
+        (always the hero PHOTO here, never text) rose by roughly 250-300ms on
+        /, /about and /services. What a preload would buy, no reflow when the
+        font lands, the metric-matched fallback faces in globals.css already
+        buy for free. Revisit only if a page's LCP element becomes text. */}
+
 
     {/* RSS autodiscovery — browsers and feed readers surface this automatically. */}
     <link rel="alternate" type="application/rss+xml" title={`${site.name} Journal`} href="/journal/rss.xml" />
@@ -162,6 +243,11 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={ogImageAlt} />
+    {/* Share-card spec: consumed AND REMOVED after the build by
+        src/integrations/og-cards.ts, so it never ships. See src/lib/og-card.ts. */}
+    {cardSpec && (
+      <script is:inline type="application/json" id={CARD_SPEC_ID} set:html={serializeSpec(cardSpec)} />
+    )}
     {/* article:* meta — only emitted on journal/blog post detail pages */}
     {ogType === 'article' && ogArticle?.publishedAt && (
       <meta property="article:published_time" content={ogArticle.publishedAt} />
@@ -241,9 +327,14 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
   <body class="min-h-screen flex flex-col">
     <a href="#main" class="skip-link">Skip to main content</a>
 
+    <Announcements announcements={announcements} currentPath={Astro.url.pathname} />
+
     <Header siteSettings={siteSettings} navPages={navPages} />
 
-    <main id="main" class="flex-1">
+    {/* data-pagefind-body: site search (Pagefind) indexes ONLY the text inside this
+        element, so the header, footer, announcement bar and menus never show up in
+        results. noindex pages (404, /search) are left out of the index too. */}
+    <main id="main" class="flex-1" data-pagefind-body={noindex ? undefined : ''}>
       <slot />
     </main>
 
@@ -274,6 +365,21 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <script>
       function startLenis() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // Wheel devices only: a fine pointer at desktop widths (2026-09-29,
+        // from presacademy). Touch scrolling is already inertial, so on a
+        // phone Lenis only spends main-thread time fighting the browser's own
+        // physics, and phones are most of this site's visitors.
+        //
+        // The navigation scroll reset below (CLAUDE.md rule 5) is still
+        // correct without Lenis: it exists ONLY to cancel Lenis's in-flight
+        // momentum. With no Lenis, Astro's ClientRouter does the plain job
+        // itself (top of page on a link click, restored position on
+        // back/forward). tests/scroll-reset.spec.ts pins both paths: a phone
+        // (no Lenis) and a desktop mouse (Lenis).
+        const wheelDevice =
+          window.matchMedia('(pointer: fine)').matches &&
+          window.matchMedia('(min-width: 1024px)').matches;
+        if (!wheelDevice) return;
         import('lenis').then(({ default: Lenis }) => {
           // wheelMultiplier > 1 makes each wheel/trackpad notch cover more
           // distance (default 1), so scrolling feels faster. lerp is separate:

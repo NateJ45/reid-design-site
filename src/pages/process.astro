@@ -13,10 +13,7 @@ import { getProcessPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
-const [page, siteSettings] = await Promise.all([
-  getProcessPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getProcessPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'The Process · Reid Design';
 const description =
@@ -31,6 +28,13 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   <ProcessSectionRenderer sections={page?.pageBuilder} page={page} />
 </BaseLayout>

@@ -143,6 +143,10 @@ const NON_STEGA_FIELDS = new Set([
   'icon',
   'aspect',
   'ratio',
+  // announcement.ts (2026-09-29): the bar/popup renderer branches on these.
+  //    `format`, `tone` and `linkType` are already above.
+  'placement',
+  'frequency',
   // -- NOT dropdowns, and here for the same reason (2026-08-28, card 28).
   //    The accent word is free text, but it is used as a MATCH NEEDLE rather
   //    than shown as prose: `splitScriptAccent` does `headline.indexOf(accent)`

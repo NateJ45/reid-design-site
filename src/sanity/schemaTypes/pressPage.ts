@@ -5,6 +5,7 @@
 
 import { defineType, defineField } from 'sanity';
 import { PRESS_SECTION_TYPES, PRESS_DEFAULT_ORDER } from './offeringSections';
+import { SECTION_ARRAY_OPTIONS } from './sections';
 
 export const pressPage = defineType({
   name: 'pressPage',
@@ -66,6 +67,8 @@ export const pressPage = defineType({
       description:
         'The order of sections on the Press page. Drag to reorder, remove a built-in section to hide it, or add a block to insert something new.',
       of: PRESS_SECTION_TYPES,
+      // The grouped "+ Add section" menu, shared by every builder (sections.ts).
+      options: SECTION_ARRAY_OPTIONS,
       initialValue: PRESS_DEFAULT_ORDER,
     }),
 

@@ -39,7 +39,9 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 
 ## Pages
 
-Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · Journal (+ post) · E-Design · Shop · Gift Certificates · Style Quiz · Budget Calculator · Resources · Guides.
+Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · Journal (+ post) · E-Design · Shop · Gift Certificates · Style Quiz · Budget Calculator · Resources · Guides · Search.
+
+Also live: a dated announcement bar / popup Staci posts from the Studio (Announcements), site search (Pagefind, built at the end of `npm run build`), a Studio "Site stats" traffic panel (needs the `CF_ANALYTICS_TOKEN` secret), and a weekly outbound-link report (`.github/workflows/link-health.yml`).
 
 ## Running it locally
 
@@ -58,6 +60,22 @@ npm run preview      # wrangler dev -c dist/server/wrangler.json
 
 The preview stack needs a `SANITY_TOKEN` in `.dev.vars` (see `.dev.vars.example`)
 and this origin on the Sanity project's CORS allow list.
+
+### Share cards
+
+Every page's social share image is drawn by the build: `npm run build` finishes by
+writing `dist/client/og/<route>.png` (Staci's logo, one of her photos in an arch,
+the page's headline) and fails if any page points at a card that is missing. No
+share images are committed except the fallback `public/og-default.png`
+(`npm run og`). To see the card every project, journal post and guide would get:
+
+```sh
+npm run og:cards -- preview tmp/og-preview   # writes the PNGs + _contact-sheet.png
+```
+
+The cards are drawn with satori + resvg, so no browser is needed and Workers Builds
+can do it. `OG_RENDERER=chromium` switches to a local Playwright review renderer for
+an A/B check.
 
 Full architecture reference in [`CLAUDE.md`](./CLAUDE.md); operational playbook in [`OPERATIONS.md`](./OPERATIONS.md).
 

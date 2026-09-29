@@ -24,3 +24,15 @@
 # a fingerprint of this token, see src/lib/preview-auth.ts). Editors just reopen
 # the Presentation tool.
 SANITY_TOKEN=
+
+# Cloudflare API token for the Studio "Site stats" panel (/api/stats). Optional:
+# without it the panel shows a friendly "not set up yet" card and nothing else
+# is affected.
+#
+# Create at https://dash.cloudflare.com/profile/api-tokens > Create Token >
+# Custom token, with exactly ONE permission: Zone > Analytics > Read, and Zone
+# Resources: Include > Specific zone > reiddesignllc.com. It is read-only.
+# In production: npx wrangler secret put CF_ANALYTICS_TOKEN
+# (The zone id is a constant in src/pages/api/stats.ts; set CF_ZONE_ID here or
+# as a Worker variable only if the site ever moves to a different zone.)
+CF_ANALYTICS_TOKEN=

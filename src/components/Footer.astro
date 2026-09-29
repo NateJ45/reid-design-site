@@ -168,8 +168,20 @@ const siteCredit = siteSettings?.footerCredit;
 const siteCreditUrl = siteSettings?.footerCreditUrl;
 
 // Pull the three most recent projects for the Latest Projects column.
-// Falls back to an empty array when Sanity isn't reachable (build won't fail).
-const allProjects: any[] = (await getAllProjects().catch(() => [])) ?? [];
+//
+// Failure handling (2026-09-29, PORTS.md card 56). The Footer renders in two
+// places: every static page at build time, and the live /preview/** route at
+// request time (PreviewLayout). In the static build a failed read must fail
+// the build, same as the page's own reads, so the catch rethrows when the page
+// is prerendered. In a live preview request an empty "Latest projects" column
+// beats a 500 in the editor's canvas, so it degrades to []. In dev
+// sanityFetch never throws (it returns [] itself), so this only ever sees a
+// production failure.
+const allProjects: any[] =
+  (await getAllProjects().catch((err: unknown) => {
+    if (Astro.isPrerendered) throw err;
+    return [];
+  })) ?? [];
 const latestProjects = allProjects.slice(0, 3);
 ---
 

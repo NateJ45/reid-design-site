@@ -6,17 +6,18 @@ it before adding a check, and update it in the same commit that adds one.
 
 ## The suites
 
-| Suite              | Command                                                    | Runtime                        | Covers                                                                                                                                                                                                                                                                             |
-| ------------------ | ---------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static checks      | `npm run check` (= `astro check && npm run lint`)          | Node, no browser               | Type errors across `.astro`/`.ts`/`.tsx` (astro check) and the eslint ruleset in `eslint.config.js`. `npm run format:check` (prettier) is the third static gate; `npm run format` fixes it                                                                                         |
-| Unit               | `npm run test:unit` (vitest)                               | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, section-fields drift gates, and **theme-tokens** (below)                                                                                              |
-| E2E, chromium      | `npm test` (or `npx playwright test`)                      | Desktop Chrome                 | All four Playwright specs: smoke, axe light, axe dark (+ focus indicators), reflow at 320/768/1024/1440                                                                                                                                                                            |
-| E2E, webkit-iphone | same command, second project                               | Real WebKit, iPhone 14 profile | smoke and both axe sweeps, via `testMatch`. `reflow.spec.ts` drives its own explicit viewport widths, which fights device emulation, so it is chromium-only                                                                                                                        |
-| Link check         | `npm run check:links` (after `npm run build`)              | Node, reads `dist/client`      | Every internal link in the built site resolves (linkinator). External URLs and the SSR-only `/studio`, `/preview`, `/api` paths are skipped                                                                                                                                        |
-| Lighthouse         | `npx lhci autorun` (after `npm run build`)                 | Headless Chrome                | `lighthouserc.json`: one URL per prerendered template plus `404.html`. Accessibility is a hard gate at 100; performance, best practices and SEO warn below 0.85 / 0.95 / 0.95; LCP over 4.5s and CLS over 0.1 fail                                                                 |
-| Parity             | `npm run parity capture` / `compare`                       | Node, reads `dist/client`      | Rendered-HTML drift on a change that is supposed to be render-neutral (below)                                                                                                                                                                                                      |
-| Drift check        | `npm run sync-check`                                       | Node, dependency-free          | Whether this repo's copies of the shared starter files still match the library of record (below)                                                                                                                                                                                   |
-| CI                 | push / PR, `.github/workflows/ci.yml` and `lighthouse.yml` | GitHub Actions                 | ci.yml has two jobs: **build** (typegen with retry, stale-types guard, astro check, eslint, prettier check, unit tests, Astro build, link check) and **test** (both Playwright projects, html report artifact). lighthouse.yml builds once more and runs `lhci autorun` on its own |
+| Suite              | Command                                                           | Runtime                        | Covers                                                                                                                                                                                                                                                                             |
+| ------------------ | ----------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Static checks      | `npm run check` (= `astro check && npm run lint`)                 | Node, no browser               | Type errors across `.astro`/`.ts`/`.tsx` (astro check) and the eslint ruleset in `eslint.config.js`. `npm run format:check` (prettier) is the third static gate; `npm run format` fixes it                                                                                         |
+| Unit               | `npm run test:unit` (vitest)                                      | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, section-fields drift gates, redirects + redirect-guard (card 22 path rules), and **theme-tokens** (below)                                             |
+| E2E, chromium      | `npm test` (or `npx playwright test`)                             | Desktop Chrome                 | All five Playwright specs: smoke, axe light, axe dark (+ focus indicators), reflow at 320/768/1024/1440, scroll-reset                                                                                                                                                              |
+| E2E, webkit-iphone | same command, second project                                      | Real WebKit, iPhone 14 profile | smoke and both axe sweeps, via `testMatch`. `reflow.spec.ts` drives its own explicit viewport widths, which fights device emulation, so it is chromium-only                                                                                                                        |
+| Link check         | `npm run check:links` (after `npm run build`)                     | Node, reads `dist/client`      | Every internal link in the built site resolves (linkinator). External URLs and the SSR-only `/studio`, `/preview`, `/api` paths are skipped                                                                                                                                        |
+| Lighthouse         | `npx lhci autorun` (after `npm run build`)                        | Headless Chrome                | `lighthouserc.json`: one URL per prerendered template plus `404.html`. Accessibility is a hard gate at 100; performance, best practices and SEO warn below 0.85 / 0.95 / 0.95; LCP over 4.5s and CLS over 0.1 fail                                                                 |
+| Link health        | `node scripts/check-live-links.mjs` (weekly in `link-health.yml`) | Node, reads the live dataset   | NOT part of CI. Every outbound http(s) link in every published document, probed; gone = red, host refuses scripts = reported only. Reid fork of the starter's card 42 (walks documents, not a field list)                                                                          |
+| Parity             | `npm run parity capture` / `compare`                              | Node, reads `dist/client`      | Rendered-HTML drift on a change that is supposed to be render-neutral (below)                                                                                                                                                                                                      |
+| Drift check        | `npm run sync-check`                                              | Node, dependency-free          | Whether this repo's copies of the shared starter files still match the library of record (below)                                                                                                                                                                                   |
+| CI                 | push / PR, `.github/workflows/ci.yml` and `lighthouse.yml`        | GitHub Actions                 | ci.yml has two jobs: **build** (typegen with retry, stale-types guard, astro check, eslint, prettier check, unit tests, Astro build, link check) and **test** (both Playwright projects, html report artifact). lighthouse.yml builds once more and runs `lhci autorun` on its own |
 
 This is the family test standard (2026-09-05): every Astro site in the family
 runs the same gates in the same order, copied from WCP. `npm run check:full`
@@ -69,6 +70,7 @@ That file splits the list in two, and the split is load-bearing:
   exists: axe has no focus-indicator rule and only audits the resting DOM, and
   that blind spot once shipped invisible keyboard focus on WCP with Lighthouse
   at 100. The ring's contrast is pinned by the theme-token test below.
+- **`tests/scroll-reset.spec.ts`** (2026-09-29) — CLAUDE.md rule 5 on both engines. A link clicked from 1400px down the home page must open `/about` at the top, and Back must restore the position, once on a 1280px mouse viewport (asserts `window.lenis` exists, so Lenis is the engine under test) and once on a 390px touch phone (asserts Lenis never started, so the ClientRouter is). Chromium only: it sets its own viewport and touch flags.
 - **`tests/reflow.spec.ts`** — WCAG 1.4.10 at 320, 768, 1024 and 1440 px on
   every route: `documentElement.scrollWidth` must not exceed `clientWidth`. It
   starts at 320 because the success criterion does; a single 375px screenshot
@@ -122,6 +124,18 @@ re-capture only when you mean to move the baseline and say so in the commit
 message. Baselines captured 2026-08-27, 19 routes, verified 19/19 across a
 capture / rebuild / compare cycle.
 
+**Rule 5 (2026-09-29): the `<astro-island>` uid is normalized.** Astro 7.3 derives
+it from something path-dependent, so a baseline captured in one checkout never
+compared clean from another (a build of pristine `origin/main` from a scratch
+directory vs the same commit from a worktree differed only in the uid on every
+island). With the rule, a branch that adds a feature which renders nothing when
+unused can be proven byte-identical: the announcements branch was 20/20 against a
+pristine-main build. A feature that DOES change markup shows exactly its own
+lines (the search icon, `data-pagefind-body` and the 404 search box, 2026-09-29).
+The committed baselines are still stale (see docs/PENDING.md); capture a fresh
+set from a clean main build, with `PUBLIC_GA_ID` set the way production sets it,
+before relying on `compare` without a scratch baseline.
+
 Two traps, both documented in the script header: this build fetches live Sanity
 content, so capture and compare must bracket one sitting; and compare only
 against a plain `npm run build`, never the tree left behind by
@@ -158,6 +172,8 @@ sources of build nondeterminism.
 
 ## What is not covered
 
+- **The Content-Security-Policy.** `public/_headers` is only served by `npm run preview` (wrangler) or Cloudflare, never by the static server the Playwright suites use, so no suite sees a CSP violation. Check it by hand under `npm run preview` whenever an embed, script, font or API host is added: load the page and look for "violates the following Content-Security-Policy directive" in the console. The 2026-09-29 sweep script (9 public routes on localhost and on the production hostname via request routing, so GA4 fires, plus `/studio/` up to the sign-in screen) is described in the changelog entry of that date.
+
 - **Lighthouse on the deployed edge.** `.github/workflows/lighthouse.yml`
   audits the static build on every push, but against a local static server,
   not Cloudflare. CLAUDE.md's visual verification workflow still asks for a
@@ -170,6 +186,42 @@ sources of build nondeterminism.
 - **Studio behavior is unautomated.** Schema and structure changes are checked
   by hand at `http://localhost:4321/studio` (`npm run dev`), as Staci would see
   them. There is no `studio:dev` any more; the Studio is part of the site.
+
+## What no suite covers: a failed Sanity read must fail the build (2026-09-29)
+
+Cards 55 + 56 make a production build stop on a failed Sanity read rather than
+ship empty pages. No suite exercises it (a test would need Sanity to fail on
+cue). Prove it by hand after touching `src/lib/sanity.ts`, `queries.ts` or a
+page's reads:
+
+```powershell
+$env:PUBLIC_SANITY_PROJECT_ID='zzqq0000'; npm run build; Remove-Item Env:PUBLIC_SANITY_PROJECT_ID
+```
+
+Expected: exit 1 with `[sanity] fetch failed during a production build: ...`.
+Then a normal `npm run build` and `npm run parity compare` must be unchanged,
+which proves the absent-document (coming-soon) paths still render.
+
+## The editor-experience unit tests (2026-09-29)
+
+Six vitest files cover the Studio editor layer (docs/agent/sanity.md, "Editor
+experience layer"). Two are ports of the starter's canonical node:test suites;
+four are Reid's own drift gates, which READ the real schema or the real sources
+rather than a fixture:
+
+| File                        | What it holds                                                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `page-checks.test.ts`       | Card 25's pure checks (vitest port of the starter suite, same cases)                                                                           |
+| `undoRedo.test.ts`          | Card 27's transaction-log machinery against a faithful in-memory fake (vitest port, same cases)                                                |
+| `page-check-config.test.ts` | `pageBuilderConfig.ts` against the schema: every host has its array, every marker is self-filling, "Main content" reaches the photo fields     |
+| `insert-menu.test.ts`       | Every library block in exactly one "+ Add section" group; all fourteen builder arrays use the shared menu; no colour choice in it              |
+| `templates.test.ts`         | Every "+ New" template targets a real type, sets only real fields, uses only offered blocks with unique keys, and has no em-dashes             |
+| `section-coach.test.ts`     | Each block's "empty" rule, and the PREVIEW-ONLY wiring: only SectionRenderer imports the coach, only behind the signal, no live page passes it |
+
+What they cannot reach, because it needs a signed-in Studio: the actions
+rendering in the publish menu, a real share link opened in a logged-out
+browser, the keyboard shortcut, and the grouped menu opening in the canvas.
+Those are the click-through list in `docs/PENDING.md`.
 
 ## What no suite covers: the live-preview stack (2026-08-28)
 
@@ -191,14 +243,16 @@ repo** before believing any result: another project's `wrangler dev` already
 listening on the same port answers instead, and its 404 page is indistinguishable
 from a bug in this build. That cost real time on 2026-08-28.
 
-| Check                                                | Expected                                                                                                                                                                                       |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`, `/services/`, any static route                  | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                          |
-| a route that does not exist                          | 404 rendering the real 404 page                                                                                                                                                                |
-| `/studio/`                                           | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
-| `/preview`, `/preview/about`, `/preview/faq`         | 200                                                                                                                                                                                            |
-| `/preview/live?page=homePage` with no cookie         | 403                                                                                                                                                                                            |
-| `/api/draft-mode/enable?sanity-preview-secret=bogus` | 401                                                                                                                                                                                            |
+| Check                                                                                       | Expected                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`, `/services/`, any static route                                                         | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                          |
+| a route that does not exist                                                                 | 404 rendering the real 404 page                                                                                                                                                                |
+| `/studio/`                                                                                  | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead |
+| `/preview`, `/preview/about`, `/preview/faq`                                                | 200                                                                                                                                                                                            |
+| `/preview/live?page=homePage` with no cookie                                                | 403                                                                                                                                                                                            |
+| same, cookie `sanity-preview-perspective=true` (or `drafts`, or any forged value)           | 403 (card 57: the VALUE is checked). `/preview/about` with the same forged cookie renders `<html data-draft="0">`, published content                                                           |
+| same, cookie = the real fingerprint (SHA-256 of `reid-design-preview:v1:` + `SANITY_TOKEN`) | 200 `text/event-stream`; `/preview/about` renders `data-draft="1"` with the overlay island                                                                                                     |
+| `/api/draft-mode/enable?sanity-preview-secret=bogus`                                        | 401                                                                                                                                                                                            |
 
 The full handshake (302 on a real secret, draft-aware stega, `/preview/live`
 streaming, and the `data-sanity` count matching a GROQ count of the section

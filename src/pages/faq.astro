@@ -21,10 +21,7 @@ import FaqAccordion from '@/components/FaqAccordion';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
-const [page, siteSettings] = await Promise.all([
-  getFaqPage().catch(() => null),
-  getSiteSettings().catch(() => null),
-]);
+const [page, siteSettings] = await Promise.all([getFaqPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'Frequently Asked Questions · Reid Design';
 const description =
@@ -47,7 +44,14 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={page?.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+>
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
     eyebrow={heroEyebrow}
