@@ -2,6 +2,12 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Window light removed
+
+- Nathan did not like the WebGL leaf shadows and window sun on the home hero
+  and the closing band. `src/scripts/window-light.ts`, its BaseLayout init,
+  the `data-window-light` attributes and the `.wl-canvas` styles are gone.
+
 ## 2026-09-30 — The quiet pass (branch `claude/great-mendel-v4xvi0`)
 
 - Staci said the site felt less "fancy, clean" than the old Squarespace one.

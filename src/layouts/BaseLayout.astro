@@ -582,15 +582,6 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
       document.addEventListener('astro:page-load', initPolish);
     </script>
 
-    {/* Window light (2026-09-30): WebGL leaf shadows and window sun on any band
-        marked data-window-light (the home hero, the closing band). Starts only
-        near the screen and when idle; never under reduced motion. */}
-    <script>
-      import { initWindowLight } from '@/scripts/window-light';
-      initWindowLight();
-      document.addEventListener('astro:page-load', initWindowLight);
-    </script>
-
     {/* Ambient doodles (2026-09-30): one faint ink doodle in a corner of each
         content section, drawn in as it scrolls into view. See the script. */}
     <script>

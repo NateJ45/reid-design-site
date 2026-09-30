@@ -145,8 +145,7 @@ no decorative numbering.
 ## Signature components (home)
 
 - `home/HomeHero.astro`: Walnut ground, headline with Oat-italic accent, the
-  `heroPortrait` photo on the right, leaf shadows and window sun drifting over
-  it (see "The hand layer"). Phone: photo on top, copy below. (The CSS fan
+  `heroPortrait` photo on the right. Phone: photo on top, copy below. (The CSS fan
   deck at the seam was removed 2026-09-30.)
 - `home/HomeStaci.astro`: tall portrait with a sample tag, the first paragraph
   as a Zodiak lede.
@@ -461,12 +460,10 @@ and still) under reduced motion, none carrying meaning on its own.
   Sandbar, pulled across as the heading scrolls in. Once per page: every
   other accent is the Zodiak italic alone. It is a mark behind the words,
   never text.
-- **Window light** (`src/scripts/window-light.ts`, WebGL). Leaf shadows sway
-  slowly across the home hero and a patch of window sun, cut by its muntins,
-  falls on the photo side only. A soft-light canvas at half resolution and
-  30 fps, started near the screen and when idle, paused off screen. The
-  closing Walnut band gets the shade only (`data-window-light="shade"`), which
-  can only raise cream-on-Walnut contrast. Never a colour of its own.
+- **Window light: removed 2026-09-30.** The WebGL leaf shadows and window
+  sun on the home hero and the closing band did not read well (Nathan), so
+  `src/scripts/window-light.ts` was deleted. Do not bring back a moving
+  light layer over those bands without asking him.
 
 ## The quiet pass (2026-09-30)
 

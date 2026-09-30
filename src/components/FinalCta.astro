@@ -21,8 +21,8 @@
 //
 // Motion: the plan's strokes and the checklist's ticks are CSS scroll-driven
 // (they draw as the band scrolls up), behind @supports and reduced motion; the
-// resting state is the finished drawing. The window-light "shade" drifts leaf
-// shadows over the page (src/scripts/window-light.ts).
+// resting state is the finished drawing. (The WebGL window-light shade that
+// drifted leaf shadows over the band was removed 2026-09-30.)
 
 import CtaLink from '@/components/CtaLink.astro';
 import FloorPlan from '@/components/closing/FloorPlan.astro';
@@ -108,11 +108,7 @@ const {
     optional background photo still works: it sits behind a Walnut scrim,
     with the notebook page over it. */
 }
-<section
-  class:list={['final', hasBackground && 'final--photo']}
-  aria-labelledby={headingId}
-  data-window-light="shade"
->
+<section class:list={['final', hasBackground && 'final--photo']} aria-labelledby={headingId}>
   {
     hasBackground && (
       <div class="final__bg" aria-hidden="true">
@@ -302,9 +298,7 @@ const {
 
   .final__grid {
     position: relative;
-    /* Above the window-light canvas (z-index 1, shade only: leaf shadows
-       drifting over the Walnut, which can only raise the cream text's
-       contrast). */
+    /* Above the notebook page and the photo scrim. */
     z-index: 2;
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
