@@ -71,7 +71,7 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
         'data-stage': f.stage,
       };
       return i === last ? (
-        <picture class="room__frame" data-frame={i} data-on="">
+        <picture class="room__frame room__frame--final" data-frame={i} data-on="">
           <source type="image/avif" srcset={f.avifSrcset} sizes={SIZES} />
           <source type="image/webp" srcset={f.webpSrcset} sizes={SIZES} />
           <img src={f.src} alt={room.finalAlt} loading="lazy" data-room-final {...common} />
@@ -120,6 +120,20 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
   }
   .room__frame[data-on] {
     opacity: 1;
+  }
+  /* The finished room is a permanent underlay (under every other frame): a frame the build
+     switches to before its photo has decoded then shows the finished room instead of an
+     empty box (seen on a phone, 2026-09-30). Every frame is a full opaque photo, so a
+     decoded frame on top hides it completely. */
+  .room__frame--final {
+    opacity: 1;
+    z-index: 0;
+  }
+  .room__frame:not(.room__frame--final) {
+    z-index: 1;
+  }
+  .room__canvas {
+    z-index: 2;
   }
   .room__canvas[hidden] {
     display: none !important;
