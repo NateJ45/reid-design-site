@@ -1,7 +1,14 @@
 ---
-// Page-builder block: a responsive YouTube or Vimeo embed. Parses the share
-// link into an embed URL; renders nothing if the link isn't recognized.
-// Surface comes from SectionRenderer. Safe to edit by hand.
+// Safe to edit by hand
+// Page-builder block: a YouTube or Vimeo video (rebuilt 2026-09-30, phase 2
+// of the art-direction rebuild; see DESIGN.md "Blocks and Portfolio").
+//
+// Framed plainly: the heading left-set above, the video at a comfortable
+// width on a thin ink frame, the caption underneath as one small line led by a
+// short rule. Parses the share link into an embed URL and renders nothing if
+// the link isn't recognised.
+//
+// Surface (background / muted) comes from SectionRenderer.
 import SectionHeading from '@/components/SectionHeading.astro';
 
 interface Props {
@@ -13,7 +20,6 @@ interface Props {
 }
 
 const { url, heading, caption, surface = 'background', headingId } = Astro.props as Props;
-const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
 
 function embedUrl(u?: string): string | null {
   if (!u) return null;
@@ -42,30 +48,82 @@ const src = embedUrl(url);
 {
   src && (
     <section
-      class={bg}
+      class:list={['vid', surface === 'muted' ? 'vid--paper' : 'vid--linen']}
       aria-labelledby={heading ? headingId : undefined}
       aria-label={heading ? undefined : 'Video'}
     >
-      <div class="mx-auto max-w-content px-m py-section-lg" data-reveal>
+      <div class="r-wrap">
         {heading && (
-          <SectionHeading headline={heading} headingId={headingId} align="center" class="mx-auto" />
+          <div class="vid__head">
+            <SectionHeading headline={heading} headingId={headingId} />
+          </div>
         )}
-        <div class:list={['mx-auto max-w-4xl', heading && 'mt-section-md']}>
-          <div class="relative w-full overflow-hidden rounded-md" style="aspect-ratio: 16 / 9;">
+        <figure class="vid__fig">
+          <div class="vid__frame">
             <iframe
               src={src}
               title={heading || caption || 'Video'}
               loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               allowfullscreen
-              class="absolute inset-0 h-full w-full border-0"
             />
           </div>
-          {caption && (
-            <p class="mt-s text-center text-sm text-muted-foreground italic">{caption}</p>
-          )}
-        </div>
+          {caption && <figcaption class="vid__cap">{caption}</figcaption>}
+        </figure>
       </div>
     </section>
   )
 }
+
+<style>
+  .vid {
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  .vid--linen {
+    background: var(--color-bg);
+  }
+  .vid--paper {
+    background: var(--color-paper);
+  }
+  .vid__head {
+    margin-bottom: clamp(2rem, 4vw, 3.25rem);
+  }
+  .vid__fig {
+    margin: 0;
+    max-width: 66rem;
+  }
+  .vid__frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: clip;
+    background: var(--color-ink);
+    /* A thin ink keyline and a soft drop, like a print laid on the table. */
+    box-shadow:
+      0 0 0 1px rgb(35 30 27 / 0.9),
+      0 30px 50px -36px rgb(35 30 27 / 0.6);
+  }
+  .vid__frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .vid__cap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-top: 1.1rem;
+    max-width: 60ch;
+    font: 500 0.95rem/1.45 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .vid__cap::before {
+    content: '';
+    flex: none;
+    width: 2rem;
+    height: 1px;
+    translate: 0 -0.3em;
+    background: currentColor;
+  }
+</style>

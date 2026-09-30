@@ -1,0 +1,168 @@
+---
+// Safe to edit by hand
+// The portfolio board: filter tabs + the varied project grid (2026-09-30,
+// phase 2 of the art-direction rebuild; see DESIGN.md "Blocks and
+// Portfolio"). Rendered by src/pages/portfolio/index.astro when there is at
+// least one project; the index keeps its own empty state.
+//
+// IMAGE-LED AND VARIED: a repeating run of five slots, so the page reads as a
+// pinned board rather than a catalogue of identical tiles.
+//
+//   desktop (12 columns)   slot 0: 7 wide, 5:4   slot 1: 5 wide, 4:5, dropped
+//                          slots 2-4: 4 wide each, the middle one square and
+//                          dropped a little
+//   tablet (2 columns)     slot 0 full width, the rest in pairs, staggered
+//   phone                  one column
+//
+// Each <li> carries data-slot (0-4). PortfolioFilterChips renumbers the
+// visible ones after filtering, so the rhythm survives a filter instead of
+// inheriting the gaps of the hidden cards. The photo shape is handed to
+// ProjectCard through --pcard-ratio.
+import ProjectCard from '@/components/ProjectCard.astro';
+import PortfolioFilterChips from '@/components/PortfolioFilterChips';
+import PortfolioCursor from '@/components/PortfolioCursor';
+import { humanizeEnum } from '@/components/portfolio/labels';
+
+interface Props {
+  /** getAllProjects() rows. */
+  projects: any[];
+}
+
+const { projects } = Astro.props as Props;
+const list: any[] = Array.isArray(projects) ? projects : [];
+
+// Only offer filter values that match something. Both fields are dropdowns
+// (NON_STEGA_FIELDS), so comparing and labelling them is stega-safe.
+const optionsFor = (field: 'roomType' | 'designStyle') => [
+  ...new Map(
+    list
+      .filter((p) => p?.[field])
+      .map((p) => [p[field], { value: p[field] as string, label: humanizeEnum(p[field]) }]),
+  ).values(),
+];
+const roomOptions = optionsFor('roomType');
+const styleOptions = optionsFor('designStyle');
+---
+
+<section class="pf" aria-labelledby="portfolio-projects-heading">
+  <div class="r-wrap">
+    {/* Visually hidden, so heading navigation goes H1 → H2 → H3 (each card). */}
+    <h2 id="portfolio-projects-heading" class="sr-only">Projects</h2>
+
+    <div class="pf__bar">
+      <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
+      {
+        /* Shortcut for visitors who came for the reveals. Safe before there is
+        content: that page has its own empty state. */
+      }
+      <a href="/portfolio/before-after" class="r-link pf__ba">
+        See the before and afters <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <ul class="pf__grid" data-portfolio-cursor-zone>
+      {
+        list.map((p, i) => (
+          <li
+            data-project-item
+            data-slot={i % 5}
+            data-roomtype={p.roomType ?? ''}
+            data-designstyle={p.designStyle ?? ''}
+            class="pf__item"
+          >
+            <ProjectCard project={p} />
+          </li>
+        ))
+      }
+    </ul>
+
+    {/* Shown by the filter island when nothing matches. */}
+    <p data-portfolio-empty-filter class="pf__none" style="display:none">
+      No projects match those filters yet.{' '}
+      {
+        /* A plain link back to the page: dropping the hash clears the filters,
+        with no inline script to keep in step with the island. */
+      }
+      <a href="/portfolio" class="r-link">Clear the filters</a>{' '}
+      to see everything.
+    </p>
+
+    {/* The ink "View project" pill that follows the pointer (desktop only). */}
+    <PortfolioCursor client:idle />
+  </div>
+</section>
+
+<style>
+  .pf {
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(5rem, 10vw, 8.5rem);
+  }
+  .pf__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem 3rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .pf__ba {
+    margin-left: auto;
+    color: var(--color-ink);
+    font-size: 0.98rem;
+  }
+
+  .pf__grid {
+    position: relative;
+    display: grid;
+    gap: clamp(2.75rem, 5vw, 4.5rem) 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pf__item {
+    min-width: 0;
+  }
+  .pf__item[data-slot='0'] {
+    --pcard-ratio: 5 / 4;
+  }
+  .pf__item[data-slot='3'] {
+    --pcard-ratio: 1 / 1;
+  }
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .pf__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .pf__item[data-slot='0'] {
+      grid-column: 1 / -1;
+    }
+    .pf__item[data-slot='2'],
+    .pf__item[data-slot='4'] {
+      margin-top: 3rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .pf__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+    .pf__item {
+      grid-column: span 4;
+    }
+    .pf__item[data-slot='0'] {
+      grid-column: span 7;
+    }
+    .pf__item[data-slot='1'] {
+      grid-column: span 5;
+      margin-top: clamp(4rem, 8vw, 7rem);
+    }
+    .pf__item[data-slot='3'] {
+      margin-top: 3.5rem;
+    }
+  }
+  .pf__none {
+    margin: 3rem 0 0;
+    color: var(--color-ink-2);
+  }
+  .pf__none .r-link {
+    color: var(--color-ink);
+  }
+</style>

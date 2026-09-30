@@ -249,6 +249,64 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
   numbered Zodiak h2s, a contents list generated from the body's h2 blocks
   (sticky on desktop, a disclosure on phones, the current section marked).
 
+## Blocks and Portfolio (phase 2)
+
+Rebuilt 2026-09-30. The page-builder blocks are what Staci builds custom pages
+and "Extra sections" from, so they speak the home page's language; the
+portfolio templates are ready for the day the first `project` exists.
+
+**Blocks** (`src/components/sections/*`, drawn by `SectionRenderer.astro`):
+
+- Ground cadence: content blocks alternate linen (`background`) and paper
+  (`muted`); a page that opens with a hero starts on paper. A quote takes the
+  ink band unless a neighbour is another quote or a CTA band, or it is the last
+  row (it could touch the ink footer). Spacers and dividers take the ground of
+  the row above. All decided in `SectionRenderer`, never by the block.
+- `RichTextSection`: normal width with a heading is an editorial split on
+  desktop (heading left, sticky; body right at ~64ch, first paragraph as a
+  Zodiak lede). Narrow is one column at a book measure; centred centres it.
+  The eyebrow is not printed (as in `SectionHeading`).
+- `ImageText`: a framed crop honest to the photo (portrait 4:5, landscape 5:4)
+  beside a big Zodiak heading; a sample tag carries the eyebrow and the alt
+  text, hanging off the corner that faces the words. No photo: a blank chip.
+- `GalleryGrid`: a mosaic, not identical tiles. `blocks/mosaic.ts` picks each
+  photo's column and row span so the grid tiles exactly for any count (tested
+  1 to 40 photos at 2, 3 and 4 columns); two columns on phones and tablets,
+  Staci's `columns` on desktop, never a full-width letterbox at two columns.
+  Crops follow the hotspot; captions are sample tags.
+- `QuoteBlock`: one quote in Zodiak Light italic with the hung bronze
+  open-quote, as on the home ink band; long quotes step down a size.
+- `VideoEmbed`: left-set heading, 16:9 on a thin ink keyline, caption led by
+  a short rule.
+- `SectionDivider`: `ornament` is the logo's leaf sprig in Warm Bronze
+  (drawing itself in on scroll where supported); `line` is a hairline with a
+  punched hole.
+- `PortableText` (every rich-text field): headings at body scale in Zodiak
+  Light (h4 a General Sans label), ink links with a bronze underline, quotes
+  in Zodiak italic off a bronze rule, square-cornered photos.
+
+**Portfolio:**
+
+- Index (`portfolio/ProjectBoard.astro`): paint-deck filter tabs (chips 1 to
+  4 with a punched hole; the chosen one turns ink and lifts) and an
+  image-led board in a repeating run of five slots (7 + 5 columns, then three
+  across, some dropped). The filter renumbers `data-slot` after filtering so
+  the rhythm survives. Cards (`ProjectCard`) are photo, sample tag for the
+  room, Zodiak title, one plain line: no borders, stripes or shadows.
+- Detail (`detail/ProjectDetail.astro`): hero with the title rising and the
+  photo as a framed crop; `ProjectMetaBand` as a spec sheet on paper (facts
+  in a ruled list, "The brief" and "The call" in Zodiak); the story at ~68ch
+  with the sticky contents list; services as paint-chip tabs; before and
+  after on a paper band beside its heading; the gallery at true photo shapes;
+  the client's words on the ink band; previous and next set big.
+- `BeforeAfterSlider`: before on the LEFT, after on the RIGHT (the old slider
+  had them backwards), a paper handle with arrows, "Drag to compare" until
+  first use, sample-tag corner labels, the before photo's own shape capped at
+  ~78% of the screen height. Keyboard: arrows, Shift for bigger steps,
+  Home/End.
+- `FeaturedWork` (home, hidden until projects exist): the home head grammar,
+  a lead project with a sample tag, up to three more as a ruled list.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
@@ -272,9 +330,21 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
 - Captions are honest material notes on a sample tag ("Plum, satin finish").
   Never invent locations or project names.
 
-## Not yet rebuilt (phase 2)
+## Interior foundation (phase 2, 2026-09-30)
 
-Contact, Privacy and the portfolio
-templates still use the older section components, restyled only through the
-shared tokens, fonts, buttons, header, footer and closing CTA. They are the
-next pass, built against this document.
+- (every interior page): linen, word-rise headline, eyebrow as a
+  sentence-case line, subhead with _italic_ support, photo as a framed 4:5 crop
+  beside the copy (never under a scrim). Honours the page-builder hero Height
+  ( / , listed in ).
+- : headline left, subhead right via a container query;
+  the prop is accepted but NOT printed, and is
+  ignored (both were the old template grammar).
+- Anything that splits a CMS string uses so preview
+  click-to-edit keeps working (stega).
+
+## Still on the old grammar
+
+The hidden sections (journal, shop, quiz, calculator, guides, press, gift
+certificates, resources) inherit the tokens, fonts, buttons, Hero, headings
+and chrome but keep their older section components. Rebuild each one against
+this document when it is switched on.

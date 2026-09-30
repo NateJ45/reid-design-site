@@ -6,6 +6,12 @@
 // Uses the existing BeforeAfterSlider.tsx React island (client:visible).
 // Projects without pairs are excluded at the query layer (getProjectsWithBeforeAfter).
 // Graceful empty state when no projects have pairs yet.
+//
+// Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md "Blocks
+// and Portfolio"): the interior Hero opens the page (same fields as before),
+// then one entry per project, title in Zodiak on the left and the link to the
+// full case study on the right, its sliders full width underneath, entries
+// split by a hairline.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getProjectsWithBeforeAfter, getSiteSettings, getPortfolioPage } from '@/lib/queries';
@@ -13,8 +19,9 @@ import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
-import SectionHeading from '@/components/SectionHeading.astro';
+import Hero from '@/components/Hero.astro';
 import CtaLink from '@/components/CtaLink.astro';
+import { humanizeEnum } from '@/components/portfolio/labels';
 
 const [projects, siteSettings, page] = await Promise.all([
   getProjectsWithBeforeAfter(),
@@ -41,120 +48,173 @@ const schemas = [
 
 const projectsArr: any[] = Array.isArray(projects) ? projects : [];
 const hasProjects = projectsArr.length > 0;
-
-// Humanize camelCase enum values (e.g. "livingRoom" → "Living Room") for
-// the room type chip — mirrors the pattern in portfolio/index.astro.
-function humanize(value: string): string {
-  return value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
-}
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings}>
-  {/* Page header — text-only, same "short" layout as other interior pages. */}
-  <section class="bg-background" aria-labelledby="before-after-heading">
-    <div class="mx-auto max-w-content px-m py-section-lg">
-      <SectionHeading
-        eyebrow={page?.beforeAfterEyebrow ?? 'Before & After.'}
-        headline={page?.beforeAfterHeadline ?? 'See the difference.'}
-        subhead={page?.beforeAfterSubhead ??
-          'Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle.'}
-        headingId="before-after-heading"
-        level="h1"
-        align="center"
-        class="mx-auto"
-      />
-
-      {/* Back link to the full portfolio. */}
-      <div class="mt-l flex justify-center">
-        <a
-          href="/portfolio"
-          class="inline-flex items-center gap-xs text-sm text-link underline underline-offset-2 transition-colors hover:text-primary-dark"
-        >
-          <span aria-hidden="true">←</span> All projects
-        </a>
-      </div>
-    </div>
-  </section>
+  <Hero
+    eyebrow={page?.beforeAfterEyebrow ?? 'Before and after'}
+    headline={page?.beforeAfterHeadline ?? 'See the difference.'}
+    subhead={page?.beforeAfterSubhead ??
+      'Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle.'}
+    headingId="before-after-heading"
+  />
 
   {
     hasProjects ? (
-      <section class="bg-muted" aria-labelledby="before-after-projects-heading">
-        <h2 id="before-after-projects-heading" class="sr-only">
-          Before and after project sliders
-        </h2>
+      <section class="ba" aria-labelledby="before-after-projects-heading">
+        <div class="r-wrap">
+          <h2 id="before-after-projects-heading" class="sr-only">
+            Before and after project sliders
+          </h2>
+          <p class="ba__back">
+            <a href="/portfolio" class="r-link">
+              <span aria-hidden="true">← </span>All projects
+            </a>
+          </p>
 
-        <div class="mx-auto max-w-content space-y-section-lg px-m pb-section-lg">
           {projectsArr.map((project) => {
             const pairs = (project.beforeAfters ?? []).filter(
               (p: any) => p?.beforeImage?.asset && p?.afterImage?.asset,
             );
             if (pairs.length === 0) return null;
+            const meta = [humanizeEnum(project.roomType), project.location]
+              .filter(Boolean)
+              .join(' · ');
 
             return (
-              <article aria-labelledby={`project-${project._id}-heading`}>
-                {/* Project header — title + room chip + link to the case study. */}
-                <div class="mb-m flex flex-wrap items-baseline justify-between gap-m">
+              <article class="ba__entry" aria-labelledby={`project-${project._id}-heading`}>
+                <div class="ba__head">
                   <div>
-                    <h3
-                      id={`project-${project._id}-heading`}
-                      class="font-display text-h3 text-foreground"
-                    >
+                    <h3 id={`project-${project._id}-heading`} class="ba__title">
                       {project.title}
                     </h3>
-                    {(project.roomType || project.location) && (
-                      <p class="mt-xs text-xs tracking-eyebrow text-foreground/80 uppercase">
-                        {[project.roomType ? humanize(project.roomType) : null, project.location]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-                    )}
+                    {meta && <p class="ba__meta">{meta}</p>}
                   </div>
                   {project.slug && (
-                    <a
-                      href={`/portfolio/${project.slug}`}
-                      class="inline-flex shrink-0 items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
-                    >
-                      Full project <span aria-hidden="true">→</span>
+                    <a href={`/portfolio/${project.slug}`} class="r-link ba__link">
+                      The full project <span aria-hidden="true">→</span>
                     </a>
                   )}
                 </div>
 
-                {/* One BeforeAfterSlider per pair. Multiple pairs stack vertically. */}
-                {pairs.map((pair: any) => (
-                  <BeforeAfterSlider
-                    client:visible
-                    beforeImage={pair.beforeImage}
-                    afterImage={pair.afterImage}
-                    caption={pair.caption}
-                  />
-                ))}
+                {/* One slider per pair; several pairs stack. */}
+                <div class="ba__pairs">
+                  {pairs.map((pair: any) => (
+                    <BeforeAfterSlider
+                      client:visible
+                      beforeImage={pair.beforeImage}
+                      afterImage={pair.afterImage}
+                      caption={pair.caption}
+                    />
+                  ))}
+                </div>
               </article>
             );
           })}
         </div>
       </section>
     ) : (
-      <section class="bg-muted" aria-label="No before and after content yet">
-        <div class="mx-auto max-w-content px-m py-section-lg">
-          <div class="rounded-md border border-border bg-card p-section-md text-center">
-            <h2 class="font-display text-h3 text-foreground">Before and afters are coming soon.</h2>
-            <p class="mx-auto mt-s max-w-prose text-foreground/80">
-              These side-by-side reveals take time to photograph well. Check back once the first
-              projects wrap up, or browse the full portfolio in the meantime.
-            </p>
-            <div class="mt-l flex justify-center">
-              <CtaLink
-                variant="secondary"
-                fallbackHref="/portfolio"
-                fallbackLabel="Browse the Portfolio"
-              />
-            </div>
+      <section class="ba" aria-labelledby="before-after-empty-heading">
+        <div class="r-wrap ba__empty">
+          <h2 id="before-after-empty-heading" class="ba__empty-h">
+            Before and afters are coming soon.
+          </h2>
+          <p class="ba__empty-p">
+            These side-by-side reveals take time to photograph well. Check back once the first
+            projects wrap up, or browse the full portfolio in the meantime.
+          </p>
+          <div class="ba__empty-cta">
+            <CtaLink
+              variant="secondary"
+              fallbackHref="/portfolio"
+              fallbackLabel="Browse the portfolio"
+            />
           </div>
         </div>
       </section>
     )
   }
 </BaseLayout>
+
+<style>
+  .ba {
+    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(5rem, 10vw, 8.5rem);
+  }
+  .ba__back {
+    margin: 0 0 clamp(2rem, 4vw, 3rem);
+    font-size: 0.98rem;
+  }
+  .ba__back .r-link {
+    color: var(--color-ink);
+  }
+  .ba__entry {
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+    border-top: 1px solid var(--color-rule);
+  }
+  .ba__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 3rem;
+    margin-bottom: 1.75rem;
+  }
+  .ba__title {
+    margin: 0;
+    font: 300 clamp(1.8rem, 1.2rem + 1.9vw, 3rem) / 1.05 var(--font-display);
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .ba__meta {
+    margin: 0.6rem 0 0;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .ba__link {
+    color: var(--color-ink);
+  }
+  .ba__pairs {
+    min-width: 0;
+    max-width: 66rem;
+  }
+  /* Desktop: the project's name and link on the left, its sliders on the
+     right (an upright pair is height-capped, so it never runs off alone). */
+  @media (min-width: 1024px) {
+    .ba__entry {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      column-gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+    }
+    .ba__head {
+      display: grid;
+      justify-content: start;
+      gap: 1.25rem;
+      position: sticky;
+      top: 7rem;
+    }
+  }
+  .ba__pairs :global(figure:first-child) {
+    margin-top: 0;
+  }
+  .ba__pairs :global(figure:last-child) {
+    margin-bottom: 0;
+  }
+
+  .ba__empty-h {
+    margin: 0;
+    max-width: 18ch;
+    font: 300 clamp(2rem, 1.3rem + 2.4vw, 3.4rem) / 1.02 var(--font-display);
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+  .ba__empty-p {
+    margin: 1.25rem 0 0;
+    max-width: 48ch;
+    color: var(--color-ink-2);
+  }
+  .ba__empty-cta {
+    margin-top: 1.75rem;
+  }
+</style>

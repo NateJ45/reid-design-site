@@ -5,6 +5,10 @@
 //
 // Hidden below lg breakpoint (mobile/tablet readers don't need it competing
 // with content for screen space).
+//
+// Restyled 2026-09-30 (phase 2 of the rebuild): a sentence-case label, ink 2
+// links on a hairline, the current section in ink with a Warm Bronze marker
+// (a mark, not text). Shared by the project and journal detail pages.
 
 import { useEffect, useState, type MouseEvent } from 'react';
 import type { Heading } from '@/lib/portable-text-headings';
@@ -73,8 +77,8 @@ export default function CaseStudyTOC({ headings }: Props) {
 
   return (
     <nav aria-label="Table of contents" className="sticky top-24 hidden self-start lg:block">
-      <p className="mb-s text-xs tracking-widest text-foreground/80 uppercase">On this page</p>
-      <ul className="space-y-1 border-l border-border-soft text-sm">
+      <p className="mb-s text-[0.95rem] font-medium text-chip-7">On this page</p>
+      <ul className="space-y-0.5 border-l border-rule text-[0.92rem] leading-snug">
         {headings.map((h) => {
           const isActive = h.id === activeId;
           const indent = h.level === 3 ? 'pl-m' : h.level === 4 ? 'pl-l' : 'pl-s';
@@ -84,11 +88,11 @@ export default function CaseStudyTOC({ headings }: Props) {
                 href={`#${h.id}`}
                 onClick={(e) => handleTocClick(e, h.id)}
                 className={[
-                  '-ml-px block border-l-2 py-1 pr-s transition-colors',
+                  '-ml-px block border-l-2 py-1.5 pr-s transition-colors duration-300',
                   indent,
                   isActive
-                    ? 'border-primary font-semibold text-link'
-                    : 'border-transparent text-foreground/85 hover:text-foreground',
+                    ? 'border-chip-5 font-medium text-ink'
+                    : 'border-transparent text-ink-2 hover:text-ink',
                 ].join(' ')}
                 aria-current={isActive ? 'location' : undefined}
               >

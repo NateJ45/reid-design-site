@@ -1,38 +1,142 @@
 ---
-// Page-builder block: a centered pull quote / testimonial. Surface comes from
-// SectionRenderer. Safe to edit by hand.
+// Safe to edit by hand
+// Page-builder block: one quote, set big (rebuilt 2026-09-30, phase 2 of the
+// art-direction rebuild; see DESIGN.md "Blocks and Portfolio"). The same
+// moment as the lead quote in the home page's ink band (home/HomeWords.astro):
+// Zodiak Light italic, a hung open-quote in Warm Bronze outside the text
+// block, the attribution small underneath. Left-set, never centred.
+//
+// SURFACE. SectionRenderer decides, like every block:
+//   ink            the dark band (cream text, Sandbar-free: the only colour on
+//                  it is the bronze quote mark, a display glyph)
+//   background /   linen or paper, ink text
+//   muted
+// The renderer gives a quote the ink band unless that would put two dark
+// bands side by side (see SectionRenderer).
+//
+// Long quotes step down a size so a paragraph never sets at headline scale.
+// The length is read from the CLEAN text (stega run removed), and the string
+// itself is rendered whole, so preview click-to-edit keeps working.
+import { splitStega } from '@/lib/preview-stega';
+
 interface Props {
   quote?: string;
   attribution?: string;
   detail?: string;
-  surface?: 'background' | 'muted';
+  surface?: 'background' | 'muted' | 'ink';
 }
 
 const { quote, attribution, detail, surface = 'background' } = Astro.props as Props;
-const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
+const length = splitStega(quote ?? '').cleaned.trim().length;
+const scale = length > 260 ? 'long' : length > 130 ? 'mid' : 'short';
+const tone = surface === 'ink' ? 'ink' : surface === 'muted' ? 'paper' : 'linen';
 ---
 
 {
   quote && (
-    <section class:list={['surface-warm', bg]}>
-      <div class="mx-auto max-w-content px-m py-section-lg text-center" data-reveal>
-        <span
-          class="font-display text-2xl tracking-[0.6em] text-link select-none"
-          aria-hidden="true"
-        >
-          ✺
-        </span>
-        <blockquote class="mx-auto mt-m max-w-3xl font-display text-h3 leading-snug text-foreground italic md:text-h2">
-          {quote}
-        </blockquote>
-        {(attribution || detail) && (
-          <p class="mt-l text-sm tracking-eyebrow text-foreground/80 uppercase">
-            {attribution}
-            {attribution && detail ? ' · ' : ''}
-            {detail}
-          </p>
-        )}
+    <section class:list={['qb', `qb--${tone}`]}>
+      <div class="r-wrap">
+        <figure class:list={['qb__fig', `qb__fig--${scale}`]}>
+          <blockquote class="qb__quote">
+            <p>{quote}</p>
+          </blockquote>
+          {(attribution || detail) && (
+            <figcaption class="qb__cite">
+              {attribution && <span class="qb__who">{attribution}</span>}
+              {detail && <span class="qb__detail">{detail}</span>}
+            </figcaption>
+          )}
+        </figure>
       </div>
     </section>
   )
 }
+
+<style>
+  .qb {
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+    color: var(--color-ink);
+  }
+  .qb--linen {
+    background: var(--color-bg);
+  }
+  .qb--paper {
+    background: var(--color-paper);
+  }
+  .qb--ink {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+
+  .qb__fig {
+    position: relative;
+    margin: 0;
+    max-width: 58rem;
+    padding-left: clamp(0rem, 5vw, 4.5rem);
+  }
+  /* The hung open-quote, in bronze, outside the text block. A display glyph,
+     so Warm Bronze is allowed here (DESIGN.md contrast rules). */
+  .qb__fig::before {
+    content: '\201C';
+    position: absolute;
+    left: -0.1em;
+    top: -0.2em;
+    font: 300 clamp(4.5rem, 3rem + 5vw, 9rem) / 1 var(--font-display);
+    color: var(--color-chip-5);
+    pointer-events: none;
+  }
+  .qb__quote {
+    margin: 0;
+  }
+  .qb__quote p {
+    margin: 0;
+    font: 300 italic clamp(2rem, 1.1rem + 3vw, 4rem) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .qb__fig--mid .qb__quote p {
+    font-size: clamp(1.6rem, 1rem + 2vw, 2.75rem);
+    line-height: 1.2;
+    text-wrap: pretty;
+  }
+  .qb__fig--long .qb__quote p {
+    font-size: clamp(1.35rem, 1rem + 1.1vw, 2rem);
+    line-height: 1.35;
+    text-wrap: pretty;
+  }
+  .qb__cite {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.9rem;
+    margin-top: 1.75rem;
+    font: 500 0.95rem/1.4 var(--font-body);
+  }
+  /* A short rule leads the name, the one small line the rebuild allows. */
+  .qb__who {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .qb__who::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .qb__detail {
+    color: var(--color-ink-2);
+  }
+  .qb--ink .qb__detail {
+    color: rgb(245 237 227 / 0.75);
+  }
+
+  @media (max-width: 1023px) {
+    .qb__fig {
+      padding-top: 2.75rem;
+    }
+    .qb__fig::before {
+      top: -0.1em;
+    }
+  }
+</style>
