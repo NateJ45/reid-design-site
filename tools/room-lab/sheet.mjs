@@ -1,4 +1,5 @@
-// Review sheets, all in work/:
+// Review sheets for one room, all in work/<slug>/ (pass --room <slug>); `--all` builds
+// work/overview.jpg instead: one tile per room from rooms/index.json, labelled slug + style.
 //   sheet-frames.jpg  every frame (empty + one per piece) with drift numbers and captions
 //   sheet-layers.jpg  each layer on a checkerboard next to its shade, plus the recomposite check line
 //   sheet-chips.png   paint chip swatches
@@ -7,13 +8,14 @@ import { readFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { WORK, FINAL, LAYERS, loadSpec } from './lib/paths.mjs';
+import { ROOT, WORK, FINAL, LAYERS, ALL_ROOMS, loadSpec, loadIndex } from './lib/paths.mjs';
 
-const spec = await loadSpec();
+// `--all` (no room needed) builds work/overview.jpg instead of the per-room sheets.
+const spec = ALL_ROOMS ? null : await loadSpec();
 const readJson = async (p, d) => (existsSync(p) ? JSON.parse(await readFile(p, 'utf8')) : d);
-const log = await readJson(join(WORK, 'run.log.json'), []);
-const layersJson = await readJson(join(LAYERS, 'layers.json'), null);
-await mkdir(WORK, { recursive: true });
+const log = ALL_ROOMS ? [] : await readJson(join(WORK, 'run.log.json'), []);
+const layersJson = ALL_ROOMS ? null : await readJson(join(LAYERS, 'layers.json'), null);
+if (!ALL_ROOMS) await mkdir(WORK, { recursive: true });
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const FONT = 'Segoe UI, sans-serif';
@@ -124,6 +126,49 @@ async function chips() {
   console.log(out);
 }
 
-await frames();
-await layers();
-await chips();
+// ---- --all: one tile per room, its final frame (graded if grade has run) -----------------
+async function overview() {
+  const cw = 480;
+  const ch = 360;
+  const capH = 56;
+  const cols = 3;
+  const rooms = loadIndex();
+  const cells = [];
+  for (const [k, r] of rooms.entries()) {
+    const roomWork = join(ROOT, 'work', r.slug);
+    const specPath = join(ROOT, 'rooms', `${r.slug}.json`);
+    let pic = null;
+    let note = r.style;
+    if (!existsSync(specPath)) note += ' (no spec yet)';
+    else {
+      const n = JSON.parse(await readFile(specPath, 'utf8')).pieces?.length ?? 0;
+      const file = join(roomWork, 'final', `frame-${n}.png`);
+      if (existsSync(file)) {
+        pic = await sharp(file).resize(cw, ch, { fit: 'cover' }).toBuffer();
+        // grade.mjs stashes the originals in work/<slug>/ungraded and grades frames in place.
+        note += existsSync(join(roomWork, 'ungraded')) ? ' (graded)' : ' (ungraded)';
+      } else note += ' (no final frame yet)';
+    }
+    const x = (k % cols) * cw;
+    const y = Math.floor(k / cols) * (ch + capH);
+    cells.push(
+      { input: pic ?? (await missing(cw, ch)), left: x, top: y },
+      { input: textSvg(cw, capH, r.slug, [note]), left: x, top: y + ch },
+    );
+  }
+  const rows = Math.ceil(rooms.length / cols);
+  const out = join(ROOT, 'work', 'overview.jpg');
+  await mkdir(join(ROOT, 'work'), { recursive: true });
+  await sharp({ create: { width: cols * cw, height: rows * (ch + capH), channels: 3, background: BG } })
+    .composite(cells)
+    .jpeg({ quality: 88 })
+    .toFile(out);
+  console.log(out);
+}
+
+if (ALL_ROOMS) await overview();
+else {
+  await frames();
+  await layers();
+  await chips();
+}

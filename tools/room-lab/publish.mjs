@@ -1,13 +1,18 @@
-// Publish reviewed output into the site: src/assets/room/ (manifest v2).
+// Publish one room's reviewed output into the site: src/assets/room/<slug>/ (manifest v2),
+// then regenerate src/assets/room/rooms.json (the tab list): { version: 1, rooms: [{ slug,
+// label, type, style, manifest }] } in rooms/index.json order, only rooms whose
+// <slug>/manifest.json exists on disk.
 //   base.jpg, final.jpg (mozjpeg q90, 1472 wide), base-mask.png (1024 wide greyscale),
 //   layer-<id>.webp, shade-<id>.png, manifest.json.
-// Refuses (exit 1) if anything is missing or the recomposite check failed. Deletes stale files.
+// Refuses (exit 1) if anything is missing or the recomposite check failed. Deletes stale files, scoped to THIS room's folder
+// (other rooms are never touched).
 // THE MANIFEST SHAPE IS A CONTRACT with the site component; do not change it.
 import { readFile, writeFile, mkdir, readdir, unlink, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { DEST, FINAL, LAYERS, loadSpec } from './lib/paths.mjs';
+import { DEST, ROOMS_DIR, FINAL, LAYERS, loadSpec, loadIndex } from './lib/paths.mjs';
+import { prettyJson } from './lib/json.mjs';
 
 const spec = await loadSpec();
 const problems = [];
@@ -36,7 +41,7 @@ const stageIds = new Set(spec.stages.map((s) => s.id));
 need(Boolean(layersJson), 'missing work/layers/layers.json (run room:layers)');
 if (layersJson) {
   need(layersJson.check?.pass === true, `recomposite check did not pass (${JSON.stringify(layersJson.check?.max)}); rerun room:layers`);
-  need(layersJson.layers.length === spec.pieces.length, `layers.json has ${layersJson.layers.length} layers, stages.json has ${spec.pieces.length} pieces`);
+  need(layersJson.layers.length === spec.pieces.length, `layers.json has ${layersJson.layers.length} layers, the room spec has ${spec.pieces.length} pieces`);
   spec.pieces.forEach((pc, i) => {
     const L = layersJson.layers[i];
     need(L?.id === pc.id, `layer ${i} should be "${pc.id}" (rerun room:layers)`);
@@ -91,5 +96,19 @@ for (const f of await readdir(DEST)) {
     }
   }
 }
-await writeFile(join(DEST, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+await writeFile(join(DEST, 'manifest.json'), prettyJson(manifest));
+
+// rooms.json: rebuilt from the index and what is actually on disk, so it never lists a room
+// that has not been published and never forgets one that has.
+const roomsList = loadIndex()
+  .filter((r) => existsSync(join(ROOMS_DIR, r.slug, 'manifest.json')))
+  .map((r) => ({
+    slug: r.slug,
+    label: r.label,
+    type: r.type,
+    style: r.style,
+    manifest: `${r.slug}/manifest.json`,
+  }));
+await writeFile(join(ROOMS_DIR, 'rooms.json'), prettyJson({ version: 1, rooms: roomsList }));
+console.log(`rooms.json lists: ${roomsList.map((r) => r.slug).join(', ') || '(none)'}`);
 console.log(`Published ${layers.length} layers (${layers.filter((l) => l.shade).length} with shade) to ${DEST}. Review and commit src/assets/room.`);
