@@ -88,12 +88,7 @@ const schemas = [
   {description}
   {schemas}
   {siteSettings}
-  card={{
-    headline: project.title,
-    kicker: ['Portfolio', project.location].filter(Boolean).join(' \u00b7 '),
-    image: project.heroImage,
-    image2: project.gallery?.[0],
-  }}
+  card={{ kind: 'project', title: project.title, image: project.heroImage }}
 >
   <ProjectDetail {project} {prev} {next} />
 </BaseLayout>

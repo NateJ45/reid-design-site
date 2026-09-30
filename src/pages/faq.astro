@@ -63,7 +63,7 @@ const schemas = [
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'faq', list: groups.map((g) => g.category) }}
 >
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero

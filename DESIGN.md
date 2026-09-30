@@ -474,14 +474,37 @@ the top of the footer, and the fan on the share cards. The small tone squares
 beside the footer's page index stay as list markers. Do not add a decorative
 chip, fan or strip back without asking him.
 
-## Share cards: design E, "the hero card" (2026-09-30)
+## Share cards: design F, "the cover" (2026-09-30)
 
-Every page's og:image is the home hero in miniature: Walnut ground, her logo
-hung from the top edge on its paper plate, a sentence-case kicker after a short
-rule, the title in Zodiak Light cream (balanced lines, measured from the real
-font), `reiddesignllc.com` in Oat, the page's photo on the right melting into
-the Walnut. No photo: an Espresso panel with her monogram in cream. Code: `scripts/lib/og-render*.mjs`; fonts are the
-site's own, as .woff copies fetched into `scripts/.og-fonts/`.
+Chosen in a design debate (three directions, two critics, two rounds; record
+in `docs/agent/seo.md`). Design E was one Walnut template on every page with a
+tiny logo plate and the hero slogan as its title: in a feed nobody could tell
+whose site it was or which page. Design F is an interiors-magazine cover:
+
+- **Left strip (360px): Staci**, from her professional branding shoot only
+  (dressed up, smiling to camera; never the grey-sweatshirt desk set), with her
+  name on a paper tag. Privacy and projects show a room instead (projects keep
+  the name tag). Which shot goes where: `src/data/card-portraits.mjs`.
+- **Masthead: her real logo, once**, the RD monogram plus the wordmark, inside
+  the square-crop zone (x 285 to 915) so a WhatsApp/text square still says who.
+- **The page's own name as the one big line** (84 to 124px Zodiak Light, the
+  nav and footer-index words: About Staci, Services, Process, E-Design, FAQ,
+  Contact), never the hero slogan.
+- **One real fact** under it, from `getChromeFacts()` (the footer index's
+  numbers: from $225, 4 steps, from $250, 19 answers), and **at most one
+  object** from the site's vocabulary: the ink price tag on Contact (the
+  header's "Book a consult $225"), the tape measure on Process, the floor plan
+  on E-Design, a ruled checklist on FAQ (its topics) and the fallback
+  ("Things I notice in every room").
+- **One ground per page** so nine cards read as nine pages: Home Walnut, About
+  Oat, Services Linen, Process Espresso, E-Design Sandbar, FAQ Saddle, Contact
+  Ink (the loudest), Privacy and projects Paper. Cream text on Walnut, Espresso
+  and Ink only; never a Warm Bronze ground.
+- One faint botanical grows in from the top-right corner.
+
+Code: `src/lib/og-card.ts` (what a card says), `scripts/lib/og-render.mjs`
+(layout + every image layer, in sharp) and `og-render-satori.mjs` (the words).
+Fonts are the site's own, as .woff copies fetched into `scripts/.og-fonts/`.
 
 ## Motion
 

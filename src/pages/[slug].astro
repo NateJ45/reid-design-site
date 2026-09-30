@@ -73,7 +73,14 @@ const schemas = [
 ];
 ---
 
-<BaseLayout {title} {description} {schemas} {siteSettings} seoImage={pageDoc.seoImage}>
+<BaseLayout
+  {title}
+  {description}
+  {schemas}
+  {siteSettings}
+  seoImage={pageDoc.seoImage}
+  card={{ label: pageDoc.title }}
+>
   {!opensWithHero && <h1 class="sr-only">{pageDoc.title ?? title}</h1>}
   <SectionRenderer sections={pageDoc.pageBuilder} idPrefix="page" />
 </BaseLayout>

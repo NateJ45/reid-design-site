@@ -15,17 +15,18 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getNavPages, getAnnouncements } from '@/lib/queries';
+import { getNavPages, getAnnouncements, getChromeFacts } from '@/lib/queries';
 import {
   CARD_SPEC_ID,
-  cleanCardTitle,
-  cleanKicker,
+  cardContent,
   ogCardPath,
   serializeSpec,
-  stateName,
+  type CardInput,
   type CardPhoto,
   type CardSpec,
 } from '@/lib/og-card';
+import { resolveChromeFacts } from '@/lib/chrome-facts';
+import { doodlesForPage } from '@/lib/doodle-map';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Announcements from '@/components/Announcements.astro';
@@ -44,15 +45,18 @@ interface Props {
   /** Explicit share image URL. Wins over everything, including the generated card. Leave it unset to get the page's generated card at /og/&lt;route&gt;.png. */
   ogImage?: string;
   /**
-   * What the generated share card says and shows (design D). All optional:
-   * `headline` (the page's hero headline; preferred over the SEO title),
-   * `kicker` (the small caps line; defaults to "Interior design · <city>, <state>"),
-   * `image` (the arch photo) and `image2` (the small circle photo), both raw
-   * Sanity image objects. With no image the card builder picks one of Staci's
-   * finished-project photos. `circle: true` asks for the small circle photo
-   * even without `image2` (the builder fills it from the same pool).
+   * What the generated share card says and shows (design F "the cover",
+   * 2026-09-30; src/lib/og-card.ts decides the rest). All optional:
+   * `kind` (which page this is: decides the big label, the fact, the object,
+   * the colour, and whether the photo is Staci or a room; unset = a custom
+   * page), `label` (overrides the big line; custom pages pass their nav label),
+   * `headline` (a custom page's last-resort label), `title` (a project's title),
+   * `line` (a short line of the page's own copy), `list` + `listHeading` (a
+   * checklist, e.g. the FAQ's topics), `role` (the small line on Staci's name
+   * tag), `image` (the page's own photo, used when the card shows a room).
+   * Staci's portrait is picked at build time from src/data/card-portraits.mjs.
    */
-  card?: { headline?: string | null; kicker?: string | null; image?: any; image2?: any; circle?: boolean };
+  card?: CardInput & { image?: any };
   /** Raw Sanity image object for a per-page social share override (seoImage on the page singleton). Resolved through the Sanity image pipeline to a 1200x630 OG URL. Lower priority than ogImage, higher than the siteSettings default. */
   seoImage?: any;
   /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
@@ -112,7 +116,7 @@ function cardPhoto(img: any): CardPhoto | null {
   try { return { src: urlFor(img).url(), hotspot: img.hotspot ?? null }; } catch { return null; }
 }
 
-// SHARE CARD (2026-09-29, design D). Priority:
+// SHARE CARD (2026-09-29; design F "the cover" since 2026-09-30). Priority:
 //   1. `ogImage` prop: a page that deliberately supplies its own share image.
 //   2. `seoImage`: the per-page override Staci sets in that page's SEO tab.
 //   3. The generated card at /og/<route>.png, drawn after the build by
@@ -130,19 +134,26 @@ const wantsCard = !explicitOg && !noindex;
 
 let cardSpec: CardSpec | null = null;
 if (wantsCard) {
-  const t = cleanCardTitle([card?.headline, title]);
-  const defaultKicker = `Interior design · ${siteSettings?.city || 'Plainfield'}, ${stateName(siteSettings?.state)}`;
-  const k = cleanKicker(card?.kicker || defaultKicker);
+  // The same facts the header price tag and the footer index print (memoized:
+  // one Sanity read per build). A failed read throws in a production build,
+  // like every other static read (CLAUDE.md rule 9).
+  const facts = resolveChromeFacts(await getChromeFacts());
+  const { warnings, ...content } = cardContent(card ?? {}, {
+    facts,
+    city: siteSettings?.city,
+    serviceRegion: siteSettings?.serviceRegion,
+    owner: site.owner,
+    seoTitle: title,
+  });
   cardSpec = {
-    v: 1,
+    v: 2,
     out: ogCardPath(Astro.url.pathname),
     route: Astro.url.pathname,
-    title: t.title,
-    kicker: k.kicker,
-    photos: [cardPhoto(card?.image), cardPhoto(card?.image2)].filter((p): p is CardPhoto => !!p),
-    circle: Boolean(card?.circle || card?.image2),
+    ...content,
+    photos: [cardPhoto(card?.image)].filter((p): p is CardPhoto => !!p),
+    doodle: doodlesForPage(Astro.url.pathname, 1)[0] ?? 'olive-sprig',
     fallback: globalOg,
-    warnings: [...t.warnings, ...k.warnings],
+    warnings,
   };
 }
 const resolvedOg = explicitOg ?? cardSpec?.out ?? fallbackOg;
