@@ -257,7 +257,7 @@ describe('the script accent', () => {
     }
   });
 
-  it('the home page’s three own pairs are declared, headline then accent', () => {
+  it('the home page’s own pairs are declared, headline then accent', () => {
     for (const [heading, accent] of Object.entries(DOC_ACCENT_PAIRS)) {
       if (heading === 'heroHeadline') continue; // that pair lives on all 14 docs
       const at = HOME_PAGE.indexOf(`name: '${accent}',`);

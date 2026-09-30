@@ -13,10 +13,11 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 3. Featured Work (auto-populated — hero project + companion panel; visual proof, the hook)
 4. Kind Words (1 featured testimonial + 6 grid testimonials; social proof, early)
 5. How It Works (4-step process preview, CTA to Process)
-6. How Reid Design Can Help (4 services with prices, CTA to Contact)
-7. Service area cue line (Plainfield-first)
-8. Final CTA (full-bleed)
-9. Footer
+6. The concept room (2026-09-30: a labelled, AI-generated sample room whose furniture moves into place piece by piece as you scroll, with a WebGL paint deck for the walls; the `roomStory` marker, auto-placed here; renders nothing until `src/assets/room/` has its frames)
+7. How Reid Design Can Help (4 services with prices, CTA to Contact)
+8. Service area cue line (Plainfield-first)
+9. Final CTA (full-bleed)
+10. Footer
 
 (The Featured Journal and press-strip sections that sat between Services and the service-area cue were removed on 2026-09-30 with the journal and press. Their marker values, `featuredJournal` and `press`, stay in the `homeSectionMarker` option list titled "(retired, renders nothing)", because Sanity turns an `options.list` into a hard `valid()` rule and the rows already stored on the home page would otherwise fail validation and block publishing. `HomeSectionRenderer` draws nothing for them and `HOME_DEFAULT_ORDER` leaves them out. The About page's `press` marker is handled the same way.)
 
@@ -59,7 +60,7 @@ The library is consumed in three ways:
 
 1. **Author-it-yourself custom pages** — the `page` doc type. Staci creates an entirely new page from the library, sets a slug (reserved-route collision guard at schema + `getStaticPaths`), and optionally adds it to the nav/footer. Served by `src/pages/[slug].astro` (the reserved-slug filter lives INSIDE `getStaticPaths`, per the Astro isolated-scope gotcha). Nav injection flows `getNavPages()` → `BaseLayout` → Header/Footer.
 
-2. **Marker-retrofitted standard pages** — Home, About, Services, Process and E-Design each have a `pageBuilder` array of `<page>SectionMarker` blocks (one object type with a `section` enum dropdown) rendered by a per-page `<Page>SectionRenderer.astro`. Each marker maps to the existing section component reading the page's UNCHANGED fields, so reordering/hiding built-in sections and inserting library blocks between them needs zero content migration. A General library block dropped between markers delegates to `SectionRenderer`. A marker value added after the layouts were saved (About `kindWords`, Home `instagram`, 2026-09-30) is inserted by `placeMarker()` in `src/lib/auto-marker.ts` when the stored layout lacks it, and hidden by its own "Show" switch rather than by deleting the row (CLAUDE.md rule 13).
+2. **Marker-retrofitted standard pages** — Home, About, Services, Process and E-Design each have a `pageBuilder` array of `<page>SectionMarker` blocks (one object type with a `section` enum dropdown) rendered by a per-page `<Page>SectionRenderer.astro`. Each marker maps to the existing section component reading the page's UNCHANGED fields, so reordering/hiding built-in sections and inserting library blocks between them needs zero content migration. A General library block dropped between markers delegates to `SectionRenderer`. A marker value added after the layouts were saved (About `kindWords`, Home `instagram` and `roomStory`, 2026-09-30) is inserted by `placeMarker()` in `src/lib/auto-marker.ts` when the stored layout lacks it, and hidden by its own "Show" switch rather than by deleting the row (CLAUDE.md rule 13).
 
 3. **"Extra sections" append zone on the remaining standard pages** — the four pages that aren't marker-retrofitted (`faqPage`, `contactPage`, `privacyPage`, `portfolioPage`) each expose an optional `additionalSections` array (shared `additionalSectionsField` helper from `sections.ts`, under an "Extra sections" field group). It's projected with `sectionsProjection('additionalSections')` and rendered by a second `<SectionRenderer sections={page?.additionalSections} idPrefix="…-extra">` placed above the final CTA (faq) or at the page tail (contact, privacy, portfolio). Empty array = the page is byte-for-byte unchanged.
 

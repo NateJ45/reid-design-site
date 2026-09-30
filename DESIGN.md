@@ -156,6 +156,8 @@ no decorative numbering.
 - `home/TapeProcess.astro`: steps hanging off a tape measure that pulls out on
   scroll, each marked by its time estimate in Zodiak italic; a vertical ruler
   on phones.
+- `home/RoomStory.astro` + `home/RoomStage.astro` (2026-09-30): the concept
+  room. See "The concept room" below.
 - `home/HomeWords.astro`: the ink band, one big italic quote, three loose ones.
   Since 2026-09-30 the Google rating hangs in its heading as a stamp, and rated
   Google reviews come first, newest first, each with Sandbar stars, the
@@ -164,8 +166,8 @@ no decorative numbering.
 - `FinalCta.astro` (every page): Walnut close, big headline, the logo's sprig
   drawing itself in behind.
 
-Home rhythm: Walnut hero, linen, ink, linen, paper, (Linen chip Instagram),
-linen, Walnut, ink footer.
+Home rhythm: Walnut hero, linen, ink, linen, (Linen chip concept room), paper,
+(Linen chip Instagram), linen, Walnut, ink footer.
 
 ## About (phase 2)
 
@@ -422,6 +424,64 @@ feed is connected.
 - 2 across on phones and 3 on tablets (six posts, so the grid ends square),
   4 across from 1024px (eight). Every print opens the post in a new tab and is
   named from its caption (hashtags dropped); the picture itself is `alt=""`.
+
+## The concept room (2026-09-30)
+
+`home/RoomStory.astro` (loads and checks) and `home/RoomStage.astro` (draws),
+on Home right after "How it works" (the `roomStory` marker). An AI-generated
+living room that starts EMPTY; as the visitor scrolls past short captions the
+furniture fades and MOVES into place piece by piece (trim, then the rug and
+sofa, tables and a lamp, curtains and a chair, art, styling). The pieces are
+RGBA cut-outs laid over one base photo, each with an optional multiply shade
+layer for its shadow, all from `src/assets/room/` (manifest v2, made by
+tools/room-lab); the component renders nothing until they exist.
+
+- **Ground:** Linen chip (chip 1), NOT a second ink band (Nathan,
+  2026-09-30): HomeWords stays the home page's one dark moment. TapeProcess
+  (linen) sits before it and PaintChips (paper) after, so it reads apart from
+  both.
+- **Honesty:** it is a CONCEPT room and must never read as Staci's portfolio.
+  A `.r-tag` sample tag on the picture reads "Concept room"; every frame's alt
+  opens "Concept image:" (`parseRoomManifest` refuses anything else); no town
+  or project names; no numbering (no "01", no "Stage 1", no counters). Each
+  stage's caption is led by a short Warm Bronze rule, not a numeral.
+- **Layout:** heading (RiseWords, italic accent) with the intro lede on the
+  right, the tape head's grid. Desktop: the room sticky on the left (7 of 12
+  columns, sized by screen height too so the chips fit), captions scrolling
+  past on the right, each about 80% of a screen tall. Phone: the room pins
+  under the header strip and the captions scroll beneath it; the chip deck is
+  one sideways scroll-snap row.
+- **Default render** (no script, or no scroll-driven animation support): every
+  piece in place, i.e. the FINISHED room with its tag, and every caption. The
+  deck is in the markup but hidden. Pieces are `alt=""`; the base photo and a
+  visually hidden live region (finished room, then each stage's caption) carry
+  the description.
+- **The paint deck:** a `fieldset` with the visible legend "Try a paint colour
+  on the walls", then paper chips (`button aria-pressed`, swatch plus visible
+  name, the house 2px ink focus outline). "As it is" first (its swatch is the
+  room's own wall colour), then the seven ramp tones, then Sage, Lake and
+  Clay. **Sage, Lake and Clay are wall-paint swatches only, never UI
+  colours** (Lake `#8b9ea3` and Clay `#b5785f` are PROPOSED, pending Nathan's
+  approval on the contact sheet). Warm Bronze appears as a swatch with its
+  name beside it, never text on it. The deck only appears once the WebGL
+  painter has drawn; the colour carries through every stage.
+- **Motion:** each piece arrives by its manifest `motion`: `sweep` (soft wipe),
+  `unroll` (rug), `slide-left`/`slide-right` (3% of the frame, fade, 1.015 to
+  1 settle), `rise`, `drop` (curtains, art), `pop` (styling); its shade sets
+  down in the last third. Scroll-driven CSS (a named view timeline per caption,
+  `timeline-scope` on the section) behind `@supports` and no-preference, as in
+  TapeProcess/ProcessSteps; stage k finishes as caption k reaches the reading
+  line (mid screen on a laptop, 70% down on a phone). Without support the
+  script builds the same stages with short transitions; under reduced motion,
+  instantly. A chip rolls its colour onto the walls from the left with a noisy
+  front (~900ms); the painter keeps the photo's own light and shadow (linear
+  light maths, `src/scripts/room-painter.ts`) and only ever paints the base
+  wall, so the pieces and their multiply shades sit correctly on any colour.
+  No WebGL: the base photo stays as it is and the chips stay hidden.
+- **WebGL on the home page** (Nathan, 2026-09-30) reverses the design
+  debate's "CSS/SVG only, no WebGL" and "no more craft devices" rulings for
+  this one section (addendum in `docs/design/2026-09-30-design-debate.md`).
+  Budget and loading rules are in `docs/agent/performance.md`.
 
 ## Motion
 

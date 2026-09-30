@@ -499,6 +499,14 @@ The latest posts from @reiddesignin, baked in at build time; build side in docs/
 - **Contact:** fixed, after "Where Staci works", unless `instagramFeedOnContact` is false.
 - **Any builder page:** the `instagramSection` library block ("Photos and video" group of the "+ Add section" menu). It fills itself, so it is in `SELF_FILLING_SECTIONS` and deliberately NOT in the section-coach registry; its optional `heading`/`subhead` override the site-wide words on that page. SectionRenderer treats it as self-surfaced (Linen chip ground).
 
+### The concept room (added 2026-09-30)
+
+The home page's labelled sample room (`src/components/home/RoomStory.astro`, DESIGN.md "The concept room"). Sanity holds only its words and its switch, in the home page's **Concept room** tab: `roomStoryShow` (boolean, unset = shown; "Untick to hide it"), `roomStoryHeadline` (blank = "Watch a room come together"), `roomStoryScriptAccent` (directly after the headline, in `DOC_ACCENT_PAIRS` and `NON_STEGA_FIELDS`; blank with a blank headline = "come together") and `roomStoryIntro` (blank = the built-in two sentences saying it is a concept room and what the chips do). `getHomePage()` projects all four.
+
+**Placement: a layout marker, plus a switch** (the Kind words / Instagram pattern, CLAUDE.md rule 13). `roomStory` is a `homeSectionMarker` value after `processPreview`; `HomeSectionRenderer` runs `placeMarker()` so a stored layout without the row gets it just after "How it works" (before whichever of services, instagram, serviceAreaCue, finalCta comes first), and `roomStoryShow === false` removes it. No content write is needed.
+
+**What is NOT in Sanity:** the pictures (base, finished room, furniture layers, shades, wall mask), the stage captions and the alt text. They live in `src/assets/room/manifest.json` (v2) and its files, written by tools/room-lab's publish script (`room:publish`), and change only with a commit. The component renders nothing until they exist, so the Show switch has no visible effect before then.
+
 ### Auto-populated lists
 
 Several pages pull their content from collections automatically rather than requiring per-page configuration. Examples:

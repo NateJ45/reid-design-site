@@ -13,6 +13,13 @@ const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   { value: 'featuredWork', title: 'Featured work' },
   { value: 'testimonials', title: 'Kind words (testimonials)' },
   { value: 'processPreview', title: 'How it works' },
+  // Added 2026-09-30: the concept room (a labelled sample room that fills up
+  // as the visitor scrolls, with paint chips that repaint its walls). A layout
+  // saved before this existed has no row for it; HomeSectionRenderer then
+  // places it just after "How it works", and Home > Concept room > "Show on
+  // the home page" turns it off. Renders nothing until the room's frames are
+  // published into src/assets/room/.
+  { value: 'roomStory', title: 'Concept room' },
   { value: 'services', title: 'Services + pricing' },
   // Retired 2026-09-30 (journal and press were removed). The two values stay
   // in the list because Sanity turns options.list into a hard `valid()` rule:
@@ -36,7 +43,7 @@ export const homeSectionMarker = defineType({
   type: 'object',
   icon: ComponentIcon,
   description:
-    "One of the Home page's built-in sections. Edit its words and photos in the matching tab above. Use this only to set the order, or remove it to hide that section (the Instagram feed is the exception: switch it off in Site settings). Note: the section order on Home is tuned for conversion, so reorder thoughtfully.",
+    "One of the Home page's built-in sections. Edit its words and photos in the matching tab above. Use this only to set the order, or remove the row to hide it (two exceptions: switch the Instagram feed off in Site settings, and the Concept room off in its own Concept room tab). Note: the section order on Home is tuned for conversion, so reorder thoughtfully.",
   fields: [
     defineField({
       name: 'section',

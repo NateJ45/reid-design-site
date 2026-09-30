@@ -122,3 +122,7 @@ What not to borrow: daily posting, video, product lines or a membership. Emily H
 - Will she take deposits for in-home visits, and what are her reschedule and refund terms?
 - Does she want Carmel, Fishers and Zionsville marketed actively, or should the west side come first in the copy?
 - Is she comfortable being the visible face of every page?
+
+## Addendum, 2026-09-30: WebGL on the home page
+
+Nathan chose to add "the concept room" to the home page: a labelled sample room that fills up as the visitor scrolls, with a WebGL paint deck that repaints its walls. That reverses two rulings above for this one section: the fan deck's "CSS/SVG only, with no WebGL", and "More craft devices" under what not to do. The guard rails that keep it honest and light: it is openly labelled a concept room (tag and alt text), it renders nothing until its frames exist, the painter is loaded only when the section is near and is under 12 KB gzipped, and without WebGL or scroll-driven animations or with reduced motion it degrades to a plain build (or simply the finished room). Details in DESIGN.md, "The concept room".

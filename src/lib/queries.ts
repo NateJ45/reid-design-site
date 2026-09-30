@@ -209,6 +209,12 @@ export async function getHomePage(c: SanityClient = client) {
     processPreviewHeadline,
     processPreviewSubhead,
     processPreviewCta${CTA_PROJECTION},
+    // Concept room (2026-09-30): words only; the frames come from
+    // src/assets/room/manifest.json.
+    roomStoryShow,
+    roomStoryHeadline,
+    roomStoryScriptAccent,
+    roomStoryIntro,
     testimonialsEyebrow,
     testimonialsHeadline,
     testimonialsScriptAccent,
