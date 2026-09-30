@@ -11,12 +11,16 @@ import { defineType, defineField } from 'sanity';
 import { ComponentIcon } from '@sanity/icons';
 import { SECTION_TYPES } from './sections';
 
-const ABOUT_SECTIONS = [
+const ABOUT_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   { value: 'hero', title: 'Hero (top of page)' },
   { value: 'story', title: 'My story' },
   { value: 'philosophy', title: 'Philosophy values' },
   { value: 'personal', title: 'Off the clock (personal)' },
-  { value: 'press', title: 'As seen in (press logos)' },
+  // Retired 2026-09-30 (press was removed). The value stays because Sanity
+  // turns options.list into a hard `valid()` rule: dropping it would flag the
+  // row already stored on the About page as an error and block publishing.
+  // AboutSectionRenderer renders nothing for it; ABOUT_DEFAULT_ORDER skips it.
+  { value: 'press', title: 'Press logos (retired, renders nothing)', retired: true },
   { value: 'stats', title: 'Numbers (stats)' },
   { value: 'finalCta', title: 'Closing call to action' },
 ];
@@ -52,7 +56,7 @@ export const ABOUT_SECTION_TYPES = [{ type: 'aboutSectionMarker' }, ...SECTION_T
 
 // Default order, matching today's About page. Used as the schema initialValue
 // and by the migration so the page renders identically out of the box.
-export const ABOUT_DEFAULT_ORDER = ABOUT_SECTIONS.map((s) => ({
+export const ABOUT_DEFAULT_ORDER = ABOUT_SECTIONS.filter((s) => !s.retired).map((s) => ({
   _type: 'aboutSectionMarker',
   _key: `about-${s.value}`,
   section: s.value,

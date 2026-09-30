@@ -32,30 +32,22 @@ export const SINGLETON_BY_SEGMENT: Readonly<Record<string, string>> = {
   process: 'processPage',
   services: 'servicesPage',
   'e-design': 'eDesignPage',
-  'gift-certificates': 'giftPage',
-  press: 'pressPage',
-  resources: 'resourcesPage',
   // BESPOKE pages: their middles are drawn in code, so they preview as their
   // editable surface (hero, extra sections, closing call to action).
   faq: 'faqPage',
   contact: 'contactPage',
-  journal: 'journalPage',
   portfolio: 'portfolioPage',
   privacy: 'privacyPage',
-  shop: 'shopPage',
   '404': 'notFoundPage',
 };
 
-/** The eight singletons whose layout is a pageBuilder array. */
+/** The five singletons whose layout is a pageBuilder array. */
 export const BUILDER_SINGLETON_TYPES: ReadonlySet<string> = new Set([
   'homePage',
   'aboutPage',
   'processPage',
   'servicesPage',
   'eDesignPage',
-  'giftPage',
-  'pressPage',
-  'resourcesPage',
 ]);
 
 /**
@@ -65,8 +57,6 @@ export const BUILDER_SINGLETON_TYPES: ReadonlySet<string> = new Set([
  */
 export const DETAIL_BY_SEGMENT: Readonly<Record<string, string>> = {
   portfolio: 'project',
-  journal: 'journalEntry',
-  guides: 'leadMagnet',
 };
 
 /** Second segments under a detail prefix that are real static pages, not slugs. */
@@ -77,8 +67,13 @@ const NOT_A_DETAIL_SLUG: Readonly<Record<string, ReadonlySet<string>>> = {
 /**
  * Every built-in first path segment. A custom page may not take one of these
  * as its slug (the `page` schema's validation imports this), and a single
- * segment in this list that is NOT a singleton above has no preview (quiz,
- * calculator and guides hold config or gated downloads, not page copy).
+ * segment in this list that is NOT a singleton above has no preview.
+ *
+ * The eight segments marked "retired" belonged to the sections removed on
+ * 2026-09-30 (journal, shop, gift certificates, quiz, calculator, resources,
+ * guides, press). They STAY reserved: public/_redirects forwards each one,
+ * and a redirect rule wins over a page, so a custom page given one of these
+ * slugs would never be seen. Mirrored in src/pages/[slug].astro.
  */
 export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   'about',
@@ -87,15 +82,15 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   'portfolio',
   'faq',
   'contact',
-  'journal',
+  'journal', // retired
   'e-design',
-  'shop',
-  'gift-certificates',
-  'quiz',
-  'calculator',
-  'resources',
-  'guides',
-  'press',
+  'shop', // retired
+  'gift-certificates', // retired
+  'quiz', // retired
+  'calculator', // retired
+  'resources', // retired
+  'guides', // retired
+  'press', // retired
   'privacy',
   'search',
   'pagefind',

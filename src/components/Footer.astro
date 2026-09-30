@@ -10,12 +10,13 @@
 //
 // Structure (top to bottom):
 //   1. Bronze accent stripe
-//   2. Optional newsletter signup (only when siteSettings.newsletter.enabled)
-//   3. Compact brand bar: logo + tagline side by side (one short row, not a
+//   2. Compact brand bar: logo + tagline side by side (one short row, not a
 //      tall stacked block) so the footer stays roughly half its old height.
-//   4. Five-column link grid: Studio / Work / Free tools / Latest projects /
-//      Get in touch (email, phone, location, socials).
-//   5. Thin bottom bar: auto-year copyright, privacy link, optional "Site
+//   3. Link grid: Studio / Work / Latest projects / Get in touch (email,
+//      phone, location, socials). The "Free tools & guides" column and the
+//      newsletter signup band were removed on 2026-09-30 with the sections
+//      they linked to.
+//   4. Thin bottom bar: auto-year copyright, privacy link, optional "Site
 //      by..." credit, all on one line.
 //
 // Tailwind v4 gotcha: max-w-xs/s/m/l are shadowed by this project's custom
@@ -28,9 +29,8 @@
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
-import { Mail, Phone } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import CopyEmailButton from '@/components/CopyEmailButton';
-import NewsletterSignup from '@/components/NewsletterSignup';
 import FooterBrand from '@/components/FooterBrand.astro';
 import { getAllProjects } from '@/lib/queries';
 import logoLightAsset from '@/assets/logo-light.png';
@@ -51,17 +51,6 @@ const footerLogoDark2x = await getImage({ src: logoDarkAsset, format: 'webp', wi
 const footerLogoLightSrcset = `${footerLogoLight1x.src} 1x, ${footerLogoLight2x.src} 2x`;
 const footerLogoDarkSrcset = `${footerLogoDark1x.src} 1x, ${footerLogoDark2x.src} 2x`;
 
-interface NewsletterConfig {
-  enabled?: boolean;
-  heading?: string;
-  blurb?: string;
-  buttonLabel?: string;
-  successMessage?: string;
-  consentNote?: string;
-  formActionUrl?: string | null;
-  audienceId?: string | null;
-}
-
 interface Props {
   siteSettings?: {
     title?: string;
@@ -76,22 +65,13 @@ interface Props {
     tagline?: string;
     footerCredit?: string;
     footerCreditUrl?: string;
-    newsletter?: NewsletterConfig | null;
     /** Chrome options (see src/lib/siteSettings.ts). Empty keeps the built-ins. */
     footerColumns?: RawFooterColumn[] | null;
     legalNav?: (RawNavLink | null)[] | null;
     showFooterSocials?: boolean | null;
     sectionVisibility?: {
       showPortfolio?: boolean | null;
-      showJournal?: boolean | null;
-      showShop?: boolean | null;
       showEDesign?: boolean | null;
-      showGiftCertificates?: boolean | null;
-      showPress?: boolean | null;
-      showResources?: boolean | null;
-      showGuides?: boolean | null;
-      showStyleQuiz?: boolean | null;
-      showBudgetCalculator?: boolean | null;
     } | null;
   } | null;
   navPages?: NavPage[];
@@ -115,8 +95,8 @@ const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 // Per-column "has any visible link" flags. A column whose every link is toggled
 // off should drop out entirely (heading included) rather than leave a dangling
 // title with nothing under it. Studio and Get-in-touch always have content
-// (core pages / contact details), so only Work, Free tools, and Latest projects
-// are conditional.
+// (core pages / contact details), so only Work and Latest projects are
+// conditional (both follow the portfolio switch).
 // Editor-managed chrome. `footerColumns` is opt-in: when Staci has filled it
 // in, HER columns replace the four built-in link columns wholesale (Get in
 // touch always stays, it is contact details rather than a menu). Empty — the
@@ -124,12 +104,7 @@ const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 const chrome = resolveChrome(siteSettings);
 const editorColumns = chrome.footerColumns;
 
-const showWork =
-  !editorColumns &&
-  (visible.portfolio || visible.journal || visible.shop || visible.giftCertificates);
-const showTools =
-  !editorColumns &&
-  (visible.styleQuiz || visible.budgetCalculator || visible.guides || visible.resources);
+const showWork = !editorColumns && visible.portfolio;
 const showLatest = !editorColumns && visible.portfolio;
 
 // Count the columns that actually render so the grid balances at lg and the
@@ -137,7 +112,7 @@ const showLatest = !editorColumns && visible.portfolio;
 // (Tailwind needs the full class strings present in source, hence the literal map.)
 const colCount = editorColumns
   ? editorColumns.length + 1
-  : 2 + (showWork ? 1 : 0) + (showTools ? 1 : 0) + (showLatest ? 1 : 0);
+  : 2 + (showWork ? 1 : 0) + (showLatest ? 1 : 0);
 const lgColsClass =
   { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' }[
     colCount
@@ -194,25 +169,8 @@ const latestProjects = allProjects.slice(0, 3);
   {/* Brand accent stripe — matches header + mobile drawer. */}
 
   {
-    /* Newsletter signup — renders only when siteSettings.newsletter.enabled is
-       true. Island hydrates when scrolled into view. */
-  }
-  {
-    siteSettings?.newsletter?.enabled && (
-      <div class="mx-auto max-w-content border-b border-border px-m pt-l pb-m">
-        <NewsletterSignup
-          client:visible
-          newsletter={siteSettings.newsletter}
-          source="footer"
-          compact
-        />
-      </div>
-    )
-  }
-
-  {
-    /* Link columns. Up to five: Studio / Work / Free tools / Latest projects /
-       Get in touch (contact details). Single centered column on mobile.
+    /* Link columns. Up to four: Studio / Work / Latest projects / Get in
+       touch (contact details). Single centered column on mobile.
        With 4+ visible columns this is an even grid; when toggles leave only a
        couple of columns it becomes a balanced "nav | brand | contact" flex row
        (see brandInline) so it never strands two columns with a big gap. */
@@ -281,13 +239,6 @@ const latestProjects = allProjects.slice(0, 3);
                 FAQ
               </a>
             </li>
-            {visible.press && (
-              <li>
-                <a href="/press" class="text-foreground/85 transition-colors hover:text-link">
-                  Press
-                </a>
-              </li>
-            )}
             {footerPages.map((p) => (
               <li>
                 <a href={`/${p.slug}`} class="text-foreground/85 transition-colors hover:text-link">
@@ -322,71 +273,6 @@ const latestProjects = allProjects.slice(0, 3);
                   class="text-foreground/85 transition-colors hover:text-link"
                 >
                   Before &amp; After
-                </a>
-              </li>
-            )}
-            {visible.journal && (
-              <li>
-                <a href="/journal" class="text-foreground/85 transition-colors hover:text-link">
-                  Journal
-                </a>
-              </li>
-            )}
-            {visible.shop && (
-              <li>
-                <a href="/shop" class="text-foreground/85 transition-colors hover:text-link">
-                  Shop
-                </a>
-              </li>
-            )}
-            {visible.giftCertificates && (
-              <li>
-                <a
-                  href="/gift-certificates"
-                  class="text-foreground/85 transition-colors hover:text-link"
-                >
-                  Gift Certificates
-                </a>
-              </li>
-            )}
-          </ul>
-        </nav>
-      )
-    }
-
-    {/* FREE TOOLS & GUIDES — only when at least one of its links is visible. */}
-    {
-      showTools && (
-        <nav aria-labelledby="footer-tools">
-          <p id="footer-tools" class="mb-s font-display text-xl text-foreground">
-            Free tools &amp; guides
-          </p>
-          <ul class="list-none space-y-2 p-0 text-sm">
-            {visible.styleQuiz && (
-              <li>
-                <a href="/quiz" class="text-foreground/85 transition-colors hover:text-link">
-                  Style Quiz
-                </a>
-              </li>
-            )}
-            {visible.budgetCalculator && (
-              <li>
-                <a href="/calculator" class="text-foreground/85 transition-colors hover:text-link">
-                  Cost Calculator
-                </a>
-              </li>
-            )}
-            {visible.guides && (
-              <li>
-                <a href="/guides" class="text-foreground/85 transition-colors hover:text-link">
-                  Guides
-                </a>
-              </li>
-            )}
-            {visible.resources && (
-              <li>
-                <a href="/resources" class="text-foreground/85 transition-colors hover:text-link">
-                  Resources
                 </a>
               </li>
             )}

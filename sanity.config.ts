@@ -298,12 +298,6 @@ const ARCHIVABLE_TYPES = new Set<string>([
   'testimonial',
   'faqItem',
   'project',
-  'journalEntry',
-  'journalCategory',
-  'leadMagnet',
-  'pressItem',
-  'shopCollection',
-  'shopItem',
 ]);
 
 // Singleton document types — one instance each, not duplicable.
@@ -317,17 +311,10 @@ const SINGLETON_TYPES = new Set<string>([
   'portfolioPage',
   'faqPage',
   'contactPage',
-  'journalPage',
   'notFoundPage',
   // New singletons (Phase 1)
   'eDesignPage',
-  'shopPage',
-  'giftPage',
-  'resourcesPage',
   'privacyPage',
-  'pressPage',
-  'styleQuiz',
-  'budgetCalculator',
   'studioGuide',
   'studioNotes',
   'studioPlaybook',

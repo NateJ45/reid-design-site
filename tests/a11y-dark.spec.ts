@@ -65,9 +65,8 @@ test.describe('Light only: a stored dark preference still renders light and pass
 // This asserts the indicator EXISTS. Its contrast is pinned separately, and
 // far more cheaply, by src/lib/theme-tokens.test.ts (the `--ring` pair).
 //
-// /contact is the one prerendered route with a form. The lead-magnet form
-// lives on /guides/[slug], which builds no pages until a guide is published;
-// add that route here when one does.
+// /contact is the one prerendered route with a form. (The lead-magnet form on
+// /guides/[slug] went with the guides on 2026-09-30.)
 // =============================================================================
 
 const FORM_ROUTES = ['/contact'];

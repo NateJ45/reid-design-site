@@ -78,13 +78,13 @@ If the webhook currently has no filter or uses an allow-list, replace the filter
 
 ### Phased launch: turning sections on and off
 
-The site has a section visibility system that lets you launch now and finish sections like the shop, portfolio, or press page later, without leaving half-built pages on the live site.
+The site has a section visibility system that lets you launch now and finish sections like the portfolio or E-Design later, without leaving half-built pages on the live site.
 
 **How to turn a section off:**
 
 1. Open the Studio and click "Site Settings" in the left sidebar.
 2. Click the "Section visibility" tab at the top of the document.
-3. Find the toggle for the section you want to hide (Portfolio, Journal, Shop, E-Design, Gift Certificates, Press, Resources, Guides, Style Quiz, Budget Calculator).
+3. Find the toggle for the section you want to hide (there are two: Portfolio and E-Design).
 4. Flip it off.
 5. Click the blue Publish button.
 6. The site rebuilds in about 1 to 3 minutes. Once live, the section disappears from the menu, footer, homepage, and its own page, which redirects visitors to the home page instead.
@@ -96,15 +96,17 @@ The site has a section visibility system that lets you launch now and finish sec
 - Core pages (Home, About, Process, Services, FAQ, Contact, Privacy, 404) are not toggleable and are always live.
 - The individual item detail pages (like `/portfolio/someproject`) also disappear when the parent section is off. The build skips generating those pages entirely, so they 404 cleanly.
 
-**Why this is useful:** it lets you launch the site while a section is still being built, without pressure to finish everything at once. Common patterns: launch with portfolio off while Staci photographs the first projects, turn on shop once affiliate links are confirmed, hide press until there are real press items.
+**Why this is useful:** it lets you launch the site while a section is still being built, without pressure to finish everything at once. Common pattern: launch with portfolio off while Staci photographs the first projects.
+
+**Retired 2026-09-30:** the other eight toggles (`showJournal`, `showShop`, `showGiftCertificates`, `showPress`, `showResources`, `showGuides`, `showStyleQuiz`, `showBudgetCalculator`) still exist in the schema as hidden, read-only fields and do nothing. The sections they controlled were removed from the site (never launched); their old URLs 301 in `public/_redirects`.
 
 ### Scheduled publishing (for Staci)
 
-Sanity supports scheduling a document to go live at a future date and time. Use this for journal posts or projects you want to publish during business hours, or to line up content in advance.
+Sanity supports scheduling a document to go live at a future date and time. Use this for projects you want to publish during business hours, or to line up content in advance.
 
 **How to schedule a publish:**
 
-1. Open the project or journal post you want to schedule.
+1. Open the project you want to schedule.
 2. Click the small arrow (chevron) to the right of the blue Publish button in the bottom bar.
 3. Choose "Schedule publish" from the menu that appears.
 4. Pick the date and time you want the document to go live. Times are local to your browser.
@@ -162,9 +164,10 @@ The site build can run any time after step 1. The Studio deploy (step 3) is what
 Seed scripts bootstrap document types with placeholder content. Run them any time you need to re-seed a blank dataset or reset a field group to starters.
 
 ```bash
-# Seeds: styleQuiz config, budgetCalculator config, leadMagnet docs,
-#        shopPage/shopCollection/shopItem starters, eDesignPage, giftPage,
-#        pressPage/pressItem docs, resourcesPage, contactPage.postInquiryRoadmap
+# Seeds: eDesignPage, privacyPage, siteSettings reviews fields,
+#        contactPage.postInquiryRoadmap, testimonials
+#        (the quiz/calculator/lead-magnet/shop/gift/press/resources seeding was
+#        removed 2026-09-30 with those sections)
 node scripts/seed-conversion-content.mjs
 
 # Seeds: section-heading and finalCta scriptAccent fields on all page singletons
@@ -183,11 +186,8 @@ All four scripts are idempotent. `seed-conversion-content.mjs` and `seed-script-
 
 **Important: the seeded content is placeholder.** The DNS cutover has happened, so anything below that was not replaced is live. Replace:
 
-- Press items (outlet names, quotes, logo images, URLs) — fabricated in the seed
 - E-Design pricing tiers and what's-included lists — placeholder numbers
-- Shop affiliate URLs — dummy links; replace with real ShopMy/LTK/direct URLs
 - Testimonials tagged `sourceType: 'google'` in the seed — verify these are real reviews from Google
-- Guide PDFs on each `leadMagnet.file` — upload the real downloadable files
 - About personal section (`seed-about-personal.mjs`): placeholder text. Staci should fill in her real "Currently," rapid fire answers, local spots, and beyond-design paragraph in Studio
 - Start Here guide and business notes (`seed-studio-guide.mjs`): seeded from the original hardcoded content. Staci or Nathan can update them in Studio at any time without a code change
 
@@ -215,45 +215,32 @@ Weekly (Mondays 09:15 UTC) and on demand: GitHub > Actions > **Link health** > R
 
 All prerendered routes as of the conversion build (May 2026):
 
-| Path                      | Notes                                                           |
-| ------------------------- | --------------------------------------------------------------- |
-| `/`                       | Home                                                            |
-| `/about`                  | About                                                           |
-| `/process`                | Process + step FAQs                                             |
-| `/services`               | Services listing                                                |
-| `/faq`                    | FAQ grouped by category                                         |
-| `/contact`                | Contact form + Calendly + post-inquiry roadmap                  |
-| `/portfolio`              | Project grid with Room x Style filter chips                     |
-| `/portfolio/[slug]`       | Project detail                                                  |
-| `/portfolio/before-after` | All projects with before/after pairs                            |
-| `/journal`                | Journal/blog index                                              |
-| `/journal/[slug]`         | Post detail                                                     |
-| `/e-design`               | E-Design offering page                                          |
-| `/shop`                   | Affiliate "Shop My Favorites" (FTC disclosure included)         |
-| `/gift-certificates`      | Gift certificate info (routes to /contact for fulfillment)      |
-| `/quiz`                   | Multi-step style quiz                                           |
-| `/calculator`             | Budget estimate calculator                                      |
-| `/resources`              | Resources hub (links to quiz, calculator, guides, FAQ, journal) |
-| `/guides`                 | Lead-magnet index                                               |
-| `/guides/[slug]`          | Lead-magnet landing + gated download                            |
-| `/press`                  | Press coverage list + logo strip                                |
-| `/privacy`                | Privacy policy                                                  |
-| `/search`                 | Site search (Pagefind index, noindex, header + 404 entry)       |
-| `/404`                    | Custom 404                                                      |
-| `/sitemap-index.xml`      | Auto-generated by @astrojs/sitemap                              |
+| Path                      | Notes                                                     |
+| ------------------------- | --------------------------------------------------------- |
+| `/`                       | Home                                                      |
+| `/about`                  | About                                                     |
+| `/process`                | Process + step FAQs                                       |
+| `/services`               | Services listing                                          |
+| `/faq`                    | FAQ grouped by category                                   |
+| `/contact`                | Contact form + Calendly + post-inquiry roadmap            |
+| `/portfolio`              | Project grid with Room x Style filter chips               |
+| `/portfolio/[slug]`       | Project detail                                            |
+| `/portfolio/before-after` | All projects with before/after pairs                      |
+| `/e-design`               | E-Design offering page                                    |
+| `/privacy`                | Privacy policy                                            |
+| `/search`                 | Site search (Pagefind index, noindex, header + 404 entry) |
+| `/404`                    | Custom 404                                                |
+| `/sitemap-index.xml`      | Auto-generated by @astrojs/sitemap                        |
 
-The nav uses grouped dropdowns: **Services** (Services, E-Design, Process, Gift Certificates) and **Resources** (Style Quiz, Cost Calculator, Guides, FAQ, Journal). "Contact" is the CTA pill in the header, not a nav link.
+The nav uses grouped dropdowns: **Services** (Services, E-Design, Process) and **Resources** (FAQ, Before & After when portfolio is on, plus any custom page placed "Under Resources"; when FAQ would be its only link it renders as a plain top-level "FAQ" link). "Contact" is the CTA pill in the header, not a nav link.
+
+Removed 2026-09-30 (never launched): `/journal`, `/shop`, `/quiz`, `/calculator`, `/guides`, `/press`, `/gift-certificates`, `/resources`. `public/_redirects` 301s them (journal and guides to `/`, shop to `/`, quiz and calculator to `/services/`, press to `/about/`, gift certificates to `/contact/`, resources to `/faq/`), pinned by `src/lib/retired-redirects.test.ts`.
 
 ---
 
-## New env var: PUBLIC_NEWSLETTER_FORM_ACTION
+## Retired env vars: PUBLIC_NEWSLETTER_FORM_ACTION, NEWSLETTER_API_KEY
 
-The newsletter signup now supports a build-time ESP form-action override for staging environments where the URL cannot live in Sanity.
-
-- `PUBLIC_NEWSLETTER_FORM_ACTION` (optional) — the ESP embeddable form-action URL. When set at build time, it takes lower priority than `siteSettings.newsletter.formActionUrl` (the Sanity field wins). Falls back to Web3Forms when neither is set.
-- The newsletter card only renders when `siteSettings.newsletter.enabled` is true AND a form-action URL exists (via Sanity or this env var).
-
-Set it in Cloudflare Workers settings under Variables if needed for a staging branch.
+Removed 2026-09-30 (never launched): the newsletter signup was taken out of the site (footer band, `NewsletterSignup.tsx`, `src/lib/subscribe.ts`). These two env vars are no longer read; delete them from Cloudflare Workers Variables if they are set. `siteSettings.newsletter` remains in the schema as a hidden, read-only retired field.
 
 ---
 
@@ -264,17 +251,13 @@ Written as the pre-cutover gate. **DNS has since been cut over** (reiddesignllc.
 **Replace placeholder content (seeded during build):**
 
 - [ ] **Delete the three sample projects** (`project.plainfieldFamilyRoom`, `project.fishersKitchenStyling`, `project.zionsvilleMasterBedroom`) from Studio, or replace them with real case studies. Seeded by `scripts/seed-placeholder-content.mjs`, they ship with no photos and read like real Plainfield-area work, so they become the live portfolio by default if left in. They are now prefixed `[SAMPLE: delete before launch]` in the seeder, and after the schema guardrails deploy they also fail validation (no photos, blank brief/call), which makes them easy to spot.
-- [ ] Replace fabricated press items with real outlets, real quotes, real logo images
 - [ ] Fill `eDesignPage` pricing tiers with Staci's actual numbers and what's-included copy
-- [ ] Replace dummy shop affiliate URLs with real ShopMy / LTK / direct vendor links; confirm FTC disclosure copy reads correctly
-- [ ] Upload real guide PDFs to each `leadMagnet.file` and toggle `published` on
 - [ ] Verify Google-tagged testimonials are pulled from Staci's real Google Business reviews
 - [ ] **About personal section**: Staci fills in her real content via Studio (currently list, rapid fire answers, local spots, beyond-design paragraph, candid photo). Section self-hides if left empty, so this is not a blocker, but it's a nice human touch early.
 - [ ] **Start Here guide + business notes**: review the seeded `studioGuide` and `studioNotes` content in Studio and update any copy that no longer matches the real site or Staci's current workflow. Nathan edits these directly in Studio. No code change needed.
 
 **Wire external services:**
 
-- [ ] ESP account created; set `siteSettings.newsletter.formActionUrl` and flip `siteSettings.newsletter.enabled` on
 - [ ] Web3Forms autoresponder enabled in the Web3Forms dashboard (visitor confirmation email)
 - [ ] `PUBLIC_CALENDLY_URL` env var set to Staci's real Calendly link
 - [ ] `siteSettings.googleBusinessUrl` set to the real Google Business profile URL
@@ -284,12 +267,6 @@ Written as the pre-cutover gate. **DNS has since been cut over** (reiddesignllc.
 
 - [ ] Lighthouse: Performance 95+, Accessibility 100, Best Practices 100, SEO 100 on `reiddesignllc.com` (now served by the Cloudflare Worker)
 - [ ] Contact form test submission reaches Staci's inbox
-- [ ] Newsletter capture test submission reaches the ESP subscriber list
-- [ ] Guide gated download works end-to-end (form submit, PDF link appears)
-- [ ] Style quiz completes to a result and captures email if gate is enabled
-- [ ] Budget calculator shows an estimate; email-me flow works if enabled
-- [ ] All shop items link to real vendor pages in a new tab with `rel="sponsored nofollow noopener"`
-- [ ] Press strip logo row renders on `/`, `/about`, and `/press`
 - [ ] Sitemap submitted to Google Search Console
 
 ---
@@ -336,7 +313,7 @@ Then `node scripts/your-script.mjs`.
 - `scripts/patch-project-introstory-headings.mjs` — walks every project, inserts h2 blocks, skips any that already have headings.
 - `scripts/seed-portfolio-and-404-singletons.mjs` — `createOrReplace` if doc doesn't exist, `setIfMissing` if it does.
 - `scripts/inspect-homepage-copy.mjs` — read-only audit that prints which `homePage` copy fields are populated vs. empty (i.e. which render live Sanity content vs. fall back to the code defaults in `index.astro`). Run this _first_ before changing home page copy, so you know whether an edit needs a Sanity patch or just a code fallback change.
-- `scripts/patch-homepage-conversion-copy.mjs` — the home page copy enrichment pass. Mixes `set()` (overwrite genuinely-thin existing fields like the Services + Final CTA subheads) with `setIfMissing()` (seed new/empty fields like the Process + Testimonials subheads and the Featured Work/Journal copy). Dry-run by default; `--apply` to write. A good template for "rewrite some live copy, seed the rest" jobs.
+- `scripts/patch-homepage-conversion-copy.mjs` — the home page copy enrichment pass. Mixes `set()` (overwrite genuinely-thin existing fields like the Services + Final CTA subheads) with `setIfMissing()` (seed new/empty fields like the Process + Testimonials subheads and the Featured Work copy). Dry-run by default; `--apply` to write. A good template for "rewrite some live copy, seed the rest" jobs.
 
 **Key gotcha when editing existing page copy:** most `homePage` fields already have Sanity content, so changing a code fallback in `index.astro` does NOT change the live site — the Sanity value wins. To change displayed copy on a populated field you must patch Sanity (see the script above). Only genuinely-empty fields render their code fallback. `inspect-homepage-copy.mjs` tells you which is which.
 
@@ -420,7 +397,7 @@ See commits `bd74083` (`Header polish + make hero accents…`) and `7b0f2b7` (Sa
 
 ### Add an "Extra sections" zone to another page
 
-If a page singleton should let Staci append library blocks (a banner, gallery, CTA, etc.) to the bottom, it takes five small steps — the pattern used on faq/contact/privacy/journal/portfolio:
+If a page singleton should let Staci append library blocks (a banner, gallery, CTA, etc.) to the bottom, it takes five small steps — the pattern used on faq/contact/privacy/portfolio:
 
 1. In `studio/schemaTypes/<page>.ts`: `import { additionalSectionsField } from './sections';`, add `{ name: 'extra', title: 'Extra sections' }` to `groups`, and add `additionalSectionsField,` as the last entry in `fields`.
 2. In `src/lib/queries.ts` → `get<Page>()`: add `${sectionsProjection('additionalSections')},` to the projection (it resolves images + cta blocks per block type).
@@ -456,13 +433,13 @@ For full-field annotations (where the entire field IS the bracketed placeholder)
 | Logo renders squished (e.g. 42×100 instead of 95×100)                                                                  | width/height attributes on the `<img>` don't match the actual file dimensions                                                             | Make sure `<Image width={X} height={Y}>` (or the data-attribute URL pre-render) uses dimensions matching the source's intrinsic aspect ratio (378:400 for the current Reid Design logo).                                                                                  |
 | `text-link` className override on white BG doesn't work                                                                | Tailwind v4 sorts utilities alphabetically; `text-link` beats `text-bg` later in the cascade                                              | Add a component prop (like `CtaLink`'s `onDark`) instead of trying to override via className.                                                                                                                                                                             |
 | Eyebrow text fails Lighthouse contrast on light mode                                                                   | `text-foreground/65` on Soft Linen = ~3.6:1 (fails AA)                                                                                    | Bump to `text-foreground/80` (~5.4:1, passes). The codebase has been swept; don't add new `/65` instances on muted/background surfaces.                                                                                                                                   |
-| TOC sidebar empty on portfolio/journal post                                                                            | No h2/h3/h4 in the body                                                                                                                   | Add headings in Sanity. `extractHeadings()` only sees those three levels.                                                                                                                                                                                                 |
-| Hero image takes up "more than the viewport"                                                                           | Portrait image rendering at full column width                                                                                             | Portrait detection in `PortableText.tsx` + `JournalPortableText.tsx` should cap at `max-w-[600px]`. Verify the asset `_ref` includes the `{W}x{H}` segment so `parseSanityAssetDimensions` can read it.                                                                   |
+| TOC sidebar empty on portfolio project                                                                                 | No h2/h3/h4 in the body                                                                                                                   | Add headings in Sanity. `extractHeadings()` only sees those three levels.                                                                                                                                                                                                 |
+| Hero image takes up "more than the viewport"                                                                           | Portrait image rendering at full column width                                                                                             | Portrait detection in `PortableText.tsx` should cap at `max-w-[600px]`. Verify the asset `_ref` includes the `{W}x{H}` segment so `parseSanityAssetDimensions` can read it.                                                                                               |
 | Playwright `fullPage` screenshot of home page is mostly blank                                                          | `[data-reveal]` elements start at `opacity: 0` until the IntersectionObserver fires; headless captures them mid-state                     | `page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-visible')))` before screenshot.                                                                                                                                        |
-| Hero overlay text on FeaturedWork / FeaturedJournal title cut off at top of image on mobile                            | Bottom-anchored absolute overlay is taller than a wide-aspect image; `overflow-hidden` clips the overflow above the image                 | Use a portrait aspect (4/5 or taller) on mobile for any image with bottom-anchored overlay text. See `heroAspectClass` in `FeaturedWork.astro` / `FeaturedJournal.astro`.                                                                                                 |
+| Hero overlay text on FeaturedWork title cut off at top of image on mobile                                              | Bottom-anchored absolute overlay is taller than a wide-aspect image; `overflow-hidden` clips the overflow above the image                 | Use a portrait aspect (4/5 or taller) on mobile for any image with bottom-anchored overlay text. See `heroAspectClass` in `FeaturedWork.astro`.                                                                                                                           |
 | First page load after `npm run dev` blows up with "Invalid hook call" + 404s on `/node_modules/.vite/deps/audit-...js` | Vite mid-re-optimizing dependencies on first navigation; React SSR runs against a stale deps cache                                        | Reload once. Subsequent navigations work. Not a code bug.                                                                                                                                                                                                                 |
 | `astro dev` server shows "An error occurred. require is not defined" (worker stack trace)                              | A dependency (Astro core or the Cloudflare adapter) was installed while the dev server was already running, so its worker runner is stale | Restart the dev server. The production `npm run build` is unaffected. Seen during the June 2026 Astro 6.4 / Sanity 6 upgrades.                                                                                                                                            |
-| Featured Work / Journal section shows wrong project as the hero                                                        | Falling back to date-based default                                                                                                        | Toggle `featured: true` on the project / journal entry Staci wants pinned. Sections sort `featured desc, publishedAt desc`.                                                                                                                                               |
+| Featured Work section shows wrong project as the hero                                                                  | Falling back to date-based default                                                                                                        | Toggle `featured: true` on the project Staci wants pinned. Sections sort `featured desc, publishedAt desc`.                                                                                                                                                               |
 
 ---
 
@@ -479,7 +456,7 @@ grep -rn 'client:' src/
 # Inspect a specific Sanity doc by _id
 node -e "import('@sanity/client').then(...)" # see scripts/ for fleshed-out patterns
 
-# Count h2/h3/h4 headings in every journal entry
+# Count h2/h3/h4 headings in every project body
 # (useful when debugging "why doesn't TOC show up")
 node -e "/* GROQ: count(body[style in ['h2','h3','h4']]) */"
 
@@ -499,4 +476,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-_Last updated: May 29, 2026 — added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas._
+_Last updated: Sept 30, 2026: removed the eight never-launched sections (journal, shop, quiz, calculator, guides, press, gift certificates, resources) and the newsletter; see CLAUDE.md. Earlier history follows. May 29, 2026 — added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas._

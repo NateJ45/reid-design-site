@@ -6,7 +6,7 @@
 // Stega-safe (2026-09-29). In the Studio's draft preview every string carries
 // an invisible stega run, and one of its characters (U+FEFF) counts as
 // whitespace to JavaScript's \s, so each run split into dozens of "words": a
-// 4-minute journal post previewed as "68 min read". splitStega() drops the run
+// 4-minute project story previewed as "68 min read". splitStega() drops the run
 // first. On the live build there is no stega, so the count is unchanged.
 
 import { splitStega } from './preview-stega';

@@ -69,8 +69,8 @@ export const NAV_LINK_PROJECTION = `{ ${NAV_LINK_FIELDS} }`;
 // stores the in-flight promise; every subsequent call within the same build
 // process reuses it. This collapses the ~20 per-page getSiteSettings() calls
 // that happen during `astro build` into a single Sanity request, including
-// the double-calls in journal/[slug].astro and guides/[slug].astro where both
-// getStaticPaths and the render phase each call getSiteSettings().
+// any double-call where getStaticPaths and the render phase each call
+// getSiteSettings().
 let _siteSettingsPromise: Promise<any> | null = null;
 
 // Exported so the preview shell (src/layouts/PreviewLayout.astro) fetches the
@@ -101,7 +101,6 @@ export const SITE_SETTINGS_PROJECTION = `{
     seoImage${IMAGE_PROJECTION},
     footerCredit,
     footerCreditUrl,
-    newsletter,
     googleBusinessUrl,
     reviewsNote,
     satisfactionGuarantee,
@@ -121,15 +120,7 @@ export const SITE_SETTINGS_PROJECTION = `{
     showFooterSocials,
     sectionVisibility{
       showPortfolio,
-      showJournal,
-      showShop,
-      showEDesign,
-      showGiftCertificates,
-      showPress,
-      showResources,
-      showGuides,
-      showStyleQuiz,
-      showBudgetCalculator
+      showEDesign
     }
   }`;
 
@@ -200,10 +191,6 @@ export async function getHomePage(c: SanityClient = client) {
     featuredWorkHeadline,
     featuredWorkSubhead,
     featuredWorkCta${CTA_PROJECTION},
-    featuredJournalEyebrow,
-    featuredJournalHeadline,
-    featuredJournalSubhead,
-    featuredJournalCta${CTA_PROJECTION},
     processPreviewEyebrow,
     processPreviewHeadline,
     processPreviewSubhead,
@@ -234,11 +221,6 @@ export async function getHomePage(c: SanityClient = client) {
     "featuredProjects": *[_type == "project"] | order(featured desc, publishedAt desc)[0..3]{
       _id, title, slug, location, year, roomType, designStyle, briefSummary, featured,
       heroImage${IMAGE_PROJECTION}
-    },
-    "featuredJournalEntries": *[_type == "journalEntry"] | order(featured desc, publishedAt desc)[0..3]{
-      _id, title, slug, excerpt, publishedAt, featured,
-      coverImage${IMAGE_PROJECTION},
-      "categories": categories[]->{ _id, title, slug, description }
     },
     serviceAreaCue,
     finalCtaEyebrow,
@@ -469,14 +451,8 @@ export async function getAllProjects() {
 // this same projection. See src/components/detail/ProjectDetail.astro.
 export async function getProjectBySlug(slug: string, c: SanityClient = client) {
   // Note: stickyCtaLabel is spread in via `...` since the schema field is on
-  // the project doc itself. journalPage's stickyCtaLabel is passed in
-  // separately so `journalPageStickyCta` from journal/[slug].astro is keyed
-  // to the right source.
-  //
-  // relatedJournalEntries is a reverse reference: journal posts whose "Related
-  // project" field points at this project. Deriving it here means the link is
-  // kept only on the journal side, so there is nothing for an editor to
-  // maintain on the project, and the project page surfaces coverage on its own.
+  // the project doc itself. (The "Featured in the journal" reverse lookup that
+  // used to live here went with the journal on 2026-09-30.)
   return sanityFetch(
     `*[_type == "project" && slug.current == $slug][0]{
       ...,
@@ -488,131 +464,12 @@ export async function getProjectBySlug(slug: string, c: SanityClient = client) {
         afterImage${IMAGE_PROJECTION}
       },
       "servicesUsed": servicesUsed[]->{ name, slug, price },
-      "relatedTestimonial": relatedTestimonial->,
-      "relatedJournalEntries": *[_type == "journalEntry" && relatedProject._ref == ^._id] | order(publishedAt desc){
-        _id,
-        title,
-        slug,
-        excerpt,
-        publishedAt,
-        featured,
-        coverImage${IMAGE_PROJECTION},
-        "categories": categories[]->{ _id, title, slug, description }
-      }
+      "relatedTestimonial": relatedTestimonial->
     }`,
     { slug },
     null,
     c,
   );
-}
-
-// ---- Journal --------------------------------------------------------------
-
-// Projection for a journal card (index page) — small surface, no body.
-const JOURNAL_CARD_PROJECTION = `{
-  _id,
-  title,
-  slug,
-  excerpt,
-  publishedAt,
-  featured,
-  coverImage${IMAGE_PROJECTION},
-  "categories": categories[]->{ _id, title, slug, description }
-}`;
-
-export async function getJournalPage(c: SanityClient = client) {
-  return sanityFetch(
-    `*[_type == "journalPage"][0]{
-    seoTitle,
-    seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    heroEyebrow, heroHeadline, heroSubhead,
-    heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    stickyCtaLabel,
-    finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
-    finalCtaBackgroundImage${IMAGE_PROJECTION},
-    finalCta${CTA_PROJECTION},
-    ${sectionsProjection('additionalSections')}
-  }`,
-    {},
-    null,
-    c,
-  );
-}
-
-export async function getAllJournalEntries() {
-  // Featured first, then newest first. Excerpt + cover only (no body).
-  return sanityFetch(
-    `*[_type == "journalEntry"] | order(featured desc, publishedAt desc) ${JOURNAL_CARD_PROJECTION}`,
-    {},
-    [],
-  );
-}
-
-export async function getAllJournalCategories() {
-  return sanityFetch(
-    `*[_type == "journalCategory"] | order(title asc){
-    _id, title, slug, description,
-    "postCount": count(*[_type == "journalEntry" && references(^._id)])
-  }`,
-    {},
-    [],
-  );
-}
-
-// `c`: same as getProjectBySlug, for /preview/journal/<slug> (2026-09-29).
-export async function getJournalEntryBySlug(slug: string, c: SanityClient = client) {
-  // Full doc including body. The body's inline image blocks get their asset
-  // resolved + alt fallback at the GROQ layer so the renderer doesn't have to
-  // chase asset refs for every block. Image gallery items + beforeAfter pairs
-  // + sourceCard images + inline images all get the same treatment.
-  return sanityFetch(
-    `*[_type == "journalEntry" && slug.current == $slug][0]{
-      _id, title, slug, excerpt, author, publishedAt, updatedAt, featured,
-      seoTitle, seoDescription,
-      coverImage${IMAGE_PROJECTION},
-      "categories": categories[]->{ _id, title, slug, description },
-      "relatedProject": relatedProject->{ _id, title, slug, location, year, heroImage${IMAGE_PROJECTION} },
-      body[]{
-        ...,
-        _type == "inlineImage" => ${IMAGE_PROJECTION},
-        _type == "beforeAfter" => {
-          ...,
-          beforeImage${IMAGE_PROJECTION},
-          afterImage${IMAGE_PROJECTION}
-        },
-        _type == "sourceCard" => {
-          ...,
-          image${IMAGE_PROJECTION}
-        },
-        _type == "imageGallery" => {
-          ...,
-          images[]${IMAGE_PROJECTION}
-        }
-      },
-      // Explicit relatedPosts if set; otherwise auto-pick 3 most recent in the
-      // same primary category, excluding this post itself.
-      "relatedPosts": coalesce(
-        relatedPosts[]->${JOURNAL_CARD_PROJECTION},
-        *[_type == "journalEntry" && _id != ^._id && count(categories[@._ref in ^.^.categories[]._ref]) > 0]
-          | order(publishedAt desc)[0..2] ${JOURNAL_CARD_PROJECTION}
-      )
-    }`,
-    { slug },
-    null,
-    c,
-  );
-}
-
-// Static path generation for /journal/[slug]. Returns just the slugs.
-export async function getAllJournalSlugs(): Promise<string[]> {
-  const list: Array<{ slug: { current: string } }> = await sanityFetch(
-    `*[_type == "journalEntry" && defined(slug.current)]{ slug }`,
-    {},
-    [],
-  );
-  return list.map((e) => e.slug?.current).filter(Boolean);
 }
 
 // ---- E-Design page --------------------------------------------------------
@@ -648,93 +505,6 @@ export async function getEDesignPage(c: SanityClient = client) {
   );
 }
 
-// ---- Shop page + collections + items -------------------------------------
-
-export async function getShopPage(c: SanityClient = client) {
-  return sanityFetch(
-    `*[_type == "shopPage"][0]{
-    seoTitle,
-    seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    heroEyebrow, heroHeadline, heroSubhead,
-    heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    enabled,
-    intro,
-    disclosure,
-    "collections": collections[]->{
-      _id,
-      title,
-      "slug": slug.current,
-      blurb,
-      orderRank,
-      "items": *[_type == "shopItem" && collection._ref == ^._id]
-        | order(orderRank asc){
-          _id, title,
-          image${IMAGE_PROJECTION},
-          vendor, affiliateUrl, note
-        }
-    }
-  }`,
-    {},
-    null,
-    c,
-  );
-}
-
-// ---- Gift certificates page -----------------------------------------------
-
-export async function getGiftPage(c: SanityClient = client) {
-  return sanityFetch(
-    `*[_type == "giftPage"][0]{
-    seoTitle,
-    seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    ${sectionsProjection('pageBuilder')},
-    heroEyebrow, heroHeadline, heroSubhead,
-    heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    intro,
-    options[]{
-      label, amount, blurb
-    },
-    howItWorks[]{
-      stepNumber, title, body
-    },
-    finePrint,
-    ctaLabel
-  }`,
-    {},
-    null,
-    c,
-  );
-}
-
-// ---- Resources hub page ---------------------------------------------------
-
-export async function getResourcesPage(c: SanityClient = client) {
-  return sanityFetch(
-    `*[_type == "resourcesPage"][0]{
-    seoTitle,
-    seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    ${sectionsProjection('pageBuilder')},
-    heroEyebrow, heroHeadline, heroSubhead,
-    heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    intro,
-    cards[]{
-      title, blurb,
-      icon${IMAGE_PROJECTION},
-      link
-    }
-  }`,
-    {},
-    null,
-    c,
-  );
-}
-
 // ---- Privacy page ---------------------------------------------------------
 
 export async function getPrivacyPage(c: SanityClient = client) {
@@ -754,158 +524,6 @@ export async function getPrivacyPage(c: SanityClient = client) {
     null,
     c,
   );
-}
-
-// ---- Press page + press items ---------------------------------------------
-
-export async function getPressPage(c: SanityClient = client) {
-  return sanityFetch(
-    `*[_type == "pressPage"][0]{
-    seoTitle,
-    seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    ${sectionsProjection('pageBuilder')},
-    heroEyebrow, heroHeadline, heroSubhead,
-    heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    intro
-  }`,
-    {},
-    null,
-    c,
-  );
-}
-
-// Press items ordered by orderRank for the strip + /press listing.
-export async function getPressItems(c: SanityClient = client) {
-  return sanityFetch(
-    `*[_type == "pressItem"] | order(orderRank asc){
-    _id, outlet,
-    logo${IMAGE_PROJECTION},
-    quote, url, date, orderRank
-  }`,
-    {},
-    [],
-    c,
-  );
-}
-
-// ---- Style quiz config ----------------------------------------------------
-
-export async function getStyleQuiz() {
-  return sanityFetch(
-    `*[_type == "styleQuiz"][0]{
-    seoTitle, seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    introEyebrow, introHeadline, introSubhead,
-    introImage${IMAGE_PROJECTION},
-    questions[]{
-      prompt, helpText,
-      answers[]{
-        label,
-        image${IMAGE_PROJECTION},
-        archetypeWeights[]{ archetypeSlug, weight }
-      }
-    },
-    qualifiers[]{
-      prompt, type,
-      options[]{ label, value }
-    },
-    archetypes[]{
-      name,
-      "slug": slug.current,
-      description,
-      images[]${IMAGE_PROJECTION},
-      "recommendedServiceRef": recommendedServiceRef->{ _id, name, "slug": slug.current },
-      resultCtaLabel
-    },
-    gate{ mode, heading, blurb, consentNote, espTag },
-    routing{
-      highIntentRule, bookCtaLabel, guideCtaLabel,
-      "guideRef": guideRef->{ _id, title, "slug": slug.current }
-    }
-  }`,
-    {},
-    null,
-  );
-}
-
-// ---- Budget calculator config ---------------------------------------------
-
-export async function getBudgetCalculator() {
-  return sanityFetch(
-    `*[_type == "budgetCalculator"][0]{
-    seoTitle, seoDescription,
-    seoImage${IMAGE_PROJECTION},
-    introEyebrow, introHeadline, introSubhead,
-    heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    rooms[]{ label, baseLow, baseHigh },
-    scopeOptions[]{ label, addLow, addHigh },
-    addOns[]{ label, low, high },
-    resultCopy,
-    disclaimer,
-    ctaLabel,
-    consultPriceNote
-  }`,
-    {},
-    null,
-  );
-}
-
-// ---- Lead magnets ---------------------------------------------------------
-
-// All published lead magnets ordered for /guides index.
-export async function getLeadMagnets() {
-  return sanityFetch(
-    `*[_type == "leadMagnet" && published == true]
-    | order(orderRank asc){
-      _id, title,
-      "slug": slug.current,
-      summary,
-      coverImage${IMAGE_PROJECTION},
-      gateHeading, gateBlurb, buttonLabel, successMessage, espTag,
-      seoTitle, seoDescription, orderRank
-    }`,
-    {},
-    [],
-  );
-}
-
-// Single published lead magnet by slug for /guides/[slug].
-//
-// The draft preview (/preview/guides/<slug>, 2026-09-29) passes its own client
-// and `includeUnpublished`, so a guide whose "Published" switch is still off
-// can be reviewed before it goes live. The live build never passes it.
-export async function getLeadMagnet(
-  slug: string,
-  c: SanityClient = client,
-  { includeUnpublished = false }: { includeUnpublished?: boolean } = {},
-) {
-  return sanityFetch(
-    `*[_type == "leadMagnet" && slug.current == $slug && ($includeUnpublished || published == true)][0]{
-      _id, title,
-      "slug": slug.current,
-      summary,
-      coverImage${IMAGE_PROJECTION},
-      file{ asset->{ url } },
-      gateHeading, gateBlurb, buttonLabel, successMessage, espTag,
-      seoTitle, seoDescription
-    }`,
-    { slug, includeUnpublished },
-    null,
-    c,
-  );
-}
-
-// Static path generation for /guides/[slug].
-export async function getAllLeadMagnetSlugs(): Promise<string[]> {
-  const list: Array<{ slug: { current: string } }> = await sanityFetch(
-    `*[_type == "leadMagnet" && published == true && defined(slug.current)]{ slug }`,
-    {},
-    [],
-  );
-  return list.map((m) => m.slug?.current).filter(Boolean);
 }
 
 // ---- Projects with before/after pairs ------------------------------------

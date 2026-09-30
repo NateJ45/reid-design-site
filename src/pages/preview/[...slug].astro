@@ -10,8 +10,8 @@
 
    THIS SITE HAS THREE PAGE SHAPES, and the preview treats them differently.
 
-    1. BUILDER SINGLETONS - home, about, process, services, e-design,
-       gift-certificates, press, resources. Their layout IS a `pageBuilder`
+    1. BUILDER SINGLETONS - home, about, process, services, e-design. Their
+       layout IS a `pageBuilder`
        array of section markers plus inserted library blocks, rendered by a
        per-page renderer (HomeSectionRenderer and friends). The preview is
        FULL FIDELITY: same query, same renderer, same props. The only things
@@ -22,18 +22,18 @@
        a `pageBuilder` array of library blocks through SectionRenderer. Also
        full fidelity.
 
-    3. BESPOKE SINGLETONS - faq, contact, journal, portfolio, privacy, shop,
-       404. Their middles are drawn in code (the FAQ accordion, the contact
-       form, the journal and portfolio grids), so what previews is their
+    3. BESPOKE SINGLETONS - faq, contact, portfolio, privacy, 404. Their
+       middles are drawn in code (the FAQ accordion, the contact form, the
+       portfolio grid), so what previews is their
        EDITABLE SURFACE: the hero fields, the "Extra sections" array, and the
        closing call to action, with a note on the page saying so. Converting
        one of these to the page builder would upgrade its preview for free, but
        that conversion is a separate job (PORTS.md card 12) and is deliberately
        not attempted here.
 
-    4. DETAIL PAGES (2026-09-29) - a project (/preview/portfolio/<slug>), a
-       journal post (/preview/journal/<slug>) and a guide
-       (/preview/guides/<slug>). Rendered through the SAME body component the
+    4. DETAIL PAGES (2026-09-29) - a project (/preview/portfolio/<slug>).
+       (Journal posts and guides also previewed here until those sections
+       were removed on 2026-09-30.) Rendered through the SAME body component the
        live page uses (src/components/detail/*), so full fidelity minus the
        site chrome. Added because the Studio's "Copy share link" on a project
        used to mint a link to a path this route could not draw (a 404).
@@ -58,37 +58,24 @@ import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
 import ProcessSectionRenderer from '@/components/ProcessSectionRenderer.astro';
 import ServicesSectionRenderer from '@/components/ServicesSectionRenderer.astro';
 import EDesignSectionRenderer from '@/components/EDesignSectionRenderer.astro';
-import GiftSectionRenderer from '@/components/GiftSectionRenderer.astro';
-import PressSectionRenderer from '@/components/PressSectionRenderer.astro';
-import ResourcesSectionRenderer from '@/components/ResourcesSectionRenderer.astro';
 import { getPreviewClient, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { BUILDER_SINGLETON_TYPES, previewTargetFor } from '@/sanity/preview-routes';
 import ProjectDetail from '@/components/detail/ProjectDetail.astro';
-import JournalEntryDetail from '@/components/detail/JournalEntryDetail.astro';
-import GuideDetail from '@/components/detail/GuideDetail.astro';
 import {
   getSiteSettings,
-  getPressItems,
   getHomePage,
   getAboutPage,
   getProcessPage,
   getServicesPage,
   getEDesignPage,
-  getGiftPage,
-  getPressPage,
-  getResourcesPage,
   getFaqPage,
   getContactPage,
-  getJournalPage,
   getPortfolioPage,
   getPrivacyPage,
-  getShopPage,
   getNotFoundPage,
   getPage,
   getProjectBySlug,
-  getJournalEntryBySlug,
-  getLeadMagnet,
 } from '@/lib/queries';
 
 // A clone with no project id or no runtime token: say so, do not 500.
@@ -126,17 +113,13 @@ const isBuilderSingleton = BUILDER_SINGLETON_TYPES.has(singletonType ?? '');
 
 // ---------------------------------------------------------------------------
 // Load. Every fetch goes through the DRAFT-aware client, including the shared
-// documents (site settings, press items), so an unpublished edit to a service
+// documents (site settings), so an unpublished edit to a service
 // or a testimonial shows up in the page that renders it.
 // ---------------------------------------------------------------------------
 const siteSettings = await getSiteSettings(client).catch(() => null);
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 let page: any = null;
-let pressItems: any[] = [];
-// Only a journal post needs a second document (its sticky chip label and
-// closing background come from the Journal page singleton).
-let journalPage: any = null;
 
 if (singletonType) {
   const loaders: Record<string, () => Promise<any>> = {
@@ -145,38 +128,16 @@ if (singletonType) {
     processPage: () => getProcessPage(client),
     servicesPage: () => getServicesPage(client),
     eDesignPage: () => getEDesignPage(client),
-    giftPage: () => getGiftPage(client),
-    pressPage: () => getPressPage(client),
-    resourcesPage: () => getResourcesPage(client),
     faqPage: () => getFaqPage(client),
     contactPage: () => getContactPage(client),
-    journalPage: () => getJournalPage(client),
     portfolioPage: () => getPortfolioPage(client),
     privacyPage: () => getPrivacyPage(client),
-    shopPage: () => getShopPage(client),
     notFoundPage: () => getNotFoundPage(client),
   };
   page = await loaders[singletonType]().catch(() => null);
-  // Only the two pages that render the press strip pay for the extra query.
-  if (
-    singletonType === 'homePage' ||
-    singletonType === 'aboutPage' ||
-    singletonType === 'pressPage'
-  ) {
-    pressItems = await getPressItems(client).catch(() => []);
-  }
 } else if (target?.kind === 'detail') {
   if (detailType === 'project') {
     page = await getProjectBySlug(target.slug, client).catch(() => null);
-  } else if (detailType === 'journalEntry') {
-    [page, journalPage] = await Promise.all([
-      getJournalEntryBySlug(target.slug, client).catch(() => null),
-      getJournalPage(client).catch(() => null),
-    ]);
-  } else if (detailType === 'leadMagnet') {
-    // includeUnpublished: a guide whose "Published" switch is still off is
-    // exactly the one an editor wants a reviewer to read first.
-    page = await getLeadMagnet(target.slug, client, { includeUnpublished: true }).catch(() => null);
   }
 } else if (target?.kind === 'page') {
   page = await getPage(target.slug, client).catch(() => null);
@@ -235,7 +196,6 @@ const title = `${label} - Preview`;
         sections={page.pageBuilder}
         page={page}
         siteSettings={siteSettings}
-        pressItems={pressItems}
         visible={visible}
         editDoc={builderEditDoc}
       />
@@ -247,8 +207,6 @@ const title = `${label} - Preview`;
         sections={page.pageBuilder}
         page={page}
         philosophyPoints={page.philosophyPoints ?? []}
-        pressItems={pressItems}
-        visiblePress={visible.press}
         editDoc={builderEditDoc}
       />
     )
@@ -274,44 +232,9 @@ const title = `${label} - Preview`;
       <EDesignSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
     )
   }
-  {
-    singletonType === 'giftPage' && (
-      <GiftSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
-    )
-  }
-  {
-    singletonType === 'pressPage' && (
-      <PressSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        pressItems={pressItems}
-        editDoc={builderEditDoc}
-      />
-    )
-  }
-  {
-    singletonType === 'resourcesPage' && (
-      <ResourcesSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        visible={visible}
-        editDoc={builderEditDoc}
-      />
-    )
-  }
 
   {/* Detail pages: the same body component the live page renders. */}
   {detailType === 'project' && <ProjectDetail project={page} />}
-  {detailType === 'journalEntry' && <JournalEntryDetail entry={page} journalPage={journalPage} />}
-  {
-    detailType === 'leadMagnet' && (
-      <GuideDetail
-        magnet={page}
-        slug={target?.kind === 'detail' ? target.slug : ''}
-        formActionUrl={siteSettings?.newsletter?.formActionUrl ?? null}
-      />
-    )
-  }
 
   {/* Custom page built in the page builder. */}
   {

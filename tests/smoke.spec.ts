@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { routes, hiddenRoutes } from './routes';
+import { routes, hiddenRoutes, retiredRoutes } from './routes';
 
 // =============================================================================
 // Smoke: every route builds and renders (not a 404 / error page)
@@ -27,6 +27,18 @@ test.describe('Smoke: every hidden route still answers', () => {
       const resp = await page.goto(route, { waitUntil: 'domcontentloaded' });
       expect(resp?.status(), `${route} HTTP status`).toBe(200);
       await expect(page).toHaveTitle(/Redirecting to: \/|Reid Design/);
+    });
+  }
+});
+
+// The removed sections (2026-09-30) must leave no page behind. The static
+// server here does not read public/_redirects, so a missing page is a 404;
+// in production the same addresses 301 to a live page.
+test.describe('Smoke: removed sections leave no page', () => {
+  for (const route of retiredRoutes) {
+    test(`${route} has no built page`, async ({ request }) => {
+      const resp = await request.get(route, { maxRedirects: 0 });
+      expect(resp.status(), `${route} HTTP status`).toBe(404);
     });
   }
 });

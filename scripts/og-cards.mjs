@@ -10,7 +10,7 @@
 //       build collected), without rebuilding. For iterating on the design.
 //
 //   npm run og:cards -- preview [outDir]
-//       Draw the card EVERY project, journal post and guide would get, straight
+//       Draw the card EVERY project would get, straight
 //       from Sanity (read-only), even while its section is switched off and the
 //       build therefore makes no page for it. Writes <outDir>/*.png and a
 //       600px contact sheet, _contact-sheet.png. Default outDir: tmp/og-preview.
@@ -103,13 +103,10 @@ if (mode === 'rerender') {
   const img = `{ "src": asset->url, hotspot }`;
   const data = await client.fetch(`{
     "projects": *[_type == "project" && defined(slug.current)]{ "slug": slug.current, title, metaTitle, location,
-      "image": heroImage${img}, "image2": gallery[0]${img} },
-    "posts": *[_type == "journalEntry" && defined(slug.current)]{ "slug": slug.current, title, seoTitle,
-      "image": coverImage${img} },
-    "guides": *[_type == "leadMagnet" && defined(slug.current)]{ "slug": slug.current, title, seoTitle,
-      "image": coverImage${img} }
+      "image": heroImage${img}, "image2": gallery[0]${img} }
   }`);
-  // Mirrors what src/pages/{portfolio,journal,guides}/[slug].astro pass to BaseLayout.
+  // Mirrors what src/pages/portfolio/[slug].astro passes to BaseLayout. (Journal
+  // posts and guides had cards here too until they were removed, 2026-09-30.)
   const spec = (route, headline, seo, kicker, image, image2) => {
     const t = cleanCardTitle([headline, seo]);
     const k = cleanKicker(kicker);
@@ -135,12 +132,6 @@ if (mode === 'rerender') {
         p.image,
         p.image2,
       ),
-    ),
-    ...data.posts.map((p) =>
-      spec(`/journal/${p.slug}`, p.title, p.seoTitle, 'The Journal', p.image),
-    ),
-    ...data.guides.map((p) =>
-      spec(`/guides/${p.slug}`, p.title, p.seoTitle, 'Free guide', p.image),
     ),
   ];
   // renderSpecs writes to <clientDir>/og/<name>.png; point it at outDir/..

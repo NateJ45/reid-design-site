@@ -4,6 +4,12 @@
 // VISIBLE — only an explicit `false` hides a section. This means the live site
 // is completely unchanged until Staci explicitly turns something off in Studio.
 //
+// Two switches are left: Portfolio and E-Design. The other eight (journal,
+// shop, gift certificates, press, resources, guides, style quiz, budget
+// calculator) went on 2026-09-30 with the sections themselves; their stored
+// values stay on siteSettings as hidden, read-only fields and nothing reads
+// them.
+//
 // Usage:
 //   import { getSectionVisibility } from '@/lib/sectionVisibility';
 //   const visible = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -12,29 +18,13 @@
 /** The raw sectionVisibility object as fetched from Sanity. */
 interface RawSectionVisibility {
   showPortfolio?: boolean | null;
-  showJournal?: boolean | null;
-  showShop?: boolean | null;
   showEDesign?: boolean | null;
-  showGiftCertificates?: boolean | null;
-  showPress?: boolean | null;
-  showResources?: boolean | null;
-  showGuides?: boolean | null;
-  showStyleQuiz?: boolean | null;
-  showBudgetCalculator?: boolean | null;
 }
 
 /** Normalized visibility map — all values are plain booleans. */
 export interface SectionVisibility {
   portfolio: boolean;
-  journal: boolean;
-  shop: boolean;
   eDesign: boolean;
-  giftCertificates: boolean;
-  press: boolean;
-  resources: boolean;
-  guides: boolean;
-  styleQuiz: boolean;
-  budgetCalculator: boolean;
 }
 
 /**
@@ -51,15 +41,7 @@ export interface SectionVisibility {
 export function getSectionVisibility(raw?: RawSectionVisibility | null): SectionVisibility {
   return {
     portfolio: raw?.showPortfolio !== false,
-    journal: raw?.showJournal !== false,
-    shop: raw?.showShop !== false,
     eDesign: raw?.showEDesign !== false,
-    giftCertificates: raw?.showGiftCertificates !== false,
-    press: raw?.showPress !== false,
-    resources: raw?.showResources !== false,
-    guides: raw?.showGuides !== false,
-    styleQuiz: raw?.showStyleQuiz !== false,
-    budgetCalculator: raw?.showBudgetCalculator !== false,
   };
 }
 
@@ -72,24 +54,17 @@ export function getSectionVisibility(raw?: RawSectionVisibility | null): Section
  *
  * Keep in step with the `if (!visible.x) return Astro.redirect('/')` guards in
  * src/pages. Detail routes under a prefix (/portfolio/before-after,
- * /journal/<slug>, /guides/<slug>) are covered by the prefix.
+ * /portfolio/<slug>) are covered by the prefix.
  */
 export const SECTION_ROUTES: Record<keyof SectionVisibility, string[]> = {
   portfolio: ['/portfolio'],
-  journal: ['/journal'],
-  shop: ['/shop'],
   eDesign: ['/e-design'],
-  giftCertificates: ['/gift-certificates'],
-  press: ['/press'],
-  resources: ['/resources'],
-  guides: ['/guides'],
-  styleQuiz: ['/quiz'],
-  budgetCalculator: ['/calculator'],
 };
 
 /**
  * True when `pathname` belongs to a section that is switched off. Matches the
- * prefix exactly or followed by `/`, so `/shopping/` is never caught by `/shop`.
+ * prefix exactly or followed by `/`, so `/portfolio-tips/` is never caught by
+ * `/portfolio`.
  */
 export function isHiddenSectionPath(pathname: string, visible: SectionVisibility): boolean {
   return (Object.keys(SECTION_ROUTES) as (keyof SectionVisibility)[]).some(

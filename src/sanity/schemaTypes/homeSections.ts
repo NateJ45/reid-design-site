@@ -7,15 +7,20 @@ import { defineType, defineField } from 'sanity';
 import { ComponentIcon } from '@sanity/icons';
 import { SECTION_TYPES } from './sections';
 
-const HOME_SECTIONS = [
+const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   { value: 'hero', title: 'Hero' },
   { value: 'meetStaci', title: 'Meet Staci' },
   { value: 'featuredWork', title: 'Featured work' },
   { value: 'testimonials', title: 'Kind words (testimonials)' },
   { value: 'processPreview', title: 'How it works' },
   { value: 'services', title: 'Services + pricing' },
-  { value: 'featuredJournal', title: 'From the journal' },
-  { value: 'press', title: 'As seen in (press logos)' },
+  // Retired 2026-09-30 (journal and press were removed). The two values stay
+  // in the list because Sanity turns options.list into a hard `valid()` rule:
+  // dropping them would flag the rows already stored on the home page as
+  // errors and block Staci from publishing. HomeSectionRenderer renders
+  // nothing for either, and they are left out of HOME_DEFAULT_ORDER below.
+  { value: 'featuredJournal', title: 'Journal (retired, renders nothing)', retired: true },
+  { value: 'press', title: 'Press logos (retired, renders nothing)', retired: true },
   { value: 'serviceAreaCue', title: 'Service area line' },
   { value: 'finalCta', title: 'Closing call to action' },
 ];
@@ -47,7 +52,7 @@ export const homeSectionMarker = defineType({
 
 export const HOME_SECTION_TYPES = [{ type: 'homeSectionMarker' }, ...SECTION_TYPES];
 
-export const HOME_DEFAULT_ORDER = HOME_SECTIONS.map((s) => ({
+export const HOME_DEFAULT_ORDER = HOME_SECTIONS.filter((s) => !s.retired).map((s) => ({
   _type: 'homeSectionMarker',
   _key: `home-${s.value}`,
   section: s.value,

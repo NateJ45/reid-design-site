@@ -130,44 +130,6 @@ export function serviceListSchema(
   });
 }
 
-// ---------- ItemList of curated products (for /shop) ----------------------
-
-interface ShopProduct {
-  name?: string;
-  brand?: string;
-  url?: string;
-  image?: string | null;
-}
-
-/**
- * ItemList of the affiliate "Shop My Favorites" products. Each entry is a
- * Product (name + optional brand + image + affiliate url). No Offer/price is
- * emitted: these are curated recommendations, not a storefront, so claiming a
- * price/availability we don't control would be inaccurate structured data.
- * The page resolves Sanity image URLs and passes plain values in, mirroring
- * how projectSchema receives a pre-built hero image URL.
- */
-export function shopItemListSchema(items: ShopProduct[] | null | undefined): string {
-  const list = (items ?? []).filter((p) => p.name);
-  if (list.length === 0) return JSON.stringify({});
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Shop My Favorites',
-    itemListElement: list.map((p, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      item: {
-        '@type': 'Product',
-        name: p.name,
-        ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}),
-        ...(p.image ? { image: p.image } : {}),
-        ...(p.url ? { url: p.url } : {}),
-      },
-    })),
-  });
-}
-
 // ---------- FAQPage (for /faq) --------------------------------------------
 
 /**
@@ -239,48 +201,5 @@ export function projectSchema(project: Project, heroImageUrl: string | null): st
     locationCreated: project.location ? { '@type': 'Place', name: project.location } : undefined,
     dateCreated: project.year ? String(project.year) : undefined,
     datePublished: project.publishedAt,
-  });
-}
-
-// ---------- BlogPosting (for /journal/[slug]) -----------------------------
-
-interface JournalEntryForSchema {
-  title?: string;
-  slug?: { current?: string };
-  excerpt?: string;
-  author?: string;
-  publishedAt?: string;
-  updatedAt?: string;
-  body?: any;
-  categories?: Array<{ title?: string }>;
-}
-
-export function blogPostingSchema(
-  entry: JournalEntryForSchema,
-  coverImageUrl: string | null,
-): string {
-  const url = entry.slug?.current
-    ? `${site.url}/journal/${entry.slug.current}`
-    : `${site.url}/journal`;
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: entry.title,
-    description: entry.excerpt,
-    url,
-    image: coverImageUrl ?? undefined,
-    datePublished: entry.publishedAt,
-    dateModified: entry.updatedAt ?? entry.publishedAt,
-    author: entry.author
-      ? { '@type': 'Person', name: entry.author }
-      : { '@id': `${site.url}/#business` },
-    publisher: { '@id': `${site.url}/#business` },
-    keywords: Array.isArray(entry.categories)
-      ? entry.categories
-          .map((c) => c?.title)
-          .filter(Boolean)
-          .join(', ')
-      : undefined,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   });
 }

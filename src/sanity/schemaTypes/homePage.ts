@@ -18,7 +18,6 @@ export const homePage = defineType({
     { name: 'hero', title: 'Hero' },
     { name: 'meetStaci', title: 'Meet Staci' },
     { name: 'featuredWork', title: 'Featured Work' },
-    { name: 'featuredJournal', title: 'Featured Journal' },
     { name: 'process', title: 'Process preview' },
     { name: 'testimonials', title: 'Testimonials' },
     { name: 'services', title: 'Services grid' },
@@ -256,19 +255,22 @@ export const homePage = defineType({
       group: 'featuredWork',
     }),
 
-    // Featured Journal (auto-populates with featured-then-newest journal entries)
+    // Featured Journal: retired 2026-09-30, removed sections; kept so data is
+    // not orphaned. The journal is gone, so nothing renders these four fields.
     defineField({
       name: 'featuredJournalEyebrow',
       title: 'Eyebrow',
       type: 'string',
-      group: 'featuredJournal',
+      hidden: true,
+      readOnly: true,
       initialValue: 'From the Journal.',
     }),
     defineField({
       name: 'featuredJournalHeadline',
       title: 'Headline',
       type: 'string',
-      group: 'featuredJournal',
+      hidden: true,
+      readOnly: true,
       initialValue: 'How I think about design.',
     }),
     defineField({
@@ -276,7 +278,8 @@ export const homePage = defineType({
       title: 'Subhead',
       type: 'text',
       rows: 3,
-      group: 'featuredJournal',
+      hidden: true,
+      readOnly: true,
       description:
         'Conversion-oriented paragraph under the headline. Hint at the kinds of posts Staci writes — project walkthroughs, source roundups, design moves — so the section reads as the thinking behind every consultation, not just a blog.',
       initialValue:
@@ -286,7 +289,8 @@ export const homePage = defineType({
       name: 'featuredJournalCta',
       title: '"Read more" CTA',
       type: 'ctaBlock',
-      group: 'featuredJournal',
+      hidden: true,
+      readOnly: true,
     }),
 
     // Process preview

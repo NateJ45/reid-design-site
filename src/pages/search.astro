@@ -39,7 +39,7 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
 
 <BaseLayout
   title="Search · Reid Design"
-  description="Search the Reid Design site: services, pricing, projects and the journal."
+  description="Search the Reid Design site: services, pricing, projects and questions."
   {siteSettings}
   noindex
 >
@@ -58,7 +58,7 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
         What are you looking for?
       </h1>
       <p class="mt-s mb-l text-lg text-foreground/80">
-        Search services, pricing, projects and the journal.
+        Search services, pricing, projects and common questions.
       </p>
 
       <form id="search-form" role="search" novalidate>
@@ -175,21 +175,13 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
     // The path segment tells a visitor what KIND of page a hit is.
     const KINDS = {
       portfolio: 'Portfolio',
-      journal: 'Journal',
-      guides: 'Guide',
-      shop: 'Shop',
       services: 'Services',
       process: 'Process',
       about: 'About',
       contact: 'Contact',
       faq: 'FAQ',
       'e-design': 'E-Design',
-      'gift-certificates': 'Gift certificates',
-      press: 'Press',
       privacy: 'Privacy',
-      resources: 'Resources',
-      quiz: 'Style quiz',
-      calculator: 'Budget calculator',
     };
     const kindOf = (url) => {
       const seg = url.replace(/^\/+/, '').split('/')[0];

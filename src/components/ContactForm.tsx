@@ -36,9 +36,11 @@ const DEFAULT_PROJECT_TYPES = [
   'Full Room Design + Styling',
   'Shopping & Sourcing',
   'Builder or Realtor Partnership',
-  'Gift Certificate',
   "Not sure yet, let's chat",
 ] as const;
+// ("Gift Certificate" left this list on 2026-09-30 with the gift-certificates
+// page. A Sanity override in contactPage.formProjectTypeOptions still wins over
+// this list, so remove it there too if it was ever typed in.)
 
 // Map ?type= URL param values to dropdown option labels.
 // Defensive: unrecognised values produce undefined, which leaves the default blank.
@@ -49,9 +51,9 @@ const TYPE_PARAM_MAP: Record<string, string> = {
   styling: 'Full Room Design + Styling',
   shopping: 'Shopping & Sourcing',
   'builder-realtor': 'Builder or Realtor Partnership',
-  'gift-certificate': 'Gift Certificate',
-  // quiz: map to the catch-all so the user sees a reasonable default
-  quiz: "Not sure yet, let's chat",
+  // ?type=gift-certificate and ?type=quiz went with the gift page and the style
+  // quiz on 2026-09-30. An old link carrying either now simply preselects
+  // nothing, which is the same as no param at all.
 };
 
 // Service-area cities, ordered Plainfield-first per brand positioning. "Other"
@@ -99,9 +101,6 @@ const SOURCE_OPTIONS = [
   'Houzz',
   'Friend or family referral',
   'Builder or realtor referral',
-  'Took the style quiz',
-  'Downloaded a free guide',
-  'Reading the journal',
   'Saw a project in person',
   'Other',
 ] as const;
@@ -208,8 +207,8 @@ export default function ContactForm({
 
   // Restore draft on mount, then apply ?type= URL param if present.
   // URL param wins over saved draft for the projectType field on first load
-  // only — this is the "preselect" behaviour for CTAs on /e-design,
-  // /gift-certificates, etc. Other draft fields are still restored normally.
+  // only — this is the "preselect" behaviour for the CTAs on /e-design
+  // (?type=e-design). Other draft fields are still restored normally.
   useEffect(() => {
     if (restoredOnce.current) return;
     restoredOnce.current = true;

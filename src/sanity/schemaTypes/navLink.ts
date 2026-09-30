@@ -7,7 +7,7 @@
 //     document, so renaming a page's web address can never leave a dead link.
 //   - "external": paste a full web address.
 //   - "custom": type an address by hand. Reid has a couple of real routes with
-//     no document behind them (/guides, /portfolio/before-after), so the picker
+//     no document behind them (/portfolio/before-after, /search), so the picker
 //     alone cannot reach every page.
 //
 // `href` is the hand-typed address. It WINS over the other two, so a menu that
@@ -60,25 +60,15 @@ export const navLink = defineType({
         { type: 'processPage' },
         { type: 'servicesPage' },
         { type: 'eDesignPage' },
-        { type: 'giftPage' },
-        { type: 'pressPage' },
-        { type: 'resourcesPage' },
         // Bespoke singletons
         { type: 'faqPage' },
         { type: 'contactPage' },
-        { type: 'journalPage' },
         { type: 'portfolioPage' },
         { type: 'privacyPage' },
-        { type: 'shopPage' },
-        // Config singletons that still own a public route
-        { type: 'styleQuiz' },
-        { type: 'budgetCalculator' },
         // Pages built from the section library (slug-based route /[slug])
         { type: 'page' },
         // Collection documents with a detail route of their own
-        { type: 'leadMagnet' },
         { type: 'project' },
-        { type: 'journalEntry' },
       ],
       hidden: ({ parent }) => parent?.linkType !== 'internal',
     }),
@@ -95,7 +85,7 @@ export const navLink = defineType({
       title: 'Address (typed by hand)',
       type: 'string',
       description:
-        'An address like /guides or /portfolio/before-after. It wins over the choices above. Clear it to use the page picker instead.',
+        'An address like /portfolio/before-after. It wins over the choices above. Clear it to use the page picker instead.',
       // Shown while "type it myself" is chosen, on links that already carry a
       // typed address, and on links with no choice made yet. Hidden once a link
       // uses the picker.

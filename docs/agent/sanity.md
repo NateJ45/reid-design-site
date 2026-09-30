@@ -43,16 +43,18 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
   - `heroImage.caption` — optional italic caption beneath the hero image.
   - **introStory** Portable Text accepts an inline image with `caption` + `decisionLine` (optional uppercase eyebrow above the caption — for "the decision that drove this image" moments).
   - **introStory** accepts a `sourcedFrom` annotation mark — wrap any text inline and pair with vendor + optional URL. Renders as italic small-caps with the vendor as a trailing eyebrow, becomes a quiet bronze link when URL set.
-  - **Featured in the journal** — the project page automatically lists any journal post whose `relatedProject` points at it (reverse GROQ in `getProjectBySlug`; there is no field on the project, so the link is maintained only on the journal side).
-  - Journal cross-link is automatic: any journal post that sets its **Related project** is surfaced in a "Featured in the journal" section on the project page (reverse GROQ in `getProjectBySlug`, no field on the project, so the link is maintained only on the journal side).
+  - (The "Featured in the journal" band and its reverse lookup in `getProjectBySlug` went with the journal on 2026-09-30.)
 
 **Page singletons (7):**
 
-- `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage` — One document per page. All seven page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`. Journal posts (`journalEntry`) have a `coverImage` with optional caption + a `sourcedFrom` annotation in the body marks.
+- `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage` — One document per page. All six page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`.
+
+**Removed 2026-09-30 (never launched):** `journalEntry`, `journalCategory`, `journalPage`, `shopItem`, `shopCollection`, `shopPage`, `styleQuiz`, `budgetCalculator`, `leadMagnet`, `pressItem`, `pressPage`, `giftPage`, `resourcesPage`, and the `giftSectionMarker` / `pressSectionMarker` / `resourcesSectionMarker` objects. The types left `schemaTypes/index.ts` and their files were deleted; the roughly 25 documents of those types were deliberately left in the dataset (nothing was written or deleted), and no kept document references them. Studio consequences: no desk entries, no singleton/archive set membership, no Presentation locations, no preview paths, no reference targets on `navLink` / `ctaBlock` / `announcement`. Fields on KEPT types that only served them are hidden + read-only, never removed, with a "retired 2026-09-30" comment: `siteSettings.newsletter` (the footer signup is gone too), the eight retired `siteSettings.sectionVisibility` switches, and `homePage.featuredJournal*`. The home `featuredJournal`/`press` and About `press` marker VALUES stay in their `options.list`, titled "(retired, renders nothing)": Sanity infers a hard `valid()` rule from any `options.list` (see `inferFromSchemaType` in the sanity package), so dropping a value would turn the rows already stored on those pages into validation errors that block Publish.
+
 - `homePage` additionally has a `heroImages` array (images with optional alt). One image renders the static hero; two or more render a cross-fading slideshow with a subtle Ken Burns zoom (`HeroBackground.astro`, CSS in `globals.css`). It supersedes the home page's single `heroImage`, which was migrated into `heroImages[0]` by `scripts/migrate-home-hero-images.mjs` and hidden in the Studio (data preserved, used only as a fallback). Projected as `heroImages[]` in `getHomePage`. The slideshow is home-only; other pages keep their single `heroImage`.
 - `aboutPage` has a `personal` field group with: `personalEyebrow`, `personalHeadline`, `personalIntro`, `currentlyList[]` (label + value pairs), `rapidFire[]` (prompt + answer pairs), `localSpots[]` (name + optional note), `beyondDesign` (text paragraph), `candidPhoto` (image with required alt). All of these are projected in `getAboutPage()` in `src/lib/queries.ts` via the shared `IMAGE_PROJECTION`. The whole section self-suppresses when `personalHeadline` is not set and all list fields are empty.
-- `aboutPage` also has a `stats` group/field — an array (max 4) of `statItem` objects (`number` required, `suffix` optional like "+" or "k", `label` required). It drives the count-up `StatsRow` section between PressStrip and FinalCta on `/about` (`getAboutPage()` projects `stats[]{number, suffix, label}`). The section hides entirely when the array is empty, so the page is unchanged until Staci fills in the Stats tab. The front-end filters the Sanity array down to fully-populated rows before rendering, so a half-filled stat never shows a `NaN`.
-- Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `journalPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a Walnut scrim (`rgb(95 70 57 / 0.82)`) so the cream headline stays readable; when empty, the Final CTA is the solid Walnut panel with the faint leaf sprig (rebuilt 2026-09-29; the background-image path was kept). The journal image is shared across the journal index and every post (it lives on `journalPage`). Projected with `IMAGE_PROJECTION` in each page query.
+- `aboutPage` also has a `stats` group/field — an array (max 4) of `statItem` objects (`number` required, `suffix` optional like "+" or "k", `label` required). It drives the `StatsRow` section between Personal and FinalCta on `/about` (`getAboutPage()` projects `stats[]{number, suffix, label}`). The section hides entirely when the array is empty, so the page is unchanged until Staci fills in the Stats tab. The front-end filters the Sanity array down to fully-populated rows before rendering, so a half-filled stat never shows a `NaN`.
+- Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a Walnut scrim (`rgb(95 70 57 / 0.82)`) so the cream headline stays readable; when empty, the Final CTA is the solid Walnut panel with the faint leaf sprig (rebuilt 2026-09-29; the background-image path was kept). Projected with `IMAGE_PROJECTION` in each page query.
 
 **Studio guide singletons (3, protected):**
 
@@ -178,10 +180,10 @@ Five parts that only work together:
    `/api/draft-mode/disable`.
 2. **`src/sanity/resolve.ts`** — the document/URL map in both directions.
 3. **`src/pages/preview/[...slug].astro`** — one SSR route that renders any page
-   draft-aware. The eight builder singletons (home, about, process, services,
-   e-design, gift-certificates, press, resources) and custom `page` docs go
+   draft-aware. The five builder singletons (home, about, process, services,
+   e-design) and custom `page` docs go
    through their REAL renderers, so the preview cannot drift from the page. The
-   bespoke ones (faq, contact, journal, portfolio, privacy, shop, 404) preview
+   bespoke ones (faq, contact, portfolio, privacy, 404) preview
    their editable surface (hero, Extra sections, closing CTA) with a note on the
    page saying the middle is drawn in code.
 4. **`src/pages/preview/live.ts`** — an SSE proxy holding the token server-side
@@ -229,7 +231,7 @@ only two, because only two have a field behind them:
    swap. The handle exists because a custom overlay component only mounts on a
    node the Studio resolves to a FIELD - a bare array item resolves to none - so
    it carries `data-sanity` for `...[_key=="x"].<field>` via
-   `sectionFieldEditAttr`. **Known gap:** the eight `*SectionRenderer.astro`
+   `sectionFieldEditAttr`. **Known gap:** the five `*SectionRenderer.astro`
    files wrap inserted library blocks themselves and pass no `editDoc` down, so
    a block on a marker page keeps its array controls and gets no layout handle.
 2. **Script accent picker.** Click a headline, click a word, and that word is
@@ -273,18 +275,16 @@ including drift gates that read the route source. The module is plain TypeScript
 because it is bundled into the Studio, the SSR route AND PreviewLayout's browser
 script: never import `sanity` or Astro into it.
 
-**Detail pages preview at full fidelity (2026-09-29).** `/preview/portfolio/<slug>`,
-`/preview/journal/<slug>` and `/preview/guides/<slug>` render the SAME body
-component the live page builds (`src/components/detail/ProjectDetail.astro`,
-`JournalEntryDetail.astro`, `GuideDetail.astro`), fed by the same queries with the
-draft client passed in. The live `[slug].astro` pages keep only static paths, SEO,
+**Detail pages preview at full fidelity (2026-09-29).** `/preview/portfolio/<slug>`
+renders the SAME body component the live page builds
+(`src/components/detail/ProjectDetail.astro`), fed by the same query with the
+draft client passed in. (Journal posts and guides previewed the same way until
+those sections were removed on 2026-09-30.) The live `[slug].astro` pages keep only static paths, SEO,
 JSON-LD and the share card; the extraction was proven render-neutral with the
 parity harness (27/27, every section switched on so the detail pages were built).
-A guide previews even while its "Published" switch is off (`getLeadMagnet(slug, c,
-{ includeUnpublished: true })`); the live build never passes that. No previous or
+No previous or
 next link in a detail preview: those come from the build-time list. Types still
-with NO preview, so no share action: the style quiz, the calculator, and a guide
-or project with no web address yet (its fallback path is an index with no
+with NO preview, so no share action: a project with no web address yet (its fallback path is an index with no
 preview). To give one a preview: add it to `preview-routes.ts`, then a loader and
 a renderer branch in the route; the share action, navigator and Presentation
 follow on their own.
@@ -294,8 +294,9 @@ follow on their own.
 Eight Studio additions for Staci, none of which changes the live site. Where each
 lives, and the rule that makes it safe:
 
-- **Search weights (PORTS.md card 34).** `__experimental_search` on the thirteen
-  multi-instance content types (`service`, `project`, `journalEntry`, `page`, ...):
+- **Search weights (PORTS.md card 34).** `__experimental_search` on the
+  multi-instance content types (`service`, `project`, `page`, ...; thirteen until
+  the journal, shop, guides and press types were removed on 2026-09-30):
   title/name 5, location/vendor/nav label 3, summary or short description 2. Add the
   same two or three lines to any new content type the day it lands.
 - **The publish-menu helpers** arrive through ONE function, `withEditorActions` in
@@ -319,11 +320,11 @@ lives, and the rule that makes it safe:
     `src/sanity/actions/checkPage.tsx` + `src/sanity/pageOps.ts` (all PORTABLE;
     only `readSlug` from pageOps is used here, its duplicate/archive helpers are not
     wired because Reid keeps its own Archive). Reid's answers live in
-    `src/sanity/pageBuilderConfig.ts`: fourteen section hosts, the eight markers as
+    `src/sanity/pageBuilderConfig.ts`: ten section hosts, the five markers as
     self-filling, and a "Main content" header unit DERIVED from the schema (every
     visible, non-SEO, non-menu top-level field of the helper types), which is what
-    makes the alt-text check reach the project gallery, before/afters, the journal
-    body and the page tabs. It never blocks Publish. `page-check-config.test.ts`
+    makes the alt-text check reach the project gallery, before/afters and the page
+    tabs. It never blocks Publish. `page-check-config.test.ts`
     gates the config against the schema.
   - **Undo / Redo (card 27).** `src/sanity/undoRedo.ts` +
     `src/sanity/components/UndoRedo.tsx` (PORTABLE). Drafts only, rev-guarded,
@@ -333,10 +334,10 @@ lives, and the rule that makes it safe:
     hoisted transitive dependency of `sanity`; if a future install stops hoisting it,
     the build fails until it is added to `package.json`.
   - The helpers are offered on `EDITOR_HELPER_TYPES`: every section host plus
-    `project` and `journalEntry`. Share link is on every type with a page.
+    `project`. Share link is on every type with a page.
 - **Grouped "+ Add section" menu (card 17).** `SECTION_INSERT_MENU` /
   `SECTION_ARRAY_OPTIONS` in `src/sanity/schemaTypes/sections.ts`, set as `options` on
-  all fourteen builder arrays, so the in-canvas insert buttons open the same grouped,
+  all ten builder arrays, so the in-canvas insert buttons open the same grouped,
   searchable menu. Groups only, never colour: SectionRenderer owns the cadence.
   `insert-menu.test.ts` fails if a block has no group. The list view only; see
   PENDING.md for the picture grid.
@@ -349,7 +350,7 @@ lives, and the rule that makes it safe:
 - **Empty-section coaching (preview only).** `src/lib/section-coach.ts` +
   `src/components/SectionCoach.astro`. SectionRenderer swaps an empty library block
   for a dashed "Nothing here yet" note only behind the preview signal (`editDoc`, or
-  the `coach` prop the eight marker renderers pass as `Boolean(editDoc)`). Rule 8
+  the `coach` prop the five marker renderers pass as `Boolean(editDoc)`). Rule 8
   holds: parity 20/20 against a pristine snapshot, and `section-coach.test.ts`
   reads the sources to prove no live page can pass the signal.
 - **Releases off.** `releases: { enabled: false }` in `sanity.config.ts`. One editor,
@@ -363,7 +364,7 @@ lives, and the rule that makes it safe:
 
 Worth knowing if the Studio's Dark appearance setting ever comes up: `buildLegacyTheme` is **light-only**. It hard-codes white component backgrounds, so flipping the Studio to Dark leaves every panel white. `@sanity/ui`'s `buildTheme` ships a real tested dark mode and costs the brand tinting of the Studio chrome, which is a reasonable trade if Staci ever asks for it. The bronze legacy theme was kept here deliberately: it is a brand decision, not an oversight.
 
-**SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons, `journalEntry`, `leadMagnet`, the `styleQuiz` + `budgetCalculator` singletons (added when `/quiz` + `/calculator` SEO was made editable), and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
+**SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
 
 **Vision/GROQ plugin gating, and why the old test was a live bug.** The `visionTool()` plugin (the in-Studio GROQ query runner) is registered only in dev. The test used to be `process.env.NODE_ENV !== 'production'`, which was fine while the Studio was its own package and is wrong in an embedded one: Astro/Vite's client bundle injects `globalThis.process ??= {}`, so `process` exists with an empty env, `NODE_ENV` is `undefined`, and the comparison came out TRUE in production, shipping Vision to Staci. The check now reads `import.meta.env.DEV` first and FAILS CLOSED (`IS_DEV` in `sanity.config.ts`).
 
@@ -393,34 +394,32 @@ What the numbers are: Cloudflare counts at the network edge, so they include som
 
 ### Redirects on rename (PORTS.md card 22, added 2026-09-29)
 
-A published page, project, journal post or guide whose web address changes keeps its old address working. Three parts:
+A published page or project whose web address changes keeps its old address working. Three parts:
 
 - **`redirect` document type** (`src/sanity/schemaTypes/redirect.ts`, from the starter): old address, new address, permanent (301) or temporary (302), and a note. Listed in the desk at the end of **Pages → Redirects (old links)**. Staci can add one by hand for an address that never existed on this site (an old Squarespace link, a printed card).
 - **The Publish wrapper** (`src/sanity/components/slugRedirect.tsx`, PORTABLE). `sanity.config.ts` wraps every Publish action with `withSlugRedirect`. On Publish of a document that already has a published version, it compares `pathForDoc()` (`src/sanity/urls.ts`) before and after; if the address changed, it creates a PUBLISHED `redirect` (old to new, permanent), repoints any older redirect that pointed at the old address (so visitors take one hop, not two), toasts "Old link kept working", and then publishes exactly as before. Types with a fixed address or none are a no-op, so there is no type list to keep. A failed write toasts a warning and publishes anyway. An existing redirect for the same old address is never overwritten (it may have been hand-corrected).
 - **Build-time map** (`astro.config.mjs`). Published `redirect` docs are read once at config time (unauthenticated, fail-safe: any problem means no redirects and the build carries on), shaped by `buildRedirectMap()` in `src/lib/redirects.ts` (PORTABLE, the same path rules the Studio uses), and handed to Astro's `redirects`, which the Cloudflare adapter writes to `dist/client/_redirects` as real 301/302s. Like any content edit, a new redirect goes live on the next rebuild (the publish webhook).
 
-**Reid-only guard** (`src/lib/redirect-guard.ts`): a redirect whose OLD address is where a published page, project, post or guide lives NOW is dropped at build and logged (`[redirects] skipped …`). That is the rename-and-rename-back case: `/a → /b` is filed, then `/b → /a`, and the first entry would otherwise sit in `_redirects` in front of the real page and bounce every visitor in a loop (Cloudflare applies `_redirects` before serving files). The Studio document stays; it is harmless and starts working again if the page moves away. This belongs in the canonical action upstream; flagged for a starter fold-back.
+**Reid-only guard** (`src/lib/redirect-guard.ts`): a redirect whose OLD address is where a published page or project lives NOW is dropped at build and logged (`[redirects] skipped …`). That is the rename-and-rename-back case: `/a → /b` is filed, then `/b → /a`, and the first entry would otherwise sit in `_redirects` in front of the real page and bounce every visitor in a loop (Cloudflare applies `_redirects` before serving files). The Studio document stays; it is harmless and starts working again if the page moves away. This belongs in the canonical action upstream; flagged for a starter fold-back.
 
 Tests: `src/lib/redirects.test.ts` (the starter's cases, re-run under vitest) and `src/lib/redirect-guard.test.ts`.
 
 ### Canvas (AI-assisted writing)
 
-[Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio — an AI-assisted free-form drafting tool that creates `journalEntry` (and other) drafts in the production dataset. Staci uses it for longer blog work; the drafts flow into Studio for review and publish.
+[Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio — an AI-assisted free-form drafting tool that creates drafts in the production dataset; the drafts flow into Studio for review and publish. (It was set up mainly for journal posts; the journal was removed on 2026-09-30, so today it reaches project stories and services.)
 
 Two schema-level controls govern what Canvas sees, both expressed as `options.canvasApp.*` on a defineType or defineField:
 
 **Excluded from Canvas entirely** (`options.canvasApp.exclude: true` at the type level):
 
-- All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`, `journalPage`) — marketing copy is structural and locked; edit fields directly in Studio.
+- All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`) — marketing copy is structural and locked; edit fields directly in Studio.
 - `siteSettings` — configuration, not prose.
 - `studioGuide`, `studioNotes`, `studioPlaybook` — Studio handbook content; edit directly in Studio (all excluded by design to avoid a renderer dependency).
 - `testimonial` — verbatim client quotes; AI must not "improve" them.
 - `philosophyPoint`, `processStep` — short, locked structural content.
-- `journalCategory` — taxonomy, not content.
 
 **Available in Canvas with per-field voice hints** (`options.canvasApp.purpose: '...'` on prose fields):
 
-- `journalEntry` — title, excerpt, body, seoTitle, seoDescription
 - `project` — title, briefSummary, introStory, metaTitle, metaDescription
 - `service` — shortDescription, bestFor, longDescription
 - `faqItem` — question, answer
@@ -441,12 +440,12 @@ The Sanity client is at `src/lib/sanity.ts`. It exports `client`, `sanityFetch()
 
 - The build client is **always on the Sanity CDN** (`useCdn: true`), token or no token. The old `useCdn: !readToken` rested on the false belief that the CDN rejects a token; the API CDN has accepted authenticated requests since API version 2021-03-25, and every local build with the token in `.env` was quietly spending the far smaller uncached-API quota. The draft client in `src/lib/cms-preview.ts` keeps its own `useCdn: false`, which is correct for the drafts perspective.
 - `sanityFetch(query, params, fallback, c?)` retries a failed read twice (0.5 s, 1.5 s; `@sanity/client` also retries network errors and 429/502/503 on its own). If it still fails in a **production build** it throws `[sanity] fetch failed during a production build: ...` and the build stops, so the live site keeps its last good build. In **dev** it warns and returns `fallback` (`null` for a singleton, `[]` for a collection) so local work keeps moving.
-- An **absent** document is not a failure. Sanity answers `null` / `[]` and it comes back as-is, so every coming-soon and empty state (`/e-design`, `/quiz`, `/calculator`, `/guides`, `/press`, the journal and portfolio empty states) renders exactly as before.
+- An **absent** document is not a failure. Sanity answers `null` / `[]` and it comes back as-is, so every coming-soon and empty state (`/e-design`, the portfolio empty states) renders exactly as before.
 - **Never put `.catch(() => null)` or `.catch(() => [])` on a read in a static route.** That is the pattern this replaced: it swallowed the production throw, and a Sanity outage during a deploy would have shipped every page in its empty state. (Measured 2026-09-29: `origin/main` built green with a bogus project id and shipped 19 empty pages; this branch stops with the error above.) The only catches left are deliberate: `src/pages/preview/**` (live request, fails open to published or empty), and `Footer.astro`'s project list, which rethrows when `Astro.isPrerendered` and degrades to `[]` only inside a live preview request.
-- The four dynamic routes (`[slug]`, `journal/[slug]`, `portfolio/[slug]`, `guides/[slug]`) throw in a production build when a slug that `getStaticPaths` listed comes back empty, rather than publishing a real page as a redirect.
+- The two dynamic routes (`[slug]`, `portfolio/[slug]`) throw in a production build when a slug that `getStaticPaths` listed comes back empty, rather than publishing a real page as a redirect.
 - A caller-supplied client other than `client` (the preview route passes the draft client) goes straight through `sanityFetch` with no retry and no fallback.
 
-**Section-array projection.** Any page-builder array (the marker `pageBuilder` arrays, custom-page `pageBuilder`, and the `additionalSections` "Extra sections" zone on faq/contact/privacy/journal/portfolio) is projected with the single `sectionsProjection(field = 'pageBuilder')` helper in `queries.ts`. It spreads each block and resolves the per-type references (hero/CTA-band background images + cta blocks, image+text image + cta, gallery images). To wire a new section-array field on any page, add the field with the shared helper in the schema, then add `${sectionsProjection('<fieldName>')}` to that page's query and render it through `SectionRenderer`. See [Page builder](page-architecture.md) for the component side.
+**Section-array projection.** Any page-builder array (the marker `pageBuilder` arrays, custom-page `pageBuilder`, and the `additionalSections` "Extra sections" zone on faq/contact/privacy/portfolio) is projected with the single `sectionsProjection(field = 'pageBuilder')` helper in `queries.ts`. It spreads each block and resolves the per-type references (hero/CTA-band background images + cta blocks, image+text image + cta, gallery images). To wire a new section-array field on any page, add the field with the shared helper in the schema, then add `${sectionsProjection('<fieldName>')}` to that page's query and render it through `SectionRenderer`. See [Page builder](page-architecture.md) for the component side.
 
 ### Auto-populated lists
 
@@ -474,7 +473,7 @@ The contact form posts to Web3Forms (see Deployment section for env vars). On su
 5. **Rough budget range** (required) — dropdown of 6 brackets sized to Reid Design's actual pricing
 6. **Timeline** (required) — dropdown of 5 buckets
 7. **Tell us about the space** (required, textarea)
-8. **How did you hear about Reid Design?** (optional) — dropdown of 11 source options, including "Took the style quiz" and "Downloaded a free guide" (added to encourage tracking of capture-tool leads)
+8. **How did you hear about Reid Design?** (optional) — dropdown of 8 source options (the "Took the style quiz", "Downloaded a free guide" and "Reading the journal" options went with those sections on 2026-09-30; the live `contactPage.formSourceOptions` override still lists them until Staci removes them in the Studio)
 
 The **email subject line** front-loads project type + location for inbox triage: `"Inquiry: Full Room Design in Carmel (Sarah Hooker)"`. Staci can sort and prioritize from her inbox without opening.
 

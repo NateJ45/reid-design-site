@@ -177,8 +177,8 @@ prices are the loudest thing on it.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on Oat, with
   a round studio stamp that turns as the band scrolls past. On Services the
   page then steps down the strip: linen, Oat, Walnut close, ink footer.
-- `StickyCTAChip.tsx`: now the ink pill, sentence case (also on journal and
-  project pages).
+- `StickyCTAChip.tsx`: now the ink pill, sentence case (also on project
+  pages).
 - `ServiceAreaMap.astro` (Contact): hairline paper frame, tiles warmed with a
   CSS filter that lifts on hover or focus.
 - E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
@@ -344,7 +344,8 @@ portfolio templates are ready for the day the first `project` exists.
 
 ## Still on the old grammar
 
-The hidden sections (journal, shop, quiz, calculator, guides, press, gift
-certificates, resources) inherit the tokens, fonts, buttons, Hero, headings
-and chrome but keep their older section components. Rebuild each one against
-this document when it is switched on.
+Nothing public is left on it. The eight hidden sections that were (journal,
+shop, quiz, calculator, guides, press, gift certificates, resources) were
+removed outright on 2026-09-30 rather than rebuilt, because they were never
+launched. The portfolio, still switched off in Sanity, was rebuilt in phase 2
+(see "Blocks and Portfolio") and is ready the day it is switched on.

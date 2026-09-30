@@ -74,34 +74,16 @@ export function pathForDoc(schemaType: string, doc: any): string | null {
       return '/faq';
     case 'contactPage':
       return '/contact';
-    case 'journalPage':
-      return '/journal';
     case 'notFoundPage':
       return '/404';
     // Conversion-build page singletons
     case 'eDesignPage':
       return '/e-design';
-    case 'shopPage':
-      return '/shop';
-    case 'giftPage':
-      return '/gift-certificates';
-    case 'resourcesPage':
-      return '/resources';
     case 'privacyPage':
       return '/privacy';
-    case 'pressPage':
-      return '/press';
-    case 'styleQuiz':
-      return '/quiz';
-    case 'budgetCalculator':
-      return '/calculator';
     // Collections with their own detail route
-    case 'journalEntry':
-      return slug ? `/journal/${slug}` : '/journal';
     case 'project':
       return slug ? `/portfolio/${slug}` : '/portfolio';
-    case 'leadMagnet':
-      return slug ? `/guides/${slug}` : '/guides';
     // Collections that render inside a parent page
     case 'service':
       return '/services';
@@ -113,13 +95,6 @@ export function pathForDoc(schemaType: string, doc: any): string | null {
       return '/';
     case 'faqItem':
       return '/faq';
-    case 'journalCategory':
-      return '/journal';
-    case 'pressItem':
-      return '/press';
-    case 'shopCollection':
-    case 'shopItem':
-      return '/shop';
     // Custom pages Staci builds in the page builder live at /<slug>.
     case 'page':
       return slug ? `/${slug}` : null;

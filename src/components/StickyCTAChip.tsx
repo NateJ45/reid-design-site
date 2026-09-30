@@ -4,7 +4,7 @@
 // Honors prefers-reduced-motion. Dismissible via the X — dismissal persists
 // for the session via sessionStorage so a single page-view doesn't re-prompt.
 //
-// Opt-in: only mount on long pages (portfolio detail, services, journal post)
+// Opt-in: only mount on long pages (portfolio detail, services)
 // where a contextual nudge is genuinely useful. NOT on home, where the hero
 // CTA is already enough.
 

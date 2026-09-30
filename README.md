@@ -14,17 +14,13 @@ The goal was a site that sells the way a designer sells: show the transformation
 
 ## The work
 
-**A portfolio built around the reveal.** Every project page opens with a before/after slider, then a full gallery, a table of contents for longer write-ups, and a link to any journal post that features the room. The project grid filters by Room and Style at the same time, so a visitor looking for "kitchen, modern" finds it in one move.
+**A portfolio built around the reveal.** Every project page opens with a before/after slider, then a full gallery, and a table of contents for longer write-ups. The project grid filters by Room and Style at the same time, so a visitor looking for "kitchen, modern" finds it in one move.
 
-**Two tools that do the qualifying.** A multi-step **style-archetype quiz** turns a browsing visitor into a lead with a result worth waiting for, and a **budget calculator** sets expectations before the first call, so the consultations Staci takes are the right ones. Both are lead magnets that earn an email honestly, by giving something back.
-
-**A service ladder, not a single price.** The site presents tiered services and a productized **E-Design** offering for clients who want the plan without the full engagement, plus gift certificates and an affiliate "Shop My Favorites" page (with the FTC disclosure done properly). Contact pairs a form with a Calendly embed so booking is one click, not an email thread.
-
-**A journal and a resources hub** keep the site alive between projects and give search engines something to find.
+**A service ladder, not a single price.** The site presents tiered services and a productized **E-Design** offering for clients who want the plan without the full engagement, Contact pairs a form with a Calendly embed so booking is one click, not an email thread.
 
 ## The result
 
-Staci edits every word, price, photo, and project in Sanity; the site rebuilds itself. The portfolio leads with transformations, the quiz and calculator feed a real pipeline, and the whole thing loads fast and reads clearly on a phone.
+Staci edits every word, price, photo, and project in Sanity; the site rebuilds itself. The portfolio leads with transformations, and the whole thing loads fast and reads clearly on a phone.
 
 ---
 
@@ -34,12 +30,14 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 - **Sanity 6.4** headless CMS in the same package (schemas in `src/sanity/schemaTypes/`), with the Studio **embedded at `/studio`** so it rebuilds with every deploy and cannot drift stale
 - **Live preview** at `/preview/*` through Sanity's Presentation tool: click any text to edit it, and add, duplicate, reorder or remove whole sections right in the canvas
 - **Tailwind 4** via `@tailwindcss/vite` (brand tokens in `src/styles/globals.css`, no `tailwind.config`)
-- **React 19** islands for the interactive pieces: nav drawer, contact form, style quiz, budget calculator, before/after sliders, galleries
+- **React 19** islands for the interactive pieces: nav drawer, contact form, before/after sliders, galleries
 - **Cloudflare Workers** hosting via `wrangler deploy -c dist/server/wrangler.json`; pushes to `main` auto-deploy through Cloudflare's CI
 
 ## Pages
 
-Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · Journal (+ post) · E-Design · Shop · Gift Certificates · Style Quiz · Budget Calculator · Resources · Guides · Search.
+Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · E-Design · Privacy · Search, plus custom pages Staci builds herself.
+
+Removed 2026-09-30, never launched: the journal, shop, style quiz, budget calculator, guides, press, gift certificates and resources pages, and the newsletter signup. Their old addresses forward permanently (`public/_redirects`); their documents are still in the dataset, untouched.
 
 Also live: a dated announcement bar / popup Staci posts from the Studio (Announcements), site search (Pagefind, built at the end of `npm run build`), a Studio "Site stats" traffic panel (needs the `CF_ANALYTICS_TOKEN` secret), and a weekly outbound-link report (`.github/workflows/link-health.yml`).
 
@@ -69,7 +67,7 @@ Every page's social share image is drawn by the build: `npm run build` finishes 
 writing `dist/client/og/<route>.png` (Staci's logo, one of her photos in an arch,
 the page's headline) and fails if any page points at a card that is missing. No
 share images are committed except the fallback `public/og-default.png`
-(`npm run og`). To see the card every project, journal post and guide would get:
+(`npm run og`). To see the card every project would get:
 
 ```sh
 npm run og:cards -- preview tmp/og-preview   # writes the PNGs + _contact-sheet.png

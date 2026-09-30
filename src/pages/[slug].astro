@@ -12,7 +12,9 @@ import { site } from '@/data/site';
 export async function getStaticPaths() {
   // Defined inside getStaticPaths: Astro runs this function in an isolated
   // scope that cannot see component-level consts. Mirrors the page schema's
-  // reserved list so a custom page can never shadow a built-in route.
+  // reserved list so a custom page can never shadow a built-in route. The
+  // "retired" slugs are the sections removed on 2026-09-30: public/_redirects
+  // forwards them, so they stay reserved (see preview-routes.ts).
   const RESERVED = new Set([
     'about',
     'services',
@@ -20,15 +22,15 @@ export async function getStaticPaths() {
     'portfolio',
     'faq',
     'contact',
-    'journal',
+    'journal', // retired
     'e-design',
-    'shop',
-    'gift-certificates',
-    'quiz',
-    'calculator',
-    'resources',
-    'guides',
-    'press',
+    'shop', // retired
+    'gift-certificates', // retired
+    'quiz', // retired
+    'calculator', // retired
+    'resources', // retired
+    'guides', // retired
+    'press', // retired
     'privacy',
     'search',
     'pagefind',

@@ -51,16 +51,15 @@ For before/after pairs on project pages, use `BeforeAfterSlider.tsx` (React isla
 
 ### Portrait orientation caps
 
-Portfolio + journal inline images detect orientation from the Sanity asset `_ref` (it encodes `{W}x{H}` in the filename) via `parseSanityAssetDimensions()`. When `height > width`:
+Portfolio inline images detect orientation from the Sanity asset `_ref` (it encodes `{W}x{H}` in the filename) via `parseSanityAssetDimensions()`. When `height > width`:
 
 - `PortableText.tsx` (`image` block, case-study intro story): figure wrapper becomes `my-section-md mx-auto max-w-[600px]`. Landscape shots keep the original `-mx-m md:mx-0` (full column, edge-to-edge on mobile).
-- `JournalPortableText.tsx` (`inlineImage` block): same `mx-auto max-w-[600px]`, overrides the editor's `standard`/`wide`/`full` size choice. Landscape shots get the chosen size treatment.
 
 Why: portrait shots blown out to full column width are taller than the viewport, which is hostile. ~600 px is the readable inset for an editorial portrait.
 
 ### Hero / cover image cap
 
-The portfolio (`/portfolio/[slug]`) and journal (`/journal/[slug]`) detail pages cap their hero image at `max-w-4xl` (~896 px), with `<SanityImage width={1800}>` and `sizes="(min-width: 920px) 896px, 100vw"`. Reads as an editorial feature, not a billboard. Sanity request stops at 1800 so we're not pulling a 1920 px file for a slot that maxes around 900 px even at 2× retina.
+The portfolio detail page (`/portfolio/[slug]`) caps its hero image at `max-w-4xl` (~896 px), with `<SanityImage width={1800}>` and `sizes="(min-width: 920px) 896px, 100vw"`. Reads as an editorial feature, not a billboard. Sanity request stops at 1800 so we're not pulling a 1920 px file for a slot that maxes around 900 px even at 2× retina.
 
 ### Image guidelines for editors
 

@@ -28,15 +28,8 @@ const SINGLETONS = [
   'faqPage',
   'contactPage',
   'portfolioPage',
-  'journalPage',
   'privacyPage',
-  'pressPage',
-  'resourcesPage',
   'eDesignPage',
-  'giftPage',
-  'shopPage',
-  'styleQuiz',
-  'budgetCalculator',
   'notFoundPage',
 ];
 
@@ -66,14 +59,10 @@ for (const type of SINGLETONS) {
 const projects = await client.fetch(
   `*[_type == "project" && !(_id in path("drafts.**"))]{ _id, title, "t": metaTitle, "d": metaDescription }`,
 );
-const entries = await client.fetch(
-  `*[_type == "journalEntry" && !(_id in path("drafts.**"))]{ _id, title, "t": seoTitle, "d": seoDescription }`,
-);
 const blank = (arr) => arr.filter((x) => !String(x.t ?? '').trim() || !String(x.d ?? '').trim());
 
 console.log('\n=== Collections ===');
 console.log(`  project       ${blank(projects).length}/${projects.length} missing SEO`);
-console.log(`  journalEntry  ${blank(entries).length}/${entries.length} missing SEO`);
 
 console.log(
   `\n${missing.length} singleton(s) need SEO copy: ${missing.map((m) => m.type).join(', ') || 'none'}`,

@@ -50,19 +50,22 @@ describe('drift against the schema', () => {
 
   it('every "Built-in section" marker type is self-filling', () => {
     const markers = types.map((t) => t.name).filter((n) => n.endsWith('SectionMarker'));
-    expect(markers.length).toBeGreaterThanOrEqual(8);
+    // Five since 2026-09-30 (home, about, process, services, e-design); the
+    // gift, press and resources markers went with their pages.
+    expect(markers.length).toBeGreaterThanOrEqual(5);
     for (const m of markers) expect(SELF_FILLING_SECTIONS).toContain(m);
   });
 
-  it('the helpers reach the photo-heavy story types too', () => {
+  it('the helpers reach the photo-heavy project stories too', () => {
     expect(EDITOR_HELPER_TYPES.has('project')).toBe(true);
-    expect(EDITOR_HELPER_TYPES.has('journalEntry')).toBe(true);
+    // The journal was removed on 2026-09-30; its type must not linger here.
+    expect(EDITOR_HELPER_TYPES.has('journalEntry')).toBe(false);
     expect(EDITOR_HELPER_TYPES.has('siteSettings')).toBe(false);
   });
 
   it('"Main content" walks the photo fields and skips the section, SEO and hidden ones', () => {
     const fields = PAGE_CHECK_CONFIG.header?.fields ?? [];
-    for (const f of ['gallery', 'beforeAfters', 'coverImage', 'body', 'meetStaciPhoto']) {
+    for (const f of ['gallery', 'beforeAfters', 'heroImage', 'body', 'meetStaciPhoto']) {
       expect(fields).toContain(f);
     }
     for (const f of ['pageBuilder', 'additionalSections', 'seoImage', 'seoTitle']) {
@@ -135,7 +138,7 @@ describe('on Reid-shaped documents', () => {
               {
                 _type: 'block',
                 markDefs: [
-                  { _type: 'link', _key: 'l1', href: '/journal/spring-refresh' },
+                  { _type: 'link', _key: 'l1', href: '/portfolio/spring-refresh' },
                   { _type: 'link', _key: 'l2', href: '/studio-tour' },
                   { _type: 'link', _key: 'l3', href: '/kitchens' },
                 ],

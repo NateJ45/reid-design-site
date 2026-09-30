@@ -8,7 +8,7 @@
 //
 // What gets added, and where:
 //   - "Check this page..." (PORTS.md card 25): on EDITOR_HELPER_TYPES, i.e.
-//     every page with a section list plus project stories and journal posts.
+//     every page with a section list plus project stories.
 //     See src/sanity/pageBuilderConfig.ts.
 //   - "Undo last change" and "Redo" (card 27): on the same types. The
 //     Ctrl+Z / Ctrl+Shift+Z keyboard layer is a separate plugin
@@ -19,8 +19,8 @@
 //     already returns null for a type with no page at all (Site settings,
 //     Business info, the Studio help documents); Reid adds the second filter
 //     here, through shareWhenPreviewable, because a type can have a LIVE page
-//     and still no preview (the style quiz, the calculator, a guide with no
-//     web address yet). Those links used to open a 404. The list of drawable
+//     and still no preview (a project with no web address yet). Those links
+//     used to open a 404. The list of drawable
 //     paths is src/sanity/preview-routes.ts, so teaching the preview route a
 //     new type turns the action on for it with no change here.
 //
@@ -40,7 +40,7 @@ import { EDITOR_HELPER_TYPES } from './pageBuilderConfig';
  *
  * The canonical action is called on EVERY render, before the check, so its
  * hooks run in the same order whatever the answer (React's rule of hooks: a
- * guide that gains a slug mid-edit flips the answer without a remount). Its
+ * project that gains a slug mid-edit flips the answer without a remount). Its
  * PORTABLE body (shareDraftLink.tsx) is deliberately left untouched.
  */
 export const shareWhenPreviewable: DocumentActionComponent = (props) => {

@@ -5,14 +5,18 @@
 // unchanged homePage fields + collections (no content migration). Inserted
 // general blocks delegate to SectionRenderer. Falls back to the default order
 // when the array is empty.
+//
+// Retired markers (2026-09-30): 'featuredJournal' and 'press' can still be
+// stored on the home page's layout (their option values stay in the schema so
+// those rows do not fail validation and block publishing), but the journal and
+// press were removed, so both fall through to the final `null` below and
+// render nothing.
 import HomeHero from '@/components/home/HomeHero.astro';
 import HomeStaci from '@/components/home/HomeStaci.astro';
 import HomeWords from '@/components/home/HomeWords.astro';
 import TapeProcess from '@/components/home/TapeProcess.astro';
 import PaintChips from '@/components/home/PaintChips.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
-import FeaturedJournal from '@/components/FeaturedJournal.astro';
-import PressStrip from '@/components/PressStrip.astro';
 import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
@@ -22,7 +26,6 @@ interface Props {
   sections?: any[];
   page: any;
   siteSettings?: any;
-  pressItems?: any[];
   visible: any;
   /**
    * PREVIEW ONLY (added 2026-08-28, PORTS.md card 17). When the Studio preview
@@ -37,14 +40,7 @@ interface Props {
   editDoc?: EditDoc;
 }
 
-const {
-  sections = [],
-  page,
-  siteSettings,
-  pressItems = [],
-  visible,
-  editDoc,
-} = Astro.props as Props;
+const { sections = [], page, siteSettings, visible, editDoc } = Astro.props as Props;
 
 // A real element in preview, nothing at all on the live site. Must NOT be
 // `display: contents`: the overlay outlines the element's rect and a contents
@@ -60,8 +56,6 @@ const DEFAULT_ORDER = [
   'testimonials',
   'processPreview',
   'services',
-  'featuredJournal',
-  'press',
   'serviceAreaCue',
   'finalCta',
 ].map((section) => ({ _type: 'homeSectionMarker', section }));
@@ -135,23 +129,6 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             cta={page?.servicesGridCta}
             footnote={page?.servicesGridFootnote}
           />
-        ) : s.section === 'featuredJournal' ? (
-          visible.journal ? (
-            <FeaturedJournal
-              entries={page?.featuredJournalEntries ?? []}
-              eyebrow={page?.featuredJournalEyebrow ?? 'From the Journal'}
-              headline={page?.featuredJournalHeadline ?? 'How I think about design.'}
-              subhead={
-                page?.featuredJournalSubhead ??
-                'Posts on the design moves that change a room, source roundups behind specific projects, and the occasional honest note about what I would do differently. The thinking that informs every consultation.'
-              }
-              cta={page?.featuredJournalCta}
-            />
-          ) : null
-        ) : s.section === 'press' ? (
-          visible.press && pressItems.length > 0 ? (
-            <PressStrip items={pressItems} />
-          ) : null
         ) : s.section === 'serviceAreaCue' ? (
           <ServiceAreaCue text={page?.serviceAreaCue} cities={siteSettings?.serviceAreas} />
         ) : s.section === 'finalCta' ? (

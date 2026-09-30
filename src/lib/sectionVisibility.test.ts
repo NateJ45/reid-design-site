@@ -3,66 +3,38 @@ import { getSectionVisibility, isHiddenSectionPath, SECTION_ROUTES } from './sec
 
 describe('getSectionVisibility', () => {
   it('treats an undefined input as every section visible', () => {
-    const visible = getSectionVisibility(undefined);
-    expect(visible).toEqual({
-      portfolio: true,
-      journal: true,
-      shop: true,
-      eDesign: true,
-      giftCertificates: true,
-      press: true,
-      resources: true,
-      guides: true,
-      styleQuiz: true,
-      budgetCalculator: true,
-    });
+    expect(getSectionVisibility(undefined)).toEqual({ portfolio: true, eDesign: true });
   });
 
   it('treats a null input as every section visible', () => {
     // Same as undefined: the rule is `value !== false`, and null !== false.
     const visible = getSectionVisibility(null);
     expect(visible.portfolio).toBe(true);
-    expect(visible.budgetCalculator).toBe(true);
-  });
-
-  it('treats null and unset fields on an object as visible, and only explicit false as hidden', () => {
-    const visible = getSectionVisibility({
-      showPortfolio: false,
-      showJournal: null,
-      showShop: true,
-      // showEDesign left unset entirely
-    });
-    expect(visible.portfolio).toBe(false);
-    expect(visible.journal).toBe(true);
-    expect(visible.shop).toBe(true);
     expect(visible.eDesign).toBe(true);
   });
 
-  it('hides every section that is explicitly set to false, independent of the others', () => {
-    const visible = getSectionVisibility({
-      showPortfolio: false,
-      showJournal: false,
-      showShop: false,
-      showEDesign: false,
-      showGiftCertificates: false,
-      showPress: false,
-      showResources: false,
-      showGuides: false,
-      showStyleQuiz: false,
-      showBudgetCalculator: false,
-    });
-    expect(visible).toEqual({
+  it('treats null and unset fields on an object as visible, and only explicit false as hidden', () => {
+    expect(getSectionVisibility({ showPortfolio: false })).toEqual({
       portfolio: false,
-      journal: false,
-      shop: false,
-      eDesign: false,
-      giftCertificates: false,
-      press: false,
-      resources: false,
-      guides: false,
-      styleQuiz: false,
-      budgetCalculator: false,
+      eDesign: true,
     });
+    expect(getSectionVisibility({ showPortfolio: null, showEDesign: false })).toEqual({
+      portfolio: true,
+      eDesign: false,
+    });
+  });
+
+  it('hides every section that is explicitly set to false, independent of the others', () => {
+    expect(getSectionVisibility(allOffRaw())).toEqual({ portfolio: false, eDesign: false });
+  });
+
+  it('ignores the retired switches still stored on siteSettings', () => {
+    // The eight removed sections' switches (showJournal, showShop, ...) stay in
+    // the dataset as hidden fields (2026-09-30). They must not leak into the map.
+    const raw = { showJournal: false, showShop: false } as unknown as Parameters<
+      typeof getSectionVisibility
+    >[0];
+    expect(getSectionVisibility(raw)).toEqual({ portfolio: true, eDesign: true });
   });
 });
 
@@ -84,8 +56,7 @@ describe('isHiddenSectionPath', () => {
 
   it('hides detail pages under a hidden section', () => {
     expect(isHiddenSectionPath('/portfolio/before-after/', allOff)).toBe(true);
-    expect(isHiddenSectionPath('/journal/some-post/', allOff)).toBe(true);
-    expect(isHiddenSectionPath('/guides/a-guide/', allOff)).toBe(true);
+    expect(isHiddenSectionPath('/portfolio/a-project/', allOff)).toBe(true);
   });
 
   it('never hides a page that is not a section, or a look-alike slug', () => {
@@ -95,7 +66,7 @@ describe('isHiddenSectionPath', () => {
       '/contact/',
       '/privacy/',
       '/portfolio-tips/',
-      '/shopping/',
+      '/e-designers/',
     ]) {
       expect(isHiddenSectionPath(path, allOff), path).toBe(false);
     }
@@ -110,25 +81,13 @@ describe('isHiddenSectionPath', () => {
     }
   });
 
-  it('matches the live 2026-09-28 settings: e-design visible, the other nine hidden', () => {
-    const live = getSectionVisibility({ ...allOffRaw(), showEDesign: true });
+  it('matches the live settings: e-design visible, portfolio hidden', () => {
+    const live = getSectionVisibility({ showPortfolio: false, showEDesign: true });
     expect(isHiddenSectionPath('/e-design/', live)).toBe(false);
     expect(isHiddenSectionPath('/portfolio/', live)).toBe(true);
-    expect(isHiddenSectionPath('/calculator/', live)).toBe(true);
   });
 });
 
 function allOffRaw() {
-  return {
-    showPortfolio: false,
-    showJournal: false,
-    showShop: false,
-    showEDesign: false,
-    showGiftCertificates: false,
-    showPress: false,
-    showResources: false,
-    showGuides: false,
-    showStyleQuiz: false,
-    showBudgetCalculator: false,
-  };
+  return { showPortfolio: false, showEDesign: false };
 }

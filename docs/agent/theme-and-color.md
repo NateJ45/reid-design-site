@@ -165,7 +165,7 @@ If you add a new eyebrow label, the pattern is:
 
 `text-primary-dark` (Bronze Dark `#7A5D4C`) is a **static brand token**. It reads at 5+:1 on Cream but only 2.53:1 on the dormant dark-mode background. For any always-on text (prices, headings, accent body), use `text-link` instead. Hover states using `hover:text-primary-dark` are fine since they're momentary.
 
-The same audit-driven sweep already migrated `text-primary-dark` → `text-link` in ServiceCard prices, ServiceAreaCue Plainfield highlight, ProcessStep / about philosophy numerals, journal pull-quote glyph + price inline, and CaseStudyTOC active state. (`ServiceAreaCue.astro` was rewritten in place in the 2026-09-29 rebuild.)
+The same audit-driven sweep already migrated `text-primary-dark` → `text-link` in ServiceCard prices, ServiceAreaCue Plainfield highlight, ProcessStep / about philosophy numerals, and CaseStudyTOC active state. (`ServiceAreaCue.astro` was rewritten in place in the 2026-09-29 rebuild.)
 
 ### Server-only console warnings
 

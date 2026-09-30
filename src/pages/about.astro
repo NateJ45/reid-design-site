@@ -6,23 +6,16 @@
 // blocks) without any content moving. The words and photos are still edited in
 // the named field tabs (Story, Philosophy, Personal, Stats, Final CTA).
 //
-// Section order (default): Hero, Story, Philosophy, Personal, Press strip
-// (when press is on + populated), Stats, Final CTA.
+// Section order (default): Hero, Story, Philosophy, Personal, Stats, Final
+// CTA. (The press strip was removed on 2026-09-30.)
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
-import { getAboutPage, getSiteSettings, getPressItems } from '@/lib/queries';
-import { getSectionVisibility } from '@/lib/sectionVisibility';
+import { getAboutPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
-const [page, siteSettings, pressItems] = await Promise.all([
-  getAboutPage(),
-  getSiteSettings(),
-  getPressItems(),
-]);
-
-const visible = getSectionVisibility(siteSettings?.sectionVisibility);
+const [page, siteSettings] = await Promise.all([getAboutPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'About Staci · Reid Design';
 const description =
@@ -51,7 +44,5 @@ const schemas = [
     sections={page?.pageBuilder}
     page={page}
     philosophyPoints={philosophyPoints}
-    pressItems={pressItems}
-    visiblePress={visible.press}
   />
 </BaseLayout>

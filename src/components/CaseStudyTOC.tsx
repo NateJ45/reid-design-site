@@ -8,7 +8,7 @@
 //
 // Restyled 2026-09-30 (phase 2 of the rebuild): a sentence-case label, ink 2
 // links on a hairline, the current section in ink with a Warm Bronze marker
-// (a mark, not text). Shared by the project and journal detail pages.
+// (a mark, not text). Used by the project detail page.
 
 import { useEffect, useState, type MouseEvent } from 'react';
 import type { Heading } from '@/lib/portable-text-headings';

@@ -13,7 +13,7 @@
 //
 // Reid's one real difference from the starter: most of the words and nearly
 // all the PHOTOS live in the page's own tabs (Hero, Meet Staci, the project
-// gallery, the journal body), not in the section list. So the header unit here
+// gallery), not in the section list. So the header unit here
 // is "Main content", built from every visible top-level field of the document,
 // which is what makes the alt-text check worth running on a photo-heavy site.
 // =============================================================================
@@ -24,8 +24,8 @@ import { RESERVED_SLUGS } from './schemaTypes/page';
 
 /**
  * Every document type that carries a page-builder array, and the array a new
- * section goes into. The eight builder singletons and the custom `page` use
- * `pageBuilder`; the five bespoke pages only have the "Extra sections" append
+ * section goes into. The five builder singletons and the custom `page` use
+ * `pageBuilder`; the four bespoke pages only have the "Extra sections" append
  * zone, `additionalSections`. Mirrors the list in src/lib/preview-edit-attr.ts.
  */
 export const SECTION_HOST_TYPES: Readonly<Record<string, string>> = {
@@ -35,12 +35,8 @@ export const SECTION_HOST_TYPES: Readonly<Record<string, string>> = {
   processPage: 'pageBuilder',
   servicesPage: 'pageBuilder',
   eDesignPage: 'pageBuilder',
-  giftPage: 'pageBuilder',
-  pressPage: 'pageBuilder',
-  resourcesPage: 'pageBuilder',
   faqPage: 'additionalSections',
   contactPage: 'additionalSections',
-  journalPage: 'additionalSections',
   portfolioPage: 'additionalSections',
   privacyPage: 'additionalSections',
 };
@@ -50,15 +46,11 @@ export const PAGE_BUILDER_TYPES = new Set<string>(Object.keys(SECTION_HOST_TYPES
 
 /**
  * Where the editor helpers (Check this page, Undo, Redo) are offered: every
- * page-builder type, plus the two photo-heavy story types. A project story is
+ * page-builder type, plus project stories. A project story is
  * the page on this site most likely to have a photo with no description, and a
  * mis-dragged gallery is exactly what Undo is for.
  */
-export const EDITOR_HELPER_TYPES = new Set<string>([
-  ...PAGE_BUILDER_TYPES,
-  'project',
-  'journalEntry',
-]);
+export const EDITOR_HELPER_TYPES = new Set<string>([...PAGE_BUILDER_TYPES, 'project']);
 
 /**
  * Sections that fill THEMSELVES. The "Built-in section" markers are the big
@@ -72,9 +64,6 @@ export const SELF_FILLING_SECTIONS = [
   'processSectionMarker',
   'servicesSectionMarker',
   'eDesignSectionMarker',
-  'giftSectionMarker',
-  'pressSectionMarker',
-  'resourcesSectionMarker',
   'spacerSection',
 ] as const;
 

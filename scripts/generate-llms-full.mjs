@@ -1,7 +1,7 @@
 // Generates public/llms-full.txt — the expanded companion to llms.txt. It
 // inlines the substantive site content (services and prices, the process,
-// FAQs, service area and contact, plus the current portfolio, journal, and
-// guides) pulled live from Sanity, so a language model can answer questions
+// FAQs, service area and contact, plus the current portfolio) pulled live
+// from Sanity (the journal and guides sections went on 2026-09-30), so a language model can answer questions
 // about Reid Design from a single document.
 //
 // Run via `npm run llms:full`. Needs SANITY_API_READ_TOKEN (or the write token)
@@ -54,7 +54,7 @@ function ptToPlainText(blocks) {
 
 const SITE = 'https://reiddesignllc.com';
 
-const [settings, services, steps, faqs, projects, journal, guides] = await Promise.all([
+const [settings, services, steps, faqs, projects] = await Promise.all([
   client
     .fetch(
       `*[_type=="siteSettings"][0]{ email, phone, "serviceAreas": *[_type=="businessInfo"][0].serviceAreas, "availabilityStatus": *[_type=="businessInfo"][0].availabilityStatus }`,
@@ -74,16 +74,6 @@ const [settings, services, steps, faqs, projects, journal, guides] = await Promi
   client
     .fetch(
       `*[_type=="project" && defined(slug.current)]|order(coalesce(year, 0) desc){ title, location, year, briefSummary, "slug": slug.current }`,
-    )
-    .catch(() => []),
-  client
-    .fetch(
-      `*[_type=="journalEntry" && defined(slug.current)]|order(publishedAt desc){ title, excerpt, "slug": slug.current }`,
-    )
-    .catch(() => []),
-  client
-    .fetch(
-      `*[_type=="leadMagnet" && published==true && defined(slug.current)]|order(orderRank){ title, summary, "slug": slug.current }`,
     )
     .catch(() => []),
 ]);
@@ -170,26 +160,6 @@ if (Array.isArray(projects) && projects.length) {
   p('');
 }
 
-if (Array.isArray(journal) && journal.length) {
-  p('## Journal');
-  p('');
-  for (const j of journal) {
-    if (!j?.title) continue;
-    p(`- [${j.title}](${SITE}/journal/${j.slug}/)${j.excerpt ? `: ${j.excerpt}` : ''}`);
-  }
-  p('');
-}
-
-if (Array.isArray(guides) && guides.length) {
-  p('## Free guides');
-  p('');
-  for (const g of guides) {
-    if (!g?.title) continue;
-    p(`- [${g.title}](${SITE}/guides/${g.slug}/)${g.summary ? `: ${g.summary}` : ''}`);
-  }
-  p('');
-}
-
 const out =
   lines
     .join('\n')
@@ -199,5 +169,5 @@ writeFileSync(resolve(root, 'public/llms-full.txt'), out, 'utf-8');
 console.log(
   `[ok] wrote public/llms-full.txt — ${out.length} bytes (` +
     `${services?.length ?? 0} services, ${steps?.length ?? 0} steps, ${faqs?.length ?? 0} faqs, ` +
-    `${projects?.length ?? 0} projects, ${journal?.length ?? 0} posts, ${guides?.length ?? 0} guides)`,
+    `${projects?.length ?? 0} projects)`,
 );

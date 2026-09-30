@@ -22,6 +22,10 @@
 // can never deny a cookie the site is setting. Until 2026-09-28 it did: GA4 was
 // live while the Sanity body said "There is no Google Analytics". Google's own
 // Analytics terms require disclosing the use of Analytics and its cookies.
+//
+// The fallback copy stopped mentioning a newsletter on 2026-09-30, when the
+// signup was removed. The Sanity privacyPage body is CONTENT and still has to
+// be edited in the Studio by hand (nothing here rewrites it).
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
@@ -37,8 +41,7 @@ const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSetting
 
 const title = page?.seoTitle ?? 'Privacy Policy · Reid Design';
 const description =
-  page?.seoDescription ??
-  'How Reid Design handles the information you share when you reach out or subscribe.';
+  page?.seoDescription ?? 'How Reid Design handles the information you share when you reach out.';
 
 const heroEyebrow = page?.heroEyebrow ?? 'Transparency first.';
 const heroHeadline = page?.heroHeadline ?? 'Privacy Policy';
@@ -81,7 +84,6 @@ const MEASURED_ID = 'how-traffic-is-measured';
 const FALLBACK_SECTIONS = [
   { id: 'what-gets-collected', text: 'What gets collected' },
   { id: 'what-doesnt-happen', text: 'What doesn’t happen' },
-  { id: 'unsubscribing', text: 'Unsubscribing from the newsletter' },
   { id: 'questions-or-data-requests', text: 'Questions or data requests' },
 ];
 
@@ -176,11 +178,6 @@ const toc = [
                 and whatever details you include in your message. That information is used only to
                 respond to you and to help plan your project. Nothing else.
               </p>
-              <p class="ptd-p">
-                If you subscribe to the newsletter, your email address goes to the email marketing
-                provider so occasional studio updates, room ideas, and project previews can reach
-                you. It is not shared with anyone else.
-              </p>
 
               <h2 id="what-doesnt-happen" class="ptd-h2">
                 What doesn't happen
@@ -189,15 +186,6 @@ const toc = [
                 <li class="ptd-li">Your information is never sold.</li>
                 <li class="ptd-li">There is no ad targeting or retargeting on this site.</li>
               </ul>
-
-              <h2 id="unsubscribing" class="ptd-h2">
-                Unsubscribing from the newsletter
-              </h2>
-              <p class="ptd-p">
-                Every email includes an unsubscribe link at the bottom. Click it and you're off the
-                list right away. If you run into any trouble, email directly and it'll be handled
-                promptly.
-              </p>
 
               <h2 id="questions-or-data-requests" class="ptd-h2">
                 Questions or data requests

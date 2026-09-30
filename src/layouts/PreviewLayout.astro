@@ -208,8 +208,8 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
       // So: same-origin links with a preview equivalent are remapped into
       // /preview/* (the visual-editing history adapter then reports the new
       // location, and Presentation resolves the document, so the navigator and
-      // the edit panel follow the click). Links with NO preview route (/quiz,
-      // /calculator, /guides, /api, /studio, external origins) split by
+      // the edit panel follow the click). Links with NO preview route (/search,
+      // /portfolio/before-after, /api, /studio, external origins) split by
       // context:
       //  - EMBEDDED in the Studio: the navigation is SUPPRESSED entirely. A
       //    click on a card there is an EDIT gesture (the stega overlay already
@@ -222,8 +222,8 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
       // (2026-09-29), the same map the preview route draws from. It replaced a
       // hand-kept FIRST_SEGMENT_PREVIEWABLE / NEVER_REMAP pair here that had to
       // mirror the route by hand and degraded silently when it did not. Detail
-      // pages (/portfolio/<slug>, /journal/<slug>, /guides/<slug>) now have
-      // previews, so a related-post or next-project link stays in the preview.
+      // pages (/portfolio/<slug>) now have previews, so a next-project link
+      // stays in the preview.
 
       document.addEventListener(
         'click',

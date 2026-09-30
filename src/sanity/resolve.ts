@@ -13,8 +13,8 @@
 //
 //  - `locations` (document -> URL): the reverse, so opening a document from the
 //    desk points the preview at the right page. Singletons map to their fixed
-//    preview path; `page` docs resolve from the slug; projects, journal posts
-//    and guides resolve to their own detail preview (2026-09-29). Other
+//    preview path; `page` docs resolve from the slug; projects resolve
+//    to their own detail preview (2026-09-29). Other
 //    collection docs (service, testimonial, faqItem, ...) have no page of
 //    their own, so they land on the page they appear on.
 //
@@ -36,10 +36,9 @@ export { SINGLETON_PREVIEW_PATHS };
 
 // Singleton preview paths come from ./preview-routes (the builder pages at
 // full fidelity, the bespoke pages as their editable surface; see
-// src/pages/preview/[...slug].astro). Deliberately absent there: styleQuiz and
-// budgetCalculator, whose documents hold quiz questions and room configs rather
-// than page copy; their `locations` entries below still point an editor at a
-// page.
+// src/pages/preview/[...slug].astro). The journal, guides, shop, press, quiz,
+// calculator, gift and resources types were removed on 2026-09-30, so they
+// have no entries here either.
 
 /**
  * Locations for a collection type with a detail page of its own: its own draft
@@ -97,26 +96,12 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     }),
     // Collection docs with a detail page preview that page (2026-09-29).
     project: detailLocations('project', 'Portfolio', SINGLETON_PREVIEW_PATHS.portfolioPage),
-    journalEntry: detailLocations('journalEntry', 'Journal', SINGLETON_PREVIEW_PATHS.journalPage),
-    leadMagnet: detailLocations('leadMagnet', 'Resources', SINGLETON_PREVIEW_PATHS.resourcesPage),
     // The rest have no page of their own: send each to the page it renders on.
     service: { locations: [{ title: 'Services', href: '/preview/services' }] },
     processStep: { locations: [{ title: 'Process', href: '/preview/process' }] },
     philosophyPoint: { locations: [{ title: 'About', href: '/preview/about' }] },
     testimonial: { locations: [{ title: 'Home', href: '/preview' }] },
     faqItem: { locations: [{ title: 'FAQ', href: '/preview/faq' }] },
-    journalCategory: { locations: [{ title: 'Journal', href: '/preview/journal' }] },
-    pressItem: { locations: [{ title: 'Press', href: '/preview/press' }] },
-    shopCollection: { locations: [{ title: 'Shop', href: '/preview/shop' }] },
-    shopItem: { locations: [{ title: 'Shop', href: '/preview/shop' }] },
-    styleQuiz: {
-      locations: [{ title: 'Home', href: '/preview' }],
-      message: 'The style quiz renders from its own config; check it live at /quiz.',
-    },
-    budgetCalculator: {
-      locations: [{ title: 'Home', href: '/preview' }],
-      message: 'The calculator renders from its own config; check it live at /calculator.',
-    },
     announcement: {
       locations: [{ title: 'Home', href: '/preview' }],
       message:

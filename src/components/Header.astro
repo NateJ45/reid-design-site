@@ -78,15 +78,7 @@ interface Props {
     showSocials?: boolean | null;
     sectionVisibility?: {
       showPortfolio?: boolean | null;
-      showJournal?: boolean | null;
-      showShop?: boolean | null;
       showEDesign?: boolean | null;
-      showGiftCertificates?: boolean | null;
-      showPress?: boolean | null;
-      showResources?: boolean | null;
-      showGuides?: boolean | null;
-      showStyleQuiz?: boolean | null;
-      showBudgetCalculator?: boolean | null;
     } | null;
   } | null;
   navPages?: NavPage[];
@@ -169,7 +161,7 @@ const mobileChrome = {
 // CTA at the right of the nav row does that job, and the MobileNav drawer also
 // surfaces the CTA at the top.
 // Build Services dropdown children. Services and Process are always shown;
-// E-Design and Gift Certificates are gated by visibility.
+// E-Design is gated by visibility.
 // Custom pages flagged for the menu, split by where Staci placed each one.
 const customNav = (navPages ?? []).filter((p) => p.addToMainNav && p.slug);
 const toNavItem = (p: NavPage) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}` });
@@ -181,23 +173,28 @@ const servicesDropdownItems = [
   { label: 'Services', href: '/services' },
   ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design' }] : []),
   { label: 'Process', href: '/process' },
-  ...(visible.giftCertificates ? [{ label: 'Gift Certificates', href: '/gift-certificates' }] : []),
   ...customServicesItems,
 ];
 
-// Build Resources dropdown children. FAQ is always shown; the rest are gated.
+// Build Resources dropdown children. FAQ is always shown; Before & After
+// follows the portfolio switch. The quiz, calculator, guides and journal that
+// used to live here were removed on 2026-09-30.
 const resourcesDropdownItems = [
-  ...(visible.styleQuiz ? [{ label: 'Style Quiz', href: '/quiz' }] : []),
-  ...(visible.budgetCalculator ? [{ label: 'Cost Calculator', href: '/calculator' }] : []),
-  ...(visible.guides ? [{ label: 'Guides', href: '/guides' }] : []),
   { label: 'FAQ', href: '/faq' },
-  ...(visible.journal ? [{ label: 'Journal', href: '/journal' }] : []),
   ...(visible.portfolio ? [{ label: 'Before & After', href: '/portfolio/before-after' }] : []),
   ...customResourcesItems,
 ];
 
-// Assemble the full nav. Flat items Portfolio and Shop are gated by visibility.
-// Dropdown groups are omitted entirely when their children list ends up empty.
+// A one-link dropdown is a menu that makes you click twice for nothing, so
+// when FAQ is the only thing left under Resources it becomes a plain top-level
+// link instead. The dropdown comes back on its own the moment a second link
+// joins it (the portfolio switch, or a custom page placed "Under Resources").
+const resourcesNavItems =
+  resourcesDropdownItems.length > 1
+    ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]
+    : resourcesDropdownItems.map((it) => ({ kind: 'flat' as const, ...it }));
+
+// Assemble the full nav. The flat Portfolio item is gated by visibility.
 const BUILT_IN_NAV_ITEMS = [
   { kind: 'flat' as const, label: 'Home', href: '/' },
   ...(visible.portfolio ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio' }] : []),
@@ -207,11 +204,8 @@ const BUILT_IN_NAV_ITEMS = [
     label: 'Services',
     items: servicesDropdownItems,
   },
-  ...(visible.shop ? [{ kind: 'flat' as const, label: 'Shop', href: '/shop' }] : []),
-  // Resources dropdown — only show when at least one child is visible (FAQ always is).
-  ...(resourcesDropdownItems.length > 0
-    ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]
-    : []),
+  // Resources: a dropdown, or plain FAQ when that is all it would hold.
+  ...resourcesNavItems,
   // Custom pages Staci set to their own top-level menu item.
   ...customTopItems.map((it) => ({ kind: 'flat' as const, label: it.label, href: it.href })),
   { kind: 'flat' as const, label: 'About', href: '/about' },

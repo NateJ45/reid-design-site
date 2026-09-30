@@ -158,7 +158,7 @@ export function urlFor(source: SanityImageSource) {
  * Used by the Portable Text image renderers to set width/height on inline
  * <img> tags, which lets the browser reserve aspect-ratio space before the
  * image loads and eliminates the CLS hit Lighthouse was flagging on
- * project + journal detail pages.
+ * project detail pages.
  */
 export function parseSanityAssetDimensions(
   source: { asset?: { _ref?: string; _id?: string } } | null | undefined,

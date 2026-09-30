@@ -17,7 +17,7 @@ A 2px Warm Bronze line — `<div class="h-0.5 bg-primary" aria-hidden="true"></d
 - The site header (above the eyebrow strip; both removed 2026-09-29)
 - The mobile menu drawer (`border-t-4 border-t-primary` on SheetContent)
 - The footer (above the brand block)
-- Every marketing card (ServiceCard, ProjectCard, JournalCard, TestimonialCard)
+- Every marketing card (ServiceCard, ProjectCard, TestimonialCard)
 - The FinalCta dark panel
 
 (Historical, pre-rebuild:) If you add a new card-like component or section that should feel part of the brand, include this stripe at the top edge. Superseded 2026-09-29: new work follows `DESIGN.md`, which has no stripe.
@@ -58,7 +58,7 @@ Applied selectively to four section blocks on the home page (Meet Staci grid, Pr
 
 ### Grid stagger entrance (`[data-stagger-grid]` / `.is-staggered`)
 
-Card grids fade their children up in sequence as the grid crosses the viewport. Add `data-stagger-grid` to a grid container; the BaseLayout observer adds `.is-staggered` on intersection, and per-`nth-child` `transition-delay`s (0 / 100 / 200 / 300ms, capped at 400ms for item 5+) sequence the reveal. Applied to the portfolio, journal, home-services, about-philosophy, and services-page grids. Reduced-motion users get every child visible instantly. **Portfolio caveat:** the filter's `.is-filtered-out` is re-asserted at matching specificity (`[data-stagger-grid] > .is-filtered-out`, `!important`) so the stagger rules don't override the filter's hide state.
+Card grids fade their children up in sequence as the grid crosses the viewport. Add `data-stagger-grid` to a grid container; the BaseLayout observer adds `.is-staggered` on intersection, and per-`nth-child` `transition-delay`s (0 / 100 / 200 / 300ms, capped at 400ms for item 5+) sequence the reveal. Applied to the portfolio, home-services, about-philosophy, and services-page grids. Reduced-motion users get every child visible instantly. **Portfolio caveat:** the filter's `.is-filtered-out` is re-asserted at matching specificity (`[data-stagger-grid] > .is-filtered-out`, `!important`) so the stagger rules don't override the filter's hide state.
 
 ### Image curtain reveal (`.img-curtain` / `.is-revealed`)
 
@@ -68,23 +68,21 @@ A Soft Linen panel (color = `--background`) scales away from the top edge to rev
 
 A 2px bronze thread draws downward from each step number badge toward the next step. `ProcessStep.astro` renders `<div class="step-connector">` in its left flex column when `!isLast`; the article grid is `items-stretch` so the connector's `flex: 1` fills the step height. The track rests in Light Gray and a `::after` fill animates to Warm Bronze (`scaleY` 0→1) when the BaseLayout observer adds `.is-visible`. Pass `isLast` on the final step in any sequence — both `process.astro` and the home process preview compute it. Reduced-motion users get the filled track instantly, no draw.
 
-### Editorial typography — drop cap + blockquote (`.prose-drop-cap` / `.prose-blockquote`)
+### Editorial typography (removed)
 
-Journal posts open with a floated display-serif drop cap on the first paragraph and render blockquotes with a 3px bronze left border in display-serif italic. (The display face is now Zodiak; earlier text said Cormorant.) `JournalPortableText.tsx` adds `.prose-drop-cap` to the first `normal` block only (a `firstNormalRendered` flag in the `makeComponents()` closure, rebuilt per render) and sets `className="prose-blockquote"` on blockquotes. The drop cap is pure CSS (`::first-letter`) — nothing to gate for reduced motion. Don't apply `.prose-drop-cap` to short paragraphs; the floated cap needs a substantial opening paragraph to wrap against.
+Removed 2026-09-30 with the journal: `.prose-drop-cap` and `.prose-blockquote` no longer exist in `globals.css` (`JournalPortableText.tsx` was their only user).
 
 ### Image zoom + warm tint on hover (`.img-zoom` / `.img-tint` / `.img-tint-light`)
 
-Card hero images scale to 1.06 and gain a faint bronze wash on hover. Add `.img-zoom` to the `overflow-hidden` image wrapper and drop an `.img-tint` (project cards, 0.15 bronze) or `.img-tint.img-tint-light` (journal cards, 0.08) div inside it. The effect fires on the whole card — both `.group:hover .img-zoom` (the card `<a>` carries `group`) and direct `.img-zoom:hover` trigger it, so hovering the title below the image still zooms the image. Transitions are gated behind `prefers-reduced-motion: no-preference`. Used by `ProjectCard.astro` and `JournalCard.astro`.
+Card hero images scale to 1.06 and gain a faint bronze wash on hover. Add `.img-zoom` to the `overflow-hidden` image wrapper and drop an `.img-tint` (project cards, 0.15 bronze) div inside it. (The lighter `.img-tint-light` variant was removed 2026-09-30 with the journal cards.) The effect fires on the whole card — both `.group:hover .img-zoom` (the card `<a>` carries `group`) and direct `.img-zoom:hover` trigger it, so hovering the title below the image still zooms the image. Transitions are gated behind `prefers-reduced-motion: no-preference`. Used by `ProjectCard.astro`.
 
 ### Studio numbers (`StatsRow`)
 
 The About page (and the page-builder stats block) can show a run of large Zodiak figures, each with its label beside it. Since 2026-09-30 they are plain server-rendered text with no count-up: the old `StatsCounter.tsx` island showed every figure as 0 until JavaScript ran, which the rebuild's motion rule forbids. `StatsRow.astro` renders nothing when `stats` is empty; numbers come from the `aboutPage.stats` array in Sanity. See DESIGN.md "About (phase 2)".
 
-### Reading progress (`.reading-progress`)
+### Reading progress (removed)
 
-3px bronze track at the top of journal posts. Inner div `scaleX`'s from 0 → 1 as the reader scrolls through `<article>`. GPU-only animation (transform), throttled via requestAnimationFrame. Reduced-motion users get a static full bar so the affordance remains.
-
-Lives in `ReadingProgress.astro` (rendered inside `BaseLayout`'s slot on journal post pages).
+Removed 2026-09-30 with the journal: `.reading-progress` and `ReadingProgress.astro` are gone.
 
 ### Surface-warm (`.surface-warm`)
 
@@ -118,7 +116,7 @@ initThing();
 document.addEventListener('astro:page-load', initThing);
 ```
 
-Pattern used by: scroll-reveal observer, sticky-header listener, reading-progress, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations. That single instance is exposed as `window.lenis`, so in-page controls (e.g. the home hero scroll cue) can trigger a smooth programmatic scroll via `window.lenis.scrollTo(top)` instead of fighting it with a native `scrollTo`.
+Pattern used by: scroll-reveal observer, sticky-header listener, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations. That single instance is exposed as `window.lenis`, so in-page controls (e.g. the home hero scroll cue) can trigger a smooth programmatic scroll via `window.lenis.scrollTo(top)` instead of fighting it with a native `scrollTo`.
 
 **Lenis scroll-on-navigation reset (do not remove):** because that single Lenis instance persists, any in-flight momentum carries across a swap. While Lenis is actively smoothing it ignores the router's scroll-to-top reset, so a link clicked mid-scroll would open the next page at its bottom (the stale scroll target clamps to the new, often shorter, page's maximum). The fix lives in the Lenis init block: an `astro:after-swap` listener calls `lenis.scrollTo(0, { immediate: true, force: true })` (which also cancels the in-flight momentum) plus `lenis.resize()`. It runs on forward navigations only: it reads `navigationType` off the `astro:before-swap` event and skips the reset when that is `traverse`, so browser back/forward keeps Astro's built-in scroll restoration. Caveat for testing: Astro dev full-reloads on back/forward, so the traverse (restore-position) behavior can only be verified against the production build via `npm run preview`, not `npm run dev`.
 
@@ -149,7 +147,6 @@ The image-variant Hero supports three optional editorial flourishes on the headl
 2. **`scriptAccent` prop** — passes through to `splitScriptAccent()`. The first matching occurrence is wrapped. Behavior is unchanged from before; Hero was refactored to use `src/lib/scriptAccent.ts` internally but renders identically. Currently wired:
    - `/services` → `"reveal"`
    - `/portfolio` → `"Plainfield"`
-   - `/journal` → `"studio"`
    - `/faq` → `"Know"`
 
    Don't combine with `rotatingWords` (they may target the same first word). The Hero component enforces this — `rotatingWords` wins if both are passed.
@@ -169,7 +166,6 @@ Editor-driven Sanity fields that control these:
 - `processPage.finalCtaScriptAccent` — the Final CTA heading on `/process`
 - `servicesPage.finalCtaScriptAccent` — the Final CTA heading on `/services`
 - `faqPage.finalCtaScriptAccent` — the Final CTA heading on `/faq`
-- `journalPage.finalCtaScriptAccent` — the Final CTA heading on journal listing + posts
 - `eDesignPage.finalCtaScriptAccent` — the Final CTA heading on `/e-design`
 
 Leave a field empty to render the heading without a script accent. One accent per heading — set only one at a time across any given page's sections.

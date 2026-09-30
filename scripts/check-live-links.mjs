@@ -36,10 +36,10 @@
 // link checker everyone learns to ignore.
 //
 // But the links that send a visitor somewhere else are exactly the ones an
-// EDITOR changes, in the Studio, long after the last deploy: a shop item, a
-// social profile, a vendor. Affiliate links are the worst case: retailers retire
-// products constantly, and a /shop page full of "Shop this" buttons that lead to
-// a 404 costs the studio trust AND commission. Nothing in the build would notice.
+// EDITOR changes, in the Studio, long after the last deploy: a menu link, a
+// social profile, a vendor. (The /shop affiliate links that were the worst case
+// went with the shop on 2026-09-30; see RETIRED_TYPES below.) Nothing in the
+// build would notice.
 //
 // So this runs on its own schedule, away from the build, and is allowed to be
 // noisy: a red weekly run mails the owner and nothing is blocked.
@@ -99,13 +99,35 @@ const SKIP_KEYS = new Set(['formActionUrl']);
  * Every published document that is not Sanity's own bookkeeping. Drafts are left
  * out (an unpublished link is not live), and so is the Trash: an archived
  * document is a snapshot of something already removed from the site.
+ *
+ * RETIRED_TYPES (2026-09-30): the eight never-launched sections (journal, shop,
+ * quiz, calculator, guides, press, gift certificates, resources) were removed
+ * from the site and the schema, but their documents were deliberately left in
+ * the dataset. No page renders them, so a dead affiliate link on an old shop
+ * item is not a link any visitor can reach: skip them, like the Trash.
  */
+const RETIRED_TYPES = [
+  'journalEntry',
+  'journalCategory',
+  'journalPage',
+  'shopItem',
+  'shopCollection',
+  'shopPage',
+  'styleQuiz',
+  'budgetCalculator',
+  'leadMagnet',
+  'pressItem',
+  'pressPage',
+  'giftPage',
+  'resourcesPage',
+];
 const QUERY = `*[
   !(_id in path("drafts.**")) &&
   !(_type match "sanity.*") &&
   !(_type match "system.*") &&
   _type != "trashedItem" &&
-  _type != "media.tag"
+  _type != "media.tag" &&
+  !(_type in ${JSON.stringify(RETIRED_TYPES)})
 ]`;
 
 async function readDataset() {

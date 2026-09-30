@@ -41,17 +41,12 @@ Things to configure before or during the public launch. Everything below should 
 
 ### Conversion-build external setup (capture tools + offerings)
 
-- [ ] **ESP account** created (ConvertKit / MailerLite / Kit) and the embeddable form-action URL set on `siteSettings.newsletter.formActionUrl`, then `siteSettings.newsletter.enabled` flipped on. Until enabled, the newsletter card stays hidden. (No consent banner — the site sets no cookies that require one.)
+Removed 2026-09-30 (never launched): the newsletter, shop, guides, gift certificate, style quiz and budget calculator setup items are gone with those features.
+
 - [ ] **Web3Forms autoresponder** enabled on the access key in the Web3Forms dashboard (the contact form now sends `autoresponse: true` — without the dashboard toggle, no confirmation email goes out).
-- [ ] **Shop affiliate links** (ShopMy / LTK / direct) added to `shopItem.affiliateUrl`, and `shopPage.enabled` set. Confirm the FTC disclosure copy reads right.
 - [ ] **Google Business URL** set on `siteSettings.googleBusinessUrl` (powers the "Read more on Google" link) + a short `siteSettings.reviewsNote`.
-- [ ] **Guide PDFs** uploaded to each `leadMagnet.file` and `published` toggled on (otherwise `/guides/[slug]` 404s and the index hides them).
 - [ ] **E-Design pricing** filled on `eDesignPage` (tiers, what's-included, how-it-works) — until then `/e-design` shows a coming-soon state.
-- [ ] **Gift fulfillment** flow decided + `giftPage` filled (the page is informational only; there's no payment processing — CTAs route to `/contact?type=gift-certificate`).
-- [ ] **Seed `styleQuiz`** (2+ questions, 2+ archetypes with images + recommended-service refs, gate mode/copy) — `/quiz` shows coming-soon until valid.
-- [ ] **Seed `budgetCalculator`** (rooms + scope options at minimum) — `/calculator` shows coming-soon until valid.
-- [ ] **Seed `leadMagnet` documents** for the guides you want live at launch.
-- [ ] **Privacy policy** reviewed: either fill `privacyPage.body` or confirm the static fallback copy is accurate for the ESP you chose.
+- [ ] **Privacy policy** reviewed: either fill `privacyPage.body` or confirm the static fallback copy is accurate.
 - [ ] Run `npm run studio:deploy` after the schema additions so Studio shows the new document types.
 
 ### Pre-launch validation

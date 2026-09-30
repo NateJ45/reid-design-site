@@ -51,27 +51,21 @@ const studioGuideDoc = {
       _type: 'mapRow',
       area: 'Site Settings',
       description:
-        'Your business identity and the behind-the-scenes wiring: business name, tagline, contact email and phone, social links, the main menu button label, the strip of text across the top, your newsletter and reviews setup, and which optional sections are turned on. This is the setup, not the day-to-day content. The cities you serve, your travel fees, and your availability moved out of here and into Content, Business info.',
+        'Your business identity and the behind-the-scenes wiring: business name, tagline, contact email and phone, social links, the main menu button label, the strip of text across the top, your reviews setup, and whether the Portfolio and E-Design sections are turned on. This is the setup, not the day-to-day content. The cities you serve, your travel fees, and your availability moved out of here and into Content, Business info.',
     },
     {
       _key: 'm2',
       _type: 'mapRow',
       area: 'Pages',
       description:
-        'Every page on the site lives here, grouped into buckets: core pages (Home, About, Services, Portfolio, FAQ, Contact, Journal), offerings (E-Design, Shop, Gift Certificates), resources and tools (Resources, Style Quiz, Budget Calculator), and other (Press, Privacy Policy, 404). At the very bottom is Custom pages, where you can build brand-new pages yourself from a set of blocks. See "Build a brand-new page" below.',
+        'Every page on the site lives here, grouped into buckets: core pages (Home, About, Process, Services, Portfolio, FAQ, Contact, 404), offerings (E-Design), and other (Privacy Policy). At the very bottom is Custom pages, where you can build brand-new pages yourself from a set of blocks. See "Build a brand-new page" below.',
     },
     {
       _key: 'm3',
       _type: 'mapRow',
       area: 'Content',
       description:
-        'Your business facts and the building blocks that fill the site. Right at the top: Business info (the cities you serve, your travel fees, and your availability) and Pricing & rates (your services and their prices, plus E-Design, gift certificate, and calculator pricing gathered in one place). Below that: projects (case studies), testimonials, FAQ items, philosophy values, guides, shop items, and press mentions. Change a price or a service area here once and it updates everywhere it appears. This is where you will spend most of your time.',
-    },
-    {
-      _key: 'm4',
-      _type: 'mapRow',
-      area: 'Journal',
-      description: 'Your blog posts and their categories. Write a post, pick a category, publish.',
+        'Your business facts and the building blocks that fill the site. Right at the top: Business info (the cities you serve, your travel fees, and your availability) and Pricing & rates (your services and their prices, plus E-Design pricing, gathered in one place). Below that: projects (case studies), process steps, philosophy values, testimonials and FAQ items. Change a price or a service area here once and it updates everywhere it appears. This is where you will spend most of your time.',
     },
   ],
   howTos: [
@@ -113,56 +107,6 @@ const studioGuideDoc = {
       ],
     },
     {
-      _key: 'h4',
-      _type: 'howTo',
-      title: 'Write a journal post',
-      steps: [
-        'Click "Journal" in the left sidebar, then "Posts".',
-        'Click + to start a new post.',
-        'Fill in the title, slug (the URL-friendly version, auto-generated from the title), and your post body.',
-        'Add a cover image with Alt text.',
-        'Pick a category from the dropdown.',
-        'Use the Preview tab to read through it before publishing.',
-        'Click Publish when you are ready, or schedule it for later (see the tip below).',
-      ],
-    },
-    {
-      _key: 'h5',
-      _type: 'howTo',
-      title: 'Add a shop favorite',
-      steps: [
-        'Click "Content" in the left sidebar, then "Shop Items".',
-        'Click + to create a new item.',
-        'Fill in the item name, the affiliate link, a short note about why you love it, and an image.',
-        'Pick which Shop Collection it belongs to from the dropdown.',
-        'Click Publish.',
-      ],
-    },
-    {
-      _key: 'h6',
-      _type: 'howTo',
-      title: 'Add a press mention',
-      steps: [
-        'Click "Content" in the left sidebar, then "Press Items".',
-        'Click + to create a new press item.',
-        'Fill in the outlet name, the date, a short pull quote if you have one, and the link to the article.',
-        "Upload the outlet's logo if you have it.",
-        'Click Publish.',
-      ],
-    },
-    {
-      _key: 'h7',
-      _type: 'howTo',
-      title: 'Add a free guide',
-      steps: [
-        'Click "Content" in the left sidebar, then "Guides (lead magnets)".',
-        'Click + to create a new guide.',
-        'Fill in the title, a short summary, and upload the PDF using the file field.',
-        'Add a cover image.',
-        'Flip the "Published" toggle on, then click Publish.',
-      ],
-    },
-    {
       _key: 'h8',
       _type: 'howTo',
       title: 'Change a price or service description',
@@ -191,7 +135,7 @@ const studioGuideDoc = {
       steps: [
         'Click "Site Settings" in the left sidebar.',
         'Click the "Section visibility" tab at the top of the form.',
-        'Find the toggle for the section you want to hide or show (Portfolio, Journal, Shop, E-Design, Gift Certificates, Press, Resources, Guides, Style Quiz, Budget Calculator).',
+        'Find the toggle for the section you want to hide or show (Portfolio or E-Design).',
         'Flip it off (or back on) and click Publish.',
         'The site rebuilds in about 1 to 3 minutes. When a section is off it disappears from the menu, footer, and homepage, and its own page redirects visitors to the home page instead.',
         'Turning a section off does not delete anything. All your drafts and published content stay right where they are. Turn it back on when you are ready and everything reappears.',
@@ -216,7 +160,7 @@ const studioGuideDoc = {
       _type: 'howTo',
       title: "Add a background photo behind a page's closing call to action",
       steps: [
-        'Open the page you want to update in "Pages" (Home, About, Services, Process, FAQ, E-Design, or Journal).',
+        'Open the page you want to update in "Pages" (Home, About, Services, Process, FAQ, or E-Design).',
         'Look for the "Final CTA background image" field near the bottom of the form.',
         'Upload a photo. The site automatically darkens it so the headline and button stay easy to read.',
         'Leave the field empty if you want the plain dark panel instead.',
@@ -273,22 +217,6 @@ const studioGuideDoc = {
         'Check that inbox. Web3Forms emails you a short access key, which is just a string of letters and numbers.',
         'Copy that access key and send it to Nathan. He will connect it to the site.',
         'Until Nathan connects the key, the contact form cannot deliver messages, so this one is worth doing early.',
-      ],
-    },
-    {
-      _key: 'h17',
-      _type: 'howTo',
-      title: 'Setup: Turn on newsletter signups (Sender)',
-      steps: [
-        'Sender is the service that collects email addresses when visitors sign up for your newsletter and lets you email that list later. The free plan is plenty to start.',
-        'Go to sender.net and click to sign up for free.',
-        'Fill in your company name, your business email, and a password to create the account.',
-        'In the left menu, click "Forms", then "Create a new form".',
-        'Choose "Embedded form", give it a name like "Newsletter signup", and click Create.',
-        'Pick the Default or Basic layout. You do not need to fuss over the design, the site has its own signup boxes. This is mostly to create the list behind them.',
-        'Click "Save and continue" at the top right until you reach the last step.',
-        "On that last step you will see the form's script, which comes in two parts. That is the integration detail.",
-        'Copy that script (both parts) and send it to Nathan. He will wire it into the signup boxes on the site.',
       ],
     },
     {
@@ -391,8 +319,8 @@ const studioGuideDoc = {
       title: 'Add an extra block to one of your main pages',
       steps: [
         'You are not stuck with the built-in layout of a page. You can drop in extra blocks from the same set you use to build custom pages: a banner, a photo gallery, a quote, a call-to-action, and so on.',
-        'On the Home, About, Services, Process, Resources, Press, E-Design, and Gift Certificate pages, look for the "Layout & order" area. Each built-in part of the page shows up there as a row you can drag to reorder, or remove to hide. Click "Add item" between two rows to drop a new block in, then fill it in.',
-        'On the FAQ, Contact, Journal, Portfolio, and Privacy pages, scroll to the "Extra sections" area near the bottom of the form. Click "Add item" and pick a block. Whatever you add shows up at the bottom of that page, above the closing call-to-action where there is one.',
+        'On the Home, About, Services, Process, and E-Design pages, look for the "Layout & order" area. Each built-in part of the page shows up there as a row you can drag to reorder, or remove to hide. Click "Add item" between two rows to drop a new block in, then fill it in.',
+        'On the FAQ, Contact, Portfolio, and Privacy pages, scroll to the "Extra sections" area near the bottom of the form. Click "Add item" and pick a block. Whatever you add shows up at the bottom of that page, above the closing call-to-action where there is one.',
         'Leave the "Extra sections" area empty and the page looks exactly as it does today. It only changes when you add something.',
         'Use the Preview tab to check it, then click Publish.',
       ],
@@ -414,7 +342,7 @@ const studioGuideDoc = {
       _type: 'howTo',
       title: 'Check a page before you publish',
       steps: [
-        'Open the page, a project, or a journal post. Click the small arrow next to the Publish button and choose "Check this page...".',
+        'Open the page or a project. Click the small arrow next to the Publish button and choose "Check this page...".',
         'It reads what you have typed so far, including changes you have not published yet, and lists three kinds of "worth a look": photos with no description (alt text), sections with nothing typed in them, and links to an address on this site where no page seems to live.',
         'Nothing in it stops you publishing. It is a second pair of eyes, and it can be wrong. Fix what you agree with and publish as usual.',
       ],
@@ -435,7 +363,7 @@ const studioGuideDoc = {
       _type: 'howTo',
       title: 'Show a draft to someone before it goes live',
       steps: [
-        'Open the page (or a project, or a journal post). Click the small arrow next to Publish and choose "Copy share link". In the Presentation view, you can also click the share icon next to any page in the page list.',
+        'Open the page (or a project). Click the small arrow next to Publish and choose "Copy share link". In the Presentation view, you can also click the share icon next to any page in the page list.',
         'The link is copied for you. Paste it into a text or an email. The person you send it to sees your current draft, exactly as the site will show it, without needing a login.',
         'The link works for about an hour, then it stops. If they open it later and it does not work, just copy a fresh link and send it again.',
         'The link shows what you have typed so far. If you keep editing, they see the new version when they refresh.',
@@ -462,7 +390,7 @@ const studioGuideDoc = {
       _type: 'tip',
       tone: 'default',
       heading: 'Launching in stages? Turn a section on or off',
-      body: `You do not have to launch every section of the site at the same time. If the shop is not ready, or you are still photographing projects for the portfolio, you can hide those sections completely until they are ready.\n\nGo to Site Settings, click the "Section visibility" tab, and flip the toggle off for whatever you want to hide. Click Publish. After about a minute or two, that section disappears from the menu, the footer, and the home page, and its own page quietly redirects visitors to the home page instead of showing a half-built page.\n\nWhen the section is ready, come back to Site Settings, flip the toggle back on, and publish again. Everything reappears. Your drafts and published content are completely safe the whole time.\n\nThis is great for launching now and finishing things like the portfolio, shop, or press section on your own timeline.`,
+      body: `You do not have to launch every section of the site at the same time. If you are still photographing projects for the portfolio, you can hide that section completely until it is ready.\n\nGo to Site Settings, click the "Section visibility" tab, and flip the toggle off for whatever you want to hide. Click Publish. After about a minute or two, that section disappears from the menu, the footer, and the home page, and its own page quietly redirects visitors to the home page instead of showing a half-built page.\n\nWhen the section is ready, come back to Site Settings, flip the toggle back on, and publish again. Everything reappears. Your drafts and published content are completely safe the whole time.\n\nThis is great for launching now and finishing the portfolio on your own timeline.`,
     },
     {
       _key: 't4',
@@ -497,7 +425,7 @@ const studioGuideDoc = {
       _type: 'tip',
       tone: 'primary',
       heading: 'Before you go live: a few one-time setups',
-      body: `Before the site goes live, there are a handful of one-time account setups to do. You only do each of these once. Think contact form email, newsletter signups, and your booking calendar.\n\nA couple of them hand you a key or a link at the end. When that happens, you do not paste it here. You send it to Nathan and he connects it for you. The setup how-tos below tell you exactly what to copy and when.\n\nThe purely technical launch steps, like pointing your domain at the new site and deploying it, are Nathan's job. Those are not on your plate, so do not worry about them.`,
+      body: `Before the site goes live, there are a handful of one-time account setups to do. You only do each of these once. Think contact form email and your booking calendar.\n\nA couple of them hand you a key or a link at the end. When that happens, you do not paste it here. You send it to Nathan and he connects it for you. The setup how-tos below tell you exactly what to copy and when.\n\nThe purely technical launch steps, like pointing your domain at the new site and deploying it, are Nathan's job. Those are not on your plate, so do not worry about them.`,
     },
     {
       _key: 't9',

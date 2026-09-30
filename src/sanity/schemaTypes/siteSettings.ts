@@ -14,7 +14,6 @@ export const siteSettings = defineType({
     { name: 'navigation', title: 'Menus & header button' },
     { name: 'visibility', title: 'Section visibility' },
     { name: 'social', title: 'Social & footer' },
-    { name: 'newsletter', title: 'Newsletter' },
     { name: 'reviews', title: 'Reviews' },
   ],
   fields: [
@@ -104,7 +103,7 @@ export const siteSettings = defineType({
       type: 'array',
       group: 'navigation',
       description:
-        'The links across the top of the site. Drag to reorder. Add a "Link" for a single page, or a "Dropdown menu" to group several links under one heading. The header fits about six. Leave this empty to keep the built-in menu (Home, Portfolio, Services, Shop, Resources, About). Once you add anything here it replaces the whole menu, so include every link you want.',
+        'The links across the top of the site. Drag to reorder. Add a "Link" for a single page, or a "Dropdown menu" to group several links under one heading. The header fits about six. Leave this empty to keep the built-in menu (Home, Services, Process, About, FAQ, Contact). Once you add anything here it replaces the whole menu, so include every link you want.',
       validation: (Rule) => Rule.max(6),
       of: [
         defineArrayMember({ type: 'navLink' }),
@@ -144,7 +143,7 @@ export const siteSettings = defineType({
       type: 'array',
       group: 'navigation',
       description:
-        'The titled columns of links in the footer, for example "Studio", "Work", "Free tools & guides". Drag to reorder. Leave empty to keep the built-in columns. The "Get in touch" column (email, phone, location, socials) always shows on its own and is not set here. Three columns keeps the footer balanced; four is the most that fits.',
+        'The titled columns of links in the footer, for example "Studio", "Work", "Help". Drag to reorder. Leave empty to keep the built-in columns. The "Get in touch" column (email, phone, location, socials) always shows on its own and is not set here. Three columns keeps the footer balanced; four is the most that fits.',
       validation: (Rule) => Rule.max(4),
       of: [
         defineArrayMember({
@@ -342,10 +341,16 @@ export const siteSettings = defineType({
     }),
 
     // ── Newsletter ──────────────────────────────────────────────────────────
+    // Retired 2026-09-30, removed sections; kept so data is not orphaned.
+    // The footer signup and its subscribe endpoint are gone; nothing reads
+    // this object any more. Hidden + read-only rather than deleted, per the
+    // "never delete a field" rule.
     defineField({
       name: 'newsletter',
-      title: 'Newsletter signup',
+      title: 'Newsletter signup (retired)',
       type: 'object',
+      hidden: true,
+      readOnly: true,
       description:
         'Connect an email provider (MailerLite, Buttondown, Mailchimp). Paste the embedded-form action URL and list ID; the secret key goes in env as NEWSLETTER_API_KEY.',
       fields: [
@@ -451,18 +456,24 @@ export const siteSettings = defineType({
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showJournal',
           title: 'Journal',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showShop',
           title: 'Shop',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
@@ -475,50 +486,68 @@ export const siteSettings = defineType({
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showGiftCertificates',
           title: 'Gift Certificates',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showPress',
           title: 'Press',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showResources',
           title: 'Resources hub',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showGuides',
           title: 'Guides',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showStyleQuiz',
           title: 'Style Quiz',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
         }),
+        // Retired 2026-09-30, removed sections; kept so data is not orphaned.
         defineField({
           name: 'showBudgetCalculator',
           title: 'Budget Calculator',
           type: 'boolean',
+          hidden: true,
+          readOnly: true,
           initialValue: true,
           description:
             'When off, this section disappears from the menu, footer, homepage, and its own page (which redirects home). Your drafts stay safe. Turn it back on when ready.',
