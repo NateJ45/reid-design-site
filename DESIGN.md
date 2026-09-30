@@ -332,14 +332,14 @@ portfolio templates are ready for the day the first `project` exists.
 
 ## Interior foundation (phase 2, 2026-09-30)
 
-- (every interior page): linen, word-rise headline, eyebrow as a
+- `Hero.astro` (every interior page): linen, word-rise headline, eyebrow as a
   sentence-case line, subhead with _italic_ support, photo as a framed 4:5 crop
   beside the copy (never under a scrim). Honours the page-builder hero Height
-  ( / , listed in ).
-- : headline left, subhead right via a container query;
-  the prop is accepted but NOT printed, and is
+  (`phero--tall` / `phero--short`, listed in `src/lib/section-fields.ts`).
+- `SectionHeading.astro`: headline left, subhead right via a container query;
+  the `eyebrow` prop is accepted but NOT printed, and `align="center"` is
   ignored (both were the old template grammar).
-- Anything that splits a CMS string uses so preview
+- Anything that splits a CMS string uses `src/lib/split-copy.ts` so preview
   click-to-edit keeps working (stega).
 
 ## Still on the old grammar
