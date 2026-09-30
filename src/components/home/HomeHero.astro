@@ -1,18 +1,20 @@
 ---
 // Foundation, edit with care
-// Home hero, "the fan deck" (2026-09-29 art-direction rebuild; prototype in
-// docs/design/prototypes/b-fan-deck.html).
+// Home hero (2026-09-29 art-direction rebuild; prototype in
+// docs/design/prototypes/b-fan-deck.html). The decorative fan deck of paint
+// chips at the seam was removed 2026-09-30 (Nathan: the decorative swatches
+// read as repetitive; chips now appear only where they carry content).
 //
 //   ┌────────────── Walnut bronze ground ──────────┬──── portrait ────┐
 //   │  eyebrow line                                  │                  │
 //   │                                                │   heroPortrait   │
 //   │  HEADLINE in Zodiak, accent phrase italic oat  │   (or first hero │
 //   │                                                │    image)        │
-//   │  subhead            [primary CTA] secondary    │ ◢ fan deck opens │
+//   │  subhead            [primary CTA] secondary    │                  │
 //   └────────────────────────────────────────────────┴──────────────────┘
 //
 // Phone: the portrait sits on top (62svh), the bronze block with the
-// headline below it, the fan deck pinned where the two meet.
+// headline below it.
 //
 // Content (all from the homePage singleton, nothing new to fill in except the
 // optional heroPortrait): heroEyebrow, heroHeadline, heroScriptAccent (italic
@@ -20,14 +22,19 @@
 //
 // LCP: the portrait is eager + fetchpriority high. The headline words rise
 // into clip boxes (RiseWords) but are never transparent, so the LCP text is
-// painted on the first frame (the Stone Steps lesson). The fan deck is pure
-// CSS, decorative, aria-hidden. Reduced motion: everything is static.
+// painted on the first frame (the Stone Steps lesson). Reduced motion:
+// everything is static.
+//
+// Window light (2026-09-30): data-window-light="sun" lets
+// src/scripts/window-light.ts (WebGL, started from BaseLayout) drift leaf
+// shadows across the band and lay a patch of window sun on the PHOTO side
+// only; see that file for the contrast rules. Reduced motion: nothing runs.
 //
 // Contrast (measured 2026-09-29; the axe gate caught a wrong earlier note):
 // NO text colour passes AA at body size on Warm Bronze #9c7661 (ink 4.06:1,
 // cream 3.5:1). So the hero ground is WALNUT (chip 6, #80604f): cream on it
 // is 4.9:1 for every line, and the accent phrase is Oat italic (3.7:1, used
-// only at display size). Warm Bronze still leads in the fan deck beside it.
+// only at display size).
 import SanityImage from '@/components/SanityImage.astro';
 import RiseWords from '@/components/RiseWords.astro';
 import { resolveCtaHref, ctaOpensNewTab, type CtaBlock } from '@/lib/cta';
@@ -74,23 +81,11 @@ const {
 
 const photo = portrait?.asset ? portrait : (fallbackImages?.find((i) => i?.asset) ?? fallbackImage);
 
-// The seven tones of the paint strip, palest to deepest. The same names are
-// the design's token names (--color-chip-1 ... -7) in src/styles/globals.css.
-const CHIPS = [
-  { name: 'Linen', on: 'ink' },
-  { name: 'Oat', on: 'ink' },
-  { name: 'Sandbar', on: 'ink' },
-  { name: 'Saddle', on: 'ink' },
-  { name: 'Warm Bronze', on: 'cream' },
-  { name: 'Walnut', on: 'cream' },
-  { name: 'Espresso', on: 'cream' },
-];
-
 const primaryHref = resolveCtaHref(primaryCta, '/services');
 const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
 ---
 
-<section class="home-hero" aria-labelledby={headingId}>
+<section class="home-hero" aria-labelledby={headingId} data-window-light="sun">
   <div class="home-hero__copy">
     {eyebrow && <p class="home-hero__eyebrow">{eyebrow}</p>}
     <RiseWords as="h1" id={headingId} text={headline} accent={accent} class="home-hero__h1" />
@@ -148,19 +143,6 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
           class="home-hero__img"
         />
       )
-    }
-  </div>
-
-  <div class="home-hero__fan" aria-hidden="true">
-    {
-      CHIPS.map((c, n) => (
-        <span
-          class={`home-hero__chip is-${c.on}`}
-          style={`--n:${n};--tone:var(--color-chip-${n + 1})`}
-        >
-          <b>{c.name}</b>
-        </span>
-      ))
     }
   </div>
 </section>
@@ -276,65 +258,10 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     pointer-events: none;
   }
 
-  /* ---- The fan deck. Seven chips pinned at one rivet, opened like the deck
-     in Staci's hand. Pivot sits on the seam between copy and photo. ---- */
-  .home-hero__fan {
-    position: absolute;
-    z-index: 1;
-    left: calc(58.33% + 1.25rem);
-    bottom: -3.75rem;
-    width: clamp(5.25rem, 7.5vw, 7rem);
-    aspect-ratio: 1 / 3.6;
-    pointer-events: none;
-  }
-  .home-hero__chip {
-    position: absolute;
-    inset: 0;
-    border-radius: 0.6rem;
-    background: var(--tone);
-    transform-origin: 50% 92%;
-    transform: rotate(calc(-6deg + var(--n) * 10deg));
-    box-shadow:
-      0 20px 40px -24px rgb(0 0 0 / 0.55),
-      inset 0 0 0 1px rgb(255 255 255 / 0.08);
-  }
-  .home-hero__chip b {
-    position: absolute;
-    left: 0.7rem;
-    right: 0.7rem;
-    bottom: 18%;
-    font: 500 0.66rem/1.25 var(--font-body);
-    color: var(--color-ink);
-    opacity: 0.85;
-  }
-  .home-hero__chip.is-cream b {
-    color: var(--color-cream);
-  }
-  /* The rivet. */
-  .home-hero__chip::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 6%;
-    width: 0.9rem;
-    height: 0.9rem;
-    border-radius: 50%;
-    translate: -50% 0;
-    background: radial-gradient(circle, #d8c3a5 30%, #8a6a4f 72%);
-  }
-
+  /* The portrait settles from 110% to 100% on load (DESIGN.md "Motion"). */
   @media (prefers-reduced-motion: no-preference) {
-    .home-hero__chip {
-      animation: home-fan 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-      animation-delay: calc(450ms + var(--n) * 70ms);
-    }
     .home-hero__photo :global(.home-hero__img) {
       animation: home-settle 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-  }
-  @keyframes home-fan {
-    from {
-      transform: rotate(-6deg);
     }
   }
   @keyframes home-settle {
@@ -363,16 +290,6 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     }
     .home-hero__eyebrow {
       margin-bottom: 0.5rem;
-    }
-    .home-hero__fan {
-      left: auto;
-      right: 18%;
-      bottom: auto;
-      top: calc(min(62svh, 38rem) - 15rem);
-      width: 3.6rem;
-    }
-    .home-hero__chip b {
-      display: none;
     }
   }
 </style>

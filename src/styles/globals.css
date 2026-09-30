@@ -25,6 +25,9 @@
 /* Rebuild primitives (2026-09-29): container, buttons, links, heading sizes,
    sample tag, word rise. See the file header. */
 @import './reid.css';
+/* Doodles and designer markup (2026-09-30): the hand-drawn ink layer. See the
+   file header, src/scripts/ambient-doodles.ts and scripts/doodles.config.mjs. */
+@import './doodle.css';
 /* ---------- Brand web fonts (art-direction rebuild, 2026-09-29) -------------
    Zodiak (display) + General Sans (text), both Fontshare, ITF Free Font
    License 2.0. The woff2 files are NOT in git: the license forbids

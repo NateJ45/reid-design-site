@@ -4,20 +4,18 @@
 // approved prototype docs/design/prototypes/chrome-a-swatch-book.html;
 // DESIGN.md "Chrome").
 //
-// Top to bottom, on ink:
-//   1. The paint strip: the seven named tones of the ramp as one band, its
-//      top edge cut with pinking shears into the section above. The
-//      shade names show from 1100px up, set at display size (24px+) so cream
-//      on Warm Bronze counts as large text; phones get the colours only.
-//   2. Three columns:
+// Top to bottom, on ink. (The seven-tone paint strip that used to run across
+// the top was removed 2026-09-30: Nathan found the decorative swatches
+// repetitive; chips now appear only where they carry content.)
+//   1. Three columns:
 //      - "The studio": a page index. Each line is a tone swatch, the page, a
 //        dotted leader, and a REAL fact on the right ("from $225",
 //        "19 answers"), all derived from content by src/lib/chrome-facts.ts.
 //        A fact that cannot be derived is left out, never typed.
 //      - "Get in touch": email, phone and socials as paper sample tags.
 //      - "Based in <city>": the service towns, from Business info.
-//   3. Staci's logo, large, beside the site tagline (Site settings).
-//   4. The base row: copyright, Privacy (or Staci's small-print links),
+//   2. Staci's logo, large, beside the site tagline (Site settings).
+//   3. The base row: copyright, Privacy (or Staci's small-print links),
 //      Search, and the site credit.
 //
 // Site settings still steer it (src/lib/siteSettings.ts): "Footer link
@@ -152,29 +150,9 @@ const builtInIndex: IndexLine[] = [
 const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
   ? chrome.footerColumns.map((c) => ({ title: c.title, lines: c.links }))
   : [{ title: 'The studio', lines: builtInIndex }];
-
-const STRIP = [
-  { tone: 1, name: 'Linen' },
-  { tone: 2, name: 'Oat' },
-  { tone: 3, name: 'Sandbar' },
-  { tone: 4, name: 'Saddle' },
-  { tone: 5, name: 'Warm Bronze' },
-  { tone: 6, name: 'Walnut' },
-  { tone: 7, name: 'Espresso' },
-];
 ---
 
 <footer class="ftr">
-  <div class="ftr__strip" aria-hidden="true">
-    {
-      STRIP.map((s) => (
-        <span style={`--tone:var(--color-chip-${s.tone})`} data-on={s.tone >= 5 ? 'cream' : 'ink'}>
-          {s.name}
-        </span>
-      ))
-    }
-  </div>
-
   <div class="r-wrap ftr__grid">
     {
       columns.map((col, ci) => (
@@ -325,45 +303,6 @@ const STRIP = [
     background: var(--color-ink);
     color: var(--color-cream);
   }
-  /* ---- The paint strip, its top edge cut with pinking shears: a row of
-     small triangles (a conic-gradient mask, no image) that bites 12px into
-     the section above, in the strip's own tones. ---- */
-  .ftr__strip {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    height: calc(clamp(3.5rem, 7vw, 6rem) + 12px);
-    margin-top: -12px;
-    -webkit-mask:
-      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 0 / 22px 12px
-        repeat-x,
-      linear-gradient(#000 0 0) 0 12px / 100% 100% no-repeat;
-    mask:
-      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 0 / 22px 12px
-        repeat-x,
-      linear-gradient(#000 0 0) 0 12px / 100% 100% no-repeat;
-  }
-  .ftr__strip span {
-    display: flex;
-    align-items: flex-end;
-    padding: 0 0.8rem 0.65rem;
-    background: var(--tone);
-    color: var(--color-ink);
-    /* Names are display size or not shown at all: 24px Zodiak counts as
-       large text, so cream on Warm Bronze (3.5:1) still passes. */
-    font-size: 0;
-  }
-  .ftr__strip span[data-on='cream'] {
-    color: var(--color-cream);
-  }
-  @media (min-width: 1100px) {
-    .ftr__strip span {
-      font: 300 1.5rem/1 var(--font-display);
-      letter-spacing: -0.02em;
-      white-space: nowrap;
-    }
-  }
-
   /* ---- Columns ---- */
   .ftr__grid {
     display: grid;

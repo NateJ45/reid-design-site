@@ -2,6 +2,35 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — The hand layer, window light, share cards design E (branch `ccr-1d8c83a7-uw3ifl`)
+
+- **Botanical ambience:** six fine-line botanicals in the style of Staci's own
+  Instagram drawings (`scripts/doodles.config.mjs` geometry,
+  `scripts/lib/doodle-kit.mjs` hand, `npm run doodles`, committed
+  `src/assets/doodles/`), one growing faintly in from a corner of every content
+  section (`src/scripts/ambient-doodles.ts`), plus the phone menu. A first pass
+  of object doodles (mug, armchair, lamps) as foreground accents and header
+  hover cards was replaced the same day at Nathan's call.
+- **Designer markup:** a Sandbar marker swoosh under the italic accent phrase of
+  h2/h3 headings, pulled across on scroll.
+- **Window light:** WebGL leaf shadows and window sun (`src/scripts/window-light.ts`)
+  on the home hero (sun on the photo side only) and the closing band (shade only).
+- **Swatches carry content:** the decorative paint-chip repeats are gone (the
+  home hero fan deck, the footer's seven-tone strip, the share-card fan) at
+  Nathan's call; chips stay on the services and in the phone menu.
+- **The planning page:** the closing band on every page (`FinalCta.astro`)
+  became a notebook page with a self-drawing floor plan
+  (`closing/FloorPlan.astro`) and Staci's Instagram checklist
+  (`src/data/closing-notes.ts`), chosen from a mockup board of five ideas and
+  eight mixes.
+- **Share cards design E, "the hero card":** Walnut, logo plate, Zodiak title,
+  photo. `fetch-fonts.mjs` now also fetches .woff copies for satori
+  into gitignored `scripts/.og-fonts/` (lock `ogFiles`). `public/og-default.png`
+  redrawn.
+- A photo-traced sketch layer and an AI "room fills up" prototype were built and
+  then dropped at Nathan's call; the room moves to a local GPU session
+  (`docs/design/2026-09-30-concept-room-handoff.md`).
+
 ## 2026-09-30 — Kind words on About, Instagram feed (branch `claude/kind-words-instagram`)
 
 Delegated agent, reviewed by the main session.

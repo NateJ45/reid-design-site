@@ -14,6 +14,26 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-30 hand layer + share cards branch (`ccr-1d8c83a7-uw3ifl`)
+
+- **Build the concept room on the GPU PC.** Nathan chose to do the AI "room
+  fills up as you scroll" feature in a local session. The paste-ready prompt and
+  everything the cloud session learned (wall masks, the paint shader, the sharp
+  channel trap) are in `docs/design/2026-09-30-concept-room-handoff.md`. Nothing
+  of it is in the repo yet.
+- **Botanicals in her hand, from four posts.** The section ambience was
+  redrawn from the four Instagram posts Nathan shared. If Staci has original
+  drawings (not the template art in her posts), trace one or two into
+  `scripts/doodles.config.mjs` and `npm run doodles`.
+- **Look at the window light on a real phone and laptop** (home hero, and the
+  shade on the closing band). It is tuned by eye in headless Chromium; if it
+  reads too strong or too faint, the two numbers are the `0.28` (sun) and
+  `0.16` (leaf shade) in `src/scripts/window-light.ts`.
+- **Check the first Workers Build log for the new cards:** `[og-cards] N card(s)
+drawn with satori, 0 fallback(s)`. Design E needs `scripts/.og-fonts/`, which
+  `prebuild` fills from Fontshare; a missing font falls back to og-default and
+  says why in a WARN line. Then paste a page into opengraph.xyz.
+
 ### From the 2026-09-30 Kind words + Instagram branch (`claude/kind-words-instagram`)
 
 The code ships dark: with no `INSTAGRAM_TOKEN` the feed renders nothing, and
@@ -315,12 +335,15 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   `sections/HomeServices.astro`, `sections/HomeTestimonials.astro`,
   `ui/accordion.tsx`, the `.step-connector` CSS + its BaseLayout observer.
   Confirm nothing imports each, then delete in one commit.
-- **Share cards still use Cormorant + Source Sans** (`scripts/lib/og-render*.mjs`;
-  satori needs a static WOFF, never WOFF2). Move them to Zodiak/General Sans
-  once the fetch script can supply a WOFF, and re-run the Chromium comparison.
 - **Remove the unused @fontsource packages** (cormorant-garamond, pinyon-script,
-  source-sans-3 variable) once the share cards stop needing Source Sans. Left in
-  place so phase 1 did not also churn the lockfile.
+  source-sans-3 variable, and now the static `@fontsource/source-sans-3` too: the
+  share cards moved to Zodiak and General Sans on 2026-09-30). Check nothing
+  else imports each (BaseLayout, BrandKit and FeaturedTestimonial mention
+  Cormorant), then drop them and their `_headers` / globals.css comments in one
+  commit.
+- **The 404 page is still on the old grammar** (tracked small-caps eyebrow and
+  buttons). A rebuild in the new primitives, with the armchair doodle
+  ("Take a seat"), would finish the set.
 - **CI and Lighthouse build without a Sanity read token.** Anonymous reads
   return only the page singletons (dotted _ids like `service.*` are private),
   so `ci.yml` and `lighthouse.yml` audit pages with no services, testimonials

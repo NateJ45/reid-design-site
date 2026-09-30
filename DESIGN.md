@@ -131,10 +131,8 @@ no decorative numbering.
   deals in from below under `prefers-reduced-motion: no-preference` only. Foot:
   the cream booking price tag with the price, then phone and email. Radix
   Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
-- **Footer** (`Footer.astro`), on ink. The seven-tone paint strip with its top
-  edge cut by pinking shears into the section above; shade names from 1100px
-  at 24px Zodiak (large text, so cream on Warm Bronze passes), colours only on
-  phones. A page index: tone swatch, page, dotted leader, and a real fact on
+- **Footer** (`Footer.astro`), on ink. (The seven-tone paint strip across its
+  top was removed 2026-09-30, see "Swatches carry content" below.) A page index: tone swatch, page, dotted leader, and a real fact on
   the right ("from $225", "4 steps", "from $250", "19 answers"), all derived
   from content, omitted when not derivable. Contact details as paper sample
   tags at slight angles. "Based in Plainfield" with the Business info towns.
@@ -146,8 +144,9 @@ no decorative numbering.
 ## Signature components (home)
 
 - `home/HomeHero.astro`: Walnut ground, headline with Oat-italic accent, the
-  `heroPortrait` photo on the right, and a CSS fan deck of the seven named tones
-  opening from the seam. Phone: photo on top, copy below.
+  `heroPortrait` photo on the right, leaf shadows and window sun drifting over
+  it (see "The hand layer"). Phone: photo on top, copy below. (The CSS fan
+  deck at the seam was removed 2026-09-30.)
 - `home/HomeStaci.astro`: tall portrait with a sample tag, the first paragraph
   as a Zodiak lede.
 - `home/PaintChips.astro`: services as a paint strip, one chip per service on the
@@ -161,8 +160,17 @@ no decorative numbering.
   Google reviews come first, newest first, each with Sandbar stars, the
   reviewer's name, its age and "Read on Google" (see "Google reviews").
 - `ServiceAreaCue.astro`: towns set large, home base first in Espresso italic.
-- `FinalCta.astro` (every page): Walnut close, big headline, the logo's sprig
-  drawing itself in behind.
+- `FinalCta.astro` (every page): "the planning page" (2026-09-30, Nathan's
+  pick from the closing-band mockups). Walnut close drawn as a page from
+  Staci's notebook: faint ruled lines, a faded red margin rule, binder holes
+  and a coffee ring behind; a living-room floor plan in her fine line
+  (`closing/FloorPlan.astro`: walls, window, door swing, sofa, rug, table,
+  dimension strings, notes like "36″ to walk") drawing itself in at the upper
+  right, with the words below it; and under the headline her own checklist
+  from Instagram ("lighting · scale · texture · balance · what's missing",
+  `src/data/closing-notes.ts`) ticking itself off, closing on "It's all in the
+  details." On phones the plan sits faint in the top corner. Replaced the
+  logo's sprig.
 
 Home rhythm: Walnut hero, linen, ink, linen, paper, (Linen chip Instagram),
 linen, Walnut, ink footer.
@@ -423,13 +431,65 @@ feed is connected.
   4 across from 1024px (eight). Every print opens the post in a new tab and is
   named from its caption (hashtags dropped); the picture itself is `alt=""`.
 
+## The hand layer (2026-09-30)
+
+The site should feel worked on by a person, the way a project board does:
+botanical line drawings in the margins, a marker under the word that matters,
+afternoon light moving across the room. All decorative, all off (or finished
+and still) under reduced motion, none carrying meaning on its own.
+
+- **Botanical ambience** (`src/scripts/ambient-doodles.ts`, `src/styles/doodle.css`).
+  Fine-line botanicals in the style of Staci's own Instagram drawings (the four
+  posts Nathan shared 2026-09-30): olive sprig, eucalyptus, willow, berry sprig,
+  a sage stem with soft washes, twin twigs. Single weight, a whisper of hand
+  wobble, Warm Bronze at about 40% (her muted gold), cream at 20% on the ink
+  and Walnut bands. One grows in from a corner of every content section,
+  clipped at the section's edge the way her branches enter the frame of a post;
+  corners alternate so neighbours never match. Behind everything, drawn in as
+  the section scrolls up. Not on the page hero or the closing band (it has the
+  logo's sprig). Authored as geometry in `scripts/doodles.config.mjs`;
+  `npm run doodles` writes the committed `src/assets/doodles/*.svg`; which one
+  goes where is `src/lib/doodle-map.ts`. Fetched per section as it nears the
+  screen, so pages carry none of them in their HTML.
+- **Phone menu sprig.** The olive sprig in faint cream beside her logo, drawn
+  in each time the menu opens, behind the chip deck.
+- **Designer markup.** The italic accent phrase in a section heading (h2/h3,
+  never the word-rise page headlines) gets a hand-drawn marker swoosh in
+  Sandbar, pulled across as the heading scrolls in. Sandbar reads on linen,
+  paper, Walnut and ink alike, and it is a mark behind the words, never text.
+- **Window light** (`src/scripts/window-light.ts`, WebGL). Leaf shadows sway
+  slowly across the home hero and a patch of window sun, cut by its muntins,
+  falls on the photo side only. A soft-light canvas at half resolution and
+  30 fps, started near the screen and when idle, paused off screen. The
+  closing Walnut band gets the shade only (`data-window-light="shade"`), which
+  can only raise cream-on-Walnut contrast. Never a colour of its own.
+
+## Swatches carry content (2026-09-30)
+
+Nathan found the decorative paint swatches repetitive and a bit fake, so paint
+chips now appear only where they carry information: the services (a chip per
+service, with its price) and the phone menu's deck of pages. The decorative
+repeats are gone: the fan deck on the home hero, the seven-tone strip across
+the top of the footer, and the fan on the share cards. The small tone squares
+beside the footer's page index stay as list markers. Do not add a decorative
+chip, fan or strip back without asking him.
+
+## Share cards: design E, "the hero card" (2026-09-30)
+
+Every page's og:image is the home hero in miniature: Walnut ground, her logo
+hung from the top edge on its paper plate, a sentence-case kicker after a short
+rule, the title in Zodiak Light cream (balanced lines, measured from the real
+font), `reiddesignllc.com` in Oat, the page's photo on the right melting into
+the Walnut. No photo: an Espresso panel with her monogram in cream. Code: `scripts/lib/og-render*.mjs`; fonts are the
+site's own, as .woff copies fetched into `scripts/.og-fonts/`.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
   opacity 0 behind a script-added class. Every animation sits inside
   `prefers-reduced-motion: no-preference`.
-- Load: headline words rise (1s, quint-out, 45ms stagger), fan deck opens
-  (1.6s, 70ms stagger), portrait settles from 110% to 100%.
+- Load: headline words rise (1s, quint-out, 45ms stagger), portrait settles
+  from 110% to 100%.
 - Scroll-driven, CSS only, behind `@supports (animation-timeline: view())`:
   paint chips settle, tape pulls out, the closing sprig draws.
 - Easing: `cubic-bezier(0.22, 1, 0.36, 1)` for interaction,
