@@ -103,13 +103,6 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
   > and visitors on 2026-09-29, so the panel will have data the moment the secret
   > is set. Then open Presentation once in the Studio (it hands the browser the
   > preview cookie the endpoint checks by value) and open Site stats.
-- **Check the Wayfair link in "Grow your studio".** The first link-health run
-  reported `https://www.wayfair.com/professional/` gone (HTTP 404 to a script).
-  It could not be confirmed: Wayfair walls every request from that network with
-  a 429 "Access denied", including a real Chromium, so it may be a false alarm.
-  Open it in a normal browser; if it is dead, fix it in Studio > Start Here >
-  Grow your studio (and in `scripts/seed-studio-playbook.mjs`, or the next
-  reseed puts it back).
 - **Optional: a daily rebuild.** Announcement start dates, and "Show until" removing
   a bar from the page code, are read at BUILD time. A bar hides itself in the
   browser once its end passes, but a start date only lands on the day if a build
