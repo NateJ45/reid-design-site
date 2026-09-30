@@ -6,8 +6,8 @@
 // blocks) without any content moving. The words and photos are still edited in
 // the named field tabs (Story, Philosophy, Personal, Stats, Final CTA).
 //
-// Section order (default): Hero, Story, Philosophy, Personal, Stats, Final
-// CTA. (The press strip was removed on 2026-09-30.)
+// Section order (default): Hero, Story, Philosophy, Personal, Stats, Kind
+// words (every review, added 2026-09-30), Final CTA. (The press strip was removed on 2026-09-30.)
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
@@ -44,5 +44,6 @@ const schemas = [
     sections={page?.pageBuilder}
     page={page}
     philosophyPoints={philosophyPoints}
+    {siteSettings}
   />
 </BaseLayout>

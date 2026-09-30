@@ -1,0 +1,335 @@
+---
+// Safe to edit by hand
+// =============================================================================
+// About "Kind words": every review, in full (added 2026-09-30)
+// =============================================================================
+// The home reviews band shows four quotes at most and fills them with Google
+// reviews first, so most of Staci's Facebook recommendations were on no page.
+// This wall lists EVERY testimonial she has not hidden ("Hide on the website"
+// on the testimonial), any source, newest first, word for word.
+//
+// Data: getAboutPage().kindWords (all usable testimonials) and the aboutPage
+// kindWords* fields for the heading; siteSettings for the rating tag and the
+// two "Read them on ..." links. Filtering, order, source wording, dates and
+// quote sizes are pure functions in src/lib/kind-words.ts (unit tested).
+//
+// Placement: the About layout's "Kind words" marker. A layout saved before
+// the marker existed gets it just before the closing CTA (placeMarker in
+// src/lib/auto-marker.ts); "Show on the About page" in the Kind words tab
+// turns it off. Renders nothing at all when there is no review to show.
+//
+// Design (DESIGN.md "About"): a paper band between the Linen board / numbers
+// and the Walnut close. Quotes set loose in newspaper columns (1, 2, then 3
+// across) so an 85 character line and a 700 character review sit together
+// without ragged card heights: each quote is sized by its length, hangs a
+// Warm Bronze open-quote mark (a mark, never text) and sits under a hairline.
+// Stars are Warm Bronze fills. All text is ink or ink 2 on paper (13+ and 7+).
+//
+// NEVER add aggregateRating / review JSON-LD for these (self-serving review
+// markup; docs/agent/seo.md).
+// =============================================================================
+import AboutKicker from '@/components/about/AboutKicker.astro';
+import RatingTag from '@/components/reviews/RatingTag.astro';
+import Stars from '@/components/reviews/Stars.astro';
+import { splitScriptAccent } from '@/lib/scriptAccent';
+import { splitStega } from '@/lib/preview-stega';
+import type { GoogleRatingSettings, ReviewLike } from '@/lib/reviews';
+import {
+  facebookReviewsUrl,
+  httpUrl,
+  kindWordsList,
+  monthYear,
+  quoteSize,
+  reviewSource,
+} from '@/lib/kind-words';
+
+interface Props {
+  eyebrow?: string | null;
+  headline?: string | null;
+  scriptAccent?: string | null;
+  subhead?: string | null;
+  reviews?: ReviewLike[] | null;
+  /** getSiteSettings(): the rating tag, the Google profile and Facebook links. */
+  siteSettings?:
+    | (GoogleRatingSettings & {
+        socialFacebook?: string | null;
+      })
+    | null;
+  headingId?: string;
+}
+
+const {
+  eyebrow,
+  headline,
+  scriptAccent,
+  subhead,
+  reviews,
+  siteSettings,
+  headingId = 'kind-words-heading',
+} = Astro.props as Props;
+
+const list = kindWordsList(reviews);
+
+// Defaults in Staci's voice. The accent default only applies to the default
+// headline: a headline she typed takes only the accent she typed.
+const headText = headline || 'In their own words';
+const accentText = headline ? scriptAccent : (scriptAccent ?? 'own words');
+const head = splitStega(headText);
+const h = splitScriptAccent(head.cleaned, splitStega(accentText ?? '').cleaned || undefined);
+const intro = subhead || 'Every review from Google and Facebook, newest first, word for word.';
+
+const googleUrl = httpUrl(siteSettings?.googleBusinessUrl);
+const facebookUrl = facebookReviewsUrl(siteSettings?.socialFacebook);
+const hasGoogle = list.some((t) => reviewSource(t).kind === 'google');
+const hasFacebook = list.some((t) => reviewSource(t).kind === 'facebook');
+const plain = (v?: string | null) => splitStega(v ?? '').cleaned.trim();
+---
+
+{
+  list.length > 0 && (
+    <section class="kw" aria-labelledby={headingId}>
+      <div class="r-wrap">
+        <header class="kw__head">
+          <div class="kw__intro">
+            <AboutKicker text={eyebrow || 'Kind words'} />
+            <h2 id={headingId} class="r-h2 kw__h">
+              {h.found ? (
+                <>
+                  {h.before}
+                  <span class="r-accent">{h.word}</span>
+                  {h.after}
+                  {head.encoded}
+                </>
+              ) : (
+                headText
+              )}
+            </h2>
+            <p class="kw__sub">{intro}</p>
+          </div>
+          <RatingTag settings={siteSettings} class="kw__rating" />
+        </header>
+
+        <ul class="kw__list" role="list">
+          {list.map((t) => {
+            const src = reviewSource(t);
+            const href = src.kind === 'google' ? httpUrl(t.reviewUrl) : null;
+            const when = monthYear(t.date);
+            return (
+              <li class:list={['kw__item', `kw__item--${quoteSize(t.quote)}`]}>
+                <figure>
+                  <blockquote>
+                    <p>{t.quote}</p>
+                  </blockquote>
+                  <figcaption>
+                    <span class="kw__who">{t.attribution}</span>
+                    {(when || src.text) && (
+                      <span class="kw__meta">
+                        {when && <time datetime={plain(t.date)}>{when}</time>}
+                        {src.text && (
+                          <span class="kw__src">
+                            {src.stars != null && (
+                              <>
+                                <Stars rating={src.stars} class="kw__stars" />
+                                <span class="sr-only">{src.stars} out of 5 stars </span>
+                              </>
+                            )}
+                            {href ? (
+                              <a
+                                class="r-link"
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {src.text}
+                                <span class="sr-only">
+                                  : {plain(t.attribution)}’s review, opens in a new tab
+                                </span>
+                              </a>
+                            ) : (
+                              src.text
+                            )}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </figcaption>
+                </figure>
+              </li>
+            );
+          })}
+        </ul>
+
+        {((hasGoogle && googleUrl) || (hasFacebook && facebookUrl)) && (
+          <p class="kw__links">
+            {hasGoogle && googleUrl && (
+              <a class="r-link" href={googleUrl} target="_blank" rel="noopener noreferrer">
+                Read them on Google
+                <span class="sr-only">, opens in a new tab</span>
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            )}
+            {hasFacebook && facebookUrl && (
+              <a class="r-link" href={facebookUrl} target="_blank" rel="noopener noreferrer">
+                Read them on Facebook
+                <span class="sr-only">, opens in a new tab</span>
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .kw {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+
+  /* ---- Head: kicker, heading and intro on the left; the rating tag hangs
+     on the right (under the intro on phones). On paper the tag face turns
+     Linen so it still reads as an object (DESIGN.md "Google reviews"). ---- */
+  .kw__head {
+    --rt-face: var(--color-chip-1);
+    display: grid;
+    gap: 2rem;
+    align-items: end;
+    margin-bottom: clamp(2.75rem, 6vw, 4.5rem);
+  }
+  .kw__h {
+    margin: 0;
+  }
+  .kw__sub {
+    margin: 1.25rem 0 0;
+    max-width: 44ch;
+    color: var(--color-ink-2);
+    font-size: 1.05rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+  @media (min-width: 900px) {
+    .kw__head {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 3rem;
+    }
+    .kw__head :global(.kw__rating) {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  /* ---- The wall: newspaper columns, so tall and short quotes pack without
+     equal-height cards. DOM order is newest first (the reading order for a
+     screen reader); the eye reads down each column. ---- */
+  .kw__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 1;
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+  }
+  @media (min-width: 640px) {
+    .kw__list {
+      columns: 2;
+    }
+  }
+  @media (min-width: 1024px) {
+    .kw__list {
+      columns: 3;
+    }
+  }
+  .kw__item {
+    break-inside: avoid;
+    /* Padding, not margin, so the first item of each column lines up. */
+    padding: 1.6rem 0 2.4rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .kw__item figure {
+    position: relative;
+    margin: 0;
+    padding-left: 1.6rem;
+  }
+  /* The hung open-quote: a Warm Bronze mark at display size, never text. */
+  .kw__item figure::before {
+    content: '\201C';
+    position: absolute;
+    left: -0.1rem;
+    top: -0.35rem;
+    font: 300 2.6rem/1 var(--font-display);
+    color: var(--color-chip-5);
+  }
+  .kw__item blockquote {
+    margin: 0;
+  }
+  .kw__item blockquote p {
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+  /* Sized by length (quoteSize in src/lib/kind-words.ts). */
+  .kw__item--short blockquote p {
+    font-weight: 300;
+    font-size: clamp(1.45rem, 1.25rem + 0.7vw, 1.8rem);
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+  }
+  .kw__item--medium blockquote p {
+    font-weight: 300;
+    font-size: clamp(1.2rem, 1.1rem + 0.35vw, 1.35rem);
+    line-height: 1.38;
+    letter-spacing: -0.01em;
+  }
+  .kw__item--long blockquote p {
+    font-weight: 400;
+    font-size: 1.08rem;
+    line-height: 1.58;
+  }
+
+  .kw__item figcaption {
+    display: grid;
+    gap: 0.35rem;
+    justify-items: start;
+    margin-top: 1.1rem;
+    font: 400 0.92rem/1.4 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .kw__who {
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  /* Date, then the source on its own line: a narrow column never wraps a
+     separator onto a new line (the GoogleCite lesson). */
+  .kw__meta {
+    display: grid;
+    gap: 0.3rem;
+    justify-items: start;
+  }
+  .kw__src {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .kw__src :global(.kw__stars) {
+    --star-h: 0.8rem;
+  }
+  .kw__src a {
+    color: var(--color-ink);
+  }
+
+  .kw__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    margin: clamp(1rem, 3vw, 2rem) 0 0;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--color-rule);
+    font-size: 1rem;
+  }
+  .kw__links a {
+    color: var(--color-ink);
+  }
+</style>

@@ -98,6 +98,13 @@ export const SITE_SETTINGS_PROJECTION = `{
     "serviceRegion": *[_type == "businessInfo"][0].serviceRegion,
     socialInstagram,
     socialFacebook,
+    // Instagram feed words + placements (2026-09-30), read by InstagramFeed.astro.
+    instagramFeedHeadline,
+    instagramFeedScriptAccent,
+    instagramFeedSubhead,
+    instagramFeedLinkLabel,
+    instagramFeedOnHome,
+    instagramFeedOnContact,
     logo${IMAGE_PROJECTION},
     seoImage${IMAGE_PROJECTION},
     footerCredit,
@@ -284,6 +291,14 @@ export async function getAboutPage(c: SanityClient = client) {
     beyondDesign,
     candidPhoto${IMAGE_PROJECTION},
     stats[]{number, suffix, label},
+    // Kind words (2026-09-30): the wall of EVERY review Staci has not hidden,
+    // any source, newest first. kindWordsList() in src/lib/kind-words.ts
+    // filters and orders again (defensively), so the query stays plain.
+    kindWordsShow, kindWordsEyebrow, kindWordsHeadline, kindWordsScriptAccent, kindWordsSubhead,
+    "kindWords": *[_type == "testimonial" && defined(quote) && hideOnWebsite != true]
+      | order(date desc, _createdAt asc){
+      _id, quote, attribution, date, source, sourceType, rating, reviewUrl, hideOnWebsite
+    },
     finalCtaEyebrow, finalCtaHeadline, finalCtaScriptAccent, finalCtaSubhead,
     finalCtaBackgroundImage${IMAGE_PROJECTION},
     finalCta${CTA_PROJECTION}
