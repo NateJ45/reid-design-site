@@ -125,10 +125,11 @@ no decorative numbering.
   slot is reserved beside the tag.
 - **Phone menu** (`MobileNav.tsx`). The trigger is an ink "Menu" price tag. Open:
   full-screen ink, her cream logo 108px top left, "Close" as a cream price tag,
-  the menu as a fanned deck of full-width paint chips on the ramp (never Warm
-  Bronze), each a hair off square, names only and set big, and never covered
-  by the next chip (each chip shows a fixed strip above the next). The deck
-  deals in from below under `prefers-reduced-motion: no-preference` only. Foot:
+  the menu as a deck of full-width paint chips on the ramp (never Warm
+  Bronze), stacked square with a hairline between them (fanned until the
+  quiet pass), names only and set big, and never covered by the next chip
+  (each chip shows a fixed strip above the next). The deck deals in from
+  below, landing square, under `prefers-reduced-motion: no-preference` only. Foot:
   the cream booking price tag with the price, then phone and email. Radix
   Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
 - **Footer** (`Footer.astro`), on ink. (The seven-tone paint strip across its
@@ -477,8 +478,11 @@ craft vocabulary stays, edited down:
 - **Nothing tilts at rest.** Sample tags, price and rating tags, footer
   contact tags, Instagram prints, the About board and the E-Design tags sit
   square. Motion may still swing or settle a piece in, and hover may lift it,
-  but it lands square. The exceptions are objects whose angle is their job:
-  the phone menu's fanned deck and the turning guarantee stamp.
+  but it lands square. The price tags tilt on hover only where a real
+  pointer hovers (`(hover: hover)`), so a tap never leaves one crooked. The
+  one exception is the turning guarantee stamp, whose angle is its job.
+- **The phone menu deck is a square stack** with hairlines between the
+  chips, not a fan with cast shadows.
 - **Two botanicals per page**, not one per section (`MAX_DOODLES`).
 - **One marker swoosh per page**, on the closing heading.
 - **A plainer notebook page** in the closing band: ruled lines, the floor

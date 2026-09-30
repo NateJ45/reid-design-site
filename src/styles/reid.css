@@ -236,7 +236,9 @@
     --tag-fg: var(--color-ink);
     --tag-ring: var(--color-cream);
   }
-  @media (prefers-reduced-motion: no-preference) {
+  /* The hover tilt only where a real pointer hovers: on touch screens a tap
+     can leave :hover stuck, which left the tag sitting crooked. */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) {
     .r-pricetag:hover {
       transform: rotate(-2deg);
     }

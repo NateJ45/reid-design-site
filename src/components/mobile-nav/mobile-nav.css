@@ -107,7 +107,8 @@
   font-size: 0.9rem;
 }
 
-/* ---- The deck: full-width chips, fanned. Each <li> is only as tall as the
+/* ---- The deck: full-width chips, stacked square into one paint strip
+   (fanned a degree apart until the 2026-09-30 quiet pass). Each <li> is only as tall as the
    strip of its chip that shows; the chip itself is taller and runs on under
    the next one (later chips paint on top, DOM order). The last <li> is the
    whole chip. The name sits in the visible strip, so the next chip can never
@@ -142,11 +143,11 @@
   font: 300 clamp(2rem, 1.6rem + 2vw, 2.6rem) / 1.05 var(--font-display);
   letter-spacing: -0.025em;
   text-decoration: none;
-  transform-origin: 1.1rem 100%;
-  transform: rotate(calc((var(--n) - 2) * -1deg));
+  /* A hairline where each chip meets the one above, not a cast shadow: the
+     deck reads as one calm strip. */
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.14),
-    0 -18px 30px -24px rgb(0 0 0 / 0.6);
+    0 -1px 0 rgb(0 0 0 / 0.22);
 }
 .mnav__chip[data-on='cream'] > a {
   color: var(--color-cream);
@@ -215,7 +216,7 @@
   outline-offset: 2px;
 }
 
-/* ---- Motion: the deck deals in, the ground fades up. Nothing moves under
+/* ---- Motion: the deck deals in (straight up, landing square), the ground fades up. Nothing moves under
    reduced motion; everything is simply there. ---- */
 @media (prefers-reduced-motion: no-preference) {
   .mnav {
@@ -237,7 +238,7 @@
 }
 @keyframes mnav-deal {
   from {
-    transform: translateY(120%) rotate(8deg);
+    transform: translateY(120%);
   }
 }
 

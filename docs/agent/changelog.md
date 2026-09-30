@@ -10,7 +10,10 @@
   not replaced. DESIGN.md "The quiet pass" has the rules.
 - Resting tilts removed from every sample tag, the rating tag, the footer
   contact tags, the Instagram prints, the About board and the E-Design tags
-  (the phone menu deck and the guarantee stamp keep theirs).
+  (the guarantee stamp keeps its turn).
+- Phone menu: the fanned deck is now a square stack with hairlines instead of
+  cast shadows, and deals in straight. The `.r-pricetag` hover tilt is gated
+  on `(hover: hover)` so a tap cannot leave Close/Menu stuck crooked.
 - Ambient botanicals capped at two per page (`MAX_DOODLES` / `doodleSlots()`
   in `src/lib/doodle-map.ts`, tested). Also fixed: a second init on the same
   page used to skip decorated sections and so decorate new ones.
