@@ -2,6 +2,8 @@
 
 Offline authoring kit for the home page "concept room": six frames of one living room (empty, rug and sofa, tables and lamp, chair and curtains, art, styling), each an EDIT of the previous one made by a local ComfyUI server, plus a wall mask per frame so the site can repaint the walls live.
 
+**Every frame is AI-generated, the room and every piece in it** (Nathan, 2026-09-30). Never feed Staci's or a client's photos into this pipeline, not even as a test input: test the wall finder on the generated frames. Real photos only ever arrive through the separate, consented time-lapse route described at the end.
+
 It has its own `package.json` and lockfile so none of its dependencies (transformers.js, onnxruntime) reach the site install or the Cloudflare build. The site only ever reads the published output in `src/assets/room/`.
 
 ## Prerequisites
