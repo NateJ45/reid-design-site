@@ -51,3 +51,7 @@ scripts/.asset-map.json
 # Playwright
 test-results/
 playwright-report/
+
+# brand web fonts: fetched at build time by scripts/fetch-fonts.mjs, never
+# committed (ITF Free Font License forbids redistribution via a public repo)
+public/fonts/

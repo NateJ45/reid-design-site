@@ -50,6 +50,8 @@ npm install
 npm run dev          # site on :4321, Studio on :4321/studio
 ```
 
+**Fonts.** The site's type is Zodiak (display) and General Sans (text) from Fontshare, under the ITF Free Font License 2.0, which forbids redistributing the files through a public repo. The woff2 files are therefore NOT committed: `scripts/fetch-fonts.mjs` downloads them into the gitignored `public/fonts/` automatically on `predev` and `prebuild`, verifying SHA-256 against `scripts/fonts.lock.json` (`npm run fonts:update` rewrites the lock). The site is light only.
+
 To exercise the SSR routes (`/studio`, `/preview/**`, `/api/draft-mode/*`) the way
 production runs them, build and serve through a real Worker instead:
 

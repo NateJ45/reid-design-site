@@ -186,6 +186,7 @@ export async function getHomePage(c: SanityClient = client) {
     heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroImages[]${IMAGE_PROJECTION},
+    heroPortrait${IMAGE_PROJECTION},
     heroPrimaryCta${CTA_PROJECTION},
     heroSecondaryCta${CTA_PROJECTION},
     heroRotatingWords,

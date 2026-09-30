@@ -27,7 +27,9 @@
 //      no accordion needed — full-height drawers have plenty of room)
 //   5. Spacer pushes the rest to the bottom
 //   6. Email link with Mail icon
-//   7. Social icons row (Instagram, Facebook) + ThemeToggle on the right
+//   7. Social icons row (Instagram, Facebook). The ThemeToggle that sat on the
+//      right was removed 2026-09-29: the site is light only, and the toggle
+//      re-applied a stored dark preference on mount.
 //   8. Logo centered at the bottom of the panel
 //
 // Data: tagline, email, social URLs all come from Sanity siteSettings via
@@ -38,7 +40,6 @@ import { useState } from 'react';
 import { Menu, Mail, Phone, ChevronRight } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import ThemeToggle from './ThemeToggle';
 import { telHref } from '@/lib/phone';
 
 // ---- Types ------------------------------------------------------------------
@@ -121,8 +122,10 @@ export default function MobileNav({
 
   const close = () => setOpen(false);
 
+  // In flow since the 2026-09-29 header rebuild: Header.astro gives the
+  // trigger a 44px slot (it used to be absolutely positioned in the row).
   return (
-    <div className="absolute top-1/2 right-m -translate-y-1/2 lg:hidden">
+    <div className="lg:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
@@ -258,9 +261,6 @@ export default function MobileNav({
                   <IconBrandFacebook size={20} stroke={1.5} />
                 </a>
               )}
-              <div className="ml-auto">
-                <ThemeToggle />
-              </div>
             </div>
           </div>
 

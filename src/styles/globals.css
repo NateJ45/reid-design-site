@@ -22,156 +22,139 @@
 
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-/* Cormorant Garamond — display serif. Only 400 + 600 are actually used:
-   400 for plain headlines, 600 for emphasized headlines. The 500 weight
-   was loaded but never selected anywhere, costing ~30 KB on every page
-   for no visual change. Drop it. Variable + latin subsets are pulled in
-   automatically by @fontsource. */
-@import '@fontsource/cormorant-garamond/400.css';
-@import '@fontsource/cormorant-garamond/600.css';
-@import '@fontsource-variable/source-sans-3';
-/* Pinyon Script — calligraphic single-weight script used for ONE accent
-   word per hero. Loaded after the primary fonts and with font-display:
-   swap (the @fontsource default) so it never blocks first paint. If a
-   hero has no scriptAccent, the file is fetched but doesn't render
-   anything — small price for the option. */
-@import '@fontsource/pinyon-script/400.css';
+/* Rebuild primitives (2026-09-29): container, buttons, links, heading sizes,
+   sample tag, word rise. See the file header. */
+@import './reid.css';
+/* ---------- Brand web fonts (art-direction rebuild, 2026-09-29) -------------
+   Zodiak (display) + General Sans (text), both Fontshare, ITF Free Font
+   License 2.0. The woff2 files are NOT in git: the license forbids
+   redistribution through a public repository, so scripts/fetch-fonts.mjs
+   downloads them into public/fonts/ (gitignored) before every dev and build
+   run and checks each against scripts/fonts.lock.json. Served from the site's
+   own origin, which the license allows. Replaced Cormorant Garamond, Pinyon
+   Script and Source Sans 3 (the @fontsource packages are still installed;
+   removal is a PENDING item so this change does not also churn the lockfile).
+
+   Only the faces the design uses: Zodiak 300 and 400 with true italics,
+   General Sans 400 / 500 / 600. No preload (the 2026-09-29 measurement in
+   BaseLayout still stands: a preload cost LCP here); the metric-matched
+   fallbacks below make the swap move nothing. */
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-300i.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-400.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-400i.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-400.woff2') format('woff2');
+  font-weight: 100 449;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-500.woff2') format('woff2');
+  font-weight: 450 549;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-600.woff2') format('woff2');
+  font-weight: 550 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @custom-variant dark (&:is(.dark *));
 
-/* ---------- Metric-matched fallback faces (2026-09-29) ----------------------
-   The three web fonts arrive after first paint (font-display: swap), so every
-   visitor on a cold cache sees the page first in a SYSTEM font and then watch
-   it swap. Unadjusted, Georgia sets Cormorant's headlines 13 percent wider, so
-   the home hero h1 re-wrapped when Cormorant landed: Lighthouse mobile measured
-   CLS 0.033 on / and 0.027 on /services, all of it the h1. These faces scale
-   the system font to the web font's own width (size-adjust) and pin its line
-   box to the web font's vertical metrics (ascent/descent-override), so the swap
-   changes the letter shapes and nothing else.
-
-   HOW THE NUMBERS WERE MADE (scratch scripts, not committed). size-adjust is
-   MEASURED in Chrome, not computed from font tables: 93 real headlines from
-   the built site (h1-h3 and every .font-display element on /, /about,
-   /services, /process, /faq, /contact, /e-design) laid out in the web font and
-   in the local face, size-adjust = web width / local width. The Pinyon number
-   uses the four accent phrases the site actually sets in it. Vertical metrics
-   come from the web font itself (canvas fontBoundingBox at 1000px):
-   Cormorant Garamond 924 / 287, Pinyon Script 863 / 384 per 1000.
-   THE OVERRIDES ARE PRE-SIZE-ADJUST: the browser scales them by size-adjust
-   along with everything else, so each is web metric / size-adjust (the trap
-   stonesteps-50k documented: 92.4 under 88.2% renders as 81.5, not 92.4).
-
-   Every local() font named here was confirmed present on the measuring
-   machine (Windows 11) before it was measured: a local() name the system
-   cannot resolve silently measures as the DEFAULT face and yields a confident
-   wrong number. Georgia and Times New Roman ship on Windows and macOS. A Linux
-   machine has neither Georgia nor a metric twin of it, so it falls through to
-   the "TNR" family, where Liberation Serif and Tinos are Times New Roman's
-   metric-compatible twins and take the same numbers.
-
-   Headlines render at weight 500, which resolves to Cormorant's 400 file (only
-   400 and 600 are loaded), so the 100-549 range carries the headline numbers.
-   Source Sans 3 is the same variable package presacademy measured on
-   2026-09-06 (body 400: 93.8 percent of Arial, 600+: 89.5 of Arial Bold,
-   italic 91.4); the numbers transfer, and a spot check on Reid's headline text
-   landed within one percent (92.8). Re-measure if any of the three
-   @fontsource packages takes a new major. */
+/* ---------- Metric-matched fallback faces (2026-09-29, rebuild) -------------
+   Same method as the Cormorant-era block this replaced (see git history for
+   its long write-up): size-adjust is MEASURED in Chrome as web-font width /
+   local-font width over the site's real headline and body strings; vertical
+   metrics come from the web font (canvas fontBoundingBox at 1000px: Zodiak
+   990 / 250, Zodiak italic 990 / 280, General Sans 1010 / 240), and the
+   overrides are divided by size-adjust because the browser scales them too.
+   Measured on Windows 11 with Georgia, Times New Roman and Arial present.
+   Re-measure if scripts/fonts.lock.json ever changes a hash. */
 @font-face {
-  font-family: 'Cormorant Garamond Fallback';
+  font-family: 'Zodiak Fallback';
   font-style: normal;
-  font-weight: 100 549;
   src: local('Georgia');
-  size-adjust: 88.2%;
-  ascent-override: 104.76%;
-  descent-override: 32.54%;
+  size-adjust: 107.66%;
+  ascent-override: 91.96%;
+  descent-override: 23.22%;
   line-gap-override: 0%;
 }
 @font-face {
-  font-family: 'Cormorant Garamond Fallback';
-  font-style: normal;
-  font-weight: 550 900;
-  src: local('Georgia Bold'), local('Georgia-Bold');
-  size-adjust: 76.4%;
-  ascent-override: 120.94%;
-  descent-override: 37.57%;
+  font-family: 'Zodiak Fallback';
+  font-style: italic;
+  src: local('Georgia Italic'), local('Georgia-Italic');
+  size-adjust: 109.28%;
+  ascent-override: 90.59%;
+  descent-override: 25.62%;
   line-gap-override: 0%;
 }
+/* Linux has no Georgia: Liberation Serif / Tinos are Times New Roman's metric
+   twins and take its numbers. */
 @font-face {
-  font-family: 'Cormorant Garamond Fallback TNR';
-  font-style: normal;
-  font-weight: 100 549;
+  font-family: 'Zodiak Fallback TNR';
   src:
     local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif'), local('Tinos');
-  size-adjust: 96.2%;
-  ascent-override: 96.05%;
-  descent-override: 29.83%;
+  size-adjust: 118.19%;
+  ascent-override: 83.77%;
+  descent-override: 21.15%;
   line-gap-override: 0%;
 }
 @font-face {
-  font-family: 'Cormorant Garamond Fallback TNR';
-  font-style: normal;
+  font-family: 'General Sans Fallback';
+  font-weight: 100 449;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 100.5%;
+  ascent-override: 100.5%;
+  descent-override: 23.88%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'General Sans Fallback';
+  font-weight: 450 549;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 103.33%;
+  ascent-override: 97.75%;
+  descent-override: 23.23%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'General Sans Fallback';
   font-weight: 550 900;
   src:
-    local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold'),
-    local('Tinos Bold');
-  size-adjust: 91.3%;
-  ascent-override: 101.2%;
-  descent-override: 31.43%;
-  line-gap-override: 0%;
-}
-/* The script accent sits INSIDE a headline, so its width decides where that
-   headline wraps. Unadjusted, the generic `cursive` is Comic Sans on Windows. */
-@font-face {
-  font-family: 'Pinyon Script Fallback';
-  src: local('Georgia Italic'), local('Georgia-Italic');
-  size-adjust: 81.8%;
-  ascent-override: 105.5%;
-  descent-override: 46.94%;
-  line-gap-override: 0%;
-}
-@font-face {
-  font-family: 'Pinyon Script Fallback TNR';
-  src:
-    local('Times New Roman Italic'), local('TimesNewRomanPS-ItalicMT'),
-    local('Liberation Serif Italic'), local('Tinos Italic');
-  size-adjust: 90.8%;
-  ascent-override: 95.04%;
-  descent-override: 42.29%;
-  line-gap-override: 0%;
-}
-@font-face {
-  font-family: 'Source Sans 3 Fallback';
-  font-style: normal;
-  font-weight: 100 599;
-  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Arimo');
-  size-adjust: 93.8%;
-  ascent-override: 109.17%;
-  descent-override: 42.64%;
-  line-gap-override: 0%;
-}
-/* Semibold and up (buttons, nav, eyebrows) map to the real bold cut rather
-   than a synthetic bold of the regular, whose advances would stay regular
-   width while Source Sans 3 at 600 is 8 percent wider than at 400. */
-@font-face {
-  font-family: 'Source Sans 3 Fallback';
-  font-style: normal;
-  font-weight: 600 900;
-  src:
     local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('Arimo Bold');
-  size-adjust: 89.5%;
-  ascent-override: 114.41%;
-  descent-override: 44.69%;
-  line-gap-override: 0%;
-}
-@font-face {
-  font-family: 'Source Sans 3 Fallback';
-  font-style: italic;
-  src:
-    local('Arial Italic'), local('Arial-ItalicMT'), local('Liberation Sans Italic'),
-    local('Arimo Italic');
-  size-adjust: 91.4%;
-  ascent-override: 112.04%;
-  descent-override: 43.76%;
+  size-adjust: 98.94%;
+  ascent-override: 102.08%;
+  descent-override: 24.26%;
   line-gap-override: 0%;
 }
 
@@ -183,13 +166,33 @@
   /* Brand palette */
   --color-primary: #9c7661; /* Warm Bronze */
   --color-primary-dark: #7a5d4c; /* Bronze Dark — for body anchor text */
-  --color-accent: #3d3d3d; /* Charcoal — headings + body */
-  --color-accent-dark: #2a2a2a; /* Charcoal Dark — dark surfaces */
+  --color-accent: #231e1b; /* Ink (was Charcoal #3d3d3d until the 2026-09-29 rebuild) */
+  --color-accent-dark: #231e1b; /* Ink — dark surfaces */
   --color-secondary: #b8a99a; /* Warm Taupe — borders, eyebrows */
   --color-tertiary: #a8b5a0; /* Soft Sage — sparingly */
 
-  --color-bg: #faf8f5; /* Soft Linen — primary surface */
-  --color-bg-soft: #f5f0eb; /* Cream — alternating surface */
+  --color-bg: #f7f3ee; /* Linen — primary surface */
+  --color-bg-soft: #f1e7dc; /* Chip 1 — alternating surface */
+
+  /* Rebuild palette (2026-09-29). Still Warm Bronze, now as a PAINT STRIP:
+     seven tones from palest to deepest, the house colour at chip 5. Paint
+     chips, the fan deck and section grounds all draw from this ramp, so the
+     whole site reads as one colour card. Names are the ones printed on the
+     hero fan deck. Text contrast (computed, WCAG): ink on chips 1-4 is 13.5 /
+     10.9 / 8.1 / 5.6; cream on chips 6-7 is 4.9 / 7.5. Warm Bronze (chip 5)
+     takes NO body-size text: ink 4.07, cream 3.50. Display type only. */
+  --color-chip-1: #f1e7dc; /* Linen */
+  --color-chip-2: #e2cfbd; /* Oat */
+  --color-chip-3: #cdb09a; /* Sandbar */
+  --color-chip-4: #b39079; /* Saddle */
+  --color-chip-5: #9c7661; /* Warm Bronze, the house colour */
+  --color-chip-6: #80604f; /* Walnut */
+  --color-chip-7: #5f4639; /* Espresso */
+  --color-ink: #231e1b; /* Ink: text, the dark band, the footer */
+  --color-ink-2: #5a4e46; /* Secondary text on linen (7.3:1) */
+  --color-cream: #f5ede3; /* Text on bronze and ink */
+  --color-paper: #fffdfa; /* Paper: chip labels, sample tags, prints */
+  --color-rule: #e2d8cc; /* Hairlines on linen */
 
   --color-border-soft: #e8e4e0; /* Light Gray — faint dividers */
 
@@ -198,23 +201,24 @@
   /* Fonts */
   /* Each web font is followed by its metric-matched fallback faces (defined
      above @theme), so the swap from system font to web font moves nothing. */
-  --font-display:
-    'Cormorant Garamond', 'Cormorant Garamond Fallback', 'Cormorant Garamond Fallback TNR', Georgia,
-    'Times New Roman', serif;
-  --font-body:
-    'Source Sans 3 Variable', 'Source Sans 3 Fallback', 'Helvetica Neue', system-ui, sans-serif;
+  --font-display: 'Zodiak', 'Zodiak Fallback', 'Zodiak Fallback TNR', Georgia, serif;
+  --font-body: 'General Sans', 'General Sans Fallback', 'Helvetica Neue', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
-  --font-script:
-    'Pinyon Script', 'Pinyon Script Fallback', 'Pinyon Script Fallback TNR', 'Snell Roundhand',
-    'Apple Chancery', cursive;
+  /* The "script accent" is no longer a script: since the 2026-09-29 rebuild
+     it is Zodiak italic (see the font-script utility). Staci's existing
+     scriptAccent words keep working and change look site-wide. */
+  --font-script: 'Zodiak', 'Zodiak Fallback', Georgia, serif;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;
   --text-h5: clamp(1.125rem, 1.5vw, 1.25rem);
   --text-h4: clamp(1.25rem, 2vw, 1.5rem);
-  --text-h3: clamp(1.5rem, 2.5vw, 2rem);
-  --text-h2: clamp(2rem, 4vw, 3rem);
-  --text-h1: clamp(2.5rem, 6vw, 5rem);
+  --text-h3: clamp(1.6rem, 1.1rem + 1.4vw, 2.3rem);
+  --text-h2: clamp(2.4rem, 1.2rem + 3.6vw, 5rem);
+  --text-h1: clamp(3rem, 1rem + 6vw, 6.5rem);
+  /* Rebuild scale (1.25+ steps). display = hero-only; lede = intro paras. */
+  --text-display: clamp(3.2rem, 1rem + 6.4vw, 7rem);
+  --text-lede: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
 
   /* Typographic micro-rules. Codified so usage stays consistent across
      components — drift from ad-hoc arbitrary values (tracking-[0.22em],
@@ -350,43 +354,38 @@
   letter-spacing: var(--tracking-eyebrow);
 }
 
-/* Script accent — for ONE word per hero, paired with Cormorant. Pinyon
-   Script has a much smaller x-height than Cormorant, so we scale up to
-   ~1.25em to match visual weight and shift the baseline a touch so the
-   accent word sits in the same optical line as the rest of the headline.
-   `.font-script` swaps the font; the size + leading + baseline tweaks
-   live here so a single class swap produces the editorial signature
-   look without per-use fiddling. */
+/* Script accent (rebuilt 2026-09-29). The Sanity field is still called
+   scriptAccent and still marks ONE word or phrase per headline, but it now
+   renders as Zodiak ITALIC at the headline's own size instead of Pinyon
+   Script: the italic carries the emphasis, the colour comes from the
+   component (bronze on linen, oat on ink or bronze). No size or baseline
+   tricks are needed because it is the same family. */
 @utility font-script {
   font-family: var(--font-script);
-  font-weight: 400;
-  font-style: normal;
-  font-size: 1.25em;
-  line-height: 0.9;
-  vertical-align: -0.1em;
-  letter-spacing: 0;
+  font-style: italic;
+  font-weight: inherit;
 }
 
 /* ---------- Light mode (Reid Design overrides shadcn defaults) -------- */
 
 :root {
   /* Surfaces */
-  --background: #faf8f5; /* Soft Linen */
-  --foreground: #3d3d3d; /* Charcoal */
-  --card: #ffffff;
-  --card-foreground: #3d3d3d;
-  --popover: #ffffff;
-  --popover-foreground: #3d3d3d;
+  --background: #f7f3ee; /* Linen */
+  --foreground: #231e1b; /* Ink */
+  --card: #fffdfa;
+  --card-foreground: #231e1b;
+  --popover: #fffdfa;
+  --popover-foreground: #231e1b;
 
   /* Brand */
   --primary: #9c7661; /* Warm Bronze */
   --primary-foreground: #ffffff;
   --secondary: #b8a99a; /* Warm Taupe */
-  --secondary-foreground: #3d3d3d;
+  --secondary-foreground: #231e1b;
 
   /* Quiet surfaces / muted text */
-  --muted: #f5f0eb; /* Cream */
-  --muted-foreground: #6b6b6b; /* Mid-gray — passes AA on Soft Linen */
+  --muted: #f1e7dc; /* Chip 1, Linen */
+  --muted-foreground: #5a4e46; /* Ink 2, 7.3:1 on linen (was mid-gray #6b6b6b) */
 
   /* Accent (used by shadcn primitives like hover backgrounds).
        Visibly darker than --muted (`#F5F0EB` Cream) so hover/focus states
@@ -395,13 +394,13 @@
        hover:bg-accent invisible whenever the parent was bg-muted (which
        includes the header eyebrow row, footer, and every surface-warm
        section). Audit-flagged. */
-  --accent: #ece5db; /* Warm Cream Dark — soft hover surface */
-  --accent-foreground: #3d3d3d;
+  --accent: #e9dccd; /* soft hover surface, between chip 1 and 2 */
+  --accent-foreground: #231e1b;
 
   /* States */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #e8e4e0; /* Light Gray */
-  --input: #e8e4e0;
+  --border: #e2d8cc; /* Rule */
+  --input: #d9ccbd;
   --ring: #9c7661; /* Warm Bronze focus rings */
   --link: #7a5d4c; /* Bronze Dark for link text on light surfaces (AA on Soft Linen) */
 
@@ -523,10 +522,16 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    font-weight: 500;
-    color: var(--color-accent);
-    line-height: 1.1;
-    letter-spacing: -0.01em;
+    /* Zodiak Light: the rebuild's display voice (2026-09-29). Scale does the
+       emphasis, not weight. */
+    font-weight: 300;
+    /* --foreground, NOT --color-accent: the @theme inline block below remaps
+       --color-accent to shadcn's soft hover surface, so headings without
+       their own text class came out near-invisible (found 2026-09-29). */
+    color: var(--foreground);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
   }
   .dark h1,
   .dark h2,
