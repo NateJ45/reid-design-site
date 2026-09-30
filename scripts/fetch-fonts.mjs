@@ -14,16 +14,24 @@
 // making the repo private (2026-09-29, docs/design/2026-09-29-art-direction.md).
 // The license text is in scripts/fonts.lock.json's `license` field pointer.
 //
-// HOW: ask the Fontshare CSS API for the exact faces we use, pull each woff2
-// URL out of the returned @font-face blocks, download it, and check its
-// SHA-256 against scripts/fonts.lock.json. The CDN URLs are content-addressed,
-// so a hash mismatch means Fontshare changed the font, and the build stops
-// rather than silently shipping different metrics (the fallback faces in
-// globals.css are tuned to these exact files).
+// HOW (two paths):
+//   - Normal run (predev, prebuild, CI, Cloudflare): download each file from
+//     the exact CDN URL recorded in scripts/fonts.lock.json and check its
+//     SHA-256. The CSS API is NOT consulted. Those URLs are content-addressed,
+//     so this is fully reproducible: the same bytes every build, and a hash
+//     mismatch stops the build rather than silently shipping different
+//     metrics (the fallback faces in globals.css are tuned to these files).
+//   - --update: ask the Fontshare CSS API for the faces in FACES below, pull
+//     each woff2 URL out of the @font-face blocks, download, and rewrite the
+//     lock. Run it by hand, deliberately, then re-measure the fallbacks.
+// Why the split (2026-09-29): the first staging build asked the CSS API from a
+// GitHub runner and got 4 of the 7 faces back (the same request returns all 7
+// from Nathan's machine every time). A build must not depend on a third-party
+// endpoint answering the same way from every network.
 //
 // Usage:
-//   node scripts/fetch-fonts.mjs            fetch, verify against the lock
-//   node scripts/fetch-fonts.mjs --update   fetch and rewrite the lock
+//   node scripts/fetch-fonts.mjs            fetch from the lock, verify
+//   node scripts/fetch-fonts.mjs --update   re-resolve via the CSS API, rewrite the lock
 //
 // Files already present with the right hash are not downloaded again, so dev
 // restarts are free after the first run.
@@ -75,6 +83,33 @@ async function main() {
   const lock = existsSync(lockPath) ? JSON.parse(readFileSync(lockPath, 'utf8')) : { files: {} };
   mkdirSync(outDir, { recursive: true });
 
+  // ---- Normal run: the lock is the source of truth. ----
+  if (!update) {
+    const entries = Object.entries(lock.files ?? {});
+    if (entries.length === 0) {
+      throw new Error('[fonts] scripts/fonts.lock.json lists no files. Run with --update.');
+    }
+    let fetched = 0;
+    for (const [name, meta] of entries) {
+      const dest = join(outDir, name);
+      if (existsSync(dest) && sha256(readFileSync(dest)) === meta.sha256) continue;
+      const buf = await get(meta.source, 'buffer');
+      const hash = sha256(buf);
+      if (hash !== meta.sha256) {
+        throw new Error(
+          `[fonts] ${name} from ${meta.source} hashed ${hash.slice(0, 12)}, locked ${meta.sha256.slice(0, 12)}. ` +
+            'Fontshare changed the file: check the metrics against the fallback faces in globals.css, then run with --update.',
+        );
+      }
+      writeFileSync(dest, buf);
+      fetched++;
+      console.log(`[fonts] ${name} ${(buf.length / 1024).toFixed(1)} KB`);
+    }
+    console.log(`[fonts] ${entries.length} files verified (${fetched} downloaded)`);
+    return;
+  }
+
+  // ---- --update: re-resolve through the CSS API and rewrite the lock. ----
   const query = FACES.map((f) => `f[]=${f.family}@${f.weights.join(',')}`).join('&');
   let faces;
   try {

@@ -44,6 +44,8 @@ place.
 Playwright chromium 117/117 and webkit-iphone 39/39 (axe included); no
 `data-sanity` in the static build; changed files prettier-clean.
 
+**Font fetch hardened (same day).** The first staging build asked the Fontshare CSS API from a GitHub runner and got 4 of 7 faces back (all 7 from Nathan's machine, every time). Normal runs now download straight from the content-addressed CDN URLs in `fonts.lock.json` and verify the hashes; only `npm run fonts:update` touches the CSS API.
+
 **Found, not fixed here.** `npm run dev` crashes in Vite's dependency optimizer
 on clean main (own session). Parity baselines will need recapturing after merge.
 
