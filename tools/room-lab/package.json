@@ -6,6 +6,7 @@
   "description": "Offline authoring kit for the Reid Design concept room. Never part of the site install or the Cloudflare build.",
   "scripts": {
     "generate": "node generate.mjs",
+    "grade": "node grade.mjs",
     "walls": "node walls.mjs",
     "layers": "node layers.mjs",
     "publish": "node publish.mjs",

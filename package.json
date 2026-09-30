@@ -22,6 +22,7 @@
     "favicon": "node scripts/generate-favicons.mjs",
     "og:cards": "node scripts/og-cards.mjs",
     "room:generate": "npm --prefix tools/room-lab run generate --",
+    "room:grade": "npm --prefix tools/room-lab run grade --",
     "room:walls": "npm --prefix tools/room-lab run walls --",
     "room:layers": "npm --prefix tools/room-lab run layers --",
     "room:sheet": "npm --prefix tools/room-lab run sheet --",

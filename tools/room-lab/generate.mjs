@@ -7,7 +7,7 @@
 // Frames: work/final/frame-0.png is the empty room; frame-k is the room after piece k (in
 // stages.json `pieces` order). The lock-down mask of piece <id> is work/final/piece-<id>.mask.png,
 // which layers.mjs turns into that piece's own transparent layer.
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, copyFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import sharp from 'sharp';
@@ -145,6 +145,15 @@ async function doStages() {
   const rawDir = join(WORK, 'raw');
   await mkdir(FINAL, { recursive: true });
   await mkdir(rawDir, { recursive: true });
+
+  // grade.mjs stashes the ungraded frames in work/ungraded. Edits must build on UNGRADED
+  // frames, so put them back first and drop the stash; run room:grade again afterwards.
+  const ungraded = join(WORK, 'ungraded');
+  if (existsSync(ungraded)) {
+    for (const f of await readdir(ungraded)) await copyFile(join(ungraded, f), join(FINAL, f));
+    await rm(ungraded, { recursive: true });
+    console.log('restored ungraded frames (run room:grade again when done)');
+  }
 
   if (!only) {
     const basePath = flag('--base');
