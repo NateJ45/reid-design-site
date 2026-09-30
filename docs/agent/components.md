@@ -106,8 +106,12 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 
 **Process page pieces:**
 
-- `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage). Accepts `isLast?: boolean`; when false it renders a `.step-connector` thread in the left column (the article grid is `items-stretch` so it fills the step height). Pass `isLast={i === arr.length - 1}` at every call site.
-- `ProcessStepIllustration.astro` — inline SVG line illustrations in Soft Sage above each numeral (1-4).
+Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Process and FAQ" has the visual notes).
+
+- `sections/ProcessSteps.astro` — the journey. Desktop: a sticky rail (tape case, vertical tape, step index with time estimates as `#step-N` jump links) beside the steps; the tape pull and the active-step highlight are CSS scroll-driven via named view timelines (`--pj-journey`, `--pj-step-N`) shared through an inline `timeline-scope`, behind `@supports` + reduced motion. Phone: the rail sits above the stacked steps as the journey at a glance.
+- `ProcessStep.astro` — `full` variant (Process page): big numeral, line drawing, time estimate on a `.r-tag`, H2 title (with a visually hidden "Step N:"), shortDescription as a Zodiak lede, fullDescription (PortableText, server-rendered, no hydration), features on a paint chip toned chip 1 to 4 by position, tierNote under it. New optional props `index`, `id`, `timeline`; `isLast` is accepted and unused (the `.step-connector` thread is gone). `preview` variant kept compact for the unused `sections/ProcessPreview.astro`.
+- `ProcessStepIllustration.astro` — the four line drawings, now `currentColor` strokes with `pathLength="1"` (the Process page draws them on scroll) and a `size` prop.
+- `sections/ProcessFaq.astro` — paper band; SectionHeading + "See the full FAQ" sticky left on desktop, flat `FaqAccordion` right.
 
 **About page pieces:**
 
@@ -133,7 +137,7 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Rewritten in place in the 2026-09-29 rebuild (same role). Falls back to italic single line when no `cities` array passed.
 - `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline. Adds the `.prose-drop-cap` float cap to the first paragraph and renders blockquotes as `.prose-blockquote` (see Polish layer → Editorial typography).
 - `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` eyebrow above the caption.
-- `FaqAccordion.tsx` — shadcn Accordion wrapper. **Note:** `src/components/ui/accordion.tsx` has been customized — the original `h-(--radix-accordion-content-height)` lock on the inner content div was removed (caused a big empty-space bug after expand), and the trigger no longer carries `text-sm font-medium` so consumer typography wins the cascade.
+- `FaqAccordion.tsx` — FAQ disclosure list used by `/faq` (grouped), `/process` and `/e-design` (flat). Rebuilt 2026-09-30 without Radix: each question is a `<button>` in an `<h3>` with `aria-expanded` / `aria-controls`, every answer is in the static HTML (collapsed by a grid-row + `visibility` transition), several can be open, and `#<idPrefix>-…-item-N` in the URL opens that question on load. Props unchanged (`faqs`, `categoryOrder`, `idPrefix`). Styles in `faq/faq-accordion.css`; grouping in `faq/group-faqs.ts` (`groupFaqs`, unit tested), which `/faq` also uses for its topic index so the jump-link anchors always match. `src/components/ui/accordion.tsx` (the customized shadcn primitive) is no longer imported anywhere; keep its customizations if it is ever reused.
 - `ThemeToggle.tsx` (still in the repo but **not rendered anywhere** since 2026-09-29; the site is light only), `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
 
 **Capture tools + offerings (conversion build):**
