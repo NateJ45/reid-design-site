@@ -107,6 +107,44 @@ that a stored "dark" preference never engages dark mode.
 
 Home rhythm: Walnut hero, linen, ink, linen, paper, linen, Walnut, ink footer.
 
+## About (phase 2)
+
+Rebuilt 2026-09-30. Same Sanity fields and marker order as before (Staci can
+still reorder or remove sections in the About layout array).
+
+- `about/AboutKicker.astro`: the sentence-case line with a short rule that
+  opens each About section, carrying Staci's existing eyebrow fields (trailing
+  full stop dropped, stega run kept whole). Espresso on light, Oat on ink.
+- `sections/AboutStory.astro`: portrait on an Oat mat (sticky on desktop) with
+  a sample tag of her name and role (`staciAttribution`, split on "·"). The
+  first story paragraph is the Zodiak lede; the first short paragraph after it
+  (100 characters or fewer, no marks) is lifted as a pull line in Espresso
+  italic with a hung Warm Bronze quote mark. `backgroundLine` and
+  `serviceAreaMention` close the column as a small spec list.
+- `sections/AboutPhilosophy.astro`: the ink band. Each belief is a big Zodiak
+  statement with its reasoning beside it, rows split by hairlines, every second
+  statement italic Sandbar, statements stepping in from the left on desktop.
+  No numbers (the beliefs are not a sequence).
+- `AboutPersonal.astro`: Staci's pinned board on a Linen (chip 1) ground. The
+  candid photo as a taped print with the "beyond design" paragraph on a ruled
+  note pinned over its corner; "Currently" as a magazine sidebar (heavy ink
+  rule, label and answer rows); local spots as pins on a dashed route over
+  graph paper; rapid fire as a strip of paint-chip swatches (question on the
+  face in chips 2, 3, 6, 4, never 5; answer on the paper label). Every piece
+  hangs at its own angle and self-hides when empty.
+- `StatsRow.astro` (also the page-builder stats block): numbers set as type, a
+  run of big Zodiak figures with the label beside each on its baseline,
+  between two hairlines. Server-rendered; the count-up island
+  (`StatsCounter.tsx`) is deleted because it started every figure at 0 until a
+  script ran.
+- Motion (CSS scroll-driven, behind `@supports` and reduced-motion): the
+  portrait settles and its tag swings on, the pull line rises, the belief
+  hairlines draw in from the left, board pieces settle onto the board. A
+  hover straightens a rapid-fire chip.
+
+About rhythm: linen hero, linen story, ink beliefs, Linen chip board,
+(linen numbers), Walnut close, ink footer.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
@@ -132,7 +170,7 @@ Home rhythm: Walnut hero, linen, ink, linen, paper, linen, Walnut, ink footer.
 
 ## Not yet rebuilt (phase 2)
 
-About, Services, Process, E-Design, FAQ, Contact, Privacy and the portfolio
+Services, Process, E-Design, FAQ, Contact, Privacy and the portfolio
 templates still use the older section components, restyled only through the
 shared tokens, fonts, buttons, header, footer and closing CTA. They are the
 next pass, built against this document.

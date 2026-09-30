@@ -1,0 +1,54 @@
+---
+// Safe to edit by hand
+// The small sentence-case line that opens each About section (phase 2 of the
+// art-direction rebuild, 2026-09-30). It carries Staci's existing "eyebrow"
+// fields (storyEyebrow, philosophyEyebrow, personalEyebrow) so her words still
+// print, but in the rebuild's grammar: sentence case, 500 weight, led by a
+// short rule. Never the old tracked small caps (DESIGN.md "Type").
+//
+// A trailing full stop is dropped ("Off the Clock." reads as a label, not a
+// sentence). The stega run in /preview sits AFTER the visible text, so the
+// clean text is trimmed and the run is re-attached whole (splitStega).
+import { splitStega } from '@/lib/preview-stega';
+
+interface Props {
+  text?: string | null;
+  /** "ink" for dark grounds: Oat text instead of Espresso. */
+  tone?: 'light' | 'ink';
+  class?: string;
+}
+
+const { text, tone = 'light', class: className } = Astro.props as Props;
+const { cleaned, encoded } = splitStega(text ?? '');
+const label = cleaned.trim().replace(/\.$/, '');
+---
+
+{
+  label && (
+    <p class:list={['ak', tone === 'ink' && 'ak--ink', className]}>
+      {label}
+      {encoded}
+    </p>
+  )
+}
+
+<style>
+  .ak {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .ak::before {
+    content: '';
+    flex: none;
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .ak--ink {
+    color: var(--color-chip-2);
+  }
+</style>
