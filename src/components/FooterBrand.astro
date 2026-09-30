@@ -17,6 +17,8 @@ interface Props {
   logoLightSrcset: string;
   logoDarkSrc: string;
   logoDarkSrcset: string;
+  /** Always use the dark-ground (cream) logo, e.g. on the ink footer. Skips the theme swap. */
+  onDark?: boolean;
   /** Extra classes for the wrapper (e.g. width caps when rendered inline). */
   class?: string;
 }
@@ -28,6 +30,7 @@ const {
   logoLightSrcset,
   logoDarkSrc,
   logoDarkSrcset,
+  onDark = false,
   class: className,
 } = Astro.props as Props;
 ---
@@ -38,19 +41,34 @@ const {
     aria-label={`${brandName} home`}
     class="inline-block transition-opacity hover:opacity-80"
   >
-    <img
-      alt={brandName}
-      width={96}
-      height={102}
-      class="h-20 w-auto"
-      loading="lazy"
-      decoding="async"
-      data-theme-logo
-      data-logo-light-src={logoLightSrc}
-      data-logo-light-srcset={logoLightSrcset}
-      data-logo-dark-src={logoDarkSrc}
-      data-logo-dark-srcset={logoDarkSrcset}
-    />
+    {
+      onDark ? (
+        <img
+          alt={brandName}
+          width={96}
+          height={102}
+          class="h-20 w-auto"
+          loading="lazy"
+          decoding="async"
+          src={logoDarkSrc}
+          srcset={logoDarkSrcset}
+        />
+      ) : (
+        <img
+          alt={brandName}
+          width={96}
+          height={102}
+          class="h-20 w-auto"
+          loading="lazy"
+          decoding="async"
+          data-theme-logo
+          data-logo-light-src={logoLightSrc}
+          data-logo-light-srcset={logoLightSrcset}
+          data-logo-dark-src={logoDarkSrc}
+          data-logo-dark-srcset={logoDarkSrcset}
+        />
+      )
+    }
   </a>
   {tagline && <p class="max-w-[28rem] text-sm text-foreground/80 italic">{tagline}</p>}
 </div>

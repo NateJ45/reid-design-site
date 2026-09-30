@@ -1,0 +1,204 @@
+/* Reid Design, rebuild primitives. Foundation, edit with care.
+   Added 2026-09-29 with the art-direction rebuild (docs/design/
+   2026-09-29-art-direction.md; the visual system is written up in DESIGN.md).
+
+   The small shared vocabulary every rebuilt component draws from, so the site
+   reads as one hand: the page container, the three buttons, the underline
+   link, the section heading sizes, the sample tag, and the word-rise used on
+   page-opening headlines. Components keep their own layout in scoped styles;
+   anything used by two or more lives here.
+
+   Motion rule for this file (and the rebuild): every entrance ENHANCES an
+   already-visible default. Nothing here starts at opacity 0 behind a class a
+   script has to add, and every animation sits inside
+   prefers-reduced-motion: no-preference. */
+
+@layer components {
+  /* ---- Page container. Wider than the old max-w-content (1320) on purpose:
+     the rebuild uses the edges. Gutter is fluid, 16px on a phone. ---- */
+  .r-wrap {
+    width: 100%;
+    max-width: 85rem; /* 1360px */
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3.5rem);
+  }
+
+  /* ---- Buttons. Pills; ink is the default, cream sits on bronze or ink,
+     bronze is for linen when ink would be too heavy. 44px+ tall for touch. ---- */
+  .r-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65em;
+    min-height: 2.9rem;
+    padding: 0.95em 1.55em;
+    border-radius: 999px;
+    font: 500 0.95rem/1.1 var(--font-body);
+    text-decoration: none;
+    text-align: center;
+    transition-property: background-color, color, transform, box-shadow;
+    transition-duration: 450ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .r-btn:hover {
+    transform: translateY(-2px);
+  }
+  .r-btn:active {
+    transform: translateY(0);
+    transition-duration: 80ms;
+  }
+  .r-btn:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  .r-btn .r-arrow {
+    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .r-btn:hover .r-arrow {
+    transform: translateX(4px);
+  }
+  .r-btn--ink {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+  .r-btn--ink:hover {
+    background: var(--color-chip-7);
+    box-shadow: 0 12px 26px -14px rgb(35 30 27 / 0.7);
+  }
+  .r-btn--cream {
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+  .r-btn--cream:hover {
+    background: var(--color-paper);
+  }
+  .r-btn--cream:focus-visible {
+    outline-color: var(--color-cream);
+  }
+  .r-btn--bronze {
+    background: var(--color-chip-6);
+    color: var(--color-cream);
+  }
+  .r-btn--bronze:hover {
+    background: var(--color-chip-7);
+  }
+
+  /* ---- Underline link: the line draws away on hover and back on leave. ---- */
+  .r-link {
+    font-weight: 500;
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+    padding-bottom: 2px;
+    transition: background-size 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .r-link:hover {
+    background-size: 0 1px;
+    background-position: 100% 100%;
+  }
+  .r-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* ---- Headings. Zodiak Light, scale carries the emphasis. The accent word
+     (Staci's scriptAccent field) is `.r-accent`: italic, and bronze on light
+     grounds. On dark grounds the component sets --accent-color. ---- */
+  .r-display {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--text-display);
+    line-height: 0.94;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .r-h2 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--text-h2);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .r-h3 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--text-h3);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+  .r-accent {
+    font-style: italic;
+    color: var(--accent-color, var(--color-chip-6));
+  }
+  .r-lede {
+    font-size: var(--text-lede);
+    line-height: 1.5;
+    color: var(--color-ink-2);
+    max-width: 38ch;
+    text-wrap: pretty;
+  }
+  .r-muted {
+    color: var(--color-ink-2);
+  }
+
+  /* ---- Sample tag: the shipping-tag caption used on material photos and
+     the hero price. Paper ground, punched hole, notched left edge. ---- */
+  .r-tag {
+    position: relative;
+    display: inline-block;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    padding: 0.65rem 1rem 0.7rem 2rem;
+    clip-path: polygon(1.1rem 0, 100% 0, 100% 100%, 1.1rem 100%, 0 50%);
+    filter: drop-shadow(0 10px 14px rgb(35 30 27 / 0.2));
+  }
+  .r-tag::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    translate: 0 -50%;
+    box-shadow: inset 0 0 0 1.5px var(--color-chip-5);
+  }
+  .r-tag small {
+    display: block;
+    font: 500 0.72rem/1.2 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .r-tag strong {
+    display: block;
+    font: 400 1.05rem/1.2 var(--font-display);
+  }
+
+  /* ---- Word rise (RiseWords.astro). Each word is clipped by its own box and
+     rises into it. No fade: the words are real text from the first frame for
+     crawlers and screen readers, and an LCP headline never sits at opacity 0
+     (the Stone Steps lesson). Reduced motion: no animation at all. ---- */
+  .r-rise .r-w {
+    display: inline-block;
+    overflow: clip;
+    vertical-align: top;
+    /* Room for descenders and italic overhang inside the clip box. */
+    padding: 0 0.04em 0.12em;
+    margin: 0 -0.04em -0.12em;
+  }
+  .r-rise .r-w > span {
+    display: inline-block;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .r-rise .r-w > span {
+      animation: r-rise 1s cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation-delay: calc(var(--rise-delay, 0ms) + 80ms + var(--i, 0) * 45ms);
+    }
+  }
+}
+
+@keyframes r-rise {
+  from {
+    transform: translateY(108%);
+  }
+}

@@ -1,6 +1,6 @@
 # Component sources
 
-The one-stop reference for sourcing, integrating, and theming UI components for the Reid Design site. Every source listed here is compatible with the repo's semantic token system: brand tokens live in `globals.css` `:root` / `.dark` blocks, and the browser's CSS cascade propagates those changes to every component that references those tokens.
+The one-stop reference for sourcing, integrating, and theming UI components for the Reid Design site. Every source listed here is compatible with the repo's semantic token system: brand tokens live in `globals.css` (`:root` for light; the `.dark` block is dormant since the site went light only on 2026-09-29), and the browser's CSS cascade propagates those changes to every component that references those tokens.
 
 Note: this repo has no `apply-brand` script. Brand tokens are hand-maintained in `src/styles/globals.css`. The warm bronze/cream Reid palette is already wired in; new components just need to use semantic token classes instead of hardcoded palette values.
 
@@ -45,21 +45,21 @@ Browse, copy, token-remap, and paste into `src/components/sections/`.
 
 When pasting from HyperUI, Tailark, react-bits, or any Tailwind-palette-first source, replace hardcoded color utilities with semantic tokens so the Reid palette propagates correctly.
 
-| Hardcoded class                        | Semantic replacement                         | Notes                                                 |
-| -------------------------------------- | -------------------------------------------- | ----------------------------------------------------- |
-| `bg-white`                             | `bg-card` or `bg-background`                 | card for an elevated surface, background for the page |
-| `bg-gray-50`, `bg-gray-100`            | `bg-muted`                                   | quiet alternating surface (Cream #F5F0EB in light)    |
-| `bg-gray-200`                          | `bg-accent`                                  | hover surface (Warm Cream Dark #ECE5DB in light)      |
-| `text-gray-900`, `text-black`          | `text-foreground`                            | primary body/heading text (Charcoal)                  |
-| `text-gray-600`, `text-gray-500`       | `text-muted-foreground`                      | secondary / caption text                              |
-| `text-indigo-600`, `text-blue-600`     | `text-primary`                               | maps to Warm Bronze (#9C7661 light / #B89274 dark)    |
-| `bg-indigo-600`, `bg-blue-600`         | `bg-primary`                                 | Warm Bronze background                                |
-| `text-white` (on primary bg)           | `text-primary-foreground`                    | white text on bronze surface                          |
-| `border-gray-200`, `border-gray-300`   | `border-border`                              | dividers, input borders (Light Gray #E8E4E0)          |
-| `ring-indigo-500`, `ring-blue-500`     | `ring-ring`                                  | focus rings (Warm Bronze)                             |
-| `bg-slate-900`, `bg-gray-900`          | `bg-background` (dark surfaces) or `bg-card` | depends on context                                    |
-| `dark:bg-neutral-950`, `dark:bg-black` | `dark:bg-card`                               | dark mode card surface (#2A2520)                      |
-| Hex or oklch literals                  | `var(--primary)`, `var(--foreground)`, etc.  | use CSS var() for SVG fill/stroke                     |
+| Hardcoded class                        | Semantic replacement                         | Notes                                                         |
+| -------------------------------------- | -------------------------------------------- | ------------------------------------------------------------- |
+| `bg-white`                             | `bg-card` or `bg-background`                 | card for an elevated surface, background for the page         |
+| `bg-gray-50`, `bg-gray-100`            | `bg-muted`                                   | quiet alternating surface (Cream #F5F0EB in light)            |
+| `bg-gray-200`                          | `bg-accent`                                  | hover surface (soft warm surface #E9DCCD in light)            |
+| `text-gray-900`, `text-black`          | `text-foreground`                            | primary body/heading text (Ink #231E1B; was Charcoal)         |
+| `text-gray-600`, `text-gray-500`       | `text-muted-foreground`                      | secondary / caption text                                      |
+| `text-indigo-600`, `text-blue-600`     | `text-primary`                               | maps to Warm Bronze (#9C7661 light / #B89274 dark)            |
+| `bg-indigo-600`, `bg-blue-600`         | `bg-primary`                                 | Warm Bronze background                                        |
+| `text-white` (on primary bg)           | `text-primary-foreground`                    | white text on bronze surface                                  |
+| `border-gray-200`, `border-gray-300`   | `border-border`                              | dividers, input borders (Light Gray #E8E4E0)                  |
+| `ring-indigo-500`, `ring-blue-500`     | `ring-ring`                                  | focus rings (Warm Bronze)                                     |
+| `bg-slate-900`, `bg-gray-900`          | `bg-background` (dark surfaces) or `bg-card` | depends on context                                            |
+| `dark:bg-neutral-950`, `dark:bg-black` | `dark:bg-card`                               | dormant dark-mode card surface (#2A2520); dark is not shipped |
+| Hex or oklch literals                  | `var(--primary)`, `var(--foreground)`, etc.  | use CSS var() for SVG fill/stroke                             |
 
 ---
 
@@ -71,7 +71,7 @@ For every new component pasted or CLI-installed:
 2. Remap hardcoded color classes to semantic tokens using the cheat sheet above.
 3. Decide: static `.astro` vs React island. Static unless the component has state, event handlers, or needs `useEffect`. When in doubt: static.
 4. If it is a React island, use `client:visible` (not `client:load`) so it hydrates only when scrolled into view.
-5. Verify the component in both light mode and dark mode before committing.
+5. Verify the component in light mode before committing (the site is light only since 2026-09-29; the `dark:` variants are dormant, so a `dark:` class you add will not render unless dark is revived).
 6. Add a comment at the top of the file noting the source URL and any non-obvious token substitutions.
 
 Example header comment:

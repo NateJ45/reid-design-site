@@ -16,16 +16,13 @@
 
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
-import { Mail, Phone, Search } from 'lucide-react';
-import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
-import ThemeToggle from './ThemeToggle';
+import { Search } from 'lucide-react';
 import MobileNav from './MobileNav';
 import SanityImage from './SanityImage.astro';
 import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
 import { getSectionVisibility, type SectionVisibility } from '@/lib/sectionVisibility';
-import { telHref } from '@/lib/phone';
 import {
   resolveChrome,
   DEFAULT_CTA_HREF,
@@ -110,8 +107,6 @@ const { siteSettings, navPages } = Astro.props as Props;
 const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
 const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
 const availability = siteSettings?.availabilityStatus ?? '';
-const headerTagline =
-  siteSettings?.headerTagline ?? 'Plainfield Interior Design · Serving Greater Indianapolis';
 
 // Editor-managed chrome: the top menu, the header button, and the show/hide
 // switches for the contact details. Every one of them is opt-in — an untouched
@@ -136,10 +131,6 @@ const mobileNavSettings = siteSettings
     }
   : null;
 
-const email = siteSettings?.email ?? '';
-const phone = siteSettings?.phone ?? '';
-const ig = siteSettings?.socialInstagram ?? '';
-const fb = siteSettings?.socialFacebook ?? '';
 // The switches above decide whether the eyebrow strip and the phone menu carry
 // these at all. Unset means yes, so an untouched site is unchanged.
 const showEmail = chrome.showEmail;
@@ -247,218 +238,38 @@ function isGroupActive(items: { href: string }[]) {
 }
 ---
 
-<header class="site-header bg-background">
+<header class="site-header hdr">
   {
-    /* Brand accent stripe — same visual signature used at the top of the
-      mobile menu drawer. Visible on every viewport. */
+    /* Rebuilt 2026-09-29 (art-direction rebuild). One row: logo, the
+      server-rendered nav (flat links + native <details> dropdowns, unchanged
+      behaviour), the availability pill, search, and the ink "book" pill. The
+      old eyebrow strip (tagline, email, phone, socials, theme toggle) is gone:
+      contact details live in the footer and the phone menu, and the site is
+      light only. Phone: logo left; availability, search, hamburger right. */
   }
-  <div class="h-1 bg-primary" aria-hidden="true"></div>
-
-  {
-    /* Eyebrow strip (desktop only). Carries the locked positioning line and
-      utility controls (email + social icons + theme toggle). Mobile gets
-      the same info through the MobileNav drawer. Breakpoint bumped from
-      md (768 px) to lg (1024 px) so the eyebrow strip + nav row only
-      appear once there's room for the full nav + CTA without squishing
-      the logo. */
-  }
-  <div class="hidden border-b border-border-soft bg-muted lg:block">
-    <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
-      <div class="flex items-center gap-m">
-        <p class="text-xs tracking-eyebrow text-foreground/80 uppercase">
-          {headerTagline}
-        </p>
-        {
-          /* Availability status, mirroring the mobile pill. Same pulsing dot
-            and link to /contact, so the trust signal is consistent at every
-            width (compact "Open" on phones, full status from md up). */
-        }
-        {
-          availability && (
-            <>
-              <span class="h-3 w-px bg-border-soft" aria-hidden="true" />
-              <a
-                href="/contact"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-eyebrow text-foreground uppercase transition-colors hover:text-link"
-                aria-label={`${availability}. Get in touch.`}
-              >
-                <span class="relative flex h-2 w-2 shrink-0" aria-hidden="true">
-                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-tertiary opacity-60" />
-                  <span class="relative inline-flex h-2 w-2 rounded-full bg-tertiary" />
-                </span>
-                {availability}
-              </a>
-            </>
-          )
-        }
-      </div>
-      <div class="flex items-center gap-m">
-        {
-          showEmail && email && (
-            <a
-              href={`mailto:${email}`}
-              class="inline-flex items-center gap-xs text-xs text-foreground transition-colors hover:text-link"
-            >
-              <Mail size={12} aria-hidden="true" />
-              {email}
-            </a>
-          )
-        }
-        {
-          phone && (
-            <a
-              href={telHref(phone)}
-              class="inline-flex items-center gap-xs text-xs text-foreground transition-colors hover:text-link"
-            >
-              <Phone size={12} aria-hidden="true" />
-              {phone}
-            </a>
-          )
-        }
-        {
-          showSocials && (ig || fb) && (
-            <div class="flex items-center gap-1">
-              {ig && (
-                <a
-                  href={ig}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-link"
-                >
-                  <IconBrandInstagram size={14} stroke={1.5} />
-                </a>
-              )}
-              {fb && (
-                <a
-                  href={fb}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-link"
-                >
-                  <IconBrandFacebook size={14} stroke={1.5} />
-                </a>
-              )}
-            </div>
-          )
-        }
-        {
-          /* Site search (Pagefind, /search). A plain link, no JS, sits beside the
-            theme toggle. The mobile equivalent is in the main row below. */
-        }
-        <a
-          href="/search"
-          aria-label="Search the site"
-          class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-link"
-        >
-          <Search size={14} aria-hidden="true" />
-        </a>
-        {
-          /* Hydrate when idle, not on load — the anti-FOUC inline script in
-            BaseLayout already applies the correct theme class before first
-            paint, so this React island only needs to be live by the time the
-            visitor moves to click it. Demoting from client:load shaves real
-            TBT off mobile Lighthouse runs. */
-        }
-        <ThemeToggle client:idle />
-      </div>
-    </div>
-  </div>
-
-  {
-    /* Main nav row. Mobile (and tablet) center the logo; desktop ≥1024 px
-      justifies logo left, nav+CTA grouped right. Breakpoint matches the
-      eyebrow strip above — at viewports between md and lg the desktop
-      layout would squish, so mobile-style header stays in use. */
-  }
-  <div
-    class="relative mx-auto flex max-w-content items-center justify-center border-b border-border px-l py-m lg:justify-between"
-  >
-    {
-      /* Mobile-only availability pill, mirroring the hamburger menu's
-        absolute-right placement. Gives mobile visitors an at-a-glance trust
-        signal ("Open / accepting new clients") and a single-tap path to
-        /contact — meaningfully conversion-positive in a tiny footprint. Renders
-        nothing when siteSettings.availabilityStatus is empty so the slot just
-        stays empty negative space. */
-    }
-    {
-      availability && (
-        <a
-          href="/contact"
-          class="absolute top-1/2 left-m inline-flex h-9 -translate-y-1/2 items-center gap-1.5 rounded-full border border-border-soft bg-muted pr-2.5 pl-2 text-foreground transition-colors hover:border-primary hover:text-primary-dark lg:hidden"
-          aria-label={`${availability}. Tap to start a conversation.`}
-        >
-          <span class="relative flex h-2 w-2 shrink-0" aria-hidden="true">
-            {/* Soft pulsing halo — kills under prefers-reduced-motion via the
-              global rule that flattens all animations. */}
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-tertiary opacity-60" />
-            <span class="relative inline-flex h-2 w-2 rounded-full bg-tertiary" />
-          </span>
-          {/* On the narrowest phones the centered logo leaves room only for a
-            compact "Open". From md up, where the pill has space before the
-            logo, show the full availabilityStatus so the roomy header doesn't
-            read as half-empty. The complete status is always in the aria-label
-            and on the Contact page. */}
-          {/* Visual status shorthand. Decorative (aria-hidden): the link's
-            accessible name comes from its aria-label, which carries the full
-            availability status. Keeps the visible "Open" / status from
-            mismatching the accessible name (WCAG Label in Name). */}
-          <span
-            class="text-[0.65rem] font-semibold tracking-eyebrow whitespace-nowrap uppercase md:hidden"
-            aria-hidden="true"
-          >
-            Open
-          </span>
-          <span
-            class="hidden text-[0.65rem] font-semibold tracking-eyebrow whitespace-nowrap uppercase md:inline"
-            aria-hidden="true"
-          >
-            {availability}
-          </span>
-        </a>
-      )
-    }
-
-    <a
-      href="/"
-      class="inline-flex items-center transition-opacity hover:opacity-80"
-      aria-label={`${brandName} home`}
-    >
-      {
-        /*
-        Single theme-aware logo. The img ships with NO src/srcset so the
-        browser doesn't start fetching anything; the inline script below
-        sets the right variant synchronously before paint based on the
-        current html.dark state, then re-applies on theme-toggle and
-        astro:after-swap (handled in the anti-FOUC script in BaseLayout).
-        Net result: only one logo file is ever fetched per page load, and
-        Lighthouse no longer sees a dark-variant in light-mode DOM (or
-        vice-versa).
-
-        Dimensions and aspect ratio (100×106) match the source 378:400,
-        so the browser reserves the right layout box before the file lands
-        — no CLS.
-      */
-      }
+  <div class="hdr__row r-wrap">
+    <a href="/" class="hdr__logo" aria-label={`${brandName} home`}>
       {
         customLogo ? (
           /* Editor-supplied logo (Site settings -> Logo). One file for both
            themes, so it skips the light/dark swap machinery entirely. */
           <SanityImage
             source={customLogo}
-            width={200}
+            width={160}
             alt={customLogo.alt || brandName}
             loading="eager"
-            class="h-[6.25rem] w-auto"
+            class="hdr__logo-img"
           />
         ) : (
+          /* Single theme-aware logo: the img ships with NO src so nothing is
+           fetched until the inline script below picks the variant (light
+           only since the rebuild, but the machinery stays so dark mode can
+           return). 100x106 matches the source 378:400, so no CLS. */
           <img
             alt={brandName}
             width={100}
             height={106}
-            class="h-[6.25rem] w-auto"
+            class="hdr__logo-img"
             loading="eager"
             decoding="async"
             data-theme-logo
@@ -470,12 +281,6 @@ function isGroupActive(items: { href: string }[]) {
         )
       }
     </a>
-    {
-      /* Synchronous inline setup — runs immediately after the img element
-        is parsed, so the src is set before the browser begins any image
-        fetch. Re-applied across View Transitions navs by the anti-FOUC
-        listener in BaseLayout. */
-    }
     <script is:inline>
       (function () {
         const img = document.querySelector('header img[data-theme-logo]');
@@ -487,159 +292,304 @@ function isGroupActive(items: { href: string }[]) {
     </script>
 
     {
-      /* Nav + CTA grouped on the right (lg+ only).
-
-        The desktop nav is server-rendered as real <a> tags (flat links) plus
-        native <details> disclosure groups (the two dropdowns). Everything is in
-        the HTML at build time — crawlable, keyboard-usable, and present before
-        any JS runs (no flash, no CLS). The progressive-enhancement script at the
-        bottom of this file layers on hover-to-open + outside-click/Escape/
-        navigation close; the nav is fully functional without it. */
+      /* Desktop nav (lg+). Real <a> tags + native <details> groups, in the
+        HTML at build time: crawlable, keyboard-usable, no CLS. The script at
+        the bottom adds hover-open and outside-click / Escape close. */
     }
-    <div class="hidden items-center gap-l lg:flex">
-      <nav class="site-nav flex items-center gap-l" aria-label="Primary">
-        {
-          NAV_ITEMS.map((item) =>
-            item.kind === 'flat' ? (
-              <a
-                href={item.href}
-                class:list={[
-                  'nav-underline text-sm tracking-wide transition-colors',
-                  isActive(item.href)
-                    ? 'font-semibold text-link'
-                    : 'text-foreground hover:text-link',
-                ]}
-                aria-current={isActive(item.href) ? 'page' : undefined}
+    <nav class="site-nav hdr__nav" aria-label="Primary">
+      {
+        NAV_ITEMS.map((item) =>
+          item.kind === 'flat' ? (
+            <a
+              href={item.href}
+              class="hdr__link"
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <details class="site-nav__group hdr__group">
+              <summary
+                class="hdr__link hdr__summary"
+                aria-current={isGroupActive(item.items) ? 'page' : undefined}
               >
                 {item.label}
-              </a>
-            ) : (
-              <details class="site-nav__group relative">
-                {/* <summary> is the disclosure toggle. It carries .nav-underline
-                  so it gets the same bronze underline as flat links, and
-                  aria-current="page" (which locks the underline wide) when one
-                  of its children is the active route. role/aria-expanded are
-                  managed natively by <details>. */}
-                <summary
-                  class:list={[
-                    'nav-underline text-sm tracking-wide transition-colors',
-                    'inline-flex cursor-pointer list-none items-center gap-0.5 select-none',
-                    'rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                    isGroupActive(item.items)
-                      ? 'font-semibold text-link'
-                      : 'text-foreground hover:text-link',
-                  ]}
-                  aria-current={isGroupActive(item.items) ? 'page' : undefined}
-                >
-                  {item.label}
-                  <ChevronDown
-                    size={14}
-                    className="site-nav__chevron mt-px transition-transform duration-150"
-                    aria-hidden="true"
-                  />
-                </summary>
-
-                {/* Menu panel. Absolutely positioned under the summary so it
-                  doesn't shift layout. Uses popover tokens to match the mobile
-                  drawer + shadcn dropdowns, and the bronze ring + shadow of the
-                  card rhythm. */}
-                <div class="site-nav__menu absolute top-full left-0 z-50 mt-2 min-w-[200px] rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10">
-                  {item.items.map((sub) => (
-                    <a
-                      href={sub.href}
-                      class:list={[
-                        'block rounded-md px-2.5 py-1.5 text-sm transition-colors',
-                        'outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground',
-                        isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
-                      ]}
-                      aria-current={isActive(sub.href) ? 'page' : undefined}
-                    >
-                      {sub.label}
-                    </a>
-                  ))}
-                </div>
-              </details>
-            ),
-          )
-        }
-      </nav>
-      {
-        chrome.headerCta.show && (
-          <>
-            <span class="h-6 w-px bg-border-soft" aria-hidden="true" />
-            <a
-              href={ctaHref}
-              class:list={[
-                'press-tactile inline-flex items-center rounded-md px-m py-2 text-xs font-semibold tracking-eyebrow uppercase',
-                isActive(ctaHref)
-                  ? 'bg-accent-dark text-white'
-                  : 'bg-primary-dark text-white hover:bg-accent-dark',
-              ]}
-            >
-              {ctaLabel}
-            </a>
-          </>
+                <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+              </summary>
+              <div class="site-nav__menu hdr__menu">
+                {item.items.map((sub) => (
+                  <a
+                    href={sub.href}
+                    class="hdr__menu-link"
+                    aria-current={isActive(sub.href) ? 'page' : undefined}
+                  >
+                    {sub.label}
+                  </a>
+                ))}
+              </div>
+            </details>
+          ),
         )
       }
+    </nav>
+
+    <div class="hdr__tools">
+      {
+        availability && (
+          <a href="/contact" class="hdr__status" aria-label={`${availability}. Get in touch.`}>
+            <span class="hdr__dot" aria-hidden="true" />
+            <span class="hdr__status-long" aria-hidden="true">
+              {availability}
+            </span>
+            <span class="hdr__status-short" aria-hidden="true">
+              Open
+            </span>
+          </a>
+        )
+      }
+      <a href="/search" aria-label="Search the site" class="hdr__icon">
+        <Search size={19} aria-hidden="true" />
+      </a>
+      {
+        chrome.headerCta.show && (
+          <a href={ctaHref} class="r-btn r-btn--ink hdr__cta">
+            {ctaLabel}
+          </a>
+        )
+      }
+      {
+        /* client:idle, not client:only (2026-09-29, PORTS.md card 52): the
+           closed Sheet server-renders its trigger, so the hamburger is in the
+           HTML before React loads. See the header of MobileNav.tsx. */
+      }
+      <div class="hdr__burger">
+        <MobileNav
+          client:idle
+          links={NAV_LINKS}
+          siteSettings={mobileNavSettings}
+          {...mobileChrome}
+          logoLightUrl={logoLightWebpMobile.src}
+          logoDarkUrl={logoDarkWebpMobile.src}
+        />
+      </div>
     </div>
-
-    {
-      /* Mobile search: a plain link pinned just left of the hamburger (which is
-        absolute right-m, 44 px wide, in MobileNav.tsx). Hidden at lg where the
-        eyebrow strip carries the desktop icon. */
-    }
-    <a
-      href="/search"
-      aria-label="Search the site"
-      class="absolute top-1/2 right-[4.25rem] inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-foreground transition-colors hover:text-link lg:hidden"
-    >
-      <Search size={20} aria-hidden="true" />
-    </a>
-
-    {
-      /* client:idle, not client:only (2026-09-29, PORTS.md card 52): the
-         closed Sheet server-renders its trigger, so the hamburger is in the
-         HTML before React loads. See the header of MobileNav.tsx. */
-    }
-    <MobileNav
-      client:idle
-      links={NAV_LINKS}
-      siteSettings={mobileNavSettings}
-      {...mobileChrome}
-      logoLightUrl={logoLightWebpMobile.src}
-      logoDarkUrl={logoDarkWebpMobile.src}
-    />
   </div>
 </header>
 
 <style>
-  /* Desktop dropdown groups (native <details>). The links are server-rendered
-     and fully usable with no JS; these styles + the script below add the
-     dropdown affordances. */
+  .hdr {
+    background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+    backdrop-filter: saturate(1.1) blur(10px);
+    -webkit-backdrop-filter: saturate(1.1) blur(10px);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .hdr__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 5.5rem;
+  }
+  .hdr__logo {
+    display: inline-flex;
+    flex: none;
+    transition: opacity 300ms;
+  }
+  .hdr__logo:hover {
+    opacity: 0.8;
+  }
+  .hdr__logo :global(.hdr__logo-img),
+  .hdr__logo-img {
+    height: 4.25rem;
+    width: auto;
+  }
 
-  /* Hide the default disclosure triangle in every engine. */
-  .site-nav__group > summary {
+  .hdr__nav {
+    display: none;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
+  }
+  .hdr__link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding-block: 0.5rem;
+    font: 500 0.95rem/1 var(--font-body);
+    color: var(--color-ink);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  /* Underline draws in from the left; locked on for the current page. */
+  .hdr__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.1rem;
+    height: 1.5px;
+    background: var(--color-chip-5);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .hdr__link:hover::after,
+  .hdr__link:focus-visible::after,
+  .hdr__link[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  .hdr__link:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  .hdr__group {
+    position: relative;
+  }
+  .hdr__summary {
     list-style: none;
   }
-  .site-nav__group > summary::-webkit-details-marker,
-  .site-nav__group > summary::marker {
+  .hdr__summary::-webkit-details-marker,
+  .hdr__summary::marker {
     display: none;
     content: '';
   }
-
-  /* Rotate the chevron when the group is open. */
-  .site-nav__group[open] > summary .site-nav__chevron {
+  .hdr__group[open] :global(.site-nav__chevron) {
     transform: rotate(180deg);
   }
+  .hdr :global(.site-nav__chevron) {
+    transition: transform 200ms;
+  }
+  .hdr__menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    left: -1rem;
+    z-index: 50;
+    min-width: 13rem;
+    padding: 0.5rem;
+    background: var(--color-paper);
+    border-radius: 0.75rem;
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 24px 40px -24px rgb(35 30 27 / 0.45);
+  }
+  .hdr__group[open] > .hdr__menu {
+    display: block;
+  }
+  .hdr__menu-link {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    font: 500 0.95rem/1.2 var(--font-body);
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: background-color 200ms;
+  }
+  .hdr__menu-link:hover,
+  .hdr__menu-link:focus-visible {
+    background: var(--color-chip-1);
+    outline: none;
+  }
+  .hdr__menu-link[aria-current='page'] {
+    color: var(--color-chip-7);
+  }
 
-  /* The menu panel starts hidden until the <details> is open. <details>
-     natively hides non-summary children when closed, but we keep an explicit
-     rule so the absolutely-positioned panel never flashes during hydration. */
-  .site-nav__menu {
+  .hdr__tools {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
+  .hdr__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.85rem 0 0.7rem;
+    border-radius: 999px;
+    background: var(--color-chip-1);
+    font: 500 0.82rem/1 var(--font-body);
+    color: var(--color-ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .hdr__status:hover {
+    background: var(--color-chip-2);
+  }
+  .hdr__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #6f8a5f;
+    box-shadow: 0 0 0 3px rgb(111 138 95 / 0.2);
+  }
+  .hdr__status-long {
     display: none;
   }
-  .site-nav__group[open] > .site-nav__menu {
-    display: block;
+  .hdr__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--color-ink);
+    transition: background-color 200ms;
+  }
+  .hdr__icon:hover {
+    background: var(--color-chip-1);
+  }
+  .hdr__icon:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .hdr__cta {
+    display: none;
+    min-height: 2.75rem;
+    padding: 0.8em 1.3em;
+    font-size: 0.9rem;
+  }
+  /* MobileNav positions its own trigger; give it a normal flow slot here. */
+  .hdr__burger {
+    position: relative;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    .hdr__nav {
+      display: flex;
+    }
+    .hdr__tools {
+      margin-left: 0.5rem;
+    }
+    .hdr__cta {
+      display: inline-flex;
+    }
+    .hdr__burger {
+      display: none;
+    }
+  }
+  @media (min-width: 1280px) {
+    .hdr__status-long {
+      display: inline;
+    }
+    .hdr__status-short {
+      display: none;
+    }
+  }
+  @media (max-width: 1023px) {
+    .hdr__row {
+      height: 4.75rem;
+    }
+    .hdr__logo :global(.hdr__logo-img),
+    .hdr__logo-img {
+      height: 3.5rem;
+    }
+    .hdr__tools {
+      gap: 0.25rem;
+    }
   }
 </style>
 

@@ -4,7 +4,7 @@
 
 ## Accessibility
 
-Target: WCAG 2.1 AA in both light and dark modes. Aim for 100 Lighthouse Accessibility on every page and preserve that bar after edits.
+Target: WCAG 2.1 AA. **The site is light only since 2026-09-29** (dark tokens are dormant; see theme-and-color.md), so the light theme is the audited surface; if dark returns it needs its own axe sweep. Aim for 100 Lighthouse Accessibility on every page and preserve that bar after edits.
 
 ### Required patterns
 
@@ -31,11 +31,11 @@ This applies to editor-authored Portable Text too, so the block-style options a 
 
 **Color tokens by responsibility** (definitions and contrast math in `globals.css`):
 
-- `--primary` (Warm Bronze): buttons, focus rings, CTA backgrounds at large size, **brand-stripe rhythm**. Paired with white foreground.
+- `--primary` (Warm Bronze): focus rings, large decorative fills, accents on dark grounds. **No text at body size on Warm Bronze** (ink 4.06:1, cream 3.5:1, both fail AA); the home hero ground is Walnut and the paint-chip faces skip chip 5. Primary CTAs are now ink pills (`.r-btn--ink`), not bronze buttons.
 - `--primary-dark` (Bronze Dark): hover state on bronze CTAs only — use `--link` for theme-aware always-on text.
-- `--link`: theme-aware bronze (Bronze Dark in light, lifted Bronze in dark). Use for inline links, anchor-style body text, ServiceCard prices, ProcessStep numerals, any always-on text that needs to read in both modes.
-- `--accent` (theme-aware via shadcn mapping): hover surfaces only — NOT body text. Light-mode value bumped to `#ECE5DB` (Warm Cream Dark, slightly darker than `--muted`) so `hover:bg-accent` on the header eyebrow strip is actually visible (when `--accent` matched `--muted`, hovers were invisible).
-- `--foreground` (Charcoal in light, Cream in dark): headings and body text.
+- `--link`: bronze link colour (Bronze Dark `#7A5D4C` in light; the dormant dark block lifts it). Use for inline links, anchor-style body text, ServiceCard prices, ProcessStep numerals, any always-on bronze-tinted text.
+- `--accent` (theme-aware via shadcn mapping): hover surfaces only — NOT body text. Light-mode value is a soft warm surface (`#E9DCCD` after the 2026-09-29 rebuild), kept distinct from `--muted` so `hover:bg-accent` is visible (when `--accent` matched `--muted`, hovers were invisible; the header eyebrow strip where this was first noticed no longer exists).
+- `--foreground` (Ink `#231E1B`; was Charcoal `#3D3D3D` before 2026-09-29): headings and body text. Secondary text on linen uses `--color-ink-2` (`#5A4E46`, 7.4:1).
 - `--secondary` (Warm Taupe): borders, dividers, decorative ornaments. **NOT eyebrow labels** — those use `text-foreground/65` (see Eyebrow contrast lesson above).
 
 **Motion.** `globals.css` disables animations and transitions globally under `prefers-reduced-motion: reduce`, and Lenis smooth scroll becomes a no-op. The before/after slider falls back to a tap-to-toggle behavior. View Transitions become instant cross-fades. New animations inherit this; no per-component handling needed.
@@ -87,7 +87,7 @@ The site uses motion for hero entrances, View Transitions, and component micro-i
 
 Run Lighthouse against any page changed. Accessibility should stay at 100. Common regressions:
 
-- `color-contrast`: a token or literal used in a new context that doesn't pass. Check both modes.
+- `color-contrast`: a token or literal used in a new context that doesn't pass. Check the light theme (and the dark block only if dark is being revived).
 - `image-alt`: missing `alt` attribute (empty `alt=""` is fine; missing isn't). For Sanity images, this usually means an editor forgot to fill the alt field; add validation on the schema if it becomes a pattern.
 - `label`: input without an associated label.
 - `link-name` or `button-name`: icon-only element without `aria-label`.

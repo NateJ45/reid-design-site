@@ -185,9 +185,13 @@ const allProjects: any[] =
 const latestProjects = allProjects.slice(0, 3);
 ---
 
-<footer class="bg-muted text-foreground">
+{
+  /* Ink footer since the 2026-09-29 rebuild. The dormant .dark palette is
+    applied to THIS subtree only (the site is light only), so every utility
+    inside inverts in one move. FooterBrand gets onDark so the cream logo loads. */
+}
+<footer class="dark ftr bg-ink text-foreground">
   {/* Brand accent stripe — matches header + mobile drawer. */}
-  <div class="h-1 bg-primary" aria-hidden="true"></div>
 
   {
     /* Newsletter signup — renders only when siteSettings.newsletter.enabled is
@@ -228,10 +232,7 @@ const latestProjects = allProjects.slice(0, 3);
     {
       editorColumns?.map((col, i) => (
         <nav aria-labelledby={`footer-col-${i}`}>
-          <p
-            id={`footer-col-${i}`}
-            class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase"
-          >
+          <p id={`footer-col-${i}`} class="mb-s font-display text-xl text-foreground">
             {col.title}
           </p>
           <ul class="list-none space-y-2 p-0 text-sm">
@@ -256,7 +257,7 @@ const latestProjects = allProjects.slice(0, 3);
     {
       !editorColumns && (
         <nav aria-labelledby="footer-studio">
-          <p id="footer-studio" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+          <p id="footer-studio" class="mb-s font-display text-xl text-foreground">
             Studio
           </p>
           <ul class="list-none space-y-2 p-0 text-sm">
@@ -303,7 +304,7 @@ const latestProjects = allProjects.slice(0, 3);
     {
       showWork && (
         <nav aria-labelledby="footer-work">
-          <p id="footer-work" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+          <p id="footer-work" class="mb-s font-display text-xl text-foreground">
             Work
           </p>
           <ul class="list-none space-y-2 p-0 text-sm">
@@ -357,7 +358,7 @@ const latestProjects = allProjects.slice(0, 3);
     {
       showTools && (
         <nav aria-labelledby="footer-tools">
-          <p id="footer-tools" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+          <p id="footer-tools" class="mb-s font-display text-xl text-foreground">
             Free tools &amp; guides
           </p>
           <ul class="list-none space-y-2 p-0 text-sm">
@@ -398,7 +399,7 @@ const latestProjects = allProjects.slice(0, 3);
     {
       showLatest && (
         <nav aria-labelledby="footer-latest">
-          <p id="footer-latest" class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
+          <p id="footer-latest" class="mb-s font-display text-xl text-foreground">
             Latest projects
           </p>
           {latestProjects.length > 0 ? (
@@ -444,6 +445,7 @@ const latestProjects = allProjects.slice(0, 3);
     {
       brandInline && (
         <FooterBrand
+          onDark
           brandName={brandName}
           tagline={siteSettings?.tagline}
           logoLightSrc={footerLogoLight1x.src}
@@ -457,7 +459,7 @@ const latestProjects = allProjects.slice(0, 3);
 
     {/* GET IN TOUCH — email, phone, location, socials. */}
     <div>
-      <p class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">Get in touch</p>
+      <p class="mb-s font-display text-xl text-foreground">Get in touch</p>
       <div class="space-y-1 text-sm">
         {
           email && (
@@ -527,6 +529,7 @@ const latestProjects = allProjects.slice(0, 3);
     !brandInline && (
       <div class="mx-auto max-w-content px-m pb-l">
         <FooterBrand
+          onDark
           brandName={brandName}
           tagline={siteSettings?.tagline}
           logoLightSrc={footerLogoLight1x.src}

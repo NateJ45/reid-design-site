@@ -20,15 +20,7 @@
 //
 // Both variants share generous padding, uppercase tracking, and a 44×44 minimum tap target.
 
-interface CtaBlock {
-  label?: string;
-  linkType?: 'internal' | 'external' | 'email' | 'phone';
-  internalLink?: { _type?: string; slug?: string } | null;
-  externalUrl?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  openInNewTab?: boolean;
-}
+import { resolveCtaHref, ctaOpensNewTab, type CtaBlock } from '@/lib/cta';
 
 interface Props {
   cta?: CtaBlock | null;
@@ -51,81 +43,32 @@ const {
   class: extraClass = '',
 } = Astro.props as Props;
 
-// Map Sanity document _type to its route. Mirrors the routes in src/pages/.
-// Singletons go to a fixed path; journalEntry and page use {slug} for dynamic
-// /journal/[slug] and /[slug] routes respectively.
-const TYPE_TO_PATH: Record<string, string> = {
-  homePage: '/',
-  aboutPage: '/about',
-  processPage: '/process',
-  servicesPage: '/services',
-  faqPage: '/faq',
-  contactPage: '/contact',
-  journalPage: '/journal',
-};
-
-function resolveHref(c?: CtaBlock | null): string {
-  if (!c?.linkType) return fallbackHref;
-  switch (c.linkType) {
-    case 'internal': {
-      const t = c.internalLink?._type;
-      if (!t) return fallbackHref;
-      // Slug-based types need the slug appended. Singletons use a fixed path.
-      if (t === 'journalEntry' && c.internalLink?.slug) {
-        return `/journal/${c.internalLink.slug}`;
-      }
-      // Custom pages Staci builds via the page builder — routed at /[slug].
-      if (t === 'page' && c.internalLink?.slug) {
-        return `/${c.internalLink.slug}`;
-      }
-      return TYPE_TO_PATH[t] ?? fallbackHref;
-    }
-    case 'external':
-      return c.externalUrl ?? fallbackHref;
-    case 'email':
-      return c.emailAddress ? `mailto:${c.emailAddress}` : fallbackHref;
-    case 'phone':
-      return c.phoneNumber ? `tel:${c.phoneNumber.replace(/[^\d+]/g, '')}` : fallbackHref;
-    default:
-      return fallbackHref;
-  }
-}
-
-const href = resolveHref(cta);
+// Route mapping lives in src/lib/cta.ts (shared with the rebuilt home).
+const href = resolveCtaHref(cta, fallbackHref);
 const label = cta?.label ?? fallbackLabel;
-const isExternal = cta?.linkType === 'external';
-const newTab = cta?.openInNewTab || isExternal;
+const newTab = ctaOpensNewTab(cta);
 
-// Per CLAUDE.md: bg-primary + white at button label sizes hits only 4.05:1 (under AA 4.5:1).
-// Use bg-primary-dark (#7A5D4C) + literal text-white → 5.5:1. Hover deepens to Charcoal Dark.
-//
-// Focus ring offset uses --background by default, but under onDark we offset
-// against transparent so the ring still reads on the photographic surface.
-const baseClasses = onDark
-  ? 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
-  : 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
-
-// onDark swaps the secondary variant from bronze-on-light to cream-on-transparent.
-// The primary variant keeps the bronze button — bronze on top of the dark hero
-// gradient still reads at 5.5:1 (white-on-bronze-dark) and stays visually anchored.
-const variantClasses = (() => {
-  if (variant === 'primary') {
-    return onDark
-      ? 'bg-primary-dark text-white hover:bg-primary'
-      : 'bg-primary-dark text-white hover:bg-accent-dark';
-  }
-  // secondary
-  return onDark
-    ? 'border border-white/70 text-white hover:bg-white/10 hover:border-white'
-    : 'border border-primary text-link hover:bg-accent';
-})();
+// Rebuilt 2026-09-29: every CMS button on the site is now one of the rebuild
+// primitives in src/styles/reid.css. Primary = the ink pill (cream pill on a
+// dark or bronze ground, via onDark). Secondary = the underline link, which
+// reads as quieter next to a primary without a second box.
+// Contrast: cream on ink 15.6:1, ink on cream 15.6:1, ink/cream links >= 12:1.
+const variantClasses =
+  variant === 'primary' ? (onDark ? 'r-btn r-btn--cream' : 'r-btn r-btn--ink') : 'r-link';
 ---
 
 <a
   href={href}
-  class:list={[baseClasses, variantClasses, extraClass]}
+  class:list={[variantClasses, extraClass]}
   target={newTab ? '_blank' : undefined}
   rel={newTab ? 'noopener noreferrer' : undefined}
 >
   {label}
+  {
+    variant === 'primary' && (
+      <span class="r-arrow" aria-hidden="true">
+        →
+      </span>
+    )
+  }
 </a>

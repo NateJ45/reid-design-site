@@ -56,6 +56,14 @@ jobs:
           # secrets, and pinning them means the preview has REAL content.
           PUBLIC_SANITY_PROJECT_ID: ba403vjc
           PUBLIC_SANITY_DATASET: production
+          # ...but only the page singletons are readable anonymously: every
+          # document whose _id has a dot (service.*, testimonial.*,
+          # processStep.*) needs a token, so staging silently built with no
+          # services, testimonials or process steps (found 2026-09-29 during
+          # the redesign review). SANITY_AUTH_TOKEN is the repo's existing READ
+          # token (the nightly backup uses it); src/lib/sanity.ts reads
+          # SANITY_API_READ_TOKEN at build time.
+          SANITY_API_READ_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
         run: npm run build
 
       # THE CONFIG FLAG IS LOAD-BEARING. This is a hybrid static+SSR build, and

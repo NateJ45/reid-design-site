@@ -5,16 +5,15 @@
 // unchanged homePage fields + collections (no content migration). Inserted
 // general blocks delegate to SectionRenderer. Falls back to the default order
 // when the array is empty.
-import Hero from '@/components/Hero.astro';
-import MeetStaci from '@/components/sections/MeetStaci.astro';
-import HomeTestimonials from '@/components/sections/HomeTestimonials.astro';
-import ProcessPreview from '@/components/sections/ProcessPreview.astro';
-import HomeServices from '@/components/sections/HomeServices.astro';
+import HomeHero from '@/components/home/HomeHero.astro';
+import HomeStaci from '@/components/home/HomeStaci.astro';
+import HomeWords from '@/components/home/HomeWords.astro';
+import TapeProcess from '@/components/home/TapeProcess.astro';
+import PaintChips from '@/components/home/PaintChips.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
 import FeaturedJournal from '@/components/FeaturedJournal.astro';
 import PressStrip from '@/components/PressStrip.astro';
 import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
-import SectionDivider from '@/components/SectionDivider.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
@@ -76,21 +75,20 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
     <Wrap {...wrapAttrs(s._key)}>
       {s._type === 'homeSectionMarker' ? (
         s.section === 'hero' ? (
-          <Hero
-            eyebrow={page?.heroEyebrow ?? 'Plainfield, Indiana.'}
+          <HomeHero
+            eyebrow={page?.heroEyebrow}
             headline={page?.heroHeadline ?? 'Interior design for homes that feel genuinely yours.'}
-            subhead={page?.heroSubhead ?? ''}
-            backgroundImage={page?.heroImage}
-            backgroundImages={page?.heroImages}
+            accent={page?.heroScriptAccent}
+            subhead={page?.heroSubhead}
+            portrait={page?.heroPortrait}
+            fallbackImages={page?.heroImages}
+            fallbackImage={page?.heroImage}
             primaryCta={page?.heroPrimaryCta}
             secondaryCta={page?.heroSecondaryCta}
             headingId="hero-heading"
-            size="tall"
-            rotatingWords={page?.heroRotatingWords ?? ['Lived-in', 'Considered', 'Quiet']}
-            scriptAccent={page?.heroScriptAccent}
           />
         ) : s.section === 'meetStaci' ? (
-          <MeetStaci
+          <HomeStaci
             photo={page?.meetStaciPhoto}
             eyebrow={page?.meetStaciEyebrow}
             headline={page?.meetStaciHeadline}
@@ -111,8 +109,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             />
           ) : null
         ) : s.section === 'testimonials' ? (
-          <HomeTestimonials
-            eyebrow={page?.testimonialsEyebrow}
+          <HomeWords
             headline={page?.testimonialsHeadline}
             scriptAccent={page?.testimonialsScriptAccent}
             subhead={page?.testimonialsSubhead}
@@ -123,16 +120,14 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             googleBusinessUrl={siteSettings?.googleBusinessUrl}
           />
         ) : s.section === 'processPreview' ? (
-          <ProcessPreview
-            eyebrow={page?.processPreviewEyebrow}
+          <TapeProcess
             headline={page?.processPreviewHeadline}
             subhead={page?.processPreviewSubhead}
-            processSteps={page?.processSteps ?? []}
+            steps={page?.processSteps ?? []}
             cta={page?.processPreviewCta}
           />
         ) : s.section === 'services' ? (
-          <HomeServices
-            eyebrow={page?.servicesGridEyebrow}
+          <PaintChips
             headline={page?.servicesGridHeadline}
             scriptAccent={page?.servicesGridScriptAccent}
             subhead={page?.servicesGridSubhead}
@@ -158,16 +153,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             <PressStrip items={pressItems} />
           ) : null
         ) : s.section === 'serviceAreaCue' ? (
-          <>
-            <div class="bg-muted">
-              <SectionDivider variant="ornament" />
-            </div>
-            <ServiceAreaCue
-              text={page?.serviceAreaCue}
-              cities={siteSettings?.serviceAreas}
-              eyebrow="Where Reid Design works"
-            />
-          </>
+          <ServiceAreaCue text={page?.serviceAreaCue} cities={siteSettings?.serviceAreas} />
         ) : s.section === 'finalCta' ? (
           <FinalCta
             eyebrow={page?.finalCtaEyebrow}

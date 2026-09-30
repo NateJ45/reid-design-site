@@ -1,0 +1,52 @@
+---
+// Foundation, edit with care
+// Page-opening headline with the word rise (added 2026-09-29, rebuild).
+//
+// Splits the text into words ON THE SERVER, wraps each in a clip box, and the
+// .r-rise CSS in src/styles/reid.css lifts them into place one after another.
+// The words are real text from the first byte (crawlers, screen readers, and
+// an LCP that never waits on a fade). Reduced motion: no animation.
+//
+// `accent` is Staci's scriptAccent field: the first exact match of that phrase
+// is set in italic via .r-accent (bronze on light grounds; the parent can set
+// --accent-color for dark grounds). No match, or no accent, renders plain.
+//
+// Usage: <RiseWords as="h1" text={headline} accent={scriptAccent} class="r-display" />
+import { splitHeadlineWords } from '@/lib/split-copy';
+
+interface Props {
+  text: string;
+  accent?: string | null;
+  as?: 'h1' | 'h2' | 'p' | 'span';
+  class?: string;
+  id?: string;
+  /** Delay before the first word, in ms. */
+  delay?: number;
+}
+
+const { text, accent, as: Tag = 'h1', class: className, id, delay = 0 } = Astro.props as Props;
+// Words are split from the CLEAN text; in /preview the headline's stega run
+// comes back as textRun and is rendered ONCE, whole, as a plain text node of
+// the heading (outside the animated spans) so click-to-edit resolves the
+// heading to its field. See src/lib/split-copy.ts. No-op on the live build.
+const { tokens, run: textRun } = splitHeadlineWords(text, accent);
+---
+
+<Tag
+  class:list={['r-rise', className]}
+  id={id}
+  style={delay ? `--rise-delay:${delay}ms` : undefined}
+>
+  {
+    tokens.map((t) =>
+      t.space ? (
+        ' '
+      ) : (
+        <span class:list={['r-w', t.accent && 'r-accent']}>
+          <span style={`--i:${t.i}`}>{t.word}</span>
+        </span>
+      ),
+    )
+  }
+  {textRun}
+</Tag>
