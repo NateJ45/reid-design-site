@@ -162,7 +162,9 @@ async function doStages() {
   if (!only) {
     const basePath = flag('--base');
     if (!basePath) throw new Error('stages needs --base <file> (or --only <pieceId> to redo one piece).');
-    const abs = resolve(basePath);
+    // npm --prefix runs this from tools/room-lab, so accept a path relative to the repo root too
+    // (the hint printed by `base` gives one).
+    const abs = [resolve(basePath), resolve(ROOT, '..', '..', basePath)].find((p) => existsSync(p)) ?? resolve(basePath);
     if (!existsSync(abs)) throw new Error(`Base image not found: ${abs}`);
     await sharp(abs).resize(W, H, { fit: 'fill' }).png().toFile(join(FINAL, 'frame-0.png'));
     console.log(`frame-0 <- ${abs}`);
