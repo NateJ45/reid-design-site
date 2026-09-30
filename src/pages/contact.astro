@@ -233,8 +233,10 @@ const schemas = [
   .note__promise {
     margin: 1.5rem 0 0;
     max-width: 56ch;
-    padding-left: 1.1rem;
-    border-left: 2px solid var(--color-chip-5);
+    /* A soft tint, not a side stripe (DESIGN.md absolute bans). */
+    padding: 0.9rem 1.1rem;
+    border-radius: 0.5rem;
+    background: var(--color-chip-1);
     color: var(--color-ink-2);
     text-wrap: pretty;
   }

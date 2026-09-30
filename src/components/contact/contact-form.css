@@ -199,7 +199,9 @@
 .cf-failed {
   padding: 1rem 1.25rem;
   background: var(--color-paper);
-  border-left: 3px solid var(--cf-error);
+  /* Full border, not a side stripe (DESIGN.md absolute bans). */
+  border: 1.5px solid var(--cf-error);
+  border-radius: 0.5rem;
   color: var(--color-ink);
   font: 400 1rem/1.5 var(--font-body);
 }
