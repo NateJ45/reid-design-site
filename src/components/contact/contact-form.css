@@ -1,0 +1,266 @@
+/* Contact form chrome. Foundation, edit with care.
+   Added 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md
+   "Contact and Privacy"). Imported by src/components/ContactForm.tsx, so it
+   ships with the island and nowhere else.
+
+   The idea: writing a note to Staci. Three numbered groups, generous labels,
+   paper fields with a Warm Bronze hairline, and a ruled writing area for the
+   message. Contrast (computed against paper #fffdfa and linen #f7f3ee):
+     - field border Warm Bronze on paper 3.97:1 (non-text, needs 3:1)
+     - labels ink 14.9+, hints ink-2 7.3+, errors brick #9f2f1c 6.4+
+     - focus: 2px ink OUTLINE, offset 2px, on every control. Never a
+       box-shadow ring: WebKit drops box-shadow on native selects (see the
+       note in ContactForm.tsx and the vault gotcha).
+   Nothing here animates except colour on hover, and that sits behind
+   prefers-reduced-motion: no-preference. */
+
+.cf {
+  --cf-border: var(--color-chip-5);
+  --cf-error: #9f2f1c;
+  display: grid;
+  gap: clamp(2.25rem, 4vw, 3rem);
+}
+
+/* ---- Groups ------------------------------------------------------------ */
+.cf-group {
+  display: grid;
+  gap: 1.35rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* The legend is a numbered line: a small Walnut numeral, the group name in
+   Zodiak, and a hairline running out to the edge. */
+.cf-legend {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  width: 100%;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  font: 300 clamp(1.45rem, 1.2rem + 0.7vw, 1.8rem) / 1.15 var(--font-display);
+  letter-spacing: -0.015em;
+  color: var(--color-ink);
+}
+.cf-legend::after {
+  content: '';
+  flex: 1 1 auto;
+  align-self: center;
+  height: 1px;
+  margin-left: 0.35rem;
+  background: var(--color-rule);
+}
+.cf-legend__n {
+  font: 500 0.85rem/1 var(--font-body);
+  letter-spacing: 0.04em;
+  color: var(--color-chip-6);
+  font-variant-numeric: tabular-nums;
+}
+
+.cf-pair {
+  display: grid;
+  gap: 1.35rem;
+}
+@media (min-width: 40rem) {
+  .cf-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.25rem;
+  }
+}
+
+/* ---- One field --------------------------------------------------------- */
+.cf-field {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  min-width: 0;
+}
+.cf-label {
+  font: 500 1rem/1.3 var(--font-body);
+  color: var(--color-ink);
+}
+.cf-optional {
+  font-weight: 400;
+  color: var(--color-ink-2);
+}
+.cf-hint {
+  margin: 0;
+  font: 400 0.9rem/1.45 var(--font-body);
+  color: var(--color-ink-2);
+}
+
+/* ---- Controls ---------------------------------------------------------- */
+.cf-control {
+  display: block;
+  width: 100%;
+  min-height: 3.25rem;
+  margin: 0;
+  padding: 0.8rem 1rem;
+  font: 400 1rem/1.4 var(--font-body); /* 16px: iOS never zooms the page */
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+  border: 1px solid var(--cf-border);
+  border-radius: 0.4rem;
+  box-shadow: none;
+  /* Focusing an invalid field on submit scrolls it into view; keep its label
+     clear of the sticky header. */
+  scroll-margin-top: 9rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.cf-control::placeholder {
+  color: var(--color-ink-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cf-control {
+    transition:
+      border-color 250ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+.cf-control:hover {
+  border-color: var(--color-chip-7);
+}
+/* THE focus indicator. :focus (not only :focus-visible) so a click into a
+   field shows it too, and so it paints in every engine for a scripted focus.
+   Outline, never box-shadow (WebKit native controls). */
+.cf-control:focus,
+.cf-control:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-color: var(--color-ink);
+}
+.cf-control[aria-invalid='true'] {
+  border-color: var(--cf-error);
+  border-width: 2px;
+  padding: calc(0.8rem - 1px) calc(1rem - 1px);
+}
+.cf-control[aria-invalid='true']:focus {
+  outline-color: var(--cf-error);
+}
+
+/* Select: our own chevron, because appearance:none removes the native one.
+   Room on the right so a long option never runs under it. */
+.cf-control--select {
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23231e1b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.cf-control--select[aria-invalid='true'] {
+  padding-right: calc(2.75rem - 1px);
+}
+
+/* The message: a ruled writing area, like a page of the notebook Staci keeps
+   on the job. The rules scroll with the text (background-attachment: local)
+   and sit on the same 2rem rhythm as the line-height. */
+.cf-control--note {
+  min-height: 13rem;
+  padding-top: 0.55rem;
+  line-height: 2rem;
+  resize: vertical;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(2rem - 1px),
+    var(--color-rule) calc(2rem - 1px),
+    var(--color-rule) 2rem
+  );
+  background-position: 0 0.55rem;
+  background-attachment: local;
+}
+.cf-control--note[aria-invalid='true'] {
+  padding-top: calc(0.55rem - 1px);
+}
+
+/* ---- Errors ------------------------------------------------------------ */
+.cf-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font: 500 0.9rem/1.4 var(--font-body);
+  color: var(--cf-error);
+}
+.cf-error__icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.cf-failed {
+  padding: 1rem 1.25rem;
+  background: var(--color-paper);
+  /* Full border, not a side stripe (DESIGN.md absolute bans). */
+  border: 1.5px solid var(--cf-error);
+  border-radius: 0.5rem;
+  color: var(--color-ink);
+  font: 400 1rem/1.5 var(--font-body);
+}
+
+/* ---- Send -------------------------------------------------------------- */
+.cf-send {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--color-rule);
+}
+.cf-send__btn {
+  min-height: 3.35rem;
+  padding-inline: 1.9em;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.cf-send__btn:disabled {
+  cursor: progress;
+  opacity: 0.75;
+  transform: none;
+}
+.cf-send__note {
+  flex: 1 1 16rem;
+  margin: 0;
+  font: 400 0.9rem/1.45 var(--font-body);
+  color: var(--color-ink-2);
+}
+
+/* ---- Sent -------------------------------------------------------------- */
+.cf-done {
+  position: relative;
+  padding: clamp(2rem, 5vw, 3.25rem);
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
+  border-radius: 0.4rem;
+}
+.cf-done__sprig {
+  width: 7.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--color-chip-5);
+}
+.cf-done__sprig path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cf-done__h {
+  margin: 0;
+  font: 300 var(--text-h3) / 1.1 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+.cf-done__p {
+  max-width: 44ch;
+  margin: 1rem 0 0;
+  color: var(--color-ink-2);
+}

@@ -1,7 +1,27 @@
 ---
-// Page-builder block: a text section (optional heading + rich body).
+// Safe to edit by hand
+// Page-builder block: a text section, optional heading + rich body (rebuilt
+// 2026-09-30, phase 2 of the art-direction rebuild; see DESIGN.md "Blocks and
+// Portfolio").
+//
+//   Normal width, no heading: the body at its measure from the left edge.
+//   Normal width, with a heading: an editorial split on desktop. The heading
+//     sits in the left columns, the body reads in the right at a ~64ch
+//     measure, and its first paragraph is set large in Zodiak as the lede.
+//   Narrow width: one column at a book measure, heading above.
+//   Centred: one column, everything centred (Staci's `align` field).
+//   Phone: always one column.
+//
+// The eyebrow field is accepted and not printed, like SectionHeading: the
+// rebuild drops the tracked label above every section (DESIGN.md "Type").
+//
+// LOAD-BEARING STRINGS (src/lib/section-fields.test.ts reads this file): the
+// `widthClass` ternary must keep painting 'max-w-prose' / 'max-w-content', and
+// `alignClass` must stay exactly as written. The Studio's in-canvas layout
+// card swaps those classes live, so the layout CSS below keys off them too.
+//
 // Surface (background / muted) is assigned by SectionRenderer so the page
-// cadence stays correct no matter the order. Safe to edit by hand.
+// cadence stays correct no matter the order.
 import SectionHeading from '@/components/SectionHeading.astro';
 import PortableText from '@/components/PortableText';
 
@@ -17,7 +37,6 @@ interface Props {
 }
 
 const {
-  eyebrow,
   heading,
   scriptAccent,
   body,
@@ -27,28 +46,94 @@ const {
   headingId,
 } = Astro.props as Props;
 
-const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
 const widthClass = width === 'narrow' ? 'max-w-prose' : 'max-w-content';
 const alignClass = align === 'center' ? 'text-center' : '';
-const proseClass = ['text-foreground/85 text-lg leading-relaxed', heading ? 'mt-l' : '', alignClass]
-  .filter(Boolean)
-  .join(' ');
 ---
 
-<section class={bg} aria-labelledby={heading ? headingId : undefined}>
-  <div class:list={['mx-auto px-m py-section-lg', widthClass]} data-reveal>
+<section
+  class:list={['rts', surface === 'muted' ? 'rts--paper' : 'rts--linen']}
+  aria-labelledby={heading ? headingId : undefined}
+>
+  <div class:list={['rts__inner', widthClass, alignClass, heading && 'rts__inner--head']}>
     {
       heading && (
-        <SectionHeading
-          eyebrow={eyebrow}
-          headline={heading}
-          headingId={headingId}
-          align={align}
-          scriptAccent={scriptAccent}
-          class={align === 'center' ? 'mx-auto' : ''}
-        />
+        <div class="rts__head">
+          <SectionHeading headline={heading} headingId={headingId} scriptAccent={scriptAccent} />
+        </div>
       )
     }
-    {body && <PortableText value={body} className={proseClass} />}
+    {body && <PortableText value={body} className="rts__body" />}
   </div>
 </section>
+
+<style>
+  .rts {
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  .rts--linen {
+    background: var(--color-bg);
+  }
+  .rts--paper {
+    background: var(--color-paper);
+  }
+  .rts__inner {
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3.5rem);
+  }
+  /* Normal width lines up with every other band's container (.r-wrap), a
+     touch wider than the old max-w-content token it keeps as its hook. */
+  .rts__inner.max-w-content {
+    max-width: 85rem;
+  }
+  .rts__inner--head :global(.rts__body) {
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  /* The body: a reading measure, not the container width. */
+  .rts :global(.rts__body) {
+    max-width: 64ch;
+    font-size: 1.075rem;
+    line-height: 1.7;
+    color: var(--color-ink);
+  }
+  .rts :global(.rts__body > :first-child) {
+    margin-top: 0;
+  }
+  .rts :global(.rts__body > :last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Centred (align = center): everything on the axis, a shorter measure. */
+  .rts__inner.text-center :global(.rts__body) {
+    max-width: 58ch;
+    margin-inline: auto;
+  }
+  .rts__inner.text-center :global(.sh__h) {
+    margin-inline: auto;
+  }
+
+  /* Normal width with a heading, desktop: the editorial split. The first
+     paragraph becomes the lede (CSS only, so no CMS string is ever cut). */
+  @media (min-width: 1024px) {
+    .rts__inner--head.max-w-content:not(.text-center) {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 1.5rem;
+      align-items: start;
+    }
+    .rts__inner--head.max-w-content:not(.text-center) .rts__head {
+      grid-column: 1 / 6;
+      position: sticky;
+      top: 7rem;
+    }
+    .rts__inner--head.max-w-content:not(.text-center) :global(.rts__body) {
+      grid-column: 7 / 13;
+      margin-top: 0.4rem;
+    }
+    .rts__inner--head.max-w-content:not(.text-center) :global(.rts__body > p:first-child) {
+      font: 300 clamp(1.3rem, 1.05rem + 0.6vw, 1.6rem) / 1.42 var(--font-display);
+      letter-spacing: -0.01em;
+      text-wrap: pretty;
+    }
+  }
+</style>

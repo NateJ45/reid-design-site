@@ -140,13 +140,13 @@ export const LAYOUT_FIELDS: Readonly<Record<string, readonly LayoutField[]>> = {
           value: 'tall',
           title: 'Tall (fills the screen)',
           hint: 'For the top of a page you want to open big.',
-          className: 'hero-fill',
+          className: 'phero--tall',
         },
         {
           value: 'short',
           title: 'Short',
           hint: 'A generous band that still shows the page under it.',
-          className: 'min-h-[42svh] md:min-h-[52svh]',
+          className: 'phero--short',
         },
       ],
     },
@@ -354,26 +354,17 @@ function hasImage(value: unknown): boolean {
 /**
  * Would the hero this heading belongs to actually DRAW the accent?
  *
- * Two honour gaps in Hero.astro, both real and both silent:
- *
- *  1. THE TEXT HERO DROPS IT. With no background image the hero renders its
- *     heading through SectionHeading, and that call passes eyebrow, headline,
- *     subhead, headingId and level - no `scriptAccent`. So a word stored on an
- *     image-less hero is stored and never drawn.
- *  2. ROTATING WORDS WIN. `splitScriptAccent` is called with `undefined` for
- *     the accent whenever `rotatingWords` holds more than one word, because the
- *     two flourishes must not compete for the same first word.
- *
- * A control must never promise what the renderer will not honour, so the picker
- * refuses in both cases rather than storing a word nothing underlines.
+ * Since the 2026-09-30 rebuild (phase 2): YES, for any hero that exists. The
+ * old Hero.astro had two honour gaps (an image-less hero dropped the accent,
+ * and rotating words suppressed it); both are gone. Hero.astro and
+ * home/HomeHero.astro pass the accent straight to RiseWords in every branch,
+ * and the rotating first word is retired. The drift gate in
+ * section-fields.test.ts pins that, so if a gap ever returns this function has
+ * to learn it again: a control must never promise what the renderer will not
+ * honour.
  */
 export function heroAccentApplies(source: Record<string, unknown> | null | undefined): boolean {
-  if (!source) return false;
-  const rotating = source.heroRotatingWords ?? source.rotatingWords;
-  if (Array.isArray(rotating) && rotating.length > 1) return false;
-  return (
-    hasImage(source.heroImages) || hasImage(source.heroImage) || hasImage(source.backgroundImage)
-  );
+  return !!source;
 }
 
 /**
@@ -395,8 +386,8 @@ export function resolveAccentTarget(
     const heading = segments[0];
     const accent = DOC_ACCENT_PAIRS[heading];
     if (!accent) return null;
-    // The hero pair is the one the two honour gaps apply to. The other three
-    // headings go through SectionHeading and FinalCta, which always draw it.
+    // Every hero draws its accent now (see heroAccentApplies); the gate stays
+    // so a future gap has one place to be taught.
     if (heading === 'heroHeadline' && !heroAccentApplies(doc)) return null;
     return { headingPath: [heading], accentPath: [accent] };
   }
@@ -407,8 +398,7 @@ export function resolveAccentTarget(
   const heading = SECTION_ACCENT_HEADINGS[type];
   if (!heading) return null;
   if (section.rest.length !== 1 || section.rest[0] !== heading) return null;
-  // A hero BLOCK carries its own image, and cannot carry rotating words at all
-  // (that field is on the home page document only), so the same gate reads it.
+  // Same gate for a hero BLOCK on a builder page.
   if (type === 'heroSection' && !heroAccentApplies(item)) return null;
 
   return {

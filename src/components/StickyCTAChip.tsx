@@ -127,14 +127,17 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
              labels. Past that, truncate kicks in as a safety net.
           Left padding reduced from pl-l to pl-m so more room goes to the
           label text instead of the bronze gutter. */}
-      <div className="relative flex max-w-[min(92vw,28rem)] items-center gap-1 rounded-full bg-primary-dark py-s pr-s pl-m text-white shadow-lg shadow-foreground/15">
+      {/* Rebuilt 2026-09-30 (phase 2): the ink pill of the rebuild buttons
+          (.r-btn--ink), sentence case in General Sans 500. Cream on ink is
+          14.2:1. The old uppercase-tracked bronze pill is gone site-wide. */}
+      <div className="relative flex max-w-[min(92vw,28rem)] items-center gap-1 rounded-full bg-ink py-1.5 pr-1.5 pl-5 text-cream shadow-[0_18px_34px_-16px_rgb(35_30_27/0.7)]">
         <a
           href={href}
           tabIndex={visible ? 0 : -1}
-          className="press-tactile flex min-w-0 items-center gap-2 text-xs font-semibold tracking-eyebrow uppercase"
+          className="flex min-h-11 min-w-0 items-center gap-2 rounded-full text-[0.95rem] font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cream"
         >
           <span className="truncate">{label}</span>
-          <span aria-hidden="true" className="shrink-0 text-base leading-none">
+          <span aria-hidden="true" className="shrink-0 leading-none">
             →
           </span>
         </a>
@@ -143,7 +146,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
           onClick={dismiss}
           tabIndex={visible ? 0 : -1}
           aria-label="Dismiss"
-          className="-mr-1 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-cream/80 transition-colors hover:bg-cream/10 hover:text-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path

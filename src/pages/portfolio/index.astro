@@ -2,6 +2,11 @@
 // Safe to edit by hand
 // Portfolio index. Grid of project cards, sorted by displayOrder then publishedAt.
 // Renders an empty state when no projects exist yet (launch state).
+//
+// Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md "Blocks
+// and Portfolio"). The filter tabs and the varied, image-led grid live in
+// src/components/portfolio/ProjectBoard.astro; this page keeps the hero, the
+// empty state and the Extra sections zone.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getAllProjects, getPortfolioPage, getSiteSettings } from '@/lib/queries';
@@ -9,9 +14,7 @@ import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
-import ProjectCard from '@/components/ProjectCard.astro';
-import PortfolioFilterChips from '@/components/PortfolioFilterChips';
-import PortfolioCursor from '@/components/PortfolioCursor';
+import ProjectBoard from '@/components/portfolio/ProjectBoard.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const [projects, page, siteSettings] = await Promise.all([
@@ -44,32 +47,6 @@ const schemas = [
 
 const hasProjects = Array.isArray(projects) && projects.length > 0;
 
-// Compute unique room types + design styles present in the actual content so
-// the filter chips don't offer values that won't match anything. Humanize the
-// camelCase enum values for display.
-function humanize(value: string): string {
-  return value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
-}
-
-const projectsArr: any[] = Array.isArray(projects) ? projects : [];
-const roomOptions = [
-  ...new Map(
-    projectsArr
-      .filter((p) => p.roomType)
-      .map((p) => [p.roomType, { value: p.roomType, label: humanize(p.roomType) }]),
-  ).values(),
-];
-const styleOptions = [
-  ...new Map(
-    projectsArr
-      .filter((p) => p.designStyle)
-      .map((p) => [p.designStyle, { value: p.designStyle, label: humanize(p.designStyle) }]),
-  ).values(),
-];
-
 // Portfolio index now backed by the portfolioPage singleton. The fallback
 // asset _ref preserves the previous hero image for any environment where the
 // singleton hasn't been populated yet — defensive only; the patch script
@@ -101,90 +78,33 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
 
   {
     hasProjects ? (
-      <section
-        class="mx-auto max-w-content px-m pb-section-lg"
-        aria-labelledby="portfolio-projects-heading"
-      >
-        {/* Visually-hidden H2 — gives the project grid a proper heading-level
-          parent so screen-reader navigation goes H1 → H2 → H3 (each card)
-          instead of skipping straight to H3. Audit-caught regression. */}
-        <h2 id="portfolio-projects-heading" class="sr-only">
-          Projects
-        </h2>
-
-        {/* Filter chips + before/after link in the same row. */}
-        <div class="mb-l flex flex-col gap-m sm:flex-row sm:items-center sm:justify-between">
-          <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
-          {/* Before/after link — contextual shortcut for visitors who came
-            specifically to see transformation reveals. Hidden until there's
-            content at /portfolio/before-after, but safe to show preemptively
-            because that page has its own graceful empty state. */}
-          <a
-            href="/portfolio/before-after"
-            class="inline-flex shrink-0 items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
-          >
-            Before &amp; After <span aria-hidden="true">→</span>
-          </a>
-        </div>
-
-        {/* Grid. data-* attributes drive the client-side filter; the
-          is-filtered-out class is added by the chips island to fade-and-scale
-          non-matching items. */}
-        <ul
-          class="grid list-none grid-cols-1 gap-l p-0 sm:grid-cols-2 lg:grid-cols-3"
-          data-portfolio-cursor-zone
-          data-stagger-grid
-        >
-          {projects.map((p: any) => (
-            <li
-              data-project-item
-              data-roomtype={p.roomType ?? ''}
-              data-designstyle={p.designStyle ?? ''}
-              class="transition-all duration-300 ease-out"
-            >
-              <ProjectCard project={p} />
-            </li>
-          ))}
-        </ul>
-
-        {/* Empty state when filters match nothing. The island toggles
-          display:none/block on this element. */}
-        <p
-          data-portfolio-empty-filter
-          class="mt-section-md hidden text-center text-foreground/85 italic"
-        >
-          No projects match those filters yet.{' '}
-          <a
-            href="#"
-            onclick="event.preventDefault(); document.querySelectorAll('[data-project-item]').forEach(el => el.classList.remove('is-filtered-out')); history.replaceState(null, '', window.location.pathname); window.location.reload();"
-            class="text-link underline underline-offset-2"
-          >
-            Clear filters
-          </a>{' '}
-          to see everything.
-        </p>
-
-        {/* Bronze "View →" custom cursor — desktop only, hover-aware. */}
-        <PortfolioCursor client:idle />
-      </section>
+      <ProjectBoard projects={projects} />
     ) : (
-      <section class="mx-auto max-w-content px-m pb-section-lg">
-        <div class="rounded-md border border-border bg-muted p-section-md text-center">
-          <h2 class="font-display text-h3 text-foreground">Case studies are on the way.</h2>
-          <p class="mx-auto mt-s max-w-prose text-foreground/80">
-            The first projects under Reid Design LLC are wrapping up now, with full write-ups coming
-            shortly. In the meantime, you can read about
-            <a href="/process" class="text-link underline underline-offset-2 hover:text-primary">
-              {' '}
-              how Reid Design works
-            </a>
-            or
-            <a href="/contact" class="text-link underline underline-offset-2 hover:text-primary">
-              {' '}
-              start a conversation about your space
-            </a>
-            .
-          </p>
+      <section class="pf pf--empty" aria-labelledby="portfolio-empty-heading">
+        <div class="r-wrap pf__empty">
+          <div class="pf__chips" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <div>
+            <h2 id="portfolio-empty-heading" class="pf__empty-h">
+              Case studies are on the way.
+            </h2>
+            <p class="pf__empty-p">
+              The first projects are wrapping up now, with full write-ups to follow. Until then,
+              here is{' '}
+              <a href="/process" class="r-link">
+                how Reid Design works
+              </a>
+              , or you can
+              <a href="/contact" class="r-link">
+                start a conversation about your space
+              </a>
+              .
+            </p>
+          </div>
         </div>
       </section>
     )
@@ -193,3 +113,71 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="portfolio-extra" />
 </BaseLayout>
+
+<style>
+  .pf {
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(5rem, 10vw, 8.5rem);
+  }
+  /* ---- No projects yet ---- */
+  .pf__empty {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .pf__empty-h {
+    margin: 0;
+    font: 300 clamp(2rem, 1.3rem + 2.4vw, 3.4rem) / 1.02 var(--font-display);
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+  .pf__empty-p {
+    margin: 1.25rem 0 0;
+    max-width: 48ch;
+    color: var(--color-ink-2);
+  }
+  .pf__empty-p .r-link {
+    color: var(--color-ink);
+  }
+  /* Four blank chips off the ramp, waiting for their photos. */
+  .pf__chips {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .pf__chips span {
+    position: relative;
+    width: clamp(3.5rem, 9vw, 5.5rem);
+    aspect-ratio: 4 / 5;
+  }
+  .pf__chips span::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    translate: -50% 0;
+    background: var(--color-bg);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+  .pf__chips span:nth-child(1) {
+    background: var(--color-chip-1);
+  }
+  .pf__chips span:nth-child(2) {
+    background: var(--color-chip-2);
+    translate: 0 0.75rem;
+  }
+  .pf__chips span:nth-child(3) {
+    background: var(--color-chip-3);
+  }
+  .pf__chips span:nth-child(4) {
+    background: var(--color-chip-4);
+    translate: 0 0.75rem;
+  }
+  @media (min-width: 1024px) {
+    .pf__empty {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: clamp(3rem, 7vw, 6rem);
+    }
+  }
+</style>

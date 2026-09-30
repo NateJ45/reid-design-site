@@ -1,30 +1,24 @@
 ---
-// Safe to edit by hand
-// Page hero. Two shapes:
-//   1) "image" hero (home, optionally Process/Services if Staci ever adds a hero photo)
-//      — full-bleed Sanity background image with a dark scrim, h1 + subhead + CTAs overlay.
-//   2) "text" hero (About, Contact, FAQ, Process by default)
-//      — clean editorial heading on Soft Linen with eyebrow + headline + subhead.
+// Foundation, edit with care
+// Interior page hero (rebuilt 2026-09-30, phase 2 of the art-direction
+// rebuild; see DESIGN.md). The HOME hero is home/HomeHero.astro, not this.
 //
-// The image hero is the LCP element on the homepage. SanityImage is set to loading="eager"
-// in that case and the headline uses font-display (Cormorant Garamond), which BaseLayout
-// preloads inline. Don't add layout-shift animations to this section.
-
-import HeroBackground from '@/components/HeroBackground.astro';
+//   No image:   eyebrow line / HEADLINE (word rise) / subhead + CTAs, on linen.
+//   With image: the same copy on the left, the photo on the right as a framed
+//               crop (4:5), never full-bleed under a dark scrim. Wide phone
+//               shots of rooms read far better cropped tight than stretched.
+//
+// Props are unchanged from the old hero so no page had to change. Dropped on
+// purpose: the rotating first word and the full-viewport "tall" size (both
+// home-only, and the home no longer uses this component); `backgroundImages`
+// uses its FIRST image only (no slideshow on interior pages).
+//
+// Subhead: Staci can italicise a phrase with _underscores_ in Sanity; that
+// still works and renders in Zodiak italic.
+import SanityImage from '@/components/SanityImage.astro';
 import CtaLink from '@/components/CtaLink.astro';
-import SectionHeading from '@/components/SectionHeading.astro';
-import { splitScriptAccent } from '@/lib/scriptAccent';
-import { ChevronDown } from 'lucide-react';
-
-interface CtaBlock {
-  label?: string;
-  linkType?: 'internal' | 'external' | 'email' | 'phone';
-  internalLink?: { _type?: string; slug?: string } | null;
-  externalUrl?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  openInNewTab?: boolean;
-}
+import RiseWords from '@/components/RiseWords.astro';
+import type { CtaBlock } from '@/lib/cta';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
@@ -38,29 +32,14 @@ interface Props {
   headline: string;
   subhead?: string;
   backgroundImage?: SanityImageObject | null;
-  /** Optional list of hero images. 2+ render a cross-fading slideshow; 1 (or
-      falling back to backgroundImage) renders a single static image. */
   backgroundImages?: SanityImageObject[] | null;
   primaryCta?: CtaBlock | null;
   secondaryCta?: CtaBlock | null;
   headingId: string;
-  /** "tall" = fills the viewport below the header on first load (homepage), "short" = generous but not full screen (interior pages). */
+  /** Page-builder hero block Height: tall fills the screen under the header. */
   size?: 'tall' | 'short';
-  /**
-   * Optional list of words to cycle through in place of the FIRST word of the
-   * headline. Animates once on first visit per session, then locks back to
-   * the original. Honors prefers-reduced-motion. Pass undefined to skip.
-   */
+  /** Accepted for compatibility; not used (home-only feature, retired). */
   rotatingWords?: string[];
-  /**
-   * Optional single word/phrase in the headline to render in script
-   * (Pinyon Script). One per hero — the editorial-signature flourish.
-   * The first occurrence in the headline string is wrapped. If the word
-   * isn't found, the headline renders unchanged.
-   *
-   * Don't combine with `rotatingWords` — they may target the same first
-   * word; pick one effect per hero. If both are passed, rotatingWords wins.
-   */
   scriptAccent?: string;
 }
 
@@ -73,291 +52,178 @@ const {
   primaryCta,
   secondaryCta,
   headingId,
-  size = 'short',
-  rotatingWords,
   scriptAccent,
+  size = 'short',
 } = Astro.props as Props;
 
-// Split the headline into a first word + the rest, so the rotator can swap
-// the first word in place without touching the rest of the line. Matches
-// alphanumerics + apostrophes; falls back to the whole headline if the regex
-// doesn't catch (e.g., headline starts with punctuation).
-const rotateEnabled = Array.isArray(rotatingWords) && rotatingWords.length > 1;
-const firstWordMatch = rotateEnabled ? headline.match(/^([\w'’]+)(.*)$/s) : null;
-const headlineFirst = firstWordMatch ? firstWordMatch[1] : headline;
-const headlineRest = firstWordMatch ? firstWordMatch[2] : '';
-const rotatingPayload = rotateEnabled ? JSON.stringify([headlineFirst, ...rotatingWords!]) : '';
+// The Studio layout card swaps these two classes in preview, so they are also
+// listed in src/lib/section-fields.ts (LAYOUT_FIELDS.heroSection); the drift
+// gate in section-fields.test.ts reads this exact line.
+const wrapperHeight = size === 'tall' ? 'phero--tall' : 'phero--short';
 
-// Script accent: split the headline around the accent word so it can be
-// rendered in three pieces (before / accent-span / after). Only fires when
-// rotatingWords isn't active — the two flourishes shouldn't compete.
-// Delegates to the shared splitScriptAccent helper so Hero and SectionHeading
-// use identical logic.
-const {
-  found: scriptFound,
-  before: scriptBefore,
-  word: scriptWord,
-  after: scriptAfter,
-} = splitScriptAccent(rotateEnabled ? headline : headline, rotateEnabled ? undefined : scriptAccent);
+const image =
+  (Array.isArray(backgroundImages) ? backgroundImages : []).find((i) => i?.asset) ??
+  (backgroundImage?.asset ? backgroundImage : null);
 
-// Subhead emphasis: parse markdown-style _word_ markers into <em> spans so
-// editors can italicize a key word in the Sanity subhead without HTML.
-// Example: "Pick the tier that fits _where you are_." → italic on "where you are".
-// Falls back to plain text when no markers are present.
+// _word_ markers -> italic spans. A stega run (preview) has no underscores, so
+// it stays whole at the end of the last text part.
 function parseSubhead(s?: string): Array<{ type: 'text' | 'em'; value: string }> {
   if (!s) return [];
-  const parts = s.split(/(_[^_]+_)/g);
-  return parts.map((part) =>
-    part.startsWith('_') && part.endsWith('_') && part.length > 2
-      ? { type: 'em' as const, value: part.slice(1, -1) }
-      : { type: 'text' as const, value: part },
-  );
+  return s
+    .split(/(_[^_]+_)/g)
+    .map((part) =>
+      part.startsWith('_') && part.endsWith('_') && part.length > 2
+        ? { type: 'em' as const, value: part.slice(1, -1) }
+        : { type: 'text' as const, value: part },
+    );
 }
 const subheadParts = parseSubhead(subhead);
-
-// Prefer the slideshow array; fall back to the single backgroundImage so every
-// other page (which only passes backgroundImage) is unaffected.
-const heroImageList = (Array.isArray(backgroundImages) ? backgroundImages : []).filter(
-  (img) => !!img?.asset,
-);
-const effectiveImages = heroImageList.length > 0
-  ? heroImageList
-  : (backgroundImage?.asset ? [backgroundImage] : []);
-const hasImage = effectiveImages.length > 0;
-
-// "tall" (homepage) fills the screen below the sticky header on first load.
-// The exact fill height comes from the .hero-fill class plus the measured
-// --header-h variable (see the inline script and scoped <style> below).
-// "short" stays a generous editorial band for interior pages.
-const wrapperHeight =
-  size === 'tall'
-    ? 'hero-fill'
-    : 'min-h-[42svh] md:min-h-[52svh]';
 ---
 
-{/* Full-viewport home hero plumbing (size="tall" only): measure the sticky
-    header into --header-h so the hero fills exactly the space below it, and
-    wire the scroll cue to glide past the hero. Runs synchronously so the
-    height is set before first paint (no layout shift), then refreshes on
-    load, resize, and View Transitions navigations. */}
-{size === 'tall' && (
-  <script is:inline>
-    (function () {
-      function setHeaderH() {
-        var header = document.querySelector('header.site-header');
-        if (header) {
-          document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
-        }
-      }
-      function wireCue() {
-        var cue = document.querySelector('[data-scroll-cue]');
-        if (!cue || cue.dataset.wired === '1') return;
-        cue.dataset.wired = '1';
-        cue.addEventListener('click', function () {
-          var hero = cue.closest('section');
-          if (!hero) return;
-          var hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
-          var top = hero.offsetTop + hero.offsetHeight - hh;
-          if (window.lenis && typeof window.lenis.scrollTo === 'function') {
-            window.lenis.scrollTo(top);
-          } else {
-            window.scrollTo({ top: top, behavior: 'smooth' });
-          }
-        });
-      }
-      setHeaderH();
-      wireCue();
-      if (!window.__reidHeroBound) {
-        window.__reidHeroBound = true;
-        window.addEventListener('resize', setHeaderH, { passive: true });
-        window.addEventListener('load', setHeaderH);
-        document.addEventListener('astro:page-load', function () { setHeaderH(); wireCue(); });
-      }
-    })();
-  </script>
-)}
-
-{/* Rotating-word animator. Runs once per session: cycles the wrapped word
-    through alternates every 850ms for ~5 seconds, then locks back to the
-    original. Skipped under prefers-reduced-motion or when sessionStorage
-    already holds the seen flag. Inline + idempotent so View Transitions
-    don't re-trigger on every navigation. */}
-{rotateEnabled && (
-  <script is:inline>
-    (function () {
-      try {
-        if (sessionStorage.getItem('reid-design-hero-rotated') === '1') return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      } catch (_) { /* ignore */ }
-
-      function init() {
-        const el = document.querySelector('[data-rotating-word]');
-        if (!el || el.dataset.rotated === '1') return;
-        el.dataset.rotated = '1';
-        let words;
-        try { words = JSON.parse(el.dataset.rotatingWords || '[]'); } catch (_) { return; }
-        if (!Array.isArray(words) || words.length < 2) return;
-
-        const original = words[0];
-        const intervalMs = 850;
-        // words.length ticks lands us on the original at the final cycle
-        // because words[length % length] === words[0] === original. The
-        // earlier `length + 1` produced one redundant tick that flashed the
-        // original word twice in a row at the end of the sequence.
-        const totalCycles = words.length;
-        let count = 0;
-
-        const id = setInterval(() => {
-          count += 1;
-          const target = count >= totalCycles ? original : words[count % words.length];
-          el.style.transition = 'opacity 200ms ease-out';
-          el.style.opacity = '0';
-          setTimeout(() => {
-            el.textContent = target;
-            el.style.opacity = '1';
-          }, 200);
-
-          if (count >= totalCycles) {
-            clearInterval(id);
-            try { sessionStorage.setItem('reid-design-hero-rotated', '1'); } catch (_) {}
-          }
-        }, intervalMs);
-      }
-      init();
-      document.addEventListener('astro:page-load', init);
-    })();
-  </script>
-)}
-
-{hasImage ? (
-  <section
-    class:list={[
-      'relative overflow-hidden bg-accent-dark text-bg flex flex-col justify-end',
-      wrapperHeight,
-    ]}
-    aria-labelledby={headingId}
-  >
-    {/* Background: single static image or a cross-fading slideshow (2+ images),
-        plus the readability overlays. See HeroBackground.astro. */}
-    <HeroBackground images={effectiveImages} />
-
-    {/* Content sits at the bottom of the section thanks to justify-end on the
-        section itself. Avoids the h-full-on-flex-item brittleness that left
-        content floating mid-hero on min-height containers. */}
-    <div class="relative mx-auto w-full max-w-content px-m pb-section-lg pt-section-md">
-      {/*
-        hero-entry-stagger triggers the global page-load fade-up animation
-        defined in globals.css. Each direct child of this wrapper fades up
-        with a small per-child delay (eyebrow → hairline → h1 → subhead →
-        CTAs). Reduced-motion users get the final composition instantly.
-
-        Cream hairline beneath the eyebrow mirrors the SectionHeading
-        inverse-tone treatment so heroes carry the same editorial signature
-        as every interior section heading.
-      */}
-      <div class="hero-entry-stagger max-w-3xl">
-        {eyebrow && (
-          <p class="text-xs uppercase tracking-eyebrow text-bg/85">{eyebrow}</p>
-        )}
-        {eyebrow && (
-          <div class="mt-xs mb-m h-px w-12 bg-bg/40" aria-hidden="true"></div>
-        )}
-        <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
-          {rotateEnabled ? (
-            <>
-              <span data-rotating-word data-rotating-words={rotatingPayload}>
-                {headlineFirst}
-              </span>{headlineRest}
-            </>
-          ) : scriptFound ? (
-            <>
-              {scriptBefore}<span class="font-script">{scriptWord}</span>{scriptAfter}
-            </>
-          ) : (
-            headline
-          )}
-        </h1>
-        {subhead && (
-          <p class="mt-m max-w-2xl text-lg text-bg/90">
+<section class:list={['phero', wrapperHeight, image && 'phero--image']} aria-labelledby={headingId}>
+  <div class="r-wrap phero__grid">
+    <div class="phero__copy">
+      {eyebrow && <p class="phero__eyebrow">{eyebrow}</p>}
+      <RiseWords as="h1" id={headingId} text={headline} accent={scriptAccent} class="phero__h1" />
+      {
+        subhead && (
+          <p class="phero__sub r-lede">
             {subheadParts.map((part) =>
-              part.type === 'em'
-                ? <em class="italic font-display text-bg/95">{part.value}</em>
-                : part.value
+              part.type === 'em' ? <em class="phero__em">{part.value}</em> : part.value,
             )}
           </p>
-        )}
-        {(primaryCta || secondaryCta) && (
-          <div class="mt-l flex flex-wrap gap-s">
-            {primaryCta && <CtaLink cta={primaryCta} variant="primary" onDark />}
-            {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" onDark />}
+        )
+      }
+      {
+        (primaryCta || secondaryCta) && (
+          <div class="phero__ctas">
+            {primaryCta && <CtaLink cta={primaryCta} variant="primary" />}
+            {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" />}
           </div>
-        )}
-      </div>
+        )
+      }
     </div>
-
-    {/* Soft pulsing scroll cue at the bottom-center of the hero. Tells
-        visitors there is more below; clicking it glides past the hero.
-        Static under prefers-reduced-motion (see the scoped <style>). */}
-    {size === 'tall' && (
-      <button
-        type="button"
-        data-scroll-cue
-        aria-label="Scroll down to see more"
-        class="scroll-cue absolute bottom-4 left-1/2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full text-bg/85 hover:text-bg hover:bg-bg/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bg/70"
-      >
-        <ChevronDown size={28} strokeWidth={1.5} aria-hidden="true" />
-      </button>
-    )}
-  </section>
-) : (
-  <section class="bg-background" aria-labelledby={headingId}>
-    <div class:list={['mx-auto max-w-content px-m py-section-lg flex items-end', wrapperHeight]}>
-      <SectionHeading
-        eyebrow={eyebrow}
-        headline={headline}
-        subhead={subhead}
-        headingId={headingId}
-        level="h1"
-      />
-    </div>
-  </section>
-)}
+    {
+      image && (
+        <figure class="phero__photo">
+          <SanityImage
+            source={image}
+            width={900}
+            height={1125}
+            sizes="(min-width: 1024px) 38vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            quality={70}
+            class="phero__img"
+          />
+        </figure>
+      )
+    }
+  </div>
+</section>
 
 <style>
-  /* Full-viewport home hero. Fill the screen below the sticky header on first
-     load. --header-h is measured by the inline script above; the per-breakpoint
-     fallback covers the brief pre-measure window and the no-JS case (mobile
-     header ~7rem, desktop with the eyebrow strip ~9.5rem). svh keeps the hero
-     within the initially-visible viewport on mobile (address bar shown) so it
-     never forces an immediate scroll; the vh line is the pre-svh fallback. */
-  .hero-fill {
-    min-height: calc(100vh - var(--header-h, 7rem));
-    min-height: calc(100svh - var(--header-h, 7rem));
+  .phero {
+    padding-block: clamp(3.5rem, 8vw, 7rem) clamp(3.5rem, 7vw, 6rem);
+    border-bottom: 1px solid var(--color-rule);
   }
-  @media (min-width: 1024px) {
-    .hero-fill {
-      min-height: calc(100vh - var(--header-h, 9.5rem));
-      min-height: calc(100svh - var(--header-h, 9.5rem));
+  /* Tall: fill the first screen under the sticky header, copy at the foot. */
+  .phero--tall {
+    display: flex;
+    align-items: flex-end;
+    min-height: calc(100svh - 5.5rem);
+  }
+  .phero--tall > .r-wrap {
+    width: 100%;
+  }
+  .phero__grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: end;
+  }
+  .phero--image .phero__grid {
+    align-items: center;
+  }
+  .phero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.75rem;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .phero__eyebrow::before {
+    content: '';
+    flex: none;
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+  :global(.phero__h1) {
+    margin: 0;
+    max-width: 16ch;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--text-h1);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .phero__sub {
+    margin: 1.75rem 0 0;
+    max-width: 44ch;
+  }
+  .phero__em {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-chip-6);
+  }
+  .phero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 2.25rem;
+  }
+  .phero__photo {
+    position: relative;
+    margin: 0;
+    overflow: clip;
+  }
+  .phero__photo :global(.phero__img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .phero__photo :global(.phero__img) {
+      animation: phero-settle 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
   }
-
-  /* Scroll cue: a soft down-bob plus opacity pulse so it reads as "there is
-     more below" without shouting. Centered with translateX(-50%) (the keyframe
-     re-applies it each step). Reduced-motion users get a static, clearly
-     visible chevron instead. */
-  .scroll-cue {
-    transform: translateX(-50%);
-    animation: scroll-cue-bob 2.4s ease-in-out infinite;
+  @keyframes phero-settle {
+    from {
+      transform: scale(1.08);
+    }
   }
-  @keyframes scroll-cue-bob {
-    0%, 100% { transform: translate(-50%, 0); opacity: 0.55; }
-    50%      { transform: translate(-50%, 0.4rem); opacity: 1; }
+  @media (min-width: 1024px) {
+    .phero--image .phero__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+    .phero__photo {
+      max-height: 34rem;
+    }
+    .phero__photo :global(.phero__img) {
+      max-height: 34rem;
+    }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .scroll-cue {
-      animation: none;
-      opacity: 0.85;
-      transform: translateX(-50%);
+  @media (max-width: 1023px) {
+    .phero__photo {
+      max-width: 32rem;
+    }
+    .phero__photo :global(.phero__img) {
+      aspect-ratio: 5 / 4;
     }
   }
 </style>

@@ -1,0 +1,99 @@
+---
+// Safe to edit by hand
+// "Rather talk first?" band on the contact page (added 2026-09-30, phase 2 of
+// the art-direction rebuild). The Calendly discovery call as a clear second
+// path, on an ink ground so it reads as a different door from the form above.
+//
+// Copy is set here; the button label is Staci's contactPage.schedulingLinkLabel.
+// The scheduler itself only loads on click (CalendlyInline.tsx). A plain link
+// to the same URL in a new tab sits beside it for anyone who would rather use
+// Calendly's own page (or has scripts blocked).
+//
+// Ink ground: cream text 14.2:1, Sandbar accent (chip 3) at display size only.
+import CalendlyInline from '@/components/CalendlyInline';
+
+interface Props {
+  url: string;
+  label: string;
+}
+
+const { url, label } = Astro.props as Props;
+
+// Staci's label reads "Or schedule a 20-minute discovery call directly": the
+// leading "Or" belonged to the old layout, where the link sat under the form.
+// Here the band is its own door, so the "Or " is dropped (a prefix trim, which
+// leaves a preview stega run at the END of the string intact).
+const buttonLabel = label.replace(/^\s*or\s+/i, '').replace(/^./, (c) => c.toUpperCase());
+---
+
+<section id="book-a-call" class="call" aria-labelledby="book-a-call-heading">
+  <div class="r-wrap call__grid">
+    <h2 id="book-a-call-heading" class="r-h2 call__h">
+      Rather talk it through <span class="r-accent">first?</span>
+    </h2>
+    <div class="call__side">
+      <p class="call__p">
+        A short, informal call to see whether your project is a good fit. Pick a time that suits you
+        and it goes straight onto Staci’s calendar.
+      </p>
+      <div class="call__actions">
+        <CalendlyInline client:visible url={url} loadLabel={buttonLabel} />
+        <a class="r-link call__alt" href={url} target="_blank" rel="noopener noreferrer">
+          Open in Calendly<span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .call {
+    --accent-color: var(--color-chip-3);
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+    scroll-margin-top: 5rem;
+  }
+  .call__grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .call__h {
+    margin: 0;
+    max-width: 14ch;
+    color: var(--color-cream);
+  }
+  .call__p {
+    margin: 0 0 2rem;
+    max-width: 40ch;
+    font-size: var(--text-lede);
+    line-height: 1.5;
+    color: var(--color-cream);
+    text-wrap: pretty;
+  }
+  .call__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 1.75rem;
+  }
+  /* Once the scheduler loads it takes the whole row. */
+  .call__actions :global(.calendly-inline:has(iframe)) {
+    flex: 1 1 100%;
+    order: 2;
+  }
+  .call__alt {
+    color: var(--color-cream);
+  }
+  @media (min-width: 1024px) {
+    .call__grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: clamp(2rem, 6vw, 6rem);
+      align-items: end;
+    }
+    /* A loaded scheduler needs the full width of the band. */
+    .call__grid:has(iframe) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

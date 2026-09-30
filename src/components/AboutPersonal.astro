@@ -1,12 +1,27 @@
 ---
-// Safe to edit by hand for copy + structure changes.
-// "Personal" section on the About page: a few human, off-the-clock modules that
-// make Staci read as a person, not a brand. Every module self-hides when its
-// data is empty, and the whole section renders nothing when all are empty.
-// Fed by the aboutPage singleton's `personal` field group (see queries.ts).
-
+// Safe to edit by hand
+// About "A little more about me" (rebuilt 2026-09-30, phase 2 of the
+// art-direction rebuild; see DESIGN.md "About (phase 2)"). Same props and
+// Sanity fields as before: personalEyebrow, personalHeadline, personalIntro,
+// currentlyList, rapidFire, localSpots, beyondDesign, candidPhoto. Every piece
+// self-hides when its data is empty, and the whole section renders nothing
+// when all of them are empty.
+//
+// Set as Staci's PINNED BOARD on the Linen chip ground, not a card grid:
+//   - Beyond design: the candid photo as a taped print, with her paragraph
+//     on a ruled note card pinned over its corner.
+//   - Rapid fire: paint-chip swatches, one per question, the question printed
+//     on the colour face (chips 2, 3, 4 in ink, chip 6 in cream; never chip 5)
+//     and her answer on the paper label below. Each hangs at its own angle.
+//   - Currently: a magazine sidebar, heavy rule on top, label and answer rows.
+//   - Favorite local spots: a little street map on graph paper, the spots as
+//     pins along a dashed route.
+// Pieces settle onto the board as it scrolls in (CSS scroll-driven, behind
+// @supports and prefers-reduced-motion), and a hover straightens a chip. The
+// resting state is the visible default; nothing waits on a script.
 import SectionHeading from '@/components/SectionHeading.astro';
 import SanityImage from '@/components/SanityImage.astro';
+import AboutKicker from '@/components/about/AboutKicker.astro';
 
 interface CurrentlyRow {
   label?: string;
@@ -20,6 +35,12 @@ interface LocalSpotRow {
   name?: string;
   note?: string;
 }
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
 
 interface Props {
   eyebrow?: string;
@@ -29,7 +50,7 @@ interface Props {
   rapidFire?: RapidFireRow[];
   localSpots?: LocalSpotRow[];
   beyondDesign?: string;
-  candidPhoto?: any;
+  candidPhoto?: SanityImageObject | null;
 }
 
 const {
@@ -41,123 +62,477 @@ const {
   localSpots = [],
   beyondDesign,
   candidPhoto,
-} = Astro.props;
+} = Astro.props as Props;
 
 // Drop half-empty Sanity rows so they do not render blank lines.
 const currently = (currentlyList ?? []).filter((r) => r?.label?.trim() && r?.value?.trim());
 const rapid = (rapidFire ?? []).filter((r) => r?.prompt?.trim() && r?.answer?.trim());
 const spots = (localSpots ?? []).filter((r) => r?.name?.trim());
-const hasBeyond = Boolean(beyondDesign?.trim() || candidPhoto?.asset);
+const hasPhoto = Boolean(candidPhoto?.asset);
+const hasBeyondText = Boolean(beyondDesign?.trim());
 
-const hasAnything = currently.length > 0 || rapid.length > 0 || spots.length > 0 || hasBeyond;
+// Layout: [beyond design | currently + map] on top, the rapid-fire chips as
+// a strip across the full width below. Phone: everything stacks.
+const hasMain = hasPhoto || hasBeyondText;
+const hasSide = currently.length > 0 || spots.length > 0;
+const hasAnything = hasMain || hasSide || rapid.length > 0;
 
-const cardClass =
-  'card-lift bg-card rounded-md border border-border-soft shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] overflow-hidden';
+// Paint-chip faces for the rapid-fire swatches. Warm Bronze (5) is skipped:
+// no text passes AA on it at this size. Chip 6 takes cream text (4.9:1).
+const CHIP_TONES = [2, 3, 6, 4];
+// Hand-hung angles, repeated if Staci adds more than four.
+const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
 ---
 
 {
   hasAnything && (
-    <section class="bg-background" aria-labelledby="about-personal-heading">
-      <div class="mx-auto max-w-content px-m py-section-lg">
+    <section class="board" aria-labelledby="about-personal-heading">
+      <div class="r-wrap">
+        <AboutKicker text={eyebrow ?? 'Off the clock'} />
         <SectionHeading
-          eyebrow={eyebrow ?? 'Off the Clock.'}
           headline={headline ?? 'A little more about me.'}
+          subhead={intro}
           headingId="about-personal-heading"
-          align="center"
-          class="mx-auto"
         />
-        {intro && (
-          <p class="mx-auto mt-m max-w-2xl text-center text-lg leading-relaxed text-foreground/85">
-            {intro}
-          </p>
-        )}
 
-        <div class="mt-section-lg grid grid-cols-1 items-start gap-l lg:grid-cols-2">
-          {(currently.length > 0 || hasBeyond) && (
-            <div class="space-y-l">
-              {currently.length > 0 && (
-                <article class={cardClass}>
-                  <div class="h-0.5 bg-primary" aria-hidden="true" />
-                  <div class="p-l">
-                    <h3 class="font-display text-h3 text-foreground">Currently</h3>
-                    <dl class="mt-m divide-y divide-border-soft">
-                      {currently.map((row) => (
-                        <div class="flex items-baseline justify-between gap-m py-s">
-                          <dt class="shrink-0 text-xs tracking-eyebrow text-foreground/80 uppercase">
-                            {row.label}
-                          </dt>
-                          <dd class="text-right text-foreground">{row.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                </article>
-              )}
-              {hasBeyond && (
-                <article class={cardClass}>
-                  <div class="h-0.5 bg-primary" aria-hidden="true" />
-                  <div class="p-l">
-                    <h3 class="font-display text-h3 text-foreground">Beyond design</h3>
-                    {candidPhoto?.asset && (
+        <div
+          class:list={['board__grid', hasMain && hasSide && 'board__grid--two']}
+          hidden={!(hasMain || hasSide)}
+        >
+          {hasMain && (
+            <div class="board__main">
+              {(hasPhoto || hasBeyondText) && (
+                <div class:list={['board__beyond', hasPhoto && 'board__beyond--photo']}>
+                  {hasPhoto && (
+                    <figure class="board__print board__piece" style="--r:-1.6deg">
+                      <span class="board__tape" aria-hidden="true" />
                       <SanityImage
                         source={candidPhoto}
-                        width={900}
-                        sizes="(min-width: 1024px) 40vw, 100vw"
-                        quality={75}
-                        class="mt-m h-auto w-full rounded-md"
+                        width={1000}
+                        height={750}
+                        sizes="(min-width: 1024px) 40vw, 92vw"
+                        quality={72}
+                        class="board__img"
                       />
-                    )}
-                    {beyondDesign && (
-                      <p class="mt-m leading-relaxed whitespace-pre-line text-foreground/85">
-                        {beyondDesign}
-                      </p>
-                    )}
-                  </div>
-                </article>
+                    </figure>
+                  )}
+                  {hasBeyondText && (
+                    <div class="board__note board__piece" style="--r:1.4deg">
+                      <span class="board__pin" aria-hidden="true" />
+                      <h3 class="board__note-h">Beyond design</h3>
+                      <p class="board__note-p">{beyondDesign}</p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
 
-          {(rapid.length > 0 || spots.length > 0) && (
-            <div class="space-y-l">
-              {rapid.length > 0 && (
-                <article class={cardClass}>
-                  <div class="h-0.5 bg-primary" aria-hidden="true" />
-                  <div class="p-l">
-                    <h3 class="font-display text-h3 text-foreground">Rapid fire</h3>
-                    <dl class="mt-m grid grid-cols-1 gap-m sm:grid-cols-2">
-                      {rapid.map((row) => (
-                        <div>
-                          <dt class="text-xs tracking-eyebrow text-foreground/80 uppercase">
-                            {row.prompt}
-                          </dt>
-                          <dd class="mt-xs text-foreground">{row.answer}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                </article>
+          {hasSide && (
+            <div class="board__side">
+              {currently.length > 0 && (
+                <div class="board__currently">
+                  <h3 class="board__side-h">Currently</h3>
+                  <dl>
+                    {currently.map((row) => (
+                      <div class="board__row">
+                        <dt>{row.label}</dt>
+                        <dd>{row.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
               )}
+
               {spots.length > 0 && (
-                <article class={cardClass}>
-                  <div class="h-0.5 bg-primary" aria-hidden="true" />
-                  <div class="p-l">
-                    <h3 class="font-display text-h3 text-foreground">Favorite local spots</h3>
-                    <ul class="mt-m space-y-s">
-                      {spots.map((row) => (
-                        <li class="flex flex-col">
-                          <span class="font-semibold text-foreground">{row.name}</span>
-                          {row.note && <span class="text-sm text-foreground/80">{row.note}</span>}
-                        </li>
-                      ))}
-                    </ul>
+                <div class="board__map board__piece" style="--r:1deg">
+                  <div class="board__map-head">
+                    <h3 class="board__side-h">Favorite local spots</h3>
+                    <svg class="board__compass" viewBox="0 0 24 32" aria-hidden="true">
+                      <path d="M12 2 L17 22 L12 18 L7 22 Z" />
+                      <text x="12" y="31" text-anchor="middle">
+                        N
+                      </text>
+                    </svg>
                   </div>
-                </article>
+                  <ul class="board__spots" role="list">
+                    {spots.map((row) => (
+                      <li class="board__spot">
+                        <span class="board__drop" aria-hidden="true" />
+                        <span class="board__spot-name">{row.name}</span>
+                        {row.note && <span class="board__spot-note">{row.note}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           )}
         </div>
+
+        {rapid.length > 0 && (
+          <div class:list={['board__rapid', !(hasMain || hasSide) && 'board__rapid--alone']}>
+            <h3 class="board__label">Rapid fire</h3>
+            <ul class="board__chips" role="list">
+              {rapid.map((row, i) => {
+                const tone = CHIP_TONES[i % CHIP_TONES.length];
+                return (
+                  <li
+                    class:list={['board__chip board__piece', tone >= 6 && 'board__chip--deep']}
+                    style={`--r:${ANGLES[i % ANGLES.length]}deg; --face: var(--color-chip-${tone})`}
+                  >
+                    <p class="board__face">{row.prompt}</p>
+                    <p class="board__answer">{row.answer}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </div>
     </section>
   )
 }
+
+<style>
+  .board {
+    background: var(--color-chip-1);
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+    /* Pieces tilt past the gutter mid-settle; clip (not hidden) so no
+       scroll container is created and nothing can scroll sideways. */
+    overflow-x: clip;
+  }
+  .board__grid {
+    display: grid;
+    gap: clamp(3.5rem, 6vw, 5rem);
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .board__grid[hidden] {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .board__grid--two {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4.4fr);
+      column-gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+  }
+
+  /* Every pinned piece hangs at its own angle (--r) and settles on scroll. */
+  .board__piece {
+    rotate: var(--r, 0deg);
+  }
+
+  /* ---- Beyond design: taped print + ruled note over its corner. ---- */
+  .board__beyond {
+    position: relative;
+  }
+  .board__print {
+    position: relative;
+    margin: 0;
+    width: min(100%, 36rem);
+    padding: 0.7rem 0.7rem 2.6rem;
+    background: var(--color-paper);
+    box-shadow:
+      0 1px 1px rgb(35 30 27 / 0.08),
+      0 22px 40px -24px rgb(35 30 27 / 0.55);
+  }
+  .board__print :global(.board__img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  .board__tape {
+    position: absolute;
+    z-index: 1;
+    top: -0.8rem;
+    left: 50%;
+    width: 6rem;
+    height: 1.7rem;
+    translate: -50% 0;
+    rotate: -4deg;
+    background: rgb(226 207 189 / 0.82);
+    box-shadow: 0 1px 2px rgb(35 30 27 / 0.08);
+  }
+  .board__note {
+    position: relative;
+    max-width: 27rem;
+    padding: 2rem 1.6rem 1.5rem;
+    background-color: var(--color-paper);
+    /* Ruled lines, set to the text's own line height. */
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(1.85rem - 1px),
+      var(--color-rule) calc(1.85rem - 1px) 1.85rem
+    );
+    background-position: 0 1.85rem;
+    box-shadow:
+      0 1px 1px rgb(35 30 27 / 0.06),
+      0 18px 34px -22px rgb(35 30 27 / 0.5);
+  }
+  .board__beyond--photo .board__note {
+    margin: -5.5rem 0 0 auto;
+    width: 78%;
+  }
+  .board__pin {
+    position: absolute;
+    top: 0.7rem;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, var(--color-chip-3), var(--color-chip-6) 70%);
+    box-shadow: 0 3px 4px rgb(35 30 27 / 0.35);
+  }
+  .board__note-h {
+    margin: 0;
+    font: 500 0.88rem/1.85rem var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .board__note-p {
+    margin: 0;
+    font: 400 1.12rem/1.85rem var(--font-display);
+    color: var(--color-ink);
+    white-space: pre-line;
+  }
+
+  /* ---- Rapid fire: paint-chip swatches. ---- */
+  .board__rapid {
+    margin-top: clamp(4.5rem, 8vw, 6.5rem);
+  }
+  .board__rapid--alone {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .board__label {
+    margin: 0 0 1.5rem;
+    font: 300 italic var(--text-h3) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+  .board__chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 1.75rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .board__chip {
+    padding: 0.55rem 0.55rem 1rem;
+    background: var(--color-paper);
+    box-shadow:
+      0 1px 1px rgb(35 30 27 / 0.06),
+      0 16px 26px -20px rgb(35 30 27 / 0.6);
+    transition:
+      rotate 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .board__chip:nth-child(even) {
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .board__chips {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2rem clamp(1.5rem, 3vw, 2.5rem);
+    }
+  }
+  .board__chip:hover {
+    rotate: 0deg;
+    translate: 0 -4px;
+  }
+  .board__face {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 5.5rem;
+    margin: 0;
+    padding: 0.75rem 0.8rem;
+    background: var(--face, var(--color-chip-2));
+    font: 500 0.9rem/1.3 var(--font-body);
+    color: var(--color-ink);
+  }
+  /* The punched hole at the top of every chip. */
+  .board__face::before {
+    content: '';
+    position: absolute;
+    top: 0.6rem;
+    right: 0.7rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-chip-1);
+    box-shadow: inset 0 1px 2px rgb(35 30 27 / 0.3);
+  }
+  .board__chip--deep .board__face {
+    color: var(--color-cream);
+  }
+  .board__answer {
+    margin: 0.8rem 0.25rem 0;
+    font: 400 1.12rem/1.35 var(--font-display);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  /* ---- Side column: Currently + the map. ---- */
+  .board__side {
+    display: grid;
+    gap: clamp(3.5rem, 6vw, 4.5rem);
+    align-content: start;
+  }
+  .board__side-h {
+    margin: 0;
+    font: 300 italic var(--text-h3) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+  .board__currently {
+    padding-top: 1rem;
+    border-top: 3px solid var(--color-ink);
+  }
+  .board__currently dl {
+    margin: 1.25rem 0 0;
+  }
+  .board__row {
+    padding: 0.95rem 0;
+    border-top: 1px solid rgb(35 30 27 / 0.14);
+  }
+  .board__row dt {
+    font: 500 0.88rem/1.4 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .board__row dd {
+    margin: 0.3rem 0 0;
+    font: 400 1.2rem/1.35 var(--font-display);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .board__map {
+    position: relative;
+    padding: 1.5rem 1.5rem 1.75rem;
+    background-color: var(--color-paper);
+    /* Graph paper: the street grid under the pins. */
+    background-image:
+      linear-gradient(rgb(156 118 97 / 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(156 118 97 / 0.12) 1px, transparent 1px);
+    background-size: 1.25rem 1.25rem;
+    box-shadow:
+      0 1px 1px rgb(35 30 27 / 0.06),
+      0 20px 36px -24px rgb(35 30 27 / 0.55);
+  }
+  .board__map-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .board__compass {
+    flex: none;
+    width: 1.3rem;
+    height: auto;
+  }
+  .board__compass path {
+    fill: var(--color-chip-5);
+  }
+  .board__compass text {
+    font: 600 7px var(--font-body);
+    fill: var(--color-ink);
+  }
+  .board__spots {
+    position: relative;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* The dashed route that joins the pins. */
+  .board__spots::before {
+    content: '';
+    position: absolute;
+    left: 0.55rem;
+    top: 0.9rem;
+    bottom: 1.4rem;
+    border-left: 2px dashed rgb(128 96 79 / 0.55);
+  }
+  .board__spot {
+    position: relative;
+    display: grid;
+    gap: 0.15rem;
+    padding: 0 0 1.35rem 2.25rem;
+  }
+  .board__spot:last-child {
+    padding-bottom: 0;
+  }
+  /* The pin: a Warm Bronze drop (a mark, not a text ground). */
+  .board__drop {
+    position: absolute;
+    left: 0.1rem;
+    top: 0.2rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 50% 50% 50% 0;
+    rotate: -45deg;
+    background: var(--color-chip-5);
+    box-shadow: 0 2px 3px rgb(35 30 27 / 0.3);
+  }
+  .board__drop::after {
+    content: '';
+    position: absolute;
+    inset: 0.32rem;
+    border-radius: 50%;
+    background: var(--color-paper);
+  }
+  .board__spot-name {
+    font: 400 1.3rem/1.2 var(--font-display);
+    color: var(--color-ink);
+  }
+  .board__spot-note {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
+  }
+
+  /* ---- Motion: pieces settle onto the board as it scrolls in. ---- */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .board__piece {
+        animation: board-pin linear backwards;
+        animation-timeline: view();
+        animation-range: entry 5% cover 30%;
+      }
+    }
+  }
+  @keyframes board-pin {
+    from {
+      translate: 0 2.5rem;
+      rotate: calc(var(--r, 0deg) + 5deg);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .board__print {
+      width: 100%;
+    }
+  }
+  @media (max-width: 599px) {
+    .board__print {
+      padding-bottom: 1.6rem;
+    }
+    .board__beyond--photo .board__note {
+      margin-top: -2.25rem;
+      width: 92%;
+    }
+    .board__chips {
+      gap: 1.25rem 0.9rem;
+    }
+    .board__face {
+      min-height: 4.75rem;
+      font-size: 0.85rem;
+    }
+    .board__answer {
+      font-size: 1rem;
+    }
+  }
+</style>

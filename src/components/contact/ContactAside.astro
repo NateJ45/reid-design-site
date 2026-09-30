@@ -1,0 +1,276 @@
+---
+// Safe to edit by hand
+// The right-hand column of the contact page (added 2026-09-30, phase 2 of the
+// art-direction rebuild; DESIGN.md "Contact and Privacy"). Everything a
+// visitor needs to trust the form, or to skip it:
+//
+//   - Staci's portrait with a sample tag (home "Meet Staci" photo, falling
+//     back to the home hero portrait). No photo in Sanity = no figure.
+//   - The availability line (contactPage.availabilityNote, else
+//     siteSettings.availabilityStatus).
+//   - The consultation price on a sample tag, read from the service whose
+//     name or slug says "consult". No match = no tag, never a made-up price.
+//   - Email (mailto + copy), phone (tel:), and a jump to the "book a call"
+//     band when a scheduling link exists.
+//
+// Phones: the portrait shrinks to a small square beside the "reads every note"
+// line so the form is still close to the top of the page.
+import SanityImage from '@/components/SanityImage.astro';
+import CopyEmailButton from '@/components/CopyEmailButton';
+import { telHref } from '@/lib/phone';
+import { splitPrice } from '@/lib/split-copy';
+
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  photo?: SanityImageObject | null;
+  availability?: string | null;
+  /** The consultation service's free-text price ("$225"), if one was found. */
+  consultPrice?: string | null;
+  /** The consultation service's name, printed on the price tag. */
+  consultName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  /** When set, a "Book a call" row links down to #book-a-call. */
+  hasScheduling?: boolean;
+}
+
+const { photo, availability, consultPrice, consultName, email, phone, hasScheduling } =
+  Astro.props as Props;
+
+const price = consultPrice ? splitPrice(consultPrice) : null;
+---
+
+<div class="cx">
+  <div class="cx__staci">
+    {
+      photo?.asset && (
+        <figure class="cx__photo">
+          <SanityImage
+            source={photo}
+            width={640}
+            height={800}
+            sizes="(min-width: 1024px) 26rem, 6rem"
+            quality={70}
+            class="cx__img"
+          />
+        </figure>
+      )
+    }
+    <div class="cx__who">
+      <p class="cx__name">Staci Perkins</p>
+      <p class="cx__role">Owner and designer. Reads every note herself.</p>
+    </div>
+  </div>
+
+  {
+    availability && (
+      <p class="cx__avail">
+        <span class="cx__dot" aria-hidden="true" />
+        {availability}
+      </p>
+    )
+  }
+
+  {
+    price && (
+      <p class="r-tag cx__price">
+        <small>{consultName || 'In-home consultation'}</small>
+        <strong>
+          {price.amount}
+          {price.unit}
+          {price.run}
+        </strong>
+        <span class="cx__price-note">
+          Most projects start here. <a href="/services">See what’s included</a>
+        </span>
+      </p>
+    )
+  }
+
+  {
+    (email || phone || hasScheduling) && (
+      <dl class="cx__ways">
+        {email && (
+          <div class="cx__way">
+            <dt>Email</dt>
+            <dd>
+              <CopyEmailButton client:visible email={email} variant="note" />
+            </dd>
+          </div>
+        )}
+        {phone && (
+          <div class="cx__way">
+            <dt>Call</dt>
+            <dd>
+              <a class="r-link" href={telHref(phone)}>
+                {phone}
+              </a>
+            </dd>
+          </div>
+        )}
+        {hasScheduling && (
+          <div class="cx__way">
+            <dt>Talk first</dt>
+            <dd>
+              <a class="r-link" href="#book-a-call">
+                Book a discovery call
+              </a>
+            </dd>
+          </div>
+        )}
+      </dl>
+    )
+  }
+</div>
+
+<style>
+  .cx {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .cx__staci {
+    display: grid;
+    gap: 1rem;
+  }
+  .cx__photo {
+    position: relative;
+    margin: 0;
+    overflow: clip;
+    background: var(--color-chip-1);
+  }
+  .cx__photo :global(.cx__img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .cx__name {
+    margin: 0;
+    font: 300 1.6rem/1.1 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+  }
+  .cx__role {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
+  }
+  .cx__avail {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  /* A small Walnut dot with a soft ring; the ring breathes only when motion
+     is welcome. */
+  .cx__dot {
+    position: relative;
+    flex: none;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-chip-6);
+  }
+  .cx__dot::after {
+    content: '';
+    position: absolute;
+    inset: -0.3rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-chip-4);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cx__dot::after {
+      animation: cx-breathe 2.8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    }
+  }
+  @keyframes cx-breathe {
+    0% {
+      transform: scale(0.6);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  /* The price on a sample tag (the .r-tag primitive), tilted a touch. */
+  .cx__price {
+    justify-self: start;
+    margin: 0;
+    padding-right: 1.5rem;
+    rotate: -1.5deg;
+  }
+  .cx__price strong {
+    font-size: 2.1rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .cx__price-note {
+    display: block;
+    margin-top: 0.3rem;
+    font: 400 0.85rem/1.4 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .cx__price-note a {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cx__price-note a:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  .cx__ways {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .cx__way {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    padding-block: 0.35rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .cx__way dt {
+    font-size: 0.9rem;
+    color: var(--color-ink-2);
+  }
+  .cx__way dd {
+    margin: 0;
+    min-width: 0;
+    color: var(--color-ink);
+  }
+
+  /* Phones and tablets: portrait as a small square beside the name. */
+  @media (max-width: 1023px) {
+    .cx__staci {
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      align-items: center;
+    }
+    .cx__photo :global(.cx__img) {
+      aspect-ratio: 1;
+    }
+    .cx__name {
+      font-size: 1.4rem;
+    }
+  }
+  @media (max-width: 30rem) {
+    .cx__way {
+      grid-template-columns: 6rem minmax(0, 1fr);
+    }
+  }
+</style>

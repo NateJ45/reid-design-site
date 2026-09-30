@@ -1,7 +1,24 @@
 ---
-// Process "steps" section, extracted verbatim from process.astro for the
-// marker-based page builder. Steps from the processStep collection (passed in).
-// Keeps bg-background. Safe to edit by hand.
+// Safe to edit by hand
+// Process page "steps" section (rebuilt 2026-09-30, phase 2 of the
+// art-direction rebuild; see DESIGN.md "Process and FAQ"). The big sibling of
+// the home page's home/TapeProcess.astro: the same tape measure, now a
+// vertical rail that runs beside the whole job.
+//
+//   Desktop (1024px+): two columns. On the left a STICKY rail: the tape case,
+//   a vertical tape, and the step index (number, name, time estimate) as jump
+//   links. On the right, each step as a big moment (ProcessStep "full").
+//   As you read down, the tape pulls out of its case and the step you are in
+//   lights up in the index. Both are CSS scroll-driven animations (named view
+//   timelines shared through `timeline-scope`), behind @supports and
+//   prefers-reduced-motion. Without them the tape is simply fully out and the
+//   index is plain: nothing is hidden, nothing waits on JS.
+//
+//   Phone and tablet: the rail is not sticky. It sits above the steps as the
+//   journey at a glance (every step with its time), then the steps stack.
+//
+// Data: the processStep documents passed in by ProcessSectionRenderer (same
+// prop as before). Step count is whatever Staci has published.
 import ProcessStep from '@/components/ProcessStep.astro';
 
 interface Props {
@@ -9,16 +26,279 @@ interface Props {
 }
 
 const { processSteps = [] } = Astro.props as Props;
+const steps = processSteps.filter(Boolean);
+
+// One named view timeline per step (for the index highlight) plus one for the
+// whole list (for the tape). timeline-scope on the section lets the rail, a
+// sibling of the steps, see all of them.
+const tl = (i: number) => `--pj-step-${i + 1}`;
+const scope = ['--pj-journey', ...steps.map((_, i) => tl(i))].join(', ');
+const stepId = (i: number) => `step-${i + 1}`;
 ---
 
-<section class="bg-background" aria-label="Our process step by step">
-  <div class="mx-auto max-w-content space-y-section-lg px-m py-section-lg">
-    {
-      processSteps.map((step: any, i: number) => (
-        <div class={i > 0 ? 'border-t border-border-soft pt-section-lg' : ''}>
-          <ProcessStep step={step} variant="full" isLast={i === processSteps.length - 1} />
+{
+  steps.length > 0 && (
+    <section class="pj" aria-label="The process, step by step" style={`timeline-scope: ${scope}`}>
+      <div class="r-wrap pj__grid">
+        <nav class="pj__rail" aria-labelledby="pj-rail-heading">
+          <p id="pj-rail-heading" class="pj__rail-h">
+            {steps.length} steps, start to finish
+          </p>
+          <div class="pj__track">
+            <div class="pj__tape" aria-hidden="true">
+              <div class="pj__case" />
+              <div class="pj__band" />
+            </div>
+            <ol class="pj__index" role="list">
+              {steps.map((s: any, i: number) => (
+                <li class="pj__idx" style={`--tl: ${tl(i)}`}>
+                  <a href={`#${stepId(i)}`} class="pj__link">
+                    <span class="pj__n" aria-hidden="true">
+                      {String(s.stepNumber ?? i + 1).padStart(2, '0')}
+                    </span>
+                    <span class="pj__name">{s.title}</span>
+                    {s.timeEstimate && <span class="pj__time">{s.timeEstimate}</span>}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <p class="pj__cta">
+            Ready when you are.{' '}
+            <a href="/contact" class="r-link">
+              Start with step one
+            </a>
+          </p>
+        </nav>
+
+        <div class="pj__steps">
+          {steps.map((step: any, i: number) => (
+            <ProcessStep
+              step={step}
+              variant="full"
+              index={i}
+              id={stepId(i)}
+              timeline={tl(i)}
+              isLast={i === steps.length - 1}
+            />
+          ))}
         </div>
-      ))
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .pj {
+    padding-block: clamp(3.5rem, 8vw, 7.5rem) clamp(5rem, 10vw, 9rem);
+  }
+  .pj__grid {
+    display: grid;
+    gap: clamp(3rem, 7vw, 4.5rem);
+  }
+  .pj__steps {
+    display: grid;
+    gap: clamp(4rem, 9vw, 7.5rem);
+    view-timeline-name: --pj-journey;
+    min-width: 0;
+  }
+  /* A hairline between steps, like the fold between pages of a sample book. */
+  .pj__steps > :global(.pstep + .pstep) {
+    padding-top: clamp(3.5rem, 7vw, 5.5rem);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  /* ---- The rail ---- */
+  .pj__rail-h {
+    margin: 0 0 1.5rem;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .pj__track {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    column-gap: 1.25rem;
+  }
+  .pj__tape {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    justify-items: center;
+  }
+  /* The tape case: the same ink block as the home tape. */
+  .pj__case {
+    position: relative;
+    z-index: 1;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+    background: var(--color-ink);
+    box-shadow: 0 12px 20px -12px rgb(0 0 0 / 0.6);
+  }
+  .pj__case::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    border: 1.5px solid rgb(245 237 227 / 0.35);
+  }
+  /* The tape: Oat, three tick lengths, running down to the last step. */
+  .pj__band {
+    width: 1.35rem;
+    margin-top: -0.3rem;
+    border-radius: 0 0 0.35rem 0.35rem;
+    background:
+      repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 0.45rem
+        0.6rem repeat-y,
+      repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 0.75rem
+        3rem repeat-y,
+      repeating-linear-gradient(180deg, var(--color-ink) 0 1.5px, transparent 1.5px 100%) 0 0 /
+        1.05rem 6rem repeat-y,
+      var(--color-chip-2);
+    box-shadow: inset -2px 0 0 rgb(0 0 0 / 0.06);
+  }
+
+  .pj__index {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem 0 0.5rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .pj__link {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    column-gap: 0.5rem;
+    padding: 0.7rem 0;
+    color: var(--color-ink-2);
+    text-decoration: none;
+    transition: color 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* A pin on the tape beside each step. */
+  .pj__link::before {
+    content: '';
+    position: absolute;
+    left: -2.3rem;
+    top: 1.1rem;
+    width: 1.25rem;
+    height: 1.5px;
+    background: var(--color-chip-5);
+  }
+  .pj__link:hover {
+    color: var(--color-ink);
+  }
+  .pj__link:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  .pj__n {
+    grid-row: span 2;
+    font: 300 1.5rem/1 var(--font-display);
+    color: var(--color-ink);
+    font-variant-numeric: lining-nums;
+  }
+  .pj__name {
+    font: 300 1.4rem/1.1 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+  }
+  .pj__time {
+    margin-top: 0.3rem;
+    font: 500 0.85rem/1.3 var(--font-body);
+  }
+
+  .pj__cta {
+    margin: 1.75rem 0 0 3.5rem;
+    font-size: 0.97rem;
+    color: var(--color-ink-2);
+  }
+  .pj__cta .r-link {
+    color: var(--color-ink);
+  }
+
+  /* Phone and tablet: the rail is the journey at a glance, closed off by a
+     rule so the first step reads as a new start. */
+  @media (max-width: 1023px) {
+    .pj__rail {
+      padding-bottom: 2.75rem;
+      border-bottom: 1px solid var(--color-ink);
     }
-  </div>
-</section>
+  }
+
+  /* Desktop: the rail sticks beside the steps and rides up with the header. */
+  @media (min-width: 1024px) {
+    .pj__grid {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      column-gap: clamp(3rem, 7vw, 7.5rem);
+      align-items: start;
+    }
+    .pj__rail {
+      position: sticky;
+      top: 8.5rem;
+      transition: top 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    :global(:root:has(.site-header[data-state='hidden'])) .pj__rail {
+      top: 2.5rem;
+    }
+    .pj__index {
+      gap: 0.9rem;
+    }
+    .pj__link {
+      padding: 0.85rem 0;
+    }
+    .pj__name {
+      font-size: 1.6rem;
+    }
+  }
+
+  /* Scroll-driven (Chromium today): the tape pulls out across the whole
+     journey; the step in view lights up in the index (ink, a Walnut pin, a
+     small nudge). Desktop only, where the rail is sticky and in view. */
+  @supports (timeline-scope: --a) and (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+      .pj__band {
+        animation: pj-pull linear both;
+        animation-timeline: --pj-journey;
+        animation-range: contain 0% contain 100%;
+      }
+      .pj__link {
+        animation: pj-on linear none;
+        animation-timeline: var(--tl);
+        animation-range: cover 45vh cover calc(100% - 45vh);
+      }
+      .pj__link::before {
+        animation: pj-pin linear none;
+        animation-timeline: var(--tl);
+        animation-range: cover 45vh cover calc(100% - 45vh);
+      }
+    }
+  }
+  @keyframes pj-pull {
+    from {
+      clip-path: inset(0 0 88% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @keyframes pj-on {
+    from,
+    to {
+      color: var(--color-ink);
+      transform: translateX(0.5rem);
+    }
+  }
+  @keyframes pj-pin {
+    from,
+    to {
+      background: var(--color-chip-6);
+      height: 3px;
+      width: 1.75rem;
+    }
+  }
+</style>

@@ -1,7 +1,21 @@
 ---
-// Services "Builders & Realtors" partnerships section, extracted verbatim from
-// services.astro. Self-suppresses with no headline/description. Keeps bg-muted.
-import SectionHeading from '@/components/SectionHeading.astro';
+// Safe to edit by hand
+// Services "Builders & Realtors" partnerships (rebuilt 2026-09-30, phase 2 of
+// the art-direction rebuild; see DESIGN.md "Services and E-Design").
+//
+// This is the one trade-facing (B2B) section on the site, so it sits on a
+// different ground from everything homeowner-facing: the ink band, with faint
+// floor-plan grid linework behind it (the drawing a builder brings to the
+// first meeting). Left: the pitch and the button. Right: one line per
+// audience, set like a spec sheet, label in Oat italic, text in cream.
+//
+// Contrast: cream on ink 14.2:1 (body text at 0.85 alpha is still above
+// 10:1), Oat on ink for the display-size labels, Sandbar on ink for the small
+// line above the headline (about 8:1).
+//
+// Data unchanged: servicesPage.builderRealtorSection (eyebrow, headline,
+// description, forBuildersText, forRealtorsText, forContractorsText, cta).
+// Self-suppresses with no headline and no description.
 import PortableText from '@/components/PortableText';
 import CtaLink from '@/components/CtaLink.astro';
 
@@ -11,72 +25,190 @@ interface Props {
 
 const { builders } = Astro.props as Props;
 const show = builders && (builders.headline || builders.description);
+
+const audiences = show
+  ? [
+      { label: 'For builders', text: builders.forBuildersText },
+      { label: 'For realtors', text: builders.forRealtorsText },
+      { label: 'For contractors', text: builders.forContractorsText },
+    ].filter((a) => a.text)
+  : [];
 ---
 
 {
   show && (
-    <section
-      id="builders"
-      class="scroll-mt-24 bg-muted"
-      aria-labelledby="builders-realtors-heading"
-    >
-      <div class="mx-auto max-w-content px-m py-section-lg">
-        <SectionHeading
-          eyebrow={builders.eyebrow ?? 'For Professionals.'}
-          headline={builders.headline ?? 'Builder & Realtor Partnerships.'}
-          headingId="builders-realtors-heading"
-          class="max-w-3xl"
-        />
-
-        {builders.description && (
-          <div class="mt-l max-w-3xl">
-            <PortableText
-              value={builders.description}
-              className="text-foreground/85 text-lg leading-relaxed"
-            />
-          </div>
-        )}
-
-        {(builders.forBuildersText || builders.forRealtorsText || builders.forContractorsText) && (
-          <div class="mt-section-md grid grid-cols-1 gap-l md:grid-cols-3">
-            {builders.forBuildersText && (
-              <article class="rounded-md border border-border-soft bg-card p-l">
-                <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">
-                  For Builders
-                </p>
-                <p class="leading-relaxed text-foreground/85">{builders.forBuildersText}</p>
-              </article>
-            )}
-            {builders.forRealtorsText && (
-              <article class="rounded-md border border-border-soft bg-card p-l">
-                <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">
-                  For Realtors
-                </p>
-                <p class="leading-relaxed text-foreground/85">{builders.forRealtorsText}</p>
-              </article>
-            )}
-            {builders.forContractorsText && (
-              <article class="rounded-md border border-border-soft bg-card p-l">
-                <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">
-                  For Contractors
-                </p>
-                <p class="leading-relaxed text-foreground/85">{builders.forContractorsText}</p>
-              </article>
-            )}
-          </div>
-        )}
-
-        {builders.cta && (
-          <div class="mt-section-md flex justify-center md:justify-start">
+    <section id="builders" class="bld" aria-labelledby="builders-realtors-heading">
+      <div class="bld__plan" aria-hidden="true" />
+      <div class="r-wrap bld__grid">
+        <div class="bld__pitch">
+          {builders.eyebrow && <p class="bld__eyebrow">{builders.eyebrow}</p>}
+          <h2 id="builders-realtors-heading" class="r-h2 bld__h">
+            {builders.headline ?? 'Builder & Realtor Partnerships'}
+          </h2>
+          {builders.description && (
+            <div class="bld__desc">
+              <PortableText value={builders.description} />
+            </div>
+          )}
+          {builders.cta && (
             <CtaLink
               cta={builders.cta}
               variant="primary"
+              onDark
               fallbackHref="/contact"
-              fallbackLabel="Start a Partnership Conversation"
+              fallbackLabel="Start a partnership conversation"
+              class="bld__cta"
             />
-          </div>
+          )}
+        </div>
+
+        {audiences.length > 0 && (
+          <dl class="bld__list">
+            {audiences.map((a) => (
+              <div class="bld__row">
+                <dt>{a.label}</dt>
+                <dd>{a.text}</dd>
+              </div>
+            ))}
+          </dl>
         )}
       </div>
     </section>
   )
 }
+
+<style>
+  .bld {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    scroll-margin-top: 5rem;
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+  /* Floor-plan grid: fine lines every 1.5rem, heavier every 6rem, fading out
+     toward the pitch so it never sits under the text at full strength. */
+  .bld__plan {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(rgb(245 237 227 / 0.07) 1px, transparent 1px) 0 0 / 6rem 6rem,
+      linear-gradient(90deg, rgb(245 237 227 / 0.07) 1px, transparent 1px) 0 0 / 6rem 6rem,
+      linear-gradient(rgb(245 237 227 / 0.03) 1px, transparent 1px) 0 0 / 1.5rem 1.5rem,
+      linear-gradient(90deg, rgb(245 237 227 / 0.03) 1px, transparent 1px) 0 0 / 1.5rem 1.5rem;
+    mask-image: radial-gradient(120% 90% at 100% 40%, #000 20%, transparent 75%);
+  }
+  .bld__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+    align-items: start;
+  }
+  .bld__pitch {
+    grid-column: 1 / 7;
+  }
+  .bld__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem;
+    font: 500 0.95rem/1.3 var(--font-body);
+    color: var(--color-chip-3);
+  }
+  .bld__eyebrow::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .bld__h {
+    margin: 0;
+    max-width: 12ch;
+    color: var(--color-cream);
+  }
+  .bld__desc {
+    margin-top: 1.75rem;
+    max-width: 46ch;
+    color: rgb(245 237 227 / 0.85);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+  /* PortableText paints its paragraphs text-foreground (ink); on this ground
+     they inherit the cream instead. */
+  .bld__desc :global(p) {
+    margin: 0 0 1rem;
+    color: inherit;
+  }
+  .bld__desc :global(a) {
+    color: var(--color-cream);
+    text-decoration: underline;
+  }
+  .bld :global(.bld__cta) {
+    margin-top: 1.25rem;
+  }
+
+  .bld__list {
+    grid-column: 8 / 13;
+    margin: 0;
+    padding-top: 0.5rem;
+  }
+  .bld__row {
+    display: grid;
+    gap: 0.5rem;
+    padding-block: 1.6rem;
+    border-top: 1px solid rgb(245 237 227 / 0.2);
+  }
+  .bld__row:last-child {
+    border-bottom: 1px solid rgb(245 237 227 / 0.2);
+  }
+  .bld__row dt {
+    font: 300 italic clamp(1.6rem, 1.2rem + 1vw, 2.2rem) / 1.05 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-chip-2);
+  }
+  .bld__row dd {
+    margin: 0;
+    max-width: 40ch;
+    color: rgb(245 237 227 / 0.85);
+    line-height: 1.55;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .bld__plan {
+        animation: plan-drift linear both;
+        animation-timeline: view();
+      }
+    }
+  }
+  @keyframes plan-drift {
+    from {
+      background-position:
+        0 -3rem,
+        -3rem 0,
+        0 -3rem,
+        -3rem 0;
+    }
+    to {
+      background-position:
+        0 3rem,
+        3rem 0,
+        0 3rem,
+        3rem 0;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .bld__grid {
+      display: block;
+    }
+    .bld__list {
+      margin-top: 3rem;
+    }
+    .bld__plan {
+      mask-image: linear-gradient(transparent, #000 60%);
+    }
+  }
+</style>

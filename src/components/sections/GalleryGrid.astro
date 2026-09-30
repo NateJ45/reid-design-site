@@ -1,13 +1,39 @@
 ---
-// Page-builder block: a responsive photo grid (2, 3, or 4 columns) with
-// optional captions. Surface comes from SectionRenderer. Safe to edit by hand.
+// Safe to edit by hand
+// Page-builder block: a photo gallery set as a MOSAIC (rebuilt 2026-09-30,
+// phase 2 of the art-direction rebuild; see DESIGN.md "Blocks and Portfolio").
+//
+// Not a grid of identical tiles: a board of big and small pieces, like
+// samples pinned to a board. The spans come from mosaicSpans()
+// (src/components/blocks/mosaic.ts), which tiles the grid EXACTLY for any
+// photo count, so there is never a hole or a ragged last row.
+//
+//   Phone and tablet: two columns.
+//   Desktop:          Staci's choice (the `columns` field: 2, 3 or 4).
+//
+// Photos crop to their tile around the Sanity hotspot (object-position), so
+// setting the hotspot in the Studio decides what stays in frame. A caption, if
+// Staci wrote one, sits on the photo as a sample tag: material notes only
+// ("Plum, satin finish").
+//
+// LOAD-BEARING STRINGS (src/lib/section-fields.test.ts reads this file): the
+// `colClass` ternary below must keep painting exactly these three class lists,
+// in this order. The Studio's in-canvas layout card swaps them live, and the
+// row-height rules in the <style> key off the same classes so the swap looks
+// right before the preview refreshes.
+//
+// Surface (background / muted) is assigned by SectionRenderer.
 import SanityImage from '@/components/SanityImage.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
+import { mosaicSpans } from '@/components/blocks/mosaic';
 
 interface GalleryImage {
+  _key?: string;
   asset?: { _ref?: string; _id?: string };
   alt?: string;
   caption?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
 }
 
 interface Props {
@@ -26,7 +52,6 @@ const {
   headingId,
 } = Astro.props as Props;
 
-const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
 const pics = (images ?? []).filter((i) => i?.asset);
 const colClass =
   columns === 2
@@ -34,37 +59,57 @@ const colClass =
     : columns === 4
       ? 'sm:grid-cols-2 lg:grid-cols-4'
       : 'sm:grid-cols-2 lg:grid-cols-3';
+
+// Two layouts, both exact: the two-column board (phone, tablet) and the
+// desktop board at Staci's column count.
+const desktopCols = columns === 2 || columns === 4 ? columns : 3;
+const narrow = mosaicSpans(pics.length, 2);
+const wide = mosaicSpans(pics.length, desktopCols);
+
+const pct = (n: number) => `${Math.round(n * 100)}%`;
+const tiles = pics.map((img, i) => {
+  const [c2, r2] = narrow[i] ?? [1, 1];
+  const [cn, rn] = wide[i] ?? [1, 1];
+  const big = cn > 1 || rn > 1;
+  const style = [
+    `--c2:${c2}`,
+    `--r2:${r2}`,
+    `--cn:${cn}`,
+    `--rn:${rn}`,
+    img.hotspot ? `--fx:${pct(img.hotspot.x)};--fy:${pct(img.hotspot.y)}` : '',
+  ]
+    .filter(Boolean)
+    .join(';');
+  // What the tile will actually be, for the srcset choice.
+  const sizes = `(min-width: 1024px) ${Math.round((cn / desktopCols) * 92)}vw, ${Math.round((c2 / 2) * 96)}vw`;
+  return { img, style, big, sizes, key: img._key ?? String(i) };
+});
 ---
 
 {
   pics.length > 0 && (
     <section
-      class={bg}
+      class:list={['gal', surface === 'muted' ? 'gal--paper' : 'gal--linen']}
       aria-labelledby={heading ? headingId : undefined}
       aria-label={heading ? undefined : 'Photo gallery'}
     >
-      <div class="mx-auto max-w-content px-m py-section-lg" data-reveal>
+      <div class="r-wrap">
         {heading && (
-          <SectionHeading headline={heading} headingId={headingId} align="center" class="mx-auto" />
+          <div class="gal__head">
+            <SectionHeading headline={heading} headingId={headingId} />
+          </div>
         )}
-        <div
-          class:list={['grid grid-cols-1 gap-m', colClass, heading && 'mt-section-md']}
-          data-stagger-grid
-        >
-          {pics.map((img) => (
-            <figure class="overflow-hidden rounded-md">
+        <div class:list={['gal__grid grid grid-cols-2', colClass]}>
+          {tiles.map(({ img, style, big, sizes, key }) => (
+            <figure class="gal__tile" style={style} data-key={key}>
               <SanityImage
                 source={img}
-                width={800}
-                sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+                width={big ? 1400 : 900}
+                sizes={sizes}
                 quality={75}
-                class="h-auto w-full"
+                class="gal__img"
               />
-              {img.caption && (
-                <figcaption class="mt-xs text-sm text-muted-foreground italic">
-                  {img.caption}
-                </figcaption>
-              )}
+              {img.caption && <figcaption class="r-tag gal__tag">{img.caption}</figcaption>}
             </figure>
           ))}
         </div>
@@ -72,3 +117,98 @@ const colClass =
     </section>
   )
 }
+
+<style>
+  .gal {
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  .gal--linen {
+    background: var(--color-bg);
+  }
+  .gal--paper {
+    background: var(--color-paper);
+  }
+  .gal__head {
+    margin-bottom: clamp(2.25rem, 4.5vw, 3.75rem);
+  }
+
+  .gal__grid {
+    gap: clamp(0.5rem, 1.2vw, 1rem);
+    grid-auto-flow: dense;
+    grid-auto-rows: clamp(7.5rem, 38vw, 12rem);
+  }
+  .gal__tile {
+    position: relative;
+    margin: 0;
+    overflow: clip;
+    background: var(--color-chip-1);
+    grid-column: span var(--c2);
+    grid-row: span var(--r2);
+  }
+  .gal__tile :global(.gal__img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--fx, 50%) var(--fy, 50%);
+    transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .gal__tile:hover :global(.gal__img) {
+    transform: scale(1.035);
+  }
+
+  /* The caption as a sample tag, tied on at the bottom-left corner. */
+  .gal__tag {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.6rem;
+    max-width: calc(100% - 1.2rem);
+    padding: 0.5rem 0.8rem 0.55rem 1.7rem;
+    font: 500 0.8rem/1.3 var(--font-body);
+  }
+
+  @media (min-width: 640px) {
+    .gal__grid {
+      grid-auto-rows: clamp(11rem, 22vw, 15rem);
+    }
+    .gal__tag {
+      left: 0.9rem;
+      bottom: 0.9rem;
+      font-size: 0.86rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .gal__tile {
+      grid-column: span var(--cn);
+      grid-row: span var(--rn);
+    }
+    .gal__grid[class~='lg:grid-cols-3'] {
+      grid-auto-rows: clamp(12rem, 17vw, 17rem);
+    }
+    .gal__grid[class~='lg:grid-cols-4'] {
+      grid-auto-rows: clamp(10rem, 13vw, 13.5rem);
+    }
+    /* Two columns on desktop: bigger pictures, taller rows. */
+    .gal__grid:not([class*='lg:grid-cols']) {
+      grid-auto-rows: clamp(18rem, 27vw, 26rem);
+    }
+  }
+
+  /* Tiles settle into place as they scroll in. Transform only: every photo
+     is fully visible from the first frame, with or without the animation. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .gal__tile :global(.gal__img) {
+        animation: gal-settle linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 80%;
+      }
+    }
+  }
+  /* `scale`, not `transform`, so it never fights the hover zoom above. */
+  @keyframes gal-settle {
+    from {
+      scale: 1.12;
+    }
+  }
+</style>

@@ -1,16 +1,29 @@
 ---
 // Foundation, edit with care
-// Project detail body: hero + meta band + intro story (Portable Text with
-// anchor IDs) + before/after + gallery + services used + related testimonial +
-// featured-in-journal + next/previous + sticky chip.
+// Project detail body, set as an EDITORIAL CASE STUDY (rebuilt 2026-09-30,
+// phase 2 of the art-direction rebuild; see DESIGN.md "Blocks and
+// Portfolio"). Top to bottom, each fold with one job:
 //
-// ONE BODY, TWO CALLERS (2026-09-29). This markup used to live inline in
-// src/pages/portfolio/[slug].astro. It moved here, unchanged, so the Studio's
-// draft preview (src/pages/preview/[...slug].astro) draws the SAME detail page
-// the live site builds, and a "Copy share link" on this document opens a real
-// page instead of a 404. The live page keeps the SEO, the JSON-LD, the share
-// card and BaseLayout; this component is only what sits inside the layout.
-// Proven render-neutral with scripts/page-parity.mjs (see the changelog).
+//   1. Hero (linen): breadcrumb line, the title rising in Zodiak, the brief
+//      summary as the lede, and the hero photo as a framed crop beside it
+//      (4:5, or 5:4 for a landscape photo), never full-bleed. A caption, if
+//      set, hangs on it as a sample tag.
+//   2. Spec sheet (ProjectMetaBand): the facts, plus "the brief" and "the call".
+//   3. The story (linen): the intro story at a ~68ch measure, first paragraph
+//      as a Zodiak lede, the sticky table of contents beside it on desktop
+//      when the story has headings. Services used close it as paint-chip tabs.
+//   4. Before and after (paper band): the sliders, full width.
+//   5. Gallery (linen): the photos at their true shapes, lightbox on click.
+//   6. Kind words (ink band): the linked testimonial, one big italic quote.
+//   7. Featured in the journal, then previous / next, big and plain.
+//
+// ONE BODY, TWO CALLERS (2026-09-29). src/pages/portfolio/[slug].astro wraps
+// this in BaseLayout for the live site; src/pages/preview/[...slug].astro
+// draws the same body for the Studio's draft preview. Keep it layout-free.
+//
+// Every string from Sanity is rendered whole; the title goes through
+// RiseWords, which splits the CLEAN text and hands the stega run back
+// (src/lib/split-copy.ts), so preview click-to-edit keeps working.
 
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
@@ -20,6 +33,9 @@ import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import ProjectMetaBand from '@/components/ProjectMetaBand.astro';
 import StickyCTAChip from '@/components/StickyCTAChip';
 import JournalCard from '@/components/JournalCard.astro';
+import RiseWords from '@/components/RiseWords.astro';
+import { humanizeEnum } from '@/components/portfolio/labels';
+import { parseSanityAssetDimensions } from '@/lib/sanity';
 import { extractHeadings } from '@/lib/portable-text-headings';
 import { readingTimeFromPortableText, formatReadingTime } from '@/lib/reading-time';
 
@@ -38,116 +54,132 @@ const { project, prev = null, next = null } = Astro.props;
 const headings = extractHeadings(project.introStory);
 const readMinutes = readingTimeFromPortableText(project.introStory);
 // When the intro story has no h2/h3/h4 headings, the TOC component returns
-// null. We still need to know that here so the grid template collapses to
-// a single column on lg+, otherwise the empty 260 px sidebar slot would
-// push the article off-center to the right.
+// null; the grid collapses to the article column so nothing sits off-centre.
 const hasToc = headings.length > 0;
+const hasStory = Array.isArray(project.introStory) && project.introStory.length > 0;
+const roomLabel = humanizeEnum(project.roomType);
+
+const hero = project.heroImage?.asset ? project.heroImage : null;
+const heroDims = hero ? parseSanityAssetDimensions(hero) : null;
+const heroWide = heroDims ? heroDims.width > heroDims.height : false;
+const heroCrop = heroWide ? { width: 1200, height: 960 } : { width: 1000, height: 1250 };
+
+const pairs = (Array.isArray(project.beforeAfters) ? project.beforeAfters : []).filter(
+  (p: any) => p?.beforeImage?.asset && p?.afterImage?.asset,
+);
+const gallery = (Array.isArray(project.gallery) ? project.gallery : []).filter(
+  (g: any) => g?.asset,
+);
+const services = Array.isArray(project.servicesUsed)
+  ? project.servicesUsed.filter((s: any) => s?.name)
+  : [];
+const journal = Array.isArray(project.relatedJournalEntries)
+  ? project.relatedJournalEntries.slice(0, 3)
+  : [];
+const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimonial : null;
 ---
 
-{/* Hero */}
-<section
-  class="mx-auto max-w-content px-m pt-section-md pb-l"
-  aria-labelledby="project-hero-heading"
->
-  <p class="mb-s text-xs tracking-widest text-foreground/80 uppercase">
-    <a href="/portfolio" class="transition-colors hover:text-primary">Portfolio</a> · {
-      project.roomType?.replace(/([A-Z])/g, ' $1').toLowerCase()
+{/* 1. Hero */}
+<section class:list={['pd-hero', hero && 'pd-hero--photo']} aria-labelledby="project-hero-heading">
+  <div class="r-wrap pd-hero__grid">
+    <div class="pd-hero__copy">
+      <p class="pd-hero__crumb">
+        <a href="/portfolio" class="r-link">Portfolio</a>
+        {roomLabel && <span aria-hidden="true">/</span>}
+        {roomLabel && <span>{roomLabel}</span>}
+      </p>
+      <RiseWords as="h1" id="project-hero-heading" text={project.title ?? ''} class="pd-hero__h1" />
+      {project.briefSummary && <p class="r-lede pd-hero__lede">{project.briefSummary}</p>}
+    </div>
+    {
+      hero && (
+        <figure class:list={['pd-hero__photo', heroWide && 'pd-hero__photo--wide']}>
+          <div class="pd-hero__frame">
+            <SanityImage
+              source={hero}
+              width={heroCrop.width}
+              height={heroCrop.height}
+              sizes="(min-width: 1024px) 42vw, 100vw"
+              loading="eager"
+              fetchpriority="high"
+              quality={72}
+              class="pd-hero__img"
+            />
+          </div>
+          {hero.caption && <figcaption class="r-tag pd-hero__tag">{hero.caption}</figcaption>}
+        </figure>
+      )
     }
-  </p>
-  <h1 id="project-hero-heading" class="font-display text-h1 text-foreground">{project.title}</h1>
-  <p class="mt-s text-lg text-foreground/80">{project.briefSummary}</p>
-  <div class="mt-m flex flex-wrap items-center gap-m text-sm text-muted-foreground">
-    {project.location && <span>{project.location}</span>}
-    {project.year && <span>·</span>}
-    {project.year && <span>{project.year}</span>}
-    {readMinutes > 0 && <span>·</span>}
-    {readMinutes > 0 && <span>{formatReadingTime(readMinutes)}</span>}
   </div>
 </section>
 
-{
-  project.heroImage?.asset && (
-    /*
-      Hero image sized to read like an editorial feature, not a billboard.
-      max-w-4xl (56rem ≈ 896 px) keeps the photo as the visual focal point
-      of the page without dominating it on wide desktops — matches the
-      reference editorial sites (theologymatters.com etc.) and pairs well
-      with the slightly-narrower body column that follows. The requested
-      Sanity width caps at 1800 so we're not asking the CDN for a 1920 px
-      file for an ~900 px slot even on 2× retina.
-    */
-    <section class="mx-auto max-w-4xl px-m" aria-label="Project hero image">
-      <figure>
-        <div class="relative overflow-hidden rounded-md">
-          <SanityImage
-            source={project.heroImage}
-            width={1800}
-            loading="eager"
-            sizes="(min-width: 920px) 896px, 100vw"
-            class="h-auto w-full"
-          />
-          <div class="img-curtain" aria-hidden="true" />
-        </div>
-        {project.heroImage.caption && (
-          <figcaption class="mt-s text-center text-sm text-foreground/80 italic">
-            {project.heroImage.caption}
-          </figcaption>
-        )}
-      </figure>
-    </section>
-  )
-}
-
-{/* Project metadata band — "the room / the brief / the call" */}
+{/* 2. Spec sheet */}
 <ProjectMetaBand
   roomType={project.roomType}
   briefLine={project.briefLine}
   designCall={project.designCall}
+  designStyle={project.designStyle}
+  location={project.location}
+  year={project.year}
+  readTime={readMinutes > 0 ? formatReadingTime(readMinutes) : undefined}
 />
 
+{/* 3. The story */}
 {
-  /* Body: TOC sidebar + story.
-
-      Grid layout:
-        - Mobile: single column.
-        - lg+ with TOC: 260 px TOC + article capped at 65ch (matches the
-          max-w-prose Tailwind sets on .prose), centered as a pair via
-          `lg:justify-center` so the empty space splits evenly on both
-          sides instead of stacking up on the right.
-        - lg+ without TOC: single article column, also centered. This
-          avoids the previous bug where an empty 260 px sidebar slot was
-          still reserved on stories that had no headings, pushing the
-          article off-center.
-      The article keeps `max-w-prose` for safety in case any case ever
-      ships outside this grid; the grid column cap is what does the work
-      in practice. */
+  (hasStory || services.length > 0) && (
+    <section class="pd-story" aria-label="Project story">
+      <div class:list={['r-wrap pd-story__grid', hasToc && 'pd-story__grid--toc']}>
+        {hasToc && <CaseStudyTOC client:idle headings={headings} />}
+        <article class="pd-story__article">
+          {/*
+            `client:visible` defers the Sanity client bundle PortableText pulls
+            in (via urlFor) until the story scrolls into view. The HTML is
+            still server-rendered, so the words are there from the first byte.
+          */}
+          {hasStory && (
+            <PortableText client:visible value={project.introStory} className="pd-story__body" />
+          )}
+          {services.length > 0 && (
+            <div class="pd-svcs">
+              <h2 class="pd-svcs__h" id="services-used">
+                Services on this project
+              </h2>
+              <ul class="pd-svcs__list">
+                {services.map((s: any, i: number) => (
+                  <li>
+                    <a
+                      href={`/services#${s.slug?.current ?? ''}`}
+                      class="pd-svc"
+                      style={`--tab: var(--color-chip-${(i % 4) + 1})`}
+                    >
+                      {s.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </article>
+      </div>
+    </section>
+  )
 }
-<section
-  class:list={[
-    'mx-auto grid max-w-content grid-cols-1 gap-section-md px-m py-section-md lg:justify-center',
-    hasToc ? 'lg:grid-cols-[260px_minmax(0,65ch)]' : 'lg:grid-cols-[minmax(0,65ch)]',
-  ]}
-  aria-label="Project story"
->
-  {hasToc && <CaseStudyTOC client:idle headings={headings} />}
 
-  <article class="max-w-prose">
-    {
-      /* `client:visible` defers the 94KB Sanity client bundle that PortableText
-          pulls in (via the urlFor import) until the visitor scrolls the
-          intro story into view. The HTML is still server-rendered by Astro,
-          so visitors see the content immediately — only the React
-          hydration is deferred. */
-    }
-    <PortableText client:visible value={project.introStory} className="text-foreground/90" />
-
-    {
-      Array.isArray(project.beforeAfters) && project.beforeAfters.length > 0 && (
-        <div class="mt-section-lg">
-          <h2 class="font-display text-h2 text-foreground" id="before-and-after">
-            Before and after
+{/* 4. Before and after */}
+{
+  pairs.length > 0 && (
+    <section class="pd-band pd-band--paper" aria-labelledby="before-and-after">
+      <div class="r-wrap pd-split">
+        <div class="pd-band__head pd-split__head">
+          <h2 class="pd-h2" id="before-and-after">
+            Before and <span class="r-accent">after</span>
           </h2>
-          {project.beforeAfters.map((pair: any) => (
+          <p class="pd-band__note">
+            Same room, same angle. Drag the divider, or use the arrow keys.
+          </p>
+        </div>
+        <div class="pd-ba">
+          {pairs.map((pair: any) => (
             <BeforeAfterSlider
               client:visible
               beforeImage={pair.beforeImage}
@@ -156,69 +188,56 @@ const hasToc = headings.length > 0;
             />
           ))}
         </div>
-      )
-    }
-
-    {
-      Array.isArray(project.gallery) && project.gallery.length > 0 && (
-        <div class="mt-section-lg">
-          <h2 class="font-display text-h2 text-foreground" id="gallery">
-            Gallery
-          </h2>
-          <ProjectGallery client:visible images={project.gallery} />
-        </div>
-      )
-    }
-
-    {
-      Array.isArray(project.servicesUsed) && project.servicesUsed.length > 0 && (
-        <div class="mt-section-lg">
-          <h2 class="font-display text-h3 text-foreground" id="services-used">
-            Services used on this project
-          </h2>
-          <ul class="mt-s flex list-none flex-wrap gap-s p-0">
-            {project.servicesUsed.map((s: any) => (
-              <li>
-                <a
-                  href={`/services#${s.slug?.current ?? ''}`}
-                  class="inline-flex items-center rounded-full border border-border-soft px-s py-1.5 text-sm text-foreground transition-colors hover:border-primary hover:text-primary-dark"
-                >
-                  {s.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-
-    {
-      project.relatedTestimonial && (
-        <blockquote class="mt-section-lg border-l-4 border-primary pl-m text-lg text-foreground/90 italic">
-          <p>“{project.relatedTestimonial.quote}”</p>
-          <footer class="mt-s text-sm text-muted-foreground not-italic">
-            — {project.relatedTestimonial.attribution}
-          </footer>
-        </blockquote>
-      )
-    }
-  </article>
-</section>
-
-{
-  /* Featured in the journal — journal posts whose "Related project" points at
-      this project. Derived by reverse query in getProjectBySlug, so the link is
-      maintained only on the journal side. Section hides when there are none. */
+      </div>
+    </section>
+  )
 }
+
+{/* 5. Gallery */}
 {
-  Array.isArray(project.relatedJournalEntries) && project.relatedJournalEntries.length > 0 && (
-    <section class="bg-muted" aria-labelledby="project-journal-heading">
-      <div class="mx-auto max-w-content px-m py-section-lg">
-        <h2 id="project-journal-heading" class="mb-l font-display text-h2 text-foreground">
-          Featured in the journal
-        </h2>
-        <div class="grid grid-cols-1 gap-l md:grid-cols-3">
-          {project.relatedJournalEntries.slice(0, 3).map((post: any) => (
+  gallery.length > 0 && (
+    <section class="pd-band" aria-labelledby="gallery">
+      <div class="r-wrap">
+        <div class="pd-band__head">
+          <h2 class="pd-h2" id="gallery">
+            More of the room
+          </h2>
+          <p class="pd-band__note">Tap any photo to see it larger.</p>
+        </div>
+        <ProjectGallery client:visible images={gallery} />
+      </div>
+    </section>
+  )
+}
+
+{/* 6. Kind words */}
+{
+  testimonial && (
+    <section class="pd-words" aria-label="What the client said">
+      <div class="r-wrap">
+        <figure class="pd-words__fig">
+          <blockquote>
+            <p>{testimonial.quote}</p>
+          </blockquote>
+          {testimonial.attribution && <figcaption>{testimonial.attribution}</figcaption>}
+        </figure>
+      </div>
+    </section>
+  )
+}
+
+{/* 7. Featured in the journal (reverse reference; hides when none). */}
+{
+  journal.length > 0 && (
+    <section class="pd-band" aria-labelledby="project-journal-heading">
+      <div class="r-wrap">
+        <div class="pd-band__head">
+          <h2 id="project-journal-heading" class="pd-h2">
+            Featured in the journal
+          </h2>
+        </div>
+        <div class="pd-journal">
+          {journal.map((post: any) => (
             <JournalCard entry={post} />
           ))}
         </div>
@@ -227,29 +246,29 @@ const hasToc = headings.length > 0;
   )
 }
 
-{/* Next / previous */}
+{/* Previous / next */}
 {
   (prev || next) && (
-    <nav class="border-t border-border-soft" aria-label="More projects">
-      <div class="mx-auto grid max-w-content grid-cols-1 gap-m px-m py-l md:grid-cols-2">
+    <nav class="pd-nav" aria-label="More projects">
+      <div class="r-wrap pd-nav__grid">
         {prev ? (
-          <a href={`/portfolio/${prev.slug}`} class="group">
-            <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">
-              Previous project
-            </p>
-            <p class="font-display text-h4 text-foreground transition-colors group-hover:text-primary-dark">
-              ← {prev.title}
-            </p>
+          <a href={`/portfolio/${prev.slug}`} class="pd-nav__link">
+            <span class="pd-nav__dir">Previous project</span>
+            <span class="pd-nav__title">
+              <span aria-hidden="true">← </span>
+              {prev.title}
+            </span>
           </a>
         ) : (
           <div />
         )}
         {next ? (
-          <a href={`/portfolio/${next.slug}`} class="group md:text-right">
-            <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">Next project</p>
-            <p class="font-display text-h4 text-foreground transition-colors group-hover:text-primary-dark">
-              {next.title} →
-            </p>
+          <a href={`/portfolio/${next.slug}`} class="pd-nav__link pd-nav__link--next">
+            <span class="pd-nav__dir">Next project</span>
+            <span class="pd-nav__title">
+              {next.title}
+              <span aria-hidden="true"> →</span>
+            </span>
           </a>
         ) : (
           <div />
@@ -262,8 +281,7 @@ const hasToc = headings.length > 0;
 {
   /* Sticky contextual CTA — appears past 50% scroll, hides on scroll-up.
       Label is Sanity-editable per-project (project.stickyCtaLabel); clearing
-      the field hides the chip for that project. The fallback keeps existing
-      projects looking identical. */
+      the field hides the chip for that project. */
 }
 {
   project?.stickyCtaLabel !== '' && (
@@ -274,3 +292,333 @@ const hasToc = headings.length > 0;
     />
   )
 }
+
+<style>
+  /* ---- 1. Hero ---- */
+  .pd-hero {
+    padding-block: clamp(3rem, 7vw, 6rem) clamp(1rem, 2vw, 1.5rem);
+  }
+  .pd-hero__grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: end;
+  }
+  .pd-hero__crumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .pd-hero__crumb a {
+    color: var(--color-chip-7);
+  }
+  :global(.pd-hero__h1) {
+    margin: 0;
+    max-width: 14ch;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: var(--text-h1);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .pd-hero__lede {
+    margin: 1.75rem 0 0;
+    max-width: 40ch;
+  }
+  .pd-hero__photo {
+    position: relative;
+    margin: 0;
+    max-width: 34rem;
+  }
+  .pd-hero__frame {
+    overflow: clip;
+  }
+  .pd-hero__frame :global(.pd-hero__img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .pd-hero__photo--wide .pd-hero__frame :global(.pd-hero__img) {
+    aspect-ratio: 5 / 4;
+  }
+  .pd-hero__tag {
+    position: absolute;
+    left: 1rem;
+    bottom: 1.25rem;
+    max-width: calc(100% - 2rem);
+    rotate: -2deg;
+    font: 500 0.92rem/1.3 var(--font-body);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pd-hero__frame :global(.pd-hero__img) {
+      animation: pd-settle 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+  @keyframes pd-settle {
+    from {
+      scale: 1.08;
+    }
+  }
+  @media (min-width: 1024px) {
+    .pd-hero--photo .pd-hero__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
+    }
+    .pd-hero__photo {
+      max-width: none;
+      justify-self: end;
+      width: 100%;
+    }
+    .pd-hero__tag {
+      left: -1.5rem;
+    }
+  }
+
+  /* ---- 3. The story ---- */
+  .pd-story {
+    padding-block: clamp(2rem, 5vw, 4rem) clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .pd-story__grid {
+    display: grid;
+    gap: 3rem;
+  }
+  .pd-story__article {
+    min-width: 0;
+    max-width: 68ch;
+  }
+  .pd-story :global(.pd-story__body) {
+    font-size: 1.1rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+  }
+  .pd-story :global(.pd-story__body > p:first-child) {
+    margin-top: 0;
+    font: 300 clamp(1.3rem, 1.05rem + 0.7vw, 1.65rem) / 1.45 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 1024px) {
+    .pd-story__grid {
+      grid-template-columns: minmax(0, 68ch);
+      justify-content: center;
+    }
+    .pd-story__grid--toc {
+      grid-template-columns: 14rem minmax(0, 68ch);
+      column-gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  .pd-svcs {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .pd-svcs__h {
+    margin: 0 0 1rem;
+    font: 500 0.95rem/1.3 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .pd-svcs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* A paint-chip tab, the same as the portfolio filter tabs. */
+  .pd-svc {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem 0.5rem 2rem;
+    border-radius: 3px;
+    background: var(--tab);
+    color: var(--color-ink);
+    font: 500 0.95rem/1.2 var(--font-body);
+    text-decoration: none;
+    transition:
+      transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pd-svc::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    translate: 0 -50%;
+    background: var(--color-paper);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25);
+  }
+  .pd-svc:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px -14px rgb(35 30 27 / 0.7);
+  }
+  .pd-svc:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  /* ---- 4, 5, 7. Bands ---- */
+  .pd-band {
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  .pd-band--paper {
+    background: var(--color-paper);
+  }
+  .pd-band__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem 3rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .pd-h2 {
+    margin: 0;
+    font: 300 clamp(2.1rem, 1.3rem + 2.6vw, 3.6rem) / 1 var(--font-display);
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .pd-band__note {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--color-ink-2);
+  }
+  .pd-ba {
+    min-width: 0;
+    max-width: 66rem;
+  }
+  /* Before/after, desktop: the heading and note in the left columns, the
+     sliders on the right, so an upright phone pair (capped in height by the
+     slider) sits beside its heading instead of beside a gap. */
+  @media (min-width: 1024px) {
+    .pd-split {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      column-gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+    }
+    .pd-split__head {
+      display: block;
+      position: sticky;
+      top: 7rem;
+    }
+    .pd-split__head .pd-band__note {
+      margin-top: 1.25rem;
+    }
+  }
+  .pd-ba :global(figure:first-child) {
+    margin-top: 0;
+  }
+  .pd-ba :global(figure:last-child) {
+    margin-bottom: 0;
+  }
+  .pd-journal {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 768px) {
+    .pd-journal {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ---- 6. Kind words, the ink band ---- */
+  .pd-words {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+  }
+  .pd-words__fig {
+    position: relative;
+    margin: 0;
+    max-width: 58rem;
+    padding-left: clamp(0rem, 5vw, 4.5rem);
+  }
+  .pd-words__fig::before {
+    content: '\201C';
+    position: absolute;
+    left: -0.1em;
+    top: -0.2em;
+    font: 300 clamp(4.5rem, 3rem + 5vw, 9rem) / 1 var(--font-display);
+    color: var(--color-chip-5);
+  }
+  .pd-words__fig blockquote {
+    margin: 0;
+  }
+  .pd-words__fig p {
+    margin: 0;
+    font: 300 italic clamp(1.7rem, 1rem + 2.4vw, 3.2rem) / 1.15 var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+  }
+  .pd-words__fig figcaption {
+    margin-top: 1.5rem;
+    font: 500 0.95rem/1.4 var(--font-body);
+    color: rgb(245 237 227 / 0.75);
+  }
+  @media (max-width: 1023px) {
+    .pd-words__fig {
+      padding-top: 2.75rem;
+    }
+    .pd-words__fig::before {
+      top: -0.1em;
+    }
+  }
+
+  /* ---- Previous / next ---- */
+  .pd-nav {
+    border-top: 1px solid var(--color-rule);
+  }
+  .pd-nav__grid {
+    display: grid;
+    gap: 2rem;
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+  .pd-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .pd-nav__dir {
+    font: 500 0.92rem/1.3 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .pd-nav__title {
+    font: 300 clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pd-nav__link:hover .pd-nav__title {
+    background-size: 100% 1px;
+  }
+  .pd-nav__link:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 4px;
+  }
+  @media (min-width: 768px) {
+    .pd-nav__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .pd-nav__link--next {
+      align-items: flex-end;
+      text-align: right;
+    }
+  }
+</style>

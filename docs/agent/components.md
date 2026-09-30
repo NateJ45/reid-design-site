@@ -54,26 +54,42 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Marketing cards (all share the brand-stripe + resting-shadow rhythm):**
 
-- `ServiceCard.astro` — service tier (price + features + best-for + CTA).
+- `ServiceCard.astro` — **rebuilt 2026-09-30 (phase 2) as one row of the Services paint strip**: a chip (tone from `services/tones.ts`, No., name, price set huge) beside the description, tone-swatch features, a "best for" sample tag and the ink button. Keeps `id={slug}` for `/services#slug`. Stacked by `sections/ServicesList.astro`, which also draws the deck index (every service, swatch, dotted leader, price, as jump links). No longer card-grid grammar; see DESIGN.md "Services and E-Design".
+- `services/tones.ts` (2026-09-30) — `toneFor(i, n)` (ramp tone + ink/cream text for item i of n, never chip 5) and `chipPrice()` (stega-safe price split over `splitPrice`). Shared by the Services strip and the E-Design tiers.
+- `sections/BuildersRealtors.astro`, `sections/ServiceArea.astro`, `sections/SatisfactionGuarantee.astro` (2026-09-30) — Services bands: the ink trade band with floor-plan linework; towns plus travel fees on a tape measure (takes optional `cities`); the guarantee set large on Oat with a turning stamp.
+- `edesign/EDesignIntro|EDesignSteps|EDesignIncluded|EDesignTiers.astro` (2026-09-30) — the E-Design sections drawn by `EDesignSectionRenderer.astro`: Zodiak lede, numbered thread, sample tags on an Oat board, tiers as paint chips. The FAQ section there still calls `FaqAccordion` unchanged.
 - `ProjectCard.astro` — portfolio grid card. Includes humanized roomType chip top-left on the hero image. Hero image uses the `.img-zoom` + `.img-tint` hover treatment (see Polish layer).
+
+- `ServiceCard.astro` — service tier (price + features + best-for + CTA).
+- `ProjectCard.astro` — portfolio grid card, rebuilt 2026-09-30 (DESIGN.md "Blocks and Portfolio"): the photo cropped around its hotspot at the shape the grid hands it through `--pcard-ratio` (default 4:5), the room as a sample tag, the Zodiak title and one plain location · year line. No stripe, border or shadow. Optional `level` and `sizes` props.
+- `portfolio/ProjectBoard.astro` — the portfolio index body (2026-09-30): paint-deck filter tabs, the before/after shortcut, and the varied five-slot grid (`data-slot` 0-4, renumbered by the filter island after filtering). `portfolio/labels.ts` has `humanizeEnum` ("livingRoom" → "Living room") shared by the card, tabs, spec sheet and before/after page.
 - `JournalCard.astro` — journal index card (featured variant spans 2 cols). Hero image uses `.img-zoom` + `.img-tint.img-tint-light` (the lighter tint variant).
 - `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
 - `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
 
 **Home page Featured sections (auto-from-Sanity hero + companion panel):**
 
-- `FeaturedWork.astro` — large editorial hero project (cover image with room chip + title + brief overlaid on a full-height dark gradient) beside a single cohesive companion panel (one card / one bronze stripe / one shadow; each project a row split by hairline dividers with a per-row `hover:bg-muted/60` tint). With companions the hero image fills the grid-stretched card (`lg:h-full` + `lg:min-h-[28rem]` floor) so it's always flush with the panel — no `bg-card` strip below an aspect-locked image. With no companions it degrades to a centered `max-w-4xl` single hero at `lg:aspect-[16/10]`. Mobile always uses portrait (`aspect-[4/5]`) so the bottom-anchored overlay fits inside the image — see the overlay gotcha below. The hero image carries the `.img-curtain` reveal as its last child; the gradient / chips / text overlay are pinned at `z-[1]` / `z-[2]` / `z-[3]` so the curtain (`z-10`) cleanly covers them during the reveal.
+- `FeaturedWork.astro` — rebuilt 2026-09-30 in the home grammar: a rising Zodiak headline with the subhead beside it, the lead project as a framed 4:5 crop with its room on a sample tag and the title, line and brief underneath (no overlay), and up to three more as a ruled list with square thumbnails. Renders nothing until a project exists. The overlay notes below describe the old version and now apply to `FeaturedJournal` only.
 - `FeaturedJournal.astro` — mirrors `FeaturedWork` exactly (same hero-fill + cohesive panel + no-companions degrade) with cover image + category chip + date + title + lede excerpt overlaid. Title uses `text-h3 md:text-h2 line-clamp-3` because journal titles run long; excerpt is `line-clamp-3`.
 
 Both sections feed off the `featured: boolean` on `project` and `journalEntry`. Queries (`getHomePage()` → `featuredProjects` + `featuredJournalEntries`) order `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot. The overlay text reserves a right corridor (`pr-28 md:pr-36`) so a long title never wraps under the ★ Featured pill at top-right.
 
 **Gotcha — bottom-anchored overlay vs. image height.** Both hero cards pin the title block to `absolute bottom-0` of the image. If the overlay content is taller than the image, `overflow-hidden` clips the _top_ of it (the chips row disappears). Two levers keep it safe: a portrait mobile aspect (`4/5`, never wide) and capping the no-companions desktop case at `16/10` (not `2/1`). If you make a hero image wider/shorter and the eyebrow chips vanish, this is why.
 
+**Page-builder blocks (rebuilt 2026-09-30, DESIGN.md "Blocks and Portfolio"):**
+
+- `SectionRenderer.astro` — maps block `_type` to component and owns the ground cadence: content blocks alternate linen / paper (paper first after a hero), a quote takes the ink band unless a neighbour is a quote or CTA band or it is the last row, spacers and dividers take the ground above. The preview-only `data-sanity` wrapper, layout handle and SectionCoach are unchanged.
+- `sections/RichTextSection.astro` — editorial split (heading left, body right at ~64ch with a Zodiak lede) at normal width with a heading; one column when narrow or centred. The `widthClass` / `alignClass` strings are read by `section-fields.test.ts`.
+- `sections/ImageText.astro` — orientation-honest framed crop + sample tag (eyebrow + alt) beside a big Zodiak heading; blank chip when no photo. Keeps the two `md:order-*` ternaries the drift gate reads.
+- `sections/GalleryGrid.astro` — exact-tiling mosaic via `blocks/mosaic.ts` (`mosaicSpans(count, cols)`, unit tested); hotspot crops; sample-tag captions. Keeps the `colClass` strings the drift gate reads.
+- `sections/QuoteBlock.astro` — big Zodiak italic quote with the hung bronze mark; `surface` may be `ink`.
+- `sections/VideoEmbed.astro` — left-set heading, 16:9 on an ink keyline, ruled caption.
+
 **Project detail page pieces:**
 
-- `ProjectMetaBand.astro` — "The room / The brief / The call" three-column band between hero image and intro story. Drives `project.briefLine` + `project.designCall` Sanity fields.
-- `BeforeAfterSlider.tsx` — drag-to-reveal with cream-mat framing + opacity-tracking Before/After pills.
-- `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox.
+- `ProjectMetaBand.astro` — the project spec sheet (rebuilt 2026-09-30): a paper sheet with the facts in a ruled list (room, style, where, year, reading time) and "The brief" / "The call" in Zodiak. Drives `project.briefLine` + `project.designCall`; the new props (`designStyle`, `location`, `year`, `readTime`) are optional. Renders nothing when every row is empty.
+- `BeforeAfterSlider.tsx` — drag-to-reveal, rebuilt 2026-09-30: before LEFT, after RIGHT (the old one was reversed), paper handle with arrows (`role="slider"`, arrows / Shift / Home / End), "Drag to compare" pill until first use, sample-tag corner labels, frame at the before photo's shape clamped 4:5 to 3:2 and capped at ~78svh tall, `touch-action: pan-y` so the page still scrolls over it. Props unchanged; also used by `/portfolio/before-after` and the journal's before/after block.
+- `ProjectGallery.tsx` — react-photo-album justified grid + yet-another-react-lightbox. Since 2026-09-30 each photo keeps its true shape (dimensions from the asset id; it used to assume 1600x1066 for all), with a 1240px server layout before hydration.
 - `CaseStudyTOC.tsx` — sticky TOC sidebar, IntersectionObserver scrollspy. Returns `null` when `headings.length === 0` so the slot collapses gracefully. Link clicks smooth-scroll through `window.lenis` (native-scroll fallback) and update the URL hash via `pushState` — see Polish layer → In-page smooth scroll. Shared by both portfolio and journal detail pages.
 - **Featured in the journal** — a `JournalCard` grid of journal posts whose `relatedProject` points at this project (reverse query in `getProjectBySlug`, not a dedicated component). Hidden when none reference it.
 
@@ -106,13 +122,18 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 
 **Process page pieces:**
 
-- `ProcessStep.astro` — numbered step block; title is H2 in `full` variant (process page) and H3 in `preview` variant (homepage). Accepts `isLast?: boolean`; when false it renders a `.step-connector` thread in the left column (the article grid is `items-stretch` so it fills the step height). Pass `isLast={i === arr.length - 1}` at every call site.
-- `ProcessStepIllustration.astro` — inline SVG line illustrations in Soft Sage above each numeral (1-4).
+Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Process and FAQ" has the visual notes).
+
+- `sections/ProcessSteps.astro` — the journey. Desktop: a sticky rail (tape case, vertical tape, step index with time estimates as `#step-N` jump links) beside the steps; the tape pull and the active-step highlight are CSS scroll-driven via named view timelines (`--pj-journey`, `--pj-step-N`) shared through an inline `timeline-scope`, behind `@supports` + reduced motion. Phone: the rail sits above the stacked steps as the journey at a glance.
+- `ProcessStep.astro` — `full` variant (Process page): big numeral, line drawing, time estimate on a `.r-tag`, H2 title (with a visually hidden "Step N:"), shortDescription as a Zodiak lede, fullDescription (PortableText, server-rendered, no hydration), features on a paint chip toned chip 1 to 4 by position, tierNote under it. New optional props `index`, `id`, `timeline`; `isLast` is accepted and unused (the `.step-connector` thread is gone). `preview` variant kept compact for the unused `sections/ProcessPreview.astro`.
+- `ProcessStepIllustration.astro` — the four line drawings, now `currentColor` strokes with `pathLength="1"` (the Process page draws them on scroll) and a `size` prop.
+- `sections/ProcessFaq.astro` — paper band; SectionHeading + "See the full FAQ" sticky left on desktop, flat `FaqAccordion` right.
 
 **About page pieces:**
 
-- `StatsRow.astro` + `StatsCounter.tsx` — the studio stat-counter row on `/about` (between PressStrip and FinalCta). `StatsRow.astro` is the server shell that suppresses the section when `aboutPage.stats` is empty; `StatsCounter.tsx` is a `client:visible` React island that counts each figure up from zero (easeOutQuart, 1.8s) once scrolled into view, via `requestAnimationFrame` (no animation library). Reduced-motion users get the final numbers immediately. See Polish layer → Studio stat counters.
-- `AboutPersonal.astro` — renders the "off the clock" personal section on `/about`. Four modules, each self-hides when its content is empty: "Currently" (label/value list), "Rapid fire" (prompt/answer pairs), "Favorite local spots" (name + optional note), and "Beyond design" (casual paragraph + optional candid photo). The whole section renders nothing when all modules are empty. Follows the brand card pattern (bronze top stripe, card-lift shadow). Content comes from the `personal` field group on `aboutPage` (see editor-driven fields below).
+- **Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; the visual spec is DESIGN.md "About (phase 2)").** `sections/AboutStory.astro` (portrait on an Oat mat with a name/role sample tag, Zodiak lede, the first short paragraph lifted as a pull line, background/service-area spec list), `sections/AboutPhilosophy.astro` (beliefs as big statements with reasoning beside them on the ink band, no numbers), `AboutPersonal.astro` (the pinned board: taped print + ruled note, "Currently" sidebar, local-spot map, rapid-fire paint chips), and `about/AboutKicker.astro` (the sentence-case section line). Same props and Sanity fields as before; every module still self-hides when empty.
+- `StatsRow.astro` — the studio numbers on `/about` and the page-builder stats block. Server-rendered figures set as type (big Zodiak number, label beside it) between two hairlines; suppresses itself when `stats` is empty. The `StatsCounter.tsx` count-up island was deleted 2026-09-30 (it rendered every figure as 0 until JavaScript ran).
+- `AboutPersonal.astro` — the "off the clock" section on `/about`. Four modules, each self-hides when its content is empty: "Currently" (label/value list), "Rapid fire" (prompt/answer pairs), "Favorite local spots" (name + optional note), and "Beyond design" (casual paragraph + optional candid photo). The whole section renders nothing when all modules are empty. Content comes from the `personal` field group on `aboutPage` (see editor-driven fields below).
 
 **Portfolio index pieces:**
 
@@ -124,15 +145,33 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `ContactForm.tsx` — Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source. See Form section for full field list.
 - `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in Footer, Contact sidebar, and Contact-page failsafe paragraph.
 - `CalendlyInline.tsx` — click-to-load Calendly iframe placeholder. Heavy widget stays off the budget until visitor opts in.
-- `ServiceAreaMap.astro` — small map for the contact sidebar.
+- `ServiceAreaMap.astro` — small map for the contact sidebar. Restyled 2026-09-30: hairline paper frame, tiles warmed by a CSS filter that lifts on hover or focus; props unchanged.
+  Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Contact and Privacy"). Page order: Hero, the note (form + aside), the ink call band, the roadmap, the service area.
+
+- `ContactForm.tsx` — Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source, in three numbered fieldsets (01 About you, 02 Your space, 03 Timing and budget). Same field names, Web3Forms payload, validation, honeypot and `?type=` preselect as before; on a failed submit it now focuses the first invalid field in on-screen order (`FIELD_ORDER`). Its look is `src/components/contact/contact-form.css` (`.cf-*`): paper fields, Warm Bronze hairline, ruled message area, and a 2px ink OUTLINE on focus for every control (never a box-shadow ring: WebKit drops it on selects).
+- `contact/ContactAside.astro` — Staci's portrait (home `meetStaciPhoto`, else `heroPortrait`), availability, the consultation price on a sample tag (read from the service whose slug or name contains "consult"; no match = no tag), email / phone / "book a call" rows. Sticky beside the form on desktop, above the form on phones.
+- `contact/CallBand.astro` — ink "Rather talk it through first?" band (`#book-a-call`) holding `CalendlyInline` plus a plain "Open in Calendly" link.
+- `contact/ContactArea.astro` — towns from Business info set large, with `ServiceAreaMap.astro` in a paper frame.
+- `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in the Footer (`variant="link"`, unchanged) and the contact aside (`variant="note"`: `.r-link` address + 44px copy button).
+- `CalendlyInline.tsx` — click-to-load Calendly iframe; the button is the cream `.r-btn`. Heavy widget stays off the budget until the visitor opts in.
+- `ServiceAreaMap.astro` — the OpenStreetMap embed, used by `ContactArea`.
+
+**Privacy page (rebuilt 2026-09-30):** `src/pages/privacy.astro` reads as a long document: a 44rem measure, numbered h2s (CSS counter), and a contents list built from the body's own h2 blocks (sticky left column on desktop, a collapsed "On this page" on phones; the section in view gets `aria-current="location"`). `PortableTextStatic.astro` gained `variant="doc"` (plain `ptd-*` class hooks plus an id on every h2); the default variant's output is unchanged. Both the ids and the contents come from `docHeadings()` in `src/components/contact/doc-anchors.ts` (tested), so a contents link cannot miss. The static fallback policy and the derived "How traffic is measured" section are unchanged in wording.
 
 **Site-wide affordances:**
 
-- `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
+- `StickyCTAChip.tsx` — ink pill (rebuild `.r-btn--ink` look, sentence case, since 2026-09-30) with a "Working on something like this?" style label that fades in past 50% scroll, hides again above it, dismissible per session. Wired into portfolio detail / services / journal post.
 - `SectionDivider.astro` — bronze ornament between sections that share a background color (variants: `ornament` (default ✺) / `line` / `dots`).
 - `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Rewritten in place in the 2026-09-29 rebuild (same role). Falls back to italic single line when no `cities` array passed.
 - `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline. Adds the `.prose-drop-cap` float cap to the first paragraph and renders blockquotes as `.prose-blockquote` (see Polish layer → Editorial typography).
 - `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` eyebrow above the caption.
+- `FaqAccordion.tsx` — FAQ disclosure list used by `/faq` (grouped), `/process` and `/e-design` (flat). Rebuilt 2026-09-30 without Radix: each question is a `<button>` in an `<h3>` with `aria-expanded` / `aria-controls`, every answer is in the static HTML (collapsed by a grid-row + `visibility` transition), several can be open, and `#<idPrefix>-…-item-N` in the URL opens that question on load. Props unchanged (`faqs`, `categoryOrder`, `idPrefix`). Styles in `faq/faq-accordion.css`; grouping in `faq/group-faqs.ts` (`groupFaqs`, unit tested), which `/faq` also uses for its topic index so the jump-link anchors always match. `src/components/ui/accordion.tsx` (the customized shadcn primitive) is no longer imported anywhere; keep its customizations if it is ever reused.
+
+- `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
+- `SectionDivider.astro` — quiet break (rebuilt 2026-09-30): `ornament` is the logo's leaf sprig in Warm Bronze, `line` a hairline with a punched hole, `dots` three marks. `tone` (linen / paper / ink) is set by SectionRenderer to the ground of the row above.
+- `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Rewritten in place in the 2026-09-29 rebuild (same role). Falls back to italic single line when no `cities` array passed.
+- `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline. Adds the `.prose-drop-cap` float cap to the first paragraph and renders blockquotes as `.prose-blockquote` (see Polish layer → Editorial typography).
+- `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` line above the caption. Restyled 2026-09-30: headings at body scale in Zodiak Light (h4 a General Sans label), ink links with a Warm Bronze underline, Zodiak italic quotes off a bronze rule, square-cornered photos. API unchanged.
 - `FaqAccordion.tsx` — shadcn Accordion wrapper. **Note:** `src/components/ui/accordion.tsx` has been customized — the original `h-(--radix-accordion-content-height)` lock on the inner content div was removed (caused a big empty-space bug after expand), and the trigger no longer carries `text-sm font-medium` so consumer typography wins the cascade.
 - `ThemeToggle.tsx` (still in the repo but **not rendered anywhere** since 2026-09-29; the site is light only), `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
 
@@ -142,7 +181,7 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `LeadMagnetForm.tsx` (`client:visible`) — gated guide download on `/guides/[slug]`. Reveals the download link on successful email capture. Honeypot + optional first-name field.
 - `StyleQuiz.tsx` (`client:visible`) — multi-step archetype quiz on `/quiz`: questions → optional qualifiers → email gate (mode from Sanity) → result screen with recommendation + CTA. Page pre-builds Sanity image URLs so the island carries no Sanity client.
 - `BudgetCalculator.tsx` (`client:visible`) — room/scope/add-on estimate on `/calculator`. Estimate always shows without an email; optional "email me this estimate" capture. Ranges read "$500 to $1,000" (no en-dash).
-- `PostInquiryRoadmap.astro` — numbered "what happens after you hit Send" steps on `/contact`, from `contactPage.postInquiryRoadmap`. Falls back to the legacy `whatToExpectContent` block when the array is empty.
+- `PostInquiryRoadmap.astro` — "what happens after you hit Send" steps on `/contact`, from `contactPage.postInquiryRoadmap`: a paper band, steps pinned along one thread (horizontal on desktop, down the left on phones), time estimates on small linen tags. Falls back to the legacy `whatToExpectContent` block when the array is empty.
 - `PressStrip.astro` — "As Seen In" press-logo row. Suppresses itself when no `pressItem` has a logo. Used on `/`, `/about`, and `/press`.
 - `ShopGrid.astro` + `ShopItemCard.astro` — affiliate shop collections + item cards for `/shop`. Cards carry brand stripe + `rel="sponsored nofollow noopener"` + `target="_blank"` and an `aria-label` noting "opens in new tab".
 - `subscribeEmail()` in `src/lib/subscribe.ts` — shared client-safe capture helper for the four forms above. Posts to the ESP form-action URL when configured, else falls back to Web3Forms. The form component owns the honeypot; this helper only does the network call.
@@ -176,7 +215,7 @@ Audit basis: a 390×844 walk found exactly four "orphan-left" CTAs that benefit 
 
 ### Sticky CTA chip behavior
 
-`StickyCTAChip.tsx` is a bottom-floating bronze pill that appears past 50% scroll on long pages (portfolio detail, services, journal post). Behavior is now simple threshold-based visibility with a 2% hysteresis band — past 50% it shows, above 48% it hides. **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
+`StickyCTAChip.tsx` is a bottom-floating ink pill that appears past 50% scroll on long pages (portfolio detail, services, journal post). Behavior is now simple threshold-based visibility with a 2% hysteresis band — past 50% it shows, above 48% it hides. **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
 
 Positioning: always `bottom-[5.5rem]` (above the BackToTop button which lives at `bottom-6`). On mobile centered via `left-1/2 -translate-x-1/2`; on `sm+` returns to right-aligned via `sm:left-auto sm:translate-x-0 sm:right-m` so it doesn't dominate the reading column on wider viewports.
 

@@ -54,6 +54,13 @@ if (!pageDoc && import.meta.env.PROD) {
 if (!pageDoc) return Astro.redirect('/404');
 
 const title = pageDoc.seoTitle ?? pageDoc.title ?? 'Reid Design';
+
+// Every page needs one h1. A page that opens with a hero block gets it from
+// the hero; one that opens with anything else (a text section, a gallery)
+// gets the page title as a visually hidden h1, so screen readers and search
+// engines still find the page's name (2026-09-30, phase 2 of the rebuild).
+const blocks: any[] = Array.isArray(pageDoc.pageBuilder) ? pageDoc.pageBuilder : [];
+const opensWithHero = blocks.find((b) => b?._type)?._type === 'heroSection';
 const description = pageDoc.seoDescription ?? '';
 
 const schemas = [
@@ -65,5 +72,6 @@ const schemas = [
 ---
 
 <BaseLayout {title} {description} {schemas} {siteSettings} seoImage={pageDoc.seoImage}>
+  {!opensWithHero && <h1 class="sr-only">{pageDoc.title ?? title}</h1>}
   <SectionRenderer sections={pageDoc.pageBuilder} idPrefix="page" />
 </BaseLayout>

@@ -1,0 +1,154 @@
+---
+// Safe to edit by hand
+// E-Design "How it works" (phase 2 rebuild, 2026-09-30; DESIGN.md "Services
+// and E-Design"). A real sequence, so the numbers are shown big: each step
+// hangs off one thread that runs left to right (top to bottom on a phone),
+// the way the plan travels from your photos to your inbox. The thread draws
+// itself as the section scrolls in (CSS only; the default is fully drawn).
+//
+// Data: eDesignPage.howItWorks[] (stepNumber, title, body). Renders nothing
+// with no steps.
+import SectionHeading from '@/components/SectionHeading.astro';
+
+interface Step {
+  stepNumber?: number;
+  title?: string;
+  body?: string;
+}
+interface Props {
+  steps?: Step[] | null;
+}
+const { steps } = Astro.props as Props;
+const list = steps ?? [];
+---
+
+{
+  list.length > 0 && (
+    <section class="eds" aria-labelledby="edesign-how-heading">
+      <div class="r-wrap">
+        <SectionHeading headline="How E-Design works" headingId="edesign-how-heading" />
+        <ol class="eds__list" style={`--n:${list.length}`}>
+          {list.map((step, i) => (
+            <li class="eds__step">
+              <span class="eds__n" aria-hidden="true">
+                {String(step.stepNumber ?? i + 1).padStart(2, '0')}
+              </span>
+              <h3 class="r-h3 eds__title">{step.title}</h3>
+              {step.body && <p class="eds__body">{step.body}</p>}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .eds {
+    background: var(--color-paper);
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+    overflow-x: clip;
+  }
+  .eds__list {
+    position: relative;
+    list-style: none;
+    margin: clamp(3rem, 6vw, 4.5rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    gap: 2rem;
+  }
+  /* The thread, through the middle of the numerals. */
+  .eds__list::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2.6rem;
+    height: 1.5px;
+    background: var(--color-chip-5);
+    transform-origin: left center;
+  }
+  .eds__step {
+    position: relative;
+  }
+  .eds__n {
+    position: relative;
+    display: inline-block;
+    padding-right: 0.9rem;
+    background: var(--color-paper);
+    font: 300 italic clamp(3.8rem, 2.6rem + 3vw, 5.6rem) / 0.95 var(--font-display);
+    letter-spacing: -0.04em;
+    color: var(--color-chip-6);
+    font-variant-numeric: lining-nums;
+  }
+  .eds__title {
+    margin: 1.4rem 0 0.8rem;
+    max-width: 14ch;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .eds__body {
+    margin: 0;
+    max-width: 32ch;
+    color: var(--color-ink-2);
+    line-height: 1.55;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .eds__list::before {
+        animation: eds-thread linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 45%;
+      }
+    }
+  }
+  @keyframes eds-thread {
+    from {
+      transform: scaleX(0.04);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .eds__list {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.75rem;
+      padding-left: 5rem;
+    }
+    .eds__list::before {
+      left: 1.6rem;
+      right: auto;
+      top: 0.5rem;
+      bottom: 0.5rem;
+      width: 1.5px;
+      height: auto;
+      transform-origin: center top;
+    }
+    .eds__n {
+      position: absolute;
+      left: -5rem;
+      top: -0.2rem;
+      width: 3.4rem;
+      padding: 0 0 0.4rem;
+      text-align: center;
+      font-size: 2.9rem;
+    }
+    .eds__title {
+      margin-top: 0;
+      max-width: none;
+    }
+    @supports (animation-timeline: view()) {
+      @media (prefers-reduced-motion: no-preference) {
+        .eds__list::before {
+          animation-name: eds-thread-v;
+        }
+      }
+    }
+  }
+  @keyframes eds-thread-v {
+    from {
+      transform: scaleY(0.04);
+    }
+  }
+</style>
