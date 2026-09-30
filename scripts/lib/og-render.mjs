@@ -19,6 +19,10 @@
 //   └───────────┴───────────────────────────────────────────────────────────┘
 //   0         360 404                                    906  915        1200
 //
+// Cards with nothing in the margin (Home, About, Services, Contact, custom
+// pages) carry a taped print of one of her finished rooms there instead
+// (src/data/card-rooms.mjs).
+//
 // THE SQUARE CROP. WhatsApp, texts and some Messenger previews crop the middle
 // 630 x 630 (x 285 to 915). The logo and the big label live inside it, so the
 // crop still says who and what. Faces sit well left of x 285, so no crop ever
@@ -81,6 +85,8 @@ export const CARD = {
   /** Objects sit in the right-hand margin, bottom-aligned with the words. */
   side: { left: 916, width: 262, bottom: 40 },
   tape: { top: 494, caseSize: 100, bandLeft: 474, bandTop: 508, bandHeight: 64, inch: 120 },
+  /** A room print: photo, white mount (border, deeper bottom), in the margin. */
+  print: { photoW: 212, photoH: 250, border: 10, bottom: 22, centreY: 400, gap: 40, right: 1174 },
 };
 
 /**
@@ -478,10 +484,68 @@ function checklistLayer(L) {
   );
 }
 
+/**
+ * Where the room print goes: centred in the free space right of the words,
+ * shrunk (never below 80%) when the words run long, left off when even that
+ * will not fit. Tilted a little, the direction stable per card.
+ */
+function printLayout(textRight, seed) {
+  const P = CARD.print;
+  const fullW = P.photoW + P.border * 2;
+  const free = P.right - (textRight + P.gap);
+  const scale = Math.min(1, free / fullW);
+  if (scale < 0.8) return null;
+  const w = Math.round(fullW * scale);
+  const h = Math.round((P.photoH + P.border + P.bottom) * scale);
+  const cx = Math.round(P.right - free / 2);
+  const tilts = [3.5, -3, 2.5, -2.5];
+  let hsh = 0;
+  for (const ch of seed) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+  return { scale, w, h, cx, cy: P.centreY, rot: tilts[hsh % tilts.length] };
+}
+
+/** One of Staci's finished rooms as a taped print (src/data/card-rooms.mjs). */
+async function printLayer(photo, L) {
+  const P = CARD.print;
+  const pw = Math.round(P.photoW * L.scale);
+  const ph = Math.round(P.photoH * L.scale);
+  const b = Math.round(P.border * L.scale);
+  const buf = await loadPhoto(photo.src);
+  const meta = await sharp(buf).metadata();
+  const sc = Math.max(pw / meta.width, ph / meta.height);
+  const sw = Math.round(meta.width * sc);
+  const sh = Math.round(meta.height * sc);
+  const fx = photo.focus?.x ?? 0.5;
+  const fy = photo.focus?.y ?? 0.5;
+  const img = await sharp(buf)
+    .resize(sw, sh, { kernel: 'lanczos3' })
+    .extract({
+      left: Math.round(Math.min(Math.max(fx * sw - pw / 2, 0), sw - pw)),
+      top: Math.round(Math.min(Math.max(fy * sh - ph / 2, 0), sh - ph)),
+      width: pw,
+      height: ph,
+    })
+    .recomb(GRADE)
+    .modulate({ saturation: 0.94 })
+    .jpeg({ quality: 92 })
+    .toBuffer();
+  const x = L.cx - L.w / 2;
+  const y = L.cy - L.h / 2;
+  const tapeW = Math.round(88 * L.scale);
+  return svg(
+    `<g transform="rotate(${L.rot} ${L.cx} ${L.cy})">` +
+      `<rect x="${x}" y="${y}" width="${L.w}" height="${L.h}" fill="${C.paper}" filter="url(#sh)"/>` +
+      `<image x="${x + b}" y="${y + b}" width="${pw}" height="${ph}" href="data:image/jpeg;base64,${img.toString('base64')}"/>` +
+      `<rect x="${L.cx - tapeW / 2}" y="${y - 14}" width="${tapeW}" height="28" fill="${C.oat}" fill-opacity="0.82" transform="rotate(${-L.rot * 1.4} ${L.cx} ${y})"/>` +
+      `</g>`,
+    SHADOW,
+  );
+}
+
 // ---------------------------------------------------------------------------
 // The background: one PNG with everything but the words.
 // ---------------------------------------------------------------------------
-async function background(root, content, words, photo, warn) {
+async function background(root, content, words, photo, print, warn) {
   const t = toneOf(content.tone);
   const layers = [];
 
@@ -524,6 +588,16 @@ async function background(root, content, words, photo, warn) {
   if (content.object === 'checklist' && words.checklist)
     layers.push({ input: checklistLayer(words.checklist), left: 0, top: 0 });
 
+  // A room print, on cards with nothing else in the margin. Decoration: a
+  // photo that will not load costs the print, never the card.
+  if (print && words.print) {
+    try {
+      layers.push({ input: await printLayer(print, words.print), left: 0, top: 0 });
+    } catch (err) {
+      warn?.(`room print skipped (${err.message.split('\n')[0]})`);
+    }
+  }
+
   return sharp({
     create: { width: CARD.width, height: CARD.height, channels: 3, background: t.bg },
   })
@@ -536,18 +610,23 @@ async function background(root, content, words, photo, warn) {
  * Everything the text layer needs to draw one card.
  * @param {object} content  a CardContent (src/lib/og-card.ts) plus `doodle`
  * @param {{src:string, focus?:{x:number,y:number}, zoom?:number, hotspot?:{x:number,y:number}|null}|null} photo
- * @param {{root:string, warn?:(m:string)=>void}} opts
+ * @param {{root:string, warn?:(m:string)=>void, print?:{src:string, focus?:{x:number,y:number}}|null}} opts
+ *   `print`: a room for the taped print in the margin (cards with no object).
  */
-export async function prepareCard(content, photo, { root, warn }) {
+export async function prepareCard(content, photo, { root, warn, print = null }) {
   const words = layoutWords(content);
   if (content.object === 'checklist' && content.list?.items?.length)
     words.checklist = checklistLayout(content.list, words.textRight);
+  if (print && !content.object) {
+    words.print = printLayout(words.textRight, content.route ?? content.label);
+    if (!words.print) warn?.('room print left off: the words leave no room for it');
+  }
   return {
     content,
     words,
     tone: toneOf(content.tone),
     hasPhoto: Boolean(photo),
-    background: await background(root, content, words, photo, warn),
+    background: await background(root, content, words, photo, print, warn),
   };
 }
 

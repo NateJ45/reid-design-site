@@ -30,6 +30,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import sharp from 'sharp';
 import { createRenderer, prepareCard, CARD } from './og-render.mjs';
 import { PORTRAITS, POOL } from '../../src/data/card-portraits.mjs';
+import { ROOMS, POOL as ROOM_POOL } from '../../src/data/card-rooms.mjs';
 import { loadEnv } from './loadEnv.mjs';
 
 // Another company's project photos (Midwest Cabinet Connection), uploaded to
@@ -149,6 +150,19 @@ export function choosePhoto(spec, pool, meta, warn) {
   return chooseRoomPhoto(spec, pool, meta, warn);
 }
 
+/**
+ * The room print for a card's margin: only on Staci cards with no other
+ * object there (src/data/card-rooms.mjs). A custom page gets one of the pool,
+ * the same one every build. null = no print.
+ */
+export function choosePrint(spec) {
+  if (spec.object || spec.subject !== 'staci') return null;
+  if (ROOMS[spec.kind]) return ROOMS[spec.kind];
+  if (spec.kind === 'page' && ROOM_POOL.length)
+    return ROOM_POOL[hashOf(spec.route) % ROOM_POOL.length];
+  return null;
+}
+
 /** The fallback image for a card that failed to draw. */
 async function writeFallback(spec, outFile, clientDir) {
   if (spec.fallback) {
@@ -210,13 +224,13 @@ export async function renderSpecs(specs, { root, clientDir, log = console.log })
       const say = (m) => warn(`${spec.route}: ${m}`);
       let prepared;
       try {
-        prepared = await prepareCard(spec, photo, { root, warn: say });
+        prepared = await prepareCard(spec, photo, { root, warn: say, print: choosePrint(spec) });
       } catch (err) {
         // A photo that will not load (CDN hiccup, deleted asset) costs the
         // card its photo, not the whole card.
         if (!photo) throw err;
         say(`photo failed (${err.message.split('\n')[0]}); drawn without it`);
-        prepared = await prepareCard(spec, null, { root, warn: say });
+        prepared = await prepareCard(spec, null, { root, warn: say, print: choosePrint(spec) });
       }
       const png = await renderer.render(prepared);
       writeFileSync(outFile, png);
