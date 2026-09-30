@@ -17,40 +17,22 @@
 // walk" is the standard walkway clearance). Change the wording freely; keep
 // it short. The room is 14 ft 2 in by 11 ft 6 in, drawn at 32px per foot.
 // =============================================================================
+import PLAN from '@/data/floor-plan.json';
+
 interface Props {
   class?: string;
 }
 const { class: className } = Astro.props as Props;
 
-// Strokes in drawing order: walls first, then openings, then furniture, then
-// the dimension strings and note arrows. Each gets its index for the stagger.
-const STROKES = [
-  // Outer and inner wall lines, leaving gaps for the window and the door.
-  'M40 40 H210 M350 40 H520 V350 H140 M70 350 H40 V40',
-  'M48 48 H210 M350 48 H512 V342 H140 M70 342 H48 V48',
-  // The window: jambs and three lines of glass.
-  'M210 40 V48 M350 40 V48 M210 44 H350 M210 41 H350 M210 47 H350',
-  // The door leaf and its swing.
-  'M70 342 V272',
-  'M70 272 A70 70 0 0 1 140 342',
-  // Sofa with its back and two cushion seams.
-  'M178 296 H394 V336 H178 Z M178 306 H394 M250 306 V336 M322 306 V336',
-  // Armchair.
-  'M440 170 h44 v52 h-44 Z M440 178 h36 v36 h-36',
-  // Lamp on the side table (the plan symbol: a circle with a cross).
-  'M411 307 L429 325 M429 307 L411 325',
-  // Dimension strings: width across the top, depth down the right, walkway.
-  'M40 20 H520 M40 14 V26 M520 14 V26',
-  'M540 40 V350 M534 40 H546 M534 350 H546',
-  'M286 240 V296 M280 240 H292 M280 296 H292',
-  // Note arrows: "lamp here" and "morning light".
-  'M470 330 C 500 320, 500 300, 468 290 M468 290 l6 -4 M468 290 l7 3',
-  'M280 62 C 262 76, 240 84, 214 86 M214 86 l7 -5 M214 86 l7 4',
-];
-const CIRCLES = [
-  { cx: 286, cy: 200, r: 40 }, // round coffee table
-  { cx: 420, cy: 316, r: 13 }, // side table
-];
+// The geometry lives in src/data/floor-plan.json (2026-09-30) so the E-Design
+// share card (scripts/lib/og-render.mjs) draws the same room. Strokes are in
+// drawing order: the walls (outer, inner), the window, the door leaf and its
+// swing, sofa, armchair, the lamp cross, the three dimension strings, then
+// the two note arrows ("lamp here", "morning light"). Each gets its index for
+// the stagger.
+const STROKES: string[] = PLAN.strokes;
+// The round coffee table, then the side table.
+const CIRCLES: { cx: number; cy: number; r: number }[] = PLAN.circles;
 const NOTES = [
   { x: 280, y: 14, text: '14′ 2″', anchor: 'middle' },
   { x: 556, y: 200, text: '11′ 6″', anchor: 'middle', rotate: true },
@@ -71,7 +53,7 @@ const NOTES = [
     }
   </g>
   {/* The rug, dashed, is laid down after the furniture outlines. */}
-  <path class="fp-rug" d="M150 120 H420 V286 H150 Z"></path>
+  <path class="fp-rug" d={PLAN.rug}></path>
   <g class="fp-notes">
     {
       NOTES.map((n, i) => (

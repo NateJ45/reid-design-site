@@ -9,8 +9,10 @@
 //
 // For each built page:
 //   1. read its card spec (the JSON block BaseLayout wrote) and strip it out
-//   2. drop any photo that is another company's work (see BANNED), fill empty
-//      photo slots from the pool of Staci's finished-project photos
+//   2. pick its photo: Staci's branding portrait for the page
+//      (src/data/card-portraits.mjs), or for a room card the page's own photo,
+//      never another company's work (see BANNED), else one from the pool of
+//      Staci's finished-project photos
 //   3. draw the card; if that fails, copy the fallback into its place
 // Then the coverage check: every og:image under /og/ must now exist, or the
 // build fails.
@@ -27,6 +29,7 @@ import {
 import { dirname, join, relative, resolve } from 'node:path';
 import sharp from 'sharp';
 import { createRenderer, prepareCard, CARD } from './og-render.mjs';
+import { PORTRAITS, POOL } from '../../src/data/card-portraits.mjs';
 import { loadEnv } from './loadEnv.mjs';
 
 // Another company's project photos (Midwest Cabinet Connection), uploaded to
@@ -123,25 +126,27 @@ function allowed(photo, meta) {
   return !BANNED.test(m.fn ?? '') && !(m.tags ?? []).some((t) => BANNED.test(t));
 }
 
-/** Final photo list for a spec: banned ones out, empty slots filled from the pool. */
-export function choosePhotos(spec, pool, meta, warn) {
-  const photos = [];
+/** A room photo for a spec: its own if allowed, else one from the pool (stable per route). */
+export function chooseRoomPhoto(spec, pool, meta, warn) {
   for (const p of spec.photos ?? []) {
-    if (allowed(p, meta)) photos.push(p);
-    else warn(`${spec.route}: refused a banned photo (${assetIdFromUrl(p.src)})`);
+    if (allowed(p, meta)) return p;
+    warn(`${spec.route}: refused a banned photo (${assetIdFromUrl(p.src)})`);
   }
-  const want = spec.circle ? 2 : 1;
-  const used = new Set(photos.map((p) => assetIdFromUrl(p.src)));
-  let i = hashOf(spec.route);
-  for (let tries = 0; photos.length < want && tries < pool.length; tries++, i++) {
-    const p = pool[i % pool.length];
-    const id = assetIdFromUrl(p.src);
-    if (!used.has(id)) {
-      used.add(id);
-      photos.push({ src: p.src, hotspot: p.hotspot });
-    }
+  if (!pool.length) return null;
+  const p = pool[hashOf(spec.route) % pool.length];
+  return { src: p.src, hotspot: p.hotspot };
+}
+
+/**
+ * The photo a card shows. A Staci card: her branding portrait for that page,
+ * or for a custom page one from the pool, the same one every build. A room
+ * card: see chooseRoomPhoto.
+ */
+export function choosePhoto(spec, pool, meta, warn) {
+  if (spec.subject === 'staci') {
+    return PORTRAITS[spec.kind] ?? POOL[hashOf(spec.route) % POOL.length] ?? null;
   }
-  return photos.slice(0, 2);
+  return chooseRoomPhoto(spec, pool, meta, warn);
 }
 
 /** The fallback image for a card that failed to draw. */
@@ -183,7 +188,7 @@ export async function renderSpecs(specs, { root, clientDir, log = console.log })
     photoData = await loadPhotoData(client, ids);
   } catch (err) {
     warn(
-      `could not read the photo pool from Sanity (${err.message}); cards without their own photo get the plain arch`,
+      `could not read the photo pool from Sanity (${err.message}); room cards without their own photo get a plain panel`,
     );
   }
 
@@ -201,10 +206,19 @@ export async function renderSpecs(specs, { root, clientDir, log = console.log })
     mkdirSync(dirname(outFile), { recursive: true });
     try {
       if (!renderer) throw new Error('no renderer');
-      const photos = choosePhotos(spec, photoData.pool, photoData.meta, warn);
-      const png = await renderer.render(
-        await prepareCard({ title: spec.title, kicker: spec.kicker, photos }, { root }),
-      );
+      const photo = choosePhoto(spec, photoData.pool, photoData.meta, warn);
+      const say = (m) => warn(`${spec.route}: ${m}`);
+      let prepared;
+      try {
+        prepared = await prepareCard(spec, photo, { root, warn: say });
+      } catch (err) {
+        // A photo that will not load (CDN hiccup, deleted asset) costs the
+        // card its photo, not the whole card.
+        if (!photo) throw err;
+        say(`photo failed (${err.message.split('\n')[0]}); drawn without it`);
+        prepared = await prepareCard(spec, null, { root, warn: say });
+      }
+      const png = await renderer.render(prepared);
       writeFileSync(outFile, png);
       rendered++;
     } catch (err) {

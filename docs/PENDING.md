@@ -14,6 +14,27 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-30 share cards design F branch (`ccr-1d8c83a7-uw3ifl`, second PR)
+
+- **After merging, check the first Workers Build log** for `[og-cards] 8 card(s)
+drawn with satori, 0 fallback(s)` and no `photo enlarged` or `photo failed`
+  WARN lines. Then open one card per page (`/og/services.png` etc.): Services
+  should read "from $225", Process "4 steps", FAQ "19 answers" with its topic
+  checklist, Contact the "Book a consult $225" tag. A local build without the
+  read token cannot see services, FAQs or process steps, so those were only
+  seen in scratch renders, never in a real build.
+- **Refresh the old previews.** Facebook and LinkedIn cache a link's card:
+  paste each main page into Facebook's Sharing Debugger and press "Scrape
+  Again" (LinkedIn: Post Inspector).
+- **Full-size originals of three branding shots.** IMG_5694 (About), IMG_5696
+  (Contact) and IMG_5702 (FAQ) are in the library only as 400 x 600 copies.
+  They hold up at the card's strip size, but uploading the originals and
+  swapping the URLs in `src/data/card-portraits.mjs` makes them sharper.
+- **Ask Staci she is happy with her face on every shared link** (all page
+  cards except Privacy and projects). Swapping a shot is one line in
+  `src/data/card-portraits.mjs`; dropping the portrait from a page is a
+  `ROOM_KINDS` change in `src/lib/og-card.ts`.
+
 ### From the 2026-09-30 hand layer + share cards branch (`ccr-1d8c83a7-uw3ifl`)
 
 - **Build the concept room on the GPU PC.** Nathan chose to do the AI "room
@@ -29,10 +50,6 @@ items to "Recently closed" with a date, and prune that section when it grows.
   shade on the closing band). It is tuned by eye in headless Chromium; if it
   reads too strong or too faint, the two numbers are the `0.28` (sun) and
   `0.16` (leaf shade) in `src/scripts/window-light.ts`.
-- **Check the first Workers Build log for the new cards:** `[og-cards] N card(s)
-drawn with satori, 0 fallback(s)`. Design E needs `scripts/.og-fonts/`, which
-  `prebuild` fills from Fontshare; a missing font falls back to og-default and
-  says why in a WARN line. Then paste a page into opengraph.xyz.
 
 ### From the 2026-09-30 Kind words + Instagram branch (`claude/kind-words-instagram`)
 
@@ -226,14 +243,8 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
   build; it copies `og-default.png` into that card's place and says why in a WARN
   line, so read the log rather than trusting a green build. Then paste a page URL into
   a share debugger (opengraph.xyz) to see the live card.
-- **Two page heroes Staci might not want on a share card.** The e-design page's
-  hero is `reid-design-older-open-plan-living-dining.jpg` (from the "older / before"
-  set), and the contact page's is `reid-design-blue-hutch-hydrangeas.jpg`, a mantel
-  of children's photos. The cards use each page's own hero on purpose (her choice
-  wins), so the fix, if she wants one, is a different hero or a per-page SEO image in
-  the Studio.
-- **No project image has a hotspot set.** The arch crops around the centre, so the
-  grey-sectional hero shows its ceiling fan. Setting a hotspot on a project's hero in
+- **No project image has a hotspot set.** A project card's photo strip crops
+  around the centre (design F, 2026-09-30). Setting a hotspot on a project's hero in
   the Studio moves the crop on the next build.
 
 ### From the 2026-09-06 Sanity phase-1 stack bump

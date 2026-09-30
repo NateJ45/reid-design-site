@@ -64,7 +64,7 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'portfolio', image: page?.heroImage }}
 >
   <Hero
     eyebrow={heroEyebrow}

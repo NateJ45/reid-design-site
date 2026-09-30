@@ -2,6 +2,25 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Share cards design F, "the cover" (branch `ccr-1d8c83a7-uw3ifl`, second PR)
+
+- Nathan: the design E cards "feel boring and you don't immediately know whose
+  website it is and what the page will be about". Audited at true size (feed,
+  iMessage bubble, the 96px square crop), then a design debate: three designer
+  agents, two critics, two rounds (record in `docs/agent/seo.md`). Winner: the
+  magazine cover, with the worktable's checklist and floor plan folded in.
+- Every card: Staci's branding-shoot portrait with her name tag
+  (`src/data/card-portraits.mjs`, safe to edit), her real logo in the masthead
+  inside the square-crop zone, the page's own nav name as the big line, one
+  fact from `getChromeFacts()`, at most one object (Contact price tag, Process
+  tape, E-Design floor plan, FAQ/fallback checklist), one ground per page.
+- `cardContent()` in `src/lib/og-card.ts` (spec v2) replaces the title +
+  kicker spec; pages pass `card={{ kind }}`. The floor plan geometry moved to
+  `src/data/floor-plan.json`, shared with the closing band (markup unchanged,
+  checked byte for byte). The Chromium A/B backend was removed: satori is the
+  only renderer. `public/og-default.png` redrawn (Staci + her checklist).
+- `site.owner` ("Staci Perkins") added to `src/data/site.ts` for the name tag.
+
 ## 2026-09-30 — The hand layer, window light, share cards design E (branch `ccr-1d8c83a7-uw3ifl`)
 
 - **Botanical ambience:** six fine-line botanicals in the style of Staci's own

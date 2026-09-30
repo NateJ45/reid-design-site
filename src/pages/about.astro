@@ -14,6 +14,7 @@ import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
 import { getAboutPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
+import { roleFromAttribution } from '@/lib/og-card';
 
 const [page, siteSettings] = await Promise.all([getAboutPage(), getSiteSettings()]);
 
@@ -38,7 +39,7 @@ const schemas = [
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'about', role: roleFromAttribution(page?.staciAttribution) }}
 >
   <AboutSectionRenderer
     sections={page?.pageBuilder}

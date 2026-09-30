@@ -62,6 +62,6 @@ Removed 2026-09-30 (never launched): the newsletter, shop, guides, gift certific
 
 ### Recurring upkeep
 
-- [ ] Share cards redraw on every build; after editing the card design (`CARD` in `scripts/lib/og-render.mjs`) also run `npm run og` to redraw the `og-default.png` fallback.
+- [ ] Share cards redraw on every build; after editing the card design (`CARD` in `scripts/lib/og-render.mjs`) or a portrait (`src/data/card-portraits.mjs`) also run `npm run og` to redraw the `og-default.png` fallback.
 - [ ] Re-run `npm run typegen` after any Sanity schema change.
 - [ ] Annually: refresh availability status on `siteSettings` if Staci's booking situation changes.

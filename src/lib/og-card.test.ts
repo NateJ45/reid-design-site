@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cardContent,
+  CARD_TONES,
+  cleanCardLine,
   cleanCardTitle,
-  cleanKicker,
+  roleFromAttribution,
   extractCardSpec,
   findMissingOgFiles,
   ogCardPath,
@@ -67,17 +70,119 @@ describe('cleanCardTitle', () => {
   });
 });
 
-describe('cleanKicker', () => {
-  it('passes a clean kicker through', () => {
-    expect(cleanKicker('Portfolio · Zionsville, IN')).toEqual({
-      kicker: 'Portfolio · Zionsville, IN',
+describe('cleanCardLine', () => {
+  it('passes a clean line through', () => {
+    expect(cleanCardLine('Plainfield · Greater Indianapolis')).toEqual({
+      line: 'Plainfield · Greater Indianapolis',
       warnings: [],
     });
   });
   it('turns an em-dash into a middle dot and warns', () => {
-    const r = cleanKicker('Journal — Kitchens');
-    expect(r.kicker).toBe('Journal · Kitchens');
+    const r = cleanCardLine('Plain language — no legalese');
+    expect(r.line).toBe('Plain language · no legalese');
     expect(r.warnings).toHaveLength(1);
+  });
+});
+
+describe('cardContent (design F)', () => {
+  const facts = {
+    consultPrice: '$225',
+    servicesFact: 'from $225',
+    eDesignFact: 'from $250',
+    faqFact: '19 answers',
+    processFact: '4 steps',
+    portfolioFact: '6 projects',
+  };
+  const ctx = {
+    facts,
+    city: 'Plainfield',
+    serviceRegion: 'Greater Indianapolis',
+    owner: 'Staci Perkins',
+  };
+
+  it('labels each page with its own nav name, never the hero slogan', () => {
+    const c = cardContent({ kind: 'about', headline: 'People Hire People.' }, ctx);
+    expect(c.label).toBe('About Staci');
+    expect(cardContent({ kind: 'faq' }, ctx).label).toBe('FAQ');
+    expect(cardContent({ kind: 'e-design' }, ctx).label).toBe('E-Design');
+  });
+
+  it('takes each fact from the chrome facts, the same numbers the footer prints', () => {
+    expect(cardContent({ kind: 'services' }, ctx).fact).toBe('from $225');
+    expect(cardContent({ kind: 'process' }, ctx).fact).toBe('4 steps');
+    expect(cardContent({ kind: 'e-design' }, ctx).fact).toBe('from $250');
+    expect(cardContent({ kind: 'faq' }, ctx).fact).toBe('19 answers');
+    expect(cardContent({ kind: 'about' }, ctx).fact).toBeNull();
+  });
+
+  it('puts the header price tag on Contact only, and drops it without a price', () => {
+    expect(cardContent({ kind: 'contact' }, ctx).tag).toEqual({
+      label: 'Book a consult',
+      price: '$225',
+    });
+    expect(cardContent({ kind: 'services' }, ctx).tag).toBeNull();
+    expect(cardContent({ kind: 'contact' }, { ...ctx, facts: {} }).tag).toBeNull();
+  });
+
+  it('gives each page one object at most', () => {
+    expect(cardContent({ kind: 'process' }, ctx).object).toBe('tape');
+    expect(cardContent({ kind: 'e-design' }, ctx).object).toBe('plan');
+    const faq = cardContent({ kind: 'faq', list: ['Pricing & Cost', null, ' Logistics '] }, ctx);
+    expect(faq.object).toBe('checklist');
+    expect(faq.list).toEqual({ heading: null, items: ['Pricing & Cost', 'Logistics'] });
+    expect(cardContent({ kind: 'faq' }, ctx).object).toBeNull();
+    expect(cardContent({ kind: 'services' }, ctx).object).toBeNull();
+  });
+
+  it('shows Staci on page cards and a room on privacy and projects', () => {
+    expect(cardContent({ kind: 'home' }, ctx).subject).toBe('staci');
+    expect(cardContent({ label: 'Holiday guide' }, ctx).subject).toBe('staci');
+    expect(cardContent({ kind: 'privacy' }, ctx).subject).toBe('room');
+    const project = cardContent({ kind: 'project', title: 'A Warm Kitchen' }, ctx);
+    expect(project.subject).toBe('room');
+    expect(project.nameTag).toEqual({ role: null, name: 'Staci Perkins' });
+    expect(cardContent({ kind: 'privacy' }, ctx).nameTag).toBeNull();
+  });
+
+  it('prints the role on her name tag on About only', () => {
+    expect(cardContent({ kind: 'about', role: 'Founder, Reid Design LLC' }, ctx).nameTag).toEqual({
+      role: 'Founder, Reid Design LLC',
+      name: 'Staci Perkins',
+    });
+    expect(cardContent({ kind: 'home', role: 'Founder' }, ctx).nameTag?.role).toBeNull();
+  });
+
+  it('builds the home line from Business info', () => {
+    expect(cardContent({ kind: 'home' }, ctx).line).toBe('Plainfield · Greater Indianapolis');
+  });
+
+  it('labels a custom page with its own title, brand stripped, stable colour', () => {
+    const a = cardContent({ label: 'Holiday Styling — Reid Design' }, ctx);
+    expect(a.label).toBe('Holiday Styling');
+    expect(['oat', 'linen', 'sandbar']).toContain(a.tone);
+    expect(cardContent({ label: 'Holiday Styling' }, ctx).tone).toBe(a.tone);
+    expect(cardContent({}, { ...ctx, seoTitle: 'Gift Guide | Reid Design' }).label).toBe(
+      'Gift Guide',
+    );
+  });
+
+  it('never grounds a card on Warm Bronze, and never puts an em-dash on one', () => {
+    expect(Object.values(CARD_TONES)).not.toContain('bronze');
+    const c = cardContent({ kind: 'project', title: 'Fishers — before and after' }, ctx);
+    expect(c.title).toBe('Fishers, before and after');
+    expect(c.warnings).toHaveLength(1);
+  });
+});
+
+describe('roleFromAttribution', () => {
+  it('takes the part after the name, without the full stop', () => {
+    expect(roleFromAttribution('Staci Perkins · Founder, Reid Design LLC.')).toBe(
+      'Founder, Reid Design LLC',
+    );
+  });
+  it('is null without a role', () => {
+    expect(roleFromAttribution('Staci Perkins')).toBeNull();
+    expect(roleFromAttribution(null)).toBeNull();
   });
 });
 
@@ -93,21 +198,30 @@ describe('ogCardPath', () => {
 
 describe('spec block round trip', () => {
   const spec: CardSpec = {
-    v: 1,
+    v: 2,
     out: '/og/about.png',
     route: '/about',
-    title: 'A title with </script> in it',
-    kicker: 'Interior design · Plainfield, Indiana',
+    kind: 'page',
+    label: 'A label with </script> in it',
+    title: null,
+    line: null,
+    fact: null,
+    tag: null,
+    object: null,
+    list: null,
+    tone: 'oat',
+    subject: 'staci',
+    nameTag: { role: null, name: 'Staci Perkins' },
     photos: [
       { src: 'https://cdn.sanity.io/images/p/d/abc-10x10.jpg', hotspot: { x: 0.5, y: 0.4 } },
     ],
-    circle: false,
+    doodle: 'olive-sprig',
     fallback: null,
     warnings: [],
   };
   const html = `<html><head><meta charset="utf-8"><script type="application/json" id="og-card-spec">${serializeSpec(spec)}</script><title>t</title></head></html>`;
 
-  it('cannot be closed early by the title', () => {
+  it('cannot be closed early by the label', () => {
     expect(serializeSpec(spec)).not.toContain('</script>');
   });
   it('extracts what was written', () => {
