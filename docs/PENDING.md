@@ -318,7 +318,11 @@ rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5
    Kitchen, bath: re-rolled as dated-but-complete rooms (specs rewritten), candidates were
    rendering at handoff; pick from their sheets. Bedroom: 13 of 16 candidates exist, no sheet
    yet; rerun `room:generate -- --room bedroom-japandi base`.
-4. At handoff a queued job was building family then dining stages; check
+4. First family/dining builds FAILED review (dining trim painted a mural on the walls;
+   family trim smeared the rug onto the floor; family rug looked like pixels). Specs fixed
+   (carpentry-only trim at full quality, full-drift guard 12, real rug) and both queued to
+   rebuild after kitchen/bath/bedroom. Review every frame of each room before publishing.
+5. At handoff a queued job was building family then dining stages; check
    `work/family-farmhouse/final/` and `work/dining-deco/final/` for frames before rerunning.
 
 **Known lessons (don't relearn):** cut-out layers were abandoned (lost rods, clipped
