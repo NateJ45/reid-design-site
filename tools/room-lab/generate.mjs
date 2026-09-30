@@ -1,17 +1,20 @@
 // Frame generation through a local ComfyUI server. One edit per PIECE of furniture.
-//   npm run room:generate -- base [--variant tan|peach]
-//   npm run room:generate -- stages --base work/base/tan-3303.png [--only <pieceId>] [--workflow edit|edit-reflatent]
-//   npm run room:generate -- probe --image <png> --change "<text>" --seed <n> [--workflow <name>]
+//   npm run room:generate -- --room <slug> base [--variant <id>]
+//   npm run room:generate -- --room <slug> stages --base work/<slug>/base/tan-3303.png [--only <pieceId>] [--workflow edit|edit-reflatent]
+//   npm run room:generate -- --room <slug> probe --image <png> --change "<text>" --seed <n> [--workflow <name>]
+// The room's spec is rooms/<slug>.json; work goes to work/<slug>/ (see lib/paths.mjs).
+// Per-piece spec fields: maxDrift, workflow (overrides --workflow), denoise (0..1, fills a
+// "__DENOISE__" token in the workflow, default 1).
 // Workflows come from workflows/<name>.json (t2i, edit, edit-reflatent; see workflows/README.md).
 //
 // Frames: work/final/frame-0.png is the empty room; frame-k is the room after piece k (in
-// stages.json `pieces` order). The lock-down mask of piece <id> is work/final/piece-<id>.mask.png,
+// the room spec's `pieces` order). The lock-down mask of piece <id> is work/final/piece-<id>.mask.png,
 // which layers.mjs turns into that piece's own transparent layer.
 import { readFile, writeFile, mkdir, readdir, copyFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import sharp from 'sharp';
-import { ROOT, WORK, FINAL, loadSpec } from './lib/paths.mjs';
+import { ROOT, WORK, FINAL, SLUG, loadSpec } from './lib/paths.mjs';
 import { ping, uploadImage, queue, waitFor, fetchOutputs } from './lib/comfy.mjs';
 import { topFifthDrift, fullDrift } from './lib/drift.mjs';
 import { lockDown } from './lib/composite.mjs';
@@ -50,6 +53,7 @@ async function loadWorkflow(name) {
 }
 
 async function runWorkflow(name, vals) {
+  vals = { __DENOISE__: 1, ...vals };
   const wf = fill(await loadWorkflow(name.endsWith('.json') ? name : `${name}.json`), vals);
   const id = await queue(wf);
   const hist = await waitFor(id);
@@ -134,14 +138,14 @@ async function doBase() {
     .jpeg({ quality: 88 })
     .toFile(sheet);
   console.log(
-    `Contact sheet: ${sheet}\nPick one, then: npm run room:generate -- stages --base tools/room-lab/work/base/<variant>-<seed>.png`,
+    `Contact sheet: ${sheet}\nPick one, then: npm run room:generate -- --room ${SLUG ?? '<slug>'} stages --base tools/room-lab/work/${SLUG ?? '<slug>'}/base/<variant>-<seed>.png`,
   );
 }
 
 // ---- stages (one edit per piece) -----------------------------------------------
 async function doStages() {
   const only = flag('--only');
-  const wfName = flag('--workflow') || 'edit';
+  const defaultWorkflow = flag('--workflow') || 'edit';
   const rawDir = join(WORK, 'raw');
   await mkdir(FINAL, { recursive: true });
   await mkdir(rawDir, { recursive: true });
@@ -176,6 +180,8 @@ async function doStages() {
     const pc = pieces[i];
     const n = i + 1; // frame number after this piece
     const limit = pc.maxDrift ?? MAX_DRIFT;
+    const wfName = pc.workflow ?? defaultWorkflow;
+    const denoise = pc.denoise ?? 1;
     const prev = join(FINAL, `frame-${n - 1}.png`);
     if (!existsSync(prev)) throw new Error(`Missing ${prev}; regenerate earlier pieces first.`);
     const uploaded = await uploadImage(prev);
@@ -189,6 +195,7 @@ async function doStages() {
         __WIDTH__: W,
         __HEIGHT__: H,
         __IMAGE__: uploaded,
+        __DENOISE__: denoise,
         __PREFIX__: `room-${pc.id}-${seed}`,
       });
       const rawPath = join(rawDir, `${pc.id}-${seed}.png`);
@@ -210,7 +217,7 @@ async function doStages() {
     if (!accepted) {
       console.error(
         `\nSTOPPED: every seed for piece "${pc.id}" drifted more than ${limit} in the top fifth (${pc.seeds.join(', ')}).` +
-          `\nAdd seeds in stages.json or soften the change text, then: npm run room:generate -- stages --only ${pc.id}`,
+          `\nAdd seeds in the room spec or soften the change text, then: npm run room:generate -- --room ${SLUG ?? '<slug>'} stages --only ${pc.id}`,
       );
       process.exit(2);
     }
@@ -221,7 +228,7 @@ async function doStages() {
       console.warn(`\nNOTE: later pieces were built on the OLD ${only} frame and must be regenerated in order: ${later.join(', ')}.`);
     }
   }
-  console.log('Done. Next: npm run room:walls, npm run room:layers, npm run room:sheet');
+  console.log(`Done. Next: room:grade, room:walls, room:layers, room:sheet (each with --room ${SLUG ?? '<slug>'}).`);
 }
 
 // ---- probe: one edit, no lock-down, for comparing workflows and prompts -------
@@ -265,7 +272,7 @@ try {
   else if (cmd === 'probe') await doProbe();
   else {
     console.error(
-      'Usage: generate base [--variant id] | stages --base <file> [--only <pieceId>] [--workflow <name>] | probe --image <png> --change "<text>" [--seed n] [--workflow <name>]',
+      'Usage: generate --room <slug> base [--variant id] | stages --base <file> [--only <pieceId>] [--workflow <name>] | probe --image <png> --change "<text>" [--seed n] [--workflow <name>]',
     );
     process.exit(1);
   }

@@ -1,0 +1,8 @@
+[
+  { "slug": "living-transitional", "label": "Living room", "type": "living", "style": "Transitional" },
+  { "slug": "family-farmhouse", "label": "Family room", "type": "family", "style": "Modern farmhouse" },
+  { "slug": "dining-deco", "label": "Dining room", "type": "dining", "style": "Art deco" },
+  { "slug": "kitchen-modern", "label": "Kitchen", "type": "kitchen", "style": "Modern" },
+  { "slug": "bath-seaside", "label": "Bathroom", "type": "bath", "style": "Seaside" },
+  { "slug": "bedroom-japandi", "label": "Bedroom", "type": "bedroom", "style": "Japandi" }
+]
