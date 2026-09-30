@@ -1,17 +1,53 @@
 ---
-// About "story" section, extracted verbatim from about.astro so the marker-based
-// page builder can render it in any order. Content still comes from the aboutPage
-// fields (passed in), so nothing migrated. Keeps its original bg-background
-// surface so the default order is pixel-identical. Safe to edit by hand.
-import SectionHeading from '@/components/SectionHeading.astro';
+// Safe to edit by hand
+// About "story" (rebuilt 2026-09-30, phase 2 of the art-direction rebuild;
+// see DESIGN.md "About (phase 2)"). Same props and Sanity fields as before:
+// storyEyebrow, storyHeadline, storyContent, staciPhoto, staciAttribution,
+// backgroundLine, serviceAreaMention.
+//
+// Editorial rhythm instead of "portrait + a wall of text":
+//   - The portrait on the left (sticky on desktop) on an Oat mat, with a
+//     sample tag clipped to it carrying her name and role (from
+//     staciAttribution, split on "·").
+//   - The kicker line, then the headline.
+//   - The FIRST paragraph of the story set large in Zodiak as the lede.
+//   - The first SHORT paragraph after it (100 characters or fewer, plain
+//     text, e.g. "So I built Reid Design to be different. Approachable.
+//     Thoughtful. Honest.") is lifted out as a pull line: big Zodiak italic
+//     with a hung quote mark. It stays in her order, it is her own words, and
+//     it only happens when such a paragraph exists.
+//   - Everything else renders through PortableText as before.
+//   - backgroundLine / serviceAreaMention close the column as a small spec
+//     list, like the back of a sample card.
+//
+// PREVIEW (stega): nothing here slices a CMS string mid-run. Lengths are
+// measured on CLEAN text (splitStega); the attribution is split on the clean
+// text and its run re-attached once, whole, to the last part printed.
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
+import AboutKicker from '@/components/about/AboutKicker.astro';
+import { splitStega } from '@/lib/preview-stega';
+import type { PortableTextBlock } from '@portabletext/types';
+
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+/** A Portable Text block plus the bits we read to find the lede and pull line. */
+type Block = PortableTextBlock & {
+  style?: string;
+  listItem?: string;
+  children?: { _type?: string; text?: string; marks?: string[] }[];
+};
 
 interface Props {
   eyebrow?: string;
   headline?: string;
-  content?: any;
-  photo?: any;
+  content?: Block[] | null;
+  photo?: SanityImageObject | null;
   attribution?: string;
   backgroundLine?: string;
   serviceAreaMention?: string;
@@ -19,7 +55,7 @@ interface Props {
 }
 
 const {
-  eyebrow = 'My Story.',
+  eyebrow = 'My story',
   headline = 'Why I Started Reid Design.',
   content,
   photo,
@@ -28,67 +64,306 @@ const {
   serviceAreaMention,
   headingId = 'about-story-heading',
 } = Astro.props as Props;
+
+const isPlainPara = (b?: Block) =>
+  b?._type === 'block' && (b.style ?? 'normal') === 'normal' && !b.listItem;
+const textOf = (b?: Block) => (b?.children ?? []).map((c) => c.text ?? '').join('');
+
+// Lede = the first paragraph, printed as plain text in Zodiak.
+const blocks: Block[] = Array.isArray(content) ? content : [];
+const [first, ...afterFirst] = blocks;
+const lede = isPlainPara(first) ? textOf(first) : '';
+const body = lede ? afterFirst : blocks;
+
+// Pull line = the first short, unmarked paragraph in the body.
+const PULL_MAX = 100;
+const pullIndex = body.findIndex((b) => {
+  if (!isPlainPara(b)) return false;
+  if ((b.children ?? []).some((c) => (c.marks ?? []).length > 0)) return false;
+  const clean = splitStega(textOf(b)).cleaned.trim();
+  return clean.length > 0 && clean.length <= PULL_MAX;
+});
+const beforePull = pullIndex >= 0 ? body.slice(0, pullIndex) : body;
+const pull = pullIndex >= 0 ? textOf(body[pullIndex]) : '';
+const afterPull = pullIndex >= 0 ? body.slice(pullIndex + 1) : [];
+
+// "Staci Perkins · Founder, Reid Design LLC" -> name + role, split on CLEAN
+// text; the run goes back on whichever part prints last.
+const att = splitStega(attribution ?? '');
+const [attName = '', ...attRest] = att.cleaned.split('·').map((s) => s.trim());
+const tagName = attName || 'Staci Perkins';
+const tagRole = attRest.filter(Boolean).join(' · ') || (attName ? '' : 'Owner and designer');
+
+const specs = [
+  { label: 'Background', value: backgroundLine },
+  { label: 'Where I work', value: serviceAreaMention },
+].filter((s) => s.value?.trim());
 ---
 
-<section class="bg-background" aria-labelledby={headingId}>
-  <div
-    class="mx-auto grid max-w-content grid-cols-1 items-start gap-l px-m py-section-lg md:grid-cols-[1fr_1.2fr] md:gap-section-md"
-  >
-    <div class="md:sticky md:top-section-lg">
-      {
-        photo?.asset ? (
-          <SanityImage
-            source={photo}
-            width={900}
-            sizes="(min-width: 768px) 40vw, 100vw"
-            quality={75}
-            class="h-auto w-full rounded-md"
-          />
-        ) : (
-          <div class="aspect-[4/5] rounded-md bg-muted" aria-hidden="true" />
-        )
-      }
-      {
-        attribution && (
-          <p class="mt-s text-xs tracking-widest text-foreground/80 uppercase">{attribution}</p>
-        )
-      }
-    </div>
+<section class="story" aria-labelledby={headingId}>
+  <div class="r-wrap story__grid">
+    <figure class="story__photo">
+      <div class="story__mat">
+        {
+          photo?.asset ? (
+            <SanityImage
+              source={photo}
+              width={900}
+              height={1125}
+              sizes="(min-width: 1024px) 38vw, (min-width: 640px) 30rem, 100vw"
+              quality={75}
+              class="story__img"
+            />
+          ) : (
+            <div class="story__img story__img--empty" aria-hidden="true" />
+          )
+        }
+      </div>
+      <figcaption class="r-tag story__tag">
+        {tagRole && <small>{tagRole}</small>}
+        <strong>
+          {tagName}
+          {att.encoded}
+        </strong>
+      </figcaption>
+    </figure>
 
-    <div>
-      <SectionHeading eyebrow={eyebrow} headline={headline} headingId={headingId} />
+    <div class="story__copy">
+      <AboutKicker text={eyebrow} />
+      <h2 id={headingId} class="r-h2 story__h">{headline}</h2>
 
-      {
-        content && (
-          <PortableText
-            value={content}
-            className="mt-l text-foreground/85 text-lg leading-relaxed"
-          />
-        )
-      }
+      {lede && <p class="story__lede">{lede}</p>}
 
       {
-        (backgroundLine || serviceAreaMention) && (
-          <div class="mt-section-md space-y-m border-t border-border-soft pt-l text-foreground/80">
-            {backgroundLine && (
-              <p>
-                <span class="mb-xs block text-xs tracking-widest text-foreground/80 uppercase">
-                  Background
-                </span>
-                {backgroundLine}
-              </p>
-            )}
-            {serviceAreaMention && (
-              <p>
-                <span class="mb-xs block text-xs tracking-widest text-foreground/80 uppercase">
-                  Service area
-                </span>
-                {serviceAreaMention}
-              </p>
-            )}
+        beforePull.length > 0 && (
+          <div class="story__body">
+            <PortableText value={beforePull} />
           </div>
+        )
+      }
+
+      {
+        pull && (
+          <blockquote class="story__pull">
+            <p>{pull}</p>
+          </blockquote>
+        )
+      }
+
+      {
+        afterPull.length > 0 && (
+          <div class="story__body">
+            <PortableText value={afterPull} />
+          </div>
+        )
+      }
+
+      {
+        specs.length > 0 && (
+          <dl class="story__specs">
+            {specs.map((s) => (
+              <div>
+                <dt>{s.label}</dt>
+                <dd>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
         )
       }
     </div>
   </div>
 </section>
+
+<style>
+  .story {
+    padding-block: clamp(4.5rem, 10vw, 9rem);
+    /* The tag swings in from past the edge on phones. `clip` keeps the
+       sticky portrait working (it is not a scroll container). */
+    overflow-x: clip;
+  }
+  .story__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  /* ---- Portrait: photo on an Oat mat that sits a little proud of it, the
+     way a print sits on a mount board. ---- */
+  .story__photo {
+    grid-column: 1 / 6;
+    position: sticky;
+    top: 6.5rem;
+    margin: 0;
+  }
+  .story__mat {
+    position: relative;
+    overflow: clip;
+    box-shadow: 1.1rem 1.1rem 0 var(--color-chip-2);
+  }
+  .story__photo :global(.story__img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .story__img--empty {
+    background: var(--color-chip-1);
+  }
+  .story__tag {
+    position: absolute;
+    right: -1.25rem;
+    bottom: 2.75rem;
+    max-width: 17rem;
+    rotate: -3deg;
+    transform-origin: 0 50%;
+  }
+
+  /* ---- Copy column. ---- */
+  .story__copy {
+    grid-column: 7 / 13;
+  }
+  .story__h {
+    margin: 0;
+    color: var(--color-ink);
+    max-width: 14ch;
+  }
+  .story__lede {
+    margin: 2rem 0 1.75rem;
+    max-width: 30ch;
+    font: 300 clamp(1.4rem, 1.1rem + 0.9vw, 1.9rem) / 1.32 var(--font-display);
+    letter-spacing: -0.012em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  .story__body {
+    max-width: 44ch;
+    font-size: 1.06rem;
+    line-height: 1.65;
+    color: var(--color-ink-2);
+  }
+  .story__body :global(p) {
+    margin: 0 0 1.1rem;
+  }
+
+  /* The pull line: her own short paragraph, lifted. The quote mark hangs
+     into the margin on desktop and in Warm Bronze (display size only). */
+  .story__pull {
+    position: relative;
+    margin: 2.5rem 0 2.75rem;
+    padding: 1.75rem 0 0;
+    border-top: 1px solid var(--color-rule);
+    max-width: 36rem;
+  }
+  .story__pull p {
+    margin: 0;
+    max-width: 13em;
+    font: 300 italic clamp(1.9rem, 1.3rem + 2vw, 3.1rem) / 1.08 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-chip-7);
+    text-wrap: balance;
+  }
+  .story__pull::before {
+    content: '\201C';
+    position: absolute;
+    left: -0.5em;
+    top: 0.18em;
+    font: 300 clamp(3.4rem, 2.4rem + 3vw, 5.6rem) / 1 var(--font-display);
+    color: var(--color-chip-5);
+  }
+
+  .story__specs {
+    display: grid;
+    gap: 0;
+    margin: 2.75rem 0 0;
+    max-width: 44ch;
+    border-top: 1px solid var(--color-ink);
+  }
+  .story__specs > div {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .story__specs dt {
+    font: 500 0.88rem/1.5 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .story__specs dd {
+    margin: 0;
+    color: var(--color-ink);
+  }
+
+  /* ---- Motion: the portrait settles and the tag swings onto it as the
+     section scrolls in. Enhances a visible default; CSS only. ---- */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .story__photo :global(.story__img) {
+        animation: story-settle linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 45%;
+      }
+      .story__tag {
+        animation: story-swing linear backwards;
+        animation-timeline: view();
+        animation-range: entry 40% cover 40%;
+      }
+      .story__pull p {
+        animation: story-rise linear backwards;
+        animation-timeline: view();
+        animation-range: entry 10% cover 30%;
+      }
+    }
+  }
+  @keyframes story-settle {
+    from {
+      transform: scale(1.1);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+  @keyframes story-swing {
+    from {
+      rotate: -14deg;
+      translate: 1.5rem 0.5rem;
+    }
+  }
+  @keyframes story-rise {
+    from {
+      translate: 0 0.6em;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .story__grid {
+      display: block;
+    }
+    .story__photo {
+      position: relative;
+      top: auto;
+      max-width: 30rem;
+      margin-right: 1.1rem;
+    }
+    .story__tag {
+      right: -0.25rem;
+      bottom: 1.5rem;
+    }
+    .story__copy {
+      margin-top: 3.5rem;
+    }
+    .story__pull {
+      padding-left: 2.4rem;
+    }
+    .story__pull::before {
+      left: 0;
+    }
+  }
+  @media (max-width: 479px) {
+    .story__specs > div {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+  }
+</style>

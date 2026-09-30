@@ -1,6 +1,17 @@
 ---
-import StatsCounter from './StatsCounter';
-
+// Safe to edit by hand
+// Studio numbers (rebuilt 2026-09-30, phase 2 of the art-direction rebuild;
+// see DESIGN.md "About (phase 2)"). Used by the About page's "stats" marker
+// and by the page-builder stats block (SectionRenderer). Same props as
+// before: { number, suffix?, label }[]; renders nothing when empty.
+//
+// Not the SaaS hero-metric band (big centred numbers over tiny caps labels,
+// counting up from zero). The numbers are set as TYPE: a run of big Zodiak
+// figures, each with its label beside it in plain sentence case, flowing and
+// wrapping like a line of copy between two hairlines. The figures are real
+// text in the server HTML from the first byte; the old StatsCounter island
+// started every number at 0 until a script ran, which is exactly the
+// "visibility behind JS" the rebuild rules out.
 interface StatItem {
   number: number;
   suffix?: string;
@@ -11,15 +22,67 @@ interface Props {
   stats: StatItem[];
 }
 
-const { stats } = Astro.props as Props;
+const { stats = [] } = Astro.props as Props;
+const list = (stats ?? []).filter((s) => typeof s?.number === 'number' && s?.label);
+// en-US grouping ("1,200"), never locale-dependent at build time.
+const fmt = new Intl.NumberFormat('en-US');
 ---
 
 {
-  stats.length > 0 && (
-    <section class="bg-background" aria-label="Studio stats">
-      <div class="mx-auto max-w-content px-m py-section-md">
-        <StatsCounter stats={stats} client:visible />
+  list.length > 0 && (
+    <section class="figs" aria-label="Studio numbers">
+      <div class="r-wrap">
+        <dl class="figs__run">
+          {list.map((s) => (
+            <div class="figs__item">
+              <dt class="figs__label">{s.label}</dt>
+              <dd class="figs__n">
+                {fmt.format(s.number)}
+                {s.suffix && <span class="figs__suf">{s.suffix}</span>}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   )
 }
+
+<style>
+  .figs {
+    padding-block: clamp(3.5rem, 7vw, 6rem);
+  }
+  .figs__run {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.5rem clamp(2.5rem, 6vw, 5.5rem);
+    margin: 0;
+    padding-block: clamp(1.75rem, 3vw, 2.5rem);
+    border-block: 1px solid var(--color-rule);
+  }
+  /* Figure first, label beside it on its baseline. The dt stays first in the
+     DOM (valid <dl> order); `order` puts the number ahead visually. */
+  .figs__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+  }
+  .figs__n {
+    order: -1;
+    margin: 0;
+    font: 300 clamp(3.4rem, 2rem + 5vw, 7rem) / 0.9 var(--font-display);
+    letter-spacing: -0.04em;
+    color: var(--color-ink);
+    font-variant-numeric: lining-nums;
+  }
+  .figs__suf {
+    font-style: italic;
+    color: var(--color-chip-6);
+  }
+  .figs__label {
+    max-width: 14ch;
+    font: 500 1rem/1.3 var(--font-body);
+    color: var(--color-ink-2);
+  }
+</style>

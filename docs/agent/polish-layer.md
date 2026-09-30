@@ -76,9 +76,9 @@ Journal posts open with a floated display-serif drop cap on the first paragraph 
 
 Card hero images scale to 1.06 and gain a faint bronze wash on hover. Add `.img-zoom` to the `overflow-hidden` image wrapper and drop an `.img-tint` (project cards, 0.15 bronze) or `.img-tint.img-tint-light` (journal cards, 0.08) div inside it. The effect fires on the whole card — both `.group:hover .img-zoom` (the card `<a>` carries `group`) and direct `.img-zoom:hover` trigger it, so hovering the title below the image still zooms the image. Transitions are gated behind `prefers-reduced-motion: no-preference`. Used by `ProjectCard.astro` and `JournalCard.astro`.
 
-### Studio stat counters (`StatsRow` + `StatsCounter`)
+### Studio numbers (`StatsRow`)
 
-The About page can show up to four large display-serif figures that count up from zero (easeOutQuart over 1.8s) when scrolled into view. `StatsRow.astro` is the server shell (renders nothing when `stats` is empty); `StatsCounter.tsx` is a `client:visible` React island driven by `requestAnimationFrame` — no animation library. Numbers come from the `aboutPage.stats` array in Sanity (suppresses until Staci fills it in). Reduced-motion users see the final values immediately.
+The About page (and the page-builder stats block) can show a run of large Zodiak figures, each with its label beside it. Since 2026-09-30 they are plain server-rendered text with no count-up: the old `StatsCounter.tsx` island showed every figure as 0 until JavaScript ran, which the rebuild's motion rule forbids. `StatsRow.astro` renders nothing when `stats` is empty; numbers come from the `aboutPage.stats` array in Sanity. See DESIGN.md "About (phase 2)".
 
 ### Reading progress (`.reading-progress`)
 
