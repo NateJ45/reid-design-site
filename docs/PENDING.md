@@ -14,32 +14,6 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
-### From the 2026-09-29 locked-set audit (`claude/dependabot-lock-set`)
-
-- **Sign in to the staging Studio and open Presentation: the only proof #32 is
-  safe.** Dependabot's 2026-09-06 group (#32, on `main` as `2facf2b` and on
-  staging as `8d9bbd4`) moved `react`/`react-dom`/`react-is` 19.2.7 to 19.2.8,
-  `styled-components` 6.4.3 to 6.5.3 and `@astrojs/cloudflare` 14.2.4 to 14.3.0,
-  none of which Dependabot was told to leave alone. Audited and KEPT: every peer
-  range is satisfied, there is one copy of `styled-components` 6.5.3, `@sanity/ui`
-  3.5.4, `react` and `react-dom` 19.2.8 on disk, the built bundle has exactly one
-  styled-components instance, the generated `dist/server/wrangler.json` has no
-  `legacy_env`, and the built Worker boots `/studio/` with a single 6.5.3 style
-  sheet and no runtime errors. What that cannot show is a signed-in desk, because
-  a broken theme context only fails after login (and `localhost:8787` is not on
-  the Sanity CORS list, so it cannot sign in locally). Partial proof already
-  exists: production has carried #32 since 2026-09-06, and the 2026-09-29 night
-  check of build `bfbc119` opened `/studio/presentation` signed in with no
-  errors. What nobody has recorded yet is a custom component pane plus the
-  in-canvas hover, which is where a split theme context throws. So, on staging: open
-  `/studio`, sign in, open **Brand Kit** or **Business Overview** (custom
-  component panes), then open **Presentation** and hover a section so the layout
-  card and the script-accent picker draw. Pass = no styled-components error #18
-  and no `Cannot read properties of undefined (reading 'v2')`. Fail = revert
-  those four packages to 19.2.7 / 6.4.3 in package.json + package-lock.json (the
-  adapter can stay; it has nothing to do with the Studio). This click-through also
-  closes the older "Sanity phase-1 stack bump" item further down.
-
 ### From the 2026-09-29 editor-experience branch (`claude/studio-editor`)
 
 Every automated gate is green, but none of these can be exercised without a
@@ -153,26 +127,6 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
 - **No project image has a hotspot set.** The arch crops around the centre, so the
   grey-sectional hero shows its ceiling fan. Setting a hotspot on a project's hero in
   the Studio moves the crop on the next build.
-
-### From the 2026-09-06 Sanity phase-1 stack bump
-
-- **Sign in to the staging Studio, then open Presentation.** (Same click-through
-  as the 2026-09-29 locked-set item at the top; one pass closes both. Since #32
-  the styled-components count below is one copy of 6.5.3, not 6.4.3.) The stack moved to
-  `sanity` 6.9.1 / `@sanity/ui` 3.5.4 / `@sanity/client` 7.26.2 /
-  `@sanity/visual-editing` 5.7.3 / `@sanity/preview-url-secret` 4.1.5. Every
-  automated gate is green and the single-instance invariant holds on disk and in
-  the bundle (one `@sanity/ui` 3.5.4, one `styled-components` 6.4.3, one
-  styled-components `errors.md#` chunk). But the failure this pinning regime
-  exists for shows up ONLY after sign-in: the login screen is core code and
-  renders fine even when the theme context is broken. So open `/studio` on
-  staging, sign in, open a document with a custom component pane (Brand Kit or
-  Business Overview), then open **Presentation** and hover a section so the
-  in-canvas layout card and the script-accent picker draw. If the desk throws
-  styled-components error #18 or `Cannot read properties of undefined (reading
-'v2')`, the bump is bad and the revert is the two-file diff on package.json +
-  package-lock.json. Bonus while you are in there: 6.6.0 added **tables in
-  Portable Text**, so a table should now be insertable in body copy.
 
 ### From the 2026-08-28 Astro 7 / Sanity 6.4 / live-preview upgrade
 
@@ -355,6 +309,22 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-09-30 — #32's locked-set bump proven in a signed-in Studio (closes the
+  2026-09-29 locked-set item and the 2026-09-06 Sanity phase-1 item).** Checked by
+  Claude in Nathan's Chrome on the staging Studio, signed in. The Worker was
+  serving `claude/redesign` at the time, whose lockfile resolves every package to
+  the same version as staging, so the result covers the #32 set. The desk loads;
+  **Brand kit** and **Business Overview** (custom component panes) render fully;
+  Presentation loads the drafts preview of the home page and the overlay outlines
+  each section on hover. One styled-components sheet in the page, version 6.5.3;
+  zero styled-components errors, no #18, no `reading 'v2'`. Not seen: an in-canvas
+  layout card or accent picker, because the home page's hero shows neither on
+  hover; the pass criterion (no theme-context errors) does not depend on them. The
+  phase-1 item's bonus check (tables in Portable Text) was not tried. The same
+  session found a preview-only stega bug on `claude/redesign` (a per-word headline
+  split cutting the edit markers apart); fixed there in `6c9712c` and re-verified
+  on staging.
 
 - **2026-09-29 — parity baselines recaptured (branch `claude/reid-followups`).**
   Stale since 2026-08-28. Against a production-like build of this branch the

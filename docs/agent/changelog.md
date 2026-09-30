@@ -55,6 +55,12 @@ commented with why. The cost is no automatic patch PRs for them, so run
 the adapter's peer range fails loudly in CI. CLAUDE.md and docs/agent/sanity.md
 say so; their version numbers had already been corrected earlier the same day.
 
+**Signed-in proof, 2026-09-30.** The staging Studio, signed in, rendered Brand kit
+and Business Overview and ran Presentation's hover overlay with one
+styled-components sheet at 6.5.3 and no theme-context errors (no #18, no
+`reading 'v2'`). That closes the PENDING items for #32 and for the 2026-09-06
+phase-1 bump; the detail is in PENDING's "Recently closed".
+
 ## 2026-09-29 — follow-ups: share links on detail pages, Studio deep links, parity baselines
 
 Branch `claude/reid-followups`, three items from `docs/PENDING.md`.
