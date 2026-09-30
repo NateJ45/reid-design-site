@@ -84,7 +84,7 @@ export async function lockDown(prevPath, editPath, outPath, opts = {}) {
     .toFile(outPath);
   await sharp(mask, { raw: { width: w, height: h, channels: 1 } })
     .toColourspace('b-w').png()
-    .toFile(`${outPath}.mask.png`);
+    .toFile(opts.maskPath ?? `${outPath}.mask.png`);
 
   // 6. Assert on the WRITTEN file: every m=0 pixel equals prev bit for bit.
   const back = await rgb(outPath);

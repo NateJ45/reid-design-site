@@ -23,6 +23,7 @@
     "og:cards": "node scripts/og-cards.mjs",
     "room:generate": "npm --prefix tools/room-lab run generate --",
     "room:walls": "npm --prefix tools/room-lab run walls --",
+    "room:layers": "npm --prefix tools/room-lab run layers --",
     "room:sheet": "npm --prefix tools/room-lab run sheet --",
     "room:publish": "npm --prefix tools/room-lab run publish --",
     "llms:full": "node scripts/generate-llms-full.mjs",

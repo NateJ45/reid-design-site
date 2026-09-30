@@ -2,52 +2,170 @@
   "width": 1472,
   "height": 1104,
   "base": {
-    "prompt": "A realistic photograph of an EMPTY living room in an ordinary 1990s to 2010s Midwest American suburban house, a two-storey tract home, not a loft and not luxury. Eye-level camera standing in a corner of the room. One large plain main wall is clearly visible and completely unobstructed, painted a flat neutral colour, ready to be repainted. A window with plain white trim on the side wall. Painted white baseboards and white trim, a flat white ceiling with a simple crown line. Neutral beige carpet or light wood floor. Soft natural daylight from the window. No furniture, no rugs, no people, no plants, no artwork, no text, no logos. Natural colour, gentle shadows, 4:3 photograph.",
-    "negative": "furniture, sofa, chair, table, rug, lamp, curtains, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR",
-    "seeds": [1101, 2202, 3303, 4404, 5505, 6606, 7707, 8808]
+    "negative": "furniture, sofa, chair, table, rug, lamp, curtains, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, crown moulding, loft, exposed brick, luxury, marble, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a bright, empty living room with dated walls, big windows and a bare floor, before any design work."
   },
+  "baseVariants": [
+    {
+      "id": "tan",
+      "prompt": "A realistic photograph of an EMPTY living room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, a high or vaulted ceiling, light wood or light laminate floor. Minimal builder-grade trim only: thin white baseboards, NO crown moulding, plain flat window returns. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No furniture, no rugs, no people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a tired, dated builder tan, a flat yellowish beige that looks a little dingy."
+    },
+    {
+      "id": "peach",
+      "prompt": "A realistic photograph of an EMPTY living room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, a high or vaulted ceiling, light wood or light laminate floor. Minimal builder-grade trim only: thin white baseboards, NO crown moulding, plain flat window returns. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No furniture, no rugs, no people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded, dated peach, a tired pinkish orange that looks a little washed out."
+    }
+  ],
   "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Do not crop, zoom, re-light or restyle. Only make this change: ",
   "stages": [
     {
-      "id": "empty",
-      "change": null,
-      "caption": "Every room starts like this: four walls, a window, and a lot of questions.",
-      "alt": "Concept image: an empty living room with a plain painted wall, a window with white trim and a bare floor."
+      "id": "shell",
+      "caption": "Before any furniture, the room gets its bones: crown moulding, taller baseboards and a wider window frame."
     },
     {
-      "id": "rug-sofa",
-      "change": "add a large neutral woven area rug on the floor and a comfortable linen sofa placed against the side wall, leaving most of the main wall clear and visible",
-      "seeds": [11, 12, 13],
-      "caption": "Start with what stays put: a rug that sets the scale, and a sofa that fits the room.",
-      "alt": "Concept image: the same living room with a woven rug on the floor and a linen sofa along the side wall."
+      "id": "anchor",
+      "caption": "Then the anchors: a rug that sets the scale, and a sofa that fits the room without hiding the big wall."
     },
     {
-      "id": "tables-lamp",
-      "change": "add a wooden coffee table on the rug in front of the sofa, a small wooden side table beside the sofa, and a table lamp with a cream shade on the side table",
-      "seeds": [21, 22, 23],
-      "caption": "Next come the tables and a lamp, so there is somewhere to set a mug and a soft light for the evenings.",
-      "alt": "Concept image: the living room now with a wooden coffee table, a side table and a table lamp beside the sofa."
+      "id": "function",
+      "caption": "Tables and a lamp come next, so there is a place to set a mug and a soft light for the evenings."
     },
     {
-      "id": "chair-curtains",
-      "change": "add an upholstered accent chair angled toward the sofa, and hang simple full-length linen curtains on the window",
-      "seeds": [31, 32, 33],
-      "caption": "A chair to angle toward the conversation, and curtains that finish the window.",
-      "alt": "Concept image: the living room with an accent chair and linen curtains hung on the window."
+      "id": "comfort",
+      "caption": "A chair to angle toward the conversation, and curtains that finish the windows."
+    },
+    {
+      "id": "personal",
+      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture."
+    },
+    {
+      "id": "finish",
+      "caption": "Then the small things that make it feel lived in: olive branches, books and a soft throw."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the finished living room with crown moulding, a rug, sofa, tables, chair, curtains, art and styling."
+  },
+  "pieces": [
+    {
+      "id": "trim",
+      "stage": "shell",
+      "motion": "sweep",
+      "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around the windows. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        11,
+        12,
+        13
+      ],
+      "maxDrift": 10
+    },
+    {
+      "id": "rug",
+      "stage": "anchor",
+      "motion": "unroll",
+      "change": "add one large natural wool area rug on the floor in the middle of the room. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "id": "sofa",
+      "stage": "anchor",
+      "motion": "slide-left",
+      "change": "add one comfortable oat linen sofa against the right-hand side wall, so that most of the main wall stays clear and visible. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        31,
+        32,
+        33
+      ]
+    },
+    {
+      "id": "coffee-table",
+      "stage": "function",
+      "motion": "rise",
+      "change": "add a walnut coffee table on the rug in front of the sofa. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "id": "side-table-lamp",
+      "stage": "function",
+      "motion": "rise",
+      "change": "add a small walnut side table beside the sofa with a table lamp with a cream shade and a brass base on it. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        51,
+        52,
+        53
+      ]
+    },
+    {
+      "id": "chair",
+      "stage": "comfort",
+      "motion": "slide-right",
+      "change": "add one upholstered linen accent chair on the left of the rug, angled toward the sofa. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        61,
+        62,
+        63
+      ]
+    },
+    {
+      "id": "curtains",
+      "stage": "comfort",
+      "motion": "drop",
+      "change": "hang simple full-length cream linen curtains on the windows. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        71,
+        72,
+        73
+      ]
     },
     {
       "id": "art",
-      "change": "hang one framed piece of art on the main wall, small enough to leave most of the wall clearly visible",
-      "seeds": [41, 42, 43],
-      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture.",
-      "alt": "Concept image: the living room with a single framed piece of art hung on the main wall."
+      "stage": "personal",
+      "motion": "drop",
+      "change": "hang one modest framed piece of art with a thin black frame on the main wall, small enough to leave most of the wall clearly visible. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        81,
+        82,
+        83
+      ]
     },
     {
-      "id": "styling",
-      "change": "add olive branches in a ceramic vase on the coffee table, a short stack of books, a soft knitted throw over the arm of the sofa and two pillows on the sofa",
-      "seeds": [51, 52, 53],
-      "caption": "Then the small things that make it feel lived in: branches, books, a throw and a couple of pillows.",
-      "alt": "Concept image: the finished living room styled with olive branches in a vase, stacked books, a throw and pillows."
+      "id": "olive",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "place olive branches in a ceramic vase on the coffee table. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        91,
+        92,
+        93
+      ]
+    },
+    {
+      "id": "books-throw",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "add a short stack of books on the coffee table and a soft knitted throw over the arm of the sofa. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "seeds": [
+        101,
+        102,
+        103
+      ]
     }
   ]
 }

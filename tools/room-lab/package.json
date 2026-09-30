@@ -7,6 +7,7 @@
   "scripts": {
     "generate": "node generate.mjs",
     "walls": "node walls.mjs",
+    "layers": "node layers.mjs",
     "publish": "node publish.mjs",
     "sheet": "node sheet.mjs"
   },
