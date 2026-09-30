@@ -1,0 +1,224 @@
+---
+// Safe to edit by hand
+// Home testimonials on ink (2026-09-29 rebuild). One quote very large, then
+// up to three more set loose in uneven columns, no cards. Same Sanity data
+// the old HomeTestimonials used (featuredTestimonial, testimonialsToShow,
+// testimonialsHeadline/ScriptAccent/Subhead/Attribution, reviewsNote,
+// googleBusinessUrl).
+//
+// The ink band is the page's one dark moment before the closing bronze CTA,
+// which gives the home its rhythm: bronze, linen, paper, linen, INK, linen,
+// bronze-deep.
+import { splitScriptAccent } from '@/lib/scriptAccent';
+interface Testimonial {
+  _id?: string;
+  quote?: string;
+  attribution?: string;
+  date?: string;
+  source?: string;
+}
+
+interface Props {
+  headline?: string | null;
+  scriptAccent?: string | null;
+  subhead?: string | null;
+  attribution?: string | null;
+  featuredQuote?: Testimonial | null;
+  gridQuotes?: Testimonial[];
+  reviewsNote?: string | null;
+  googleBusinessUrl?: string | null;
+}
+
+const {
+  headline = 'Words from real homes',
+  scriptAccent,
+  featuredQuote,
+  gridQuotes = [],
+  attribution,
+  reviewsNote,
+  googleBusinessUrl,
+} = Astro.props as Props;
+
+const h = splitScriptAccent(headline ?? '', scriptAccent ?? undefined);
+
+const lead = featuredQuote?.quote ? featuredQuote : gridQuotes.find((q) => q?.quote);
+const more = gridQuotes.filter((q) => q?.quote && q._id !== lead?._id).slice(0, 3);
+
+// "April 2026" from "2026-04-01". Built by hand so it never shifts a day in
+// a timezone west of UTC.
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const monthYear = (d?: string) => {
+  const m = d?.match(/^(\d{4})-(\d{2})/);
+  return m ? `${MONTHS[Number(m[2]) - 1]} ${m[1]}` : '';
+};
+const cite = (t?: Testimonial | null) =>
+  [t?.attribution, monthYear(t?.date), t?.source && `on ${t.source}`].filter(Boolean).join(' · ');
+
+// Short quotes read best in the loose columns: cap at ~180 chars on a word.
+const trim = (s = '') => (s.length > 180 ? s.slice(0, s.lastIndexOf(' ', 176)) + '…' : s);
+---
+
+<section class="words" aria-labelledby="words-heading">
+  <div class="r-wrap">
+    <h2 id="words-heading" class="words__h">
+      {
+        h.found ? (
+          <>
+            {h.before}
+            <span class="r-accent">{h.word}</span>
+            {h.after}
+          </>
+        ) : (
+          headline
+        )
+      }
+    </h2>
+
+    {
+      lead?.quote && (
+        <figure class="words__lead">
+          <blockquote>
+            <p>{lead.quote}</p>
+          </blockquote>
+          <figcaption>{cite(lead)}</figcaption>
+        </figure>
+      )
+    }
+
+    {
+      more.length > 0 && (
+        <div class="words__more">
+          {more.map((q) => (
+            <figure>
+              <blockquote>
+                <p>“{trim(q.quote)}”</p>
+              </blockquote>
+              <figcaption>{q.attribution}</figcaption>
+            </figure>
+          ))}
+        </div>
+      )
+    }
+
+    <p class="words__src">
+      {attribution || reviewsNote}
+      {
+        googleBusinessUrl && (
+          <a class="r-link" href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
+            Read more reviews on Google
+          </a>
+        )
+      }
+    </p>
+  </div>
+</section>
+
+<style>
+  .words {
+    --accent-color: var(--color-chip-3);
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+  }
+  .words__h {
+    margin: 0 0 clamp(2.5rem, 5vw, 4rem);
+    font: 300 clamp(1.3rem, 1rem + 0.8vw, 1.7rem) / 1.2 var(--font-display);
+    letter-spacing: -0.01em;
+    color: var(--color-cream);
+  }
+  .words__lead {
+    position: relative;
+    margin: 0;
+    max-width: 58rem;
+    padding-left: clamp(0rem, 5vw, 4.5rem);
+  }
+  .words__lead blockquote {
+    margin: 0;
+  }
+  .words__lead p {
+    margin: 0;
+    font: 300 italic clamp(2rem, 1.1rem + 3vw, 4rem) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  /* The hung open-quote, in bronze, outside the text block. */
+  .words__lead::before {
+    content: '\201C';
+    position: absolute;
+    left: -0.1em;
+    top: -0.2em;
+    font: 300 clamp(4.5rem, 3rem + 5vw, 9rem) / 1 var(--font-display);
+    color: var(--color-chip-5);
+  }
+  .words__lead figcaption,
+  .words__more figcaption {
+    margin-top: 1.5rem;
+    font: 500 0.92rem/1.4 var(--font-body);
+    color: rgb(245 237 227 / 0.75);
+  }
+  .words__more {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.1fr;
+    gap: 2.5rem;
+    margin-top: clamp(3.5rem, 6vw, 5rem);
+    padding-top: 2.5rem;
+    border-top: 1px solid rgb(245 237 227 / 0.16);
+  }
+  .words__more figure {
+    margin: 0;
+  }
+  .words__more figure:nth-child(2) {
+    margin-top: 2.25rem;
+  }
+  .words__more blockquote {
+    margin: 0;
+  }
+  .words__more p {
+    margin: 0;
+    font: 300 1.3rem/1.4 var(--font-display);
+    color: rgb(245 237 227 / 0.94);
+  }
+  .words__more figcaption {
+    margin-top: 0.9rem;
+  }
+  .words__src {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    font-size: 0.92rem;
+    color: rgb(245 237 227 / 0.75);
+  }
+  .words__src .r-link {
+    color: var(--color-cream);
+  }
+
+  @media (max-width: 1023px) {
+    .words__more {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .words__more figure:nth-child(2) {
+      margin-top: 0;
+    }
+    .words__lead {
+      padding-top: 2.75rem;
+    }
+    .words__lead::before {
+      top: -0.1em;
+    }
+  }
+</style>

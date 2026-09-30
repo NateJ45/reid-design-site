@@ -195,9 +195,9 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, follow" />}
 
-    {/* Mobile browser UI chrome color, theme-aware (Soft Linen / Charcoal Dark). */}
-    <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#2A2A2A" media="(prefers-color-scheme: dark)" />
+    {/* Mobile browser UI chrome color: the Linen page ground. One value since
+        the 2026-09-29 rebuild made the site light only. */}
+    <meta name="theme-color" content="#F7F3EE" />
 
     {/* THE ICON SET, all rendered from public/favicon.svg by `npm run favicon`
         (scripts/generate-favicons.mjs, PORTS.md card 47). The .ico answers the
@@ -277,13 +277,15 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <script is:inline define:vars={{ key: site.themeStorageKey }}>
       (function () {
         function applyTheme() {
-          let dark = false;
+          // LIGHT ONLY since the 2026-09-29 art-direction rebuild (Nathan's
+          // call, the FBCM precedent): one fully art-directed theme. The dark
+          // tokens in globals.css and this bootstrap stay in place, dormant,
+          // so dark mode can come back by restoring the stored-preference
+          // read below. A visitor who picked dark before the rebuild gets
+          // light; their stored key is left alone.
+          const dark = false;
+          void key;
           try {
-            const stored = localStorage.getItem(key) ?? 'light';
-            dark =
-              stored === 'dark' ||
-              (stored === 'system' &&
-                window.matchMedia('(prefers-color-scheme: dark)').matches);
             document.documentElement.classList.toggle('dark', dark);
             document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
           } catch (_) { /* localStorage unavailable, default light */ }

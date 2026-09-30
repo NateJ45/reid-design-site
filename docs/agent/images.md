@@ -15,7 +15,7 @@ The two pipelines never mix. Don't reach for Astro `<Image>` on a Sanity URL —
 
 Files live in `src/assets/` (NOT `public/`). The `src/assets/` location is what lets Astro's pipeline see them.
 
-- **Logo**: `logo-light.png` + `logo-dark.png`. Both at 378×400 source. Astro's `<Image>` (in Footer.astro) or `getImage()` (in Header.astro, for the theme-aware `<img>` data-attribute URLs) emits hashed WebPs at the right dimensions. See the Theme-aware single-img logo pattern in the Theme system section.
+- **Logo**: `logo-light.png` + `logo-dark.png`. Both at 378×400 source. Astro's `<Image>` (in Footer.astro) or `getImage()` (in Header.astro, for the theme-aware `<img>` data-attribute URLs) emits hashed WebPs at the right dimensions. See the Theme-aware single-img logo pattern in the Theme system section of theme-and-color.md (the site is light only since 2026-09-29, so the light variant is what renders; the dark variant is kept for a possible return of dark mode).
 - **Regenerating logos**: `scripts/generate-logo-variants.mjs` produces both variants from the source JPG in `09-Logos/`. After regeneration, run `scripts/optimize-logo-files.mjs` to shrink the source PNGs to ≤400 px tall before Astro emits them (large source = large Astro output).
 
 ### Sanity-hosted images (everything from Studio)

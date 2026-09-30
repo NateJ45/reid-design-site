@@ -10,7 +10,7 @@ it before adding a check, and update it in the same commit that adds one.
 | ------------------ | ----------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Static checks      | `npm run check` (= `astro check && npm run lint`)                 | Node, no browser               | Type errors across `.astro`/`.ts`/`.tsx` (astro check) and the eslint ruleset in `eslint.config.js`. `npm run format:check` (prettier) is the third static gate; `npm run format` fixes it                                                                                         |
 | Unit               | `npm run test:unit` (vitest)                                      | Node, no browser               | Pure functions in `src/**/*.test.ts`: slugify, phone, reading-time, scriptAccent, sectionVisibility, portable-text-headings, section-fields drift gates, redirects + redirect-guard (card 22 path rules), and **theme-tokens** (below)                                             |
-| E2E, chromium      | `npm test` (or `npx playwright test`)                             | Desktop Chrome                 | All five Playwright specs: smoke, axe light, axe dark (+ focus indicators), reflow at 320/768/1024/1440, scroll-reset                                                                                                                                                              |
+| E2E, chromium      | `npm test` (or `npx playwright test`)                             | Desktop Chrome                 | All five Playwright specs: smoke, axe light, light-only guard in `a11y-dark.spec.ts` (+ focus indicators), reflow at 320/768/1024/1440, scroll-reset                                                                                                                               |
 | E2E, webkit-iphone | same command, second project                                      | Real WebKit, iPhone 14 profile | smoke and both axe sweeps, via `testMatch`. `reflow.spec.ts` drives its own explicit viewport widths, which fights device emulation, so it is chromium-only                                                                                                                        |
 | Link check         | `npm run check:links` (after `npm run build`)                     | Node, reads `dist/client`      | Every internal link in the built site resolves (linkinator). External URLs and the SSR-only `/studio`, `/preview`, `/api` paths are skipped                                                                                                                                        |
 | Lighthouse         | `npx lhci autorun` (after `npm run build`)                        | Headless Chrome                | `lighthouserc.json`: one URL per prerendered template plus `404.html`. Accessibility is a hard gate at 100; performance, best practices and SEO warn below 0.85 / 0.95 / 0.95; LCP over 4.5s and CLS over 0.1 fail                                                                 |
@@ -60,12 +60,12 @@ That file splits the list in two, and the split is load-bearing:
   route, zero violations. Deliberately not narrowed with `.withTags([...])`:
   filtering to `wcag2a` alone quietly drops the AA rules, which is a mistake
   this family has made before.
-- **`tests/a11y-dark.spec.ts`** — the same sweep in dark mode. Separate because
-  a theme swap is a different resting DOM and axe only ever audits the resting
-  DOM. It forces dark by seeding `localStorage['reid-design-theme']` through
-  `addInitScript`, before BaseLayout's inline bootstrap runs, then asserts
-  `<html class="dark">` actually took, so the suite can never silently audit
-  light mode twice. A second block focuses every field on the form routes
+- **`tests/a11y-dark.spec.ts`** — since 2026-09-29 a **light-only guard**, not a dark sweep. The site is light
+  only, so the file seeds `localStorage['reid-design-theme']` = `'dark'` through
+  `addInitScript` (before BaseLayout's inline bootstrap runs) and asserts the
+  stored preference does NOT engage dark mode (`<html>` never gets `.dark`).
+  It keeps its old name and its old dark-sweep purpose is dormant with the dark
+  tokens: if dark mode is revived, restore the axe sweep here. A second block focuses every field on the form routes
   (`FORM_ROUTES`, currently `/contact`) and asserts a visible outline or ring
   exists: axe has no focus-indicator rule and only audits the resting DOM, and
   that blind spot once shipped invisible keyboard focus on WCP with Lighthouse
@@ -192,13 +192,16 @@ sources of build nondeterminism.
   audits the static build on every push, but against a local static server,
   not Cloudflare. CLAUDE.md's visual verification workflow still asks for a
   Lighthouse run on the deployed URL for accessibility-affecting changes.
-- **No visual regression / screenshot diffing.** Both themes and both viewports
-  are checked by a human against the running site, per CLAUDE.md. The family
+- **No visual regression / screenshot diffing.** Both viewports (the site is
+  light only since 2026-09-29, so there is one theme to check) are checked by a human against the running site, per CLAUDE.md. The family
   standard only screenshots a fixture-driven `/styleguide` route (WCP has one);
   this site has none, and its pages are CMS-driven, so pixel diffs would flake
   with content.
 - **Studio behavior is unautomated.** Schema and structure changes are checked
-  by hand at `http://localhost:4321/studio` (`npm run dev`), as Staci would see
+  by hand at `http://localhost:4321/studio` (`npm run dev`; note the dev server
+  currently crashes in Vite's dependency optimizer on `MISSING_EXPORT ...
+node_modules/sanity/package.json`, being fixed separately, so use
+  `npm run build` + `npm run preview` until then), as Staci would see
   them. There is no `studio:dev` any more; the Studio is part of the site.
 
 ## What no suite covers: a failed Sanity read must fail the build (2026-09-29)

@@ -108,16 +108,19 @@ export default function NewsletterSignup({
 
   const consentJsx = (
     <p className="mt-s text-xs leading-relaxed text-foreground/80">
+      {/* Link the phrase IN PLACE. The old version deleted it from the middle and
+          re-added it at the end, which printed "agree to our . Unsubscribe
+          anytime. privacy policy." (fixed 2026-09-29). */}
       {consentNote.includes('privacy policy') ? (
         <>
-          {consentNote.replace('privacy policy', '').trimEnd()}{' '}
+          {consentNote.slice(0, consentNote.indexOf('privacy policy'))}
           <a
             href="/privacy"
             className="underline underline-offset-2 transition-colors hover:text-link"
           >
             privacy policy
           </a>
-          .
+          {consentNote.slice(consentNote.indexOf('privacy policy') + 'privacy policy'.length)}
         </>
       ) : (
         consentNote
@@ -195,12 +198,12 @@ export default function NewsletterSignup({
               aria-invalid={!!errorMsg}
               aria-describedby={errorMsg ? 'newsletter-email-error' : undefined}
               placeholder="you@example.com"
-              className="min-h-[44px] min-w-0 flex-1 rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+              className="min-h-[44px] min-w-0 flex-1 rounded-full border border-input bg-background px-m py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
             />
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-m py-s text-xs font-semibold tracking-widest whitespace-nowrap text-white uppercase transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className="r-btn r-btn--bronze whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
             >
               {status === 'submitting' ? 'Subscribing…' : buttonLabel}
             </button>
@@ -280,7 +283,7 @@ export default function NewsletterSignup({
             aria-invalid={!!errorMsg}
             aria-describedby={errorMsg ? 'newsletter-email-error' : undefined}
             placeholder="you@example.com"
-            className="min-h-[44px] w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            className="min-h-[44px] w-full rounded-full border border-input bg-background px-m py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
           />
           {errorMsg && (
             <p
@@ -296,7 +299,7 @@ export default function NewsletterSignup({
         <button
           type="submit"
           disabled={status === 'submitting'}
-          className="press-tactile inline-flex min-h-[44px] w-full items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
+          className="r-btn r-btn--bronze w-full disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'submitting' ? 'Subscribing…' : buttonLabel}
         </button>

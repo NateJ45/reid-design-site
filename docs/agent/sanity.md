@@ -28,7 +28,7 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 
 **Settings & globals (1):**
 
-- `siteSettings` (singleton) — email, phone (shown site-wide as a tap-to-call link in the header, footer, mobile menu, and contact page), social links, service areas, availability status (header pill + eyebrow strip), travel fees, footer tagline. Most user-visible identity text comes from here.
+- `siteSettings` (singleton) — email, phone (shown site-wide as a tap-to-call link in the header, footer, mobile menu, and contact page), social links, service areas, availability status (the header pill; the desktop eyebrow strip it also used to appear in was removed 2026-09-29), travel fees, footer tagline. Most user-visible identity text comes from here.
 
 **Reusable content collections (6):**
 
@@ -52,7 +52,7 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 - `homePage` additionally has a `heroImages` array (images with optional alt). One image renders the static hero; two or more render a cross-fading slideshow with a subtle Ken Burns zoom (`HeroBackground.astro`, CSS in `globals.css`). It supersedes the home page's single `heroImage`, which was migrated into `heroImages[0]` by `scripts/migrate-home-hero-images.mjs` and hidden in the Studio (data preserved, used only as a fallback). Projected as `heroImages[]` in `getHomePage`. The slideshow is home-only; other pages keep their single `heroImage`.
 - `aboutPage` has a `personal` field group with: `personalEyebrow`, `personalHeadline`, `personalIntro`, `currentlyList[]` (label + value pairs), `rapidFire[]` (prompt + answer pairs), `localSpots[]` (name + optional note), `beyondDesign` (text paragraph), `candidPhoto` (image with required alt). All of these are projected in `getAboutPage()` in `src/lib/queries.ts` via the shared `IMAGE_PROJECTION`. The whole section self-suppresses when `personalHeadline` is not set and all list fields are empty.
 - `aboutPage` also has a `stats` group/field — an array (max 4) of `statItem` objects (`number` required, `suffix` optional like "+" or "k", `label` required). It drives the count-up `StatsRow` section between PressStrip and FinalCta on `/about` (`getAboutPage()` projects `stats[]{number, suffix, label}`). The section hides entirely when the array is empty, so the page is unchanged until Staci fills in the Stats tab. The front-end filters the Sanity array down to fully-populated rows before rendering, so a half-filled stat never shows a `NaN`.
-- Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `journalPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a fixed `bg-accent-dark/70` charcoal scrim so the cream headline and bronze button stay readable; when empty, the Final CTA stays the solid Charcoal Dark panel. The journal image is shared across the journal index and every post (it lives on `journalPage`). Projected with `IMAGE_PROJECTION` in each page query.
+- Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `journalPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a Walnut scrim (`rgb(95 70 57 / 0.82)`) so the cream headline stays readable; when empty, the Final CTA is the solid Walnut panel with the faint leaf sprig (rebuilt 2026-09-29; the background-image path was kept). The journal image is shared across the journal index and every post (it lives on `journalPage`). Projected with `IMAGE_PROJECTION` in each page query.
 
 **Studio guide singletons (3, protected):**
 
@@ -225,7 +225,7 @@ only two, because only two have a field behind them:
    files wrap inserted library blocks themselves and pass no `editDoc` down, so
    a block on a marker page keeps its array controls and gets no layout handle.
 2. **Script accent picker.** Click a headline, click a word, and that word is
-   stored as the Pinyon Script accent - a slice of the headline by construction,
+   stored as the script accent (rendered in Zodiak italic since 2026-09-29, formerly Pinyon Script) - a slice of the headline by construction,
    so the renderer's exact-match `indexOf` cannot miss it. It refuses an
    image-less hero (the text branch of `Hero.astro` never forwards
    `scriptAccent`) and a headline with rotating words (the two flourishes must

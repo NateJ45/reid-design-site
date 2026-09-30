@@ -14,6 +14,24 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-29 art-direction rebuild (branch `claude/redesign`)
+
+- **Show Staci the new home page on staging, then decide on launch.** Built
+  from the merge of the two prototypes (`docs/design/prototypes/`), home +
+  header + footer + closing CTA only. Her call on: the Walnut hero with her
+  red-top portrait, Zodiak as the new type, and the paint-chip prices. Nathan
+  chose to show her on staging rather than the prototype.
+- **Fontshare licence, formally.** The ITF Free Font License is meant to be
+  held by the site owner. It is free: Staci (Reid Design LLC) accepting it at
+  fontshare.com for Zodiak and General Sans closes the question. The build
+  already avoids the licence's one hard limit (no redistribution through a
+  public repo) by fetching the files at build time.
+- **Sanity content written 2026-09-29 (with Nathan's OK):** home page
+  `heroPortrait` = the red-top photo with the fan deck (hotspot on her face)
+  and `heroScriptAccent` = "completely yours", on BOTH the published doc and
+  Staci's unpublished 2026-09-06 draft (the draft was otherwise left alone and
+  NOT published). Neither field changes the live site, whose code ignores them.
+
 ### From the 2026-09-29 editor-experience branch (`claude/studio-editor`)
 
 Every automated gate is green, but none of these can be exercised without a
@@ -204,6 +222,32 @@ one still open. Kept here in full because they document WHY each is needed.
   so).
 
 ## Open — code and content work queued
+
+### Art-direction rebuild, phase 2 (opened 2026-09-29)
+
+Phase 1 (home, header, footer, closing CTA, tokens, fonts, buttons) is on
+`claude/redesign`. Still to do, all against `DESIGN.md`:
+
+- **The other seven live pages** (About, Services, Process, E-Design, FAQ,
+  Contact, Privacy) and the **portfolio templates** (ready to switch on once
+  project documents exist). They currently inherit only the shared tokens,
+  fonts, buttons, header, footer and closing CTA, and still use the old
+  eyebrow-plus-centred-heading section grammar.
+- **Share cards still use Cormorant + Source Sans** (`scripts/lib/og-render*.mjs`;
+  satori needs a static WOFF, never WOFF2). Move them to Zodiak/General Sans
+  once the fetch script can supply a WOFF, and re-run the Chromium comparison.
+- **Remove the unused @fontsource packages** (cormorant-garamond, pinyon-script,
+  source-sans-3 variable) once the share cards stop needing Source Sans. Left in
+  place so phase 1 did not also churn the lockfile.
+- **`npm run dev` crashes** in Vite's dependency optimizer
+  (`MISSING_EXPORT ... node_modules/sanity/package.json`), reproduced on clean
+  main; production build unaffected. Being fixed in its own session. Until
+  then, iterate with `npm run build` (about 45s) and a static server over
+  `dist/client`.
+- **Parity baselines** (`scripts/.parity`) will differ everywhere after the
+  rebuild by design. Recapture them from the merged build, after checking the
+  static build still carries no `data-sanity` attributes (checked 2026-09-29:
+  none).
 
 ### Picture-grid "+ Add section" menu (deferred 2026-09-29)
 

@@ -126,6 +126,20 @@ export const homePage = defineType({
         }),
       ],
     }),
+    // Added 2026-09-29 with the rebuild: the fan-deck hero puts ONE tall photo
+    // on the right, beside the headline on Warm Bronze. A portrait of Staci
+    // at work reads far better there than a wide room shot. Empty falls back
+    // to the first Hero image, so nothing breaks before it is filled in.
+    defineField({
+      name: 'heroPortrait',
+      title: 'Hero portrait',
+      type: 'image',
+      group: 'hero',
+      description:
+        'The tall photo on the right of the home hero. A portrait (taller than wide) of you works best. Drag the hotspot onto your face so phones crop around it. Empty uses the first Hero image instead.',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
+    }),
     defineField({ name: 'heroPrimaryCta', title: 'Primary CTA', type: 'ctaBlock', group: 'hero' }),
     defineField({
       name: 'heroSecondaryCta',
@@ -138,17 +152,20 @@ export const homePage = defineType({
       title: 'Rotating first-word swap (optional)',
       type: 'array',
       group: 'hero',
+      // Not used by the home hero since the 2026-09-29 rebuild. Hidden, never
+      // removed: the saved words stay in the dataset if it ever comes back.
+      hidden: true,
       description:
         'On the first visit per session, the FIRST word of the headline cycles through this list once before locking back to the original. Leave empty (or with fewer than 2 alternates) to skip the effect. Example: ["Lived-in", "Considered", "Quiet"]. Honors prefers-reduced-motion.',
       of: [defineArrayMember({ type: 'string' })],
     }),
     defineField({
       name: 'heroScriptAccent',
-      title: 'Script-font accent word (optional)',
+      title: 'Accent words (optional)',
       type: 'string',
       group: 'hero',
       description:
-        'A single word from the headline to render in handwritten Pinyon Script for editorial flourish. Must match the word exactly (case-sensitive). The first occurrence wins. Leave blank to skip. Note: when "rotating words" is also set, the rotation wins and this is ignored.',
+        'A word or short phrase from the headline to set in italic, for emphasis. Copy it exactly as it appears in the headline (capitals matter). The first match wins. Example: "completely yours". Leave blank for a plain headline.',
     }),
 
     // Meet Staci

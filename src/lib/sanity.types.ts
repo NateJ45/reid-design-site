@@ -2515,6 +2515,14 @@ export type HomePage = {
     _type: 'image';
     _key: string;
   }>;
+  heroPortrait?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
   heroPrimaryCta?: CtaBlock;
   heroSecondaryCta?: CtaBlock;
   heroRotatingWords?: Array<string>;
