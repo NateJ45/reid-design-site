@@ -23,7 +23,7 @@
 //
 // Design (DESIGN.md "Instagram feed"): a Linen (chip 1) band, Zodiak heading
 // with an italic accent, the ink follow pill, then square prints on a paper
-// mat that hang a hair off true and straighten on hover. 6 tiles on a phone
+// mat that sit square and lift on hover. 6 tiles on a phone
 // and tablet (2 and 3 across), 8 on desktop (4 across). A video shows its
 // poster with a play mark. Each tile opens the post in a new tab; its
 // accessible name is built from the caption (the picture's alt stays empty so
@@ -214,14 +214,8 @@ const follow = followLabel(settings?.instagramFeedLinkLabel, settings?.socialIns
     display: block;
     color: inherit;
     text-decoration: none;
-    /* A hair off true, alternating, like prints pinned to a board. */
-    rotate: var(--tilt, -0.6deg);
-  }
-  .ig__tile:nth-child(even) a {
-    --tilt: 0.7deg;
-  }
-  .ig__tile:nth-child(3n) a {
-    --tilt: -0.3deg;
+    /* Square at rest (2026-09-30 quiet pass); hover lifts the print. */
+    rotate: var(--tilt, 0deg);
   }
   .ig__tile a:focus-visible {
     outline: 2px solid var(--color-ink);

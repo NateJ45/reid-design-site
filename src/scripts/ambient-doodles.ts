@@ -1,10 +1,12 @@
 // Foundation, edit with care
 // =============================================================================
-// Ambient doodles: one faint botanical growing in from a corner of every
-// section (2026-09-30)
+// Ambient doodles: a faint botanical growing in from a corner of a page's
+// first and last content sections (2026-09-30; every section until the quiet
+// pass the same day)
 // =============================================================================
 // Background ambience, like the branches in the corners of Staci's own
-// Instagram posts: each content section on a page gets one of the fine-line
+// Instagram posts: up to two content sections on a page (doodleSlots in
+// src/lib/doodle-map.ts: the first and the last eligible one) get one of the fine-line
 // botanicals (src/assets/doodles/), very faint, behind everything, drawing itself in as
 // the section scrolls into view. Which doodle goes where is
 // src/lib/doodle-map.ts; how they look is `.dd-amb` in src/styles/doodle.css.
@@ -14,8 +16,8 @@
 //   - the closing Walnut band (.final: it already has the logo's sprig),
 //   - anything marked data-no-doodle,
 //   - sections shorter than 300px (a doodle would crowd them).
-// Corners alternate top right, bottom left, bottom right, top left, so two
-// neighbouring sections never hang one in the same place.
+// Corners alternate top right, then bottom left, so the two never hang in
+// the same place.
 //
 // Dark grounds (the ink and Walnut bands) get cream ink; light ones Espresso.
 // The drawings are fetched once each, only when a section comes near the
@@ -23,7 +25,7 @@
 // No JavaScript: no doodles, and nothing else changes.
 // =============================================================================
 
-import { doodlesForPage, type DoodleName } from '@/lib/doodle-map';
+import { doodleSlots, doodlesForPage, type DoodleName } from '@/lib/doodle-map';
 
 const urls = import.meta.glob<string>('../assets/doodles/*.svg', {
   query: '?url',
@@ -70,11 +72,15 @@ export function initAmbientDoodles() {
       // Top level only: not inside another section.
       !all.some((o) => o !== s && o.contains(s)) &&
       !s.hasAttribute('data-no-doodle') &&
-      !s.classList.contains('final') &&
-      !s.querySelector(':scope > .dd-amb-frame'),
+      // Sections that already carry a doodle stay in the list: init can run
+      // twice on one page, and dropping them would move the slots onto new
+      // sections (place() skips any section already decorated).
+      !s.classList.contains('final'),
   );
-  // The first one is the page's hero.
-  const targets = sections.slice(1).filter((s) => s.offsetHeight >= 300);
+  // The first one is the page's hero. Of the rest, only the slots
+  // doodleSlots picks (first and last) get a botanical.
+  const eligible = sections.slice(1).filter((s) => s.offsetHeight >= 300);
+  const targets = doodleSlots(eligible.length).map((i) => eligible[i]!);
   if (targets.length === 0) return;
   const names = doodlesForPage(location.pathname, targets.length);
 

@@ -234,12 +234,11 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     }
   }
 
-  /* The price on a sample tag (the .r-tag primitive), tilted a touch. */
+  /* The price on a sample tag (the .r-tag primitive), square to the page. */
   .cx__price {
     justify-self: start;
     margin: 0;
     padding-right: 1.5rem;
-    rotate: -1.5deg;
   }
   .cx__price strong {
     font-size: 2.1rem;
@@ -263,13 +262,12 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
   }
 
   /* Google reviews insertion (2026-09-30): the rating tag hangs under the
-     price tag, tilted the other way; "Leave a review" sits beside it. */
+     price tag, square like it; "Leave a review" sits beside it. */
   .cx__reviews {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.9rem 1.5rem;
-    --rt-tilt: 1deg;
   }
   .cx__leave {
     color: var(--color-ink);

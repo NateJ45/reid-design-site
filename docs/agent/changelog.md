@@ -2,6 +2,22 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — The quiet pass (branch `claude/great-mendel-v4xvi0`)
+
+- Staci said the site felt less "fancy, clean" than the old Squarespace one.
+  Research on how established designers present their work pointed the same
+  way (restraint reads as polished), so the craft vocabulary was edited down,
+  not replaced. DESIGN.md "The quiet pass" has the rules.
+- Resting tilts removed from every sample tag, the rating tag, the footer
+  contact tags, the Instagram prints, the About board and the E-Design tags
+  (the phone menu deck and the guarantee stamp keep theirs).
+- Ambient botanicals capped at two per page (`MAX_DOODLES` / `doodleSlots()`
+  in `src/lib/doodle-map.ts`, tested). Also fixed: a second init on the same
+  page used to skip decorated sections and so decorate new ones.
+- The Sandbar marker swoosh only on the closing heading (`.final__h`).
+- Closing band: coffee ring, binder holes and margin rule removed.
+- Services guarantee band: Oat to paper.
+
 ## 2026-09-30 — Share cards: a room print in the margin
 
 - Nathan asked for more of Staci's rooms on the cards; a mood board of several

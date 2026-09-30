@@ -3,8 +3,9 @@
 // The Walnut call-to-action band that closes every page (home included).
 //
 // "The planning page" (2026-09-30, chosen by Nathan from the mockups, mix 1 + 2):
-// the band is drawn as a page from Staci's planning notebook. Ruled lines, a
-// margin rule, binder holes and a coffee ring sit behind everything; a
+// the band is drawn as a page from Staci's planning notebook. Faint ruled
+// lines sit behind everything (the margin rule, binder holes and coffee ring
+// went in the 2026-09-30 quiet pass: they read as a craft project); a
 // living-room floor plan in her fine line (closing/FloorPlan.astro) draws
 // itself in the upper right; and under the headline her own checklist from
 // Instagram ticks itself off, closing on "It's all in the details."
@@ -126,8 +127,8 @@ const {
       </div>
     )
   }
-  {/* The notebook page: ruled lines, margin rule, binder holes, coffee ring. */}
-  <div class="final__page" aria-hidden="true"><i class="final__ring"></i></div>
+  {/* The notebook page: faint ruled lines. */}
+  <div class="final__page" aria-hidden="true"></div>
   <div class="r-wrap final__grid">
     <FloorPlan class="final__plan" />
     <div class="final__main">
@@ -205,9 +206,6 @@ const {
   }
   /* ---- The notebook page (behind everything, below the window light) ---- */
   .final__page {
-    --margin-x: calc(
-      max(0px, (100vw - 85rem) / 2) + clamp(1rem, 4vw, 3.5rem) - clamp(0.55rem, 1.6vw, 1.4rem)
-    );
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -217,41 +215,6 @@ const {
       transparent 0 35px,
       rgb(245 237 227 / 0.085) 35px 36px
     );
-  }
-  /* The margin rule, just left of the words, in a faded notebook red. */
-  .final__page::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--margin-x);
-    width: 1.5px;
-    background: rgb(221 139 118 / 0.32);
-  }
-  /* Punched binder holes down the left edge. */
-  .final__page::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: clamp(0.5rem, 2vw, 1.4rem);
-    background: radial-gradient(circle at 50% 50%, rgb(35 30 27 / 0.28) 0 4.5px, transparent 5.5px)
-      0 12px / 100% 72px repeat-y;
-  }
-  /* A coffee ring, left by the mug at the consultation. */
-  .final__ring {
-    position: absolute;
-    top: -3.5rem;
-    right: 32%;
-    width: 11rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    rotate: 20deg;
-    box-shadow:
-      inset 0 0 0 6px rgb(35 30 27 / 0.1),
-      inset 0 0 0 9px rgb(35 30 27 / 0.04),
-      0 0 0 1.5px rgb(35 30 27 / 0.05);
   }
 
   /* ---- The floor plan: upper right on desktop; faint behind the headline
