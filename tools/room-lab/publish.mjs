@@ -56,6 +56,7 @@ const grey1024 = (buf, dest) =>
     .toFile(join(DEST, dest));
 
 const segmenter = await loadSegmenter();
+const empty = await sharp(join(FINAL, 'frame-0.png')).removeAlpha().raw().toBuffer();
 const frames = [];
 for (let n = 0; n <= N; n++) {
   const src = join(FINAL, `frame-${n}.png`);
@@ -63,6 +64,43 @@ for (let n = 0; n <= N; n++) {
   // The frame's own paintable wall: SegFormer's wall label with the baseboard and trim passes
   // (lib/wallmask segment), exactly as the empty room's mask is made.
   const { wall } = await segment(segmenter, src);
+  // SegFormer calls thin brass curtain rods and white crown moulding "wall", so they got
+  // painted. Judge each wall pixel against the EMPTY room at the same spot: far darker, or
+  // another hue when not brighter (brass, iron), or clearly whiter and far less coloured
+  // (new trim) is not wall. Re-lit and shadowed wall stays inside these limits.
+  if (n > 0) {
+    const cur = await sharp(src).removeAlpha().raw().toBuffer();
+    const odd = Buffer.alloc(W * H);
+    for (let p = 0; p < W * H; p++) {
+      if (wall[p] === 0) continue;
+      const j = p * 3;
+      const yc = 0.299 * cur[j] + 0.587 * cur[j + 1] + 0.114 * cur[j + 2];
+      const y0 = 0.299 * empty[j] + 0.587 * empty[j + 1] + 0.114 * empty[j + 2];
+      const r = yc / Math.max(1, y0);
+      const sat = (a, b, c) => {
+        const mx = Math.max(a, b, c);
+        return mx ? (mx - Math.min(a, b, c)) / mx : 0;
+      };
+      const s0 = sat(empty[j], empty[j + 1], empty[j + 2]);
+      const sc = sat(cur[j], cur[j + 1], cur[j + 2]);
+      const s1 = empty[j] + empty[j + 1] + empty[j + 2] + 1;
+      const s2 = cur[j] + cur[j + 1] + cur[j + 2] + 1;
+      const hue = Math.max(
+        Math.abs(empty[j] / s1 - cur[j] / s2),
+        Math.abs(empty[j + 1] / s1 - cur[j + 1] / s2),
+        Math.abs(empty[j + 2] / s1 - cur[j + 2] / s2),
+      );
+      if (r > 1.12 && sc < 0.45 * s0) wall[p] = 0; // new white trim
+      else if (r < 0.55 || (r <= 1 && hue > 0.06)) odd[p] = 255;
+    }
+    // Only THIN odd features leave the wall (rods, frame edges). A broad odd patch is a
+    // shadow (the sofa's, on the wall by its arm) and must still take paint. Opening the odd
+    // mask (erode then dilate, ~5 px) keeps only the broad parts; the difference is thin.
+    const eroded = await sharp(odd, { raw: { width: W, height: H, channels: 1 } }).blur(5).extractChannel(0).raw().toBuffer();
+    for (let p = 0; p < W * H; p++) eroded[p] = eroded[p] > 235 ? 255 : 0;
+    const opened = await sharp(eroded, { raw: { width: W, height: H, channels: 1 } }).blur(5).extractChannel(0).raw().toBuffer();
+    for (let p = 0; p < W * H; p++) if (odd[p] && opened[p] < 20) wall[p] = 0;
+  }
   await grey1024(wall, `wall-${n}.png`);
   if (n === 0) {
     frames.push({ image: 'frame-0.jpg', wall: 'wall-0.png' });
