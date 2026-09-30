@@ -1,23 +1,31 @@
 ---
 // Safe to edit by hand
-// Service tier card. Used on:
-//   - Home services grid (compact, only services with showOnHomepage)
-//   - Services page (full, with anchor id for deep-linking from JSON-LD)
+// One service on the Services page (rebuilt 2026-09-30, phase 2 of the
+// art-direction rebuild; see DESIGN.md "Services and E-Design").
 //
-// Each card carries: name, price (string for display flexibility — "$150",
-// "starting at $650", "Custom quote"), short description, feature bullets,
-// best-for line, CTA to /contact. The CTA label comes from service.ctaLabel.
+// Each service is one CHIP of a single paint strip that runs down the left of
+// the list, palest first, deepest last (ServicesList.astro stacks the rows so
+// the chips touch). The chip carries the number, the name and the price, big.
+// To its right: the short description, the features, "best for" as a sample
+// tag, and the button.
 //
-// Layout is a flex column so cards in a CSS grid stay the same height
-// regardless of feature count; the CTA always pins to the bottom.
-
-import SanityImage from '@/components/SanityImage.astro';
+//   Desktop: [ chip | details ], chips continuous down the page.
+//   Phone:   chip on top (name + price), details below.
+//
+// ANCHORS: the article keeps id={slug} so /services#in-home-consultation (the
+// home paint chips, the JSON-LD, the deck index) lands on it. Keep it.
+//
+// Data: the `service` document fields as before (name, slug, price,
+// shortDescription, features, bestFor, ctaLabel, badge). featuredImage is
+// accepted but not drawn: the chip is the image.
+//
+// Prices are free text in Sanity ("$225", "starting at $995", "$100 per
+// hour", "Custom"). chipPrice() splits them stega-safely (split-copy.ts).
+import { chipPrice, toneFor } from '@/components/services/tones';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
   alt?: string;
-  hotspot?: { x: number; y: number; height: number; width: number };
-  crop?: { top: number; bottom: number; left: number; right: number };
 }
 
 interface Props {
@@ -32,123 +40,307 @@ interface Props {
     badge?: string;
     featuredImage?: SanityImageObject | null;
   };
-  /** When true, render an anchor id from the slug so /services?#consultation deep-links. */
+  /** When true, render an anchor id from the slug so /services#slug deep-links. */
   withAnchor?: boolean;
-  /** When true, condensed card for the homepage grid (hides "Best for" + truncates features). */
+  /** Condensed: first four features, no "best for". */
   compact?: boolean;
+  /** Position in the strip and its length, for the tone. */
+  index?: number;
+  total?: number;
+  /** Where the button goes. */
+  href?: string;
+  /** Optional quieter link beside the button (the E-Design overview). */
+  secondary?: { href: string; label: string } | null;
 }
 
-const { service, withAnchor = false, compact = false } = Astro.props as Props;
+const {
+  service,
+  withAnchor = false,
+  compact = false,
+  index = 0,
+  total = 1,
+  href = '/contact',
+  secondary = null,
+} = Astro.props as Props;
+
 const id = withAnchor && service.slug?.current ? service.slug.current : undefined;
 const features = service.features ?? [];
 const visibleFeatures = compact ? features.slice(0, 4) : features;
-const moreCount = compact ? Math.max(0, features.length - visibleFeatures.length) : 0;
-const ctaLabel = service.ctaLabel ?? 'Start a Conversation';
-const hasImage = !!service.featuredImage?.asset;
-// Optional "Most popular" style label. Rendered inline above the service name
-// rather than floated over the corner, so it behaves the same whether or not
-// the card has an image and never lands on top of the heading.
+const ctaLabel = service.ctaLabel ?? 'Start a conversation';
 const badge = service.badge?.trim();
+const tone = toneFor(index, total);
+const price = chipPrice(service.price);
+const no = String(index + 1).padStart(2, '0');
+const headingId = id ? `${id}-name` : undefined;
 ---
 
 <article
   id={id}
-  class:list={[
-    'card-lift group relative flex h-full scroll-mt-24 flex-col overflow-hidden rounded-md border bg-card text-card-foreground shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40',
-    // A badged card carries a slightly stronger edge so the emphasis reads at a
-    // glance in the grid, not just when you get to the label.
-    badge ? 'border-primary/45' : 'border-border-soft',
-  ]}
+  class:list={['svc', badge && 'svc--featured']}
+  style={`--tone:${tone.bg}`}
+  data-on={tone.on}
+  aria-labelledby={headingId}
 >
-  {
-    /* Brand accent stripe — same 2px Warm Bronze signature used at the top of
-      the site header, mobile menu, and footer. Gives each service card a
-      distinct "spine" + reinforces brand presence without dominating. */
-  }
-  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
-
-  {
-    hasImage && (
-      <div class="aspect-[4/3] overflow-hidden bg-muted">
-        <SanityImage
-          source={service.featuredImage}
-          width={640}
-          sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
-          class="h-full w-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
-        />
-      </div>
-    )
-  }
-
-  <div class="flex flex-1 flex-col p-l">
-    <header>
-      {
-        /* Soft-fill pill, not a solid bronze one. A solid --color-primary fill
-        with white text lands at 4.06:1, which fails AA at this size (11px, too
-        small for the large-text exemption). --link is the token that's already
-        contrast-checked against card surfaces in BOTH themes (AA on Soft Linen,
-        6.4:1 on the dark surface), so the tint keeps the badge legible without
-        a per-theme override. */
-      }
-      {
-        badge && (
-          <p class="mb-s inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-s py-0.5 text-[0.6875rem] font-semibold tracking-eyebrow text-link uppercase">
-            {badge}
-          </p>
-        )
-      }
-      <h3 class="font-display text-h3 text-foreground">{service.name}</h3>
-      {
-        service.price && (
-          <p class="mt-xs font-mono text-sm tracking-eyebrow text-link uppercase">
-            {service.price}
-          </p>
-        )
-      }
-    </header>
-
+  <div class="svc__chip">
+    <div class="svc__top">
+      <span class="svc__no">No. {no}</span>
+      {badge && <span class="svc__flag">{badge}</span>}
+    </div>
+    <h3 class="svc__name" id={headingId}>{service.name}</h3>
     {
-      service.shortDescription && (
-        <p class="mt-m text-base leading-relaxed text-foreground/85">{service.shortDescription}</p>
+      service.price && (
+        <p class="svc__price">
+          {price.label && <small>{price.label}</small>}
+          <span class="svc__amount">
+            {price.amount}
+            {price.run}
+            {price.unit && <span class="svc__unit">{price.unit}</span>}
+          </span>
+        </p>
       )
     }
+  </div>
+
+  <div class="svc__body">
+    {service.shortDescription && <p class="svc__desc">{service.shortDescription}</p>}
 
     {
       visibleFeatures.length > 0 && (
-        <ul class="mt-m space-y-1.5 text-sm text-foreground">
-          {visibleFeatures.map((feature) => (
-            <li class="flex items-start gap-s">
-              <span
-                class="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary"
-                aria-hidden="true"
-              />
-              <span>{feature}</span>
-            </li>
+        <ul class="svc__features" aria-label={`What ${service.name ?? 'this'} includes`}>
+          {visibleFeatures.map((f) => (
+            <li>{f}</li>
           ))}
-          {moreCount > 0 && (
-            <li class="text-xs text-muted-foreground italic">+ {moreCount} more</li>
-          )}
         </ul>
       )
     }
 
-    {
-      !compact && service.bestFor && (
-        <div class="mt-m border-t border-border-soft pt-m">
-          <p class="mb-xs text-xs tracking-eyebrow text-foreground/80 uppercase">Best for</p>
-          <p class="text-sm text-foreground/80 italic">{service.bestFor}</p>
-        </div>
-      )
-    }
-
-    <div class="mt-l flex flex-1 items-end pt-m">
-      <a
-        href="/contact"
-        class="inline-flex min-h-[44px] items-center py-s text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
-      >
-        {ctaLabel}
-        <span aria-hidden="true" class="ml-xs">→</span>
-      </a>
+    <div class="svc__foot">
+      {
+        !compact && service.bestFor && (
+          <p class="r-tag svc__tag">
+            <small>Best for</small>
+            <strong>{service.bestFor}</strong>
+          </p>
+        )
+      }
+      <div class="svc__ctas">
+        <a class="r-btn r-btn--ink" href={href}>
+          {ctaLabel}
+          <span class="r-arrow" aria-hidden="true"> → </span>
+        </a>
+        {
+          secondary && (
+            <a class="r-link" href={secondary.href}>
+              {secondary.label}
+            </a>
+          )
+        }
+      </div>
     </div>
   </div>
 </article>
+
+<style>
+  .svc {
+    display: grid;
+    grid-template-columns: minmax(17rem, 25rem) minmax(0, 1fr);
+    scroll-margin-top: 6rem;
+  }
+
+  /* ---- The chip: one tone of the strip. ---- */
+  .svc__chip {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.6rem 1.75rem 1.75rem;
+    background: var(--tone);
+    color: var(--color-ink);
+    /* The thin paper line between two chips on a real strip. */
+    box-shadow: inset 0 -1px 0 rgb(255 253 250 / 0.55);
+  }
+  .svc[data-on='cream'] .svc__chip {
+    color: var(--color-cream);
+  }
+  .svc__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 1.6rem;
+  }
+  .svc__no {
+    font: 500 0.8rem/1 var(--font-body);
+  }
+  .svc__flag {
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    font: 500 0.75rem/1 var(--font-body);
+  }
+  .svc[data-on='cream'] .svc__flag {
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+  .svc__name {
+    margin: 0;
+    max-width: 14ch;
+    font: 300 clamp(1.75rem, 1.2rem + 1.3vw, 2.55rem) / 1.02 var(--font-display);
+    letter-spacing: -0.025em;
+    color: inherit;
+    text-wrap: balance;
+  }
+  .svc__price {
+    margin: auto 0 0;
+    padding-top: 1.5rem;
+  }
+  .svc__price small {
+    display: block;
+    margin-bottom: 0.45rem;
+    font: 500 0.82rem/1.2 var(--font-body);
+  }
+  .svc__amount {
+    display: block;
+    font: 300 clamp(3rem, 2rem + 3vw, 5.25rem) / 0.9 var(--font-display);
+    letter-spacing: -0.04em;
+    font-variant-numeric: lining-nums;
+  }
+  .svc__unit {
+    font-size: 0.42em;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---- The details beside it. ---- */
+  .svc__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    padding: 2.4rem 0 2.6rem clamp(2rem, 4.5vw, 4.5rem);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .svc__desc {
+    margin: 0;
+    max-width: 48ch;
+    font: 300 clamp(1.25rem, 1.05rem + 0.55vw, 1.6rem) / 1.35 var(--font-display);
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  .svc__features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2 16rem;
+    column-gap: 2.5rem;
+    color: var(--color-ink-2);
+    font-size: 0.97rem;
+    line-height: 1.45;
+  }
+  .svc__features li {
+    display: flex;
+    gap: 0.7rem;
+    padding-block: 0.3rem;
+    break-inside: avoid;
+  }
+  /* A swatch of the row's own tone as the bullet, so each list is keyed to
+     its chip. The ring keeps the pale tones visible on paper. */
+  .svc__features li::before {
+    content: '';
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-top: 0.42em;
+    background: var(--tone);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.28);
+  }
+  .svc__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    margin-top: auto;
+  }
+  .svc__tag {
+    max-width: 30rem;
+    margin: 0;
+  }
+  .svc__tag strong {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  .svc__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+  }
+
+  /* The badged service is pulled a little out of the deck, like the chip
+     someone is holding up to the wall. Desktop only. */
+  @media (min-width: 900px) {
+    .svc--featured .svc__chip {
+      z-index: 1;
+      margin-left: -1.25rem;
+      box-shadow: 0 30px 44px -30px rgb(35 30 27 / 0.65);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Arriving from the deck index or a home chip: the chip slides out of the
+       strip and back, so the eye lands on the right one. */
+    .svc:target .svc__chip {
+      animation: svc-pull 1.4s cubic-bezier(0.23, 1, 0.32, 1) 0.2s;
+    }
+  }
+  @keyframes svc-pull {
+    40% {
+      transform: translateX(-1.1rem);
+      box-shadow: 0 30px 44px -26px rgb(35 30 27 / 0.7);
+    }
+  }
+
+  /* ---- Phone and small tablet: chip on top, details below. ---- */
+  @media (max-width: 899px) {
+    .svc {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .svc__chip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'top top'
+        'name price';
+      align-items: end;
+      gap: 1rem 1.25rem;
+      padding: 1.25rem 1.25rem 1.4rem;
+      box-shadow: none;
+    }
+    .svc__top {
+      grid-area: top;
+    }
+    .svc__name {
+      grid-area: name;
+      font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.1rem);
+    }
+    .svc__price {
+      grid-area: price;
+      padding-top: 0;
+      text-align: right;
+    }
+    .svc__price small {
+      font-size: 0.78rem;
+    }
+    .svc__amount {
+      font-size: clamp(2.3rem, 1.6rem + 3vw, 3.2rem);
+    }
+    .svc__body {
+      padding: 1.6rem 0 3rem;
+      border-bottom: 0;
+    }
+    .svc__features {
+      columns: 1;
+    }
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+// Safe to edit by hand
+// E-Design "What is E-Design?" (phase 2 rebuild, 2026-09-30; DESIGN.md
+// "Services and E-Design"). A short question on the left, Staci's answer on
+// the right set as a Zodiak lede, so the page opens like a conversation, not
+// a brochure. Data: eDesignPage.intro (Portable Text). Renders nothing when
+// the intro is empty.
+import PortableText from '@/components/PortableText';
+
+interface Props {
+  intro?: any[] | null;
+}
+const { intro } = Astro.props as Props;
+---
+
+{
+  intro && intro.length > 0 && (
+    <section class="edi" aria-labelledby="edesign-intro-heading">
+      <div class="r-wrap edi__grid">
+        <h2 id="edesign-intro-heading" class="edi__h">
+          What is <span class="r-accent">E-Design?</span>
+        </h2>
+        <div class="edi__text">
+          <PortableText value={intro} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .edi {
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .edi__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .edi__h {
+    grid-column: 1 / 5;
+    margin: 0;
+    max-width: 9ch;
+    font: 300 clamp(2.2rem, 1.3rem + 2.8vw, 4rem) / 1 var(--font-display);
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+  .edi__text {
+    grid-column: 6 / 13;
+    font: 300 clamp(1.35rem, 1.05rem + 0.9vw, 2rem) / 1.35 var(--font-display);
+    letter-spacing: -0.012em;
+    color: var(--color-ink);
+  }
+  /* PortableText paints paragraphs with its own utilities; the lede sets the
+     type here, so they inherit. */
+  .edi__text :global(p) {
+    margin: 0 0 1.1em;
+    font: inherit;
+    color: inherit;
+    text-wrap: pretty;
+  }
+  .edi__text :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  @media (max-width: 1023px) {
+    .edi__grid {
+      display: block;
+    }
+    .edi__h {
+      max-width: none;
+      margin-bottom: 1.75rem;
+    }
+  }
+</style>

@@ -1,0 +1,106 @@
+---
+// Safe to edit by hand
+// E-Design "What's included" (phase 2 rebuild, 2026-09-30; DESIGN.md
+// "Services and E-Design"). The deliverables pinned to a sample board: each
+// item is a paper sample tag (.r-tag) set a little off square on the Oat chip,
+// the way they sit on Staci's board. Ink on paper, so every tag reads at 15:1.
+// The tilt is fixed per position (no randomness between builds); the tags
+// straighten on hover.
+//
+// Data: eDesignPage.whatsIncluded (string[]). Renders nothing when empty.
+interface Props {
+  items?: string[] | null;
+}
+const { items } = Astro.props as Props;
+const list = (items ?? []).filter(Boolean);
+---
+
+{
+  list.length > 0 && (
+    <section class="edx" aria-labelledby="edesign-included-heading">
+      <div class="r-wrap edx__grid">
+        <h2 id="edesign-included-heading" class="r-h2 edx__h">
+          What's <span class="r-accent">included</span>
+        </h2>
+        <ul class="edx__board">
+          {list.map((item) => (
+            <li class="r-tag edx__tag">
+              <strong>{item}</strong>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .edx {
+    background: var(--color-chip-2);
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+    /* Oat ground: the accent phrase takes Espresso (7.5:1 on Oat). */
+    --accent-color: var(--color-chip-7);
+  }
+  .edx__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    align-items: center;
+  }
+  .edx__h {
+    grid-column: 1 / 5;
+    margin: 0;
+    max-width: 8ch;
+    color: var(--color-ink);
+  }
+  .edx__board {
+    grid-column: 6 / 13;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.4rem 1.25rem;
+  }
+  .edx__tag {
+    rotate: var(--tilt, 0deg);
+    transition: rotate 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .edx__tag strong {
+    font-size: clamp(1.1rem, 0.95rem + 0.5vw, 1.4rem);
+    line-height: 1.25;
+  }
+  .edx__tag:nth-child(5n + 1) {
+    --tilt: -2deg;
+  }
+  .edx__tag:nth-child(5n + 2) {
+    --tilt: 1.5deg;
+  }
+  .edx__tag:nth-child(5n + 3) {
+    --tilt: -1deg;
+  }
+  .edx__tag:nth-child(5n + 4) {
+    --tilt: 2.25deg;
+  }
+  .edx__tag:nth-child(5n + 5) {
+    --tilt: -1.5deg;
+  }
+  .edx__tag:hover {
+    rotate: 0deg;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .edx__tag {
+      transition: none;
+    }
+  }
+  @media (max-width: 1023px) {
+    .edx__grid {
+      display: block;
+    }
+    .edx__h {
+      max-width: none;
+      margin-bottom: 2.25rem;
+    }
+  }
+</style>

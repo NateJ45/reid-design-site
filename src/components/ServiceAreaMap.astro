@@ -4,6 +4,12 @@
 // No API key, no JS, no tracker. The iframe is keyboard-focusable; aria-label
 // describes what the visitor is looking at for screen readers.
 //
+// Restyled 2026-09-30 (phase 2 of the art-direction rebuild): square corners
+// in a hairline frame, the tiles warmed toward the linen palette with a CSS
+// filter (colour returns on hover or focus, when someone is actually reading
+// the map), and a quiet caption line with the "larger map" link under it.
+// Props unchanged. Used on /contact.
+//
 // To recenter or rezoom, get a new bbox from openstreetmap.org/export.
 
 interface Props {
@@ -29,21 +35,54 @@ const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=
 const link = `https://www.openstreetmap.org/?mlat=${markerLat}&mlon=${markerLon}#map=10/${markerLat}/${markerLon}`;
 ---
 
-<figure class={`m-0 ${className ?? ''}`}>
-  <iframe
-    src={src}
-    width="100%"
-    height={height}
-    style="border: 0; border-radius: 0.5rem;"
-    title="Map showing Reid Design's service area centered on Plainfield, Indiana"
-    aria-label="Map showing Reid Design's service area centered on Plainfield, Indiana, extending through Indianapolis and the northern suburbs"
-    loading="lazy"></iframe>
-  <figcaption class="mt-xs text-xs text-muted-foreground">
-    Based in Plainfield, serving Greater Indianapolis. <a
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="underline hover:text-primary">View larger map</a
-    >
+<figure class:list={['samap', className]}>
+  <div class="samap__frame">
+    <iframe
+      src={src}
+      width="100%"
+      height={height}
+      title="Map showing Reid Design's service area centered on Plainfield, Indiana"
+      aria-label="Map showing Reid Design's service area centered on Plainfield, Indiana, extending through Indianapolis and the northern suburbs"
+      loading="lazy"></iframe>
+  </div>
+  <figcaption class="samap__cap">
+    <span>Based in Plainfield, serving Greater Indianapolis.</span>
+    <a href={link} target="_blank" rel="noopener noreferrer" class="r-link">View larger map</a>
   </figcaption>
 </figure>
+
+<style>
+  .samap {
+    margin: 0;
+  }
+  .samap__frame {
+    padding: 0.5rem;
+    background: var(--color-paper);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 24px 36px -30px rgb(35 30 27 / 0.6);
+  }
+  .samap__frame iframe {
+    display: block;
+    border: 0;
+    filter: sepia(0.35) saturate(0.7) contrast(0.95);
+    transition: filter 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .samap__frame:hover iframe,
+  .samap__frame:focus-within iframe {
+    filter: none;
+  }
+  .samap__cap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+    margin-top: 0.85rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--color-ink-2);
+  }
+  .samap__cap a {
+    color: var(--color-ink);
+  }
+</style>
