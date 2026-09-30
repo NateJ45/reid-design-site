@@ -32,7 +32,7 @@ The site is `output: 'static'` — every page is **pre-rendered to HTML at build
 
 There are two ways the site rebuilds:
 
-1. **`git push origin main`** → Cloudflare detects the push → triggers `npm run build` → site updates in ~1-3 min.
+1. **A merge to `main`** → Cloudflare detects the push → triggers `npm run build` → site updates in ~1-3 min. Since 2026-09-29 `main` only accepts merged pull requests with `build`, `test` and `lighthouse` green (ruleset "main: PR + green CI", no bypass); a direct `git push origin main` is rejected. See OPERATIONS.md.
 2. **Cloudflare deploy hook** → an HTTP POST to a private Cloudflare URL triggers the same build.
 
 Without a webhook, every Sanity edit waits until the next code push. That's not a sustainable editor experience for Staci.
