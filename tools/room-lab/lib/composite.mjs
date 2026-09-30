@@ -131,6 +131,9 @@ export async function lockDown(prevPath, editPath, outPath, opts = {}) {
   //     coffee table, sofa feet in the art step) passed through and ended up inside that
   //     piece's layer, so they would have slid in with it on the page.
   if (opts.keep) for (let i = 0; i < w * h; i++) mask[i] = Math.round((mask[i] * opts.keep[i]) / 255);
+  // 4c. Optional body (0..255): the piece itself, taken in full even where it happens to match
+  //     what was behind it (a difference mask is blind there; see lib/objectkeep fillHoles).
+  if (opts.body) for (let i = 0; i < w * h; i++) if (opts.body[i] > mask[i]) mask[i] = opts.body[i];
 
   // 5. out = prev*(1-m) + edit*m. Where m is 0 the pixel is copied from prev untouched.
   const out = Buffer.alloc(w * h * 3);

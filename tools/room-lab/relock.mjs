@@ -34,8 +34,8 @@ for (const [k, pc] of spec.pieces.entries()) {
   const prev = join(FINAL, `frame-${k}.png`);
   const out = join(FINAL, `frame-${k + 1}.png`);
   console.log(`${pc.id} (seed ${seed})`);
-  const keep = await objectKeep(segmenter, prev, raw, pc.labels);
-  const r = await lockDown(prev, raw, out, { keep, maskPath: join(FINAL, `piece-${pc.id}.mask.png`) });
+  const kept = await objectKeep(segmenter, prev, raw, pc.labels);
+  const r = await lockDown(prev, raw, out, { keep: kept?.keep, body: kept?.body, maskPath: join(FINAL, `piece-${pc.id}.mask.png`) });
   console.log(`  changed ${r.changedPct.toFixed(1)}% of the frame`);
 }
 console.log('Done. Next: room:grade, room:walls, room:layers, room:sheet (same --room).');

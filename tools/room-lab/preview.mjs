@@ -42,10 +42,11 @@ for (const L of lj.layers) {
     lay: await sharp(join(LAYERS, L.image)).ensureAlpha().raw().toBuffer(),
     sh: L.shade ? await sharp(join(LAYERS, L.shade)).greyscale().extractChannel(0).raw().toBuffer() : null,
     lt: L.light ? await sharp(join(LAYERS, L.light)).removeAlpha().raw().toBuffer() : null,
+    wl: L.wall ? await sharp(join(LAYERS, L.wall)).greyscale().extractChannel(0).raw().toBuffer() : null,
   });
 }
 
-async function paint(h) {
+async function paint(h, full = false) {
   const chip = hex(h);
   const R = Buffer.from(base);
   for (let p = 0; p < W * H; p++) {
@@ -59,7 +60,7 @@ async function paint(h) {
       R[p * 3 + c] = srgb(px[c] * (1 - m) + chip[c] * shade * tint * m);
     }
   }
-  for (const { L, lay, sh, lt } of layers) {
+  for (const { L, lay, sh, lt, wl } of layers) {
     const [bx, by, bw, bh] = L.box;
     for (let y = 0; y < bh; y++)
       for (let x = 0; x < bw; x++) {
@@ -68,10 +69,21 @@ async function paint(h) {
         if (sh) for (let c = 0; c < 3; c++) R[p + c] = Math.round((R[p + c] * sh[o]) / 255);
         if (lt) for (let c = 0; c < 3; c++) R[p + c] = Math.round(255 - ((255 - R[p + c]) * (255 - lt[o * 3 + c])) / 255);
         const a = lay[o * 4 + 3] / 255;
-        if (a > 0) for (let c = 0; c < 3; c++) R[p + c] = Math.round(R[p + c] * (1 - a) + lay[o * 4 + c] * a);
+        if (a > 0) {
+          // Paint this layer's own wall pixels with the same shader as the base (layers v3).
+          const px = [lin(lay[o * 4]), lin(lay[o * 4 + 1]), lin(lay[o * 4 + 2])];
+          const wm = wl ? wl[o] / 255 : 0;
+          const lp = Math.max(1e-4, luma(...px));
+          for (let c = 0; c < 3; c++) {
+            const tint = 1 + 0.35 * (px[c] / lp / (med[c] / lm) - 1);
+            const v = wm > 0 ? srgb(px[c] * (1 - wm) + chip[c] * (lp / lm) * tint * wm) : lay[o * 4 + c];
+            R[p + c] = Math.round(R[p + c] * (1 - a) + v * a);
+          }
+        }
       }
   }
-  return sharp(R, { raw: { width: W, height: H, channels: 3 } }).resize(736).png().toBuffer();
+  const img = sharp(R, { raw: { width: W, height: H, channels: 3 } });
+  return full ? img.png().toBuffer() : img.resize(736).png().toBuffer();
 }
 
 const chips = [
@@ -101,4 +113,6 @@ await sharp({ create: { width: TW * 3, height: 2 * (TH + 34), channels: 3, backg
   .composite(comps)
   .jpeg({ quality: 88 })
   .toFile(out);
+// Full size, for checking pinholes and halos at 1:1.
+await sharp(await paint('#a8b5a0', true)).toFile(join(WORK, 'preview-sage-full.png'));
 console.log(out);

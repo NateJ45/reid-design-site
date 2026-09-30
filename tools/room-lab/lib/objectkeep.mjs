@@ -12,11 +12,47 @@
 import sharp from 'sharp';
 import { blur1, labelMask } from './wallmask.mjs';
 
+/**
+ * Fill SMALL enclosed holes in a label mask (values >= 128 are "in"). A hole is a patch of
+ * "out" pixels that cannot reach the image border through other "out" pixels. Only holes
+ * under maxFrac of the frame are filled: a cream cushion spot that matched the tan wall
+ * behind it is tiny, while the real gap between a chair's arm and seat, where the wall does
+ * show through, is far bigger and must stay open (2026-09-30).
+ */
+export function fillHoles(buf, W, H, maxFrac = 0.0005) {
+  const n = W * H;
+  const out = Buffer.alloc(n);
+  for (let i = 0; i < n; i++) out[i] = buf[i] >= 128 ? 255 : 0;
+  const seen = new Uint8Array(n);
+  const stack = new Int32Array(n);
+  const maxSize = Math.round(n * maxFrac);
+  for (let start = 0; start < n; start++) {
+    if (out[start] || seen[start]) continue;
+    // Flood one "out" region, noting whether it touches the border.
+    let top = 0;
+    let touches = false;
+    const region = [];
+    stack[top++] = start;
+    seen[start] = 1;
+    while (top) {
+      const i = stack[--top];
+      region.push(i);
+      const x = i % W;
+      const y = (i - x) / W;
+      if (x === 0 || y === 0 || x === W - 1 || y === H - 1) touches = true;
+      const nb = [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, y > 0 ? i - W : -1, y < H - 1 ? i + W : -1];
+      for (const k of nb) if (k >= 0 && !out[k] && !seen[k]) { seen[k] = 1; stack[top++] = k; }
+    }
+    if (!touches && region.length <= maxSize) for (const i of region) out[i] = 255;
+  }
+  return out;
+}
+
 export async function objectKeep(segmenter, prevPath, editPath, labels) {
   if (!labels || !labels.length) return null;
   const { width: W, height: H } = await sharp(editPath).metadata();
   const n = W * H;
-  const cls = await labelMask(segmenter, editPath, labels);
+  const cls = fillHoles(await labelMask(segmenter, editPath, labels), W, H);
   let covered = 0;
   for (let i = 0; i < n; i++) if (cls[i] >= 128) covered++;
   if (covered < n * 0.002) {
@@ -53,6 +89,9 @@ export async function objectKeep(segmenter, prevPath, editPath, labels) {
     }
   }
   const soft = await blur1(keep, W, H, 3);
+  // body: the (hole-filled) piece itself. lockDown takes the edit in full here even where it
+  // matches what was behind it, which a difference mask can never see.
+  const body = await blur1(cls, W, H, 1.5);
   console.log(`  keep: [${labels.join(', ')}] ${((covered / n) * 100).toFixed(1)}% labelled`);
-  return soft;
+  return { keep: soft, body };
 }

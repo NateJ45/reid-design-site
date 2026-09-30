@@ -21,6 +21,7 @@ import { join, resolve } from 'node:path';
 import sharp from 'sharp';
 import { FINAL, LAYERS, loadSpec } from './lib/paths.mjs';
 import { loadSegmenter, segment, readGrey, writeGrey, labelMask, blur1 } from './lib/wallmask.mjs';
+import { fillHoles } from './lib/objectkeep.mjs';
 
 const LIMIT = 2.5; // recomposite mean absolute difference, 0..255
 const PAD = 8;
@@ -32,12 +33,29 @@ const spec = await loadSpec();
 const { width: W, height: H } = spec;
 const N = W * H;
 await mkdir(LAYERS, { recursive: true });
-for (const f of await readdir(LAYERS)) if (/^(layer|shade|light)-/.test(f)) await unlink(join(LAYERS, f));
+for (const f of await readdir(LAYERS)) if (/^(layer|shade|light|wall)-/.test(f)) await unlink(join(LAYERS, f));
 
 const rgbOf = (p) => sharp(p).removeAlpha().toColourspace('srgb').raw().toBuffer();
 const luma = (r, g, b) => 0.299 * r + 0.587 * g + 0.114 * b;
 
 const segmenter = wallDir ? null : await loadSegmenter();
+// The empty room and its paintable wall (written by room:walls), for the hue test below.
+const base = await rgbOf(join(FINAL, 'frame-0.png'));
+const baseWallPath = join(FINAL, 'base-mask.png');
+if (!existsSync(baseWallPath)) throw new Error('Run room:walls first: layers needs base-mask.png.');
+const baseWall = await sharp(baseWallPath).resize(W, H).extractChannel(0).raw().toBuffer();
+// Hue distance: chromaticity (r, g, b over their sum), so brightness does not count. Re-lit
+// tan wall stays within ~0.02; cream linen, brass, white trim and walnut are 0.05 or more.
+const HUE_TOL = 0.03;
+const hueDist = (a, b, j) => {
+  const sa = a[j] + a[j + 1] + a[j + 2] + 1;
+  const sb = b[j] + b[j + 1] + b[j + 2] + 1;
+  return Math.max(
+    Math.abs(a[j] / sa - b[j] / sb),
+    Math.abs(a[j + 1] / sa - b[j + 1] / sb),
+    Math.abs(a[j + 2] / sa - b[j + 2] / sb),
+  );
+};
 const out = { version: 1, width: W, height: H, layers: [], check: null };
 const store = []; // per piece data for the recomposite check
 
@@ -60,79 +78,64 @@ for (const [i, pc] of spec.pieces.entries()) {
   // The piece's own pixels (its labels in the edited frame, grown a little), so wall-labelled
   // pixels that belong to the piece (a frame edge, a lampshade seam) are not mistaken for wall.
   let own = null;
-  if (segmenter && pc.labels?.length) own = await blur1(await labelMask(segmenter, curPath, pc.labels), W, H, 1.5);
+  let inner = null;
+  if (segmenter && pc.labels?.length) {
+    // Blur 4 then threshold at 128 below also closes pinholes in the label itself (a cushion
+    // spot SegFormer called "wall" because it matched the wall colour).
+    const filled = fillHoles(await labelMask(segmenter, curPath, pc.labels), W, H);
+    own = await blur1(filled, W, H, 4);
+    // inner: the label eroded by ~8 px. SegFormer's labels bleed 5-10 px past the real edge
+    // (a tan strip of wall along the curtain), so an UNCHANGED pixel only counts as the piece
+    // when it is deep inside the label, where the matching cushion spot was.
+    inner = await blur1(filled, W, H, 5);
+  }
+  // Pinholes: a spot inside the piece whose colour matched what was behind it gets m = 0
+  // from lockDown (a cream cushion on sunlit tan wall), and the paint shows through as a
+  // fleck. Close the mask (blur + threshold) and let labelled pixels inside it count.
+  const closed = own ? await blur1(m, W, H, 6) : null;
 
   const alpha = Buffer.alloc(N);
   const shade = Buffer.alloc(N, 255);
   const light = Buffer.alloc(N * 3); // screen layer, black = no change (a lamp's glow)
   let darkCount = 0;
+  // Layers v3 (2026-09-30). Earlier versions tried to decide, per pixel, "piece or wall?"
+  // so that wall never sat in a layer (a tan pixel on a painted wall is a halo). In a warm
+  // room that cannot be decided from colour: shadowed tan wall, cream linen and brass share a
+  // hue. So stop deciding. A layer carries EVERYTHING its step changed (the piece, its shadow,
+  // the wall it re-lit) plus its own wall mask, and the page paints the wall pixels of every
+  // layer with the same shader as the base. The shader already turns darker wall into darker
+  // paint, so shadows survive without separate shade or light layers.
+  const wallL = Buffer.alloc(N);
   for (let p = 0; p < N; p++) {
-    if (m[p] === 0) continue;
-    // Labelled as this piece and touched by this step: it IS the piece, fully opaque, even
-    // when its colour happens to match what was behind it (the cream sofa cushions matched
-    // the sunlit tan wall to within 2 levels, so the "unchanged" rule let the paint through).
-    if (own && own[p] > 128) {
-      alpha[p] = 255;
-      continue;
-    }
+    const inOwn = own && own[p] > 128;
+    if (m[p] === 0 && !(closed && closed[p] > 128 && inOwn)) continue;
+    alpha[p] = inOwn ? 255 : m[p];
+    // Deep inside the piece it is the piece, whatever SegFormer says (the cream cushion spot
+    // it called "wall"); elsewhere trust the wall label of the edited frame.
+    // Also not wall: anything far darker than the wall was, or clearly another hue (brass or
+    // black iron curtain rods, which SegFormer, at that thinness, calls "wall"). Re-lit and
+    // shadowed wall stays well inside both limits.
     const j = p * 3;
-    const yp = luma(prev[j], prev[j + 1], prev[j + 2]);
-    const yc = luma(cur[j], cur[j + 1], cur[j + 2]);
-    const r = yp > 8 ? yc / yp : 1;
-    let dark = 0;
-    if (r < 0.97 && yp > 8) {
-      const err = Math.max(
-        Math.abs(cur[j] - prev[j] * r),
-        Math.abs(cur[j + 1] - prev[j + 1] * r),
-        Math.abs(cur[j + 2] - prev[j + 2] * r),
-      );
-      if (err <= 10) dark = 1;
-    }
-    darkCount += dark;
-    // Decomposition (revised 2026-09-30), per pixel of the piece mask:
-    //   labelled as the piece      -> object layer, opaque (handled above, before any test:
-    //                                 a black frame passes "pure darkening", pale sky passes
-    //                                 "new trim", a cream cushion matches the wall it covers);
-    //   unchanged (diff < 6)       -> nothing, the base shows through;
-    //   pure darkening             -> shade layer (multiply), right under any paint;
-    //   on the wall: new white trim -> object; darker -> shade; brighter -> light (screen);
-    //   anything else (rug, floor) -> object layer.
-    const d = Math.max(
-      Math.abs(cur[j] - prev[j]),
-      Math.abs(cur[j + 1] - prev[j + 1]),
-      Math.abs(cur[j + 2] - prev[j + 2]),
-    );
-    if (d < 6) continue;
-    if (dark) {
-      shade[p] = Math.round(Math.max(0, Math.min(1, r)) * 255);
-      continue;
-    }
-    // Redrawn WALL around the piece stays out of the object layer: the painted base shows
-    // there, otherwise it would stay tan around the art and read as a halo once a chip is on.
-    if (wall[p] >= 128) {
-      const chr = (a0, a1, a2) => {
-        const mx = Math.max(a0, a1, a2);
-        return mx ? (mx - Math.min(a0, a1, a2)) / mx : 0;
-      };
-      // New white trim over coloured wall (crown moulding, taller baseboards): that IS the
-      // piece. The trim piece has no ADE20K label, so without this the crown went missing.
-      if (yc > yp * 1.05 && chr(cur[j], cur[j + 1], cur[j + 2]) < 0.6 * chr(prev[j], prev[j + 1], prev[j + 2])) {
-        alpha[p] = m[p];
-        continue;
-      }
-      // Darker: the piece's shadow on the wall, a multiply (right under any paint colour).
-      if (r < 0.99) shade[p] = Math.round(Math.max(0, r) * 255);
-      // Brighter: light the piece throws on the wall (a lamp), a SCREEN layer that adds light
-      // to whatever paint colour is on: L = (cur - prev) / (255 - prev) per channel.
-      else if (r > 1.01)
-        for (let c = 0; c < 3; c++) {
-          const up = cur[j + c] - prev[j + c];
-          if (up > 0) light[p * 3 + c] = Math.min(255, Math.round((255 * up) / Math.max(1, 255 - prev[j + c])));
-        }
-      continue;
-    }
-    alpha[p] = m[p];
-    void floor;
+    const r = luma(cur[j], cur[j + 1], cur[j + 2]) / Math.max(1, luma(prev[j], prev[j + 1], prev[j + 2]));
+    const sat = (b0, b1, b2) => {
+      const mx = Math.max(b0, b1, b2);
+      return mx ? (mx - Math.min(b0, b1, b2)) / mx : 0;
+    };
+    const sBase = sat(base[j], base[j + 1], base[j + 2]);
+    const sCur = sat(cur[j], cur[j + 1], cur[j + 2]);
+    // Hue test for darker pixels (brass reads as another hue; shadowed tan does not), but a
+    // pixel the edit made BRIGHTER that still has colour is lightened wall (the band under the
+    // new crown). A saturation-only rule was tried and failed: shadowed tan is MORE saturated.
+    // New white trim over the old wall (crown, taller baseboards): clearly whiter AND far less
+    // coloured than the wall it covers. It must not be painted.
+    const newTrim = r > 1.12 && sCur < 0.45 * sBase;
+    const odd = r < 0.55 || newTrim || (r <= 1 && hueDist(base, cur, j) > 0.06);
+    // Wall = SegFormer's wall label on this frame OR the empty room's paintable wall, unless
+    // it is the piece or odd. The label alone missed the band under the new crown, which the
+    // trim pass mistook for trim, and that band stayed unpainted (a pale streak).
+    // Trim-type pieces only: over furniture the empty room's mask would paint the sofa.
+    const wallHere = pc.labels?.length ? wall[p] : Math.max(wall[p], baseWall[p]);
+    wallL[p] = (inOwn && inner[p] > 245) || odd ? 0 : wallHere;
   }
 
   // Bounding box, and whether the shade layer earns its keep.
@@ -170,6 +173,7 @@ for (const [i, pc] of spec.pieces.entries()) {
   // Crop RGBA and shade.
   const rgba = Buffer.alloc(bw * bh * 4);
   const sh = Buffer.alloc(bw * bh);
+  const wl = Buffer.alloc(bw * bh);
   const lt = Buffer.alloc(bw * bh * 3);
   for (let y = 0; y < bh; y++) {
     for (let x = 0; x < bw; x++) {
@@ -179,6 +183,7 @@ for (const [i, pc] of spec.pieces.entries()) {
       rgba[o * 4 + 1] = cur[p * 3 + 1];
       rgba[o * 4 + 2] = cur[p * 3 + 2];
       rgba[o * 4 + 3] = alpha[p];
+      wl[o] = alpha[p] ? wallL[p] : 0;
       sh[o] = shade[p];
       lt[o * 3] = light[p * 3];
       lt[o * 3 + 1] = light[p * 3 + 1];
@@ -189,6 +194,14 @@ for (const [i, pc] of spec.pieces.entries()) {
   await sharp(rgba, { raw: { width: bw, height: bh, channels: 4 } })
     .webp({ quality: 88, alphaQuality: 100 })
     .toFile(join(LAYERS, imageName));
+  // The layer's wall mask (greyscale, same box): which of its pixels take paint.
+  let wallName = null;
+  let wallPx = 0;
+  for (let o = 0; o < bw * bh; o++) if (wl[o] > 128) wallPx++;
+  if (wallPx > 0) {
+    wallName = `wall-${pc.id}.png`;
+    await writeGrey(wl, bw, bh, join(LAYERS, wallName));
+  }
   let shadeName = null;
   if (hasShade) {
     shadeName = `shade-${pc.id}.png`;
@@ -206,6 +219,7 @@ for (const [i, pc] of spec.pieces.entries()) {
     image: imageName,
     shade: shadeName,
     light: lightName,
+    wall: wallName,
     box: [bx, by, bw, bh],
     shadeNonWhitePct: +shadePct.toFixed(2),
   });
