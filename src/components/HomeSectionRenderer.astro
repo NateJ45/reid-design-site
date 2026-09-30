@@ -80,6 +80,7 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             primaryCta={page?.heroPrimaryCta}
             secondaryCta={page?.heroSecondaryCta}
             headingId="hero-heading"
+            ratingSettings={siteSettings}
           />
         ) : s.section === 'meetStaci' ? (
           <HomeStaci
@@ -110,8 +111,10 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             attribution={page?.testimonialsAttribution}
             featuredQuote={page?.featuredTestimonial}
             gridQuotes={page?.testimonialsToShow ?? []}
+            googleReviews={page?.googleReviews ?? []}
             reviewsNote={siteSettings?.reviewsNote}
             googleBusinessUrl={siteSettings?.googleBusinessUrl}
+            ratingSettings={siteSettings}
           />
         ) : s.section === 'processPreview' ? (
           <TapeProcess

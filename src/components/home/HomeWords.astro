@@ -9,15 +9,30 @@
 // The ink band is the page's one dark moment before the closing bronze CTA,
 // which gives the home its rhythm: bronze, linen, paper, linen, INK, linen,
 // bronze-deep.
+//
+// GOOGLE REVIEWS (2026-09-30). The Google rating sits in the heading as a
+// stamp (RatingTag, self-hides without data). Google reviews are collected
+// automatically (getHomePage().googleReviews) and come first, newest first;
+// Staci's featured pick stays the big lead quote. A Google quote carries its
+// stars, the reviewer's name as Google shows it, its age ("3 weeks ago",
+// worded at build and refreshed in the browser by the script at the bottom)
+// and "Read on Google". Non-Google testimonials render exactly as before.
+// Ordering rules: orderReviews() in src/lib/reviews.ts (unit tested).
 import { splitScriptAccent } from '@/lib/scriptAccent';
 import { splitStega } from '@/lib/preview-stega';
-interface Testimonial {
-  _id?: string;
-  quote?: string;
-  attribution?: string;
-  date?: string;
-  source?: string;
-}
+import RatingTag from '@/components/reviews/RatingTag.astro';
+import Stars from '@/components/reviews/Stars.astro';
+import GoogleCite from '@/components/reviews/GoogleCite.astro';
+import {
+  googleRatingFrom,
+  isRatedGoogleReview,
+  orderReviews,
+  reviewStars,
+  type GoogleRatingSettings,
+  type ReviewLike,
+} from '@/lib/reviews';
+
+type Testimonial = ReviewLike;
 
 interface Props {
   headline?: string | null;
@@ -28,6 +43,10 @@ interface Props {
   gridQuotes?: Testimonial[];
   reviewsNote?: string | null;
   googleBusinessUrl?: string | null;
+  /** Google reviews collected by the home query, newest first. */
+  googleReviews?: Testimonial[];
+  /** siteSettings, for the rating stamp. */
+  ratingSettings?: GoogleRatingSettings | null;
 }
 
 const {
@@ -38,6 +57,8 @@ const {
   attribution,
   reviewsNote,
   googleBusinessUrl,
+  googleReviews = [],
+  ratingSettings,
 } = Astro.props as Props;
 
 // PREVIEW (stega): split and slice CLEAN text only, then reattach each run
@@ -45,8 +66,19 @@ const {
 const head = splitStega(headline ?? '');
 const h = splitScriptAccent(head.cleaned, splitStega(scriptAccent ?? '').cleaned || undefined);
 
-const lead = featuredQuote?.quote ? featuredQuote : gridQuotes.find((q) => q?.quote);
-const more = gridQuotes.filter((q) => q?.quote && q._id !== lead?._id).slice(0, 3);
+// Lead + up to three loose quotes. Google reviews first, newest first; with
+// no Google reviews this is exactly the old rule (featured, else the first
+// picked, then the rest of the picks in Staci's order).
+const { lead, more, hasGoogle } = orderReviews(featuredQuote, googleReviews, gridQuotes, 3);
+const allGoogle = [lead, ...more].every((t) => !t || isRatedGoogleReview(t));
+const hasRating = Boolean(googleRatingFrom(ratingSettings));
+
+// Where "Read on Google" goes: the review itself, else the profile.
+const http = (u?: string | null) => {
+  const c = splitStega(u ?? '').cleaned.trim();
+  return /^https?:\/\//i.test(c) ? c : null;
+};
+const googleHref = (t?: Testimonial | null) => http(t?.reviewUrl) ?? http(googleBusinessUrl);
 
 // "April 2026" from "2026-04-01". Built by hand so it never shifts a day in
 // a timezone west of UTC.
@@ -64,7 +96,7 @@ const MONTHS = [
   'November',
   'December',
 ];
-const monthYear = (d?: string) => {
+const monthYear = (d?: string | null) => {
   const m = d?.match(/^(\d{4})-(\d{2})/);
   return m ? `${MONTHS[Number(m[2]) - 1]} ${m[1]}` : '';
 };
@@ -80,28 +112,48 @@ const trim = (input = '') => {
 
 <section class="words" aria-labelledby="words-heading">
   <div class="r-wrap">
-    <h2 id="words-heading" class="words__h">
+    <div class:list={['words__head', { 'has-stamp': hasRating }]}>
+      <h2 id="words-heading" class="words__h">
+        {
+          h.found ? (
+            <>
+              {h.before}
+              <span class="r-accent">{h.word}</span>
+              {h.after}
+              {head.encoded}
+            </>
+          ) : (
+            headline
+          )
+        }
+      </h2>
       {
-        h.found ? (
-          <>
-            {h.before}
-            <span class="r-accent">{h.word}</span>
-            {h.after}
-            {head.encoded}
-          </>
-        ) : (
-          headline
+        hasGoogle && (
+          <p class="words__note">
+            {allGoogle ? 'Reviews from Google, newest first' : 'Google reviews first, newest first'}
+          </p>
         )
       }
-    </h2>
+      {hasRating && <RatingTag variant="stamp" settings={ratingSettings} class="words__stamp" />}
+    </div>
 
     {
       lead?.quote && (
         <figure class="words__lead">
+          {isRatedGoogleReview(lead) && (
+            <p class="words__stars">
+              <Stars rating={reviewStars(lead) ?? 0} />
+              <span class="sr-only">{reviewStars(lead)} out of 5 stars on Google</span>
+            </p>
+          )}
           <blockquote>
             <p>{lead.quote}</p>
           </blockquote>
-          <figcaption>{cite(lead)}</figcaption>
+          {isRatedGoogleReview(lead) ? (
+            <GoogleCite review={lead} href={googleHref(lead)} />
+          ) : (
+            <figcaption>{cite(lead)}</figcaption>
+          )}
         </figure>
       )
     }
@@ -111,10 +163,20 @@ const trim = (input = '') => {
         <div class="words__more">
           {more.map((q) => (
             <figure>
+              {isRatedGoogleReview(q) && (
+                <p class="words__stars">
+                  <Stars rating={reviewStars(q) ?? 0} />
+                  <span class="sr-only">{reviewStars(q)} out of 5 stars on Google</span>
+                </p>
+              )}
               <blockquote>
-                <p>“{trim(q.quote)}”</p>
+                <p>“{trim(q.quote ?? '')}”</p>
               </blockquote>
-              <figcaption>{q.attribution}</figcaption>
+              {isRatedGoogleReview(q) ? (
+                <GoogleCite review={q} href={googleHref(q)} />
+              ) : (
+                <figcaption>{q.attribution}</figcaption>
+              )}
             </figure>
           ))}
         </div>
@@ -141,8 +203,30 @@ const trim = (input = '') => {
     color: var(--color-cream);
     padding-block: clamp(5rem, 10vw, 8.5rem);
   }
-  .words__h {
+  /* Heading row: the heading and the source note on the left, the rating
+     stamp hanging on the right (below the heading on phones). */
+  .words__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 2.5rem;
+    align-items: start;
     margin: 0 0 clamp(2.5rem, 5vw, 4rem);
+  }
+  .words__head.has-stamp {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .words__head :global(.words__stamp) {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  .words__note {
+    margin: 0.6rem 0 0;
+    font: 500 0.92rem/1.4 var(--font-body);
+    color: rgb(245 237 227 / 0.75);
+  }
+  .words__h {
+    margin: 0;
     font: 300 clamp(1.3rem, 1rem + 0.8vw, 1.7rem) / 1.2 var(--font-display);
     letter-spacing: -0.01em;
     color: var(--color-cream);
@@ -171,8 +255,8 @@ const trim = (input = '') => {
     font: 300 clamp(4.5rem, 3rem + 5vw, 9rem) / 1 var(--font-display);
     color: var(--color-chip-5);
   }
-  .words__lead figcaption,
-  .words__more figcaption {
+  .words__lead :global(figcaption),
+  .words__more :global(figcaption) {
     margin-top: 1.5rem;
     font: 500 0.92rem/1.4 var(--font-body);
     color: rgb(245 237 227 / 0.75);
@@ -199,8 +283,23 @@ const trim = (input = '') => {
     font: 300 1.3rem/1.4 var(--font-display);
     color: rgb(245 237 227 / 0.94);
   }
-  .words__more figcaption {
+  .words__more :global(figcaption) {
     margin-top: 0.9rem;
+  }
+  /* Google quotes: Sandbar stars (a fill on ink), then name, age and the link
+     on one wrapping line, split by small Saddle dots. */
+  .words__stars {
+    --star-on: var(--color-chip-3);
+    --star-off: rgb(245 237 227 / 0.2);
+    --star-h: 0.9rem;
+    margin: 0 0 1rem;
+  }
+  .words__lead .words__stars {
+    --star-h: clamp(1rem, 0.8rem + 0.5vw, 1.3rem);
+    margin-bottom: 1.4rem;
+  }
+  .words {
+    --gcite-strong: var(--color-cream);
   }
   .words__src {
     display: flex;
@@ -215,6 +314,15 @@ const trim = (input = '') => {
   }
 
   @media (max-width: 1023px) {
+    .words__head.has-stamp {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .words__head :global(.words__stamp) {
+      grid-column: 1;
+      grid-row: auto;
+      justify-self: start;
+      margin-top: 1.75rem;
+    }
     .words__more {
       grid-template-columns: 1fr;
       gap: 2rem;
@@ -230,3 +338,19 @@ const trim = (input = '') => {
     }
   }
 </style>
+
+<script>
+  // Keep "3 weeks ago" true between builds: the site only rebuilds when
+  // something is published, so the build-time wording can go stale. Re-word
+  // every review age from its datetime on each page load (ClientRouter fires
+  // astro:page-load on the first load too). The helper has no imports, so
+  // this is a few hundred bytes. With scripts off, the build wording stays.
+  import { relativeDay } from '@/lib/relative-date';
+  const reword = () => {
+    for (const t of document.querySelectorAll<HTMLTimeElement>('.words time[data-rel]')) {
+      const w = relativeDay(t.dateTime);
+      if (w && t.textContent !== w) t.textContent = w;
+    }
+  };
+  document.addEventListener('astro:page-load', reword);
+</script>

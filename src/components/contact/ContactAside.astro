@@ -19,6 +19,9 @@ import SanityImage from '@/components/SanityImage.astro';
 import CopyEmailButton from '@/components/CopyEmailButton';
 import { telHref } from '@/lib/phone';
 import { splitPrice } from '@/lib/split-copy';
+// Google reviews insertion (2026-09-30): rating tag + "Leave a review".
+import RatingTag from '@/components/reviews/RatingTag.astro';
+import { googleRatingFrom, googleWriteReviewUrl, type GoogleRatingSettings } from '@/lib/reviews';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
@@ -38,12 +41,24 @@ interface Props {
   phone?: string | null;
   /** When set, a "Book a call" row links down to #book-a-call. */
   hasScheduling?: boolean;
+  /** siteSettings, for the Google rating tag and the "Leave a review" link. */
+  ratingSettings?: GoogleRatingSettings | null;
 }
 
-const { photo, availability, consultPrice, consultName, email, phone, hasScheduling } =
-  Astro.props as Props;
+const {
+  photo,
+  availability,
+  consultPrice,
+  consultName,
+  email,
+  phone,
+  hasScheduling,
+  ratingSettings,
+} = Astro.props as Props;
 
 const price = consultPrice ? splitPrice(consultPrice) : null;
+const hasRating = Boolean(googleRatingFrom(ratingSettings));
+const writeReview = googleWriteReviewUrl(ratingSettings);
 ---
 
 <div class="cx">
@@ -92,6 +107,22 @@ const price = consultPrice ? splitPrice(consultPrice) : null;
       </p>
     )
   }
+
+  {/* ---- Google reviews insertion (2026-09-30) ---- */}
+  {
+    (hasRating || writeReview) && (
+      <div class="cx__reviews">
+        <RatingTag settings={ratingSettings} />
+        {writeReview && (
+          <a class="r-link cx__leave" href={writeReview} target="_blank" rel="noopener noreferrer">
+            Leave a review
+            <span class="sr-only"> on Google, opens in a new tab</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+  {/* ---- end Google reviews insertion ---- */}
 
   {
     (email || phone || hasScheduling) && (
@@ -229,6 +260,20 @@ const price = consultPrice ? splitPrice(consultPrice) : null;
   .cx__price-note a:focus-visible {
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
+  }
+
+  /* Google reviews insertion (2026-09-30): the rating tag hangs under the
+     price tag, tilted the other way; "Leave a review" sits beside it. */
+  .cx__reviews {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem 1.5rem;
+    --rt-tilt: 1deg;
+  }
+  .cx__leave {
+    color: var(--color-ink);
+    font-size: 0.95rem;
   }
 
   .cx__ways {

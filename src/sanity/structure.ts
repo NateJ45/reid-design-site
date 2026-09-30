@@ -317,6 +317,45 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 context,
               }),
               S.documentTypeListItem('testimonial').title('Testimonials').icon(StarIcon),
+              // Google reviews (2026-09-30): one place for everything Google.
+              // The rating summary lives on Site Settings (Reviews tab); the
+              // reviews themselves are testimonials with Source "Google", listed
+              // here newest first, and "+" starts one already set to Google
+              // (the 'testimonial-google' template in templates.ts).
+              S.listItem()
+                .title('Google reviews')
+                .icon(ThumbsUpIcon)
+                .child(
+                  S.list()
+                    .title('Google reviews')
+                    .items([
+                      S.listItem()
+                        .title('Star rating and review count')
+                        .icon(StarIcon)
+                        .child(
+                          S.document()
+                            .schemaType('siteSettings')
+                            .documentId('siteSettings')
+                            .title('Site Settings: open the Reviews tab')
+                            .views([S.view.form()]),
+                        ),
+                      S.listItem()
+                        .title('Reviews from Google')
+                        .icon(ThListIcon)
+                        .child(
+                          S.documentList()
+                            .title('Reviews from Google')
+                            .schemaType('testimonial')
+                            .filter(
+                              '_type == "testimonial" && (source == "Google" || sourceType == "Google")',
+                            )
+                            .defaultOrdering([{ field: 'date', direction: 'desc' }])
+                            .initialValueTemplates([
+                              S.initialValueTemplateItem('testimonial-google'),
+                            ]),
+                        ),
+                    ]),
+                ),
               S.documentTypeListItem('faqItem').title('FAQ Items').icon(HelpCircleIcon),
             ]),
         ),
