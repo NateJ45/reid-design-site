@@ -2,6 +2,16 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Concept room tabs: six rooms, one deck (branch `claude/concept-room-tabs`)
+
+Delegated agent (Opus), for review by the main session. Built against synthetic sharp-drawn fixtures (three rooms plus a broken listing); the real rooms come from tools/room-lab.
+
+- **Contract:** `src/assets/room/rooms.json` v1 (`parseRoomIndex`: strict, `[a-z0-9-]+` unique slugs, `<folder>/manifest.json` paths) lists the rooms in tab order; each room keeps the manifest v2 in its own folder. `RoomStory.astro` loads every listed room with one set of globs over `src/assets/room/**`, drops an invalid or incomplete room with a build warning naming it, renders nothing with no valid room and no tabs with one.
+- **Site:** `RoomStage.astro` now draws the section, an ARIA tablist (manual activation, roving tabindex, arrows/Home/End, pulled-sample-tag styling, sideways scroll-snap on phones, hidden without a script), the first room in place and every other room in a `<template>`. The per-room parts moved into `RoomScene.astro` and `RoomCaptions.astro` (+ `room-view.ts` types). A switch swaps the frames and captions, moves the canvas, re-arms the build and its IntersectionObserver fallback, updates the live region ("Showing the kitchen, modern style.") and scrolls the room's top back under the header when the story had scrolled past it (Lenis or native smooth; instant under reduced motion).
+- **Painter:** `setBase()` swaps a room's base, mask and wall median into the same context and textures, keeping the chip; resolves null when superseded, so fast switching never shows a stale room. `resize()` skips a hidden canvas.
+- **Tests:** `parseRoomIndex` unit tests; `tests/room-story.spec.ts` gained tab keyboard navigation, the swap, the mid-build switch, the chip surviving a switch (canvas pixels), one GL context across ten switches, reduced motion, no tabs without JS, and the one-room no-tablist case.
+- **Docs:** DESIGN.md (tabs), CLAUDE.md foundation line, editor-vs-hardcoded.md, performance.md (per-room lazy cost), TESTING.md, sanity.md, page-architecture.md.
+
 ## 2026-09-30 — The concept room, site half (branch `claude/concept-room-site`)
 
 Delegated agent (Opus), for review by the main session. Built against the manifest contract with synthetic fixtures; the real room comes from the tools/room-lab session. Mid-task direction change from Nathan: whole-frame stages (manifest v1, WebGL brush-stroke reveal) replaced by furniture layers that fade and move into place (manifest v2, scroll-driven CSS); WebGL now paints only the base wall.

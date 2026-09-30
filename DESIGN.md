@@ -433,8 +433,29 @@ living room that starts EMPTY; as the visitor scrolls past short captions the
 furniture fades and MOVES into place piece by piece (trim, then the rug and
 sofa, tables and a lamp, curtains and a chair, art, styling). The pieces are
 RGBA cut-outs laid over one base photo, each with an optional multiply shade
-layer for its shadow, all from `src/assets/room/` (manifest v2, made by
+layer for its shadow, all from `src/assets/room/<slug>/` (manifest v2, made by
 tools/room-lab); the component renders nothing until they exist.
+
+- **Several rooms, one tab each** (2026-09-30): living room (Transitional),
+  family room (Modern farmhouse), dining room (Art deco), kitchen (Modern),
+  bathroom (Seaside), bedroom (Japandi), in the order `src/assets/room/rooms.json`
+  lists them. Each room has its own base, pieces, stages and captions; the
+  paint chips are the same for all, and the chosen chip stays on across a
+  switch. A real ARIA tablist sits above the room (inside the sticky stage,
+  so it stays in reach mid-build): each tab is the room type with its style
+  as a smaller second line, **no numbering**. Tabs sit on the Linen ground as
+  plain labels led by a small punched-hole ring; the chosen tab is a pulled
+  paper sample tag (the `.r-tag` notched shape, tilted -1.5deg, lifted 2px, a
+  soft drop shadow, a Warm Bronze ring as a mark, never text on Bronze).
+  Hover shows a faint paper tag; focus is the house 2px ink outline. On a
+  phone the row scrolls sideways with scroll-snap, like the chip deck.
+  Manual activation (arrows, Home, End move; Enter, Space or a click
+  chooses), because choosing downloads that room's pictures and may scroll.
+  Choosing a room mid-story scrolls the room's top back to just under the
+  header (smoothly; instantly under reduced motion) so its build starts
+  afresh. The tabs are `hidden` without a script (the first room shows,
+  finished, with all its captions), and with only one room there is no
+  tablist at all.
 
 - **Ground:** Linen chip (chip 1), NOT a second ink band (Nathan,
   2026-09-30): HomeWords stays the home page's one dark moment. TapeProcess
