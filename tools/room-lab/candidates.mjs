@@ -63,7 +63,7 @@ const results = [];
 for (const seed of seeds) {
   const vals = {
     __PROMPT__: spec.editInstruction + piece.change,
-    __NEGATIVE__: '',
+    __NEGATIVE__: piece.negative ?? 'cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated',
     __SEED__: seed,
     __WIDTH__: W,
     __HEIGHT__: H,

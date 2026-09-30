@@ -141,8 +141,8 @@
       "motion": "drop",
       "change": "hang one medium framed landscape print with a thin black frame and a white mat on the large plain wall, centred above the sofa, leaving plenty of bare wall around it. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
-        81,
         1081,
+        81,
         2081
       ]
     },
@@ -150,12 +150,14 @@
       "id": "olive",
       "stage": "finish",
       "motion": "pop",
-      "change": "place a small real-looking bunch of fresh olive branches, with many small narrow silvery sage-green leaves photographed naturally (not a silhouette, not a graphic), in a short matte white ceramic vase at one end of the coffee table; loose and airy, no taller than the sofa back. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "place a sparse, natural arrangement of three freshly cut olive branches in a small matte white ceramic vase at one end of the coffee table. Real olive: long thin woody stems that bend irregularly, small narrow leaves that are dull grey-green on top and pale silvery underneath, leaves pointing in different directions with gaps between them, a little asymmetric and loose, photographed in soft daylight. Not a fern, not a houseplant, not dark green, not symmetrical. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
+        4091,
         91,
         1091,
         2091
-      ]
+      ],
+      "workflow": "edit-reflatent-full"
     },
     {
       "id": "books-throw",
@@ -166,7 +168,8 @@
         101,
         1101,
         2101
-      ]
+      ],
+      "workflow": "edit-reflatent-full"
     }
   ]
 }
