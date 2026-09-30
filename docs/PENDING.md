@@ -318,6 +318,9 @@ rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5
    Kitchen, bath: re-rolled as dated-but-complete rooms (specs rewritten), candidates were
    rendering at handoff; pick from their sheets. Bedroom: 13 of 16 candidates exist, no sheet
    yet; rerun `room:generate -- --room bedroom-japandi base`.
+**HELD (Nathan, 2026-09-30): finish the kitchen only; bath, bedroom, family and dining wait
+   for another day.** Nothing is queued for them. Their base picks and fixed specs are ready,
+   so each is one `stages --base ...` run away (see step 2).
 4. First family/dining builds FAILED review (dining trim painted a mural on the walls;
    family trim smeared the rug onto the floor; family rug looked like pixels). Specs fixed
    (carpentry-only trim at full quality, full-drift guard 12, real rug) and both queued to
