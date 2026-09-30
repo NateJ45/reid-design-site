@@ -133,6 +133,17 @@ Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Process a
 - `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in Footer, Contact sidebar, and Contact-page failsafe paragraph.
 - `CalendlyInline.tsx` — click-to-load Calendly iframe placeholder. Heavy widget stays off the budget until visitor opts in.
 - `ServiceAreaMap.astro` — small map for the contact sidebar. Restyled 2026-09-30: hairline paper frame, tiles warmed by a CSS filter that lifts on hover or focus; props unchanged.
+Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Contact and Privacy"). Page order: Hero, the note (form + aside), the ink call band, the roadmap, the service area.
+
+- `ContactForm.tsx` — Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source, in three numbered fieldsets (01 About you, 02 Your space, 03 Timing and budget). Same field names, Web3Forms payload, validation, honeypot and `?type=` preselect as before; on a failed submit it now focuses the first invalid field in on-screen order (`FIELD_ORDER`). Its look is `src/components/contact/contact-form.css` (`.cf-*`): paper fields, Warm Bronze hairline, ruled message area, and a 2px ink OUTLINE on focus for every control (never a box-shadow ring: WebKit drops it on selects).
+- `contact/ContactAside.astro` — Staci's portrait (home `meetStaciPhoto`, else `heroPortrait`), availability, the consultation price on a sample tag (read from the service whose slug or name contains "consult"; no match = no tag), email / phone / "book a call" rows. Sticky beside the form on desktop, above the form on phones.
+- `contact/CallBand.astro` — ink "Rather talk it through first?" band (`#book-a-call`) holding `CalendlyInline` plus a plain "Open in Calendly" link.
+- `contact/ContactArea.astro` — towns from Business info set large, with `ServiceAreaMap.astro` in a paper frame.
+- `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in the Footer (`variant="link"`, unchanged) and the contact aside (`variant="note"`: `.r-link` address + 44px copy button).
+- `CalendlyInline.tsx` — click-to-load Calendly iframe; the button is the cream `.r-btn`. Heavy widget stays off the budget until the visitor opts in.
+- `ServiceAreaMap.astro` — the OpenStreetMap embed, used by `ContactArea`.
+
+**Privacy page (rebuilt 2026-09-30):** `src/pages/privacy.astro` reads as a long document: a 44rem measure, numbered h2s (CSS counter), and a contents list built from the body's own h2 blocks (sticky left column on desktop, a collapsed "On this page" on phones; the section in view gets `aria-current="location"`). `PortableTextStatic.astro` gained `variant="doc"` (plain `ptd-*` class hooks plus an id on every h2); the default variant's output is unchanged. Both the ids and the contents come from `docHeadings()` in `src/components/contact/doc-anchors.ts` (tested), so a contents link cannot miss. The static fallback policy and the derived "How traffic is measured" section are unchanged in wording.
 
 **Site-wide affordances:**
 
@@ -150,7 +161,7 @@ Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Process a
 - `LeadMagnetForm.tsx` (`client:visible`) — gated guide download on `/guides/[slug]`. Reveals the download link on successful email capture. Honeypot + optional first-name field.
 - `StyleQuiz.tsx` (`client:visible`) — multi-step archetype quiz on `/quiz`: questions → optional qualifiers → email gate (mode from Sanity) → result screen with recommendation + CTA. Page pre-builds Sanity image URLs so the island carries no Sanity client.
 - `BudgetCalculator.tsx` (`client:visible`) — room/scope/add-on estimate on `/calculator`. Estimate always shows without an email; optional "email me this estimate" capture. Ranges read "$500 to $1,000" (no en-dash).
-- `PostInquiryRoadmap.astro` — numbered "what happens after you hit Send" steps on `/contact`, from `contactPage.postInquiryRoadmap`. Falls back to the legacy `whatToExpectContent` block when the array is empty.
+- `PostInquiryRoadmap.astro` — "what happens after you hit Send" steps on `/contact`, from `contactPage.postInquiryRoadmap`: a paper band, steps pinned along one thread (horizontal on desktop, down the left on phones), time estimates on small linen tags. Falls back to the legacy `whatToExpectContent` block when the array is empty.
 - `PressStrip.astro` — "As Seen In" press-logo row. Suppresses itself when no `pressItem` has a logo. Used on `/`, `/about`, and `/press`.
 - `ShopGrid.astro` + `ShopItemCard.astro` — affiliate shop collections + item cards for `/shop`. Cards carry brand stripe + `rel="sponsored nofollow noopener"` + `target="_blank"` and an `aria-label` noting "opens in new tab".
 - `subscribeEmail()` in `src/lib/subscribe.ts` — shared client-safe capture helper for the four forms above. Posts to the ESP form-action URL when configured, else falls back to Web3Forms. The form component owns the honeypot; this helper only does the network call.

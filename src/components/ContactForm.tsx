@@ -3,13 +3,12 @@
 // Autosaves draft to localStorage so a long message survives accidental navigation.
 // Honeypot included. Accessible focus management on error.
 //
-// Form scope (in order):
-//   1. Name (required)
-//   2. Email + Phone (email required, phone optional)
-//   3. Location + Project type (both required) — paired row
-//   4. Budget range + Timeline (both required) — paired row
-//   5. Tell us about the space (required, textarea)
-//   6. How did you hear about Reid Design? (optional, dropdown) — marketing intel
+// Form scope, in three numbered groups (fieldsets) since the 2026-09-30
+// phase 2 restyle. Same nine fields, same names, same payload; only the
+// on-screen order moved the message up beside the space questions:
+//   01 About you:          Name (required), Email (required) + Phone (optional)
+//   02 Your space:         Location + Project type (both required), message (required)
+//   03 Timing and budget:  Budget + Timeline (both required), lead source (optional)
 //
 // Why these fields and not more: every additional field costs conversion.
 // These four added fields (location, budget, timeline, source) cover what
@@ -24,6 +23,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { site } from '@/data/site';
+import './contact/contact-form.css';
 
 const DRAFT_KEY = `${site.storageKeyPrefix}-contact-draft`;
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
@@ -145,25 +145,38 @@ const EMPTY: Draft = {
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
-// Field chrome. Text inputs and the textarea keep the Tailwind ring, which
-// compiles to a box-shadow.
-const FIELD_CLASS =
-  'w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:ring-2 focus:ring-ring focus:outline-none';
+// Field chrome (restyled 2026-09-30, phase 2 of the art-direction rebuild).
+// The look lives in src/components/contact/contact-form.css as `.cf-*`
+// classes: paper fields with a Warm Bronze hairline, 16px text (no iOS zoom),
+// and a 2px INK OUTLINE on focus for every control, text fields included.
+//
+// Why an outline and never a ring: WebKit renders native form controls itself
+// and drops box-shadow on them, so a Tailwind `focus:ring` paints nothing on a
+// <select> in Safari or iOS. Measured in a real WebKit on 2026-09-06: the
+// select enters :focus and :focus-visible while computed box-shadow stays
+// `none`. The five selects here once had NO focus indicator on every Apple
+// device (a WCAG 2.4.7 failure). An outline paints on native controls in every
+// engine and follows the border radius. Do not swap it back to a ring.
+// Vault note: _vault/gotchas/webkit-drops-box-shadow-on-form-controls.md.
+const FIELD_CLASS = 'cf-control';
+const SELECT_CLASS = 'cf-control cf-control--select';
+const TEXTAREA_CLASS = 'cf-control cf-control--note';
 
-// A <select> keeps the same box but draws its focus indicator as an OUTLINE.
-// WebKit renders native form controls itself and drops box-shadow on them, so
-// `focus:ring-2` paints nothing on a select in Safari or iOS, and the
-// `focus:outline-none` that goes with it removed the only fallback: those five
-// selects had NO visible focus indicator at all on every Apple device, a WCAG
-// 2.4.7 failure. Measured in a real WebKit on 2026-09-06: the select does
-// enter :focus and :focus-visible, but computed box-shadow stays `none` while
-// focused, on the same classes every passing text field carries. An outline
-// paints on native controls in every engine and follows the border radius, so
-// this is the same 2px --ring band, actually drawn. Do not swap it back to a
-// ring. (--ring is pinned to 3:1 against every surface by
-// src/lib/theme-tokens.test.ts, in both themes.)
-const SELECT_CLASS =
-  'w-full rounded-md border border-input bg-background px-s py-s text-foreground focus:outline-2 focus:outline-offset-0 focus:outline-ring';
+// Visual (DOM) order of the fields, used to focus the FIRST invalid field the
+// visitor can see when validation fails. The groups put the message in "Your
+// space", ahead of budget and timeline, so the object-key order of the
+// validate() result no longer matches what is on screen.
+const FIELD_ORDER: (keyof Draft)[] = [
+  'name',
+  'email',
+  'phone',
+  'location',
+  'projectType',
+  'message',
+  'budget',
+  'timeline',
+  'source',
+];
 
 export default function ContactForm({
   projectTypes,
@@ -260,8 +273,8 @@ export default function ContactForm({
     if (!d.name.trim()) errs.name = 'Please enter your name.';
     if (!d.email.trim()) errs.email = 'Please enter an email address.';
     else if (!/.+@.+\..+/.test(d.email)) errs.email = 'That email address looks off.';
-    if (!d.location) errs.location = "Pick the closest area — even if it's 'outside.'";
-    if (!d.projectType) errs.projectType = 'Pick the closest match — we can sort the rest later.';
+    if (!d.location) errs.location = 'Pick the closest area, even if it’s “Outside the area.”';
+    if (!d.projectType) errs.projectType = 'Pick the closest match. We can sort the rest later.';
     if (!d.budget) errs.budget = 'A rough range helps Staci suggest the right tier.';
     if (!d.timeline) errs.timeline = 'A timeline helps Staci know if she can take this on.';
     if (!d.message.trim()) errs.message = 'A sentence or two helps us prep.';
@@ -275,7 +288,7 @@ export default function ContactForm({
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       // Focus the first invalid field for screen-reader and keyboard users
-      const firstKey = Object.keys(errs)[0] as keyof Draft;
+      const firstKey = FIELD_ORDER.find((k) => errs[k]) ?? (Object.keys(errs)[0] as keyof Draft);
       const el = formRef.current?.querySelector<HTMLElement>(`[name="${firstKey}"]`);
       el?.focus();
       return;
@@ -367,17 +380,42 @@ export default function ContactForm({
     }
   }
 
+  // aria-describedby for a field: the error (when shown) first, then the hint.
+  // Hints stay mounted while an error shows, so the visitor never loses the
+  // "why we ask" line at the moment they need it most.
+  function describedBy(key: keyof Draft, hasHint: boolean): string | undefined {
+    const ids = [errors[key] ? `${key}-error` : '', hasHint ? `${key}-hint` : ''].filter(Boolean);
+    return ids.length > 0 ? ids.join(' ') : undefined;
+  }
+
+  // The error line under a field. role="alert" so it is announced on submit.
+  function fieldError(name: keyof Draft) {
+    if (!errors[name]) return null;
+    return (
+      <p id={`${name}-error`} role="alert" aria-live="polite" className="cf-error">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" className="cf-error__icon">
+          <circle cx="8" cy="8" r="7" />
+          <path d="M8 4.5v4.2M8 11.2v.3" />
+        </svg>
+        {errors[name]}
+      </p>
+    );
+  }
+
   if (status === 'success') {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="rounded-md border border-primary bg-muted p-l"
-      >
-        <h3 className="font-display text-h3 text-foreground">Thanks, your note's on its way.</h3>
-        <p className="mt-s text-foreground/80">
+      <div role="status" aria-live="polite" className="cf-done">
+        <svg className="cf-done__sprig" viewBox="0 0 120 40" aria-hidden="true" focusable="false">
+          <path d="M4 34 C32 28 64 22 116 8" />
+          <path d="M34 27 C30 18 33 11 41 8 C43 16 40 23 34 27Z" />
+          <path d="M34 27 C27 30 20 29 15 24 C22 20 29 22 34 27Z" />
+          <path d="M72 18 C69 10 72 4 80 2 C82 9 79 15 72 18Z" />
+          <path d="M72 18 C65 22 58 22 53 17 C60 13 67 14 72 18Z" />
+        </svg>
+        <h3 className="cf-done__h">Thanks, your note’s on its way.</h3>
+        <p className="cf-done__p">
           Staci reads everything personally and gets back within a couple of business days. If your
-          project's time-sensitive, mention that when you reply.
+          project’s time-sensitive, mention that when you reply.
         </p>
       </div>
     );
@@ -388,15 +426,11 @@ export default function ContactForm({
       ref={formRef}
       onSubmit={onSubmit}
       noValidate
-      className="space-y-m"
+      className="cf"
       aria-busy={status === 'submitting'}
     >
       {errorMessage && (
-        <div
-          role="alert"
-          aria-live="polite"
-          className="rounded-md border border-destructive bg-destructive/10 p-m text-foreground"
-        >
+        <div role="alert" aria-live="polite" className="cf-failed">
           {errorMessage}
         </div>
       )}
@@ -424,295 +458,265 @@ export default function ContactForm({
         </label>
       </div>
 
-      <div>
-        <label htmlFor="name" className="mb-1 block text-sm font-semibold text-foreground">
-          Name
-        </label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          required
-          autoComplete="name"
-          value={draft.name}
-          onChange={(e) => update('name', e.target.value)}
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? 'name-error' : undefined}
-          className={FIELD_CLASS}
-        />
-        {errors.name && (
-          <p
-            id="name-error"
-            role="alert"
-            aria-live="polite"
-            className="mt-xs text-sm text-destructive"
-          >
-            {errors.name}
-          </p>
-        )}
-      </div>
+      {/* ---- 1. About you ------------------------------------------------ */}
+      <fieldset className="cf-group">
+        <legend className="cf-legend">
+          <span className="cf-legend__n" aria-hidden="true">
+            01
+          </span>
+          About you
+        </legend>
 
-      <div className="grid grid-cols-1 gap-m md:grid-cols-2">
-        <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-semibold text-foreground">
-            Email
+        <div className="cf-field">
+          <label htmlFor="name" className="cf-label">
+            Name
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
+            id="name"
+            name="name"
+            type="text"
             required
-            autoComplete="email"
-            value={draft.email}
-            onChange={(e) => update('email', e.target.value)}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? 'email-error' : undefined}
+            autoComplete="name"
+            value={draft.name}
+            onChange={(e) => update('name', e.target.value)}
+            aria-invalid={!!errors.name}
+            aria-describedby={describedBy('name', false)}
             className={FIELD_CLASS}
           />
-          {errors.email && (
-            <p
-              id="email-error"
-              role="alert"
-              aria-live="polite"
-              className="mt-xs text-sm text-destructive"
-            >
-              {errors.email}
-            </p>
-          )}
+          {fieldError('name')}
         </div>
 
-        <div>
-          <label htmlFor="phone" className="mb-1 block text-sm font-semibold text-foreground">
-            Phone <span className="font-normal text-muted-foreground">(optional)</span>
+        <div className="cf-pair">
+          <div className="cf-field">
+            <label htmlFor="email" className="cf-label">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={draft.email}
+              onChange={(e) => update('email', e.target.value)}
+              aria-invalid={!!errors.email}
+              aria-describedby={describedBy('email', false)}
+              className={FIELD_CLASS}
+            />
+            {fieldError('email')}
+          </div>
+
+          <div className="cf-field">
+            <label htmlFor="phone" className="cf-label">
+              Phone <span className="cf-optional">(optional)</span>
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              value={draft.phone}
+              onChange={(e) => update('phone', e.target.value)}
+              className={FIELD_CLASS}
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      {/* ---- 2. Your space ----------------------------------------------- */}
+      <fieldset className="cf-group">
+        <legend className="cf-legend">
+          <span className="cf-legend__n" aria-hidden="true">
+            02
+          </span>
+          Your space
+        </legend>
+
+        {/* Location is asked first so Staci can mentally bucket the lead
+            before reading the rest. */}
+        <div className="cf-pair">
+          <div className="cf-field">
+            <label htmlFor="location" className="cf-label">
+              Where’s the project?
+            </label>
+            <select
+              id="location"
+              name="location"
+              required
+              value={draft.location}
+              onChange={(e) => update('location', e.target.value)}
+              aria-invalid={!!errors.location}
+              aria-describedby={describedBy('location', true)}
+              className={SELECT_CLASS}
+            >
+              <option value="">Pick the closest area</option>
+              {locationOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            {fieldError('location')}
+            <p id="location-hint" className="cf-hint">
+              Reid Design works across Plainfield and Greater Indianapolis.
+            </p>
+          </div>
+
+          <div className="cf-field">
+            <label htmlFor="projectType" className="cf-label">
+              Project type
+            </label>
+            <select
+              id="projectType"
+              name="projectType"
+              required
+              value={draft.projectType}
+              onChange={(e) => update('projectType', e.target.value)}
+              aria-invalid={!!errors.projectType}
+              aria-describedby={describedBy('projectType', true)}
+              className={SELECT_CLASS}
+            >
+              <option value="">Pick the closest match</option>
+              {projectTypeOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            {fieldError('projectType')}
+            <p id="projectType-hint" className="cf-hint">
+              Not sure? Pick the nearest one. You can change course on the first call.
+            </p>
+          </div>
+        </div>
+
+        <div className="cf-field">
+          <label htmlFor="message" className="cf-label">
+            Tell us about the space
           </label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            value={draft.phone}
-            onChange={(e) => update('phone', e.target.value)}
-            className={FIELD_CLASS}
+          <textarea
+            id="message"
+            name="message"
+            required
+            rows={6}
+            value={draft.message}
+            onChange={(e) => update('message', e.target.value)}
+            aria-invalid={!!errors.message}
+            aria-describedby={describedBy('message', true)}
+            className={TEXTAREA_CLASS}
           />
-        </div>
-      </div>
-
-      {/* Location + project type — paired row. Location is asked first so Staci
-          can mentally bucket the lead before reading the rest. */}
-      <div className="grid grid-cols-1 gap-m md:grid-cols-2">
-        <div>
-          <label htmlFor="location" className="mb-1 block text-sm font-semibold text-foreground">
-            Where's the project?
-          </label>
-          <select
-            id="location"
-            name="location"
-            required
-            value={draft.location}
-            onChange={(e) => update('location', e.target.value)}
-            aria-invalid={!!errors.location}
-            aria-describedby={errors.location ? 'location-error location-hint' : 'location-hint'}
-            className={SELECT_CLASS}
-          >
-            <option value="">Pick the closest area</option>
-            {locationOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          {errors.location ? (
-            <p
-              id="location-error"
-              role="alert"
-              aria-live="polite"
-              className="mt-xs text-sm text-destructive"
-            >
-              {errors.location}
-            </p>
-          ) : (
-            <p id="location-hint" className="mt-xs text-sm text-muted-foreground">
-              Reid Design works across Plainfield + Greater Indianapolis.
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="projectType" className="mb-1 block text-sm font-semibold text-foreground">
-            Project type
-          </label>
-          <select
-            id="projectType"
-            name="projectType"
-            required
-            value={draft.projectType}
-            onChange={(e) => update('projectType', e.target.value)}
-            aria-invalid={!!errors.projectType}
-            aria-describedby={errors.projectType ? 'projectType-error' : undefined}
-            className={SELECT_CLASS}
-          >
-            <option value="">Pick the closest match</option>
-            {projectTypeOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          {errors.projectType && (
-            <p
-              id="projectType-error"
-              role="alert"
-              aria-live="polite"
-              className="mt-xs text-sm text-destructive"
-            >
-              {errors.projectType}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Budget + timeline — paired row. Budget phrasing is deliberate ("rough"
-          + "no judgment" hint) so the question doesn't feel transactional. The
-          "Not sure yet" option in BUDGET_OPTIONS keeps the form approachable
-          for people who genuinely don't know what room design costs. */}
-      <div className="grid grid-cols-1 gap-m md:grid-cols-2">
-        <div>
-          <label htmlFor="budget" className="mb-1 block text-sm font-semibold text-foreground">
-            Rough budget range
-          </label>
-          <select
-            id="budget"
-            name="budget"
-            required
-            value={draft.budget}
-            onChange={(e) => update('budget', e.target.value)}
-            aria-invalid={!!errors.budget}
-            aria-describedby={errors.budget ? 'budget-error budget-hint' : 'budget-hint'}
-            className={SELECT_CLASS}
-          >
-            <option value="">Pick a bracket</option>
-            {budgetOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          {errors.budget ? (
-            <p
-              id="budget-error"
-              role="alert"
-              aria-live="polite"
-              className="mt-xs text-sm text-destructive"
-            >
-              {errors.budget}
-            </p>
-          ) : (
-            <p id="budget-hint" className="mt-xs text-sm text-muted-foreground">
-              No judgment — this helps Staci suggest the right tier.
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="timeline" className="mb-1 block text-sm font-semibold text-foreground">
-            Timeline
-          </label>
-          <select
-            id="timeline"
-            name="timeline"
-            required
-            value={draft.timeline}
-            onChange={(e) => update('timeline', e.target.value)}
-            aria-invalid={!!errors.timeline}
-            aria-describedby={errors.timeline ? 'timeline-error' : undefined}
-            className={SELECT_CLASS}
-          >
-            <option value="">When do you want to start?</option>
-            {timelineOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-          {errors.timeline && (
-            <p
-              id="timeline-error"
-              role="alert"
-              aria-live="polite"
-              className="mt-xs text-sm text-destructive"
-            >
-              {errors.timeline}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="message" className="mb-1 block text-sm font-semibold text-foreground">
-          Tell us about the space
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          required
-          rows={6}
-          value={draft.message}
-          onChange={(e) => update('message', e.target.value)}
-          aria-invalid={!!errors.message}
-          aria-describedby={errors.message ? 'message-error message-hint' : 'message-hint'}
-          className={FIELD_CLASS}
-        />
-        {errors.message ? (
-          <p
-            id="message-error"
-            role="alert"
-            aria-live="polite"
-            className="mt-xs text-sm text-destructive"
-          >
-            {errors.message}
+          {fieldError('message')}
+          <p id="message-hint" className="cf-hint">
+            What room or rooms? What’s not working? Any photos you can describe in words?
           </p>
-        ) : (
-          <p id="message-hint" className="mt-xs text-sm text-muted-foreground">
-            What room or rooms? What's not working? Any photos you can describe in words?
-          </p>
-        )}
-      </div>
+        </div>
+      </fieldset>
 
-      {/* Optional lead-source. Quiet UI — small, no error state, no hint text.
-          Marketing intelligence accrues over time without making the form
-          longer to fill out. */}
-      <div>
-        <label htmlFor="source" className="mb-1 block text-sm font-semibold text-foreground">
-          How did you hear about Reid Design?{' '}
-          <span className="font-normal text-muted-foreground">(optional)</span>
-        </label>
-        <select
-          id="source"
-          name="source"
-          value={draft.source}
-          onChange={(e) => update('source', e.target.value)}
-          className={SELECT_CLASS}
+      {/* ---- 3. Timing and budget ---------------------------------------- */}
+      {/* Budget phrasing is deliberate ("rough" + "no judgment" hint) so the
+          question doesn't feel transactional, and the "Not sure yet" option
+          keeps the form approachable for people who don't know what room
+          design costs. */}
+      <fieldset className="cf-group">
+        <legend className="cf-legend">
+          <span className="cf-legend__n" aria-hidden="true">
+            03
+          </span>
+          Timing and budget
+        </legend>
+
+        <div className="cf-pair">
+          <div className="cf-field">
+            <label htmlFor="budget" className="cf-label">
+              Rough budget range
+            </label>
+            <select
+              id="budget"
+              name="budget"
+              required
+              value={draft.budget}
+              onChange={(e) => update('budget', e.target.value)}
+              aria-invalid={!!errors.budget}
+              aria-describedby={describedBy('budget', true)}
+              className={SELECT_CLASS}
+            >
+              <option value="">Pick a bracket</option>
+              {budgetOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            {fieldError('budget')}
+            <p id="budget-hint" className="cf-hint">
+              No judgment. This helps Staci suggest the right tier.
+            </p>
+          </div>
+
+          <div className="cf-field">
+            <label htmlFor="timeline" className="cf-label">
+              Timeline
+            </label>
+            <select
+              id="timeline"
+              name="timeline"
+              required
+              value={draft.timeline}
+              onChange={(e) => update('timeline', e.target.value)}
+              aria-invalid={!!errors.timeline}
+              aria-describedby={describedBy('timeline', false)}
+              className={SELECT_CLASS}
+            >
+              <option value="">When do you want to start?</option>
+              {timelineOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            {fieldError('timeline')}
+          </div>
+        </div>
+
+        {/* Optional lead-source. Quiet: no error state, no hint text.
+            Marketing intelligence accrues over time without making the form
+            longer to fill out. */}
+        <div className="cf-field">
+          <label htmlFor="source" className="cf-label">
+            How did you hear about Reid Design? <span className="cf-optional">(optional)</span>
+          </label>
+          <select
+            id="source"
+            name="source"
+            value={draft.source}
+            onChange={(e) => update('source', e.target.value)}
+            className={SELECT_CLASS}
+          >
+            <option value="">Skip if you’d rather not say</option>
+            {sourceOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      </fieldset>
+
+      <div className="cf-send">
+        <button
+          type="submit"
+          disabled={status === 'submitting'}
+          className="r-btn r-btn--ink cf-send__btn"
         >
-          <option value="">Skip if you'd rather not say</option>
-          {sourceOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
+          {status === 'submitting' ? 'Sending…' : 'Send message'}
+          <span className="r-arrow" aria-hidden="true">
+            →
+          </span>
+        </button>
+        <p className="cf-send__note">
+          We never sign you up for anything. Staci reads every note personally.
+        </p>
       </div>
-
-      <button
-        type="submit"
-        disabled={status === 'submitting'}
-        className="inline-flex items-center bg-primary-dark px-l py-s text-sm font-semibold tracking-widest text-white uppercase transition-colors hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {status === 'submitting' ? 'Sending…' : 'Send message'}
-      </button>
-
-      <p className="text-xs text-muted-foreground">
-        We never sign you up for anything. Staci reads every note personally.
-      </p>
     </form>
   );
 }

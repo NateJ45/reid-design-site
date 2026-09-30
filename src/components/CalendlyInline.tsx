@@ -1,17 +1,23 @@
 // Safe to edit by hand
-// Inline Calendly scheduler with click-to-load fallback. The Calendly widget
-// is heavy (~250KB JS + iframe), so we DON'T auto-mount it. Visitors see a
-// quiet placeholder ("Open the scheduler") that swaps in the iframe when
-// they actively engage. Performance-budget-friendly: no payload on visitors
-// who just read the contact page and submit the form.
+// Inline Calendly scheduler with click-to-load. The Calendly widget is heavy
+// (~250KB JS + iframe), so we DON'T auto-mount it. Visitors see one clear
+// button that swaps in the iframe when they actively ask for it.
+// Performance-budget-friendly: no payload on visitors who just read the
+// contact page and submit the form.
 //
-// Honors prefers-reduced-motion (skips the swap animation; iframe still loads
-// when clicked).
+// Restyled 2026-09-30 (phase 2 of the art-direction rebuild). It now sits in
+// the contact page's ink "Rather talk first?" band (src/components/contact/
+// CallBand.astro), which supplies the heading and the copy; this island is
+// only the button and, once clicked, the scheduler in a paper frame. The
+// button is the cream pill from src/styles/reid.css (cream on ink 14.2:1).
+//
+// Honors prefers-reduced-motion (the scroll into view jumps instead of
+// gliding; the iframe still loads when clicked).
 
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
-  /** Full Calendly URL — e.g. https://calendly.com/your-handle/discovery-call */
+  /** Full Calendly URL, e.g. https://calendly.com/your-handle/discovery-call */
   url: string;
   /** Optional label override for the load button. */
   loadLabel?: string;
@@ -51,36 +57,46 @@ export default function CalendlyInline({ url, loadLabel = 'Open the scheduler' }
   if (!url) return null;
 
   return (
-    <div ref={wrapperRef} className="mt-l">
+    <div ref={wrapperRef} className="calendly-inline">
       {!loaded ? (
         <button
           type="button"
           onClick={() => setLoaded(true)}
-          className="press-tactile group w-full cursor-pointer rounded-md border border-border-soft bg-muted/60 px-l py-section-md text-left transition-colors hover:bg-muted"
+          className="r-btn r-btn--cream"
+          style={{ cursor: 'pointer' }}
         >
-          <p className="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
-            Or pick a time directly
-          </p>
-          <p className="font-display text-h3 text-foreground transition-colors group-hover:text-primary-dark">
-            {loadLabel}{' '}
-            <span
-              aria-hidden="true"
-              className="ml-xs inline-block transition-transform group-hover:translate-x-1"
-            >
-              →
-            </span>
-          </p>
-          <p className="mt-xs text-sm text-foreground/80">
-            Pick a time that works for you and book directly with Staci.
-          </p>
+          <svg
+            viewBox="0 0 20 20"
+            width="18"
+            height="18"
+            aria-hidden="true"
+            focusable="false"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          >
+            <rect x="3" y="4.5" width="14" height="12.5" rx="1.5" />
+            <path d="M3 8.5h14M7 2.5v4M13 2.5v4" />
+          </svg>
+          {loadLabel}
+          <span className="r-arrow" aria-hidden="true">
+            →
+          </span>
         </button>
       ) : (
-        <div className="overflow-hidden rounded-md border border-border-soft bg-card">
+        <div
+          style={{
+            overflow: 'hidden',
+            borderRadius: '0.4rem',
+            background: 'var(--color-paper)',
+          }}
+        >
           <iframe
             src={toEmbedUrl(url)}
             title="Schedule a discovery call with Reid Design"
             className="block w-full"
-            style={{ height: 'min(90vh, 900px)', minHeight: '700px' }}
+            style={{ height: 'min(90vh, 900px)', minHeight: '700px', border: 0 }}
             loading="lazy"
             allow="clipboard-write"
           />

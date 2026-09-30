@@ -1,23 +1,41 @@
 ---
 // Safe to edit by hand for copy + structure changes.
-// Pulls contactPage singleton from Sanity, renders form + scheduling link + map + sidebar.
+// Contact page. Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild;
+// DESIGN.md "Contact and Privacy"). Reads the contactPage singleton, plus two
+// read-only borrowings: Staci's portrait from the home page and the
+// consultation price from the services list (so the price is never typed twice).
+//
+// Rhythm, top to bottom:
+//   Hero (linen, framed photo)                       Hero.astro
+//   The note: form left, Staci + ways in right       ContactForm + contact/ContactAside
+//   Rather talk first? (ink, Calendly on click)      contact/CallBand
+//   What happens next (paper, pinned steps)          PostInquiryRoadmap (or the legacy rich text)
+//   Where Staci works (linen, towns + map)           contact/ContactArea
+//   Extra sections (Studio, optional)                SectionRenderer
+//
+// The form's behaviour (fields, Web3Forms payload, validation, honeypot,
+// ?type= preselect, draft autosave) lives in ContactForm.tsx and did not change
+// in the rebuild; only its look and grouping did.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getContactPage, getSiteSettings } from '@/lib/queries';
+import { getContactPage, getHomePage, getServicesPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
-import { telHref } from '@/lib/phone';
 import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
 import PortableTextStatic from '@/components/PortableTextStatic.astro';
 import ContactForm from '@/components/ContactForm';
-import CopyEmailButton from '@/components/CopyEmailButton';
-import CalendlyInline from '@/components/CalendlyInline';
-import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
-import { Mail, Phone } from 'lucide-react';
 import PostInquiryRoadmap from '@/components/PostInquiryRoadmap.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import ContactAside from '@/components/contact/ContactAside.astro';
+import CallBand from '@/components/contact/CallBand.astro';
+import ContactArea from '@/components/contact/ContactArea.astro';
 
-const [page, siteSettings] = await Promise.all([getContactPage(), getSiteSettings()]);
+const [page, siteSettings, home, servicesPage] = await Promise.all([
+  getContactPage(),
+  getSiteSettings(),
+  getHomePage(),
+  getServicesPage(),
+]);
 
 const title = page?.seoTitle ?? 'Contact Reid Design';
 const description =
@@ -36,12 +54,39 @@ const availability = page?.availabilityNote ?? siteSettings?.availabilityStatus;
 const email = siteSettings?.email;
 const phone = siteSettings?.phone;
 
-// Satisfaction guarantee — renders near the form CTA when set in siteSettings.
+// Satisfaction guarantee. Renders beside the form's opening when set in siteSettings.
 const satisfactionGuarantee = siteSettings?.satisfactionGuarantee;
 
-// Post-inquiry roadmap — prefer the structured steps when present;
-// fall through to the legacy whatToExpectContent when the array is empty.
-const roadmapSteps = (page?.postInquiryRoadmap ?? []).filter((s: any) => s?.title?.trim());
+// Staci's portrait: the home "Meet Staci" photo, else the home hero portrait.
+// Nothing on either = the aside simply has no photo.
+const staciPhoto = home?.meetStaciPhoto?.asset
+  ? home.meetStaciPhoto
+  : home?.heroPortrait?.asset
+    ? home.heroPortrait
+    : null;
+
+// The consultation price, said out loud. Found by slug or name so a renamed
+// service still matches; no match (or no price) = no price tag at all.
+interface ServiceLite {
+  name?: string | null;
+  slug?: { current?: string | null } | null;
+  price?: string | null;
+}
+const services: ServiceLite[] = Array.isArray(servicesPage?.services) ? servicesPage.services : [];
+const consult = services.find(
+  (s) => /consult/i.test(s?.slug?.current ?? '') || /consult/i.test(s?.name ?? ''),
+);
+
+// Post-inquiry roadmap: prefer the structured steps when present; fall through
+// to the legacy whatToExpectContent when the array is empty.
+interface RoadmapStep {
+  title?: string;
+  body?: string;
+  timeEstimate?: string;
+}
+const roadmapSteps = ((page?.postInquiryRoadmap ?? []) as RoadmapStep[]).filter((s) =>
+  s?.title?.trim(),
+);
 const hasRoadmap = roadmapSteps.length > 0;
 
 const schemas = [
@@ -60,7 +105,6 @@ const schemas = [
   seoImage={page?.seoImage}
   card={{ headline: page?.heroHeadline, image: page?.heroImage }}
 >
-  {/* Hero — same image-or-text shape every other page uses. */}
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}
@@ -71,185 +115,174 @@ const schemas = [
     scriptAccent={page?.heroScriptAccent}
   />
 
-  <section
-    class="mx-auto grid max-w-content grid-cols-1 gap-section-md px-m py-section-lg lg:grid-cols-3"
-  >
-    {/* Form column */}
-    <div class="lg:col-span-2">
-      {formIntroNote && <p class="mb-m text-base text-foreground/80">{formIntroNote}</p>}
+  {/* ---- The note ---------------------------------------------------- */}
+  <section class="note" aria-labelledby="contact-form-heading">
+    <div class="r-wrap note__grid">
+      <header class="note__head">
+        <h2 id="contact-form-heading" class="r-h2 note__h">
+          A note to <span class="r-accent">Staci</span>
+        </h2>
+        {formIntroNote && <p class="note__intro">{formIntroNote}</p>}
+        {satisfactionGuarantee && <p class="note__promise">{satisfactionGuarantee}</p>}
+      </header>
 
-      {
-        /* Satisfaction guarantee line — renders above the form when set in
-          siteSettings so it reassures visitors before they fill anything in. */
-      }
-      {
-        satisfactionGuarantee && (
-          <p class="mb-m flex items-start gap-xs border-l-2 border-primary py-px pl-s text-sm text-foreground/80">
-            {satisfactionGuarantee}
-          </p>
-        )
-      }
+      <div class="note__aside">
+        <ContactAside
+          photo={staciPhoto}
+          availability={availability}
+          consultPrice={consult?.price}
+          consultName={consult?.name}
+          email={email}
+          phone={phone}
+          hasScheduling={Boolean(schedulingLink)}
+        />
+      </div>
 
-      <ContactForm
-        client:visible
-        projectTypes={page?.formProjectTypeOptions}
-        locations={page?.formLocationOptions}
-        budgets={page?.formBudgetOptions}
-        timelines={page?.formTimelineOptions}
-        sources={page?.formSourceOptions}
+      <div class="note__form">
+        <ContactForm
+          client:visible
+          projectTypes={page?.formProjectTypeOptions}
+          locations={page?.formLocationOptions}
+          budgets={page?.formBudgetOptions}
+          timelines={page?.formTimelineOptions}
+          sources={page?.formSourceOptions}
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ---- Rather talk first? ------------------------------------------ */}
+  {schedulingLink && <CallBand url={schedulingLink} label={schedulingLinkLabel} />}
+
+  {/* ---- What happens next ------------------------------------------- */}
+  {
+    hasRoadmap ? (
+      <PostInquiryRoadmap
+        steps={roadmapSteps}
+        eyebrow={page?.whatToExpectEyebrow}
+        headline={page?.whatToExpectHeadline}
       />
-
-      {
-        /* Email failsafe — surfaced right after the form so visitors who hit
-          a submission error or just prefer email have a clear alternate path
-          without scrolling away to the sidebar. The widget itself opens a
-          mail draft on click and has a small copy button beside it. */
-      }
-      {
-        email && (
-          <p class="mt-m flex flex-wrap items-center gap-xs text-sm text-foreground/75">
-            <Mail size={14} aria-hidden="true" className="text-secondary" />
-            <span>Prefer email? Reach Staci directly at</span>
-            <CopyEmailButton client:visible email={email} variant="link" />
-          </p>
-        )
-      }
-      {
-        phone && (
-          <p class="mt-s flex flex-wrap items-center gap-xs text-sm text-foreground/75">
-            <Phone size={14} aria-hidden="true" className="text-secondary" />
-            <span>Or call</span>
-            <a
-              href={telHref(phone)}
-              class="font-medium text-link underline underline-offset-2 hover:text-primary-dark"
-            >
-              {phone}
-            </a>
-          </p>
-        )
-      }
-
-      {
-        schedulingLink && (
-          <CalendlyInline client:visible url={schedulingLink} loadLabel={schedulingLinkLabel} />
-        )
-      }
-
-      {
-        /* Post-inquiry roadmap — structured steps when present.
-          Falls back to the legacy whatToExpectContent when the roadmap array
-          is empty so the page degrades gracefully before Staci fills it in. */
-      }
-      {
-        hasRoadmap ? (
-          <PostInquiryRoadmap
-            steps={roadmapSteps}
-            eyebrow={page?.whatToExpectEyebrow}
-            headline={page?.whatToExpectHeadline}
-          />
-        ) : (
-          page?.whatToExpectContent && (
-            <div class="mt-section-lg border-t border-border-soft pt-l">
+    ) : (
+      page?.whatToExpectContent && (
+        <section
+          class="expect"
+          aria-labelledby={page.whatToExpectHeadline ? 'expect-heading' : undefined}
+        >
+          <div class="r-wrap expect__grid">
+            <div>
               {page.whatToExpectEyebrow && (
-                <p class="mb-s text-xs tracking-[0.22em] text-foreground/80 uppercase">
-                  {page.whatToExpectEyebrow}
-                </p>
+                <p class="expect__eyebrow">{page.whatToExpectEyebrow}</p>
               )}
               {page.whatToExpectHeadline && (
-                <h2 class="font-display text-h3 text-foreground">{page.whatToExpectHeadline}</h2>
+                <h2 id="expect-heading" class="r-h2 expect__h">
+                  {page.whatToExpectHeadline}
+                </h2>
               )}
-              <PortableTextStatic
-                value={page.whatToExpectContent}
-                className="mt-s text-foreground/90"
-              />
             </div>
-          )
-        )
-      }
-    </div>
-
-    {/* Sidebar */}
-    {
-      /* Sticky on lg+ so the email + service area + map ride along while the
-        visitor reads/fills the form. top-24 (6rem) gives clearance under the
-        site header when it's revealed via scroll-up. self-start prevents the
-        aside from stretching to fill the grid row, which would otherwise
-        defeat the sticky positioning. */
-    }
-    <aside class="space-y-l lg:sticky lg:top-24 lg:self-start">
-      {
-        availability && (
-          <div class="flex items-center gap-2 text-sm text-foreground">
-            <span class="inline-block h-2 w-2 rounded-full bg-tertiary" aria-hidden="true" />
-            <span>{availability}</span>
+            <PortableTextStatic value={page.whatToExpectContent} className="expect__body" />
           </div>
-        )
-      }
+        </section>
+      )
+    )
+  }
 
-      {
-        email && (
-          <div>
-            <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">Email</p>
-            <CopyEmailButton client:visible email={email} variant="link" />
-          </div>
-        )
-      }
-
-      {
-        phone && (
-          <div>
-            <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">Call</p>
-            <a
-              href={telHref(phone)}
-              class="inline-flex items-center gap-xs text-sm text-link transition-colors hover:text-primary-dark"
-            >
-              <Phone size={14} aria-hidden="true" />
-              {phone}
-            </a>
-          </div>
-        )
-      }
-
-      {
-        schedulingLink && (
-          <div>
-            <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">
-              Prefer to schedule?
-            </p>
-            <a
-              href={schedulingLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center border border-primary px-m py-s text-sm font-semibold text-link transition-colors hover:bg-accent"
-            >
-              {schedulingLinkLabel}
-            </a>
-          </div>
-        )
-      }
-
-      {
-        siteSettings?.serviceAreas && siteSettings.serviceAreas.length > 0 && (
-          <div>
-            <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">Service area</p>
-            <ul class="space-y-0.5 text-sm text-foreground">
-              {siteSettings.serviceAreas.slice(0, 8).map((area: string) => (
-                <li>{area}</li>
-              ))}
-            </ul>
-          </div>
-        )
-      }
-
-      <div>
-        <p class="mb-xs text-xs tracking-widest text-foreground/80 uppercase">
-          Where Reid Design is
-        </p>
-        <ServiceAreaMap height={280} />
-      </div>
-    </aside>
-  </section>
+  {/* ---- Where Staci works ------------------------------------------- */}
+  <ContactArea towns={siteSettings?.serviceAreas} />
 
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="contact-extra" />
 </BaseLayout>
+
+<style>
+  /* ---- The note: heading + form on the left, Staci on the right. Grid
+     areas put the aside BEFORE the form on phones (so email and phone are
+     close to the top) and beside it, sticky, on desktop. ---- */
+  .note {
+    padding-block: clamp(4rem, 8vw, 7rem) clamp(4.5rem, 9vw, 8rem);
+  }
+  .note__grid {
+    display: grid;
+    grid-template-areas:
+      'head'
+      'aside'
+      'form';
+    gap: 2.5rem;
+  }
+  .note__head {
+    grid-area: head;
+  }
+  .note__aside {
+    grid-area: aside;
+  }
+  .note__form {
+    grid-area: form;
+    min-width: 0;
+  }
+  .note__h {
+    margin: 0;
+    color: var(--color-ink);
+  }
+  .note__intro {
+    margin: 1.5rem 0 0;
+    max-width: 52ch;
+    font: 300 clamp(1.2rem, 1.05rem + 0.45vw, 1.45rem) / 1.45 var(--font-display);
+    letter-spacing: -0.005em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  .note__promise {
+    margin: 1.5rem 0 0;
+    max-width: 56ch;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--color-chip-5);
+    color: var(--color-ink-2);
+    text-wrap: pretty;
+  }
+
+  @media (min-width: 1024px) {
+    .note__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      grid-template-areas:
+        'head aside'
+        'form aside';
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(3rem, 7vw, 7rem);
+      row-gap: 3rem;
+    }
+    .note__aside {
+      position: sticky;
+      top: 6.5rem;
+      align-self: start;
+    }
+  }
+
+  /* ---- Legacy "what to expect" rich text (only when no roadmap steps) ---- */
+  .expect {
+    background: var(--color-paper);
+    border-block: 1px solid var(--color-rule);
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .expect__grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .expect__eyebrow {
+    margin: 0 0 1.25rem;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .expect__h {
+    margin: 0;
+    max-width: 16ch;
+  }
+  .expect :global(.expect__body) {
+    max-width: 62ch;
+    color: var(--color-ink-2);
+  }
+  @media (min-width: 1024px) {
+    .expect__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: clamp(2rem, 6vw, 6rem);
+    }
+  }
+</style>

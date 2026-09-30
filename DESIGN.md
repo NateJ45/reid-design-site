@@ -223,6 +223,32 @@ steps, Oat board, linen tiers, paper FAQ, Walnut close.
 
 Process rhythm: linen hero, linen journey, paper FAQ, Walnut close, ink footer.
 
+## Contact and Privacy (phase 2)
+
+Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
+
+- **Contact is writing a note to Staci.** Hero (framed photo), then "A note to
+  Staci": the form on the left, and on the right (sticky on desktop, above the
+  form on phones) her portrait, the availability line, the consultation price
+  on a sample tag, and email / phone / book-a-call rows. Rhythm: linen hero,
+  linen note, ink call band, paper roadmap, linen service area, ink footer.
+- **Form language** (`src/components/contact/contact-form.css`): three
+  numbered fieldsets (01 About you, 02 Your space, 03 Timing and budget);
+  labels 16px 500 ink; hints ink 2 (7.3:1 or better); paper fields with a
+  Warm Bronze hairline (3.97:1 on paper, the non-text bar is 3:1); a ruled
+  writing area for the message; errors in brick `#9f2f1c` with an icon.
+  **Focus is a 2px ink outline at 2px offset on every control**, never a
+  box-shadow ring, because WebKit drops box-shadow on native selects.
+- **Two doors.** The Calendly call is its own ink band ("Rather talk it
+  through first?") with the cream pill, so it reads as an alternative, not a
+  footnote. The scheduler only loads on click.
+- **What happens next** hangs the roadmap steps from one thread with Warm
+  Bronze pins and numerals (display size, decorative), time estimates on
+  small linen tags.
+- **Privacy is a document.** About 66 characters to the line at 17px / 1.7,
+  numbered Zodiak h2s, a contents list generated from the body's h2 blocks
+  (sticky on desktop, a disclosure on phones, the current section marked).
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at

@@ -9,8 +9,16 @@
 //   - strong, em, and link marks (external links get rel="noopener")
 //
 // Visual classes mirror PortableText.tsx so output is visually identical.
+//
+// variant="doc" (added 2026-09-30 for the rebuilt privacy page): the same
+// HTML, but with plain `ptd-*` hooks instead of the Tailwind classes (the page
+// styles them for long-form reading) and an id on every h2, from
+// src/components/contact/doc-anchors.ts, so a table of contents can link to
+// them. The default variant's output is unchanged.
 // Does NOT handle inlineImage, pullQuote, or other journal-specific custom types.
 // Use PortableText.tsx (React island) for content with those blocks.
+
+import { docHeadings } from '@/components/contact/doc-anchors';
 
 interface Span {
   _type: 'span';
@@ -39,13 +47,53 @@ interface Block {
 interface Props {
   value?: Block[] | null;
   className?: string;
+  /** "default" = the Tailwind-classed output; "doc" = `ptd-*` hooks + h2 ids. */
+  variant?: 'default' | 'doc';
+  /** doc variant only: ids the page prints itself, never given to a heading. */
+  reservedIds?: string[];
 }
 
-const { value, className } = Astro.props;
+const { value, className, variant = 'default', reservedIds = [] } = Astro.props;
+const isDoc = variant === 'doc';
 
 if (!value || value.length === 0) {
   return;
 }
+
+// doc variant: heading ids by block, decided by the same helper the page's
+// table of contents uses (so the two can never disagree).
+const headingIds = new Map<string, string>(
+  isDoc ? docHeadings(value, reservedIds).map((h) => [h.key, h.id]) : [],
+);
+
+// Class hooks per element, per variant.
+const CLS = isDoc
+  ? {
+      strong: 'ptd-strong',
+      em: 'ptd-em',
+      a: 'ptd-a',
+      li: 'ptd-li',
+      h2: 'ptd-h2',
+      h3: 'ptd-h3',
+      h4: 'ptd-h4',
+      quote: 'ptd-quote',
+      p: 'ptd-p',
+      ul: 'ptd-ul',
+      ol: 'ptd-ol',
+    }
+  : {
+      strong: 'font-semibold',
+      em: 'italic',
+      a: 'text-link underline underline-offset-2 hover:text-primary transition-colors',
+      li: 'text-foreground',
+      h2: 'mt-section-md mb-m font-display text-h2 text-foreground scroll-mt-24',
+      h3: 'mt-l mb-s font-display text-h3 text-foreground scroll-mt-24',
+      h4: 'mt-m mb-s font-display text-h4 text-foreground scroll-mt-24',
+      quote: 'my-l border-l-4 border-primary pl-m italic text-foreground/90',
+      p: 'my-m text-foreground',
+      ul: 'my-m list-disc pl-l space-y-1 text-foreground',
+      ol: 'my-m list-decimal pl-l space-y-1 text-foreground',
+    };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -74,9 +122,9 @@ function renderSpans(spans: Span[] | undefined, markDefs: MarkDef[] | undefined)
       const reversed = [...span.marks].reverse();
       for (const mark of reversed) {
         if (mark === 'strong') {
-          result = `<strong class="font-semibold">${result}</strong>`;
+          result = `<strong class="${CLS.strong}">${result}</strong>`;
         } else if (mark === 'em') {
-          result = `<em class="italic">${result}</em>`;
+          result = `<em class="${CLS.em}">${result}</em>`;
         } else {
           // Reference mark — look up in markDefs
           const def = defsMap.get(mark);
@@ -85,7 +133,7 @@ function renderSpans(spans: Span[] | undefined, markDefs: MarkDef[] | undefined)
             const isExternal = /^https?:\/\//.test(def.href ?? '');
             const newTab = def.openInNewTab || isExternal;
             const extras = newTab ? ` target="_blank" rel="noopener noreferrer"` : '';
-            result = `<a href="${href}" class="text-link underline underline-offset-2 hover:text-primary transition-colors"${extras}>${result}</a>`;
+            result = `<a href="${href}" class="${CLS.a}"${extras}>${result}</a>`;
           }
         }
       }
@@ -102,7 +150,7 @@ type RenderedItem =
   | { kind: 'html'; html: string }
   | { kind: 'listItem'; listType: 'bullet' | 'number'; html: string };
 
-const items: RenderedItem[] = value.map((block) => {
+const items: RenderedItem[] = value.map((block, idx) => {
   if (block._type !== 'block') {
     // Non-block types (inlineImage, etc.) are silently skipped in the static renderer.
     return { kind: 'html', html: '' };
@@ -114,23 +162,25 @@ const items: RenderedItem[] = value.map((block) => {
     return {
       kind: 'listItem',
       listType: block.listItem,
-      html: `<li class="text-foreground">${inner}</li>`,
+      html: `<li class="${CLS.li}">${inner}</li>`,
     };
   }
 
   const style = block.style ?? 'normal';
   let html: string;
   if (style === 'h2') {
-    html = `<h2 class="mt-section-md mb-m font-display text-h2 text-foreground scroll-mt-24">${inner}</h2>`;
+    const id = headingIds.get(block._key ?? String(idx));
+    const idAttr = id ? ` id="${escapeHtml(id)}"` : '';
+    html = `<h2${idAttr} class="${CLS.h2}">${inner}</h2>`;
   } else if (style === 'h3') {
-    html = `<h3 class="mt-l mb-s font-display text-h3 text-foreground scroll-mt-24">${inner}</h3>`;
+    html = `<h3 class="${CLS.h3}">${inner}</h3>`;
   } else if (style === 'h4') {
-    html = `<h4 class="mt-m mb-s font-display text-h4 text-foreground scroll-mt-24">${inner}</h4>`;
+    html = `<h4 class="${CLS.h4}">${inner}</h4>`;
   } else if (style === 'blockquote') {
-    html = `<blockquote class="my-l border-l-4 border-primary pl-m italic text-foreground/90">${inner}</blockquote>`;
+    html = `<blockquote class="${CLS.quote}">${inner}</blockquote>`;
   } else {
     // normal (and any unrecognised style)
-    html = `<p class="my-m text-foreground">${inner}</p>`;
+    html = `<p class="${CLS.p}">${inner}</p>`;
   }
   return { kind: 'html', html };
 });
@@ -143,10 +193,7 @@ while (i < items.length) {
   if (item.kind === 'listItem') {
     const listType = item.listType;
     const tag = listType === 'bullet' ? 'ul' : 'ol';
-    const cls =
-      listType === 'bullet'
-        ? 'my-m list-disc pl-l space-y-1 text-foreground'
-        : 'my-m list-decimal pl-l space-y-1 text-foreground';
+    const cls = listType === 'bullet' ? CLS.ul : CLS.ol;
     let inner = item.html;
     i += 1;
     while (i < items.length) {
