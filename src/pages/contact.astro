@@ -11,6 +11,7 @@
 //   Rather talk first? (ink, Calendly on click)      contact/CallBand
 //   What happens next (paper, pinned steps)          PostInquiryRoadmap (or the legacy rich text)
 //   Where Staci works (linen, towns + map)           contact/ContactArea
+//   Latest Instagram posts (Linen chip, optional)    InstagramFeed (nothing without a feed)
 //   Extra sections (Studio, optional)                SectionRenderer
 //
 // The form's behaviour (fields, Web3Forms payload, validation, honeypot,
@@ -29,6 +30,7 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 import ContactAside from '@/components/contact/ContactAside.astro';
 import CallBand from '@/components/contact/CallBand.astro';
 import ContactArea from '@/components/contact/ContactArea.astro';
+import InstagramFeed from '@/components/InstagramFeed.astro';
 
 const [page, siteSettings, home, servicesPage] = await Promise.all([
   getContactPage(),
@@ -189,6 +191,16 @@ const schemas = [
 
   {/* ---- Where Staci works ------------------------------------------- */}
   <ContactArea towns={siteSettings?.serviceAreas} />
+
+  {
+    /* ---- Latest Instagram posts (2026-09-30). Renders nothing without a
+      feed; Site settings > Instagram feed > "Show on the Contact page". ---- */
+  }
+  {
+    siteSettings?.instagramFeedOnContact !== false && (
+      <InstagramFeed settings={siteSettings} headingId="contact-instagram-heading" />
+    )
+  }
 
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="contact-extra" />
