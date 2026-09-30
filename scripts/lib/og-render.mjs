@@ -1,113 +1,118 @@
 // Foundation, edit with care
 // =============================================================================
-// Share card renderer: design D ("arch window"), spec in, PNG out
+// Share card renderer: design E, "the swatch card" (2026-09-30), spec in, PNG out
 // =============================================================================
-// Chosen by Nathan 2026-09-29 from four concepts (evidence in the session that
-// built it). Linen ground; one of Staci's photos framed in an arch on the left
-// (the arch is her own motif: arched mirrors recur through her rooms, and the
-// logo is a ring); optionally a second photo in a small circle over the arch's
-// foot; on the right the full logo, a bronze rule, the title in Cormorant
-// Garamond and a small caps line in Source Sans 3.
+// Redrawn for the art-direction rebuild so a shared link looks like the site
+// it opens (DESIGN.md). Replaces design D (the Cormorant arch window, the
+// pre-rebuild grammar). The card is the home hero in miniature:
+//
+//   ┌──────────── Walnut ground ─────────────┬──── photo ────┐
+//   │ [logo on its paper plate, hung from    │               │
+//   │  the top edge, like the site header]   │  Staci's      │
+//   │                                        │  photo,       │
+//   │ ── Interior design · Plainfield        │  graded warm, │
+//   │ Title in Zodiak Light, cream,          │  melting into │
+//   │ balanced over up to four lines         │  the Walnut   │
+//   │                                        │               │
+//   │ reiddesignllc.com           ◢ fan deck of the seven   │
+//   └────────────────────────────── tones opens at the seam ┘
+//
+// Contrast: cream on Walnut is 4.9:1 (the site's own pairing); no text sits
+// on Warm Bronze. No tracked small caps: the kicker is sentence case, led by
+// a short rule, as on every page.
 //
 // TWO HALVES, SO THE DRAWING BACKEND CAN BE SWAPPED
-//   prepareCard()   does ALL the image work in sharp: fetches each photo, grades
-//                   it warm, crops it to its exact box around the Sanity
-//                   hotspot, cuts the arch and the circle out as transparent
-//                   PNGs, and colours the logo. What comes out is a handful of
-//                   finished PNGs plus three strings.
-//   a backend       only places those PNGs and sets the three strings. No CSS
-//                   filters, masks, object-fit or border-radius are needed, which
-//                   is what lets a satori/resvg backend (no browser) draw the
-//                   same card. See og-render-satori.mjs.
+//   prepareCard()   does ALL the image work in sharp: the ground, the photo
+//                   (fetched, graded, cropped around its Sanity hotspot, faded
+//                   into the Walnut), the fan deck and the logo plate, as ONE
+//                   background PNG. Plus the text, already broken into lines.
+//   a backend       places that PNG and sets the text. See og-render-satori.mjs
+//                   (the build default, no browser) and og-render-chromium.mjs
+//                   (local A/B review only, OG_RENDERER=chromium).
 //
-// Backends, picked with OG_RENDERER:
-//   'satori'   THE DEFAULT, used by every build. satori + @resvg/resvg-js, no
-//              browser, so Cloudflare Workers Builds can draw the cards.
-//   'chromium' a LOCAL REVIEW TOOL only (OG_RENDERER=chromium). Playwright with
-//              the woff2 faces embedded (starter PORTS.md card 46). Kept because
-//              it is one small lazily-loaded file and makes a quick A/B of the
-//              two renderers possible; the build never loads it.
-// The two were compared side by side on 2026-09-29 (home, a project, a
-// three-line title) and match: same line breaks, same logo, same
-// glyph weight to the eye.
+// Fonts: Zodiak Light and General Sans Medium, the site's own faces, read as
+// .woff from scripts/.og-fonts/ (fetched by scripts/fetch-fonts.mjs on every
+// prebuild; never committed, see that file for the licence).
 // =============================================================================
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
 
 export const CARD = {
   width: 1200,
   height: 630,
-  linen: '#FAF8F5', // Soft Linen
-  bronze: '#9C7661', // Warm Bronze
-  bronzeDark: '#7A5D4C', // Bronze Dark
-  charcoal: '#3D3D3D', // Charcoal
-  taupe: '#B8A99A', // Warm Taupe
-  cream: '#F5F0EB', // Cream
-  // Geometry of D. Every backend reads these, never its own numbers.
-  arch: { left: 64, top: 44, width: 430, height: 586 },
-  circle: { left: 388, top: 420, size: 170, border: 8 },
-  copy: { left: 520, right: 40, pad: 30 },
-  logoHeight: 236,
-  rule: { width: 56, height: 2, above: 24, below: 18 },
-  kicker: { size: 17, tracking: 0.22 },
+  // The site's tokens (src/styles/globals.css).
+  walnut: '#80604F',
+  espresso: '#5F4639',
+  cream: '#F5EDE3',
+  oat: '#E2CFBD',
+  paper: '#FFFDFA',
+  ink: '#231E1B',
+  chips: ['#F1E7DC', '#E2CFBD', '#CDB09A', '#B39079', '#9C7661', '#80604F', '#5F4639'],
+  // Geometry. Every backend reads these, never its own numbers.
+  photo: { left: 690, width: 510 },
+  plate: { left: 64, padX: 16, padTop: 18, padBottom: 12, logoHeight: 112 },
+  copy: { left: 64, width: 545, top: 196, bottom: 528 },
+  kicker: { size: 19 },
+  url: { size: 17, bottom: 44 },
+  fan: { pivotX: 720, pivotY: 694, chipW: 62, chipH: 250, from: -8, step: 9.5 },
 };
 
 /** Title size steps by length, so a long title shrinks instead of spilling. */
 export function titleSize(title) {
   const n = title.length;
-  if (n <= 46) return 48;
-  if (n <= 70) return 44;
-  if (n <= 96) return 38;
-  return 33;
+  if (n <= 28) return 74;
+  if (n <= 44) return 64;
+  if (n <= 66) return 56;
+  if (n <= 92) return 48;
+  return 42;
 }
 
 // ---------------------------------------------------------------------------
 // Title line breaks, decided HERE so every backend draws the same lines.
 // ---------------------------------------------------------------------------
-// Chromium would balance the title itself (text-wrap: balance); satori cannot.
-// Letting each backend wrap on its own made the same title break differently
-// ("feel collected, cozy," against "feel collected, / cozy, and ..."). So the
-// breaks are computed once, from Cormorant Garamond's real advance widths, and
-// both backends set the lines as given, never wrapping.
-
-// Advance widths in em of @fontsource Cormorant Garamond 500 (latin), measured
-// 2026-09-29 in Chromium from the woff2 at 1000px (a sum of these matched the
-// measured width of "Creating homes that" to 0.05%). Re-measure if the weight
-// or the font package changes. Unlisted characters count as a wide 0.7em.
-const CG500 = JSON.parse(
-  '{"0":0.477,"1":0.332,"2":0.402,"3":0.391,"4":0.453,"5":0.409,"6":0.465,"7":0.429,"8":0.489,"9":0.465," ":0.234,"!":0.252,"\\"":0.341,"#":0.526,"$":0.414,"%":0.574,"&":0.703,"\'":0.195,"(":0.309,")":0.309,"*":0.5,"+":0.398,",":0.274,"-":0.323,".":0.252,"/":0.323,":":0.2,";":0.227,"?":0.332,"@":0.722,"A":0.706,"B":0.57,"C":0.684,"D":0.696,"E":0.542,"F":0.513,"G":0.719,"H":0.761,"I":0.335,"J":0.327,"K":0.652,"L":0.537,"M":0.842,"N":0.73,"O":0.766,"P":0.546,"Q":0.766,"R":0.614,"S":0.499,"T":0.576,"U":0.7,"V":0.664,"W":0.925,"X":0.65,"Y":0.612,"Z":0.598,"a":0.42,"b":0.512,"c":0.41,"d":0.512,"e":0.406,"f":0.3,"g":0.442,"h":0.502,"i":0.27,"j":0.259,"k":0.491,"l":0.261,"m":0.768,"n":0.52,"o":0.482,"p":0.511,"q":0.492,"r":0.369,"s":0.333,"t":0.338,"u":0.497,"v":0.451,"w":0.69,"x":0.439,"y":0.432,"z":0.405,"\u2019":0.242,"\u2018":0.244,"\u201c":0.398,"\u201d":0.398,"\u2013":0.515,"\u00b7":0.195,"\u00e9":0.406,"\u2026":0.72}',
+// satori cannot balance text (no text-wrap: balance), so the breaks are
+// computed once from Zodiak Light's real advance widths, and every backend
+// sets the lines exactly as given.
+//
+// Advance widths in em of Zodiak 300 (Fontshare, the locked file), measured
+// 2026-09-30 in Chromium at 1000px. A sum of these runs ~1.5% wide of the real
+// kerned width, which errs on the safe side. Re-measure if the face changes.
+// Unlisted characters count as a wide 0.7em.
+const Z300 = JSON.parse(
+  '{"0":0.695,"1":0.361,"2":0.62,"3":0.617,"4":0.576,"5":0.59,"6":0.635,"7":0.564,"8":0.63,"9":0.635," ":0.193,"!":0.294,"\\"":0.361,"#":0.665,"$":0.702,"%":0.797,"&":0.75,"\'":0.205,"(":0.359,")":0.359,"*":0.532,"+":0.521,",":0.224,"-":0.369,".":0.224,"/":0.315,":":0.224,";":0.224,"?":0.481,"@":1.097,"A":0.715,"B":0.72,"C":0.729,"D":0.786,"E":0.674,"F":0.607,"G":0.811,"H":0.821,"I":0.334,"J":0.504,"K":0.737,"L":0.625,"M":0.94,"N":0.784,"O":0.804,"P":0.677,"Q":0.835,"R":0.727,"S":0.691,"T":0.637,"U":0.743,"V":0.706,"W":0.99,"X":0.699,"Y":0.694,"Z":0.612,"a":0.582,"b":0.636,"c":0.55,"d":0.644,"e":0.582,"f":0.357,"g":0.568,"h":0.648,"i":0.298,"j":0.289,"k":0.595,"l":0.292,"m":0.986,"n":0.654,"o":0.604,"p":0.644,"q":0.642,"r":0.462,"s":0.535,"t":0.371,"u":0.626,"v":0.537,"w":0.806,"x":0.522,"y":0.535,"z":0.528,"\\u2019":0.216,"\\u2018":0.216,"\\u201c":0.359,"\\u201d":0.359,"\\u2013":0.576,"\\u00b7":0.5,"\\u00e9":0.582,"\\u2026":0.843}',
 );
-const TRACKING = -0.005; // the title's letter-spacing, per character
-export const textEm = (s) => [...s].reduce((w, ch) => w + (CG500[ch] ?? 0.7) + TRACKING, 0);
+export const TRACKING = -0.025; // the title's letter-spacing, in em per character
+export const textEm = (s) => [...s].reduce((w, ch) => w + (Z300[ch] ?? 0.7) + TRACKING, 0);
 
 /**
  * Break `title` into the fewest lines that fit `maxEm`, then, among breaks with
- * that many lines, pick the one whose LONGEST line is shortest. That is what
- * text-wrap: balance does. Max 4 lines.
+ * that many lines, pick the most even set: the smallest sum of squared line
+ * widths, so no line is left stranded short (a lone "Frequently" over three
+ * full lines). That is what text-wrap: balance aims for. Max 4 lines.
  */
 export function balanceTitle(title, maxEm) {
   const words = title.split(/\s+/).filter(Boolean);
   const n = words.length;
   const width = (i, j) => textEm(words.slice(i, j).join(' ')); // words[i..j)
   for (let lines = 1; lines <= Math.min(4, n); lines++) {
-    // best[k][i] = smallest achievable max-line width for words[i..] in k lines
     const memo = new Map();
     const solve = (i, k) => {
       const key = `${i},${k}`;
       if (memo.has(key)) return memo.get(key);
+      // res.w is the cost: the sum of squared line widths (Infinity = no fit).
       let res = { w: Infinity, breaks: [] };
       if (k === 1) {
         const w = width(i, n);
-        res = w <= maxEm ? { w, breaks: [n] } : res;
+        res = w <= maxEm ? { w: w * w, breaks: [n] } : res;
       } else {
         for (let j = i + 1; j <= n - (k - 1); j++) {
           const w = width(i, j);
           if (w > maxEm) break;
           const rest = solve(j, k - 1);
-          const m = Math.max(w, rest.w);
-          if (m < res.w) res = { w: m, breaks: [j, ...rest.breaks] };
+          const cost = w * w + rest.w;
+          if (cost < res.w) res = { w: cost, breaks: [j, ...rest.breaks] };
         }
       }
       memo.set(key, res);
@@ -127,7 +132,7 @@ export function balanceTitle(title, maxEm) {
 }
 
 /** Width available to the title, in px. */
-export const TITLE_WIDTH = 1200 - 520 - 40 - 30 * 2;
+export const TITLE_WIDTH = CARD.copy.width;
 
 // ---------------------------------------------------------------------------
 // Photos
@@ -138,9 +143,8 @@ async function loadPhoto(src) {
   let buf;
   if (/^https?:/.test(src)) {
     const u = new URL(src);
-    // Ask the CDN for a sensible working size; the crop happens here.
     if (u.hostname === 'cdn.sanity.io') {
-      u.searchParams.set('w', '1600');
+      u.searchParams.set('w', '1400');
       u.searchParams.set('fm', 'jpg');
       u.searchParams.set('q', '88');
     }
@@ -153,9 +157,8 @@ async function loadPhoto(src) {
   return sharp(buf).rotate().toBuffer();
 }
 
-// The warm grade. Staci's phone photos arrive in mixed white balance (cool
-// daylight beside warm lamps); a light sepia pull puts every photo at the
-// linen-and-bronze temperature. Blend of identity and the sepia matrix, a=0.14.
+// The warm grade. Staci's phone photos arrive in mixed white balance; a light
+// sepia pull puts every photo at the linen-and-bronze temperature.
 const A = 0.14;
 const SEPIA = [
   [0.393, 0.769, 0.189],
@@ -164,17 +167,14 @@ const SEPIA = [
 ];
 const GRADE = SEPIA.map((row, i) => row.map((v, j) => (1 - A) * (i === j ? 1 : 0) + A * v));
 
-/**
- * Crop to exactly w x h, centred on the hotspot as far as the edges allow
- * (the same thing object-fit: cover + object-position does, done in pixels).
- */
+/** Crop to exactly w x h around the hotspot (object-fit: cover, in pixels). */
 async function coverCrop(buf, w, h, hotspot) {
   const meta = await sharp(buf).metadata();
   const scale = Math.max(w / meta.width, h / meta.height);
   const sw = Math.ceil(meta.width * scale);
   const sh = Math.ceil(meta.height * scale);
   const hx = hotspot?.x ?? 0.5;
-  const hy = hotspot?.y ?? 0.5;
+  const hy = hotspot?.y ?? 0.4;
   const left = Math.round(Math.min(Math.max(hx * sw - w / 2, 0), sw - w));
   const top = Math.round(Math.min(Math.max(hy * sh - h / 2, 0), sh - h));
   return sharp(buf)
@@ -186,50 +186,8 @@ async function coverCrop(buf, w, h, hotspot) {
     .toBuffer();
 }
 
-const archMask = (w, h) =>
-  Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><path d="M0 ${h} V${w / 2} A${w / 2} ${w / 2} 0 0 1 ${w} ${w / 2} V${h} Z" fill="#fff"/></svg>`,
-  );
-const circleMask = (d) =>
-  Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${d}" height="${d}"><circle cx="${d / 2}" cy="${d / 2}" r="${d / 2}" fill="#fff"/></svg>`,
-  );
-
-/** The arch photo as a transparent PNG, exactly the arch's box. */
-async function archPng(buf, hotspot) {
-  const { width: w, height: h } = CARD.arch;
-  const photo = await coverCrop(buf, w, h, hotspot);
-  return sharp(photo)
-    .ensureAlpha()
-    .composite([{ input: archMask(w, h), blend: 'dest-in' }])
-    .png()
-    .toBuffer();
-}
-
-/** The circle photo with its linen ring, as a transparent PNG. */
-async function circlePng(buf, hotspot) {
-  const { size, border } = CARD.circle;
-  const inner = size - border * 2;
-  const photo = await coverCrop(buf, inner, inner, hotspot);
-  const round = await sharp(photo)
-    .ensureAlpha()
-    .composite([{ input: circleMask(inner), blend: 'dest-in' }])
-    .png()
-    .toBuffer();
-  return sharp({
-    create: { width: size, height: size, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
-  })
-    .composite([
-      { input: Buffer.from(circleMask(size).toString().replace('#fff', CARD.linen)) },
-      { input: round, left: border, top: border },
-    ])
-    .png()
-    .toBuffer();
-}
-
 // ---------------------------------------------------------------------------
-// Logo: the white alpha masks from scripts/generate-og-logo.mjs, coloured here
-// into ordinary PNGs (a backend never needs CSS mask-image).
+// Logo: the alpha masks from scripts/generate-og-logo.mjs, coloured here.
 // ---------------------------------------------------------------------------
 const logoCache = new Map();
 async function colouredLogo(root, name, height, hex) {
@@ -249,20 +207,71 @@ async function colouredLogo(root, name, height, hex) {
   return out;
 }
 
-/** No photo at all (e.g. a build with no Sanity access): a taupe arch with the ring in it. */
-async function emptyArchPng(root) {
-  const { width: w, height: h } = CARD.arch;
-  const mark = await colouredLogo(root, 'reid-mark', 190, CARD.cream);
-  const ground = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${CARD.taupe}"/><stop offset="1" stop-color="${CARD.bronze}"/></linearGradient></defs><path d="M0 ${h} V${w / 2} A${w / 2} ${w / 2} 0 0 1 ${w} ${w / 2} V${h} Z" fill="url(#g)"/></svg>`,
+// ---------------------------------------------------------------------------
+// The background: ground, photo, fan deck, logo plate, one PNG.
+// ---------------------------------------------------------------------------
+
+/** The seven chips fanned from one rivet, as in the home hero. */
+function fanSvg() {
+  const { pivotX, pivotY, chipW, chipH, from, step } = CARD.fan;
+  const chips = CARD.chips
+    .map((c, n) => {
+      const x = pivotX - chipW / 2;
+      const y = pivotY - chipH;
+      return `<g transform="rotate(${from + n * step} ${pivotX} ${pivotY})"><rect x="${x}" y="${y}" width="${chipW}" height="${chipH}" rx="9" fill="${c}" filter="url(#s)"/></g>`;
+    })
+    .join('');
+  return `<defs><filter id="s" x="-40%" y="-20%" width="180%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity="0.32"/></filter></defs>${chips}<circle cx="${pivotX}" cy="${pivotY - 22}" r="8" fill="#d8c3a5" stroke="#8a6a4f" stroke-width="3"/>`;
+}
+
+async function background(root, photo) {
+  const { width: W, height: H } = CARD;
+  const P = CARD.photo;
+
+  // The photo panel, or with no photo, the seven-tone strip standing in.
+  let panel;
+  if (photo) {
+    panel = await coverCrop(await loadPhoto(photo.src), P.width, H, photo.hotspot);
+  } else {
+    const band = P.width / CARD.chips.length;
+    const bands = CARD.chips
+      .map((c, i) => `<rect x="${i * band}" y="0" width="${band + 1}" height="${H}" fill="${c}"/>`)
+      .join('');
+    panel = await sharp(
+      Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${P.width}" height="${H}">${bands}</svg>`,
+      ),
+    )
+      .png()
+      .toBuffer();
+  }
+
+  // The seam: the photo melts into the Walnut over its first 18%, like the
+  // home hero's soft edge.
+  const seam = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${CARD.walnut}"/><stop offset="1" stop-color="${CARD.walnut}" stop-opacity="0"/></linearGradient></defs><rect x="${P.left}" y="0" width="${Math.round(P.width * 0.18)}" height="${H}" fill="url(#g)"/></svg>`,
   );
-  return sharp(ground)
+
+  // The logo on its paper plate, hung from the top edge like the header.
+  const L = CARD.plate;
+  const logo = await colouredLogo(root, 'reid-lockup', L.logoHeight, CARD.ink);
+  const plateW = logo.width + L.padX * 2;
+  const plateH = logo.height + L.padTop + L.padBottom;
+  const plate = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><filter id="p" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000" flood-opacity="0.35"/></filter></defs><path d="M${L.left} 0 H${L.left + plateW} V${plateH - 4} Q${L.left + plateW} ${plateH} ${L.left + plateW - 4} ${plateH} H${L.left + 4} Q${L.left} ${plateH} ${L.left} ${plateH - 4} Z" fill="${CARD.paper}" filter="url(#p)"/></svg>`,
+  );
+
+  const fan = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${fanSvg()}</svg>`,
+  );
+
+  return sharp({ create: { width: W, height: H, channels: 3, background: CARD.walnut } })
     .composite([
-      {
-        input: mark.png,
-        left: Math.round((w - mark.width) / 2),
-        top: Math.round(h * 0.52 - mark.height / 2),
-      },
+      { input: panel, left: P.left, top: 0 },
+      { input: seam, left: 0, top: 0 },
+      { input: fan, left: 0, top: 0 },
+      { input: plate, left: 0, top: 0 },
+      { input: logo.png, left: L.left + L.padX, top: L.padTop },
     ])
     .png()
     .toBuffer();
@@ -274,38 +283,35 @@ async function emptyArchPng(root) {
  * @param {{root:string}} opts
  */
 export async function prepareCard(card, { root }) {
-  const [first, second] = card.photos ?? [];
-  const arch = first
-    ? await archPng(await loadPhoto(first.src), first.hotspot)
-    : await emptyArchPng(root);
-  const circle = second ? await circlePng(await loadPhoto(second.src), second.hotspot) : null;
-  const logo = await colouredLogo(root, 'reid-lockup', CARD.logoHeight, CARD.charcoal);
-  const size = titleSize(card.title);
+  const [first] = card.photos ?? [];
+  // Prefer three lines: if the stepped size needs four, try one size a
+  // little smaller before accepting the fourth line.
+  let size = titleSize(card.title);
+  let lines = balanceTitle(card.title, TITLE_WIDTH / size);
+  if (lines.length > 3) {
+    const smaller = Math.round(size * 0.9);
+    const tighter = balanceTitle(card.title, TITLE_WIDTH / smaller);
+    if (tighter.length < lines.length) [size, lines] = [smaller, tighter];
+  }
   return {
     title: card.title,
-    titleLines: balanceTitle(card.title, TITLE_WIDTH / size),
-    kicker: card.kicker.toUpperCase(),
+    titleLines: lines,
     titleSize: size,
-    arch,
-    circle,
-    logo,
+    // Sentence case, as the site writes its small lines (never tracked caps).
+    kicker: card.kicker,
+    url: 'reiddesignllc.com',
+    background: await background(root, first ?? null),
   };
 }
 
 // ---------------------------------------------------------------------------
 // Fonts, as bytes (card 46: never ask a renderer for a face by NAME).
 // ---------------------------------------------------------------------------
-export function fontFile(root, pkg, pattern) {
-  const dir = resolve(root, 'node_modules', pkg, 'files');
-  let files = [];
-  try {
-    files = readdirSync(dir);
-  } catch {
-    /* reported below */
-  }
-  const f = files.find((n) => pattern.test(n));
-  if (!f) throw new Error(`font not found: ${pkg} ${pattern}`);
-  return resolve(dir, f);
+/** A share-card face from scripts/.og-fonts/ (fetch-fonts.mjs puts them there). */
+export function ogFont(root, file) {
+  const p = resolve(root, 'scripts', '.og-fonts', file);
+  if (!existsSync(p)) throw new Error(`font not found: ${p}. Run node scripts/fetch-fonts.mjs`);
+  return p;
 }
 
 // ---------------------------------------------------------------------------

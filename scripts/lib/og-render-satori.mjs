@@ -4,24 +4,22 @@
 // =============================================================================
 // satori lays the card out and emits an SVG (text as glyph paths, shaped with
 // harfbuzz); resvg rasterises it. Both are pure npm packages with prebuilt
-// binaries (resvg ships @resvg/resvg-js-linux-x64-gnu for Workers Builds), so a
-// build needs no browser and no system fonts.
+// binaries, so a build needs no browser and no system fonts.
 //
 // Fonts are handed over as bytes (starter PORTS.md card 46): satori reads
-// TTF/OTF/WOFF, never WOFF2, and cannot pick a weight out of a variable font,
-// so Cormorant Garamond 500 comes from @fontsource/cormorant-garamond's .woff
-// and Source Sans 3 600 from the static @fontsource/source-sans-3 .woff (the
-// site's own @fontsource-variable/source-sans-3 ships only a variable woff2).
+// TTF/OTF/WOFF, never WOFF2, so the site's own Zodiak Light and General Sans
+// Medium come from the .woff copies fetch-fonts.mjs keeps in
+// scripts/.og-fonts/ (design E, 2026-09-30; design D used Cormorant and
+// Source Sans from @fontsource).
 //
-// Why it matches the Chromium review backend: prepareCard() did every image
-// operation satori lacks (CSS filter, mask-image, object-fit/position,
-// border-radius on an image) and computed the title's line breaks from the
-// font's real advance widths, so this file places three PNGs and sets lines of
-// text exactly as given.
+// prepareCard() did every image operation (the ground, the graded photo, the
+// fan deck, the logo plate) as ONE background PNG, and computed the title's
+// line breaks from Zodiak's measured advance widths, so this file places one
+// PNG and sets lines of text exactly as given.
 // =============================================================================
 
 import { readFileSync } from 'node:fs';
-import { CARD, fontFile } from './og-render.mjs';
+import { CARD, TRACKING, ogFont } from './og-render.mjs';
 
 const uri = (png) => `data:image/png;base64,${png.toString('base64')}`;
 
@@ -30,24 +28,16 @@ export async function createSatoriBackend({ root }) {
   const { Resvg } = await import('@resvg/resvg-js');
   const fonts = [
     {
-      name: 'Cormorant Garamond',
-      weight: 500,
+      name: 'Zodiak',
+      weight: 300,
       style: 'normal',
-      data: readFileSync(
-        fontFile(
-          root,
-          '@fontsource/cormorant-garamond',
-          /^cormorant-garamond-latin-500-normal\.woff$/,
-        ),
-      ),
+      data: readFileSync(ogFont(root, 'Zodiak-300.woff')),
     },
     {
-      name: 'Source Sans 3',
-      weight: 600,
+      name: 'General Sans',
+      weight: 500,
       style: 'normal',
-      data: readFileSync(
-        fontFile(root, '@fontsource/source-sans-3', /^source-sans-3-latin-600-normal\.woff$/),
-      ),
+      data: readFileSync(ogFont(root, 'GeneralSans-500.woff')),
     },
   ];
   const C = CARD;
@@ -55,94 +45,84 @@ export async function createSatoriBackend({ root }) {
     type,
     props: { style, children, ...extra },
   });
-  const img = (png, w, h, style = {}) => ({
-    type: 'img',
-    props: { src: uri(png), width: w, height: h, style: { width: w, height: h, ...style } },
-  });
 
   return {
     name: 'satori',
     async render(p) {
-      const copyW = C.width - C.copy.left - C.copy.right;
       const tree = el(
         'div',
-        {
-          display: 'flex',
-          position: 'relative',
-          width: C.width,
-          height: C.height,
-          background: C.linen,
-        },
+        { display: 'flex', position: 'relative', width: C.width, height: C.height },
         [
-          img(p.arch, C.arch.width, C.arch.height, {
-            position: 'absolute',
-            left: C.arch.left,
-            top: C.arch.top,
-          }),
-          p.circle
-            ? img(p.circle, C.circle.size, C.circle.size, {
-                position: 'absolute',
-                left: C.circle.left,
-                top: C.circle.top,
-              })
-            : null,
+          {
+            type: 'img',
+            props: {
+              src: uri(p.background),
+              width: C.width,
+              height: C.height,
+              style: { position: 'absolute', left: 0, top: 0, width: C.width, height: C.height },
+            },
+          },
+          // The words, bottom-anchored in the copy column so a short title
+          // sits low like the home hero's and a long one grows upward.
           el(
             'div',
             {
               position: 'absolute',
               left: C.copy.left,
-              top: 0,
-              width: copyW,
-              height: C.height,
+              top: C.copy.top,
+              width: C.copy.width,
+              height: C.copy.bottom - C.copy.top,
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: `0 ${C.copy.pad}px`,
+              justifyContent: 'flex-end',
             },
             [
-              img(p.logo.png, p.logo.width, p.logo.height),
-              el('div', {
-                width: C.rule.width,
-                height: C.rule.height,
-                background: C.bronze,
-                margin: `${C.rule.above}px 0 ${C.rule.below}px`,
-              }),
+              el(
+                'div',
+                {
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: 22,
+                  fontFamily: 'General Sans',
+                  fontWeight: 500,
+                  fontSize: C.kicker.size,
+                  color: C.cream,
+                },
+                [
+                  el('div', { width: 34, height: 1.5, background: C.cream, marginRight: 14 }),
+                  p.kicker,
+                ],
+              ),
               el(
                 'div',
                 {
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'center',
-                  fontFamily: 'Cormorant Garamond',
-                  fontWeight: 500,
+                  fontFamily: 'Zodiak',
+                  fontWeight: 300,
                   fontSize: p.titleSize,
-                  lineHeight: 1.06,
-                  letterSpacing: p.titleSize * -0.005,
-                  color: C.charcoal,
-                  marginBottom: 16,
-                  textAlign: 'center',
+                  lineHeight: 1.0,
+                  letterSpacing: p.titleSize * TRACKING,
+                  color: C.cream,
                 },
                 p.titleLines.map((line) => el('div', { whiteSpace: 'nowrap' }, line)),
               ),
-              el(
-                'div',
-                {
-                  fontFamily: 'Source Sans 3',
-                  fontWeight: 600,
-                  fontSize: C.kicker.size,
-                  letterSpacing: C.kicker.size * C.kicker.tracking,
-                  color: C.bronzeDark,
-                  lineHeight: 1.5,
-                },
-                // satori gave a plain space no tracking of its own, so word gaps
-                // came out visibly tighter than Chromium's; a no-break space is
-                // tracked like a letter.
-                p.kicker.replace(/ /g, ' '),
-              ),
             ],
           ),
-        ].filter(Boolean),
+          el(
+            'div',
+            {
+              position: 'absolute',
+              left: C.copy.left,
+              bottom: C.url.bottom,
+              fontFamily: 'General Sans',
+              fontWeight: 500,
+              fontSize: C.url.size,
+              color: C.oat,
+            },
+            p.url,
+          ),
+        ],
       );
       const svg = await satori(tree, { width: C.width, height: C.height, fonts });
       return new Resvg(svg, { fitTo: { mode: 'original' } }).render().asPng();

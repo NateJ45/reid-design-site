@@ -37,5 +37,17 @@
       "bytes": 23092,
       "source": "https://cdn.fontshare.com/wf/K46YRH762FH3QJ25IQM3VAXAKCHEXXW4/ISLWQPUZHZF33LRIOTBMFOJL57GBGQ4B/3ZLMEXZEQPLTEPMHTQDAUXP5ZZXCZAEN.woff2"
     }
+  },
+  "ogFiles": {
+    "Zodiak-300.woff": {
+      "sha256": "f12ba0247c0cf6ee30b034addcd5ba5abef818ce477546be0f691787d01fa63c",
+      "bytes": 27556,
+      "source": "https://cdn.fontshare.com/wf/IF5ZIT3FMSFNWCWOG7ZASDFHEMLSIUEE/OMOWAZNE73OKOHTUSHA6P7FH44MIVQTO/UREX64UV4XADQWU6EF6JRA5XVIEJPRP4.woff"
+    },
+    "GeneralSans-500.woff": {
+      "sha256": "f5beb161290aa5a59727d1f693a142cdad5b36a65ee63995d7388589ec4cfb5c",
+      "bytes": 30252,
+      "source": "https://cdn.fontshare.com/wf/3RZHWSNONLLWJK3RLPEKUZOMM56GO4LJ/BPDRY7AHVI3MCDXXVXTQQ76H3UXA63S3/SB2OEB6IKZPRR6JT4GFJ2TFT6HBB6AZN.woff"
+    }
   }
 }
