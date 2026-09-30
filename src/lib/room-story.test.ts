@@ -60,6 +60,25 @@ describe('parseRoomManifest (v2)', () => {
     expect(m?.layers[0]).not.toHaveProperty('extra');
   });
 
+  it('accepts a light, and treats a missing light as null', () => {
+    const lit = parseRoomManifest(
+      manifest({ layers: [layer('lamp', { light: 'light-lamp.png' })] }),
+    );
+    expect(lit?.layers[0].light).toBe('light-lamp.png');
+    const m = parseRoomManifest(manifest());
+    expect(m?.layers[0].light).toBeNull();
+    expect(m?.layers[1].light).toBeNull();
+  });
+
+  it('lists a light file after its shade', () => {
+    const m = parseRoomManifest(manifest({ layers: [layer('lamp', { light: 'light-lamp.png' })] }));
+    expect(m && roomFiles(m).slice(-3)).toEqual([
+      'layer-lamp.webp',
+      'shade-lamp.png',
+      'light-lamp.png',
+    ]);
+  });
+
   it('lists every file it names', () => {
     const m = parseRoomManifest(manifest());
     expect(m && roomFiles(m)).toEqual([
@@ -118,6 +137,8 @@ describe('parseRoomManifest (v2)', () => {
     ['an unknown motion', { motion: 'spin' }],
     ['an image URL', { image: 'https://example.com/a.webp' }],
     ['a shade that is not a file name', { shade: 5 }],
+    ['a light that is not a file name', { light: '../x.png' }],
+    ['a light that is a number', { light: 5 }],
     ['a box off the right edge', { box: [1000, 0, 500, 100] }],
     ['a box off the bottom', { box: [0, 1000, 100, 105] }],
     ['a negative box', { box: [-1, 0, 100, 100] }],

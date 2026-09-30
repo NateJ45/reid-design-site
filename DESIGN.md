@@ -433,7 +433,8 @@ living room that starts EMPTY; as the visitor scrolls past short captions the
 furniture fades and MOVES into place piece by piece (trim, then the rug and
 sofa, tables and a lamp, curtains and a chair, art, styling). The pieces are
 RGBA cut-outs laid over one base photo, each with an optional multiply shade
-layer for its shadow, all from `src/assets/room/<slug>/` (manifest v2, made by
+layer for its shadow and an optional screen `light` layer for light it throws (a
+lamp's glow on the wall), all from `src/assets/room/<slug>/` (manifest v2, made by
 tools/room-lab); the component renders nothing until they exist.
 
 - **Several rooms, one tab each** (2026-09-30): living room (Transitional),
@@ -488,7 +489,7 @@ tools/room-lab); the component renders nothing until they exist.
   painter has drawn; the colour carries through every stage.
 - **Motion:** each piece arrives by its manifest `motion`: `sweep` (soft wipe),
   `unroll` (rug), `slide-left`/`slide-right` (3% of the frame, fade, 1.015 to
-  1 settle), `rise`, `drop` (curtains, art), `pop` (styling); its shade sets
+  1 settle), `rise`, `drop` (curtains, art), `pop` (styling); its shade and light set
   down in the last third. Scroll-driven CSS (a named view timeline per caption,
   `timeline-scope` on the section) behind `@supports` and no-preference, as in
   TapeProcess/ProcessSteps; stage k finishes as caption k reaches the reading
@@ -497,7 +498,7 @@ tools/room-lab); the component renders nothing until they exist.
   instantly. A chip rolls its colour onto the walls from the left with a noisy
   front (~900ms); the painter keeps the photo's own light and shadow (linear
   light maths, `src/scripts/room-painter.ts`) and only ever paints the base
-  wall, so the pieces and their multiply shades sit correctly on any colour.
+  wall, so the pieces, their multiply shades and their screen lights sit correctly on any colour.
   No WebGL: the base photo stays as it is and the chips stay hidden.
 - **WebGL on the home page** (Nathan, 2026-09-30) reverses the design
   debate's "CSS/SVG only, no WebGL" and "no more craft devices" rulings for

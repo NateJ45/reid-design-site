@@ -33,6 +33,7 @@ export interface StageLayer {
   place: string;
   image: Picture;
   shade: Picture | null;
+  light: Picture | null;
 }
 
 /** One room, ready to draw. */

@@ -18,6 +18,7 @@
 //     "final": { "image", "alt" },
 //     "stages": [ { "id", "caption" }, ... ],
 //     "layers": [ { "id", "stage", "image", "shade" | null,
+//                   "light" | null (optional),
 //                   "box": [x, y, w, h], "motion" }, ... ] }
 //
 //   - base: the empty room (JPG), its wall mask (greyscale PNG, white = wall)
@@ -29,7 +30,10 @@
 //     ORDER, placed by `box` in base-frame pixels. `shade` is an optional
 //     greyscale PNG of the same box drawn with multiply (white = no change):
 //     the piece's shadow on the wall and floor, so it stays right under any
-//     paint colour. `motion` says how the piece arrives.
+//     paint colour. `light` is the same idea for light the piece THROWS (a
+//     lamp's glow on the wall): an optional RGB PNG of the same box (black = no
+//     change) drawn with `screen`, so it brightens whatever paint is on the
+//     wall. Missing = null. `motion` says how the piece arrives.
 //
 // parseRoomManifest() is strict on purpose. Anything off returns null and the
 // component renders NOTHING: a room that cannot say honestly that it is a
@@ -66,6 +70,8 @@ export interface RoomLayer {
   image: string;
   /** Optional greyscale multiply PNG of the same box, or null. */
   shade: string | null;
+  /** Optional RGB screen PNG of the same box (light thrown onto the wall), or null. */
+  light: string | null;
   /** [x, y, w, h] in base-frame pixels, inside the frame. */
   box: [number, number, number, number];
   motion: RoomMotion;
@@ -149,6 +155,7 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
     if (!isText(l.stage) || !stageIds.has(l.stage)) return null;
     if (!isFileName(l.image)) return null;
     if (l.shade !== null && l.shade !== undefined && !isFileName(l.shade)) return null;
+    if (l.light !== null && l.light !== undefined && !isFileName(l.light)) return null;
     if (!isBox(l.box, width, height) || !isMotion(l.motion)) return null;
     layerIds.add(l.id);
     const [x, y, w, h] = l.box;
@@ -157,6 +164,7 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
       stage: l.stage,
       image: l.image,
       shade: typeof l.shade === 'string' ? l.shade : null,
+      light: typeof l.light === 'string' ? l.light : null,
       box: [x, y, w, h],
       motion: l.motion,
     });
@@ -253,7 +261,11 @@ export function roomFiles(m: RoomManifest): string[] {
     m.base.image,
     m.base.mask,
     m.final.image,
-    ...m.layers.flatMap((l) => (l.shade ? [l.image, l.shade] : [l.image])),
+    ...m.layers.flatMap((l) => [
+      l.image,
+      ...(l.shade ? [l.shade] : []),
+      ...(l.light ? [l.light] : []),
+    ]),
   ];
 }
 

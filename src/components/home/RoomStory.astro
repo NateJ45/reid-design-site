@@ -20,7 +20,7 @@
 //   src/assets/room/<slug>/manifest.json  -> parseRoomManifest() (v2, per room;
 //                                            file names relative to its folder)
 //   base image                            -> getImage(): avif + webp at 640/960/1440
-//   layer + shade images                  -> getImage(): webp at the same fractions
+//   layer + shade + light images                -> getImage(): webp at the same fractions
 //                                            of their box, so a phone gets small pieces
 //   base wall mask                        -> ?url (fetched by the painter only)
 //
@@ -139,6 +139,7 @@ async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
         place: `left:${pct(x, W)};top:${pct(y, H)};width:${pct(w, W)};height:${pct(h, H)}`,
         image: await piece(l.image, w),
         shade: l.shade ? await piece(l.shade, w) : null,
+        light: l.light ? await piece(l.light, w) : null,
       };
     }),
   );

@@ -54,7 +54,7 @@ async function toStep(page: Page, i: number) {
   }, i);
 }
 
-/** Opacity of every piece (layers and shades), with its stage. */
+/** Opacity of every piece (layers, shades and lights), with its stage. */
 const pieces = (page: Page) =>
   page.evaluate(() =>
     [...document.querySelectorAll<HTMLElement>('[data-piece]')].map((p) => ({
@@ -113,6 +113,28 @@ test.describe('Concept room', () => {
     for (const p of all) expect(p.opacity).toBe(1);
     await expect(page.locator('[data-room-chips]')).toBeHidden();
     await ctx.close();
+  });
+
+  test('a light layer, when a piece has one, screens and sits between its shade and its piece', async ({
+    page,
+  }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const lights = page.locator('section.room .room__light');
+    test.skip((await lights.count()) === 0, 'No piece in the published rooms throws light');
+    const first = lights.first();
+    await expect(first).toHaveAttribute('alt', '');
+    await expect(first).toHaveCSS('mix-blend-mode', 'screen');
+    // Same frame as the canvas (one isolated group), and the very next sibling
+    // is the piece itself (its shade, if any, is the one before).
+    expect(
+      await first.evaluate((el) => ({
+        next: (el.nextElementSibling as HTMLElement | null)?.dataset.layer ?? null,
+        sameGroup: el.parentElement?.querySelector('.room__canvas') !== null,
+      })),
+    ).toMatchObject({ sameGroup: true });
+    expect(
+      await first.evaluate((el) => el.nextElementSibling?.classList.contains('room__layer')),
+    ).toBe(true);
   });
 
   test('pieces build stage by stage as the captions scroll past', async ({ page }) => {

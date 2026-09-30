@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Concept room: optional per-layer `light` (screen)
+
+- Manifest v2 layers take an optional `light` RGB PNG (same box, black = no change) drawn with `mix-blend-mode: screen` between the piece's shade and image, so a lamp's glow brightens whatever paint is on the wall; same timing, reduced-motion, no-JS and `data-build` behaviour as the shade. Validator, `roomFiles`, RoomStory/RoomScene/room-view, unit tests and a spec check updated.
+
 ## 2026-09-30 — Concept room tabs: six rooms, one deck (branch `claude/concept-room-tabs`)
 
 Delegated agent (Opus), for review by the main session. Built against synthetic sharp-drawn fixtures (three rooms plus a broken listing); the real rooms come from tools/room-lab.

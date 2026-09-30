@@ -14,7 +14,9 @@
 //      script MOVES it into whichever room is showing, so the painter keeps
 //      one GL context for the life of the page.
 //   3. per piece, in paint order: its shade <img> (greyscale, mix-blend-mode
-//      multiply, so its shadow darkens whatever paint is under it) and the
+//      multiply, so its shadow darkens whatever paint is under it), its light
+//      <img> when it throws any (RGB, mix-blend-mode screen, so a lamp's glow
+//      brightens whatever paint is on the wall) and the
 //      piece itself (RGBA WebP), both placed by its box as percentages and
 //      alt="" (the figure's text covers them).
 //
@@ -87,6 +89,22 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
             decoding="async"
           />
         )}
+        {l.light && (
+          <img
+            class="room__light"
+            data-piece
+            data-stage={l.stage}
+            style={pieceStyle(l)}
+            src={l.light.src}
+            srcset={l.light.srcset}
+            sizes={l.light.sizes}
+            alt=""
+            width={l.width}
+            height={l.height}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
         <img
           class={`room__layer room__layer--${l.motion}`}
           data-piece
@@ -113,7 +131,8 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
     position: relative;
     /* cqw units in the motions are fractions of the frame's width. */
     container-type: inline-size;
-    /* The shades multiply with the base and the painted wall only. */
+    /* The shades multiply, and the lights screen, with the base and the
+       painted wall only (the canvas is a child of this isolated group). */
     isolation: isolate;
     aspect-ratio: var(--ar);
     width: 100%;
@@ -143,13 +162,17 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
     visibility: hidden;
   }
   .room__layer,
-  .room__shade {
+  .room__shade,
+  .room__light {
     position: absolute;
     display: block;
     max-width: none;
   }
   .room__shade {
     mix-blend-mode: multiply;
+  }
+  .room__light {
+    mix-blend-mode: screen;
   }
 
   @media (max-width: 1023px) {
@@ -213,7 +236,7 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
       scale: 0.96;
     }
   }
-  /* A piece's shadow "sets down" in the last third of its motion. */
+  /* A piece's shadow (and the light it throws) "sets down" in the last third of its motion. */
   @keyframes room-shade {
     0%,
     66% {
@@ -252,12 +275,14 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
       .room__layer--pop {
         animation: room-pop linear both;
       }
-      .room__shade {
+      .room__shade,
+      .room__light {
         animation: room-shade linear both;
       }
       /* After the shorthands above (which reset the timeline). */
       .room__frames .room__layer,
-      .room__frames .room__shade {
+      .room__frames .room__shade,
+      .room__frames .room__light {
         animation-timeline: var(--tl);
         animation-range: cover calc(var(--w0) + (var(--w1) - var(--w0)) * var(--a)) cover
           calc(var(--w0) + (var(--w1) - var(--w0)) * var(--b));
@@ -311,7 +336,8 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
         clip-path 700ms var(--ease),
         mask-position 700ms var(--ease);
     }
-    :global(.room[data-build]) .room__shade {
+    :global(.room[data-build]) .room__shade,
+    :global(.room[data-build]) .room__light {
       transition: opacity 350ms var(--ease) 350ms;
     }
   }
