@@ -14,13 +14,20 @@ The site is `output: 'static'` + `@astrojs/cloudflare` adapter. Two paths:
 
 This is the normal path. Cloudflare watches `main` on GitHub.
 
+`main` is protected by a GitHub ruleset, "main: PR + green CI" (2026-09-29, the same one the starter and the other family repos carry): every change goes through a pull request, `build`, `test` and `lighthouse` must pass, nobody can bypass it, and `main` cannot be deleted or force-pushed. A plain `git push origin main` is rejected. Work on a branch and merge a PR:
+
 ```bash
+git switch -c my-change
 git add -A
 git commit -m "..."
-git push origin main
+git push -u origin my-change
+gh pr create --fill
+gh pr merge --auto --merge
 ```
 
-Cloudflare detects the push, runs `npm run build` in their CI, and deploys the resulting `dist/` to the Worker. Takes ~1–2 minutes. Watch in the Cloudflare dashboard under Workers → reid-design-site → Deployments.
+`--auto` is allowed on this repo: GitHub merges the PR by itself once the three checks pass.
+
+When the merge lands, Cloudflare detects the push to `main`, runs `npm run build` in their CI, and deploys the resulting `dist/` to the Worker. Takes ~1–2 minutes. Watch in the Cloudflare dashboard under Workers → reid-design-site → Deployments.
 
 **Verify a deploy landed:**
 
