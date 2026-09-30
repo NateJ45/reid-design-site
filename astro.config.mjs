@@ -10,6 +10,7 @@ import sanity from '@sanity/astro';
 import { getSectionVisibility, isHiddenSectionPath } from './src/lib/sectionVisibility.ts';
 import { buildRedirectMap } from './src/lib/redirects.ts';
 import { dropRedirectsOverLivePages } from './src/lib/redirect-guard.ts';
+import { fixSanityDedupeAlias } from './src/lib/sanity-dedupe-alias.ts';
 import ogCards from './src/integrations/og-cards.ts';
 
 // The Sanity project id is PUBLIC by design: it ships in every client bundle and
@@ -111,60 +112,6 @@ async function cmsQuery(query, fallback) {
   }
 }
 
-// -----------------------------------------------------------------------------
-// `npm run dev` on Windows: repair @sanity/astro's module-dedupe aliases
-// -----------------------------------------------------------------------------
-// Found 2026-09-29. `astro dev` died within a minute with "Error during
-// dependency optimization: Build failed with 364 errors: [MISSING_EXPORT]
-// "DocumentStatus" is not exported by "node_modules/sanity/package.json"".
-// Cause: @sanity/astro (3.4.2, and still in 3.5.1) adds a dev-only
-// (`apply: 'serve'`) Vite plugin, `sanity:module-dedupe`, that aliases `sanity`
-// and `styled-components` to their package folders. It finds the folder with
-// require.resolve('sanity/package.json') and strips the tail with the regex
-// /\/package\.json$/, which only matches a forward slash. On Windows the path
-// has backslashes, nothing is stripped, and every `import ... from 'sanity'`
-// is aliased to sanity's package.json FILE. The dep optimizer then tries to
-// read named exports out of a JSON file. `npm run build` never loads the
-// plugin, which is why CI and production were fine.
-//
-// Why repair rather than switch the plugin off: it has an off switch
-// (SANITY_ASTRO_DISABLE_MODULE_DEDUPE), and that was tried first. The server
-// then stayed up but the Studio would not hydrate ("The requested module
-// 'react-compiler-runtime' does not provide an export named 'c'"), because the
-// same plugin also pre-bundles react-compiler-runtime and friends, which
-// the Studio needs in dev. So keep the plugin and fix only its bad paths.
-//
-// How: Vite runs `config` hooks in enforce order and merges each result, so a
-// `post` hook sees the plugin's alias array and can strip the stray
-// `\package.json` in place. On macOS/Linux, or once @sanity/astro fixes its
-// regex, nothing matches and this is a no-op. Remove it once
-// `sanity:module-dedupe` in node_modules/@sanity/astro/dist uses a
-// separator-safe replace.
-/** @returns {import('vite').Plugin} */
-function fixSanityDedupeAliasOnWindows() {
-  return {
-    name: 'reid:fix-sanity-dedupe-alias',
-    apply: 'serve',
-    enforce: 'post',
-    config: {
-      order: 'post',
-      handler(config) {
-        const alias = config.resolve?.alias;
-        if (!Array.isArray(alias)) return;
-        for (const entry of alias) {
-          if (
-            entry.find instanceof RegExp &&
-            typeof entry.replacement === 'string' &&
-            /[\\/]node_modules[\\/].+[\\/]package\.json$/.test(entry.replacement)
-          ) {
-            entry.replacement = entry.replacement.replace(/[\\/]package\.json$/, '');
-          }
-        }
-      },
-    },
-  };
-}
-
 // https://astro.build/config
 export default defineConfig({
   site: 'https://reiddesignllc.com',
@@ -217,8 +164,13 @@ export default defineConfig({
     ogCards(),
   ],
   vite: {
-    // fixSanityDedupeAliasOnWindows: dev-only, see its comment above.
-    plugins: [tailwindcss(), fixSanityDedupeAliasOnWindows()],
+    // fixSanityDedupeAlias() repairs @sanity/astro's dev-only alias, which is
+    // broken on Windows (it points `sanity` at a package.json FILE, so `astro
+    // dev` dies with MISSING_EXPORT). It does nothing in `astro build` and on
+    // macOS/Linux. Do not delete it, and do not "fix" this with
+    // SANITY_ASTRO_DISABLE_MODULE_DEDUPE=1 (the Studio then fails to hydrate).
+    // Full story: src/lib/sanity-dedupe-alias.ts and PORTS.md card 60.
+    plugins: [tailwindcss(), fixSanityDedupeAlias()],
     // @sanity/ui ships an ESM build that Vite's dependency pre-bundler
     // mis-scans on this stack (MISSING_EXPORT errors for styled-components).
     // Excluding it from pre-bundling matches the starter's working config; it

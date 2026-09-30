@@ -97,6 +97,10 @@ Playwright chromium 117/117 and webkit-iphone 39/39 (axe included); no
 **Found, not fixed here.** `npm run dev` crashes in Vite's dependency optimizer
 on clean main (own session). Parity baselines will need recapturing after merge.
 
+## 2026-09-29 — Windows dev alias fix moved to the canonical starter module (PORTS.md card 60)
+
+The inline `fixSanityDedupeAliasOnWindows()` in `astro.config.mjs` is replaced by the starter's PORTABLE `src/lib/sanity-dedupe-alias.ts` (`fixSanityDedupeAlias()`, byte-identical, drift-gated by `sync-check`). Behaviour is the same; the module is now shared by every studio repo and adds a testable `repairSanityDedupeAlias()`. The starter's node:test spec does not run under vitest, so `src/lib/sanity-dedupe-alias.test.ts` is a Reid-local vitest translation with no PORTABLE marker. Detail in `docs/agent/stack-and-config.md`.
+
 ## 2026-09-29 — `main` protected by a ruleset; auto-merge allowed
 
 GitHub ruleset "main: PR + green CI" (id 24221660), matching the starter's: pull request required, `build` + `test` + `lighthouse` required, no bypass actors, no deletion or force-push (the starter requires only `build` + `test`). "Allow auto-merge" is now on, so `gh pr merge --auto` works (it could not before: with no required checks GitHub had nothing to wait on and refused with "Pull request is in unstable status"). Nothing pushes to `main` from a workflow, and the Dependabot auto-merge already waits for every check, so neither breaks. OPERATIONS.md and deployment.md now describe the PR flow instead of `git push origin main`.
