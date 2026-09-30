@@ -2,6 +2,15 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Share cards: a room print in the margin
+
+- Nathan asked for more of Staci's rooms on the cards; a mood board of several
+  photos was ruled out (the debate showed multi-photo cards turn to mush at
+  text-bubble size), so each card with an empty margin (Home, About, Services,
+  Contact, custom pages) carries ONE taped print of a different finished room.
+  Rooms are hand-picked in `src/data/card-rooms.mjs` (safe to edit); the
+  renderer sizes the print to the space beside the words.
+
 ## 2026-09-30 — Share cards design F, "the cover" (branch `ccr-1d8c83a7-uw3ifl`, second PR)
 
 - Nathan: the design E cards "feel boring and you don't immediately know whose

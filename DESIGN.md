@@ -501,6 +501,12 @@ whose site it was or which page. Design F is an interiors-magazine cover:
   Ink (the loudest), Privacy and projects Paper. Cream text on Walnut, Espresso
   and Ink only; never a Warm Bronze ground.
 - One faint botanical grows in from the top-right corner.
+- **A room print** where the margin is otherwise empty (Home, About, Services,
+  Contact, custom pages): one of her finished rooms on a white mount, taped on
+  at a slight tilt, a different room per page, sized to the space the words
+  leave and left off when there is none. Which rooms: `src/data/card-rooms.mjs`
+  (her best shots only). It sits outside the square crop, so a text preview
+  still shows just the logo and the page's name.
 
 Code: `src/lib/og-card.ts` (what a card says), `scripts/lib/og-render.mjs`
 (layout + every image layer, in sharp) and `og-render-satori.mjs` (the words).
