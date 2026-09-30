@@ -10,6 +10,13 @@
 // the map), and a quiet caption line with the "larger map" link under it.
 // Props unchanged. Used on /contact.
 //
+// Loaded on approach (2026-09-30): the iframe ships with NO src and a script
+// sets it when the map comes within ~400px of the viewport. loading="lazy" was
+// not enough: Chrome's lazy-iframe threshold is generous, so the embed's
+// ~294KB of map JavaScript loaded at ~240ms on every /contact and /services
+// visit, competing with the hero photo (Lighthouse CI, LCP 4.6s on /contact).
+// Without JS the frame stays empty and the "View larger map" link still works.
+//
 // To recenter or rezoom, get a new bbox from openstreetmap.org/export.
 
 interface Props {
@@ -38,7 +45,7 @@ const link = `https://www.openstreetmap.org/?mlat=${markerLat}&mlon=${markerLon}
 <figure class:list={['samap', className]}>
   <div class="samap__frame">
     <iframe
-      src={src}
+      data-samap-src={src}
       width="100%"
       height={height}
       title="Map showing Reid Design's service area centered on Plainfield, Indiana"
@@ -50,6 +57,32 @@ const link = `https://www.openstreetmap.org/?mlat=${markerLat}&mlon=${markerLon}
     <a href={link} target="_blank" rel="noopener noreferrer" class="r-link">View larger map</a>
   </figcaption>
 </figure>
+
+<script>
+  // Set each map's src only when it nears the viewport (see the header).
+  function armMaps() {
+    const frames = document.querySelectorAll<HTMLIFrameElement>('iframe[data-samap-src]');
+    if (!frames.length) return;
+    const load = (f: HTMLIFrameElement) => {
+      if (!f.src && f.dataset.samapSrc) f.src = f.dataset.samapSrc;
+    };
+    if (!('IntersectionObserver' in window)) return frames.forEach(load);
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            load(e.target as HTMLIFrameElement);
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+    frames.forEach((f) => io.observe(f));
+  }
+  armMaps();
+  document.addEventListener('astro:page-load', armMaps);
+</script>
 
 <style>
   .samap {

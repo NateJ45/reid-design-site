@@ -4,6 +4,24 @@
 
 ## 2026-09-30 — art-direction rebuild, phase 2: every interior page
 
+**Live:** PR #58 merged as 3c17ab8 after Nathan reviewed it on staging and
+said go. Production served it about 150s later; the 8 live routes and
+`/studio/` return 200, the FAQPage JSON-LD is present, and axe on the live
+/about, /services and /contact at 390 finds 0 violations. Before the PR, a
+first Playwright run on the merged code failed 155/156 on connection
+timeouts; six leftover static servers from the agent runs were loading the
+machine. With them stopped: 156/156.
+
+**Contact LCP follow-up (same day).** The docs-only PR after launch failed
+the Lighthouse LCP gate on /contact: median 4595ms against 4500. The same
+code measured 2670ms in the PR #58 run, with equal main-thread work (~1.1s)
+and ~0 blocking time, so the swing was runner variance. But one real cost
+was in both runs: the OpenStreetMap iframe, although `loading="lazy"`, loaded
+~294KB of map JavaScript at ~240ms (Chrome's lazy-iframe threshold is
+generous). `ServiceAreaMap.astro` now ships the iframe without a `src` and
+sets it when the map comes within 400px of the viewport. Measured locally:
+0 map requests at load, the map loads on scroll; axe 0 at 1440 and 390.
+
 Branch `claude/redesign-phase2`. Nathan: "start phase 2, rebuild the other
 pages". The main session rebuilt the two shared pieces first, then five Opus
 agents rebuilt the pages in parallel worktrees, each against `DESIGN.md` with

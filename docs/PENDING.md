@@ -244,10 +244,10 @@ one still open. Kept here in full because they document WHY each is needed.
 
 ## Open — code and content work queued
 
-### Art-direction rebuild, follow-ups (phase 1 live; phase 2 on `claude/redesign-phase2`)
+### Art-direction rebuild, follow-ups (phases 1 and 2 both live)
 
 Phase 2 (all seven interior pages, the page-builder blocks and the portfolio
-templates) was built 2026-09-30. Left:
+templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
 
 - **Content fixes for Staci**, which the rebuild makes more visible:
   E-Design shows "from $695" on Services but $425 / $250 packages on its own
