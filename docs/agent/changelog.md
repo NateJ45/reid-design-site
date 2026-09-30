@@ -2,6 +2,15 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — The concept room, site half (branch `claude/concept-room-site`)
+
+Delegated agent (Opus), for review by the main session. Built against the manifest contract with synthetic fixtures; the real room comes from the tools/room-lab session. Mid-task direction change from Nathan: whole-frame stages (manifest v1, WebGL brush-stroke reveal) replaced by furniture layers that fade and move into place (manifest v2, scroll-driven CSS); WebGL now paints only the base wall.
+
+- **Schema:** Home `roomStory` marker (after "How it works") and the Concept room tab (`roomStoryShow`, `roomStoryHeadline`, `roomStoryScriptAccent`, `roomStoryIntro`); typegen. Auto-placed by `placeMarker()` (rule 13).
+- **Site:** `home/RoomStory.astro` (loads, checks, renders nothing without a valid manifest) + `home/RoomStage.astro` (base photo, wall canvas, layer and shade stack; finished room by default; per-caption view timelines drive the motion of each piece, scripted fallback, `aria-current="step"` and a live region), `src/lib/room-story.ts` (v2 parser, `layerTimings`, + tests), `src/scripts/room-painter.ts` (WebGL1 base-wall painter, chip roll, reduced motion instant, no-WebGL fallback).
+- **Tests:** `tests/room-story.spec.ts` (skips until the manifest exists), a Home case in `auto-marker.test.ts`.
+- **Docs:** DESIGN.md "The concept room" and the WebGL reversal (addendum in the design debate), sanity.md, page-architecture.md, performance.md, editor-vs-hardcoded.md, TESTING.md.
+
 ## 2026-09-30 — Kind words on About, Instagram feed (branch `claude/kind-words-instagram`)
 
 Delegated agent, reviewed by the main session.

@@ -43,6 +43,7 @@ A reference for what Staci can change in Studio vs what requires a code edit.
 
 These are stable design / system decisions that don't belong in editorial:
 
+- **The concept room's pictures, captions and alt text** (2026-09-30) — in `src/assets/room/manifest.json` (v2) and its image files, written by tools/room-lab (the stage list is `tools/room-lab/stages.json`), never in Sanity: a caption belongs to its generated frame, and the alt text must open "Concept image:" (the parser refuses anything else). Only the heading, its italic phrase, the intro and the Show switch are editorial (`homePage.roomStory*`). The paint chips (`ROOM_CHIPS` in `src/lib/room-story.ts`) are hardcoded too.
 - **Process step illustrations** — inline SVG line drawings in `ProcessStepIllustration.astro`. Placeholder until / unless a real illustrator delivers final art.
 - **Brand colors / typography tokens** — declared in `src/styles/globals.css` `@theme` block. System-level, not editorial.
 - **Footer credit + auto-year copyright** — composed from `siteSettings.footerCredit` + the current year. Year is computed from `new Date()` at build/render time.

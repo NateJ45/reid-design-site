@@ -50,6 +50,16 @@ Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than
 - **Only the first hero slide loads before the page does.** With 2+ hero images, `HeroBackground.astro` renders every slide after the first with `SanityImage`'s `defer` prop: no `src`, URLs parked in `data-src` / `data-srcset`, moved across 800ms after the load event. `loading="lazy"` never held them back, because every slide is stacked inside the viewport; on the mobile Lighthouse run all six extra slides (about 225KB) downloaded next to the LCP photo and the fonts. The slideshow timer also refuses to fade to a slide whose image has not arrived, and reduced-motion visitors never fetch the extra slides at all.
 - **Lenis runs on wheel devices only** (`pointer: fine` and 1024px+, from presacademy). Touch scrolling is already inertial. The navigation scroll reset still works on phones: without Lenis there is no momentum to cancel, and Astro's ClientRouter restores top-on-click and position-on-Back itself. `tests/scroll-reset.spec.ts` pins both devices.
 
+### The concept room (2026-09-30)
+
+The home page's `RoomStory` section (DESIGN.md "The concept room") is the one WebGL piece on the site, so it has its own rules:
+
+- **Nothing up front.** The section is below the fold. Its own script (`RoomStage.astro`) is about 1.3 KB gzipped; the painter (`src/scripts/room-painter.ts`, hand-written WebGL1, no library) is a separate chunk loaded by `import()` only when the section is about one screen away. **Budget: under 12 KB gzipped**; measured 2.2 KB (4.3 KB raw; 2026-09-30, synthetic fixtures). Re-measure after touching it: gzip the `room-painter.*.js` file in `dist/client/_astro/`.
+- **Pictures:** the base room is a `<picture>` (avif + webp at 640/960/1440, `sizes` 50vw desktop / 100vw phone); every furniture layer and shade is a webp `<img>` resized to the same fractions of its box (a piece a quarter of the room wide gets a quarter of the widths and `sizes`), so a phone downloads small pieces. All `loading="lazy"` with explicit width and height (no CLS). `final.jpg` is validated but never drawn (the finished room is the layers). Keep the base under ~120 KB at 960 avif and the layers together under ~400 KB on a phone; tighten quality in the publish script first.
+- **The painter downloads nothing new:** it uploads the page's own base `<img>` (whatever `currentSrc` the browser chose) as its one texture and fetches the wall mask once (Vite inlines a PNG under 4 KB as a `data:` URL, which `img-src` allows).
+- **Idle means idle:** the pieces move by scroll-driven CSS (no JS on scroll; the script only reads an IntersectionObserver); the `requestAnimationFrame` loop runs only during a chip roll (under a second) and stops when it lands; reduced motion renders once per change. Canvas resolution is the displayed size times devicePixelRatio capped at 2.
+- **Layout:** the deck is unhidden only after the first draw, which happens about a screen before the section is visible, so the shift lands offscreen.
+
 ### Current Lighthouse scorecard (May 2026)
 
 Measured on the deployed Cloudflare URL (`reid-design-site.nathanjnixon86.workers.dev`) via Chrome DevTools' bundled Lighthouse:
