@@ -126,6 +126,11 @@ export async function lockDown(prevPath, editPath, outPath, opts = {}) {
 
   // 4. Feather the edge.
   const mask = await blur1(grown, w, h, feather);
+  // 4b. Optional keep region (0..255): only the new piece and its own shadow may change.
+  //     Without it the edit model's small re-renders of NEIGHBOURS (rug texture under the
+  //     coffee table, sofa feet in the art step) passed through and ended up inside that
+  //     piece's layer, so they would have slid in with it on the page.
+  if (opts.keep) for (let i = 0; i < w * h; i++) mask[i] = Math.round((mask[i] * opts.keep[i]) / 255);
 
   // 5. out = prev*(1-m) + edit*m. Where m is 0 the pixel is copied from prev untouched.
   const out = Buffer.alloc(w * h * 3);

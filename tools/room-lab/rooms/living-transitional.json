@@ -77,6 +77,9 @@
         21,
         1021,
         2021
+      ],
+      "labels": [
+        "rug"
       ]
     },
     {
@@ -89,6 +92,11 @@
         31,
         1031,
         2031
+      ],
+      "labels": [
+        "sofa",
+        "cushion",
+        "pillow"
       ]
     },
     {
@@ -100,18 +108,28 @@
         1041,
         41,
         2041
+      ],
+      "labels": [
+        "coffee table",
+        "table"
       ]
     },
     {
       "id": "side-table-lamp",
       "stage": "function",
       "motion": "rise",
-      "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched off. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched OFF: the shade is plain unlit cream linen in daylight, with no glow. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         51,
         1051,
         2051
-      ]
+      ],
+      "labels": [
+        "table",
+        "lamp"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, lit lampshade, glowing bulb, warm glow on the wall, light spill, cartoon, illustration, cgi, render"
     },
     {
       "id": "chair",
@@ -122,6 +140,12 @@
         1061,
         61,
         2061
+      ],
+      "labels": [
+        "armchair",
+        "chair",
+        "swivel chair",
+        "cushion"
       ]
     },
     {
@@ -133,6 +157,9 @@
         1071,
         71,
         2071
+      ],
+      "labels": [
+        "curtain"
       ]
     },
     {
@@ -144,6 +171,9 @@
         1081,
         81,
         2081
+      ],
+      "labels": [
+        "painting"
       ]
     },
     {
@@ -157,7 +187,13 @@
         1091,
         2091
       ],
-      "workflow": "edit-reflatent-full"
+      "workflow": "edit-reflatent-full",
+      "labels": [
+        "plant",
+        "flower",
+        "vase",
+        "pot"
+      ]
     },
     {
       "id": "books-throw",
@@ -169,7 +205,11 @@
         1101,
         2101
       ],
-      "workflow": "edit-reflatent-full"
+      "workflow": "edit-reflatent-full",
+      "labels": [
+        "book",
+        "blanket"
+      ]
     }
   ]
 }

@@ -1,0 +1,197 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "furniture, bed, nightstand, lamp, rug, curtains, bench, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a bright, empty bedroom with dated walls and a bare floor, before any design work."
+  },
+  "baseVariants": [
+    {
+      "id": "bluegrey",
+      "prompt": "A realistic photograph of an EMPTY bedroom in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. Plain thin builder baseboards, no crown moulding. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dull, dated blue grey that looks a little cold."
+    },
+    {
+      "id": "tan",
+      "prompt": "A realistic photograph of an EMPTY bedroom in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. Plain thin builder baseboards, no crown moulding. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a tired, dated builder tan, a flat yellowish beige."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "shell",
+      "caption": "Simple, wide trim, because a quiet room still needs good bones."
+    },
+    {
+      "id": "anchor",
+      "caption": "A soft wool rug and a low ash bed made up in rumpled linen."
+    },
+    {
+      "id": "function",
+      "caption": "Small nightstands, each with a paper lamp."
+    },
+    {
+      "id": "comfort",
+      "caption": "A slatted bench at the foot of the bed and sheer curtains that soften the morning."
+    },
+    {
+      "id": "personal",
+      "caption": "One ink painting over the bed, and plenty of empty wall around it."
+    },
+    {
+      "id": "finish",
+      "caption": "A branch in a clay vase, a couple of books, a plant. That is all it needs."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the finished Japandi bedroom with a low ash bed in linen bedding, paper lamps, a slatted bench, sheer curtains and one piece of ink art."
+  },
+  "pieces": [
+    {
+      "id": "trim",
+      "stage": "shell",
+      "motion": "sweep",
+      "change": "add wide, flat, square-edged white baseboards and simple square white window casing. Add no furniture and no rug; the floor stays bare. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        610,
+        1610,
+        2610
+      ],
+      "maxDrift": 10
+    },
+    {
+      "id": "rug",
+      "stage": "anchor",
+      "motion": "unroll",
+      "change": "add one large low-pile wool rug in warm oatmeal, lying flat on the floor in front of the large plain wall. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        620,
+        1620,
+        2620
+      ],
+      "labels": [
+        "rug"
+      ]
+    },
+    {
+      "id": "bed",
+      "stage": "anchor",
+      "motion": "rise",
+      "change": "add one low queen platform bed in light ash wood with a low wide headboard, centred against the large plain wall, made with rumpled natural linen bedding in oatmeal and white. The wall above the headboard stays bare. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        630,
+        1630,
+        2630
+      ],
+      "labels": [
+        "bed",
+        "pillow",
+        "cushion",
+        "blanket"
+      ],
+      "workflow": "edit-reflatent-full"
+    },
+    {
+      "id": "nightstands",
+      "stage": "function",
+      "motion": "rise",
+      "change": "add two small light ash nightstands, one on each side of the bed. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        640,
+        1640,
+        2640
+      ],
+      "labels": [
+        "table",
+        "cabinet"
+      ]
+    },
+    {
+      "id": "lamps",
+      "stage": "function",
+      "motion": "pop",
+      "change": "place a round white rice-paper table lamp on each nightstand, switched off. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        650,
+        1650,
+        2650
+      ],
+      "labels": [
+        "lamp",
+        "light"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "bench",
+      "stage": "comfort",
+      "motion": "slide-right",
+      "change": "add one low slatted light ash bench at the foot of the bed. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        660,
+        1660,
+        2660
+      ],
+      "labels": [
+        "bench"
+      ]
+    },
+    {
+      "id": "curtains",
+      "stage": "comfort",
+      "motion": "drop",
+      "change": "hang sheer white linen curtains on thin black rods at the windows, pulled open to the sides so the room stays bright. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        670,
+        1670,
+        2670
+      ],
+      "labels": [
+        "curtain"
+      ]
+    },
+    {
+      "id": "art",
+      "stage": "personal",
+      "motion": "drop",
+      "change": "hang one abstract ink-wash painting in soft black on cream paper, in a thin light oak frame, centred on the large plain wall above the bed, with lots of bare wall around it. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        680,
+        1680,
+        2680
+      ],
+      "labels": [
+        "painting"
+      ]
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "place a single leafy branch in a small clay vase and two stacked books on one nightstand, and a potted plant in a matte clay pot on the floor in the corner. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        690,
+        1690,
+        2690
+      ],
+      "labels": [
+        "plant",
+        "pot",
+        "vase",
+        "book"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    }
+  ]
+}

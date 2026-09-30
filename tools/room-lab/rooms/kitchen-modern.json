@@ -1,0 +1,203 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "cabinets, countertop, island, sink, faucet, stove, range, appliances, refrigerator, stools, pendant lights, backsplash tile, shelves, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a bright, empty kitchen during a remodel, with dated walls and the old cabinets gone, before any design work."
+  },
+  "baseVariants": [
+    {
+      "id": "yellow",
+      "prompt": "A realistic photograph of an EMPTY kitchen space during a remodel, with all the old cabinets removed in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. Finished drywall, a bright window on the back wall where the sink will go, capped plumbing and outlets only, a light plank floor. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dated, tired butter yellow that looks a little greasy."
+    },
+    {
+      "id": "sage",
+      "prompt": "A realistic photograph of an EMPTY kitchen space during a remodel, with all the old cabinets removed in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. Finished drywall, a bright window on the back wall where the sink will go, capped plumbing and outlets only, a light plank floor. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded 1990s sage green that looks a little flat."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "bones",
+      "caption": "A kitchen is built from the back wall out: oak cabinets, a quartz top, a deep sink under the window."
+    },
+    {
+      "id": "surface",
+      "caption": "Glossy tile behind it all, easy to wipe and full of light."
+    },
+    {
+      "id": "anchor",
+      "caption": "Then the island, which is where everyone will stand anyway, and the range."
+    },
+    {
+      "id": "light",
+      "caption": "Two smoked-glass globes over the island."
+    },
+    {
+      "id": "comfort",
+      "caption": "Stools to pull up, and open shelves instead of upper cabinets, so the room stays airy."
+    },
+    {
+      "id": "finish",
+      "caption": "A board, a bowl of lemons and a pot of herbs, like someone cooks here."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the finished modern kitchen with white oak cabinets, quartz counters, a tile backsplash, an island with stools and globe pendants."
+  },
+  "pieces": [
+    {
+      "id": "cabinets",
+      "stage": "bones",
+      "motion": "rise",
+      "change": "add a run of flat-panel base cabinets in warm white oak along the back wall with a white quartz countertop, leaving the upper wall clear. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        410,
+        1410,
+        2410
+      ],
+      "labels": [
+        "cabinet",
+        "counter",
+        "countertop"
+      ]
+    },
+    {
+      "id": "sink",
+      "stage": "bones",
+      "motion": "pop",
+      "change": "add an undermount white sink with a matte black gooseneck faucet in the countertop, centred under the window. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        420,
+        1420,
+        2420
+      ],
+      "labels": [
+        "sink"
+      ],
+      "workflow": "edit-reflatent-full"
+    },
+    {
+      "id": "backsplash",
+      "stage": "surface",
+      "motion": "sweep",
+      "change": "add a backsplash of glossy white vertical stacked rectangular tile on the wall directly above the countertop, about eighteen inches tall, leaving the wall above it painted and clear. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        430,
+        1430,
+        2430
+      ]
+    },
+    {
+      "id": "island",
+      "stage": "anchor",
+      "motion": "slide-left",
+      "change": "add one large kitchen island with a white oak base and a white quartz waterfall top in the middle of the room. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        440,
+        1440,
+        2440
+      ],
+      "labels": [
+        "kitchen island",
+        "counter",
+        "countertop",
+        "cabinet"
+      ]
+    },
+    {
+      "id": "range",
+      "stage": "anchor",
+      "motion": "rise",
+      "change": "add a thirty-inch stainless steel range set into the run of cabinets. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        450,
+        1450,
+        2450
+      ],
+      "labels": [
+        "stove",
+        "oven"
+      ]
+    },
+    {
+      "id": "pendants",
+      "stage": "light",
+      "motion": "drop",
+      "change": "hang two globe pendant lights in smoked glass on thin black rods above the island, switched off. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        460,
+        1460,
+        2460
+      ],
+      "labels": [
+        "light",
+        "lamp",
+        "chandelier"
+      ],
+      "maxDrift": 12,
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "stools",
+      "stage": "comfort",
+      "motion": "slide-right",
+      "change": "add three counter stools with white oak seats and slim matte black legs along the island. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        470,
+        1470,
+        2470
+      ],
+      "labels": [
+        "stool",
+        "chair",
+        "swivel chair"
+      ]
+    },
+    {
+      "id": "shelves",
+      "stage": "comfort",
+      "motion": "drop",
+      "change": "add two floating white oak shelves on the back wall above the backsplash, with a few plain white ceramic bowls and glasses on them, leaving plenty of painted wall visible. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        480,
+        1480,
+        2480
+      ],
+      "labels": [
+        "shelf"
+      ],
+      "workflow": "edit-reflatent-full"
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "place a wooden cutting board, a white bowl of fresh lemons and a small potted basil plant on the counter and island. Style: warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        490,
+        1490,
+        2490
+      ],
+      "labels": [
+        "plant",
+        "pot",
+        "vase",
+        "basket"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "fake fruit, cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    }
+  ]
+}

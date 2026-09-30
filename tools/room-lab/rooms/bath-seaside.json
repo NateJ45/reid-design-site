@@ -1,0 +1,167 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "bathtub, toilet, vanity, sink, mirror, shower, towels, lights, cabinets, wainscoting, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a bright, empty bathroom during a remodel, with dated walls and the old fixtures gone, before any design work."
+  },
+  "baseVariants": [
+    {
+      "id": "pink",
+      "prompt": "A realistic photograph of an EMPTY bathroom being remodelled, with the old fixtures removed in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. A frosted window, a light porcelain tile floor, capped plumbing only, plain thin builder baseboards. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dated 1990s pinkish beige that looks a little dingy."
+    },
+    {
+      "id": "mint",
+      "prompt": "A realistic photograph of an EMPTY bathroom being remodelled, with the old fixtures removed in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. A frosted window, a light porcelain tile floor, capped plumbing only, plain thin builder baseboards. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded, dated seafoam mint that looks a little flat."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "bones",
+      "caption": "Beadboard on the lower walls first: it is practical in a bathroom and it says cottage straight away."
+    },
+    {
+      "id": "anchor",
+      "caption": "A deep freestanding tub under the window and a washed oak vanity."
+    },
+    {
+      "id": "light",
+      "caption": "A round rattan mirror, with a sconce on each side so the light is kind in the morning."
+    },
+    {
+      "id": "comfort",
+      "caption": "Striped towels on a wooden ladder, close to the tub."
+    },
+    {
+      "id": "finish",
+      "caption": "A seagrass basket, a small plant and a jar of shells from somewhere you liked."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the finished seaside bathroom with beadboard, a freestanding tub, a washed oak vanity, a rattan mirror, sconces and striped towels."
+  },
+  "pieces": [
+    {
+      "id": "beadboard",
+      "stage": "bones",
+      "motion": "sweep",
+      "change": "add white painted beadboard wainscoting with a slim cap rail on the lower third of every wall and taller white baseboards, leaving the upper walls painted and clear. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        510,
+        1510,
+        2510
+      ],
+      "maxDrift": 10
+    },
+    {
+      "id": "tub",
+      "stage": "anchor",
+      "motion": "rise",
+      "change": "add one white freestanding oval soaking tub with a brushed nickel floor-mounted tub filler under the window. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        520,
+        1520,
+        2520
+      ],
+      "labels": [
+        "bathtub"
+      ]
+    },
+    {
+      "id": "vanity",
+      "stage": "anchor",
+      "motion": "rise",
+      "change": "add one washed white oak single vanity with a white quartz top, an undermount sink and a brushed nickel faucet against the large plain wall. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        530,
+        1530,
+        2530
+      ],
+      "labels": [
+        "cabinet",
+        "sink",
+        "counter",
+        "countertop"
+      ]
+    },
+    {
+      "id": "mirror",
+      "stage": "light",
+      "motion": "drop",
+      "change": "hang one round mirror with a natural rattan frame on the large plain wall, centred above the vanity. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        540,
+        1540,
+        2540
+      ],
+      "labels": [
+        "mirror"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, cgi, render, distorted reflection"
+    },
+    {
+      "id": "sconces",
+      "stage": "light",
+      "motion": "pop",
+      "change": "add two brushed nickel wall sconces with seeded glass shades, one on each side of the mirror, switched off. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        550,
+        1550,
+        2550
+      ],
+      "labels": [
+        "sconce",
+        "light",
+        "lamp"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "towels",
+      "stage": "comfort",
+      "motion": "slide-right",
+      "change": "add a leaning wooden ladder beside the tub with two white and soft blue striped bath towels folded over its rungs. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        560,
+        1560,
+        2560
+      ],
+      "labels": [
+        "towel"
+      ],
+      "workflow": "edit-reflatent-full"
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "place a woven seagrass basket on the floor by the vanity, a small potted green plant on the vanity and a clear glass jar of seashells on the tub ledge. Style: light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        570,
+        1570,
+        2570
+      ],
+      "labels": [
+        "basket",
+        "plant",
+        "pot",
+        "vase"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    }
+  ]
+}

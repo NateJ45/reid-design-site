@@ -1,0 +1,186 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "furniture, table, chair, rug, chandelier, light fixture, sideboard, mirror, curtains, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a bright, empty dining room with dated walls and a bare floor, before any design work."
+  },
+  "baseVariants": [
+    {
+      "id": "lavender",
+      "prompt": "A realistic photograph of an EMPTY dining room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. A tall ceiling with a single electrical box in the middle and no fixture. Plain thin builder baseboards, no crown moulding. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dull, dated grey lavender that looks a little dreary."
+    },
+    {
+      "id": "salmon",
+      "prompt": "A realistic photograph of an EMPTY dining room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. A tall ceiling with a single electrical box in the middle and no fixture. Plain thin builder baseboards, no crown moulding. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded, dated salmon pink that looks washed out."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "shell",
+      "caption": "A dining room starts with its architecture: crown moulding, tall baseboards and a chair rail."
+    },
+    {
+      "id": "anchor",
+      "caption": "A fan-patterned rug and a round table, so everyone can see everyone."
+    },
+    {
+      "id": "comfort",
+      "caption": "Curved velvet chairs, deep green against all that black and brass."
+    },
+    {
+      "id": "light",
+      "caption": "One statement light, hung low enough to make the table feel like the centre of the room."
+    },
+    {
+      "id": "personal",
+      "caption": "A fluted sideboard for the good dishes, and a sunburst mirror to bounce the light around."
+    },
+    {
+      "id": "finish",
+      "caption": "Candlesticks and flowers, set for dinner."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the finished dining room in an art deco style, with a round black table, emerald velvet chairs, a brass chandelier, a fluted sideboard and a sunburst mirror."
+  },
+  "pieces": [
+    {
+      "id": "trim",
+      "stage": "shell",
+      "motion": "sweep",
+      "change": "add white crown moulding where the walls meet the ceiling, tall white baseboards and a slim white chair rail around the room at chair-back height. Add no furniture and no rug; the floor stays bare. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        310,
+        1310,
+        2310
+      ],
+      "maxDrift": 10
+    },
+    {
+      "id": "rug",
+      "stage": "anchor",
+      "motion": "unroll",
+      "change": "add one large rectangular art deco rug with a cream ground and a black and brass-gold geometric fan pattern, lying flat in the middle of the floor. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        320,
+        1320,
+        2320
+      ],
+      "labels": [
+        "rug"
+      ]
+    },
+    {
+      "id": "table",
+      "stage": "anchor",
+      "motion": "rise",
+      "change": "add one round dining table with a glossy black lacquer top and a fluted brass pedestal base, centred on the rug. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        330,
+        1330,
+        2330
+      ],
+      "labels": [
+        "table"
+      ]
+    },
+    {
+      "id": "chairs",
+      "stage": "comfort",
+      "motion": "slide-right",
+      "change": "add four curved-back dining chairs upholstered in deep emerald velvet with slim brass-capped legs, evenly around the table. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        340,
+        1340,
+        2340
+      ],
+      "labels": [
+        "chair",
+        "armchair",
+        "swivel chair"
+      ]
+    },
+    {
+      "id": "chandelier",
+      "stage": "light",
+      "motion": "drop",
+      "change": "hang one tiered art deco chandelier of frosted glass shades and brass arms from the ceiling box, centred over the table, switched off. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        350,
+        1350,
+        2350
+      ],
+      "labels": [
+        "chandelier",
+        "light",
+        "lamp"
+      ],
+      "maxDrift": 12,
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "sideboard",
+      "stage": "personal",
+      "motion": "rise",
+      "change": "add one long low walnut sideboard with fluted doors and slim brass handles against the large plain wall, leaving the wall above it clear. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        360,
+        1360,
+        2360
+      ],
+      "labels": [
+        "cabinet",
+        "table",
+        "shelf"
+      ]
+    },
+    {
+      "id": "mirror",
+      "stage": "personal",
+      "motion": "drop",
+      "change": "hang one round sunburst mirror with a brass frame on the large plain wall, centred above the sideboard, with plenty of bare wall around it. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        370,
+        1370,
+        2370
+      ],
+      "labels": [
+        "mirror"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, cgi, render, distorted reflection"
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "place a pair of tall brass candlesticks with white taper candles and a low bowl of white ranunculus on the table, and a black ceramic vase on the sideboard. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        380,
+        1380,
+        2380
+      ],
+      "labels": [
+        "vase",
+        "flower",
+        "plant",
+        "pot"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "lit candles, flames, cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    }
+  ]
+}

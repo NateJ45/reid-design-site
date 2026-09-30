@@ -20,7 +20,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import sharp from 'sharp';
 import { FINAL, LAYERS, loadSpec } from './lib/paths.mjs';
-import { loadSegmenter, segment, readGrey, writeGrey } from './lib/wallmask.mjs';
+import { loadSegmenter, segment, readGrey, writeGrey, labelMask, blur1 } from './lib/wallmask.mjs';
 
 const LIMIT = 2.5; // recomposite mean absolute difference, 0..255
 const PAD = 8;
@@ -32,7 +32,7 @@ const spec = await loadSpec();
 const { width: W, height: H } = spec;
 const N = W * H;
 await mkdir(LAYERS, { recursive: true });
-for (const f of await readdir(LAYERS)) if (/^(layer|shade)-/.test(f)) await unlink(join(LAYERS, f));
+for (const f of await readdir(LAYERS)) if (/^(layer|shade|light)-/.test(f)) await unlink(join(LAYERS, f));
 
 const rgbOf = (p) => sharp(p).removeAlpha().toColourspace('srgb').raw().toBuffer();
 const luma = (r, g, b) => 0.299 * r + 0.587 * g + 0.114 * b;
@@ -57,12 +57,24 @@ for (const [i, pc] of spec.pieces.entries()) {
   } else {
     ({ wall, floor } = await segment(segmenter, curPath));
   }
+  // The piece's own pixels (its labels in the edited frame, grown a little), so wall-labelled
+  // pixels that belong to the piece (a frame edge, a lampshade seam) are not mistaken for wall.
+  let own = null;
+  if (segmenter && pc.labels?.length) own = await blur1(await labelMask(segmenter, curPath, pc.labels), W, H, 1.5);
 
   const alpha = Buffer.alloc(N);
   const shade = Buffer.alloc(N, 255);
+  const light = Buffer.alloc(N * 3); // screen layer, black = no change (a lamp's glow)
   let darkCount = 0;
   for (let p = 0; p < N; p++) {
     if (m[p] === 0) continue;
+    // Labelled as this piece and touched by this step: it IS the piece, fully opaque, even
+    // when its colour happens to match what was behind it (the cream sofa cushions matched
+    // the sunlit tan wall to within 2 levels, so the "unchanged" rule let the paint through).
+    if (own && own[p] > 128) {
+      alpha[p] = 255;
+      continue;
+    }
     const j = p * 3;
     const yp = luma(prev[j], prev[j + 1], prev[j + 2]);
     const yc = luma(cur[j], cur[j + 1], cur[j + 2]);
@@ -77,21 +89,62 @@ for (const [i, pc] of spec.pieces.entries()) {
       if (err <= 10) dark = 1;
     }
     darkCount += dark;
-    const w = wall[p] / 255;
-    const f = floor[p] / 255;
-    alpha[p] = Math.round((m[p] / 255) * (1 - w) * (1 - f) * (1 - dark) * 255);
-    const weight = Math.max(w, f, dark); // how much of this pixel is "surface that can take shade"
-    const rc = r > DEADZONE ? 1 : Math.max(0, r);
-    shade[p] = Math.round((1 - weight * (1 - rc)) * 255);
+    // Decomposition (revised 2026-09-30), per pixel of the piece mask:
+    //   labelled as the piece      -> object layer, opaque (handled above, before any test:
+    //                                 a black frame passes "pure darkening", pale sky passes
+    //                                 "new trim", a cream cushion matches the wall it covers);
+    //   unchanged (diff < 6)       -> nothing, the base shows through;
+    //   pure darkening             -> shade layer (multiply), right under any paint;
+    //   on the wall: new white trim -> object; darker -> shade; brighter -> light (screen);
+    //   anything else (rug, floor) -> object layer.
+    const d = Math.max(
+      Math.abs(cur[j] - prev[j]),
+      Math.abs(cur[j + 1] - prev[j + 1]),
+      Math.abs(cur[j + 2] - prev[j + 2]),
+    );
+    if (d < 6) continue;
+    if (dark) {
+      shade[p] = Math.round(Math.max(0, Math.min(1, r)) * 255);
+      continue;
+    }
+    // Redrawn WALL around the piece stays out of the object layer: the painted base shows
+    // there, otherwise it would stay tan around the art and read as a halo once a chip is on.
+    if (wall[p] >= 128) {
+      const chr = (a0, a1, a2) => {
+        const mx = Math.max(a0, a1, a2);
+        return mx ? (mx - Math.min(a0, a1, a2)) / mx : 0;
+      };
+      // New white trim over coloured wall (crown moulding, taller baseboards): that IS the
+      // piece. The trim piece has no ADE20K label, so without this the crown went missing.
+      if (yc > yp * 1.05 && chr(cur[j], cur[j + 1], cur[j + 2]) < 0.6 * chr(prev[j], prev[j + 1], prev[j + 2])) {
+        alpha[p] = m[p];
+        continue;
+      }
+      // Darker: the piece's shadow on the wall, a multiply (right under any paint colour).
+      if (r < 0.99) shade[p] = Math.round(Math.max(0, r) * 255);
+      // Brighter: light the piece throws on the wall (a lamp), a SCREEN layer that adds light
+      // to whatever paint colour is on: L = (cur - prev) / (255 - prev) per channel.
+      else if (r > 1.01)
+        for (let c = 0; c < 3; c++) {
+          const up = cur[j + c] - prev[j + c];
+          if (up > 0) light[p * 3 + c] = Math.min(255, Math.round((255 * up) / Math.max(1, 255 - prev[j + c])));
+        }
+      continue;
+    }
+    alpha[p] = m[p];
+    void floor;
   }
 
   // Bounding box, and whether the shade layer earns its keep.
+  let litPx = 0;
+  for (let p = 0; p < N; p++) if (light[p * 3] + light[p * 3 + 1] + light[p * 3 + 2] > 12) litPx++;
+  const hasLight = litPx / N >= 0.001;
   const box = (useShade) => {
     let x0 = W, y0 = H, x1 = -1, y1 = -1;
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const p = y * W + x;
-        if (alpha[p] > 2 || (useShade && shade[p] < 250)) {
+        if (alpha[p] > 2 || (useShade && shade[p] < 250) || (hasLight && light[p * 3] + light[p * 3 + 1] + light[p * 3 + 2] > 12)) {
           if (x < x0) x0 = x;
           if (x > x1) x1 = x;
           if (y < y0) y0 = y;
@@ -117,6 +170,7 @@ for (const [i, pc] of spec.pieces.entries()) {
   // Crop RGBA and shade.
   const rgba = Buffer.alloc(bw * bh * 4);
   const sh = Buffer.alloc(bw * bh);
+  const lt = Buffer.alloc(bw * bh * 3);
   for (let y = 0; y < bh; y++) {
     for (let x = 0; x < bw; x++) {
       const p = (by + y) * W + (bx + x);
@@ -126,6 +180,9 @@ for (const [i, pc] of spec.pieces.entries()) {
       rgba[o * 4 + 2] = cur[p * 3 + 2];
       rgba[o * 4 + 3] = alpha[p];
       sh[o] = shade[p];
+      lt[o * 3] = light[p * 3];
+      lt[o * 3 + 1] = light[p * 3 + 1];
+      lt[o * 3 + 2] = light[p * 3 + 2];
     }
   }
   const imageName = `layer-${pc.id}.webp`;
@@ -137,12 +194,18 @@ for (const [i, pc] of spec.pieces.entries()) {
     shadeName = `shade-${pc.id}.png`;
     await writeGrey(sh, bw, bh, join(LAYERS, shadeName));
   }
+  let lightName = null;
+  if (hasLight) {
+    lightName = `light-${pc.id}.png`;
+    await sharp(lt, { raw: { width: bw, height: bh, channels: 3 } }).png().toFile(join(LAYERS, lightName));
+  }
   out.layers.push({
     id: pc.id,
     stage: pc.stage,
     motion: pc.motion,
     image: imageName,
     shade: shadeName,
+    light: lightName,
     box: [bx, by, bw, bh],
     shadeNonWhitePct: +shadePct.toFixed(2),
   });
@@ -157,6 +220,7 @@ for (const [i, L] of out.layers.entries()) {
   const [bx, by, bw, bh] = L.box;
   const lay = await sharp(join(LAYERS, L.image)).ensureAlpha().raw().toBuffer();
   const sh = L.shade ? await sharp(join(LAYERS, L.shade)).greyscale().extractChannel(0).raw().toBuffer() : null;
+  const lt = L.light ? await sharp(join(LAYERS, L.light)).removeAlpha().raw().toBuffer() : null;
   for (let y = 0; y < bh; y++) {
     for (let x = 0; x < bw; x++) {
       const p = ((by + y) * W + bx + x) * 3;
@@ -167,6 +231,8 @@ for (const [i, L] of out.layers.entries()) {
         R[p + 1] = Math.round(R[p + 1] * s);
         R[p + 2] = Math.round(R[p + 2] * s);
       }
+      if (lt)
+        for (let c = 0; c < 3; c++) R[p + c] = Math.round(255 - ((255 - R[p + c]) * (255 - lt[o * 3 + c])) / 255);
       const a = lay[o * 4 + 3] / 255;
       if (a > 0) {
         R[p] = Math.round(R[p] * (1 - a) + lay[o * 4] * a);
@@ -181,6 +247,18 @@ for (const [i, L] of out.layers.entries()) {
   const mae = sum / truth.length;
   steps.push({ id: L.id, mae: +mae.toFixed(3) });
   console.log(`recomposite after ${L.id}: mean abs diff ${mae.toFixed(3)} / 255`);
+}
+// Evidence for a human: the recomposite of the last step and an amplified difference map
+// (x6), so any error that concentrates in one place is visible at a glance.
+{
+  const truth = await rgbOf(join(FINAL, `frame-${out.layers.length}.png`));
+  await sharp(R, { raw: { width: W, height: H, channels: 3 } }).png().toFile(join(LAYERS, 'recomposite.png'));
+  const heat = Buffer.alloc(W * H);
+  for (let p = 0; p < W * H; p++) {
+    const d = Math.max(Math.abs(truth[p * 3] - R[p * 3]), Math.abs(truth[p * 3 + 1] - R[p * 3 + 1]), Math.abs(truth[p * 3 + 2] - R[p * 3 + 2]));
+    heat[p] = Math.min(255, d * 6);
+  }
+  await writeGrey(heat, W, H, join(LAYERS, 'recomposite-diff.png'));
 }
 const max = Math.max(...steps.map((s) => s.mae));
 out.check = { limit: LIMIT, steps, max, pass: max < LIMIT };

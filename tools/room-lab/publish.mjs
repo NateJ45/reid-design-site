@@ -48,6 +48,7 @@ if (layersJson) {
     need(stageIds.has(pc.stage), `piece ${pc.id}: unknown stage "${pc.stage}"`);
     need(Boolean(L) && existsSync(join(LAYERS, L.image)), `missing layer file for ${pc.id}`);
     need(!L?.shade || existsSync(join(LAYERS, L.shade)), `missing shade file for ${pc.id}`);
+    need(!L?.light || existsSync(join(LAYERS, L.light)), `missing light file for ${pc.id}`);
     need(Array.isArray(L?.box) && L.box.length === 4, `piece ${pc.id}: no box`);
   });
 }
@@ -73,7 +74,8 @@ const layers = [];
 for (const L of layersJson.layers) {
   await copyFile(join(LAYERS, L.image), join(DEST, L.image));
   if (L.shade) await copyFile(join(LAYERS, L.shade), join(DEST, L.shade));
-  layers.push({ id: L.id, stage: L.stage, image: L.image, shade: L.shade ?? null, box: L.box, motion: L.motion });
+  if (L.light) await copyFile(join(LAYERS, L.light), join(DEST, L.light));
+  layers.push({ id: L.id, stage: L.stage, image: L.image, shade: L.shade ?? null, light: L.light ?? null, box: L.box, motion: L.motion });
 }
 
 const manifest = {
@@ -87,9 +89,9 @@ const manifest = {
 };
 
 // Stale files: anything this kit could have written that is no longer in the manifest.
-const keep = new Set(['base.jpg', 'final.jpg', 'base-mask.png', 'manifest.json', ...layers.flatMap((l) => [l.image, l.shade].filter(Boolean))]);
+const keep = new Set(['base.jpg', 'final.jpg', 'base-mask.png', 'manifest.json', ...layers.flatMap((l) => [l.image, l.shade, l.light].filter(Boolean))]);
 for (const f of await readdir(DEST)) {
-  if (/^(frame|mask|layer|shade)-.*\.(jpg|png|webp)$/.test(f) || /^(base|final).*\.(jpg|png|webp)$/.test(f)) {
+  if (/^(frame|mask|layer|shade|light)-.*\.(jpg|png|webp)$/.test(f) || /^(base|final).*\.(jpg|png|webp)$/.test(f)) {
     if (!keep.has(f)) {
       await unlink(join(DEST, f));
       console.log(`removed stale ${f}`);

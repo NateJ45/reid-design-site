@@ -11,7 +11,9 @@
     "layers": "node layers.mjs",
     "publish": "node publish.mjs",
     "sheet": "node sheet.mjs",
-    "candidates": "node candidates.mjs"
+    "candidates": "node candidates.mjs",
+    "relock": "node relock.mjs",
+    "preview": "node preview.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.0",

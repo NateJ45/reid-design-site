@@ -131,6 +131,81 @@ export async function segment(segmenter, src, { ceiling = false } = {}) {
     }
   }
 
+  // Pass 2b: take white trim OUT of the wall. SegFormer labels painted baseboards and
+  // casings as "wall" (living room, 2026-09-30: every baseboard was in the mask, so the chips
+  // would have painted it). Trim is brighter than the wall right next to it and far less
+  // coloured. Both are judged against a LOCAL wall reference (a normalised blur over ~W/30):
+  // a single global threshold cut a sunlit patch out of the main wall and missed a shaded
+  // baseboard, because the room is lit from one side.
+  {
+    const rgb = await sharp(src).removeAlpha().raw().toBuffer();
+    const n = W * H;
+    const inW = Buffer.alloc(n);
+    const lumW = Buffer.alloc(n);
+    const chrW = Buffer.alloc(n);
+    const chr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const r = rgb[i * 3], g = rgb[i * 3 + 1], bl = rgb[i * 3 + 2];
+      const mx = Math.max(r, g, bl);
+      chr[i] = mx ? Math.round((255 * (mx - Math.min(r, g, bl))) / mx) : 0;
+      if (snapped[i] >= 128) {
+        inW[i] = 255;
+        lumW[i] = grey[i];
+        chrW[i] = chr[i];
+      }
+    }
+    const rad = W / 30;
+    const wB = await blur1(inW, W, H, rad);
+    const lB = await blur1(lumW, W, H, rad);
+    const cB = await blur1(chrW, W, H, rad);
+    const trim = Buffer.alloc(n);
+    for (let i = 0; i < n; i++) {
+      if (snapped[i] < 128 || wB[i] < 8) continue;
+      const localLum = (lB[i] * 255) / wB[i];
+      const localChr = (cB[i] * 255) / wB[i];
+      if (grey[i] > localLum * 1.25 && chr[i] < localChr * 0.55) trim[i] = 255;
+    }
+    const grown = await blur1(trim, W, H, 1.2);
+    for (let i = 0; i < n; i++) if (grown[i] > 40) snapped[i] = 0;
+  }
+
+  // Pass 2c: baseboards. They sit directly on the floor, so look only in a band just above
+  // the floor edge, and compare each pixel with the wall a little ABOVE that band in the same
+  // column (a blur that includes the baseboard itself drags the reference towards white).
+  {
+    const rgb = await sharp(src).removeAlpha().raw().toBuffer();
+    const floorM = await unionOf(segs, new Set(['floor', 'rug', 'carpet']), W, H);
+    const band = Math.round(H / 16);
+    const chrOf = (i) => {
+      const r = rgb[i * 3], g = rgb[i * 3 + 1], b = rgb[i * 3 + 2];
+      const mx = Math.max(r, g, b);
+      return mx ? (mx - Math.min(r, g, b)) / mx : 0;
+    };
+    for (let x = 0; x < W; x++) {
+      let yf = -1;
+      for (let y = Math.round(H * 0.3); y < H; y++) if (floorM[y * W + x] >= 128) { yf = y; break; }
+      if (yf < 0) continue;
+      // Reference: wall pixels 10-30 px above the band, same column.
+      let rl = 0, rc = 0, rn = 0;
+      for (let y = yf - band - 30; y < yf - band - 10; y++) {
+        if (y < 0) continue;
+        const i = y * W + x;
+        if (snapped[i] < 128) continue;
+        rl += grey[i]; rc += chrOf(i); rn++;
+      }
+      if (!rn) continue;
+      rl /= rn; rc /= rn;
+      for (let y = Math.max(0, yf - band); y <= Math.min(H - 1, yf + 4); y++) {
+        const i = y * W + x;
+        const c = chrOf(i);
+        // Brighter and less coloured, or (near a sunlit corner, where brightness no longer
+        // separates them) far less coloured on its own.
+        if (snapped[i] >= 128 && ((grey[i] > rl * 1.12 && c < rc * 0.75) || (grey[i] > rl * 0.95 && c < rc * 0.5)))
+          snapped[i] = 0;
+      }
+    }
+  }
+
   // Pass 3: drop small regions, final blur.
   const bin = Buffer.alloc(W * H);
   for (let i = 0; i < bin.length; i++) bin[i] = snapped[i] >= 128 ? 1 : 0;
@@ -179,4 +254,11 @@ export async function writeOverlay(src, mask, W, H, path) {
     .composite([{ input: tint, raw: { width: W, height: H, channels: 4 } }])
     .jpeg({ quality: 88 })
     .toFile(path);
+}
+
+/** Union of the given ADE20K labels in an image, as a 1-channel 0..255 buffer at full size. */
+export async function labelMask(segmenter, src, labels) {
+  const meta = await sharp(src).metadata();
+  const segs = await segmenter(src);
+  return unionOf(segs, new Set(labels), meta.width, meta.height);
 }
