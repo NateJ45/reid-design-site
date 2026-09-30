@@ -1,24 +1,41 @@
 ---
 // Foundation, edit with care
-// Site header. Two structural rows on desktop, one on mobile:
-//   ┌─────────────────────────────────────── 4px Warm Bronze accent stripe
-//   │ ─────────────────────────────────────── eyebrow strip (desktop-only)
-//   │   Plainfield Interior Design · ...    staci@…  · IG · FB · theme
-//   ├─────────────────────────────────────── main row
-//   │   [logo]                  [nav]  │  [Book a consultation CTA]
-//   └───────────────────────────────────────
-// On mobile the eyebrow strip is hidden (its info lives in the redesigned
-// MobileNav drawer) and the main row centers the logo with the hamburger
-// pinned absolute to the right.
+// Site header: the "swatch book" chrome (rebuilt 2026-09-30 from the approved
+// prototype docs/design/prototypes/chrome-a-swatch-book.html; DESIGN.md
+// "Chrome").
+//
+//   At rest    no bar at all. Staci's logo hangs from the top edge on a paper
+//              plate, large (128px on desktop), overlapping below the header
+//              line like a hanging sign. Nav on the right: hover, keyboard
+//              focus or the current page raise a paint chip behind the label
+//              (tones from the ramp, chips 1 to 3, ink text on every one).
+//              Then the ink price tag: "Book a consult | $225".
+//   Scrolled   the same row condenses into a floating paper strip with a
+//              shadow; the plate and logo shrink to 76px and still hang off
+//              it. BaseLayout's scroll listener sets data-scrolled.
+//   Phone      logo left (88px, same plate), the ink "Menu" price tag right,
+//              which opens MobileNav's full-screen fan deck.
+//
+// The availability pill and the search icon that used to sit here were
+// removed with this rebuild (search is linked from the footer; the /search
+// page is unchanged).
+//
+// SERVER-RENDERED on purpose (CLAUDE.md rule 4): real <a> tags and native
+// <details> groups in the static HTML, crawlable, keyboard-usable, no CLS.
+// The small script at the bottom only adds hover-open and outside-click /
+// Escape close to the groups.
+//
+// The header's in-flow height never changes. The strip condenses INSIDE a
+// fixed-height sticky box, so scrolling never reflows the page (no CLS).
 //
 // siteSettings is optional. Defaults render cleanly so the header works
 // even before Sanity content is wired up.
 
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
-import { Search } from 'lucide-react';
 import MobileNav from './MobileNav';
 import SanityImage from './SanityImage.astro';
+import RatingTag from '@/components/reviews/RatingTag.astro';
 import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
@@ -30,31 +47,26 @@ import {
   type RawNavItem,
 } from '@/lib/siteSettings';
 import type { RawNavLink } from '@/lib/nav-href';
+import { getChromeFacts } from '@/lib/queries';
+import { resolveChromeFacts } from '@/lib/chrome-facts';
 
-// Pre-render every logo variant we'll need via Astro's image pipeline so we
-// have the hashed WebP URLs available at build time. The header displays at
-// h-[6.25rem] (≈95×100 px) with w-auto, so a 100w/200w pair covers 1×/2×
-// retina. The mobile drawer displays at h-16 (≈61×64 px), so 128w is plenty.
-// Pre-computing all four URLs means we can render ONE <img> with no src in
-// the HTML and let an inline script pick the right variant based on the
-// current theme — that's the only way to keep Lighthouse from flagging the
-// inactive logo as "image larger than displayed" (because Lighthouse
-// analyses the DOM, not the network log).
-const logoLight1x = await getImage({ src: logoLightAsset, format: 'webp', width: 100 });
-const logoLight2x = await getImage({ src: logoLightAsset, format: 'webp', width: 200 });
-const logoDark1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 100 });
-const logoDark2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 200 });
-const logoLightSrcset = `${logoLight1x.src} 1x, ${logoLight2x.src} 2x`;
-const logoDarkSrcset = `${logoDark1x.src} 1x, ${logoDark2x.src} 2x`;
-
-// Mobile drawer logos — separate getImage() calls at the smaller size the
-// drawer displays at. Their URLs are passed into MobileNav as plain
-// strings (the React island can't import assets directly).
-const logoLightWebpMobile = await getImage({ src: logoLightAsset, format: 'webp', width: 128 });
-const logoDarkWebpMobile = await getImage({ src: logoDarkAsset, format: 'webp', width: 128 });
+// Logo renditions. The source is 378x400. The header shows it 128px tall at
+// rest (about 121px wide), so 122w/244w cover 1x/2x; the scrolled strip and
+// the phone header draw the same files smaller. The phone menu shows the
+// cream logo 108px tall on ink (102w/204w).
+const logo1x = await getImage({ src: logoLightAsset, format: 'webp', width: 122 });
+const logo2x = await getImage({ src: logoLightAsset, format: 'webp', width: 244 });
+const logoSrcset = `${logo1x.src} 1x, ${logo2x.src} 2x`;
+const menuLogo1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 102 });
+const menuLogo2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 204 });
 
 interface Props {
   siteSettings?: {
+    /** Google rating summary (Site settings > Reviews), for the header RatingTag. */
+    googleRating?: number | null;
+    googleReviewCount?: number | null;
+    googleBusinessUrl?: string | null;
+    googleWriteReviewUrl?: string | null;
     siteName?: string;
     title?: string;
     tagline?: string;
@@ -65,7 +77,7 @@ interface Props {
     socialInstagram?: string;
     socialFacebook?: string;
     availabilityStatus?: string;
-    /** Editor-supplied logo. When set it replaces the built-in theme-aware pair. */
+    /** Editor-supplied logo. When set it replaces the built-in logo. */
     logo?: { asset?: { _ref?: string; _id?: string }; alt?: string } | null;
     /** Chrome options (see src/lib/siteSettings.ts). All optional; empty keeps the built-ins. */
     navItems?: RawNavItem[] | null;
@@ -78,15 +90,7 @@ interface Props {
     showSocials?: boolean | null;
     sectionVisibility?: {
       showPortfolio?: boolean | null;
-      showJournal?: boolean | null;
-      showShop?: boolean | null;
       showEDesign?: boolean | null;
-      showGiftCertificates?: boolean | null;
-      showPress?: boolean | null;
-      showResources?: boolean | null;
-      showGuides?: boolean | null;
-      showStyleQuiz?: boolean | null;
-      showBudgetCalculator?: boolean | null;
     } | null;
   } | null;
   navPages?: NavPage[];
@@ -106,223 +110,195 @@ const { siteSettings, navPages } = Astro.props as Props;
 // Normalize section visibility from siteSettings. Unset => visible.
 const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
 const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
-const availability = siteSettings?.availabilityStatus ?? '';
 
 // Editor-managed chrome: the top menu, the header button, and the show/hide
-// switches for the contact details. Every one of them is opt-in — an untouched
+// switches for the contact details. Every one of them is opt-in: an untouched
 // Site settings document resolves to exactly the built-ins below.
 const chrome = resolveChrome(siteSettings);
-const ctaLabel = chrome.headerCta.label;
+
+// The consultation price for the price tag, read from the Services content
+// (src/lib/chrome-facts.ts, the same rule the Contact page uses). Failure
+// handling as in Footer.astro: a failed read fails a static build, and only a
+// live /preview request degrades to "no price".
+const facts = resolveChromeFacts(
+  await getChromeFacts().catch((err: unknown) => {
+    if (Astro.isPrerendered) throw err;
+    return null;
+  }),
+);
+// The price only rides on the tag while the button books the consultation
+// (it points at Contact). If Staci sends the button somewhere else, it is
+// just her label.
+const ctaPrice = chrome.headerCta.href === DEFAULT_CTA_HREF ? facts.consultPrice : null;
+// With a price on the tag the built-in wording shortens to fit beside it;
+// a label Staci typed herself is always used as written.
+const ctaLabel =
+  ctaPrice && chrome.headerCta.label === DEFAULT_CTA_LABEL
+    ? 'Book a consult'
+    : chrome.headerCta.label;
 const ctaHref = chrome.headerCta.href;
 
-// An editor-supplied logo replaces the built-in theme-aware pair.
+// An editor-supplied logo replaces the built-in one.
 const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
 
-// Subset of siteSettings the mobile menu needs. Pass as a plain object so the
-// React island doesn't try to serialize the whole Sanity document graph.
+// Subset of siteSettings the phone menu needs. A plain object so the island
+// doesn't serialize the whole Sanity document graph into its props.
 const mobileNavSettings = siteSettings
   ? {
-      tagline: siteSettings.tagline,
       email: siteSettings.email,
       phone: siteSettings.phone,
-      socialInstagram: siteSettings.socialInstagram,
-      socialFacebook: siteSettings.socialFacebook,
       primaryCtaLabel: siteSettings.primaryCtaLabel,
     }
   : null;
 
-// The switches above decide whether the eyebrow strip and the phone menu carry
-// these at all. Unset means yes, so an untouched site is unchanged.
-const showEmail = chrome.showEmail;
-const showSocials = chrome.showSocials;
-
-// MobileNav is a hydrated island (client:idle since 2026-09-29, PORTS.md card
-// 52), so every prop it receives is SERIALIZED INTO THE HTML, in the island's
-// `props` attribute, exactly as it was under client:only. Pass it only what actually DIFFERS from the defaults it
-// already applies on its own, so a Site settings document nobody has touched
-// renders a byte-identical page — the same opt-in promise the rest of these
-// fields make, held to at the level of the island's props attribute.
+// MobileNav is a hydrated island (client:idle), so every prop it receives is
+// serialized into the HTML. Pass only what differs from its own defaults.
 const mobileCtaIsDefault =
   chrome.headerCta.show &&
   chrome.headerCta.href === DEFAULT_CTA_HREF &&
   chrome.headerCta.label === (siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL);
 const mobileChrome = {
   ...(mobileCtaIsDefault ? {} : { cta: chrome.headerCta }),
-  ...(showEmail ? {} : { showEmail: false }),
-  ...(showSocials ? {} : { showSocials: false }),
+  ...(chrome.showEmail ? {} : { showEmail: false }),
+  ...(ctaPrice ? { price: ctaPrice } : {}),
 };
 
-// Grouped nav structure. Flat items render as plain anchor links; dropdown
-// items render as native <details>/<summary> disclosure groups on desktop
-// (server-rendered, see the nav markup below) and as indented expandable
-// groups in MobileNav.
+// ---- The menu ---------------------------------------------------------------
+// Flat items render as plain links; dropdown items as native <details> groups
+// (desktop) and as chips in the phone menu's deck.
 //
-// Why <details> and not a React island: the desktop nav must exist in the
-// server-rendered HTML so search-engine crawlers see every internal link and
-// so there is no flash-of-missing-nav (or CLS) before hydration. A native
-// <details> disclosure is crawlable, keyboard-accessible, and works with zero
-// JS. A tiny progressive-enhancement script (further down) adds the niceties
-// browsers don't give us for free: open-on-hover, close-on-outside-click,
-// close-on-Escape, and close-on-navigation. The links work without it.
+// Built-in menu (2026-09-30, the swatch book): the logo is home, so there is
+// no "Home" item, and the core pages are flat, in the prototype's order:
+// Portfolio (when switched on), Services, Process, E-Design (when switched
+// on), Staci's own top-level pages, About, then FAQ (or a Resources group).
+// "Contact" is the price-tag button, not a menu item.
 //
-// "Contact" is intentionally NOT in the primary nav — the "Book a consultation"
-// CTA at the right of the nav row does that job, and the MobileNav drawer also
-// surfaces the CTA at the top.
-// Build Services dropdown children. Services and Process are always shown;
-// E-Design and Gift Certificates are gated by visibility.
-// Custom pages flagged for the menu, split by where Staci placed each one.
+// Custom pages Staci placed "Under Services" turn Services back into a
+// dropdown (Services, Process, E-Design and hers) so they have a home.
 const customNav = (navPages ?? []).filter((p) => p.addToMainNav && p.slug);
 const toNavItem = (p: NavPage) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}` });
 const customTopItems = customNav.filter((p) => (p.navGroup ?? 'top') === 'top').map(toNavItem);
 const customServicesItems = customNav.filter((p) => p.navGroup === 'services').map(toNavItem);
 const customResourcesItems = customNav.filter((p) => p.navGroup === 'resources').map(toNavItem);
 
-const servicesDropdownItems = [
+const coreServiceItems = [
   { label: 'Services', href: '/services' },
-  ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design' }] : []),
   { label: 'Process', href: '/process' },
-  ...(visible.giftCertificates ? [{ label: 'Gift Certificates', href: '/gift-certificates' }] : []),
-  ...customServicesItems,
+  ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design' }] : []),
 ];
+const servicesNavItems =
+  customServicesItems.length > 0
+    ? [
+        {
+          kind: 'dropdown' as const,
+          label: 'Services',
+          items: [...coreServiceItems, ...customServicesItems],
+        },
+      ]
+    : coreServiceItems.map((it) => ({ kind: 'flat' as const, ...it }));
 
-// Build Resources dropdown children. FAQ is always shown; the rest are gated.
+// Resources: FAQ, Before & After (follows the portfolio switch), and custom
+// pages placed "Under Resources". A one-link group is a plain FAQ link.
 const resourcesDropdownItems = [
-  ...(visible.styleQuiz ? [{ label: 'Style Quiz', href: '/quiz' }] : []),
-  ...(visible.budgetCalculator ? [{ label: 'Cost Calculator', href: '/calculator' }] : []),
-  ...(visible.guides ? [{ label: 'Guides', href: '/guides' }] : []),
   { label: 'FAQ', href: '/faq' },
-  ...(visible.journal ? [{ label: 'Journal', href: '/journal' }] : []),
   ...(visible.portfolio ? [{ label: 'Before & After', href: '/portfolio/before-after' }] : []),
   ...customResourcesItems,
 ];
-
-// Assemble the full nav. Flat items Portfolio and Shop are gated by visibility.
-// Dropdown groups are omitted entirely when their children list ends up empty.
-const BUILT_IN_NAV_ITEMS = [
-  { kind: 'flat' as const, label: 'Home', href: '/' },
-  ...(visible.portfolio ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio' }] : []),
-  // Services dropdown — always present (Services + Process are core).
-  {
-    kind: 'dropdown' as const,
-    label: 'Services',
-    items: servicesDropdownItems,
-  },
-  ...(visible.shop ? [{ kind: 'flat' as const, label: 'Shop', href: '/shop' }] : []),
-  // Resources dropdown — only show when at least one child is visible (FAQ always is).
-  ...(resourcesDropdownItems.length > 0
+const resourcesNavItems =
+  resourcesDropdownItems.length > 1
     ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]
-    : []),
-  // Custom pages Staci set to their own top-level menu item.
+    : resourcesDropdownItems.map((it) => ({ kind: 'flat' as const, ...it }));
+
+const BUILT_IN_NAV_ITEMS = [
+  ...(visible.portfolio ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio' }] : []),
+  ...servicesNavItems,
   ...customTopItems.map((it) => ({ kind: 'flat' as const, label: it.label, href: it.href })),
   { kind: 'flat' as const, label: 'About', href: '/about' },
+  ...resourcesNavItems,
 ];
 
 // Site settings -> Top menu links, when Staci has filled it in, replaces the
 // whole computed menu above. Empty (the default) keeps the built-in one.
 const NAV_ITEMS = chrome.navItems ?? BUILT_IN_NAV_ITEMS;
 
-// Flatten NAV_ITEMS into the shape MobileNav expects (a list of NavLink[]
-// with optional sub-items for the groups). MobileNav already handles both
-// shapes via its updated interface.
-const NAV_LINKS = NAV_ITEMS;
+// Chip tone per item, alternating Oat and Sandbar (chips 2 and 3). Linen
+// (chip 1) is too close to the linen page to read as a raised chip at rest,
+// so it is kept for the dropdown's hover. Ink text passes AA on both (10.9 / 8.1).
+const TONES = [2, 3];
+const toneOf = (i: number) => `var(--color-chip-${TONES[i % TONES.length]})`;
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {
   if (href === '/') return pathname === '/';
-  return pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(href.endsWith('/') ? href : `${href}/`);
 }
-// A dropdown group is "active" (its trigger underline locks wide + aria-current
-// is set) when the current route matches any of its child links.
 function isGroupActive(items: { href: string }[]) {
   return items.some((item) => isActive(item.href));
 }
 ---
 
 <header class="site-header hdr">
-  {
-    /* Rebuilt 2026-09-29 (art-direction rebuild). One row: logo, the
-      server-rendered nav (flat links + native <details> dropdowns, unchanged
-      behaviour), the availability pill, search, and the ink "book" pill. The
-      old eyebrow strip (tagline, email, phone, socials, theme toggle) is gone:
-      contact details live in the footer and the phone menu, and the site is
-      light only. Phone: logo left; availability, search, hamburger right. */
-  }
-  <div class="hdr__row r-wrap">
+  <div class="hdr__bar">
     <a href="/" class="hdr__logo" aria-label={`${brandName} home`}>
       {
         customLogo ? (
-          /* Editor-supplied logo (Site settings -> Logo). One file for both
-           themes, so it skips the light/dark swap machinery entirely. */
+          /* Editor-supplied logo (Site settings -> Logo). */
           <SanityImage
             source={customLogo}
-            width={160}
+            width={244}
             alt={customLogo.alt || brandName}
             loading="eager"
             class="hdr__logo-img"
           />
         ) : (
-          /* Single theme-aware logo: the img ships with NO src so nothing is
-           fetched until the inline script below picks the variant (light
-           only since the rebuild, but the machinery stays so dark mode can
-           return). 100x106 matches the source 378:400, so no CLS. */
+          /* 122x129 matches the source's 378:400, so the box is reserved
+             before the file arrives (no CLS). Light only since 2026-09-29. */
           <img
+            src={logo1x.src}
+            srcset={logoSrcset}
             alt={brandName}
-            width={100}
-            height={106}
+            width={122}
+            height={129}
             class="hdr__logo-img"
             loading="eager"
             decoding="async"
-            data-theme-logo
-            data-logo-light-src={logoLight1x.src}
-            data-logo-light-srcset={logoLightSrcset}
-            data-logo-dark-src={logoDark1x.src}
-            data-logo-dark-srcset={logoDarkSrcset}
           />
         )
       }
     </a>
-    <script is:inline>
-      (function () {
-        const img = document.querySelector('header img[data-theme-logo]');
-        if (!img) return;
-        const dark = document.documentElement.classList.contains('dark');
-        img.src = dark ? img.dataset.logoDarkSrc : img.dataset.logoLightSrc;
-        img.srcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
-      })();
-    </script>
 
-    {
-      /* Desktop nav (lg+). Real <a> tags + native <details> groups, in the
-        HTML at build time: crawlable, keyboard-usable, no CLS. The script at
-        the bottom adds hover-open and outside-click / Escape close. */
-    }
     <nav class="site-nav hdr__nav" aria-label="Primary">
       {
-        NAV_ITEMS.map((item) =>
+        NAV_ITEMS.map((item, i) =>
           item.kind === 'flat' ? (
             <a
               href={item.href}
               class="hdr__link"
+              style={`--tone:${toneOf(i)}`}
               aria-current={isActive(item.href) ? 'page' : undefined}
             >
-              {item.label}
+              <span class="hdr__label">{item.label}</span>
             </a>
           ) : (
-            <details class="site-nav__group hdr__group">
+            <details class="site-nav__group hdr__group" style={`--tone:${toneOf(i)}`}>
               <summary
                 class="hdr__link hdr__summary"
                 aria-current={isGroupActive(item.items) ? 'page' : undefined}
               >
-                {item.label}
-                <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+                <span class="hdr__label">
+                  {item.label}
+                  <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+                </span>
               </summary>
               <div class="site-nav__menu hdr__menu">
-                {item.items.map((sub) => (
+                {item.items.map((sub, j) => (
                   <a
                     href={sub.href}
                     class="hdr__menu-link"
+                    style={`--tone:${toneOf(i + j + 1)}`}
                     aria-current={isActive(sub.href) ? 'page' : undefined}
                   >
+                    <span class="hdr__sw" aria-hidden="true" />
                     {sub.label}
                   </a>
                 ))}
@@ -333,119 +309,161 @@ function isGroupActive(items: { href: string }[]) {
       }
     </nav>
 
-    <div class="hdr__tools">
-      {
-        availability && (
-          <a href="/contact" class="hdr__status" aria-label={`${availability}. Get in touch.`}>
-            <span class="hdr__dot" aria-hidden="true" />
-            <span class="hdr__status-long" aria-hidden="true">
-              {availability}
-            </span>
-            <span class="hdr__status-short" aria-hidden="true">
-              Open
-            </span>
-          </a>
-        )
-      }
-      <a href="/search" aria-label="Search the site" class="hdr__icon">
-        <Search size={19} aria-hidden="true" />
-      </a>
-      {
-        chrome.headerCta.show && (
-          <a href={ctaHref} class="r-btn r-btn--ink hdr__cta">
-            {ctaLabel}
-          </a>
-        )
-      }
-      {
-        /* client:idle, not client:only (2026-09-29, PORTS.md card 52): the
-           closed Sheet server-renders its trigger, so the hamburger is in the
-           HTML before React loads. See the header of MobileNav.tsx. */
-      }
-      <div class="hdr__burger">
-        <MobileNav
-          client:idle
-          links={NAV_LINKS}
-          siteSettings={mobileNavSettings}
-          {...mobileChrome}
-          logoLightUrl={logoLightWebpMobile.src}
-          logoDarkUrl={logoDarkWebpMobile.src}
-        />
-      </div>
+    {
+      /* Google rating beside the price tag (2026-09-30). RatingTag renders
+         nothing until Staci has entered BOTH the rating and the count in
+         Site settings > Reviews, so the header is unchanged before then.
+         Shown from 1200px up only: narrower, the nav would crowd it, and the
+         phone menu and the pages carry the rating instead. */
+    }
+    <RatingTag variant="compact" settings={siteSettings} class="hdr__rating" />
+
+    {
+      chrome.headerCta.show && (
+        <a href={ctaHref} class="r-pricetag hdr__cta">
+          <span>{ctaLabel}</span>
+          {ctaPrice && <span class="r-pricetag__price">{ctaPrice}</span>}
+        </a>
+      )
+    }
+
+    {
+      /* client:idle: the closed dialog server-renders its trigger, so the
+         "Menu" tag is in the HTML before React loads. See MobileNav.tsx. */
+    }
+    <div class="hdr__burger">
+      <MobileNav
+        client:idle
+        links={NAV_ITEMS}
+        siteSettings={mobileNavSettings}
+        {...mobileChrome}
+        logoUrl={menuLogo1x.src}
+        logoSrcset={`${menuLogo1x.src} 1x, ${menuLogo2x.src} 2x`}
+        currentPath={pathname}
+      />
     </div>
   </div>
 </header>
 
 <style>
+  /* The sticky box. Its height is FIXED in both states, so the strip can
+     condense inside it without moving the page. It paints nothing and lets
+     clicks through; only the strip's own pieces take the pointer. */
   .hdr {
-    background: color-mix(in oklab, var(--color-bg) 92%, transparent);
-    backdrop-filter: saturate(1.1) blur(10px);
-    -webkit-backdrop-filter: saturate(1.1) blur(10px);
-    border-bottom: 1px solid var(--color-rule);
+    --hdr-h: 6.25rem;
+    --logo-h: 8rem;
+    --logo-h-scrolled: 4.75rem;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    height: var(--hdr-h);
+    pointer-events: none;
   }
-  .hdr__row {
+  .hdr__bar {
     position: relative;
     display: flex;
     align-items: center;
     gap: 2rem;
-    height: 5.5rem;
+    width: 100%;
+    max-width: 85rem;
+    height: 100%;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3.5rem);
+    border-radius: 4px;
+    transition:
+      max-width 600ms var(--ease),
+      height 600ms var(--ease),
+      margin 600ms var(--ease),
+      padding 600ms var(--ease),
+      background-color 400ms,
+      box-shadow 600ms var(--ease);
   }
+  .hdr__bar > * {
+    pointer-events: auto;
+  }
+
+  /* ---- The logo: a hanging sign. It hangs from the top edge on a paper
+     plate and overlaps the page below the header line, so it reads on any
+     ground (the Walnut home hero included). ---- */
   .hdr__logo {
-    display: inline-flex;
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    display: block;
     flex: none;
-    transition: opacity 300ms;
-  }
-  .hdr__logo:hover {
-    opacity: 0.8;
+    padding: 0.7rem 0.75rem 0.45rem;
+    background: var(--color-paper);
+    border-radius: 0 0 3px 3px;
+    box-shadow:
+      0 1px 0 var(--color-rule),
+      0 22px 34px -22px rgb(35 30 27 / 0.5);
+    transition:
+      padding 600ms var(--ease),
+      transform 600ms var(--ease);
   }
   .hdr__logo :global(.hdr__logo-img),
   .hdr__logo-img {
-    height: 4.25rem;
+    display: block;
+    height: var(--logo-h);
     width: auto;
+    transition: height 600ms var(--ease);
+  }
+  .hdr__logo:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hdr__logo:hover {
+      transform: rotate(-1.5deg);
+    }
   }
 
+  /* ---- Nav: a paint chip rises behind the label ---- */
   .hdr__nav {
     display: none;
-    align-items: center;
-    gap: 2rem;
+    align-items: stretch;
+    gap: 0.3rem;
     margin-left: auto;
+    height: 3.5rem;
   }
   .hdr__link {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    padding-block: 0.5rem;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    padding: 0 0.95rem 0.75rem;
     font: 500 0.95rem/1 var(--font-body);
     color: var(--color-ink);
     text-decoration: none;
     cursor: pointer;
   }
-  /* Underline draws in from the left; locked on for the current page. */
-  .hdr__link::after {
+  .hdr__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+  .hdr__link::before {
     content: '';
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.1rem;
-    height: 1.5px;
-    background: var(--color-chip-5);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+    inset: auto 0.1rem 0 0.1rem;
+    z-index: -1;
+    height: 0;
+    background: var(--tone, var(--color-chip-1));
+    border-radius: 2px 2px 0 0;
+    transition: height 500ms var(--ease);
   }
-  .hdr__link:hover::after,
-  .hdr__link:focus-visible::after,
-  .hdr__link[aria-current='page']::after {
-    transform: scaleX(1);
+  .hdr__link:hover::before,
+  .hdr__link:focus-visible::before,
+  .hdr__link[aria-current='page']::before,
+  .hdr__group[open] > .hdr__link::before {
+    height: 100%;
   }
   .hdr__link:focus-visible {
     outline: 2px solid var(--color-ink);
-    outline-offset: 4px;
-    border-radius: 2px;
+    outline-offset: -2px;
   }
   .hdr__group {
     position: relative;
+    height: 100%;
   }
   .hdr__summary {
     list-style: none;
@@ -455,22 +473,23 @@ function isGroupActive(items: { href: string }[]) {
     display: none;
     content: '';
   }
-  .hdr__group[open] :global(.site-nav__chevron) {
-    transform: rotate(180deg);
-  }
   .hdr :global(.site-nav__chevron) {
     transition: transform 200ms;
   }
+  .hdr__group[open] :global(.site-nav__chevron) {
+    transform: rotate(180deg);
+  }
+  /* The open group: a paper card of swatch-led links under its chip. */
   .hdr__menu {
     display: none;
     position: absolute;
-    top: calc(100% + 0.6rem);
-    left: -1rem;
+    top: 100%;
+    left: 0.1rem;
     z-index: 50;
     min-width: 13rem;
-    padding: 0.5rem;
+    padding: 0.45rem;
     background: var(--color-paper);
-    border-radius: 0.75rem;
+    border-radius: 0 3px 3px 3px;
     box-shadow:
       0 0 0 1px var(--color-rule),
       0 24px 40px -24px rgb(35 30 27 / 0.45);
@@ -479,90 +498,72 @@ function isGroupActive(items: { href: string }[]) {
     display: block;
   }
   .hdr__menu-link {
-    display: block;
-    padding: 0.6rem 0.75rem;
-    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 2px;
     font: 500 0.95rem/1.2 var(--font-body);
     color: var(--color-ink);
     text-decoration: none;
     transition: background-color 200ms;
   }
-  .hdr__menu-link:hover,
-  .hdr__menu-link:focus-visible {
-    background: var(--color-chip-1);
-    outline: none;
+  .hdr__sw {
+    flex: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 2px;
+    background: var(--tone);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.15);
   }
+  .hdr__menu-link:hover,
+  .hdr__menu-link:focus-visible,
   .hdr__menu-link[aria-current='page'] {
-    color: var(--color-chip-7);
+    background: var(--color-chip-1);
+  }
+  .hdr__menu-link:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
   }
 
-  .hdr__tools {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-left: auto;
-  }
-  .hdr__status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 2.25rem;
-    padding: 0 0.85rem 0 0.7rem;
-    border-radius: 999px;
-    background: var(--color-chip-1);
-    font: 500 0.82rem/1 var(--font-body);
-    color: var(--color-ink);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .hdr__status:hover {
-    background: var(--color-chip-2);
-  }
-  .hdr__dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: #6f8a5f;
-    box-shadow: 0 0 0 3px rgb(111 138 95 / 0.2);
-  }
-  .hdr__status-long {
-    display: none;
-  }
-  .hdr__icon {
-    display: inline-grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    color: var(--color-ink);
-    transition: background-color 200ms;
-  }
-  .hdr__icon:hover {
-    background: var(--color-chip-1);
-  }
-  .hdr__icon:focus-visible {
-    outline: 2px solid var(--color-ink);
-    outline-offset: 2px;
-  }
   .hdr__cta {
     display: none;
-    min-height: 2.75rem;
-    padding: 0.8em 1.3em;
-    font-size: 0.9rem;
+    flex: none;
   }
-  /* MobileNav positions its own trigger; give it a normal flow slot here. */
   .hdr__burger {
-    position: relative;
-    width: 2.75rem;
-    height: 2.75rem;
+    margin-left: auto;
+  }
+
+  /* ---- Scrolled: a floating paper strip ---- */
+  .hdr[data-scrolled] .hdr__bar {
+    max-width: min(78rem, calc(100% - 2 * clamp(1rem, 4vw, 3.5rem)));
+    height: 3.9rem;
+    margin-top: 0.6rem;
+    padding-inline: 1.25rem 0.5rem;
+    background: var(--color-paper);
+    box-shadow:
+      0 1px 0 var(--color-rule),
+      0 22px 40px -28px rgb(35 30 27 / 0.55);
+  }
+  .hdr[data-scrolled] .hdr__logo {
+    padding: 0.45rem 0.5rem 0.4rem;
+    box-shadow: 0 16px 26px -18px rgb(35 30 27 / 0.5);
+  }
+  .hdr[data-scrolled] .hdr__logo :global(.hdr__logo-img),
+  .hdr[data-scrolled] .hdr__logo-img {
+    height: var(--logo-h-scrolled);
+  }
+  /* In the strip the chips run its full height, like tabs cut into it. */
+  .hdr[data-scrolled] .hdr__nav {
+    height: 3.9rem;
+  }
+  .hdr[data-scrolled] .hdr__link {
+    padding-bottom: 1.45rem;
   }
 
   @media (min-width: 1024px) {
     .hdr__nav {
       display: flex;
-    }
-    .hdr__tools {
-      margin-left: 0.5rem;
     }
     .hdr__cta {
       display: inline-flex;
@@ -571,24 +572,50 @@ function isGroupActive(items: { href: string }[]) {
       display: none;
     }
   }
-  @media (min-width: 1280px) {
-    .hdr__status-long {
-      display: inline;
+  /* A narrow laptop: tighten the nav so the tag keeps its room. */
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    .hdr__bar {
+      gap: 1.25rem;
     }
-    .hdr__status-short {
-      display: none;
+    .hdr__link {
+      padding-inline: 0.7rem;
     }
   }
   @media (max-width: 1023px) {
-    .hdr__row {
-      height: 4.75rem;
+    .hdr {
+      --hdr-h: 4.5rem;
+      --logo-h: 5.5rem;
+      --logo-h-scrolled: 3.6rem;
     }
+    .hdr__logo {
+      padding: 0.6rem 0.55rem 0.5rem;
+    }
+    .hdr[data-scrolled] .hdr__bar {
+      height: 3.4rem;
+      margin-top: 0.5rem;
+      max-width: calc(100% - 1rem);
+      padding-inline: 0.75rem 0.4rem;
+    }
+    .hdr[data-scrolled] .hdr__logo {
+      padding: 0.35rem 0.4rem 0.3rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hdr__bar,
+    .hdr__logo,
+    .hdr__logo-img,
     .hdr__logo :global(.hdr__logo-img),
-    .hdr__logo-img {
-      height: 3.5rem;
+    .hdr__link::before {
+      transition: none;
     }
-    .hdr__tools {
-      gap: 0.25rem;
+  }
+  /* Google rating in the header: wide screens only (see the slot comment). */
+  .hdr :global(.hdr__rating) {
+    display: none;
+  }
+  @media (min-width: 1200px) {
+    .hdr :global(.hdr__rating) {
+      display: inline-flex;
     }
   }
 </style>

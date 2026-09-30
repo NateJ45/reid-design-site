@@ -43,7 +43,6 @@ const MAIN_PAGES: { type: string; label: string }[] = [
   { type: 'aboutPage', label: 'About' },
   { type: 'servicesPage', label: 'Services' },
   { type: 'processPage', label: 'Process' },
-  { type: 'journalPage', label: 'Journal' },
   { type: 'faqPage', label: 'FAQ' },
   { type: 'contactPage', label: 'Contact' },
   { type: 'privacyPage', label: 'Privacy' },
@@ -260,7 +259,7 @@ export function PreviewNavigator() {
   // documents, bespoke pages) and is left exactly as it was.
   //
   // A preview path that matches no row - a bespoke child route such as
-  // /preview/journal/<slug>, or a builder singleton this list does not carry -
+  // /preview/portfolio/<slug>, or a builder singleton this list does not carry -
   // resolves to null and mounts no bridge. That is the correct outcome, not a
   // gap: without the bridge instant text still runs off the optimistic actor,
   // one listen round trip slower, and a bridge mounted for the WRONG document

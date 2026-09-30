@@ -15,7 +15,8 @@
 //   4. Before and after (paper band): the sliders, full width.
 //   5. Gallery (linen): the photos at their true shapes, lightbox on click.
 //   6. Kind words (ink band): the linked testimonial, one big italic quote.
-//   7. Featured in the journal, then previous / next, big and plain.
+//   7. Previous / next, big and plain. (The "Featured in the journal" band
+//      that sat here went with the journal on 2026-09-30.)
 //
 // ONE BODY, TWO CALLERS (2026-09-29). src/pages/portfolio/[slug].astro wraps
 // this in BaseLayout for the live site; src/pages/preview/[...slug].astro
@@ -32,7 +33,6 @@ import ProjectGallery from '@/components/ProjectGallery';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import ProjectMetaBand from '@/components/ProjectMetaBand.astro';
 import StickyCTAChip from '@/components/StickyCTAChip';
-import JournalCard from '@/components/JournalCard.astro';
 import RiseWords from '@/components/RiseWords.astro';
 import { humanizeEnum } from '@/components/portfolio/labels';
 import { parseSanityAssetDimensions } from '@/lib/sanity';
@@ -72,9 +72,6 @@ const gallery = (Array.isArray(project.gallery) ? project.gallery : []).filter(
 );
 const services = Array.isArray(project.servicesUsed)
   ? project.servicesUsed.filter((s: any) => s?.name)
-  : [];
-const journal = Array.isArray(project.relatedJournalEntries)
-  ? project.relatedJournalEntries.slice(0, 3)
   : [];
 const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimonial : null;
 ---
@@ -221,26 +218,6 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
           </blockquote>
           {testimonial.attribution && <figcaption>{testimonial.attribution}</figcaption>}
         </figure>
-      </div>
-    </section>
-  )
-}
-
-{/* 7. Featured in the journal (reverse reference; hides when none). */}
-{
-  journal.length > 0 && (
-    <section class="pd-band" aria-labelledby="project-journal-heading">
-      <div class="r-wrap">
-        <div class="pd-band__head">
-          <h2 id="project-journal-heading" class="pd-h2">
-            Featured in the journal
-          </h2>
-        </div>
-        <div class="pd-journal">
-          {journal.map((post: any) => (
-            <JournalCard entry={post} />
-          ))}
-        </div>
       </div>
     </section>
   )
@@ -525,16 +502,6 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
   .pd-ba :global(figure:last-child) {
     margin-bottom: 0;
   }
-  .pd-journal {
-    display: grid;
-    gap: 2rem;
-  }
-  @media (min-width: 768px) {
-    .pd-journal {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
   /* ---- 6. Kind words, the ink band ---- */
   .pd-words {
     background: var(--color-ink);

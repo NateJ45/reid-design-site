@@ -8,6 +8,7 @@ import { pathForDoc } from './urls';
 import {
   BUILDER_SINGLETON_TYPES,
   DETAIL_BY_SEGMENT,
+  RESERVED_SLUGS,
   SINGLETON_BY_SEGMENT,
   SINGLETON_PREVIEW_PATHS,
   canPreviewPath,
@@ -28,11 +29,7 @@ const slugged = (current: string) => ({ slug: { current } });
 
 describe('the share link is offered exactly where the preview can draw it', () => {
   it('detail documents with a web address: their own detail preview', () => {
-    for (const [type, prefix] of [
-      ['project', '/preview/portfolio'],
-      ['journalEntry', '/preview/journal'],
-      ['leadMagnet', '/preview/guides'],
-    ] as const) {
+    for (const [type, prefix] of [['project', '/preview/portfolio']] as const) {
       const path = previewPathFor(type, slugged('a-real-slug'));
       expect(path).toBe(`${prefix}/a-real-slug`);
       expect(canPreviewPath(path)).toBe(true);
@@ -53,13 +50,56 @@ describe('the share link is offered exactly where the preview can draw it', () =
   });
 
   it('NOT offered where the link would 404', () => {
-    // A live page but no preview: the quiz, the calculator, the guides index.
-    expect(canPreviewPath(previewPathFor('styleQuiz', {}))).toBe(false);
-    expect(canPreviewPath(previewPathFor('budgetCalculator', {}))).toBe(false);
-    expect(canPreviewPath(previewPathFor('leadMagnet', {}))).toBe(false);
     // No page at all.
     expect(canPreviewPath(previewPathFor('siteSettings', {}))).toBe(false);
     expect(canPreviewPath(previewPathFor('page', {}))).toBe(false);
+  });
+});
+
+// The eight sections removed on 2026-09-30. Their documents are still in the
+// dataset (deliberately untouched), but their types left the schema, so they
+// must have no web address, no preview, and no Presentation location.
+const RETIRED_TYPES = [
+  'journalEntry',
+  'journalCategory',
+  'journalPage',
+  'shopItem',
+  'shopCollection',
+  'shopPage',
+  'styleQuiz',
+  'budgetCalculator',
+  'leadMagnet',
+  'pressItem',
+  'pressPage',
+  'giftPage',
+  'resourcesPage',
+];
+const RETIRED_SEGMENTS = [
+  'journal',
+  'shop',
+  'gift-certificates',
+  'quiz',
+  'calculator',
+  'resources',
+  'guides',
+  'press',
+];
+
+describe('the retired sections are gone from every map', () => {
+  it('no retired type has a web address or a preview', () => {
+    for (const type of RETIRED_TYPES) {
+      expect(pathForDoc(type, slugged('a-slug')), type).toBeNull();
+      expect(Object.values(SINGLETON_BY_SEGMENT), type).not.toContain(type);
+      expect(Object.values(DETAIL_BY_SEGMENT), type).not.toContain(type);
+    }
+  });
+
+  it('no retired address previews, and each stays reserved against custom pages', () => {
+    for (const segment of RETIRED_SEGMENTS) {
+      expect(previewTargetFor(segment), segment).toBeNull();
+      expect(previewTargetFor(`${segment}/a-slug`), segment).toBeNull();
+      expect(RESERVED_SLUGS.has(segment), segment).toBe(true);
+    }
   });
 });
 
@@ -77,9 +117,7 @@ describe('previewTargetFor', () => {
 
   it('refuses what the route cannot draw', () => {
     expect(previewTargetFor('portfolio/before-after')).toBeNull(); // a static page, not a project
-    expect(previewTargetFor('journal/rss.xml')).toBeNull();
-    expect(previewTargetFor('quiz')).toBeNull();
-    expect(previewTargetFor('guides')).toBeNull();
+    expect(previewTargetFor('search')).toBeNull(); // a real page with no document
     expect(previewTargetFor('studio')).toBeNull();
     expect(previewTargetFor('about/team')).toBeNull();
     expect(previewTargetFor('portfolio/a/b')).toBeNull();
@@ -87,8 +125,11 @@ describe('previewTargetFor', () => {
 
   it('maps live links for the click interceptor', () => {
     expect(previewPathForLivePath('/')).toBe('/preview');
-    expect(previewPathForLivePath('/journal/some-post/')).toBe('/preview/journal/some-post');
-    expect(previewPathForLivePath('/quiz')).toBeNull();
+    expect(previewPathForLivePath('/portfolio/some-project/')).toBe(
+      '/preview/portfolio/some-project',
+    );
+    expect(previewPathForLivePath('/search')).toBeNull();
+    expect(previewPathForLivePath('/journal/some-post/')).toBeNull(); // retired 2026-09-30
   });
 
   it('derives the singleton preview paths', () => {

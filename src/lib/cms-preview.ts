@@ -121,6 +121,9 @@ const NON_STEGA_FIELDS = new Set([
   'size',
   'source',
   'sourceType',
+  // testimonial.rating (2026-09-30) is a NUMBER radio, and stega only encodes
+  // strings, so this is belt and braces: the reviews band compares it.
+  'rating',
   'style',
   'tone',
   'type',

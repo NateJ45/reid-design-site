@@ -1,7 +1,7 @@
 name: Link health
 
 # Weekly check of the links this site sends visitors to on OTHER people's sites:
-# the /shop affiliate links, the social profiles, the header and footer menus,
+# the social profiles, the header and footer menus,
 # buttons, vendor lists, and every other outbound address in any published
 # document. They are read out of the DATASET, not the source, so a link an editor
 # changes in the Studio is the link that gets checked.

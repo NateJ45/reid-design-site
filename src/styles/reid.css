@@ -174,6 +174,74 @@
     font: 400 1.05rem/1.2 var(--font-display);
   }
 
+  /* ---- The price tag (2026-09-30, the swatch book chrome): the header's
+     "Book a consult | $225", the phone menu's trigger, close and booking
+     buttons. A notched left edge with a REAL punched hole (a mask, so the
+     ground shows through whatever it sits on).
+
+     The tag shape is drawn on ::before, not on the element, on purpose:
+     clip-path on the element itself would clip its focus outline away. The
+     element stays a plain rectangle, so :focus-visible draws a full outline.
+
+     Ink (default) on linen or paper; --cream on the ink phone menu. ---- */
+  .r-pricetag {
+    --tag-bg: var(--color-ink);
+    --tag-bg-hover: var(--color-chip-7);
+    --tag-fg: var(--color-cream);
+    --tag-ring: var(--color-ink);
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.875rem;
+    padding: 0 1.25rem 0 2.15rem;
+    border: 0;
+    background: none;
+    color: var(--tag-fg);
+    font: 500 0.92rem/1 var(--font-body);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .r-pricetag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--tag-bg);
+    clip-path: polygon(1rem 0, 100% 0, 100% 100%, 1rem 100%, 0 50%);
+    -webkit-mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
+    mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
+    transition: background-color 400ms;
+  }
+  .r-pricetag:hover::before {
+    background: var(--tag-bg-hover);
+  }
+  .r-pricetag:focus-visible {
+    outline: 2px solid var(--tag-ring);
+    outline-offset: 3px;
+  }
+  /* The price, after a hairline: Zodiak, a touch larger than the label. */
+  .r-pricetag__price {
+    padding-left: 0.75rem;
+    border-left: 1px solid color-mix(in oklab, currentColor 30%, transparent);
+    font: 300 1.15rem/1 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  .r-pricetag--cream {
+    --tag-bg: var(--color-cream);
+    --tag-bg-hover: var(--color-paper);
+    --tag-fg: var(--color-ink);
+    --tag-ring: var(--color-cream);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .r-pricetag:hover {
+      transform: rotate(-2deg);
+    }
+  }
+
   /* ---- Word rise (RiseWords.astro). Each word is clipped by its own box and
      rises into it. No fade: the words are real text from the first frame for
      crawlers and screen readers, and an LCP headline never sits at opacity 0

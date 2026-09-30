@@ -2,6 +2,37 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — release: hidden sections removed, swatch-book chrome, Google reviews
+
+Branch `claude/release-chrome-reviews`, one release as Nathan asked. Three
+parallel Opus agents, reviewed and merged by the main session:
+
+- **Removed** journal, shop, style quiz, budget calculator, guides, press, gift
+  certificates, resources and the newsletter (site + Studio). Documents stay in
+  the dataset; retired fields on kept types are hidden, never deleted; the home
+  and About `featuredJournal`/`press` markers stay as "(retired, renders
+  nothing)" because Sanity would otherwise block publishing those pages. Old
+  URLs 301 (`retired-redirects.test.ts`).
+- **Chrome** (approved prototype `docs/design/prototypes/chrome-a-swatch-book.html`):
+  Staci's logo large on a hanging paper plate, nav items raise paint chips, a
+  price-tag CTA reading the $225 from the services data, a fan-deck phone menu
+  (focus trap, Escape, scroll lock), and a footer with the pinking edge cut into
+  the paint strip, data-derived facts and her logo large. The availability pill
+  and header search icon are gone (search moved to the footer).
+- **No decorative numbering** anywhere (Nathan's rule, now in DESIGN.md): Process
+  steps are marked by their time instead.
+- **Google reviews:** rating fields on Site settings (Reviews tab), Google fields
+  on testimonials, `RatingTag` in the header (1200px+), home hero, the testimonial
+  band, Contact (plus "Leave a review") and Services. No review schema, by design
+  (docs/agent/seo.md). Real data entered 2026-09-30 from her Business Profile:
+  5.0 from 6 reviews, six `testimonial.google.*` documents.
+- **Design debate** (10-agent workflow) recorded in
+  `docs/design/2026-09-30-design-debate.md`; its next steps are in PENDING.
+
+Gates on the merged branch with current main: astro check 0 errors, vitest
+534/534, Playwright 142/142, typegen stable, axe 0 on /, /services, /contact,
+/about at 1440 and 390.
+
 ## 2026-09-30 — reduced-motion transitions zeroed (starter PORTS.md card 61)
 
 The reduced-motion reset in `globals.css` now sets `transition-duration: 0s`

@@ -49,9 +49,18 @@ utilities (`bg-chip-6`, `text-ink`).
 - The accent colour (`.r-accent`) defaults to Walnut on light grounds. Components on dark grounds set `--accent-color`: Oat on Walnut (3.75, display size only) and Sandbar on ink.
 
 **Light only.** One art-directed theme (the FBCM precedent). The `.dark` tokens
-stay dormant in `globals.css`, and the ink footer applies `.dark` to its own
-subtree on purpose so its utilities invert. `tests/a11y-dark.spec.ts` guards
-that a stored "dark" preference never engages dark mode.
+stay dormant in `globals.css`. The ink footer used to apply `.dark` to its own
+subtree; since the 2026-09-30 chrome it sets every colour explicitly.
+`tests/a11y-dark.spec.ts` guards that a stored "dark" preference never engages
+dark mode.
+
+**No decorative numbering** (Nathan, 2026-09-30). Order is carried by layout
+and real facts (time, price), never by 01/02 labels. No "No. 01" on chips, no
+big step numerals, no counters on headings, no numbered fieldsets. A step's
+marker is its time estimate ("Single visit", "2 to 3 weeks"); a sequence reads
+through its thread, tape or strip order; a group is led by a paint-chip swatch.
+Counts that are facts ("19 answers", "4 steps") are fine, and so are the inch
+figures printed on the tape measure (part of the drawing, aria-hidden).
 
 ## Type
 
@@ -86,8 +95,53 @@ that a stored "dark" preference never engages dark mode.
 - `.r-display`, `.r-h2`, `.r-h3`, `.r-lede`, `.r-accent`, `.r-muted`.
 - `.r-tag`: the sample tag (paper, notched left edge, punched hole). Used for
   captions on photos and Staci's name on her portrait.
+- `.r-pricetag` (+ `--cream`): the price tag, ink by default. Notched left edge
+  with a REAL punched hole (a CSS mask, so any ground shows through), a label,
+  then the price in Zodiak after a hairline (`.r-pricetag__price`). The shape is
+  drawn on `::before` so the focus outline is never clipped. Tilts 2deg on
+  hover (motion allowed). The header CTA, the phone menu's trigger, close and
+  booking buttons.
 - `.r-rise` via `RiseWords.astro`: page-opening headline split into words on the
   server; each word rises into its own clip box.
+
+## Chrome: the swatch book (2026-09-30)
+
+Built from the approved prototype `docs/design/prototypes/chrome-a-swatch-book.html`.
+Two hard rules from Nathan: Staci's logo is prominent everywhere, and there is
+no decorative numbering.
+
+- **Header** (`Header.astro`, server-rendered). No bar at rest. Her logo hangs
+  from the top edge on a paper plate, 128px tall on desktop and 88px below
+  1024px, overlapping the page like a hanging sign (the plate keeps it legible
+  on any ground, the Walnut home hero included). Nav on the right: hover,
+  keyboard focus or the current page raises a paint chip behind the label
+  (Oat and Sandbar alternating; Linen reads as nothing on the linen page).
+  Then the ink price tag "Book a consult | $225". The price is read from the
+  consultation service (`src/lib/chrome-facts.ts`) and only shows while the
+  button books the consultation. Scrolled, the row condenses into a floating
+  paper strip with a shadow; the plate and logo shrink to 76px and still hang
+  off it. The sticky box never changes height, so nothing reflows. No
+  availability pill, no search icon (search lives in the footer). A rating
+  slot is reserved beside the tag.
+- **Phone menu** (`MobileNav.tsx`). The trigger is an ink "Menu" price tag. Open:
+  full-screen ink, her cream logo 108px top left, "Close" as a cream price tag,
+  the menu as a fanned deck of full-width paint chips on the ramp (never Warm
+  Bronze), each a hair off square, names only and set big, and never covered
+  by the next chip (each chip shows a fixed strip above the next). The deck
+  deals in from below under `prefers-reduced-motion: no-preference` only. Foot:
+  the cream booking price tag with the price, then phone and email. Radix
+  Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
+- **Footer** (`Footer.astro`), on ink. The seven-tone paint strip with its top
+  edge cut by pinking shears into the section above; shade names from 1100px
+  at 24px Zodiak (large text, so cream on Warm Bronze passes), colours only on
+  phones. A page index: tone swatch, page, dotted leader, and a real fact on
+  the right ("from $225", "4 steps", "from $250", "19 answers"), all derived
+  from content, omitted when not derivable. Contact details as paper sample
+  tags at slight angles. "Based in Plainfield" with the Business info towns.
+  Her logo large (150 to 228px wide) beside the site tagline, its last two
+  words in Sandbar italic. Base row: copyright, Privacy, Search, site credit.
+- Contrast: ink text on chips 1 to 4, cream on 6, 7 and ink; no body-size text
+  on Warm Bronze anywhere in the chrome.
 
 ## Signature components (home)
 
@@ -97,10 +151,15 @@ that a stored "dark" preference never engages dark mode.
 - `home/HomeStaci.astro`: tall portrait with a sample tag, the first paragraph
   as a Zodiak lede.
 - `home/PaintChips.astro`: services as a paint strip, one chip per service on the
-  ramp (skipping Warm Bronze), punched hole, price on the face. Swipe on phones.
+  ramp (skipping Warm Bronze), punched hole, name and price on the face (no
+  "No. 01"). Swipe on phones.
 - `home/TapeProcess.astro`: steps hanging off a tape measure that pulls out on
-  scroll; a vertical ruler on phones.
+  scroll, each marked by its time estimate in Zodiak italic; a vertical ruler
+  on phones.
 - `home/HomeWords.astro`: the ink band, one big italic quote, three loose ones.
+  Since 2026-09-30 the Google rating hangs in its heading as a stamp, and rated
+  Google reviews come first, newest first, each with Sandbar stars, the
+  reviewer's name, its age and "Read on Google" (see "Google reviews").
 - `ServiceAreaCue.astro`: towns set large, home base first in Espresso italic.
 - `FinalCta.astro` (every page): Walnut close, big headline, the logo's sprig
   drawing itself in behind.
@@ -151,13 +210,13 @@ Rebuilt 2026-09-30. Services is where visitors decide what to book, so the
 prices are the loudest thing on it.
 
 - `sections/ServicesList.astro`: on paper. A **deck index** first (the back
-  page of a fan deck): every service with its number, a swatch of its tone, a
+  page of a fan deck): every service with a swatch of its tone, its name, a
   dotted leader and its price, each line a jump link; builders and service
   area follow as plain links. Then the **strip**: one `ServiceCard.astro` per
   service, stacked so the chips touch and form a single paint strip down the
   left, palest to deepest (rounded top with the punched hole, rounded foot).
   Chips settle into the strip on scroll (CSS view timeline, desktop).
-- `ServiceCard.astro`: one service row. The chip carries No., name and the
+- `ServiceCard.astro`: one service row. The chip carries the name and the
   price set huge (label such as "Starting at" above it); beside it the short
   description as a Zodiak lede, features with tone-swatch bullets, "best for"
   as a `.r-tag`, and the ink button. The badged service ("Most popular") is
@@ -177,15 +236,14 @@ prices are the loudest thing on it.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on Oat, with
   a round studio stamp that turns as the band scrolls past. On Services the
   page then steps down the strip: linen, Oat, Walnut close, ink footer.
-- `StickyCTAChip.tsx`: now the ink pill, sentence case (also on journal and
-  project pages).
+- `StickyCTAChip.tsx`: now the ink pill, sentence case (also on project
+  pages).
 - `ServiceAreaMap.astro` (Contact): hairline paper frame, tiles warmed with a
   CSS filter that lifts on hover or focus.
 - E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
-  Zodiak lede beside "What is E-Design?"; how it works as big Walnut italic
-  numerals on one thread that draws on scroll (vertical on phones; the step
-  numbers are real sequence, so they show); what's included as tilted sample
-  tags on an Oat board; the tiers as large paint chips (Oat and Espresso for
+  Zodiak lede beside "What is E-Design?"; how it works as paint-chip swatch
+  pins on one thread that draws on scroll (vertical on phones; no numerals);
+  what's included as tilted sample tags on an Oat board; the tiers as large paint chips (Oat and Espresso for
   two) hanging out of line; the FAQ on paper with a sticky heading. The
   coming-soon state and the no-`finalCta` close in `e-design.astro` use the
   same primitives.
@@ -198,15 +256,15 @@ steps, Oat board, linen tiers, paper FAQ, Walnut close.
 
 - `sections/ProcessSteps.astro`: the big sibling of the home tape. Desktop:
   a sticky rail on the left (the ink tape case, a vertical Oat tape, and the
-  step index with each step's time estimate as jump links) beside the steps.
-  The tape pulls out across the whole journey and the step in view lights up
+  step index as jump links, each step marked by its time estimate, no
+  numerals) beside the steps. The tape pulls out across the whole journey and the step in view lights up
   in the index, both CSS scroll-driven (named view timelines shared through
   `timeline-scope`, behind `@supports` and reduced motion). Phone: the rail
   is the journey at a glance above the stacked steps.
-- `ProcessStep.astro` ("full"): one big moment per step. A huge Warm Bronze
-  numeral (display type), the step's line drawing (draws itself on scroll),
-  the time estimate on a sample tag, the title, the short description as a
-  Zodiak lede, the full description, and the "Quick bullets" on a paint chip
+- `ProcessStep.astro` ("full"): one big moment per step. The step's line
+  drawing (draws itself on scroll) beside its time estimate set large in Warm
+  Bronze italic as the marker (display type), the title, the short
+  description as a Zodiak lede, the full description, and the "Quick bullets" on a paint chip
   whose tone steps down the strip with the step (chips 1 to 4). The tier note
   hangs under the chip on a bronze rule.
 - `sections/ProcessFaq.astro`: paper band, heading and "See the full FAQ"
@@ -233,7 +291,8 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
   on a sample tag, and email / phone / book-a-call rows. Rhythm: linen hero,
   linen note, ink call band, paper roadmap, linen service area, ink footer.
 - **Form language** (`src/components/contact/contact-form.css`): three
-  numbered fieldsets (01 About you, 02 Your space, 03 Timing and budget);
+  fieldsets (About you, Your space, Timing and budget), each legend led by a
+  small paint-chip swatch (chips 2, 3, 4), never a numeral;
   labels 16px 500 ink; hints ink 2 (7.3:1 or better); paper fields with a
   Warm Bronze hairline (3.97:1 on paper, the non-text bar is 3:1); a ruled
   writing area for the message; errors in brick `#9f2f1c` with an icon.
@@ -243,11 +302,10 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
   through first?") with the cream pill, so it reads as an alternative, not a
   footnote. The scheduler only loads on click.
 - **What happens next** hangs the roadmap steps from one thread with Warm
-  Bronze pins and numerals (display size, decorative), time estimates on
-  small linen tags.
+  Bronze pins, time estimates on small linen tags (no numerals).
 - **Privacy is a document.** About 66 characters to the line at 17px / 1.7,
-  numbered Zodiak h2s, a contents list generated from the body's h2 blocks
-  (sticky on desktop, a disclosure on phones, the current section marked).
+  Zodiak h2s set off by hairline rules (no numbers), a contents list
+  generated from the body's h2 blocks (sticky on desktop, a disclosure on phones, the current section marked).
 
 ## Blocks and Portfolio (phase 2)
 
@@ -307,6 +365,31 @@ portfolio templates are ready for the day the first `project` exists.
 - `FeaturedWork` (home, hidden until projects exist): the home head grammar,
   a lead project with a sample tag, up to three more as a ruled list.
 
+## Google reviews (2026-09-30)
+
+The rating is another object off the work table: a **sample tag**
+(`reviews/RatingTag.astro`, the `.r-tag` shape: paper, notched left edge,
+punched hole with a Warm Bronze ring) with the rating in Zodiak Light, five
+drawn stars and "6 Google reviews" in General Sans 500. It hangs at a slight
+tilt and straightens on hover. The word "Google" is text, never the logo.
+
+- Stars are fills: Warm Bronze on the paper tag, Sandbar on the ink band,
+  empty stars Oat (or faint cream on ink). Never text colours.
+- Text on the tag is ink and ink 2 on paper; on a paper band the tag face turns
+  Linen (`--rt-face`) so it still reads as an object.
+- Placements: home hero (its own row under the buttons, paper tag on Walnut),
+  home reviews band (the `stamp`, right of the heading; under it on phones),
+  Contact aside (under the price tag, tilted the other way, with "Leave a
+  review" beside it), Services (hanging off the price index's bottom rule, on
+  the right), header (`compact`, one line in `currentColor`).
+- Google quotes on the ink band: stars above the words, then the name on its
+  own line and "3 weeks ago · Read on Google" under it (two lines, so a narrow
+  column never wraps a separator). "Reviews from Google, newest first" sits
+  under the heading when any are shown.
+- No data, no trace: every piece renders nothing until Staci fills in the
+  rating and count, and older testimonials render as before until they have
+  stars.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
@@ -344,7 +427,8 @@ portfolio templates are ready for the day the first `project` exists.
 
 ## Still on the old grammar
 
-The hidden sections (journal, shop, quiz, calculator, guides, press, gift
-certificates, resources) inherit the tokens, fonts, buttons, Hero, headings
-and chrome but keep their older section components. Rebuild each one against
-this document when it is switched on.
+Nothing public is left on it. The eight hidden sections that were (journal,
+shop, quiz, calculator, guides, press, gift certificates, resources) were
+removed outright on 2026-09-30 rather than rebuilt, because they were never
+launched. The portfolio, still switched off in Sanity, was rebuilt in phase 2
+(see "Blocks and Portfolio") and is ready the day it is switched on.

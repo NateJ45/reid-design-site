@@ -20,11 +20,11 @@
 //     element's rect, and a `display: contents` element has no rect.
 //  3. The field name must be the array the sections actually live in, and IN
 //     THIS REPO THERE ARE TWO. `pageBuilder` is the layout array on the custom
-//     `page` doc and on the eight builder singletons (home, about, process,
-//     services, e-design, gift, press, resources), where it holds section
+//     `page` doc and on the five builder singletons (home, about, process,
+//     services, e-design), where it holds section
 //     markers plus library blocks. `additionalSections` is the "Extra sections"
-//     append zone on the five bespoke singletons (faq, contact, journal,
-//     portfolio, privacy), which keep their coded middles. A page can render
+//     append zone on the four bespoke singletons (faq, contact, portfolio,
+//     privacy), which keep their coded middles. A page can render
 //     BOTH, through two SectionRenderer instances, so `field` is per-renderer,
 //     not per-document. Point the overlay at the wrong array and every control
 //     silently edits nothing: no error, no visible failure, just a plus button

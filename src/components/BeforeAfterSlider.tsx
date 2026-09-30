@@ -16,8 +16,8 @@
 // so a phone photo is never stretched or cut to a letterbox, and it is never
 // taller than about three quarters of the screen.
 //
-// Used by the project detail page, /portfolio/before-after and the journal's
-// before/after block (JournalPortableText). Props are unchanged.
+// Used by the project detail page and /portfolio/before-after. Props are
+// unchanged.
 
 import { useCallback, useRef, useState } from 'react';
 import { urlFor, parseSanityAssetDimensions } from '@/lib/sanity';

@@ -75,9 +75,6 @@ const formSourceOptions = [
   'Houzz',
   'Friend or family referral',
   'Builder or realtor referral',
-  'Took the style quiz',
-  'Downloaded a free guide',
-  'Reading the journal',
   'Saw a project in person',
   'Other',
 ];
@@ -90,9 +87,14 @@ const formProjectTypeOptions = [
   'Full Room Design + Styling',
   'Shopping & Sourcing',
   'Builder or Realtor Partnership',
-  'Gift Certificate',
   "Not sure yet, let's chat",
 ];
+// 2026-09-30: "Gift Certificate" (project type) and the quiz / free guide /
+// journal lead sources went with those sections. DO NOT run this just to drop
+// them from the live contactPage: it force-sets the whole list, and the live
+// project types have since been renamed in the Studio ("Signature Room Design
+// + Styling", "Signature Home Refresh"), which this would overwrite. Remove the
+// retired entries by hand in the Studio instead.
 
 async function run() {
   const contactDoc = await client.fetch(`*[_type == "contactPage"][0]{ _id }`);

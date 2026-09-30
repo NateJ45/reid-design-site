@@ -6,19 +6,16 @@
 // small-print row, the header button — flows through here, so a document type
 // maps to a route in exactly ONE table.
 //
-// THE MAP MIRRORS SINGLETON_PREVIEW_PATHS in src/sanity/resolve.ts with the
-// `/preview` prefix removed, PLUS the two singletons that deliberately have no
-// preview route (styleQuiz -> /quiz, budgetCalculator -> /calculator; their
-// documents hold quiz questions and room configs, not page copy, so they are
-// absent there on purpose but are perfectly good MENU destinations). When a
-// route moves, change both.
+// THE MAP MIRRORS SINGLETON_PREVIEW_PATHS in src/sanity/preview-routes.ts with
+// the `/preview` prefix removed. When a route moves, change both. (The quiz
+// and calculator singletons, which had a live route but no preview, were
+// removed on 2026-09-30 with the rest of the never-launched sections.)
 //
 // Reid has three page shapes and all three are linkable:
 //   - builder + bespoke SINGLETONS -> a fixed route, from the table below
 //   - `page` documents             -> /<slug>
-//   - collection documents that own a detail route (leadMagnet -> /guides/…,
-//     project -> /portfolio/…, journalEntry -> /journal/…)
-// Routes with no document behind them at all (/guides, /portfolio/before-after)
+//   - collection documents that own a detail route (project -> /portfolio/…)
+// Routes with no document behind them at all (/portfolio/before-after, /search)
 // are reachable by typing the address: see the "custom" link type in
 // src/sanity/schemaTypes/navLink.ts.
 //
@@ -41,20 +38,12 @@ export const SINGLETON_LIVE_PATHS: Record<string, string> = {
   processPage: '/process',
   servicesPage: '/services',
   eDesignPage: '/e-design',
-  giftPage: '/gift-certificates',
-  pressPage: '/press',
-  resourcesPage: '/resources',
   // Bespoke pages
   faqPage: '/faq',
   contactPage: '/contact',
-  journalPage: '/journal',
   portfolioPage: '/portfolio',
   privacyPage: '/privacy',
-  shopPage: '/shop',
   notFoundPage: '/404',
-  // Config singletons that still own a real public route.
-  styleQuiz: '/quiz',
-  budgetCalculator: '/calculator',
 };
 
 /**
@@ -62,9 +51,7 @@ export const SINGLETON_LIVE_PATHS: Record<string, string> = {
  * appended to the prefix. `page` is handled separately (bare /<slug>).
  */
 const COLLECTION_ROUTE_PREFIXES: Record<string, string> = {
-  leadMagnet: '/guides',
   project: '/portfolio',
-  journalEntry: '/journal',
 };
 
 /** One navLink as it comes back from NAV_LINK_PROJECTION in src/lib/queries.ts. */

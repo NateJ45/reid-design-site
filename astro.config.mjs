@@ -69,12 +69,10 @@ async function fetchSectionVisibility() {
 const redirectRead = await cmsQuery(
   `{
     "redirects": *[_type == "redirect" && defined(from) && defined(to)]{from, to, permanent},
-    "live": *[_type in ["page", "project", "journalEntry", "leadMagnet"] && defined(slug.current)]{
+    "live": *[_type in ["page", "project"] && defined(slug.current)]{
       "path": select(
         _type == "page" => "/" + slug.current,
-        _type == "project" => "/portfolio/" + slug.current,
-        _type == "journalEntry" => "/journal/" + slug.current,
-        "/guides/" + slug.current
+        "/portfolio/" + slug.current
       )
     }.path
   }`,

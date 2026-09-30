@@ -8,7 +8,8 @@
 // Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md
 // "Contact and Privacy") as a long-form reading page:
 //   - a measure of about 66 characters, 17px text at 1.7 line height;
-//   - numbered section headings (a CSS counter, so Sanity is untouched);
+//   - section headings set off by a hairline rule (no 01/02 numerals since
+//     2026-09-30, the no-decorative-numbering rule in DESIGN.md);
 //   - a table of contents built from the body's own h2 headings: sticky in
 //     a left column on desktop, a collapsed "On this page" on phones. The ids
 //     come from src/components/contact/doc-anchors.ts, the same function
@@ -22,6 +23,10 @@
 // can never deny a cookie the site is setting. Until 2026-09-28 it did: GA4 was
 // live while the Sanity body said "There is no Google Analytics". Google's own
 // Analytics terms require disclosing the use of Analytics and its cookies.
+//
+// The fallback copy stopped mentioning a newsletter on 2026-09-30, when the
+// signup was removed. The Sanity privacyPage body is CONTENT and still has to
+// be edited in the Studio by hand (nothing here rewrites it).
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
@@ -37,8 +42,7 @@ const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSetting
 
 const title = page?.seoTitle ?? 'Privacy Policy · Reid Design';
 const description =
-  page?.seoDescription ??
-  'How Reid Design handles the information you share when you reach out or subscribe.';
+  page?.seoDescription ?? 'How Reid Design handles the information you share when you reach out.';
 
 const heroEyebrow = page?.heroEyebrow ?? 'Transparency first.';
 const heroHeadline = page?.heroHeadline ?? 'Privacy Policy';
@@ -81,7 +85,6 @@ const MEASURED_ID = 'how-traffic-is-measured';
 const FALLBACK_SECTIONS = [
   { id: 'what-gets-collected', text: 'What gets collected' },
   { id: 'what-doesnt-happen', text: 'What doesn’t happen' },
-  { id: 'unsubscribing', text: 'Unsubscribing from the newsletter' },
   { id: 'questions-or-data-requests', text: 'Questions or data requests' },
 ];
 
@@ -176,11 +179,6 @@ const toc = [
                 and whatever details you include in your message. That information is used only to
                 respond to you and to help plan your project. Nothing else.
               </p>
-              <p class="ptd-p">
-                If you subscribe to the newsletter, your email address goes to the email marketing
-                provider so occasional studio updates, room ideas, and project previews can reach
-                you. It is not shared with anyone else.
-              </p>
 
               <h2 id="what-doesnt-happen" class="ptd-h2">
                 What doesn't happen
@@ -189,15 +187,6 @@ const toc = [
                 <li class="ptd-li">Your information is never sold.</li>
                 <li class="ptd-li">There is no ad targeting or retargeting on this site.</li>
               </ul>
-
-              <h2 id="unsubscribing" class="ptd-h2">
-                Unsubscribing from the newsletter
-              </h2>
-              <p class="ptd-p">
-                Every email includes an unsubscribe link at the bottom. Click it and you're off the
-                list right away. If you run into any trouble, email directly and it'll be handled
-                promptly.
-              </p>
 
               <h2 id="questions-or-data-requests" class="ptd-h2">
                 Questions or data requests
@@ -333,7 +322,6 @@ const toc = [
     font-size: 1.0625rem;
     line-height: 1.7;
     color: var(--color-ink-2);
-    counter-reset: doc-section;
   }
 
   /* ---- Contents ---- */
@@ -346,15 +334,11 @@ const toc = [
     color: var(--color-ink);
   }
   .doc__toc-list {
-    counter-reset: toc;
     display: grid;
     gap: 0.15rem;
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-  .doc__toc-list li {
-    counter-increment: toc;
   }
   .doc__toc-list a {
     position: relative;
@@ -366,14 +350,6 @@ const toc = [
     color: var(--color-ink-2);
     text-decoration: none;
     border-left: 1px solid var(--color-rule);
-  }
-  .doc__toc-list a::before {
-    content: counter(toc, decimal-leading-zero);
-    flex: none;
-    font-size: 0.8rem;
-    line-height: 1.7;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-chip-6);
   }
   .doc__toc-list a:hover {
     color: var(--color-ink);
@@ -448,10 +424,6 @@ const toc = [
 
   /* ---- The prose (PortableTextStatic variant="doc" and the fallback) ---- */
   .doc__body :global(.ptd-h2) {
-    counter-increment: doc-section;
-    display: flex;
-    align-items: baseline;
-    gap: 0.9rem;
     margin: 3.5rem 0 1rem;
     padding-top: 2rem;
     border-top: 1px solid var(--color-rule);
@@ -460,14 +432,6 @@ const toc = [
     color: var(--color-ink);
     text-wrap: balance;
     scroll-margin-top: 7rem;
-  }
-  .doc__body :global(.ptd-h2::before) {
-    content: counter(doc-section, decimal-leading-zero);
-    flex: none;
-    font: 500 0.8rem/1 var(--font-body);
-    letter-spacing: 0.04em;
-    color: var(--color-chip-6);
-    transform: translateY(-0.35em);
   }
   /* The first section of the body sits right under the date, no rule. */
   .doc__body :global(.doc__prose:first-of-type > .ptd-h2:first-child) {

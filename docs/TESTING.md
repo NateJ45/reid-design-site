@@ -39,19 +39,26 @@ All four iterate `tests/routes.ts`, the single source of truth for the fixed
 public routes. **Add a route there when a new fixed page ships**, and nothing
 else needs touching. Dynamic `[slug]` routes and `/404` are excluded.
 
-That file splits the list in two, and the split is load-bearing:
+That file splits the list in three, and the split is load-bearing:
 
 - `routes` — pages that render real content. Everything scans these.
 - `hiddenRoutes` — pages whose section is switched off in
   `siteSettings.sectionVisibility`, so the page calls `Astro.redirect('/')` and
   a static build bakes a meta-refresh stub in its place. Those stubs fail five
   axe rules for real, so they are smoke-only rather than deleted, and the list
-  shrinks to nothing the day the sections are turned on. See `docs/PENDING.md`.
+  shrinks to nothing the day the sections are turned on. Since 2026-09-30 it
+  is just `/portfolio` and `/portfolio/before-after`. See `docs/PENDING.md`.
+- `retiredRoutes` — the eight sections REMOVED on 2026-09-30 (journal, shop,
+  gift certificates, quiz, calculator, resources, guides, press). No page may
+  be built at any of them: the static test server does not read
+  `public/_redirects`, so each must answer 404 there. The production 301s are
+  pinned separately, by `src/lib/retired-redirects.test.ts`.
 
 - **`tests/smoke.spec.ts`** — every content route answers 200 with "Reid
   Design" in its `<title>` (proof of a real rendered page, not an error body);
   every hidden route answers 200 with the stub's "Redirecting to: /" title (or
-  the home title, once the refresh has fired); and GA4 sends no request from
+  the home title, once the refresh has fired); every retired route answers 404
+  (no page left behind); and GA4 sends no request from
   localhost. That last check is trivially green in CI (no GA id is built in)
   and bites on a local run whose `.env` carries `PUBLIC_GA_ID` (formerly `PUBLIC_GA_MEASUREMENT_ID`),
   which is how 470 fake sessions reached the live property. Proven 2026-09-28:
@@ -132,11 +139,11 @@ PUBLIC_GA_ID=G-YSVYFME1FT npm run build     # PowerShell: $env:PUBLIC_GA_ID='G-Y
 npm run parity compare
 ```
 
-Without it, the 10 real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet, which is a
+Without it, the real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet, which is a
 build-input difference, not drift. (The tag only fires on the production
-hostname at runtime, so a local build carrying it files no sessions.) The six
-detail pages (projects, the journal post, guides) are not in the set while their
-sections are switched off in Sanity, because no page is built for them; a
+hostname at runtime, so a local build carrying it files no sessions.) The project
+detail pages are not in the set while the portfolio is switched off in Sanity,
+because no page is built for them; a
 render-neutrality check on those needs a temporary all-sections-on build, as the
 2026-09-29 detail-component extraction did (docs/agent/changelog.md).
 
@@ -223,16 +230,17 @@ experience layer"). Two are ports of the starter's canonical node:test suites;
 four are Reid's own drift gates, which READ the real schema or the real sources
 rather than a fixture:
 
-| File                        | What it holds                                                                                                                                                                                                                                                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `page-checks.test.ts`       | Card 25's pure checks (vitest port of the starter suite, same cases)                                                                                                                                                                                                                                                           |
-| `undoRedo.test.ts`          | Card 27's transaction-log machinery against a faithful in-memory fake (vitest port, same cases)                                                                                                                                                                                                                                |
-| `page-check-config.test.ts` | `pageBuilderConfig.ts` against the schema: every host has its array, every marker is self-filling, "Main content" reaches the photo fields                                                                                                                                                                                     |
-| `insert-menu.test.ts`       | Every library block in exactly one "+ Add section" group; all fourteen builder arrays use the shared menu; no colour choice in it                                                                                                                                                                                              |
-| `templates.test.ts`         | Every "+ New" template targets a real type, sets only real fields, uses only offered blocks with unique keys, and has no em-dashes                                                                                                                                                                                             |
-| `section-coach.test.ts`     | Each block's "empty" rule, and the PREVIEW-ONLY wiring: only SectionRenderer imports the coach, only behind the signal, no live page passes it                                                                                                                                                                                 |
-| `preview-routes.test.ts`    | (2026-09-29) What `/preview/[...slug]` can draw: the share link is offered for every type whose link opens a page (projects, posts and guides included) and for none whose link would 404 (quiz, calculator, a guide or page with no address); drift gates read the real route, PreviewLayout, resolve.ts and editorActions.ts |
-| `studio-deep-link.test.ts`  | (2026-09-29) The path-to-hash mapping for Studio deep links (`/studio/media` becomes `/studio/#/media`), and that `astro.config.mjs` and `public/_redirects` still agree with it                                                                                                                                               |
+| File                        | What it holds                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `page-checks.test.ts`       | Card 25's pure checks (vitest port of the starter suite, same cases)                                                                                                                                                                                                                                                                                                                                                                                           |
+| `undoRedo.test.ts`          | Card 27's transaction-log machinery against a faithful in-memory fake (vitest port, same cases)                                                                                                                                                                                                                                                                                                                                                                |
+| `page-check-config.test.ts` | `pageBuilderConfig.ts` against the schema: every host has its array, every marker is self-filling, "Main content" reaches the photo fields                                                                                                                                                                                                                                                                                                                     |
+| `insert-menu.test.ts`       | Every library block in exactly one "+ Add section" group; all ten builder arrays use the shared menu (six `pageBuilder`, four Extra sections, since 2026-09-30); no colour choice in it                                                                                                                                                                                                                                                                        |
+| `templates.test.ts`         | Every "+ New" template targets a real type, sets only real fields, uses only offered blocks with unique keys, and has no em-dashes                                                                                                                                                                                                                                                                                                                             |
+| `section-coach.test.ts`     | Each block's "empty" rule, and the PREVIEW-ONLY wiring: only SectionRenderer imports the coach, only behind the signal, no live page passes it                                                                                                                                                                                                                                                                                                                 |
+| `preview-routes.test.ts`    | (2026-09-29) What `/preview/[...slug]` can draw: the share link is offered for every type whose link opens a page (projects included) and for none whose link would 404 (a project or page with no address); no retired type (journal, shop, quiz, calculator, guides, press, gift, resources) has an address, a preview or a location, and every retired slug stays reserved; drift gates read the real route, PreviewLayout, resolve.ts and editorActions.ts |
+| `studio-deep-link.test.ts`  | (2026-09-29) The path-to-hash mapping for Studio deep links (`/studio/media` becomes `/studio/#/media`), and that `astro.config.mjs` and `public/_redirects` still agree with it                                                                                                                                                                                                                                                                               |
+| `retired-redirects.test.ts` | (2026-09-30) `public/_redirects` 301s every address of the eight removed sections (journal, shop, quiz, calculator, guides, press, gift certificates, resources) to its replacement, keeps the `/studio/*` proxy first, lists each source once, leaves no page file behind a rule, and keeps every retired slug reserved                                                                                                                                       |
 
 What they cannot reach, because it needs a signed-in Studio: the actions
 rendering in the publish menu, a real share link opened in a logged-out
@@ -259,18 +267,18 @@ repo** before believing any result: another project's `wrangler dev` already
 listening on the same port answers instead, and its 404 page is indistinguishable
 from a bug in this build. That cost real time on 2026-08-28.
 
-| Check                                                                                         | Expected                                                                                                                                                                                                                              |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`, `/services/`, any static route                                                           | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                                                                 |
-| a route that does not exist                                                                   | 404 rendering the real 404 page                                                                                                                                                                                                       |
-| `/studio/`                                                                                    | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead                                        |
-| `/preview`, `/preview/about`, `/preview/faq`                                                  | 200                                                                                                                                                                                                                                   |
-| `/preview/live?page=homePage` with no cookie                                                  | 403                                                                                                                                                                                                                                   |
-| same, cookie `sanity-preview-perspective=true` (or `drafts`, or any forged value)             | 403 (card 57: the VALUE is checked). `/preview/about` with the same forged cookie renders `<html data-draft="0">`, published content                                                                                                  |
-| same, cookie = the real fingerprint (SHA-256 of `reid-design-preview:v1:` + `SANITY_TOKEN`)   | 200 `text/event-stream`; `/preview/about` renders `data-draft="1"` with the overlay island                                                                                                                                            |
-| `/api/draft-mode/enable?sanity-preview-secret=bogus`                                          | 401                                                                                                                                                                                                                                   |
-| `/preview/portfolio/<slug>`, `/preview/journal/<slug>`, `/preview/guides/<slug>` (2026-09-29) | 200 with the detail page's real h1; `data-draft="0"` with no cookie, `data-draft="1"` plus stega with the fingerprint cookie. A made-up slug, and `/preview/quiz`, answer the plain-text 404                                          |
-| `/studio/media`, `/studio/structure/pages`, `/studio/presentation` (2026-09-29)               | 200, title "Sanity Studio", the `/studio/*` CSP (look for `design-system-static.sanity.io`). In chromium the address becomes `/studio/#/media` etc. before the Studio mounts. A random non-studio path still 404s with the public CSP |
+| Check                                                                                                              | Expected                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`, `/services/`, any static route                                                                                | 200. Proves removing `not_found_handling` did not break asset serving                                                                                                                                                                 |
+| a route that does not exist                                                                                        | 404 rendering the real 404 page                                                                                                                                                                                                       |
+| `/studio/`                                                                                                         | 200, and in a real browser the Studio's own React shell renders. A broken styled-components theme context would show error #18 or "Cannot read properties of undefined (reading 'v2')" instead                                        |
+| `/preview`, `/preview/about`, `/preview/faq`                                                                       | 200                                                                                                                                                                                                                                   |
+| `/preview/live?page=homePage` with no cookie                                                                       | 403                                                                                                                                                                                                                                   |
+| same, cookie `sanity-preview-perspective=true` (or `drafts`, or any forged value)                                  | 403 (card 57: the VALUE is checked). `/preview/about` with the same forged cookie renders `<html data-draft="0">`, published content                                                                                                  |
+| same, cookie = the real fingerprint (SHA-256 of `reid-design-preview:v1:` + `SANITY_TOKEN`)                        | 200 `text/event-stream`; `/preview/about` renders `data-draft="1"` with the overlay island                                                                                                                                            |
+| `/api/draft-mode/enable?sanity-preview-secret=bogus`                                                               | 401                                                                                                                                                                                                                                   |
+| `/preview/portfolio/<slug>` (2026-09-29; journal and guide detail previews went with those sections on 2026-09-30) | 200 with the detail page's real h1; `data-draft="0"` with no cookie, `data-draft="1"` plus stega with the fingerprint cookie. A made-up slug, and `/preview/journal`, answer the plain-text 404                                       |
+| `/studio/media`, `/studio/structure/pages`, `/studio/presentation` (2026-09-29)                                    | 200, title "Sanity Studio", the `/studio/*` CSP (look for `design-system-static.sanity.io`). In chromium the address becomes `/studio/#/media` etc. before the Studio mounts. A random non-studio path still 404s with the public CSP |
 
 The full handshake (302 on a real secret, draft-aware stega, `/preview/live`
 streaming, and the `data-sanity` count matching a GROQ count of the section

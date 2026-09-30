@@ -6,11 +6,15 @@
 // block inserted between sections is delegated to the main SectionRenderer, so
 // the block-to-component mapping isn't duplicated. Falls back to the default
 // section order when the layout array is empty (pre-migration safety).
+//
+// Retired marker (2026-09-30): 'press' can still be stored on the About
+// layout (its option value stays in the schema so the row does not fail
+// validation and block publishing), but press was removed, so it falls
+// through to the final `null` below and renders nothing.
 import Hero from '@/components/Hero.astro';
 import AboutStory from '@/components/sections/AboutStory.astro';
 import AboutPhilosophy from '@/components/sections/AboutPhilosophy.astro';
 import AboutPersonal from '@/components/AboutPersonal.astro';
-import PressStrip from '@/components/PressStrip.astro';
 import StatsRow from '@/components/StatsRow.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
@@ -20,8 +24,6 @@ interface Props {
   sections?: any[];
   page: any;
   philosophyPoints?: any[];
-  pressItems?: any[];
-  visiblePress?: boolean;
   /**
    * PREVIEW ONLY (added 2026-08-28, PORTS.md card 17). When the Studio preview
    * route passes the document this layout array belongs to, each row is wrapped
@@ -35,14 +37,7 @@ interface Props {
   editDoc?: EditDoc;
 }
 
-const {
-  sections = [],
-  page,
-  philosophyPoints = [],
-  pressItems = [],
-  visiblePress = true,
-  editDoc,
-} = Astro.props as Props;
+const { sections = [], page, philosophyPoints = [], editDoc } = Astro.props as Props;
 
 // A real element in preview, nothing at all on the live site. Must NOT be
 // `display: contents`: the overlay outlines the element's rect and a contents
@@ -53,7 +48,7 @@ const wrapAttrs = (key: string | undefined) =>
 
 // Default order, matching the current About page. Used when the layout array
 // hasn't been set on the doc yet.
-const DEFAULT_ORDER = ['hero', 'story', 'philosophy', 'personal', 'press', 'stats', 'finalCta'].map(
+const DEFAULT_ORDER = ['hero', 'story', 'philosophy', 'personal', 'stats', 'finalCta'].map(
   (section) => ({ _type: 'aboutSectionMarker', section }),
 );
 
@@ -106,10 +101,6 @@ const stats = (page?.stats ?? [])
             beyondDesign={page?.beyondDesign}
             candidPhoto={page?.candidPhoto}
           />
-        ) : s.section === 'press' ? (
-          visiblePress && pressItems.length > 0 ? (
-            <PressStrip items={pressItems} />
-          ) : null
         ) : s.section === 'stats' ? (
           <StatsRow stats={stats} />
         ) : s.section === 'finalCta' ? (

@@ -257,9 +257,15 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   realtor partnerships" descriptions and in the Contact `seoTitle`; interior
   hero photos are wide phone shots (Contact shows her children), best swapped
   for close-ups or her brand shoot.
-- **Hidden sections** (journal, shop, quiz, calculator, guides, press, gift,
-  resources) keep their older section components; rebuild each against
-  `DESIGN.md` when it is switched on.
+- **Google reviews sync (Nathan):** apply for Google Business Profile API access
+  (Google Cloud project + access request form); Staci signs in once. Until then
+  Staci adds each new review in Studio, Content > Google reviews. Field map and
+  plan: docs/agent/sanity.md, "Google reviews". Place ID
+  `ChIJn4hYoY0EZiMRZGWh-Gtr6kQ` is already in Site settings.
+- **Staci's answers for the next design release** (docs/design/2026-09-30-design-debate.md,
+  last section): the true E-Design price, the $225 visit length and written-plan
+  promise, the 60-day credit, and a first room-story client. The fan-deck price
+  ladder, the $225 page and the room story wait on them.
 - **Dead code after phase 2:** `HeroBackground.astro`,
   `sections/ProcessPreview.astro`, `sections/MeetStaci.astro`,
   `sections/HomeServices.astro`, `sections/HomeTestimonials.astro`,

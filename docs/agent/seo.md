@@ -17,16 +17,16 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 
 Priority, highest first:
 
-1. An explicit `ogImage` prop. No page passes one today: project and journal detail pages stopped passing their raw hero/cover photo on 2026-09-29 and get a card instead.
+1. An explicit `ogImage` prop. No page passes one today: project detail pages stopped passing their raw hero/cover photo on 2026-09-29 and get a card instead.
 2. The page's own `seoImage`: the per-page override Staci sets in that page's SEO section.
 3. The generated card at `/og/<route>.png` (`/` is `/og/home.png`, `/portfolio/foo` is `/og/portfolio-foo.png`).
 4. `siteSettings.seoImage`, then `/og-default.png`. These are used ONLY by pages that get no card (noindex pages such as the 404), and as the image copied into a card's place if that card fails to draw. **The global `siteSettings.seoImage` does not override the cards.** Before 2026-09-29 it sat above them, so setting one site-wide photo would have hidden every page's card.
 
 Sanity images (2 and 4) run through `urlFor().width(1200).height(630).fit('crop')` via `ogUrlFromImage`. BaseLayout also emits `og:locale`, `og:image:alt`, and a single `theme-color` (#F7F3EE, the Linen ground; one value since the site went light only on 2026-09-29).
 
-What a card says: the page's hero headline, else its SEO title, with a "Reid Design" / "Reid Design LLC" suffix or prefix stripped (the logo already says it) and any em-dash replaced by a comma, with a build warning, never a failure (a throw would stop Staci's content deploys). The small caps line: "Interior design · Plainfield, Indiana" from Business info, or "Portfolio · <location>", "The Journal", "Free guide" on detail pages. The photo: the page's hero image (projects: the hero, plus the first gallery photo in the circle; journal and guides: the cover), else one of Staci's finished-project photos, picked per route so a page keeps the same one between builds. The Sanity hotspot sets the crop, so a bad crop is fixed in the Studio, not in code. Any asset named or tagged `midwest-cabinet-connection` is refused.
+What a card says: the page's hero headline, else its SEO title, with a "Reid Design" / "Reid Design LLC" suffix or prefix stripped (the logo already says it) and any em-dash replaced by a comma, with a build warning, never a failure (a throw would stop Staci's content deploys). The small caps line: "Interior design · Plainfield, Indiana" from Business info, or "Portfolio · <location>" on project detail pages. The photo: the page's hero image (projects: the hero, plus the first gallery photo in the circle), else one of Staci's finished-project photos, picked per route so a page keeps the same one between builds. The Sanity hotspot sets the crop, so a bad crop is fixed in the Studio, not in code. Any asset named or tagged `midwest-cabinet-connection` is refused.
 
-How it works: BaseLayout (`card` prop, pure logic in `src/lib/og-card.ts`) points og:image at `/og/<route>.png` and writes a card spec into the page. `src/integrations/og-cards.ts` runs at `astro:build:done` (Node, after the workerd prerender), draws every card into `dist/client/og/`, strips the specs back out of the HTML, and then runs the coverage check: the build fails if any og:image under `/og/` has no file. Drawing is `scripts/lib/og-render.mjs` (sharp prepares every image; the backend is chosen by `OG_RENDERER`). `npm run og:cards -- preview` draws the card every project, journal post and guide would get, even while its section is switched off. `npm run og` redraws `public/og-default.png`.
+How it works: BaseLayout (`card` prop, pure logic in `src/lib/og-card.ts`) points og:image at `/og/<route>.png` and writes a card spec into the page. `src/integrations/og-cards.ts` runs at `astro:build:done` (Node, after the workerd prerender), draws every card into `dist/client/og/`, strips the specs back out of the HTML, and then runs the coverage check: the build fails if any og:image under `/og/` has no file. Drawing is `scripts/lib/og-render.mjs` (sharp prepares every image; the backend is chosen by `OG_RENDERER`). `npm run og:cards -- preview` draws the card every project would get, even while its section is switched off. `npm run og` redraws `public/og-default.png`.
 
 - `<html lang="en">`.
 
@@ -78,11 +78,16 @@ Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUS
 - `/services` — array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id` (`serviceListSchema`).
 - `/faq` — `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer` (`faqPageSchema`).
 - `/portfolio/[slug]` — `CreativeWork` schema for the project (`projectSchema`).
-- `/journal/[slug]` — `BlogPosting` schema for the post (`blogPostingSchema`).
-- `/shop` — `ItemList` of `Product`s (`shopItemListSchema`), one per affiliate item across all collections: name + optional brand (vendor) + image + affiliate URL. **No `Offer`/price is emitted** — these are curated recommendations, not a storefront, so we don't claim a price/availability we don't control. Only rendered when the shop is enabled and has items; the page resolves Sanity image URLs and passes plain values into the builder (same split as `projectSchema`'s pre-built hero URL).
 - Every internal page — `BreadcrumbList` from `/` to the current page (`breadcrumbSchema`).
+- Removed 2026-09-30 (never launched): the `BlogPosting` (`blogPostingSchema`) and shop `ItemList` (`shopItemListSchema`) schemas went with the journal and shop.
 
 Test every schema with Google's Rich Results Test (https://search.google.com/test/rich-results) before launch. Errors at scale will tank rankings rather than fail loudly.
+
+### Why there is no review schema (2026-09-30)
+
+The site shows Staci's Google rating (`RatingTag`) and Google review quotes, but `localBusinessSchema()` deliberately carries **no `aggregateRating` and no `review`**. Google treats review markup a business puts about itself on its own LocalBusiness or Organization as "self-serving" and has shown no review stars for it since 2019; marking up reviews collected on another platform (Google itself) also breaks the review-snippet guidelines and can draw a manual action. So it would buy nothing and risk something. The stars people see in search and Maps come from the Business Profile. The comment in `src/lib/schemas.ts` says the same; do not "fix" it.
+
+What the schema does do: `sameAs` now includes `siteSettings.googleBusinessUrl` beside Instagram and Facebook, tying the site to the Maps listing as the same business.
 
 ### Google Business Profile
 
@@ -126,7 +131,7 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 
 `@astrojs/sitemap` generates `sitemap-index.xml` + `sitemap-0.xml` automatically from every prerendered page on `astro build`. The default `<priority>` and `<changefreq>` are fine for a marketing site of this size.
 
-The filter in `astro.config.mjs` drops `/studio`, `/preview`, `/404`, and every route of a section switched off in `siteSettings.sectionVisibility` (2026-09-28). A hidden section still leaves a meta-refresh redirect stub at its URL, so without the filter the sitemap advertised ten noindex stubs. The config reads the flags from Sanity at build time and matches routes with `isHiddenSectionPath()` from `src/lib/sectionVisibility.ts`, the same module the pages use, so a section turned back on in Studio reappears in the sitemap on the next rebuild. **A new toggleable section needs its route prefix added to `SECTION_ROUTES` there.**
+The filter in `astro.config.mjs` drops `/studio`, `/preview`, `/404`, and every route of a section switched off in `siteSettings.sectionVisibility` (2026-09-28). A hidden section (only Portfolio and E-Design can be switched off since 2026-09-30) still leaves a meta-refresh redirect stub at its URL, so without the filter the sitemap advertised ten noindex stubs. The config reads the flags from Sanity at build time and matches routes with `isHiddenSectionPath()` from `src/lib/sectionVisibility.ts`, the same module the pages use, so a section turned back on in Studio reappears in the sitemap on the next rebuild. **A new toggleable section needs its route prefix added to `SECTION_ROUTES` there.**
 
 `/search` (2026-09-29) is `noindex` and also filtered out of the sitemap (an exact-path match, so a custom page with a similar slug is not caught), because a search box has no content of its own to rank. `search` and `pagefind` are reserved slugs in `page.ts` and `[slug].astro`. The 404 and `/search` are also kept out of the Pagefind index itself: `BaseLayout` only emits `data-pagefind-body` when the page is not `noindex`.
 
@@ -149,8 +154,6 @@ After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify t
 - [ ] LocalBusiness JSON-LD validates in Google Rich Results Test
 - [ ] FAQPage JSON-LD validates
 - [ ] Service schemas validate
-- [ ] Shop `ItemList`/`Product` JSON-LD validates (only when the shop is enabled with items)
-- [ ] BlogPosting JSON-LD validates on a journal post
 - [ ] BreadcrumbList present on every internal page
 - [ ] OG previews look right in Slack, Twitter, Facebook (verify with opengraph.xyz or similar)
 - [ ] Google Business Profile NAP matches `siteSettings` NAP exactly

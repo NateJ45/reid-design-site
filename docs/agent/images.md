@@ -15,7 +15,7 @@ The two pipelines never mix. Don't reach for Astro `<Image>` on a Sanity URL —
 
 Files live in `src/assets/` (NOT `public/`). The `src/assets/` location is what lets Astro's pipeline see them.
 
-- **Logo**: `logo-light.png` + `logo-dark.png`. Both at 378×400 source. Astro's `<Image>` (in Footer.astro) or `getImage()` (in Header.astro, for the theme-aware `<img>` data-attribute URLs) emits hashed WebPs at the right dimensions. See the Theme-aware single-img logo pattern in the Theme system section of theme-and-color.md (the site is light only since 2026-09-29, so the light variant is what renders; the dark variant is kept for a possible return of dark mode).
+- **Logo**: `logo-light.png` + `logo-dark.png`. Both at 378×400 source. `getImage()` in Header.astro (light logo at 122w/244w for the hanging sign; cream logo at 102w/204w for the phone menu) and Footer.astro (cream logo at 228w/456w) emits hashed WebPs with 1x/2x srcsets and fixed width/height attributes (no CLS). Since 2026-09-30 the header renders its `src` directly instead of the theme-swap data attributes. See the Theme-aware single-img logo pattern in the Theme system section of theme-and-color.md (the site is light only since 2026-09-29, so the light variant is what renders; the dark variant is kept for a possible return of dark mode).
 - **Regenerating logos**: `scripts/generate-logo-variants.mjs` produces both variants from the source JPG in `09-Logos/`. After regeneration, run `scripts/optimize-logo-files.mjs` to shrink the source PNGs to ≤400 px tall before Astro emits them (large source = large Astro output).
 
 ### Sanity-hosted images (everything from Studio)
@@ -51,16 +51,15 @@ For before/after pairs on project pages, use `BeforeAfterSlider.tsx` (React isla
 
 ### Portrait orientation caps
 
-Portfolio + journal inline images detect orientation from the Sanity asset `_ref` (it encodes `{W}x{H}` in the filename) via `parseSanityAssetDimensions()`. When `height > width`:
+Portfolio inline images detect orientation from the Sanity asset `_ref` (it encodes `{W}x{H}` in the filename) via `parseSanityAssetDimensions()`. When `height > width`:
 
 - `PortableText.tsx` (`image` block, case-study intro story): figure wrapper becomes `my-section-md mx-auto max-w-[600px]`. Landscape shots keep the original `-mx-m md:mx-0` (full column, edge-to-edge on mobile).
-- `JournalPortableText.tsx` (`inlineImage` block): same `mx-auto max-w-[600px]`, overrides the editor's `standard`/`wide`/`full` size choice. Landscape shots get the chosen size treatment.
 
 Why: portrait shots blown out to full column width are taller than the viewport, which is hostile. ~600 px is the readable inset for an editorial portrait.
 
 ### Hero / cover image cap
 
-The portfolio (`/portfolio/[slug]`) and journal (`/journal/[slug]`) detail pages cap their hero image at `max-w-4xl` (~896 px), with `<SanityImage width={1800}>` and `sizes="(min-width: 920px) 896px, 100vw"`. Reads as an editorial feature, not a billboard. Sanity request stops at 1800 so we're not pulling a 1920 px file for a slot that maxes around 900 px even at 2× retina.
+The portfolio detail page (`/portfolio/[slug]`) caps its hero image at `max-w-4xl` (~896 px), with `<SanityImage width={1800}>` and `sizes="(min-width: 920px) 896px, 100vw"`. Reads as an editorial feature, not a billboard. Sanity request stops at 1800 so we're not pulling a 1920 px file for a slot that maxes around 900 px even at 2× retina.
 
 ### Image guidelines for editors
 

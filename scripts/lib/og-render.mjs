@@ -28,7 +28,7 @@
 //              it is one small lazily-loaded file and makes a quick A/B of the
 //              two renderers possible; the build never loads it.
 // The two were compared side by side on 2026-09-29 (home, a project, a
-// three-line journal title) and match: same line breaks, same logo, same
+// three-line title) and match: same line breaks, same logo, same
 // glyph weight to the eye.
 // =============================================================================
 

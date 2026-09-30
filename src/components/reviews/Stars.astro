@@ -1,0 +1,70 @@
+---
+// Foundation, edit with care
+// Five stars drawn as one inline SVG (added 2026-09-30), used by RatingTag and
+// the Google review quotes on the home band.
+//
+// Partial fill without ids: each star is an empty star, then the same star in
+// a nested <svg> whose width AND viewBox width are the filled fraction of 24.
+// Scale stays 1 and a nested svg clips its overflow, so a 0.7 star is exactly
+// 70% filled from the left. No clipPath or gradient ids, so any number of
+// instances can sit on one page.
+//
+// Decorative: aria-hidden. The caller always prints the rating as text (or a
+// visually hidden "5 out of 5 stars"). Colours come from two custom
+// properties, so each surface picks its own:
+//   --star-on   filled (default Warm Bronze: a fill, never text, DESIGN.md)
+//   --star-off  empty  (default Oat)
+// Height from --star-h (default 1em); the width follows the viewBox.
+import { starFills } from '@/lib/reviews';
+
+interface Props {
+  rating: number;
+  class?: string;
+}
+
+const { rating, class: cls } = Astro.props as Props;
+const fills = starFills(rating);
+
+const STEP = 27; // 24px star + 3px gap
+const W = STEP * 4 + 24;
+const STAR =
+  '12 1.6 15.2 8.1 22.4 9.1 17.2 14.1 18.4 21.3 12 17.9 5.6 21.3 6.8 14.1 1.6 9.1 8.8 8.1';
+---
+
+<svg
+  class:list={['stars', cls]}
+  viewBox={`0 0 ${W} 24`}
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  {
+    fills.map((f, i) => (
+      <>
+        <polygon class="stars__off" points={STAR} transform={`translate(${i * STEP} 0)`} />
+        {f > 0 && (
+          <svg x={i * STEP} y="0" width={24 * f} height="24" viewBox={`0 0 ${24 * f} 24`}>
+            <polygon class="stars__on" points={STAR} />
+          </svg>
+        )}
+      </>
+    ))
+  }
+</svg>
+
+<style>
+  .stars {
+    display: block;
+    flex: none;
+    height: var(--star-h, 1em);
+    width: auto;
+    aspect-ratio: 132 / 24;
+    overflow: visible;
+  }
+  .stars__off {
+    fill: var(--star-off, var(--color-chip-2));
+  }
+  .stars__on {
+    fill: var(--star-on, var(--color-chip-5));
+  }
+</style>

@@ -6,22 +6,18 @@
 // blocks. Content is still edited in each section's own tab.
 //
 // Default order is conversion-tuned: Hero, Meet Staci, Featured Work (visual
-// proof), Kind Words (social proof), How It Works, Services + pricing, Featured
-// Journal (depth), Press strip, Service-area cue, Final CTA. Featured Work +
-// Featured Journal + the press strip auto-populate and self-suppress when empty
-// or when their section is turned off.
+// proof), Kind Words (social proof), How It Works, Services + pricing,
+// Service-area cue, Final CTA. Featured Work auto-populates and self-suppresses
+// when the portfolio is turned off. (The Featured Journal and press strip
+// sections were removed on 2026-09-30.)
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HomeSectionRenderer from '@/components/HomeSectionRenderer.astro';
-import { getHomePage, getSiteSettings, getPressItems } from '@/lib/queries';
+import { getHomePage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { site } from '@/data/site';
 
-const [page, siteSettings, pressItems] = await Promise.all([
-  getHomePage(),
-  getSiteSettings(),
-  getPressItems(),
-]);
+const [page, siteSettings] = await Promise.all([getHomePage(), getSiteSettings()]);
 
 // Unset visibility fields count as visible, so the live site is unchanged until
 // Staci explicitly turns something off in Studio.
@@ -43,7 +39,6 @@ const description =
     sections={page?.pageBuilder}
     page={page}
     siteSettings={siteSettings}
-    pressItems={pressItems}
     visible={visible}
   />
 </BaseLayout>

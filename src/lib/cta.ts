@@ -20,7 +20,6 @@ const TYPE_TO_PATH: Record<string, string> = {
   servicesPage: '/services',
   faqPage: '/faq',
   contactPage: '/contact',
-  journalPage: '/journal',
 };
 
 export function resolveCtaHref(c: CtaBlock | null | undefined, fallbackHref = '/contact'): string {
@@ -30,7 +29,6 @@ export function resolveCtaHref(c: CtaBlock | null | undefined, fallbackHref = '/
       const t = c.internalLink?._type;
       if (!t) return fallbackHref;
       // Slug-based types need the slug appended. Singletons use a fixed path.
-      if (t === 'journalEntry' && c.internalLink?.slug) return `/journal/${c.internalLink.slug}`;
       // Custom pages Staci builds via the page builder, routed at /[slug].
       if (t === 'page' && c.internalLink?.slug) return `/${c.internalLink.slug}`;
       return TYPE_TO_PATH[t] ?? fallbackHref;

@@ -1,6 +1,5 @@
 // Single source of truth for the site's public, statically-known routes.
-// Excludes dynamic [slug] routes (portfolio/[slug], journal/[slug],
-// guides/[slug], [slug].astro) and /404. Each path below was verified
+// Excludes dynamic [slug] routes (portfolio/[slug], [slug].astro) and /404. Each path below was verified
 // against a real file/dir in src/pages at the time this list was written.
 
 /** Routes that render real content and must pass every check. */
@@ -37,9 +36,18 @@ export const routes: string[] = [
  * See migration-docs/05-reid-design-2.0-changes.md for the recommended fix
  * (turn the sections on, or stop emitting sitemap entries for hidden ones).
  */
-export const hiddenRoutes: string[] = [
-  '/portfolio',
-  '/portfolio/before-after',
+export const hiddenRoutes: string[] = ['/portfolio', '/portfolio/before-after'];
+
+/** Every route that should return HTTP 200, whether or not it renders content. */
+export const allRoutes: string[] = [...routes, ...hiddenRoutes];
+
+/**
+ * The eight never-launched sections REMOVED on 2026-09-30 (not just hidden).
+ * The build must bake no page at any of them: in production public/_redirects
+ * forwards each one with a 301 (pinned by src/lib/retired-redirects.test.ts),
+ * and the static test server, which does not read _redirects, answers 404.
+ */
+export const retiredRoutes: string[] = [
   '/journal',
   '/shop',
   '/gift-certificates',
@@ -49,6 +57,3 @@ export const hiddenRoutes: string[] = [
   '/guides',
   '/press',
 ];
-
-/** Every route that should return HTTP 200, whether or not it renders content. */
-export const allRoutes: string[] = [...routes, ...hiddenRoutes];

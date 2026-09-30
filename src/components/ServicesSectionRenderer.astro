@@ -86,6 +86,7 @@ const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
             hasBuilders={hasBuilders}
             hasServiceArea={hasServiceArea}
             visibleEDesign={visible.eDesign}
+            ratingSettings={siteSettings}
           />
         ) : s.section === 'builders' ? (
           <BuildersRealtors builders={builders} />

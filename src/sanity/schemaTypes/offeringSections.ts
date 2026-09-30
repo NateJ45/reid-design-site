@@ -1,5 +1,6 @@
-// Marker-based retrofit for the offering pages (Resources, Press, Gift, E-Design).
-// Same approach as the core pages; a small factory keeps the four markers DRY.
+// Marker-based retrofit for the offering pages. Only E-Design is left: the
+// Resources, Press and Gift markers went on 2026-09-30 with their pages. The
+// small factory stays so a future offering page can reuse it.
 
 import { defineType, defineField } from 'sanity';
 import { ComponentIcon } from '@sanity/icons';
@@ -38,54 +39,6 @@ function makeMarker(name: string, sections: SectionOption[]) {
 const typesFor = (markerName: string) => [{ type: markerName }, ...SECTION_TYPES];
 const defaultOrder = (markerName: string, docId: string, order: string[]) =>
   order.map((section) => ({ _type: markerName, _key: `${docId}-${section}`, section }));
-
-// ── Resources ────────────────────────────────────────────────────────────────
-const RESOURCES_SECTIONS = [
-  { value: 'hero', title: 'Hero' },
-  { value: 'intro', title: 'Intro copy' },
-  { value: 'cards', title: 'Resource cards' },
-];
-export const resourcesSectionMarker = makeMarker('resourcesSectionMarker', RESOURCES_SECTIONS);
-export const RESOURCES_SECTION_TYPES = typesFor('resourcesSectionMarker');
-export const RESOURCES_DEFAULT_ORDER = defaultOrder('resourcesSectionMarker', 'resources', [
-  'hero',
-  'intro',
-  'cards',
-]);
-
-// ── Press ────────────────────────────────────────────────────────────────────
-const PRESS_SECTIONS = [
-  { value: 'hero', title: 'Hero' },
-  { value: 'pressStrip', title: 'As-seen-in logo strip' },
-  { value: 'intro', title: 'Intro copy' },
-  { value: 'list', title: 'Press list' },
-];
-export const pressSectionMarker = makeMarker('pressSectionMarker', PRESS_SECTIONS);
-export const PRESS_SECTION_TYPES = typesFor('pressSectionMarker');
-export const PRESS_DEFAULT_ORDER = defaultOrder('pressSectionMarker', 'press', [
-  'hero',
-  'pressStrip',
-  'intro',
-  'list',
-]);
-
-// ── Gift Certificates ────────────────────────────────────────────────────────
-// Hero, coming-soon state, and the bespoke closing CTA stay in gift-certificates.astro;
-// the reorderable content sections are the markers.
-const GIFT_SECTIONS = [
-  { value: 'intro', title: 'Intro copy' },
-  { value: 'options', title: 'Gift options' },
-  { value: 'howItWorks', title: 'How it works' },
-  { value: 'finePrint', title: 'Fine print' },
-];
-export const giftSectionMarker = makeMarker('giftSectionMarker', GIFT_SECTIONS);
-export const GIFT_SECTION_TYPES = typesFor('giftSectionMarker');
-export const GIFT_DEFAULT_ORDER = defaultOrder('giftSectionMarker', 'gift', [
-  'intro',
-  'options',
-  'howItWorks',
-  'finePrint',
-]);
 
 // ── E-Design ─────────────────────────────────────────────────────────────────
 // Hero, coming-soon state, and the closing CTA stay in e-design.astro; the

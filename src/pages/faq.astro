@@ -295,13 +295,10 @@ const schemas = [
       column-gap: clamp(3rem, 6vw, 6.5rem);
       align-items: start;
     }
+    /* Clears the condensed header strip and its hanging logo. */
     .faqp__index {
       position: sticky;
       top: 8.5rem;
-      transition: top 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    :global(:root:has(.site-header[data-state='hidden'])) .faqp__index {
-      top: 2.5rem;
     }
     .faqp__topics {
       border-top: 1px solid var(--color-ink);

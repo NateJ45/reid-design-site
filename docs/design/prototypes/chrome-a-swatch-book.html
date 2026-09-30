@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reid chrome · A, Swatch book</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=zodiak@300,400,300i&f[]=general-sans@400,500,600&display=swap">
+<style>
+:root{--linen:#f7f3ee;--paper:#fffdfa;--ink:#231e1b;--ink2:#5a4e46;--cream:#f5ede3;--rule:#e2d8cc;
+--c1:#f1e7dc;--c2:#e2cfbd;--c3:#cdb09a;--c4:#b39079;--c5:#9c7661;--c6:#80604f;--c7:#5f4639;
+--d:'Zodiak',Georgia,serif;--s:'General Sans',system-ui,sans-serif;--e:cubic-bezier(.22,1,.36,1);--gut:clamp(1rem,4vw,3.5rem)}
+*{box-sizing:border-box}html,body{overflow-x:clip}
+body{margin:0;background:var(--linen);color:var(--ink);font:400 1rem/1.6 var(--s);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}img{display:block;max-width:100%}
+.wrap{max-width:85rem;margin-inline:auto;padding-inline:var(--gut)}
+
+/* ================= HEADER ================= */
+.hdr{position:sticky;top:0;z-index:20;padding-top:14px;transition:padding .5s var(--e)}
+.hdr__in{display:flex;align-items:center;gap:2.25rem;height:76px;padding-inline:var(--gut);max-width:85rem;margin-inline:auto;
+  border-radius:0;transition:all .6s var(--e)}
+/* scrolled: condense into a floating paper swatch strip */
+.is-scrolled .hdr{padding-top:10px}
+.is-scrolled .hdr__in{max-width:min(78rem,calc(100% - 2*var(--gut)));height:62px;background:var(--paper);border-radius:4px;
+  padding-inline:1.25rem 0.5rem;box-shadow:0 1px 0 var(--rule),0 22px 40px -28px rgba(35,30,27,.55)}
+.is-scrolled .hdr__in::after{content:"";position:absolute}
+.logo{align-self:flex-start;position:relative;z-index:2}.logo img{height:128px;width:auto;margin-top:2px;filter:drop-shadow(0 14px 18px rgba(35,30,27,.18));transition:height .5s var(--e)}
+.is-scrolled .logo img{height:76px;margin-top:-4px;filter:drop-shadow(0 10px 14px rgba(35,30,27,.22))}
+.nav{display:flex;gap:.35rem;margin-left:auto;align-items:stretch}
+.nav a{position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:0 .95rem .6rem;height:56px;
+  font:500 .95rem/1 var(--s);isolation:isolate}
+/* each nav item owns a paint chip that rises behind it on hover / when current */
+.nav a::before{content:"";position:absolute;inset:auto .15rem 0 .15rem;height:0;background:var(--tone);z-index:-1;
+  transition:height .5s var(--e);border-radius:2px 2px 0 0}
+.nav a::after{content:none;position:absolute;top:.55rem;left:.95rem;font:500 .62rem/1 var(--s);letter-spacing:.02em;
+  color:var(--ink);opacity:0;transform:translateY(6px);transition:all .45s var(--e)}
+.nav a:hover::before,.nav a[aria-current]::before{height:100%}
+.nav a:hover::after,.nav a[aria-current]::after{opacity:.7;transform:none}
+.is-scrolled .nav a{height:62px}
+/* price-tag CTA: notched left edge + punched hole */
+.tagbtn{position:relative;display:inline-flex;align-items:center;gap:.75rem;height:46px;padding:0 1.25rem 0 2.1rem;background:var(--ink);color:var(--cream);
+  font:500 .92rem/1 var(--s);clip-path:polygon(16px 0,100% 0,100% 100%,16px 100%,0 50%);transition:background .4s,transform .5s var(--e)}
+.tagbtn::before{content:"";position:absolute;left:12px;top:50%;width:8px;height:8px;border-radius:50%;translate:0 -50%;background:var(--linen)}
+.is-scrolled .tagbtn::before{background:var(--paper)}
+.tagbtn b{font:300 1.15rem/1 var(--d);padding-left:.75rem;border-left:1px solid rgba(245,237,227,.3)}
+.tagbtn:hover{background:var(--c7);transform:rotate(-2deg)}
+.menu-btn{display:none}
+@media (max-width:1023px){
+  .nav,.hdr .tagbtn{display:none}
+  .hdr__in{height:64px;gap:1rem}
+  .logo img{height:92px}
+  .menu-btn{display:inline-flex;margin-left:auto;position:relative;align-items:center;gap:.6rem;height:44px;padding:0 1rem 0 1.9rem;background:var(--ink);color:var(--cream);
+    border:0;font:500 .9rem/1 var(--s);clip-path:polygon(14px 0,100% 0,100% 100%,14px 100%,0 50%)}
+  .menu-btn::before{content:"";position:absolute;left:10px;top:50%;width:7px;height:7px;border-radius:50%;translate:0 -50%;background:var(--linen)}
+  .menu-btn span{display:flex;flex-direction:column;gap:4px}.menu-btn span i{display:block;width:16px;height:1.5px;background:currentColor}
+}
+
+/* ================= MOBILE MENU: the fan deck ================= */
+.deck{position:fixed;inset:0;z-index:40;background:var(--ink);color:var(--cream);display:none;flex-direction:column;overflow:hidden}
+.menu-open .deck{display:flex}
+.deck__top{display:flex;align-items:flex-start;justify-content:space-between;padding:14px var(--gut) 0}
+.deck__top img{height:108px}
+.deck__close{position:relative;height:44px;padding:0 1rem 0 1.9rem;background:var(--cream);color:var(--ink);border:0;font:500 .9rem/1 var(--s);
+  clip-path:polygon(14px 0,100% 0,100% 100%,14px 100%,0 50%)}
+.deck__close::before{content:"";position:absolute;left:10px;top:50%;width:7px;height:7px;border-radius:50%;translate:0 -50%;background:var(--ink)}
+.deck__fan{position:relative;flex:1;margin:1.25rem var(--gut) 0}
+.chip{position:absolute;left:0;right:0;height:132px;padding:1rem 1.1rem;background:var(--tone);color:var(--on,var(--ink));border-radius:6px;
+  display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:flex-start;transform-origin:18px 100%;
+  box-shadow:0 -1px 0 rgba(255,255,255,.12) inset,0 -18px 30px -24px rgba(0,0,0,.6);
+  top:calc(var(--n)*78px);transform:rotate(calc((var(--n) - 2) * -1.4deg))}
+.chip small{font:500 .7rem/1 var(--s);opacity:.75;margin:.35rem 1.6rem 0 0}
+.chip{flex-direction:row!important;align-items:flex-start!important}.chip strong{font:300 2.2rem/1 var(--d);letter-spacing:-.025em;margin-top:-.1rem}
+.chip::after{content:"";position:absolute;right:1.1rem;top:1rem;width:10px;height:10px;border-radius:50%;background:var(--ink);opacity:.85}
+@media (prefers-reduced-motion:no-preference){
+  .menu-open .chip{animation:fanin .9s var(--e) both;animation-delay:calc(var(--n)*70ms)}
+  @keyframes fanin{from{transform:translateY(120%) rotate(8deg)}}
+}
+.deck__foot{padding:1.25rem var(--gut) 1.5rem;display:grid;gap:1rem;background:linear-gradient(transparent,var(--ink) 20%)}
+.deck__foot .tagbtn{background:var(--cream);color:var(--ink);justify-content:space-between;height:54px;font-size:1rem}
+.deck__foot .tagbtn::before{background:var(--ink)}
+.deck__foot .tagbtn b{border-color:rgba(35,30,27,.25)}
+.deck__meta{display:flex;justify-content:space-between;font-size:.9rem;color:rgba(245,237,227,.8)}
+
+/* ================= FOOTER ================= */
+.stub{height:520px;display:grid;place-items:center;font:300 3.5rem/1 var(--d);color:var(--c3)}
+.cta-stub{background:var(--c6);color:var(--cream);padding:5rem 0;font:300 3rem/1 var(--d)}
+.ftr{position:relative;background:var(--ink);color:var(--cream);margin-top:-1px}
+/* pinking-shear edge, cut into the section above */
+.ftr::before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px;background:var(--ink);
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/22px 100%;
+          mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/22px 100%}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);height:clamp(64px,7vw,96px)}
+.strip span{background:var(--tone);position:relative;display:flex;align-items:flex-end;padding:.6rem .7rem;font:500 .66rem/1.2 var(--s);color:var(--on,var(--ink))}
+.ftr__grid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:3rem;padding-block:4.5rem 3rem}
+.ftr h3{margin:0 0 1.25rem;font:300 1.35rem/1.1 var(--d);color:var(--c2)}
+.idx{list-style:none;margin:0;padding:0}
+.idx a{display:flex;align-items:baseline;gap:.7rem;padding:.7rem 0;border-top:1px solid rgba(245,237,227,.14);font:300 1.55rem/1.1 var(--d);transition:padding .45s var(--e),color .3s}
+.idx a:hover{padding-left:.6rem;color:var(--c2)}
+.idx a i{flex:none;width:12px;height:12px;background:var(--tone);border-radius:2px;align-self:center}
+.idx a em{flex:1;border-bottom:1px dotted rgba(245,237,227,.3);margin-bottom:.3rem}
+.idx a span{font:400 .95rem/1 var(--s);color:rgba(245,237,227,.75)}
+.tags{display:grid;gap:.9rem;justify-items:start}
+.stag{position:relative;display:block;background:var(--paper);color:var(--ink);padding:.7rem 1.1rem .8rem 2.1rem;clip-path:polygon(16px 0,100% 0,100% 100%,16px 100%,0 50%);transform:rotate(var(--r,0deg))}
+.stag::before{content:"";position:absolute;left:12px;top:50%;width:8px;height:8px;border-radius:50%;translate:0 -50%;box-shadow:inset 0 0 0 1.5px var(--c5)}
+.stag small{display:block;font:500 .7rem/1.2 var(--s);color:var(--ink2)}.stag b{font:400 1.05rem/1.25 var(--d)}
+.hours{font-size:.95rem;color:rgba(245,237,227,.8);line-height:1.7}
+.mark{display:flex;align-items:center;gap:clamp(1.5rem,4vw,4rem);padding-block:1rem 3rem}.mark img{width:clamp(150px,18vw,250px);flex:none}.mark p{margin:0;font:300 clamp(1.8rem,1rem + 2.6vw,3.6rem)/1.05 var(--d);letter-spacing:-.03em;color:var(--cream);max-width:18ch}.mark em{color:var(--c3)}@media (max-width:700px){.mark{flex-direction:column;align-items:flex-start}}.word-unused{font:300 clamp(5rem,17.5vw,17rem)/.9 var(--d);letter-spacing:-.05em;color:var(--c6);white-space:nowrap;margin:0;
+  padding-inline:calc(var(--gut) - .04em);overflow:hidden}
+.word em{color:var(--c5)}
+.base{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-block:1.25rem;border-top:1px solid rgba(245,237,227,.14);font-size:.85rem;color:rgba(245,237,227,.7)}
+.base a{text-decoration:underline;text-underline-offset:3px}
+@media (max-width:900px){.ftr__grid{grid-template-columns:1fr;gap:2.5rem}.strip span{font-size:0;padding:0}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr__in">
+    <a class="logo" href="#"><img src="logo-light.png" alt="Reid Design"></a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#" style="--tone:var(--c1)">Services</a>
+      <a href="#" style="--tone:var(--c2)" aria-current="page">Process</a>
+      <a href="#" style="--tone:var(--c3)">E-Design</a>
+      <a href="#" style="--tone:var(--c2)">About</a>
+      <a href="#" style="--tone:var(--c1)">FAQ</a>
+    </nav>
+    <a class="tagbtn" href="#">Book a consult <b>$225</b></a>
+    <button class="menu-btn" type="button">Menu <span><i></i><i></i></span></button>
+  </div>
+</header>
+
+<main>
+  <section class="stub">page content</section>
+  <section class="stub" style="background:var(--paper)">more content</section>
+  <section class="cta-stub"><div class="wrap">Let's start with the room that's bugging you.</div></section>
+</main>
+
+<footer class="ftr">
+  <div class="strip" aria-hidden="true">
+    <span style="--tone:var(--c1)">Linen</span><span style="--tone:var(--c2)">Oat</span><span style="--tone:var(--c3)">Sandbar</span><span style="--tone:var(--c4)">Saddle</span><span style="--tone:var(--c5);--on:var(--cream)">Warm Bronze</span><span style="--tone:var(--c6);--on:var(--cream)">Walnut</span><span style="--tone:var(--c7);--on:var(--cream)">Espresso</span>
+  </div>
+  <div class="wrap ftr__grid">
+    <div>
+      <h3>The studio</h3>
+      <ul class="idx">
+        <li><a href="#"><i style="--tone:var(--c1)"></i>Services<em></em><span>from $225</span></a></li>
+        <li><a href="#"><i style="--tone:var(--c2)"></i>Process<em></em><span>4 steps</span></a></li>
+        <li><a href="#"><i style="--tone:var(--c3)"></i>E-Design<em></em><span>from $250</span></a></li>
+        <li><a href="#"><i style="--tone:var(--c4)"></i>About Staci<em></em><span></span></a></li>
+        <li><a href="#"><i style="--tone:var(--c6)"></i>FAQ<em></em><span>19 answers</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Get in touch</h3>
+      <div class="tags">
+        <a class="stag" style="--r:-2deg" href="#"><small>Email</small><b>staci@reiddesignllc.com</b></a>
+        <a class="stag" style="--r:1.5deg" href="#"><small>Call or text</small><b>(931) 539-5255</b></a>
+        <a class="stag" style="--r:-1deg" href="#"><small>Instagram</small><b>@reiddesignllc</b></a>
+      </div>
+    </div>
+    <div>
+      <h3>Based in Plainfield</h3>
+      <p class="hours">Serving Indianapolis, Carmel, Fishers, Westfield, Zionsville, Noblesville and the towns between. Farther out, E-Design works anywhere.</p>
+    </div>
+  </div>
+  <div class="wrap mark"><img src="logo-dark.png" alt="Reid Design"><p>Homes that feel collected, cozy, and <em>completely yours.</em></p></div>
+  <div class="wrap base"><span>© 2026 Reid Design LLC · Plainfield, Indiana</span><span><a href="#">Privacy</a> · Site by <a href="#">Nixon Creative Studio</a></span></div>
+</footer>
+
+<div class="deck" role="dialog" aria-label="Menu">
+  <div class="deck__top"><img src="logo-dark.png" alt="Reid Design"><button class="deck__close" type="button">Close</button></div>
+  <div class="deck__fan">
+    <a class="chip" href="#" style="--n:0;--tone:var(--c1)"><strong>Services</strong></a>
+    <a class="chip" href="#" style="--n:1;--tone:var(--c2)"><strong>Process</strong></a>
+    <a class="chip" href="#" style="--n:2;--tone:var(--c3)"><strong>E-Design</strong></a>
+    <a class="chip" href="#" style="--n:3;--tone:var(--c4)"><strong>About</strong></a>
+    <a class="chip" href="#" style="--n:4;--tone:var(--c6);--on:var(--cream)"><strong>FAQ</strong></a>
+  </div>
+  <div class="deck__foot">
+    <a class="tagbtn" href="#">Book the in-home consult <b>$225</b></a>
+    <div class="deck__meta"><span>(931) 539-5255</span><span>staci@reiddesignllc.com</span></div>
+  </div>
+</div>
+<script>
+const q=new URLSearchParams(location.search);
+if(q.has('menu'))document.body.classList.add('menu-open');
+if(q.has('scrolled'))document.body.classList.add('is-scrolled');
+addEventListener('scroll',()=>document.body.classList.toggle('is-scrolled',scrollY>40||q.has('scrolled')));
+document.querySelector('.menu-btn').onclick=()=>document.body.classList.add('menu-open');
+document.querySelector('.deck__close').onclick=()=>document.body.classList.remove('menu-open');
+</script>
+</body>
+</html>

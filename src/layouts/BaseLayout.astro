@@ -61,7 +61,7 @@ interface Props {
   siteSettings?: any;
   /** When true, emit <meta name="robots" content="noindex, follow">. Used by the 404 page so it never gets indexed. Defaults to false (the page is indexable). */
   noindex?: boolean;
-  /** OG type. Defaults to 'website'. Pass 'article' for journal/blog post detail pages. */
+  /** OG type. Defaults to 'website'. Pass 'article' for a dated article-style page (none today). */
   ogType?: 'website' | 'article';
   /** Article-specific OG metadata. Only used when ogType is 'article'. */
   ogArticle?: {
@@ -229,8 +229,8 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
         buy for free. Revisit only if a page's LCP element becomes text. */}
 
 
-    {/* RSS autodiscovery — browsers and feed readers surface this automatically. */}
-    <link rel="alternate" type="application/rss+xml" title={`${site.name} Journal`} href="/journal/rss.xml" />
+    {/* (The journal RSS autodiscovery link lived here until the journal was
+        removed on 2026-09-30; /journal/rss.xml now redirects home.) */}
 
     {/* Open Graph */}
     <meta property="og:type" content={ogType} />
@@ -248,7 +248,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     {cardSpec && (
       <script is:inline type="application/json" id={CARD_SPEC_ID} set:html={serializeSpec(cardSpec)} />
     )}
-    {/* article:* meta — only emitted on journal/blog post detail pages */}
+    {/* article:* meta — only emitted when a page passes ogType 'article' (none today) */}
     {ogType === 'article' && ogArticle?.publishedAt && (
       <meta property="article:published_time" content={ogArticle.publishedAt} />
     )}
@@ -529,38 +529,40 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
           }
         }
 
-        // ---- Sticky-header hide on scroll-down --------------------------
-        // The header is position:sticky via .site-header. We swap a data-state
-        // attribute that the CSS translates into a translateY(-100%) when the
-        // user scrolls downward past the hero band.
+        // ---- Sticky header: condense on scroll ---------------------------
+        // The header (.site-header, position: sticky) rests as a bare row with
+        // the hanging logo, and condenses into a floating paper strip once the
+        // page moves (the swatch book chrome, 2026-09-30). This only toggles a
+        // data-scrolled attribute; Header.astro's CSS does the rest inside a
+        // fixed-height box, so nothing reflows. It used to hide the header on
+        // scroll-down; the condensed strip is small enough to stay.
+        // Re-queried on every page load: the header is swapped by View
+        // Transitions, and a reload mid-page must start condensed.
         const header = document.querySelector<HTMLElement>('.site-header');
-        if (header && !(header as any).__polishWired) {
-          (header as any).__polishWired = true;
-          let lastY = window.scrollY;
-          let ticking = false;
-          const SHOW_THRESHOLD = 80; // small jitter buffer
-          const HIDE_AFTER = 120;    // don't hide until past hero band
-
-          const onScroll = () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-              const y = window.scrollY;
-              const dy = y - lastY;
-              if (reduceMotion) {
-                header.removeAttribute('data-state');
-              } else if (y < HIDE_AFTER) {
-                header.removeAttribute('data-state');
-              } else if (dy > 4) {
-                header.setAttribute('data-state', 'hidden');
-              } else if (dy < -4) {
-                header.removeAttribute('data-state');
-              }
-              lastY = y;
-              ticking = false;
-            });
+        if (header) {
+          const sync = () => {
+            header.toggleAttribute('data-scrolled', window.scrollY > 8);
           };
-          window.addEventListener('scroll', onScroll, { passive: true });
+          sync();
+          const w = window as typeof window & { __hdrScrollBound?: boolean };
+          if (!w.__hdrScrollBound) {
+            w.__hdrScrollBound = true;
+            let ticking = false;
+            window.addEventListener(
+              'scroll',
+              () => {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(() => {
+                  document
+                    .querySelector<HTMLElement>('.site-header')
+                    ?.toggleAttribute('data-scrolled', window.scrollY > 8);
+                  ticking = false;
+                });
+              },
+              { passive: true },
+            );
+          }
         }
       }
 

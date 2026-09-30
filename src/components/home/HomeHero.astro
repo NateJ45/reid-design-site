@@ -31,6 +31,10 @@
 import SanityImage from '@/components/SanityImage.astro';
 import RiseWords from '@/components/RiseWords.astro';
 import { resolveCtaHref, ctaOpensNewTab, type CtaBlock } from '@/lib/cta';
+// Google rating under the buttons (2026-09-30). Renders nothing until
+// siteSettings has both a rating and a review count.
+import RatingTag from '@/components/reviews/RatingTag.astro';
+import { googleRatingFrom, type GoogleRatingSettings } from '@/lib/reviews';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
@@ -50,6 +54,8 @@ interface Props {
   primaryCta?: CtaBlock | null;
   secondaryCta?: CtaBlock | null;
   headingId?: string;
+  /** siteSettings, for the Google rating tag (googleRating, googleReviewCount, googleBusinessUrl). */
+  ratingSettings?: GoogleRatingSettings | null;
 }
 
 const {
@@ -63,6 +69,7 @@ const {
   primaryCta,
   secondaryCta,
   headingId = 'hero-heading',
+  ratingSettings,
 } = Astro.props as Props;
 
 const photo = portrait?.asset ? portrait : (fallbackImages?.find((i) => i?.asset) ?? fallbackImage);
@@ -118,6 +125,13 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
           )
         }
       </div>
+      {
+        googleRatingFrom(ratingSettings) && (
+          <div class="home-hero__rating">
+            <RatingTag settings={ratingSettings} />
+          </div>
+        )
+      }
     </div>
   </div>
 
@@ -172,7 +186,9 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     flex-direction: column;
     justify-content: flex-end;
     gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding: clamp(2.5rem, 5vw, 4rem) var(--gut) clamp(2.75rem, 6vw, 5.5rem);
+    /* Extra top room (2026-09-30) so the header logo plate, which hangs below
+       the header line, clears the eyebrow. */
+    padding: clamp(3.5rem, 8vw, 6.5rem) var(--gut) clamp(2.75rem, 6vw, 5.5rem);
     /* Start the copy on the page container's left edge on wide screens. */
     padding-left: max(var(--gut), calc((100vw - 85rem) / 2 + var(--gut)));
   }
@@ -229,6 +245,12 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
   }
   .home-hero__secondary {
     color: var(--color-cream);
+  }
+  /* The Google rating tag takes its own row under the buttons, hung a touch
+     off the copy's left edge like a tag tied to the deck. */
+  .home-hero__rating {
+    flex-basis: 100%;
+    margin-top: 0.25rem;
   }
 
   .home-hero__photo {

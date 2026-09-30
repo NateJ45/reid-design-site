@@ -38,7 +38,9 @@
 #                                          Astro's island loader, and ClientRouter all run inline.
 #                                          (A hash-based `security.csp` was tried and broke
 #                                          the site; see docs/agent/stack-and-config.md.)
-#   connect-src api.web3forms.com          contact form + newsletter (ContactForm.tsx, lib/subscribe.ts)
+#   connect-src api.web3forms.com          contact form (ContactForm.tsx). The newsletter signup
+#                                          that also posted here was removed 2026-09-30; it
+#                                          never used any other origin, so nothing else went.
 #               *.google-analytics.com, *.analytics.google.com, www.googletagmanager.com,
 #               *.g.doubleclick.net, www.google.com   GA4 collection (Google's published CSP
 #                                          list). www.google.com/g/collect is NOT optional: this
@@ -58,10 +60,12 @@
 #                                          not eval() of JavaScript.
 #   frame-src   calendly.com               click-to-load scheduler (CalendlyInline.tsx)
 #               www.youtube.com, www.youtube-nocookie.com, player.vimeo.com
-#                                          VideoEmbed section + journal video blocks
+#                                          VideoEmbed section
 #               www.openstreetmap.org      ServiceAreaMap.astro
-#   img-src     https:                     Sanity CDN photos, shop affiliate product images
-#                                          from arbitrary retailers, GA's pixel
+#   img-src     https:                     Sanity CDN photos, GA's pixel. (It was broad for the
+#                                          shop's affiliate images from arbitrary retailers; the
+#                                          shop went 2026-09-30, so this could now be narrowed.
+#                                          Left as-is on purpose: a separate, tested change.)
 #   font-src    'self'                     all three families are self-hosted via @fontsource
 #   form-action api.web3forms.com          the no-JS fallback path of the contact form
 #

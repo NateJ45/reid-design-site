@@ -1,0 +1,237 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RatingTag: the Google star rating as a sample tag (added 2026-09-30)
+// =============================================================================
+// "5.0" in Zodiak, five drawn stars (partial fill for decimals), and
+// "6 Google reviews", on the paper sample tag of DESIGN.md (.r-tag grammar:
+// notched left edge, punched hole). Links to the Google Business Profile in a
+// new tab.
+//
+// Data: siteSettings.googleRating + googleReviewCount + googleBusinessUrl,
+// through googleRatingFrom() in src/lib/reviews.ts. Pass `settings` (the
+// getSiteSettings() result). **Renders nothing at all** when the rating or the
+// count is missing, so every placement collapses with no gap until Staci fills
+// both in (Site Settings, Reviews tab).
+//
+// Variants:
+//   inline   the default: home hero (under the buttons), Contact, Services
+//   stamp    larger and tilted, for the heading of the home reviews band
+//   compact  one short line with no tag shape, for the header. Takes
+//            currentColor, so it reads on any ground; stars via --star-on /
+//            --star-off (see Stars.astro).
+//
+// Accessible name, built from visible text plus visually hidden words so the
+// visible words appear in it in order (WCAG 2.5.3):
+//   "Rated 5.0 out of 5 from 6 Google reviews, opens Google in a new tab"
+// Without a profile link it is plain text, not a link, and drops the
+// "opens Google" part.
+//
+// Contrast: ink and ink 2 on paper (13+ and 7+). The Warm Bronze stars are a
+// fill, never text (DESIGN.md, "Warm Bronze takes no body-size text").
+// =============================================================================
+import Stars from './Stars.astro';
+import {
+  formatRating,
+  googleRatingFrom,
+  reviewCountLabel,
+  type GoogleRatingSettings,
+} from '@/lib/reviews';
+
+interface Props {
+  settings?: GoogleRatingSettings | null;
+  variant?: 'inline' | 'stamp' | 'compact';
+  class?: string;
+}
+
+const { settings, variant = 'inline', class: cls } = Astro.props as Props;
+const summary = googleRatingFrom(settings);
+const Tag = summary?.profileUrl ? 'a' : 'div';
+const linkAttrs = summary?.profileUrl
+  ? { href: summary.profileUrl, target: '_blank', rel: 'noopener noreferrer' }
+  : {};
+---
+
+{
+  summary &&
+    (variant === 'compact' ? (
+      <Tag class:list={['rt', 'rt--compact', cls]} {...linkAttrs}>
+        <Stars rating={summary.rating} class="rt__stars" />
+        <span class="rt__num">
+          <span class="sr-only">Rated </span>
+          {formatRating(summary.rating)}
+          <span class="sr-only"> out of 5 from {summary.count}</span>
+        </span>
+        <span class="rt__src">
+          Google
+          <span class="sr-only">
+            {summary.count === 1 ? ' review' : ' reviews'}
+            {summary.profileUrl && ', opens Google in a new tab'}
+          </span>
+        </span>
+      </Tag>
+    ) : (
+      <Tag class:list={['rt', `rt--${variant}`, cls]} {...linkAttrs}>
+        <span class="rt__tag">
+          <span class="rt__num">
+            <span class="sr-only">Rated </span>
+            {formatRating(summary.rating)}
+            <span class="sr-only"> out of 5</span>
+          </span>
+          <span class="rt__body">
+            <Stars rating={summary.rating} class="rt__stars" />
+            <span class="rt__count">
+              <span class="sr-only">from </span>
+              {reviewCountLabel(summary.count)}
+              {summary.profileUrl && <span class="sr-only">, opens Google in a new tab</span>}
+              {summary.profileUrl && (
+                <span class="rt__arrow" aria-hidden="true">
+                  ↗
+                </span>
+              )}
+            </span>
+          </span>
+        </span>
+      </Tag>
+    ))
+}
+
+<style>
+  .rt {
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  a.rt:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  /* ---- The tag (inline + stamp). The shape sits on an inner span so the
+     link's focus outline is never clipped by the notch's clip-path. ---- */
+  .rt--inline,
+  .rt--stamp {
+    display: inline-block;
+    max-width: 100%;
+    rotate: var(--rt-tilt, -1.5deg);
+  }
+  .rt--stamp {
+    --rt-tilt: 2deg;
+  }
+  .rt__tag {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 1.15rem 0.6rem 2.1rem;
+    /* Paper by default; a paper band sets --rt-face to Linen so the tag
+       still reads as an object (ink on Linen 13.5:1). */
+    background: var(--rt-face, var(--color-paper));
+    color: var(--color-ink);
+    clip-path: polygon(1.1rem 0, 100% 0, 100% 100%, 1.1rem 100%, 0 50%);
+    filter: drop-shadow(0 10px 14px rgb(35 30 27 / 0.22));
+  }
+  /* The punched hole with its Warm Bronze ring, as on .r-tag. */
+  .rt__tag::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    translate: 0 -50%;
+    box-shadow: inset 0 0 0 1.5px var(--color-chip-5);
+  }
+  .rt__num {
+    font: 300 2rem/1 var(--font-display);
+    letter-spacing: -0.03em;
+    font-variant-numeric: lining-nums;
+  }
+  .rt__body {
+    display: grid;
+    gap: 0.3rem;
+    justify-items: start;
+  }
+  .rt :global(.rt__stars) {
+    --star-h: 0.95rem;
+  }
+  .rt__count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font: 500 0.85rem/1.2 var(--font-body);
+    color: var(--color-ink-2);
+    white-space: nowrap;
+  }
+  .rt__arrow {
+    display: inline-block;
+    color: var(--color-ink);
+  }
+  a.rt:hover .rt__count {
+    color: var(--color-ink);
+  }
+
+  /* ---- Stamp: the reviews band heading. Bigger number, bigger stars. ---- */
+  .rt--stamp .rt__tag {
+    gap: 1.1rem;
+    padding: 0.85rem 1.6rem 0.9rem 2.5rem;
+    clip-path: polygon(1.35rem 0, 100% 0, 100% 100%, 1.35rem 100%, 0 50%);
+  }
+  .rt--stamp .rt__tag::before {
+    left: 0.9rem;
+    width: 0.6rem;
+    height: 0.6rem;
+  }
+  .rt--stamp .rt__num {
+    font-size: clamp(2.6rem, 2rem + 1.6vw, 3.4rem);
+  }
+  .rt--stamp :global(.rt__stars) {
+    --star-h: 1.2rem;
+  }
+  .rt--stamp .rt__count {
+    font-size: 0.9rem;
+  }
+
+  /* ---- Compact: one line for the header, no tag shape. ---- */
+  .rt--compact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: inherit;
+    font: 500 0.85rem/1 var(--font-body);
+    white-space: nowrap;
+  }
+  .rt--compact :global(.rt__stars) {
+    --star-h: 0.75rem;
+  }
+  .rt--compact .rt__num {
+    font: 600 0.85rem/1 var(--font-body);
+    letter-spacing: 0;
+  }
+  a.rt--compact:hover .rt__src {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* The tag straightens and the arrow nudges on hover, only when motion is
+     welcome (DESIGN.md easing for interaction). */
+  @media (prefers-reduced-motion: no-preference) {
+    a.rt--inline,
+    a.rt--stamp {
+      transition: rotate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    a.rt--inline:hover,
+    a.rt--stamp:hover,
+    a.rt--inline:focus-visible,
+    a.rt--stamp:focus-visible {
+      rotate: 0deg;
+    }
+    .rt__arrow {
+      transition: translate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    a.rt:hover .rt__arrow {
+      translate: 2px -2px;
+    }
+  }
+</style>

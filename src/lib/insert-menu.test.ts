@@ -68,7 +68,10 @@ describe('every page-builder array uses the shared menu', () => {
         expect(f.options, `${t.name}.${f.name}`).toBe(SECTION_ARRAY_OPTIONS);
       }
     }
-    // Nine pageBuilder arrays and five Extra sections zones.
-    expect(arrays).toBe(14);
+    // Six pageBuilder arrays (home, about, process, services, e-design and the
+    // custom page) and four Extra sections zones (faq, contact, portfolio,
+    // privacy). Fourteen until 2026-09-30, when the gift, press and resources
+    // builders and the journal's Extra sections went with their pages.
+    expect(arrays).toBe(10);
   });
 });

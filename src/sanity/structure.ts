@@ -1,16 +1,18 @@
 // Studio Desk structure. Pins Site Settings at the top, then ALL page singletons
 // (one document each) under "Pages", then the reusable content collections under
-// "Content", then "Journal". Every document type is placed explicitly so nothing
+// "Content". Every document type is placed explicitly so nothing
 // floats loose at the desk root. The trailing default-list filter is a safety net
 // for any future type that hasn't been placed (and hides sanity-plugin-media's
 // media.tag type, which would otherwise show at the root).
 //
 // "Pages" is one list (so the rule for Staci is simple: every page lives here),
-// visually grouped with dividers: core pages, then offerings, then resources +
-// interactive tools, then the remaining pages.
+// visually grouped with dividers: core pages, then offerings, then the
+// remaining pages. (The journal, shop, gift, resources, press, quiz,
+// calculator and guides types were removed on 2026-09-30; they were never
+// launched.)
 //
-// Orderable lists: service / processStep / philosophyPoint / project / leadMagnet /
-// shopCollection / shopItem / pressItem use the orderable-document-list plugin.
+// Orderable lists: service / processStep / philosophyPoint / project use the
+// orderable-document-list plugin.
 // Editors drag rows to reorder; the plugin writes an `orderRank` string. GROQ
 // queries order by orderRank (with displayOrder fallback) so the site mirrors Studio.
 //
@@ -41,17 +43,9 @@ import {
   HeartIcon,
   ImagesIcon,
   ThListIcon,
-  EditIcon,
   TagIcon,
-  BookIcon,
   DesktopIcon,
-  BasketIcon,
-  CreditCardIcon,
-  BillIcon,
-  BulbOutlineIcon,
-  SearchIcon,
   LockIcon,
-  CaseIcon,
   DocumentsIcon,
   PresentationIcon,
   ThumbsUpIcon,
@@ -75,33 +69,16 @@ const SINGLETON_TYPES = [
   'portfolioPage',
   'faqPage',
   'contactPage',
-  'journalPage',
   'notFoundPage',
   // Conversion-build page singletons
   'eDesignPage',
-  'shopPage',
-  'giftPage',
-  'resourcesPage',
-  'pressPage',
   'privacyPage',
-  'styleQuiz',
-  'budgetCalculator',
   'studioGuide',
   'studioNotes',
   'studioPlaybook',
 ] as const;
 
-const ORDERABLE_TYPES = [
-  'service',
-  'processStep',
-  'philosophyPoint',
-  'project',
-  // Conversion-build collections (all carry orderRankField)
-  'leadMagnet',
-  'shopCollection',
-  'shopItem',
-  'pressItem',
-] as const;
+const ORDERABLE_TYPES = ['service', 'processStep', 'philosophyPoint', 'project'] as const;
 
 const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...SINGLETON_TYPES,
@@ -109,8 +86,6 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'testimonial',
   'faqItem',
   'announcement', // placed explicitly, right under Site Settings
-  'journalEntry',
-  'journalCategory',
   'page', // custom pages, placed explicitly under "Pages"
   // sanity-plugin-media registers this tag type; keep it out of the desk root
   // (the "Media" tool in the top sidebar is where tags belong).
@@ -213,7 +188,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.divider(),
 
       // Pages — every page singleton lives here, grouped with dividers so the
-      // list stays scannable: core pages, offerings, resources + tools, other.
+      // list stays scannable: core pages, offerings, other.
       S.listItem()
         .title('Pages')
         .icon(DocumentTextIcon)
@@ -229,27 +204,16 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               singletonWithPreview(S, 'portfolioPage', 'Portfolio (index page)', ImagesIcon),
               singletonWithPreview(S, 'faqPage', 'FAQ', HelpCircleIcon),
               singletonWithPreview(S, 'contactPage', 'Contact', EnvelopeIcon),
-              singletonWithPreview(S, 'journalPage', 'Journal (index page)', BookIcon),
               singletonWithPreview(S, 'notFoundPage', '404 Page', DocumentTextIcon),
 
               S.divider(),
 
               // Offerings
               singletonWithPreview(S, 'eDesignPage', 'E-Design Page', DesktopIcon),
-              singletonWithPreview(S, 'shopPage', 'Shop Page', BasketIcon),
-              singletonWithPreview(S, 'giftPage', 'Gift Certificates Page', CreditCardIcon),
-
-              S.divider(),
-
-              // Resources + interactive tools
-              singletonWithPreview(S, 'resourcesPage', 'Resources Page', BulbOutlineIcon),
-              singletonWithPreview(S, 'styleQuiz', 'Style Quiz', SearchIcon),
-              singletonWithPreview(S, 'budgetCalculator', 'Budget Calculator', BillIcon),
 
               S.divider(),
 
               // Other
-              singletonWithPreview(S, 'pressPage', 'Press Page', CaseIcon),
               singletonWithPreview(S, 'privacyPage', 'Privacy Policy Page', LockIcon),
 
               S.divider(),
@@ -264,8 +228,8 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               S.divider(),
 
               // Redirects: old address -> new address (PORTS.md card 22). Most
-              // entries are filed automatically when a published page, project,
-              // post or guide gets a new web address
+              // entries are filed automatically when a published page or
+              // project gets a new web address
               // (src/sanity/components/slugRedirect.tsx); Staci adds one by hand
               // for an address that never existed here, like an old Squarespace
               // link. Applied at build time by astro.config.mjs.
@@ -295,8 +259,8 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               S.divider(),
 
               // Pricing & rates — every place a price lives, in one spot. Services
-              // is the core list; the three offering pages keep their own pricing
-              // shape but are linked here too so Staci never hunts for a number.
+              // is the core list; the E-Design page keeps its own pricing shape
+              // but is linked here too so Staci never hunts for a number.
               S.listItem()
                 .title('Pricing & rates')
                 .icon(TagIcon)
@@ -312,18 +276,6 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                         context,
                       }),
                       singletonWithPreview(S, 'eDesignPage', 'E-Design pricing', DesktopIcon),
-                      singletonWithPreview(
-                        S,
-                        'giftPage',
-                        'Gift certificate amounts',
-                        CreditCardIcon,
-                      ),
-                      singletonWithPreview(
-                        S,
-                        'budgetCalculator',
-                        'Budget calculator ranges',
-                        BillIcon,
-                      ),
                     ]),
                 ),
 
@@ -365,54 +317,46 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 context,
               }),
               S.documentTypeListItem('testimonial').title('Testimonials').icon(StarIcon),
+              // Google reviews (2026-09-30): one place for everything Google.
+              // The rating summary lives on Site Settings (Reviews tab); the
+              // reviews themselves are testimonials with Source "Google", listed
+              // here newest first, and "+" starts one already set to Google
+              // (the 'testimonial-google' template in templates.ts).
+              S.listItem()
+                .title('Google reviews')
+                .icon(ThumbsUpIcon)
+                .child(
+                  S.list()
+                    .title('Google reviews')
+                    .items([
+                      S.listItem()
+                        .title('Star rating and review count')
+                        .icon(StarIcon)
+                        .child(
+                          S.document()
+                            .schemaType('siteSettings')
+                            .documentId('siteSettings')
+                            .title('Site Settings: open the Reviews tab')
+                            .views([S.view.form()]),
+                        ),
+                      S.listItem()
+                        .title('Reviews from Google')
+                        .icon(ThListIcon)
+                        .child(
+                          S.documentList()
+                            .title('Reviews from Google')
+                            .schemaType('testimonial')
+                            .filter(
+                              '_type == "testimonial" && (source == "Google" || sourceType == "Google")',
+                            )
+                            .defaultOrdering([{ field: 'date', direction: 'desc' }])
+                            .initialValueTemplates([
+                              S.initialValueTemplateItem('testimonial-google'),
+                            ]),
+                        ),
+                    ]),
+                ),
               S.documentTypeListItem('faqItem').title('FAQ Items').icon(HelpCircleIcon),
-
-              S.divider(),
-
-              // Other collections.
-              orderableDocumentListDeskItem({
-                type: 'leadMagnet',
-                title: 'Guides (lead magnets)',
-                icon: BookIcon,
-                S,
-                context,
-              }),
-              orderableDocumentListDeskItem({
-                type: 'shopCollection',
-                title: 'Shop Collections',
-                icon: ThListIcon,
-                S,
-                context,
-              }),
-              orderableDocumentListDeskItem({
-                type: 'shopItem',
-                title: 'Shop Items',
-                icon: BasketIcon,
-                S,
-                context,
-              }),
-              orderableDocumentListDeskItem({
-                type: 'pressItem',
-                title: 'Press Items',
-                icon: CaseIcon,
-                S,
-                context,
-              }),
-            ]),
-        ),
-
-      S.divider(),
-
-      // Journal — its own section so Staci can find posts + categories at a glance
-      S.listItem()
-        .title('Journal')
-        .icon(BookIcon)
-        .child(
-          S.list()
-            .title('Journal')
-            .items([
-              S.documentTypeListItem('journalEntry').title('Posts').icon(EditIcon),
-              S.documentTypeListItem('journalCategory').title('Categories').icon(TagIcon),
             ]),
         ),
 

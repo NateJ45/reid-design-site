@@ -1,9 +1,11 @@
 ---
 // Safe to edit by hand
 // E-Design "How it works" (phase 2 rebuild, 2026-09-30; DESIGN.md "Services
-// and E-Design"). A real sequence, so the numbers are shown big: each step
-// hangs off one thread that runs left to right (top to bottom on a phone),
-// the way the plan travels from your photos to your inbox. The thread draws
+// and E-Design"). Each step hangs off one thread that runs left to right
+// (top to bottom on a phone), the way the plan travels from your photos to
+// your inbox, pinned by a paint-chip swatch that deepens down the ramp. No
+// 01/02 numerals (2026-09-30, the no-decorative-numbering rule in DESIGN.md):
+// the thread and the order carry the sequence. The thread draws
 // itself as the section scrolls in (CSS only; the default is fully drawn).
 //
 // Data: eDesignPage.howItWorks[] (stepNumber, title, body). Renders nothing
@@ -20,6 +22,9 @@ interface Props {
 }
 const { steps } = Astro.props as Props;
 const list = steps ?? [];
+// Pin tones, palest to deepest along the thread (never Warm Bronze, which is
+// the thread's own colour).
+const PIN_TONES = [2, 3, 4, 6, 7];
 ---
 
 {
@@ -30,9 +35,11 @@ const list = steps ?? [];
         <ol class="eds__list" style={`--n:${list.length}`}>
           {list.map((step, i) => (
             <li class="eds__step">
-              <span class="eds__n" aria-hidden="true">
-                {String(step.stepNumber ?? i + 1).padStart(2, '0')}
-              </span>
+              <span
+                class="eds__pin"
+                aria-hidden="true"
+                style={`--tone:var(--color-chip-${PIN_TONES[i % PIN_TONES.length]})`}
+              />
               <h3 class="r-h3 eds__title">{step.title}</h3>
               {step.body && <p class="eds__body">{step.body}</p>}
             </li>
@@ -58,13 +65,13 @@ const list = steps ?? [];
     grid-template-columns: repeat(var(--n), minmax(0, 1fr));
     gap: 2rem;
   }
-  /* The thread, through the middle of the numerals. */
+  /* The thread, through the middle of the pins. */
   .eds__list::before {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
-    top: 2.6rem;
+    top: 0.85rem;
     height: 1.5px;
     background: var(--color-chip-5);
     transform-origin: left center;
@@ -72,15 +79,18 @@ const list = steps ?? [];
   .eds__step {
     position: relative;
   }
-  .eds__n {
+  /* A paint-chip swatch pinned on the thread, with a paper collar so the
+     thread reads as passing behind it. */
+  .eds__pin {
     position: relative;
-    display: inline-block;
-    padding-right: 0.9rem;
-    background: var(--color-paper);
-    font: 300 italic clamp(3.8rem, 2.6rem + 3vw, 5.6rem) / 0.95 var(--font-display);
-    letter-spacing: -0.04em;
-    color: var(--color-chip-6);
-    font-variant-numeric: lining-nums;
+    display: block;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 3px;
+    background: var(--tone);
+    box-shadow:
+      0 0 0 5px var(--color-paper),
+      0 6px 12px -4px rgb(35 30 27 / 0.35);
   }
   .eds__title {
     margin: 1.4rem 0 0.8rem;
@@ -114,10 +124,10 @@ const list = steps ?? [];
     .eds__list {
       grid-template-columns: minmax(0, 1fr);
       gap: 2.75rem;
-      padding-left: 5rem;
+      padding-left: 3.5rem;
     }
     .eds__list::before {
-      left: 1.6rem;
+      left: 0.85rem;
       right: auto;
       top: 0.5rem;
       bottom: 0.5rem;
@@ -125,14 +135,10 @@ const list = steps ?? [];
       height: auto;
       transform-origin: center top;
     }
-    .eds__n {
+    .eds__pin {
       position: absolute;
-      left: -5rem;
-      top: -0.2rem;
-      width: 3.4rem;
-      padding: 0 0 0.4rem;
-      text-align: center;
-      font-size: 2.9rem;
+      left: -3.5rem;
+      top: 0.1rem;
     }
     .eds__title {
       margin-top: 0;

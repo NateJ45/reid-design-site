@@ -105,11 +105,13 @@ describe('preview-only wiring', () => {
     expect(src).toMatch(/coach = false/);
   });
 
-  it('the eight marker renderers pass the signal only when they are in preview', () => {
+  it('the five marker renderers pass the signal only when they are in preview', () => {
     const files = readdirSync(join(SRC, 'components')).filter(
       (f) => f.endsWith('SectionRenderer.astro') && f !== 'SectionRenderer.astro',
     );
-    expect(files).toHaveLength(8);
+    // Five since 2026-09-30 (Home, About, Process, Services, E-Design); the
+    // Gift, Press and Resources renderers went with their pages.
+    expect(files).toHaveLength(5);
     for (const f of files) {
       const src = read(`components/${f}`);
       expect(src, f).toMatch(/<SectionRenderer[^>]*coach=\{Boolean\(editDoc\)\}/);

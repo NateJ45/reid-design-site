@@ -28,21 +28,12 @@ const PAGE_TARGETS = [
   { type: 'processPage' },
   { type: 'servicesPage' },
   { type: 'eDesignPage' },
-  { type: 'giftPage' },
-  { type: 'pressPage' },
-  { type: 'resourcesPage' },
   { type: 'faqPage' },
   { type: 'contactPage' },
-  { type: 'journalPage' },
   { type: 'portfolioPage' },
   { type: 'privacyPage' },
-  { type: 'shopPage' },
-  { type: 'styleQuiz' },
-  { type: 'budgetCalculator' },
   { type: 'page' },
-  { type: 'leadMagnet' },
   { type: 'project' },
-  { type: 'journalEntry' },
 ];
 
 export const announcement = defineType({

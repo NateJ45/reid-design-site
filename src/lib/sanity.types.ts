@@ -46,108 +46,6 @@ export type TrashedItem = {
   payload?: string;
 };
 
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-};
-
-export type ShopCollectionReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'shopCollection';
-};
-
-export type ShopItem = {
-  _id: string;
-  _type: 'shopItem';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  image?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  vendor?: string;
-  affiliateUrl?: string;
-  note?: string;
-  collection?: ShopCollectionReference;
-  orderRank?: string;
-};
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop';
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot';
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-};
-
-export type ShopCollection = {
-  _id: string;
-  _type: 'shopCollection';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  blurb?: string;
-  orderRank?: string;
-};
-
-export type Slug = {
-  _type: 'slug';
-  current?: string;
-  source?: string;
-};
-
-export type PressItem = {
-  _id: string;
-  _type: 'pressItem';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  outlet?: string;
-  logo?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  quote?: string;
-  url?: string;
-  date?: string;
-  orderRank?: string;
-};
-
-export type JournalCategory = {
-  _id: string;
-  _type: 'journalCategory';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  description?: string;
-};
-
 export type ServiceReference = {
   _ref: string;
   _type: 'reference';
@@ -187,6 +85,77 @@ export type ProcessStep = {
     } & ServiceReference
   >;
   orderRank?: string;
+};
+
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
+};
+
+export type Service = {
+  _id: string;
+  _type: 'service';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  price?: string;
+  priceNumeric?: number;
+  shortDescription?: string;
+  features?: Array<string>;
+  bestFor?: string;
+  featuredImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  longDescription?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: 'span';
+      _key: string;
+    }>;
+    style?: 'normal';
+    listItem?: 'bullet' | 'number';
+    markDefs?: null;
+    level?: number;
+    _type: 'block';
+    _key: string;
+  }>;
+  displayOrder?: number;
+  showOnHomepage?: boolean;
+  ctaLabel?: string;
+  badge?: string;
+  orderRank?: string;
+};
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop';
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot';
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
+export type Slug = {
+  _type: 'slug';
+  current?: string;
+  source?: string;
 };
 
 export type PhilosophyPoint = {
@@ -267,27 +236,6 @@ export type EDesignPageReference = {
   [internalGroqTypeReferenceTo]?: 'eDesignPage';
 };
 
-export type GiftPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'giftPage';
-};
-
-export type PressPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'pressPage';
-};
-
-export type ResourcesPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'resourcesPage';
-};
-
 export type FaqPageReference = {
   _ref: string;
   _type: 'reference';
@@ -300,13 +248,6 @@ export type ContactPageReference = {
   _type: 'reference';
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: 'contactPage';
-};
-
-export type JournalPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'journalPage';
 };
 
 export type PortfolioPageReference = {
@@ -323,27 +264,6 @@ export type PrivacyPageReference = {
   [internalGroqTypeReferenceTo]?: 'privacyPage';
 };
 
-export type ShopPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'shopPage';
-};
-
-export type StyleQuizReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'styleQuiz';
-};
-
-export type BudgetCalculatorReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'budgetCalculator';
-};
-
 export type PageReference = {
   _ref: string;
   _type: 'reference';
@@ -351,25 +271,11 @@ export type PageReference = {
   [internalGroqTypeReferenceTo]?: 'page';
 };
 
-export type LeadMagnetReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'leadMagnet';
-};
-
 export type ProjectReference = {
   _ref: string;
   _type: 'reference';
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: 'project';
-};
-
-export type JournalEntryReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'journalEntry';
 };
 
 export type Announcement = {
@@ -394,21 +300,12 @@ export type Announcement = {
     | ProcessPageReference
     | ServicesPageReference
     | EDesignPageReference
-    | GiftPageReference
-    | PressPageReference
-    | ResourcesPageReference
     | FaqPageReference
     | ContactPageReference
-    | JournalPageReference
     | PortfolioPageReference
     | PrivacyPageReference
-    | ShopPageReference
-    | StyleQuizReference
-    | BudgetCalculatorReference
     | PageReference
-    | LeadMagnetReference
     | ProjectReference
-    | JournalEntryReference
   >;
   frequency?: 'once' | 'session' | 'always';
 };
@@ -423,21 +320,12 @@ export type NavLink = {
     | ProcessPageReference
     | ServicesPageReference
     | EDesignPageReference
-    | GiftPageReference
-    | PressPageReference
-    | ResourcesPageReference
     | FaqPageReference
     | ContactPageReference
-    | JournalPageReference
     | PortfolioPageReference
     | PrivacyPageReference
-    | ShopPageReference
-    | StyleQuizReference
-    | BudgetCalculatorReference
     | PageReference
-    | LeadMagnetReference
-    | ProjectReference
-    | JournalEntryReference;
+    | ProjectReference;
   externalUrl?: string;
   href?: string;
 };
@@ -652,6 +540,11 @@ export type SiteSettings = {
     consentNote?: string;
   };
   googleBusinessUrl?: string;
+  googleRating?: number;
+  googleReviewCount?: number;
+  googleWriteReviewUrl?: string;
+  googlePlaceId?: string;
+  googleReviewsUpdatedAt?: string;
   reviewsNote?: string;
   sectionVisibility?: {
     showPortfolio?: boolean;
@@ -671,21 +564,6 @@ export type SiteSettings = {
 export type EDesignSectionMarker = {
   _type: 'eDesignSectionMarker';
   section?: 'intro' | 'howItWorks' | 'whatsIncluded' | 'tiers' | 'faq';
-};
-
-export type GiftSectionMarker = {
-  _type: 'giftSectionMarker';
-  section?: 'intro' | 'options' | 'howItWorks' | 'finePrint';
-};
-
-export type PressSectionMarker = {
-  _type: 'pressSectionMarker';
-  section?: 'hero' | 'pressStrip' | 'intro' | 'list';
-};
-
-export type ResourcesSectionMarker = {
-  _type: 'resourcesSectionMarker';
-  section?: 'hero' | 'intro' | 'cards';
 };
 
 export type ProcessSectionMarker = {
@@ -862,291 +740,6 @@ export type HeroSection = {
   size?: 'tall' | 'short';
 };
 
-export type BudgetCalculator = {
-  _id: string;
-  _type: 'budgetCalculator';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  introEyebrow?: string;
-  introHeadline?: string;
-  introSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroScriptAccent?: string;
-  rooms?: Array<{
-    label?: string;
-    baseLow?: number;
-    baseHigh?: number;
-    _type: 'room';
-    _key: string;
-  }>;
-  scopeOptions?: Array<{
-    label?: string;
-    addLow?: number;
-    addHigh?: number;
-    _type: 'scopeOption';
-    _key: string;
-  }>;
-  addOns?: Array<{
-    label?: string;
-    low?: number;
-    high?: number;
-    _type: 'addOn';
-    _key: string;
-  }>;
-  resultCopy?: string;
-  disclaimer?: string;
-  ctaLabel?: string;
-  consultPriceNote?: string;
-};
-
-export type StyleQuiz = {
-  _id: string;
-  _type: 'styleQuiz';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  introEyebrow?: string;
-  introHeadline?: string;
-  introSubhead?: string;
-  introImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  questions?: Array<{
-    prompt?: string;
-    helpText?: string;
-    answers?: Array<{
-      label?: string;
-      image?: {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        _type: 'image';
-      };
-      archetypeWeights?: Array<{
-        archetypeSlug?: string;
-        weight?: number;
-        _type: 'archetypeWeight';
-        _key: string;
-      }>;
-      _type: 'quizAnswer';
-      _key: string;
-    }>;
-    _type: 'quizQuestion';
-    _key: string;
-  }>;
-  qualifiers?: Array<{
-    prompt?: string;
-    type?: 'budget' | 'timeline' | 'room';
-    options?: Array<{
-      label?: string;
-      value?: string;
-      _type: 'qualifierOption';
-      _key: string;
-    }>;
-    _type: 'qualifier';
-    _key: string;
-  }>;
-  archetypes?: Array<{
-    name?: string;
-    slug?: Slug;
-    description?: Array<{
-      children?: Array<{
-        marks?: Array<string>;
-        text?: string;
-        _type: 'span';
-        _key: string;
-      }>;
-      style?: 'normal';
-      listItem?: 'bullet' | 'number';
-      markDefs?: null;
-      level?: number;
-      _type: 'block';
-      _key: string;
-    }>;
-    images?: Array<{
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      alt?: string;
-      _type: 'image';
-      _key: string;
-    }>;
-    recommendedServiceRef?: ServiceReference;
-    resultCtaLabel?: string;
-    _type: 'archetype';
-    _key: string;
-  }>;
-  gate?: {
-    mode?: 'optional' | 'required-for-bonus' | 'required';
-    heading?: string;
-    blurb?: string;
-    consentNote?: string;
-    espTag?: string;
-  };
-  routing?: {
-    highIntentRule?: string;
-    bookCtaLabel?: string;
-    guideCtaLabel?: string;
-    guideRef?: LeadMagnetReference;
-  };
-};
-
-export type SanityFileAssetReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset';
-};
-
-export type LeadMagnet = {
-  _id: string;
-  _type: 'leadMagnet';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  summary?: string;
-  coverImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  file?: {
-    asset?: SanityFileAssetReference;
-    media?: unknown;
-    _type: 'file';
-  };
-  gateHeading?: string;
-  gateBlurb?: string;
-  buttonLabel?: string;
-  successMessage?: string;
-  espTag?: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  published?: boolean;
-  orderRank?: string;
-};
-
-export type Service = {
-  _id: string;
-  _type: 'service';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  slug?: Slug;
-  price?: string;
-  priceNumeric?: number;
-  shortDescription?: string;
-  features?: Array<string>;
-  bestFor?: string;
-  featuredImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  longDescription?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: 'span';
-      _key: string;
-    }>;
-    style?: 'normal';
-    listItem?: 'bullet' | 'number';
-    markDefs?: null;
-    level?: number;
-    _type: 'block';
-    _key: string;
-  }>;
-  displayOrder?: number;
-  showOnHomepage?: boolean;
-  ctaLabel?: string;
-  badge?: string;
-  orderRank?: string;
-};
-
-export type ShopPage = {
-  _id: string;
-  _type: 'shopPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroEyebrow?: string;
-  heroHeadline?: string;
-  heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroScriptAccent?: string;
-  enabled?: boolean;
-  intro?: string;
-  disclosure?: string;
-  collections?: Array<
-    {
-      _key: string;
-    } & ShopCollectionReference
-  >;
-};
-
 export type PrivacyPage = {
   _id: string;
   _type: 'privacyPage';
@@ -1290,226 +883,6 @@ export type PortfolioPage = {
   >;
 };
 
-export type ResourcesPage = {
-  _id: string;
-  _type: 'resourcesPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  pageBuilder?: Array<
-    | ({
-        _key: string;
-      } & ResourcesSectionMarker)
-    | ({
-        _key: string;
-      } & HeroSection)
-    | ({
-        _key: string;
-      } & RichTextSection)
-    | ({
-        _key: string;
-      } & ImageTextSection)
-    | ({
-        _key: string;
-      } & GallerySection)
-    | ({
-        _key: string;
-      } & QuoteSection)
-    | ({
-        _key: string;
-      } & StatSection)
-    | ({
-        _key: string;
-      } & CtaBandSection)
-    | ({
-        _key: string;
-      } & VideoSection)
-    | ({
-        _key: string;
-      } & SpacerSection)
-  >;
-  heroEyebrow?: string;
-  heroHeadline?: string;
-  heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroScriptAccent?: string;
-  intro?: string;
-  cards?: Array<{
-    title?: string;
-    blurb?: string;
-    icon?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      alt?: string;
-      _type: 'image';
-    };
-    link?: string;
-    _type: 'resourceCard';
-    _key: string;
-  }>;
-};
-
-export type PressPage = {
-  _id: string;
-  _type: 'pressPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  pageBuilder?: Array<
-    | ({
-        _key: string;
-      } & PressSectionMarker)
-    | ({
-        _key: string;
-      } & HeroSection)
-    | ({
-        _key: string;
-      } & RichTextSection)
-    | ({
-        _key: string;
-      } & ImageTextSection)
-    | ({
-        _key: string;
-      } & GallerySection)
-    | ({
-        _key: string;
-      } & QuoteSection)
-    | ({
-        _key: string;
-      } & StatSection)
-    | ({
-        _key: string;
-      } & CtaBandSection)
-    | ({
-        _key: string;
-      } & VideoSection)
-    | ({
-        _key: string;
-      } & SpacerSection)
-  >;
-  heroEyebrow?: string;
-  heroHeadline?: string;
-  heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroScriptAccent?: string;
-  intro?: string;
-};
-
-export type GiftPage = {
-  _id: string;
-  _type: 'giftPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  pageBuilder?: Array<
-    | ({
-        _key: string;
-      } & GiftSectionMarker)
-    | ({
-        _key: string;
-      } & HeroSection)
-    | ({
-        _key: string;
-      } & RichTextSection)
-    | ({
-        _key: string;
-      } & ImageTextSection)
-    | ({
-        _key: string;
-      } & GallerySection)
-    | ({
-        _key: string;
-      } & QuoteSection)
-    | ({
-        _key: string;
-      } & StatSection)
-    | ({
-        _key: string;
-      } & CtaBandSection)
-    | ({
-        _key: string;
-      } & VideoSection)
-    | ({
-        _key: string;
-      } & SpacerSection)
-  >;
-  heroEyebrow?: string;
-  heroHeadline?: string;
-  heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroScriptAccent?: string;
-  intro?: string;
-  options?: Array<{
-    label?: string;
-    amount?: string;
-    blurb?: string;
-    _type: 'giftOption';
-    _key: string;
-  }>;
-  howItWorks?: Array<{
-    stepNumber?: number;
-    title?: string;
-    body?: string;
-    _type: 'giftStep';
-    _key: string;
-  }>;
-  finePrint?: string;
-  ctaLabel?: string;
-};
-
 export type FaqItemReference = {
   _ref: string;
   _type: 'reference';
@@ -1639,8 +1012,6 @@ export type CtaBlock = {
     | ServicesPageReference
     | FaqPageReference
     | ContactPageReference
-    | JournalPageReference
-    | JournalEntryReference
     | PageReference;
   externalUrl?: string;
   emailAddress?: string;
@@ -1699,256 +1070,6 @@ export type Page = {
     alt?: string;
     _type: 'image';
   };
-};
-
-export type JournalCategoryReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'journalCategory';
-};
-
-export type JournalEntry = {
-  _id: string;
-  _type: 'journalEntry';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  excerpt?: string;
-  coverImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    caption?: string;
-    _type: 'image';
-  };
-  categories?: Array<
-    {
-      _key: string;
-    } & JournalCategoryReference
-  >;
-  author?: string;
-  publishedAt?: string;
-  updatedAt?: string;
-  featured?: boolean;
-  body?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: 'span';
-          _key: string;
-        }>;
-        style?: 'normal' | 'lead' | 'h2' | 'h3' | 'h4' | 'blockquote';
-        listItem?: 'bullet' | 'number';
-        markDefs?: Array<
-          | {
-              href?: string;
-              openInNewTab?: boolean;
-              _type: 'link';
-              _key: string;
-            }
-          | {
-              vendor?: string;
-              url?: string;
-              _type: 'sourcedFrom';
-              _key: string;
-            }
-        >;
-        level?: number;
-        _type: 'block';
-        _key: string;
-      }
-    | {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        alt?: string;
-        caption?: string;
-        size?: 'standard' | 'wide' | 'full';
-        _type: 'inlineImage';
-        _key: string;
-      }
-    | {
-        quote?: string;
-        attribution?: string;
-        _type: 'pullQuote';
-        _key: string;
-      }
-    | {
-        beforeImage?: {
-          asset?: SanityImageAssetReference;
-          media?: unknown;
-          hotspot?: SanityImageHotspot;
-          crop?: SanityImageCrop;
-          alt?: string;
-          _type: 'image';
-        };
-        afterImage?: {
-          asset?: SanityImageAssetReference;
-          media?: unknown;
-          hotspot?: SanityImageHotspot;
-          crop?: SanityImageCrop;
-          alt?: string;
-          _type: 'image';
-        };
-        caption?: string;
-        _type: 'beforeAfter';
-        _key: string;
-      }
-    | {
-        image?: {
-          asset?: SanityImageAssetReference;
-          media?: unknown;
-          hotspot?: SanityImageHotspot;
-          crop?: SanityImageCrop;
-          alt?: string;
-          _type: 'image';
-        };
-        itemName?: string;
-        vendor?: string;
-        price?: string;
-        url?: string;
-        notes?: string;
-        _type: 'sourceCard';
-        _key: string;
-      }
-    | {
-        label?: string;
-        content?: Array<{
-          children?: Array<{
-            marks?: Array<string>;
-            text?: string;
-            _type: 'span';
-            _key: string;
-          }>;
-          style?: 'normal';
-          listItem?: 'bullet';
-          markDefs?: Array<{
-            href?: string;
-            openInNewTab?: boolean;
-            _type: 'link';
-            _key: string;
-          }>;
-          level?: number;
-          _type: 'block';
-          _key: string;
-        }>;
-        _type: 'tipCallout';
-        _key: string;
-      }
-    | {
-        images?: Array<{
-          asset?: SanityImageAssetReference;
-          media?: unknown;
-          hotspot?: SanityImageHotspot;
-          crop?: SanityImageCrop;
-          alt?: string;
-          caption?: string;
-          _type: 'image';
-          _key: string;
-        }>;
-        layout?: 'grid2' | 'grid3' | 'row';
-        caption?: string;
-        _type: 'imageGallery';
-        _key: string;
-      }
-    | {
-        style?: 'line' | 'ornament' | 'space';
-        _type: 'divider';
-        _key: string;
-      }
-    | {
-        url?: string;
-        caption?: string;
-        _type: 'videoEmbed';
-        _key: string;
-      }
-  >;
-  seoTitle?: string;
-  seoDescription?: string;
-  relatedProject?: ProjectReference;
-  relatedPosts?: Array<
-    {
-      _key: string;
-    } & JournalEntryReference
-  >;
-};
-
-export type JournalPage = {
-  _id: string;
-  _type: 'journalPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroEyebrow?: string;
-  heroHeadline?: string;
-  heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  heroScriptAccent?: string;
-  stickyCtaLabel?: string;
-  finalCtaHeadline?: string;
-  finalCtaScriptAccent?: string;
-  finalCtaSubhead?: string;
-  finalCta?: CtaBlock;
-  finalCtaBackgroundImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: 'image';
-  };
-  additionalSections?: Array<
-    | ({
-        _key: string;
-      } & HeroSection)
-    | ({
-        _key: string;
-      } & RichTextSection)
-    | ({
-        _key: string;
-      } & ImageTextSection)
-    | ({
-        _key: string;
-      } & GallerySection)
-    | ({
-        _key: string;
-      } & QuoteSection)
-    | ({
-        _key: string;
-      } & StatSection)
-    | ({
-        _key: string;
-      } & CtaBandSection)
-    | ({
-        _key: string;
-      } & VideoSection)
-    | ({
-        _key: string;
-      } & SpacerSection)
-  >;
 };
 
 export type ContactPage = {
@@ -2619,6 +1740,9 @@ export type Testimonial = {
   relatedProject?: ProjectReference;
   sourceType?: 'Google' | 'Facebook' | 'Houzz' | 'Direct';
   reviewUrl?: string;
+  rating?: 5 | 4 | 3 | 2 | 1;
+  hideOnWebsite?: boolean;
+  googleReviewId?: string;
 };
 
 export type Project = {
@@ -2856,17 +1980,13 @@ export type Geopoint = {
 export type AllSanitySchemaTypes =
   | Redirect
   | TrashedItem
-  | SanityImageAssetReference
-  | ShopCollectionReference
-  | ShopItem
-  | SanityImageCrop
-  | SanityImageHotspot
-  | ShopCollection
-  | Slug
-  | PressItem
-  | JournalCategory
   | ServiceReference
   | ProcessStep
+  | SanityImageAssetReference
+  | Service
+  | SanityImageCrop
+  | SanityImageHotspot
+  | Slug
   | PhilosophyPoint
   | FaqItem
   | HomePageReference
@@ -2874,21 +1994,12 @@ export type AllSanitySchemaTypes =
   | ProcessPageReference
   | ServicesPageReference
   | EDesignPageReference
-  | GiftPageReference
-  | PressPageReference
-  | ResourcesPageReference
   | FaqPageReference
   | ContactPageReference
-  | JournalPageReference
   | PortfolioPageReference
   | PrivacyPageReference
-  | ShopPageReference
-  | StyleQuizReference
-  | BudgetCalculatorReference
   | PageReference
-  | LeadMagnetReference
   | ProjectReference
-  | JournalEntryReference
   | Announcement
   | NavLink
   | StudioPlaybook
@@ -2898,9 +2009,6 @@ export type AllSanitySchemaTypes =
   | BusinessInfo
   | SiteSettings
   | EDesignSectionMarker
-  | GiftSectionMarker
-  | PressSectionMarker
-  | ResourcesSectionMarker
   | ProcessSectionMarker
   | ServicesSectionMarker
   | HomeSectionMarker
@@ -2914,24 +2022,12 @@ export type AllSanitySchemaTypes =
   | ImageTextSection
   | RichTextSection
   | HeroSection
-  | BudgetCalculator
-  | StyleQuiz
-  | SanityFileAssetReference
-  | LeadMagnet
-  | Service
-  | ShopPage
   | PrivacyPage
   | PortfolioPage
-  | ResourcesPage
-  | PressPage
-  | GiftPage
   | FaqItemReference
   | EDesignPage
   | CtaBlock
   | Page
-  | JournalCategoryReference
-  | JournalEntry
-  | JournalPage
   | ContactPage
   | FaqPage
   | ServicesPage

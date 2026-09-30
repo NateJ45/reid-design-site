@@ -26,6 +26,8 @@ interface SiteSettings {
   geoLng?: number;
   socialInstagram?: string;
   socialFacebook?: string;
+  /** The Google Business Profile link (siteSettings, Reviews tab). */
+  googleBusinessUrl?: string;
 }
 
 interface Service {
@@ -80,7 +82,18 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
       name: city,
     })),
     priceRange: '$$',
-    sameAs: [s.socialInstagram, s.socialFacebook].filter(Boolean),
+    // The Google Business Profile joins the socials here (2026-09-30): it ties
+    // this site to the Maps listing as the same business.
+    sameAs: [s.socialInstagram, s.socialFacebook, s.googleBusinessUrl].filter(Boolean),
+    // NO aggregateRating AND NO review HERE, ON PURPOSE (2026-09-30). The
+    // Google rating is shown on the page (RatingTag), but marking it up on our
+    // own LocalBusiness is "self-serving" review markup: since 2019 Google
+    // shows no review stars for a LocalBusiness or Organization that reviews
+    // itself on its own site, and markup that repeats reviews collected on
+    // another platform breaks the review-snippet guidelines, which can earn a
+    // manual action. So it would buy nothing and risk something. The stars
+    // people see in search come from the Google Business Profile itself.
+    // Detail: docs/agent/seo.md, "Why there is no review schema".
   };
   if (s.phone) schema.telephone = s.phone;
   return JSON.stringify(schema);
@@ -126,44 +139,6 @@ export function serviceListSchema(
             },
           }
         : {}),
-    })),
-  });
-}
-
-// ---------- ItemList of curated products (for /shop) ----------------------
-
-interface ShopProduct {
-  name?: string;
-  brand?: string;
-  url?: string;
-  image?: string | null;
-}
-
-/**
- * ItemList of the affiliate "Shop My Favorites" products. Each entry is a
- * Product (name + optional brand + image + affiliate url). No Offer/price is
- * emitted: these are curated recommendations, not a storefront, so claiming a
- * price/availability we don't control would be inaccurate structured data.
- * The page resolves Sanity image URLs and passes plain values in, mirroring
- * how projectSchema receives a pre-built hero image URL.
- */
-export function shopItemListSchema(items: ShopProduct[] | null | undefined): string {
-  const list = (items ?? []).filter((p) => p.name);
-  if (list.length === 0) return JSON.stringify({});
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Shop My Favorites',
-    itemListElement: list.map((p, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      item: {
-        '@type': 'Product',
-        name: p.name,
-        ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}),
-        ...(p.image ? { image: p.image } : {}),
-        ...(p.url ? { url: p.url } : {}),
-      },
     })),
   });
 }
@@ -239,48 +214,5 @@ export function projectSchema(project: Project, heroImageUrl: string | null): st
     locationCreated: project.location ? { '@type': 'Place', name: project.location } : undefined,
     dateCreated: project.year ? String(project.year) : undefined,
     datePublished: project.publishedAt,
-  });
-}
-
-// ---------- BlogPosting (for /journal/[slug]) -----------------------------
-
-interface JournalEntryForSchema {
-  title?: string;
-  slug?: { current?: string };
-  excerpt?: string;
-  author?: string;
-  publishedAt?: string;
-  updatedAt?: string;
-  body?: any;
-  categories?: Array<{ title?: string }>;
-}
-
-export function blogPostingSchema(
-  entry: JournalEntryForSchema,
-  coverImageUrl: string | null,
-): string {
-  const url = entry.slug?.current
-    ? `${site.url}/journal/${entry.slug.current}`
-    : `${site.url}/journal`;
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: entry.title,
-    description: entry.excerpt,
-    url,
-    image: coverImageUrl ?? undefined,
-    datePublished: entry.publishedAt,
-    dateModified: entry.updatedAt ?? entry.publishedAt,
-    author: entry.author
-      ? { '@type': 'Person', name: entry.author }
-      : { '@id': `${site.url}/#business` },
-    publisher: { '@id': `${site.url}/#business` },
-    keywords: Array.isArray(entry.categories)
-      ? entry.categories
-          .map((c) => c?.title)
-          .filter(Boolean)
-          .join(', ')
-      : undefined,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   });
 }

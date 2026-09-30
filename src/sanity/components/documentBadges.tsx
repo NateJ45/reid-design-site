@@ -4,8 +4,8 @@
 // the Published/Draft pill and give Staci an at-a-glance read on a document's
 // state without opening it or hunting through fields:
 //
-//   - "Featured"      — a project or post pinned to a prominent spot
-//   - "Needs a photo" — a project/post whose cover image is still empty
+//   - "Featured"      — a project pinned to a prominent spot
+//   - "Needs a photo" — a project whose hero image is still empty
 //   - "Add SEO"       — an indexable page whose SEO title or description is blank
 //
 // Registered via document.badges in sanity.config.ts. Each badge returns null
@@ -19,8 +19,7 @@ import type { DocumentBadgeComponent, DocumentBadgeProps } from 'sanity';
 // Indexable page singletons that carry seoTitle + seoDescription and are
 // expected to have them filled before launch. Deliberately excludes:
 //   - notFoundPage (the 404 is noindex, SEO is irrelevant)
-//   - styleQuiz / budgetCalculator (no SEO title/description fields)
-//   - project / journalEntry / leadMagnet (their SEO fields are OPTIONAL
+//   - project (its SEO fields are OPTIONAL
 //     overrides that fall back to the title/excerpt, so a badge would nag)
 const SEO_PAGE_TYPES = new Set<string>([
   'homePage',
@@ -30,20 +29,14 @@ const SEO_PAGE_TYPES = new Set<string>([
   'portfolioPage',
   'faqPage',
   'contactPage',
-  'journalPage',
   'eDesignPage',
-  'shopPage',
-  'giftPage',
-  'resourcesPage',
   'privacyPage',
-  'pressPage',
 ]);
 
 // Doc types with a cover/hero image worth flagging when empty, and the field
 // name to check on each.
 const PHOTO_FIELD: Record<string, string> = {
   project: 'heroImage',
-  journalEntry: 'coverImage',
 };
 
 // The live document being edited: prefer the draft, fall back to the published

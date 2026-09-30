@@ -445,7 +445,7 @@ export const SECTION_TYPES = pageSectionSchemas.map((s) => ({ type: s.name }));
 // Presentation canvas (the insert-before/after buttons on a section open the
 // same menu). Grouped in plain words so Staci picks by what she wants on the
 // page, with a search box. A group whose types are not in a given array simply
-// does not show, which is why the eight "Built-in section" markers can share
+// does not show, which is why the five "Built-in section" markers can share
 // one group: each page only ever offers its own.
 //
 // Groups only, never colour. The SectionRenderer owns the alternating
@@ -459,9 +459,6 @@ export const SECTION_MARKER_TYPES = [
   'processSectionMarker',
   'servicesSectionMarker',
   'eDesignSectionMarker',
-  'giftSectionMarker',
-  'pressSectionMarker',
-  'resourcesSectionMarker',
 ];
 
 export const SECTION_INSERT_MENU: InsertMenuOptions = {
@@ -487,7 +484,7 @@ export const SECTION_INSERT_MENU: InsertMenuOptions = {
 // Spread into every page-builder array field as `options`.
 export const SECTION_ARRAY_OPTIONS = { insertMenu: SECTION_INSERT_MENU };
 
-// Reusable "extra sections" field for the app pages (portfolio, journal, faq,
+// Reusable "extra sections" field for the app pages (portfolio, faq,
 // contact, etc.) that keep their bespoke structure instead of the full marker
 // retrofit. Lets Staci append library blocks to the bottom of any of them. The
 // page must declare an `extra` field group. SectionRenderer renders the array;

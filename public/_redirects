@@ -13,3 +13,31 @@
 # path into the hash before the Studio starts: src/sanity/lib/studio-deep-link.ts.
 # The unit test in that folder pins this exact line.
 /studio/* /studio/ 200
+
+# Retired sections (2026-09-30). Eight sections that were built but never launched were
+# removed from the site and the Studio: the journal, shop, style quiz, budget calculator,
+# guides, press, gift certificates and resources hub. None was ever linked publicly, but
+# an address may be bookmarked or indexed from the Squarespace days, so each one forwards
+# permanently to the closest page that still exists. Both the bare and the trailing-slash
+# form are listed so the match never depends on how the visitor typed it. These eight
+# slugs also stay RESERVED against custom pages (src/sanity/preview-routes.ts), because a
+# rule here would win over a page at the same address. Pinned by
+# src/lib/retired-redirects.test.ts.
+/journal / 301
+/journal/ / 301
+/journal/* / 301
+/shop / 301
+/shop/ / 301
+/quiz /services/ 301
+/quiz/ /services/ 301
+/calculator /services/ 301
+/calculator/ /services/ 301
+/guides / 301
+/guides/ / 301
+/guides/* / 301
+/press /about/ 301
+/press/ /about/ 301
+/gift-certificates /contact/ 301
+/gift-certificates/ /contact/ 301
+/resources /faq/ 301
+/resources/ /faq/ 301
