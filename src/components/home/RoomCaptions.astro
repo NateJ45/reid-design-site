@@ -5,9 +5,10 @@
 // on 2026-09-30 for the room tabs; the first room's list is rendered in place,
 // the others inside <template>s, and the script swaps the whole <ol>).
 // =============================================================================
-// Each caption <li> is a named view timeline (--room-s0, --room-s1, ...), shared
-// through `timeline-scope` on the section (RoomStage sets it wide enough for
-// the room with the most stages), which drives the pieces in RoomScene.astro.
+// The RoomStage script watches each caption <li> with an IntersectionObserver
+// (no scroll listener, so it works with Lenis and with native scroll): the
+// caption past the reading line is the current stage, and the room plays every
+// piece up to that stage's last.
 // Each caption is led by a short Warm Bronze rule: a mark, never a numeral.
 // =============================================================================
 interface Props {
@@ -19,8 +20,8 @@ const { stages } = Astro.props as Props;
 
 <ol class="room__captions" id="room-captions">
   {
-    stages.map((caption, k) => (
-      <li class="room__step" data-room-step style={`view-timeline-name:--room-s${k}`}>
+    stages.map((caption) => (
+      <li class="room__step" data-room-step>
         <p>{caption}</p>
       </li>
     ))

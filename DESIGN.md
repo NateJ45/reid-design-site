@@ -430,17 +430,23 @@ feed is connected.
 `home/RoomStory.astro` (loads and checks) and `home/RoomStage.astro` (draws),
 on Home right after "How it works" (the `roomStory` marker). An AI-generated
 living room that starts EMPTY; as the visitor scrolls past short captions the
-furniture fades and MOVES into place piece by piece (trim, then the rug and
-sofa, tables and a lamp, curtains and a chair, art, styling). The pieces are
-RGBA cut-outs laid over one base photo, each with an optional multiply shade
-layer for its shadow and an optional screen `light` layer for light it throws (a
-lamp's glow on the wall), all from `src/assets/room/<slug>/` (manifest v2, made by
-tools/room-lab); the component renders nothing until they exist.
+room fills up piece by piece (trim, then the rug and sofa, tables and a lamp,
+curtains and a chair, art, styling). **Whole frames, no cut-outs** (Nathan,
+2026-09-30): every step of the build is ONE COMPLETE AI photo of the room, and
+the new piece APPEARS IN PLACE with a soft reveal limited to the region that
+changed, plus a small settle. The first version cut each piece out as an RGBA
+layer over one base photo, and the cut-outs proved unreliable (curtain rods
+vanished, shadows were clipped, table legs smeared); a complete photo carries
+its own shadows, reflections and light, and because two neighbouring frames are
+identical outside the change, nothing outside it can pop. All from
+`src/assets/room/<slug>/` (manifest v3: frames, a wall mask per frame, a change
+mask and box per piece, made by tools/room-lab); the component renders nothing
+until they exist.
 
 - **Several rooms, one tab each** (2026-09-30): living room (Transitional),
   family room (Modern farmhouse), dining room (Art deco), kitchen (Modern),
   bathroom (Seaside), bedroom (Japandi), in the order `src/assets/room/rooms.json`
-  lists them. Each room has its own base, pieces, stages and captions; the
+  lists them. Each room has its own frames, stages and captions; the
   paint chips are the same for all, and the chosen chip stays on across a
   switch. A real ARIA tablist sits above the room (inside the sticky stage,
   so it stays in reach mid-build): each tab is the room type with its style
@@ -473,11 +479,12 @@ tools/room-lab); the component renders nothing until they exist.
   past on the right, each about 80% of a screen tall. Phone: the room pins
   under the header strip and the captions scroll beneath it; the chip deck is
   one sideways scroll-snap row.
-- **Default render** (no script, or no scroll-driven animation support): every
-  piece in place, i.e. the FINISHED room with its tag, and every caption. The
-  deck is in the markup but hidden. Pieces are `alt=""`; the base photo and a
-  visually hidden live region (finished room, then each stage's caption) carry
-  the description.
+- **Default render** (no script): the FINISHED room (the last frame) with its
+  tag, and every caption; no other frame downloads (their sources wait in
+  data attributes). The deck is in the markup but hidden. Only the finished
+  frame is described (its alt opens "Concept image:"); every other frame is
+  `alt=""`, and a visually hidden live region narrates the build (the empty
+  room's description before the first caption, then each stage's caption).
 - **The paint deck:** a `fieldset` with the visible legend "Try a paint colour
   on the walls", then paper chips (`button aria-pressed`, swatch plus visible
   name, the house 2px ink focus outline). "As it is" first (its swatch is the
@@ -487,19 +494,36 @@ tools/room-lab); the component renders nothing until they exist.
   approval on the contact sheet). Warm Bronze appears as a swatch with its
   name beside it, never text on it. The deck only appears once the WebGL
   painter has drawn; the colour carries through every stage.
-- **Motion:** each piece arrives by its manifest `motion`: `sweep` (soft wipe),
-  `unroll` (rug), `slide-left`/`slide-right` (3% of the frame, fade, 1.015 to
-  1 settle), `rise`, `drop` (curtains, art), `pop` (styling); its shade and light set
-  down in the last third. Scroll-driven CSS (a named view timeline per caption,
-  `timeline-scope` on the section) behind `@supports` and no-preference, as in
-  TapeProcess/ProcessSteps; stage k finishes as caption k reaches the reading
-  line (mid screen on a laptop, 70% down on a phone). Without support the
-  script builds the same stages with short transitions; under reduced motion,
-  instantly. A chip rolls its colour onto the walls from the left with a noisy
-  front (~900ms); the painter keeps the photo's own light and shadow (linear
-  light maths, `src/scripts/room-painter.ts`) and only ever paints the base
-  wall, so the pieces, their multiply shades and their screen lights sit correctly on any colour.
-  No WebGL: the base photo stays as it is and the chips stay hidden.
+- **Motion (the reveal and the settle):** one WebGL canvas draws the frame
+  showing and, while a piece arrives, the next frame over it, revealed ONLY
+  inside that piece's change mask by a soft, noisy, feathered front shaped by
+  its manifest `motion`: `sweep` (soft wipe along the box's long axis, trim,
+  mouldings) and `unroll` (the same with a tighter edge, the rug), `drop`
+  (falls from the top of its box, curtains, art), `rise` (comes up from the
+  bottom), `slide-left`/`slide-right` (comes in from its side), `pop` (grows
+  from the box centre, styling). The shader also settles the piece into place:
+  slides move about 2.5% of the frame across, drop and rise about 2% down or
+  up, pop scales 97% to 100% round the box centre. 750ms each,
+  `cubic-bezier(0.23, 1, 0.32, 1)`. Driven by an IntersectionObserver on the
+  captions (no scroll listener, so Lenis and native scroll behave the same):
+  when caption k becomes current the room plays every piece up to stage k's
+  last, one after another, pieces of the same stage overlapping (each starts
+  45% into the one before); stage k's caption is current once it passes the
+  reading line (mid screen on a laptop, 70% down on a phone). Scrolling back
+  jumps straight to the right frame with a quick 200ms crossfade, never a
+  reverse animation. A piece never starts before its frame and masks have
+  decoded (the room holds on what it shows). Idle, nothing runs. Reduced
+  motion: every change is an instant frame swap, and a chip change is instant.
+- **Paint over whole frames:** a chip rolls its colour onto the walls from the
+  left with a noisy front (~900ms) over whatever frames are showing; each
+  frame is painted with ITS OWN wall mask, and one wall median for the whole
+  room keeps the paint identical frame to frame (linear light maths,
+  `src/scripts/room-painter.ts`), so a new piece arrives already standing in
+  the chosen colour. The chip survives every frame and every room tab.
+- **No WebGL** (none, a failed shader, a lost context): the frames are a
+  stack of `<img>`s that switch by a 400ms whole-frame opacity crossfade (the
+  new frame fades in over the old; going back, the frames above fade away; no
+  fade under reduced motion), and the chips stay hidden.
 - **WebGL on the home page** (Nathan, 2026-09-30) reverses the design
   debate's "CSS/SVG only, no WebGL" and "no more craft devices" rulings for
   this one section (addendum in `docs/design/2026-09-30-design-debate.md`).

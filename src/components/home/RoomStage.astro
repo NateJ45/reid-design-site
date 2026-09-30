@@ -25,16 +25,28 @@
 // SWITCHING (the script below): the chosen room's `.room__frames` and
 // `.room__captions` replace the showing ones (the outgoing pair is kept,
 // detached, so going back is instant); the painter's canvas MOVES into the
-// new frames and reloads its textures (base, mask, wall median) in the SAME
-// GL context, keeping the chosen chip colour; the build re-arms (the
-// scroll-driven CSS picks up the new captions' view timelines by itself, and
-// the IntersectionObserver fallback re-observes them); the live region says
+// new frames and reloads its textures (that room's frames and masks, and its
+// wall median) in the SAME GL context, keeping the chosen chip colour; the
+// build re-arms (the IntersectionObserver re-observes the new captions, and
+// the new room's frames start decoding in build order); the live region says
 // "Showing the kitchen, modern style."; and if the section's top has scrolled
 // above the screen, the page scrolls back so the room's top sits just under
 // the header (Lenis when it is running, native smooth scroll otherwise,
 // instant under reduced motion), which also restarts the build. Rooms with
 // different stage counts simply change the caption list's height; the sticky
 // layout is pure CSS, so nothing needs recomputing by hand.
+//
+// THE BUILD (whole frames, 2026-09-30): each step is one COMPLETE photo of the
+// room. An IntersectionObserver on the captions (no scroll listener: it works
+// under Lenis and native scroll alike) picks the current caption k; the room
+// then shows the last frame of stage k (data-ends on the frames box). With
+// WebGL the painter plays every piece up to it, each appearing IN PLACE with a
+// soft reveal limited to the region that changed plus a small settle, and
+// crossfades straight back when the visitor scrolls up. Without WebGL (none,
+// a failed shader, a lost context) the <img> stack crossfades whole frames
+// (400ms, none under reduced motion) and the chips stay hidden. Without a
+// script the finished room shows with every caption. Frames download only
+// when the section is about a screen away, in build order.
 //
 // LAYOUT: desktop (1024px+) the room (with its tabs) is sticky on the left and
 // the captions scroll past on the right; phone: the room pins under the header
@@ -58,15 +70,12 @@ interface Props {
 const { rooms, headline, scriptAccent, intro } = Astro.props as Props;
 const [first, ...others] = rooms;
 const tabbed = rooms.length > 1;
-// One timeline name per stage of the room with the most stages.
-const most = Math.max(...rooms.map((r) => r.stages.length));
-const scope = Array.from({ length: most }, (_, k) => `--room-s${k}`).join(', ');
 // "As it is" shows the first room's own wall colour as its swatch (the script
 // updates it on a switch).
-const asIsHex = linearToHex(first.base.median);
+const asIsHex = linearToHex(first.median);
 ---
 
-<section class="room" aria-labelledby="room-heading" data-room style={`timeline-scope:${scope}`}>
+<section class="room" aria-labelledby="room-heading" data-room>
   <div class="r-wrap">
     <div class="room__head">
       <RiseWords as="h2" id="room-heading" text={headline} accent={scriptAccent} class="r-h2" />
@@ -156,10 +165,6 @@ const asIsHex = linearToHex(first.base.median);
     --room-pin: 4.5rem;
     /* The tab row's share of the pinned stage (0 without tabs). */
     --room-tabs: 0rem;
-    /* A stage's scroll window, measured from its caption's top entering the
-       bottom of the screen: it builds from --w0 to --w1 (the reading line). */
-    --w0: 4svh;
-    --w1: 30svh;
     background: var(--color-chip-1);
     padding-block: clamp(5rem, 10vw, 8.5rem);
   }
@@ -378,10 +383,6 @@ const asIsHex = linearToHex(first.base.median);
   }
 
   @media (min-width: 1024px) {
-    .room {
-      --w0: 6svh;
-      --w1: 50svh;
-    }
     .room__body {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       gap: 1.5rem;
@@ -414,19 +415,67 @@ const asIsHex = linearToHex(first.base.median);
 
 <script>
   import { hexToLinear, linearToHex } from '@/lib/room-story';
-  import type { PainterBase, RoomPainter } from '@/scripts/room-painter';
+  import type { PainterRoom, RoomPainter } from '@/scripts/room-painter';
 
+  const SIZES = '(min-width: 1024px) 50vw, 100vw';
   let teardown: (() => void) | null = null;
 
-  /** The painter's view of a room's frames box. */
-  function baseOf(frames: HTMLElement): PainterBase | null {
-    const img = frames.querySelector<HTMLImageElement>('[data-room-base]');
-    const median = (frames.dataset.median ?? '').split(',').map(Number);
-    if (!img || median.length !== 3 || median.some((n) => !(n > 0))) return null;
+  /**
+   * Give a frame's <img> its real sources (they wait in data attributes, so an
+   * unarmed frame downloads nothing) and decode it. Memoised per element.
+   */
+  const loads = new WeakMap<HTMLImageElement, Promise<HTMLImageElement>>();
+  function loadFrame(img: HTMLImageElement): Promise<HTMLImageElement> {
+    let p = loads.get(img);
+    if (p) return p;
+    img.loading = 'eager';
+    const { avif, webp, src } = img.dataset;
+    if (src !== undefined) {
+      const pic = img.parentElement;
+      for (const [type, set] of [
+        ['image/avif', avif],
+        ['image/webp', webp],
+      ]) {
+        if (!set || !pic) continue;
+        const s = document.createElement('source');
+        s.type = type as string;
+        s.srcset = set;
+        s.sizes = SIZES;
+        pic.insertBefore(s, img);
+      }
+      delete img.dataset.avif;
+      delete img.dataset.webp;
+      delete img.dataset.src;
+      img.sizes = SIZES;
+      img.src = src;
+    }
+    p = img.decode().then(() => img);
+    loads.set(img, p);
+    return p;
+  }
+  const imgsOf = (box: Element) => [...box.querySelectorAll<HTMLImageElement>('.room__frame img')];
+  const numbers = (s: string | undefined) => (s ?? '').split(',').filter(Boolean).map(Number);
+
+  /** The painter's view of a room's frames box, or null if it is malformed. */
+  function roomOf(box: HTMLElement): PainterRoom | null {
+    const median = numbers(box.dataset.median);
+    const imgs = imgsOf(box);
+    if (median.length !== 3 || median.some((n) => !(n > 0)) || imgs.length < 2) return null;
+    const aspect = Number(imgs[0].getAttribute('width')) / Number(imgs[0].getAttribute('height'));
     return {
-      img,
-      maskUrl: frames.dataset.mask ?? '',
       median: median as [number, number, number],
+      aspect: aspect > 0 ? aspect : 4 / 3,
+      frames: imgs.map((img) => {
+        const b = numbers(img.dataset.box);
+        return {
+          load: () => loadFrame(img),
+          wall: img.dataset.wall ?? '',
+          change: img.dataset.change ?? null,
+          box: b.length === 4 ? (b as [number, number, number, number]) : null,
+          motion: Number(img.dataset.motion ?? -1),
+          stage: Number(img.dataset.stage ?? -1),
+        };
+      }),
     };
   }
 
@@ -447,26 +496,50 @@ const asIsHex = linearToHex(first.base.median);
     const frames = () => root.querySelector<HTMLElement>('.room__frames');
     const captions = () => root.querySelector<HTMLElement>('.room__captions');
     if (!canvas || !deck || !live || !panel || !body || !frames() || !captions()) return;
+    if (captions()!.querySelectorAll('[data-room-step]').length < 2) return;
 
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const wide = matchMedia('(min-width: 1024px)');
-    // Scroll-driven CSS builds the room by itself; otherwise (or under
-    // reduced motion, where that CSS is off) this script builds it.
-    const scrollDriven =
-      CSS.supports('timeline-scope: --a') && CSS.supports('animation-timeline: view()');
-    const scripted = reduced || !scrollDriven;
     let painter: RoomPainter | null = null;
     let chip: [number, number, number] | null = null;
     let dead = false;
-
-    if (captions()!.querySelectorAll('[data-room-step]').length < 2) return;
     root.dataset.enhanced = '';
-    if (scripted) root.dataset.build = '';
+
+    // ---- the <img> stack (the picture without WebGL, and under the canvas) --
+    // Every frame up to the one to show is on (the ones under it are covered
+    // by it), every frame above it off: forward fades the new frame in over
+    // the old, back fades the ones above away, never a dip to the background.
+    // Until frame 0 has loaded the markup's default (the finished room) stays.
+    let target = 0;
+    const syncStack = () => {
+      const f = frames();
+      if (!f) return;
+      const imgs = imgsOf(f);
+      const first = imgs[0];
+      if (!first || first.dataset.src !== undefined || !first.complete || !first.naturalWidth) {
+        return;
+      }
+      f.querySelectorAll<HTMLElement>('.room__frame').forEach((pic, i) =>
+        pic.toggleAttribute('data-on', i <= target),
+      );
+    };
+    /** Decode a room's frames one after another, in build order. */
+    const preload = async (box: HTMLElement) => {
+      for (const img of imgsOf(box)) {
+        try {
+          await loadFrame(img);
+        } catch {
+          /* a missing frame: the stack keeps what it shows */
+        }
+        if (dead || box !== frames()) return;
+        syncStack();
+      }
+    };
 
     // ---- the build of whichever room is showing ----------------------------
     let steps: HTMLElement[] = [];
-    let pieces: HTMLElement[] = [];
-    let stage = -2; // -1 = nothing built yet; -2 = not read yet
+    let ends: number[] = [];
+    let stage = -2; // -1 = before the first caption; -2 = not read yet
     // After a room is chosen, its "Showing the ..." line stands while the page
     // scrolls back to the room's top; stage lines resume after that.
     let quietUntil = 0;
@@ -479,9 +552,9 @@ const asIsHex = linearToHex(first.base.median);
         if (k === i) s.setAttribute('aria-current', 'step');
         else s.removeAttribute('aria-current');
       });
-      if (scripted) {
-        pieces.forEach((p) => p.toggleAttribute('data-built', Number(p.dataset.stage) <= i));
-      }
+      target = i < 0 ? 0 : (ends[i] ?? 0);
+      syncStack();
+      painter?.go(target);
       // Say what the room shows now; not on the first read, so loading the
       // page (or choosing a room) announces nothing extra.
       if (!first && performance.now() >= quietUntil) {
@@ -491,8 +564,7 @@ const asIsHex = linearToHex(first.base.median);
     };
 
     // The stage is the last caption whose top has passed the reading line
-    // (the same line the CSS ranges end on: mid screen on a laptop, 70% down
-    // on a phone), or -1 before the first.
+    // (mid screen on a laptop, 70% down on a phone), or -1 before the first.
     const line = () => innerHeight * (wide.matches ? 0.5 : 0.7);
     const pick = () => {
       const y = line();
@@ -512,10 +584,9 @@ const asIsHex = linearToHex(first.base.median);
     };
     /** (Re-)arm the build for the room now in the DOM. */
     const arm = () => {
-      const f = frames();
       const c = captions();
       steps = c ? [...c.querySelectorAll<HTMLElement>('[data-room-step]')] : [];
-      pieces = f ? [...f.querySelectorAll<HTMLElement>('[data-piece]')] : [];
+      ends = numbers(frames()?.dataset.ends);
       stage = -2;
       watch();
       pick();
@@ -532,26 +603,29 @@ const asIsHex = linearToHex(first.base.median);
     };
     chips.forEach((c) => c.addEventListener('click', onChip));
     const paintAsIs = () => {
-      const b = baseOf(frames() as HTMLElement);
-      if (asIs && b) asIs.style.background = linearToHex(b.median);
+      const m = numbers(frames()?.dataset.median);
+      if (asIs && m.length === 3)
+        asIs.style.background = linearToHex(m as [number, number, number]);
     };
 
-    // ---- the painter, loaded about a screen early -------------------------
+    // ---- frames and the painter, loaded about a screen early --------------
     const fallback = () => {
       painter = null;
       canvas.hidden = true;
       deck.hidden = true;
       delete root.dataset.painted;
+      syncStack();
     };
     const near = new IntersectionObserver(
       async (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         near.disconnect();
+        void preload(frames() as HTMLElement);
         try {
           const { createRoomPainter } = await import('@/scripts/room-painter');
-          const base = baseOf(frames() as HTMLElement);
-          if (dead || !base) return;
-          painter = createRoomPainter(canvas, base, {
+          const room = roomOf(frames() as HTMLElement);
+          if (dead || !room) return fallback();
+          painter = createRoomPainter(canvas, room, target, {
             reducedMotion: reduced,
             onReady: () => {
               if (dead) return;
@@ -595,12 +669,12 @@ const asIsHex = linearToHex(first.base.median);
       kept.set(tabs[current].dataset.roomTab ?? '', { frames: outFrames, captions: outCaptions });
       kept.delete(slug);
 
-      // Swap. The canvas moves with the room; it shows the plain photo until
-      // the painter has the new room's textures.
+      // Swap. The canvas moves with the room (on top of its stack); it shows
+      // the plain stack until the painter has the new room's textures.
       band?.disconnect();
       canvas.toggleAttribute('data-loading', !canvas.hidden);
       outFrames.replaceWith(next.frames);
-      next.frames.querySelector('.room__base')?.after(canvas);
+      next.frames.append(canvas);
       outCaptions.replaceWith(next.captions);
 
       tabs.forEach((t, i) => {
@@ -613,11 +687,12 @@ const asIsHex = linearToHex(first.base.median);
       paintAsIs();
       live.textContent = tabs[k].dataset.announce ?? '';
       quietUntil = performance.now() + 1500;
+      void preload(next.frames);
 
-      const base = baseOf(next.frames);
-      if (painter && base) {
+      const room = roomOf(next.frames);
+      if (painter && room) {
         const mine = k;
-        painter.setBase(base).then((ok) => {
+        painter.setRoom(room, target).then((ok) => {
           // null: a later choice superseded this load.
           if (dead || ok === null || current !== mine) return;
           canvas.removeAttribute('data-loading');

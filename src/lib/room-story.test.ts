@@ -5,7 +5,6 @@ import {
   ROOM_CHIPS,
   ROOM_MOTIONS,
   hexToLinear,
-  layerTimings,
   linearToHex,
   parseRoomIndex,
   parseRoomManifest,
@@ -13,88 +12,90 @@ import {
   roomFiles,
   roomFolder,
   srgbToLinear,
+  stageFrames,
 } from './room-story';
 
-const layer = (id: string, over: Record<string, unknown> = {}) => ({
-  id,
+const frame = (n: number, over: Record<string, unknown> = {}) => ({
+  id: `piece-${n}`,
   stage: 'anchor',
-  image: `layer-${id}.webp`,
-  shade: `shade-${id}.png`,
+  image: `frame-${n}.jpg`,
+  wall: `wall-${n}.png`,
+  change: `change-${n}.png`,
   box: [100, 500, 600, 300],
   motion: 'rise',
   ...over,
 });
+const empty = { image: 'frame-0.jpg', wall: 'wall-0.png' };
 const manifest = (over: Record<string, unknown> = {}) => ({
-  version: 2,
+  version: 3,
   width: 1472,
   height: 1104,
-  base: {
-    image: 'base.jpg',
-    mask: 'base-mask.png',
-    wallMedianLinear: [0.61, 0.55, 0.47],
-    alt: 'Concept image: an empty, bright living room with tired tan walls',
-  },
-  final: { image: 'final.jpg', alt: 'Concept image: the same living room finished' },
+  wallMedianLinear: [0.61, 0.55, 0.47],
+  base: { alt: 'Concept image: an empty, bright living room with tired tan walls' },
+  final: { alt: 'Concept image: the same living room finished' },
   stages: [
     { id: 'shell', caption: 'The empty room.' },
     { id: 'anchor', caption: 'A rug and the sofa.' },
   ],
-  layers: [layer('trim', { stage: 'shell', motion: 'sweep', shade: null }), layer('sofa')],
+  frames: [empty, frame(1, { id: 'trim', stage: 'shell', motion: 'sweep' }), frame(2)],
   ...over,
 });
 
-describe('parseRoomManifest (v2)', () => {
+describe('parseRoomManifest (v3, whole frames)', () => {
   it('accepts the contract and returns a clean copy', () => {
     const m = parseRoomManifest(manifest());
+    expect(m?.version).toBe(3);
     expect(m?.stages).toHaveLength(2);
-    expect(m?.layers.map((l) => l.id)).toEqual(['trim', 'sofa']);
-    expect(m?.layers[0].shade).toBeNull();
-    expect(m?.base.wallMedianLinear).toEqual([0.61, 0.55, 0.47]);
+    expect(m?.empty).toEqual(empty);
+    expect(m?.pieces.map((p) => p.id)).toEqual(['trim', 'piece-2']);
+    expect(m?.pieces[0]).toMatchObject({ stage: 'shell', motion: 'sweep', change: 'change-1.png' });
+    expect(m?.wallMedianLinear).toEqual([0.61, 0.55, 0.47]);
+    expect(m?.base.alt).toMatch(/^Concept image:/);
   });
 
-  it('treats a missing shade as null, and drops unknown keys', () => {
-    const noShade = layer('sofa', { extra: 1 }) as Record<string, unknown>;
-    delete noShade.shade;
-    const m = parseRoomManifest(manifest({ layers: [noShade] }));
-    expect(m?.layers[0].shade).toBeNull();
-    expect(m?.layers[0]).not.toHaveProperty('extra');
-  });
-
-  it('accepts a light, and treats a missing light as null', () => {
-    const lit = parseRoomManifest(
-      manifest({ layers: [layer('lamp', { light: 'light-lamp.png' })] }),
+  it('drops unknown keys', () => {
+    const m = parseRoomManifest(
+      manifest({ extra: 1, frames: [{ ...empty, x: 1 }, frame(1, { y: 2 })] }),
     );
-    expect(lit?.layers[0].light).toBe('light-lamp.png');
-    const m = parseRoomManifest(manifest());
-    expect(m?.layers[0].light).toBeNull();
-    expect(m?.layers[1].light).toBeNull();
+    expect(m).not.toHaveProperty('extra');
+    expect(m?.empty).not.toHaveProperty('x');
+    expect(m?.pieces[0]).not.toHaveProperty('y');
   });
 
-  it('lists a light file after its shade', () => {
-    const m = parseRoomManifest(manifest({ layers: [layer('lamp', { light: 'light-lamp.png' })] }));
-    expect(m && roomFiles(m).slice(-3)).toEqual([
-      'layer-lamp.webp',
-      'shade-lamp.png',
-      'light-lamp.png',
-    ]);
-  });
-
-  it('lists every file it names', () => {
+  it('lists every file it names, frame by frame', () => {
     const m = parseRoomManifest(manifest());
     expect(m && roomFiles(m)).toEqual([
-      'base.jpg',
-      'base-mask.png',
-      'final.jpg',
-      'layer-trim.webp',
-      'layer-sofa.webp',
-      'shade-sofa.png',
+      'frame-0.jpg',
+      'wall-0.png',
+      'frame-1.jpg',
+      'wall-1.png',
+      'change-1.png',
+      'frame-2.jpg',
+      'wall-2.png',
+      'change-2.png',
     ]);
+  });
+
+  it('accepts WebP frames and a frame-0 with explicit nulls', () => {
+    const m = parseRoomManifest(
+      manifest({
+        frames: [
+          { ...empty, image: 'frame-0.webp', change: null, box: null, motion: null, stage: null },
+          frame(1, { image: 'frame-1.webp' }),
+        ],
+      }),
+    );
+    expect(m?.empty.image).toBe('frame-0.webp');
   });
 
   it.each([
     ['not an object', null],
-    ['version 1', manifest({ version: 1 })],
+    ['version 2', manifest({ version: 2 })],
+    ['a v2 shape (base image and layers)', { ...manifest(), frames: undefined, layers: [] }],
     ['a missing width', manifest({ width: undefined })],
+    ['a missing wall median', manifest({ wallMedianLinear: undefined })],
+    ['a median above 1', manifest({ wallMedianLinear: [1.2, 0.5, 0.5] })],
+    ['a zero median', manifest({ wallMedianLinear: [0, 0.5, 0.5] })],
     ['one stage', manifest({ stages: [{ id: 'anchor', caption: 'x' }] })],
     [
       'duplicate stage ids',
@@ -114,51 +115,96 @@ describe('parseRoomManifest (v2)', () => {
         ],
       }),
     ],
-    ['no layers', manifest({ layers: [] })],
-    ['duplicate layer ids', manifest({ layers: [layer('sofa'), layer('sofa')] })],
+    ['a base alt without the prefix', manifest({ base: { alt: 'An empty room' } })],
+    ['a final alt without the prefix', manifest({ final: { alt: 'A room' } })],
+    ['no final alt', manifest({ final: {} })],
+    ['no frames', manifest({ frames: [] })],
+    ['only the empty room', manifest({ frames: [empty] })],
+    ['a frame-0 with a change', manifest({ frames: [{ ...empty, change: 'c.png' }, frame(1)] })],
+    ['a frame-0 with a box', manifest({ frames: [{ ...empty, box: [0, 0, 1, 1] }, frame(1)] })],
+    ['a frame-0 with a motion', manifest({ frames: [{ ...empty, motion: 'pop' }, frame(1)] })],
+    ['a frame-0 without a wall', manifest({ frames: [{ image: 'frame-0.jpg' }, frame(1)] })],
+    ['a frame-0 PNG photo', manifest({ frames: [{ ...empty, image: 'frame-0.png' }, frame(1)] })],
+    ['duplicate piece ids', manifest({ frames: [empty, frame(1), frame(2, { id: 'piece-1' })] })],
     [
-      'a base alt without the prefix',
-      manifest({ base: { ...manifest().base, alt: 'An empty room' } }),
+      'stages going backwards',
+      manifest({ frames: [empty, frame(1), frame(2, { stage: 'shell' })] }),
     ],
-    ['a final alt without the prefix', manifest({ final: { image: 'final.jpg', alt: 'A room' } })],
-    ['no final image', manifest({ final: { alt: 'Concept image: x' } })],
-    ['a base mask in a folder', manifest({ base: { ...manifest().base, mask: '../m.png' } })],
-    [
-      'a median above 1',
-      manifest({ base: { ...manifest().base, wallMedianLinear: [1.2, 0.5, 0.5] } }),
-    ],
-    ['a zero median', manifest({ base: { ...manifest().base, wallMedianLinear: [0, 0.5, 0.5] } })],
   ])('rejects %s', (_label, raw) => {
     expect(parseRoomManifest(raw)).toBeNull();
   });
 
   it.each([
+    ['no id', { id: undefined }],
+    ['no stage', { stage: undefined }],
     ['an unknown stage', { stage: 'nope' }],
+    ['no change', { change: undefined }],
+    ['a null change', { change: null }],
+    ['no box', { box: undefined }],
+    ['no motion', { motion: undefined }],
     ['an unknown motion', { motion: 'spin' }],
-    ['an image URL', { image: 'https://example.com/a.webp' }],
-    ['a shade that is not a file name', { shade: 5 }],
-    ['a light that is not a file name', { light: '../x.png' }],
-    ['a light that is a number', { light: 5 }],
+    ['an image URL', { image: 'https://example.com/a.jpg' }],
+    ['a PNG photo', { image: 'frame-1.png' }],
+    ['a JPG wall mask', { wall: 'wall-1.jpg' }],
+    ['a change in a folder', { change: '../change-1.png' }],
+    ['a change that is a number', { change: 5 }],
     ['a box off the right edge', { box: [1000, 0, 500, 100] }],
     ['a box off the bottom', { box: [0, 1000, 100, 105] }],
     ['a negative box', { box: [-1, 0, 100, 100] }],
     ['a zero-size box', { box: [0, 0, 0, 100] }],
     ['a three-number box', { box: [0, 0, 100] }],
     ['a NaN box', { box: [0, Number.NaN, 100, 100] }],
-  ])('rejects a layer with %s', (_label, over) => {
-    expect(parseRoomManifest(manifest({ layers: [layer('sofa', over)] }))).toBeNull();
+  ])('rejects a piece frame with %s', (_label, over) => {
+    expect(parseRoomManifest(manifest({ frames: [empty, frame(1, over)] }))).toBeNull();
   });
 
   it('accepts every motion in the set', () => {
     for (const motion of ROOM_MOTIONS) {
-      expect(parseRoomManifest(manifest({ layers: [layer('sofa', { motion })] }))).not.toBeNull();
+      expect(parseRoomManifest(manifest({ frames: [empty, frame(1, { motion })] }))).not.toBeNull();
     }
   });
 
   it('accepts a box that touches the frame edges exactly', () => {
     expect(
-      parseRoomManifest(manifest({ layers: [layer('wall', { box: [0, 0, 1472, 1104] })] })),
+      parseRoomManifest(manifest({ frames: [empty, frame(1, { box: [0, 0, 1472, 1104] })] })),
     ).not.toBeNull();
+  });
+});
+
+describe('stageFrames', () => {
+  const stages = [
+    { id: 'shell', caption: 'a' },
+    { id: 'anchor', caption: 'b' },
+    { id: 'art', caption: 'c' },
+    { id: 'styling', caption: 'd' },
+  ];
+
+  it('shows the last frame of each stage', () => {
+    const m = parseRoomManifest(
+      manifest({
+        stages,
+        frames: [
+          empty,
+          frame(1, { stage: 'shell' }),
+          frame(2, { stage: 'anchor' }),
+          frame(3, { stage: 'anchor' }),
+          frame(4, { stage: 'art' }),
+          frame(5, { stage: 'styling' }),
+          frame(6, { stage: 'styling' }),
+        ],
+      }),
+    )!;
+    expect(stageFrames(m)).toEqual([1, 3, 4, 6]);
+  });
+
+  it('holds the frame before for a stage with no pieces, and frame 0 before any', () => {
+    const m = parseRoomManifest(
+      manifest({
+        stages,
+        frames: [empty, frame(1, { stage: 'anchor' }), frame(2, { stage: 'styling' })],
+      }),
+    )!;
+    expect(stageFrames(m)).toEqual([0, 1, 1, 2]);
   });
 });
 
@@ -216,27 +262,6 @@ describe('parseRoomIndex (rooms.json v1)', () => {
     expect(roomAnnouncement({ label: 'Kitchen', style: 'Modern' })).toBe(
       'Showing the kitchen, modern style.',
     );
-  });
-});
-
-describe('layerTimings', () => {
-  it('gives a lone layer its whole stage window', () => {
-    const m = parseRoomManifest(manifest())!;
-    expect(layerTimings(m)[0]).toEqual({ stage: 0, from: 0, to: 1 });
-  });
-
-  it('staggers several layers of one stage in paint order, overlapping', () => {
-    const m = parseRoomManifest(
-      manifest({ layers: [layer('rug'), layer('sofa'), layer('throw', { stage: 'anchor' })] }),
-    )!;
-    const t = layerTimings(m);
-    expect(t.map((x) => x.stage)).toEqual([1, 1, 1]);
-    expect(t[0].from).toBe(0);
-    expect(t[2].to).toBe(1);
-    for (let i = 1; i < t.length; i++) {
-      expect(t[i].from).toBeGreaterThan(t[i - 1].from);
-      expect(t[i].from).toBeLessThan(t[i - 1].to); // overlap
-    }
   });
 });
 

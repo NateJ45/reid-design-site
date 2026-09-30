@@ -13,7 +13,7 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 3. Featured Work (auto-populated — hero project + companion panel; visual proof, the hook)
 4. Kind Words (1 featured testimonial + 6 grid testimonials; social proof, early)
 5. How It Works (4-step process preview, CTA to Process)
-6. The concept room (2026-09-30: a labelled, AI-generated sample room whose furniture moves into place piece by piece as you scroll, with a WebGL paint deck for the walls; the `roomStory` marker, auto-placed here; several rooms behind tabs above the room since the same day; renders nothing until `src/assets/room/rooms.json` lists a room whose files exist)
+6. The concept room (2026-09-30: a labelled, AI-generated sample room that fills up piece by piece as you scroll (whole AI frames, each new piece revealed in place), with a WebGL paint deck for the walls; the `roomStory` marker, auto-placed here; several rooms behind tabs above the room since the same day; renders nothing until `src/assets/room/rooms.json` lists a room whose files exist)
 7. How Reid Design Can Help (4 services with prices, CTA to Contact)
 8. Service area cue line (Plainfield-first)
 9. Final CTA (full-bleed)
