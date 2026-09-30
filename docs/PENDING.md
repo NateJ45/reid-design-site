@@ -14,13 +14,13 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
-### From the 2026-09-29 art-direction rebuild (branch `claude/redesign`)
+### From the 2026-09-29 art-direction rebuild (PR #53, live 2026-09-30)
 
-- **Show Staci the new home page on staging, then decide on launch.** Built
-  from the merge of the two prototypes (`docs/design/prototypes/`), home +
-  header + footer + closing CTA only. Her call on: the Walnut hero with her
-  red-top portrait, Zodiak as the new type, and the paint-chip prices. Nathan
-  chose to show her on staging rather than the prototype.
+- **Get Staci's reaction to the new home page, now LIVE.** Nathan first
+  planned to show her on staging, then asked for it all on main; PR #53 merged
+  (7bffc16) and reiddesignllc.com served it about 105s later. Her call on: the
+  Walnut hero with her red-top portrait, Zodiak as the new type, and the
+  paint-chip prices. Phase 2 (the other seven pages + portfolio) waits on it.
 - **Fontshare licence, formally.** The ITF Free Font License is meant to be
   held by the site owner. It is free: Staci (Reid Design LLC) accepting it at
   fontshare.com for Zodiak and General Sans closes the question. The build

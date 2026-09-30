@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — art-direction rebuild phase 1 live
+
+PR #53 (`claude/redesign`) merged to `main` as 7bffc16 at Nathan's request ("get it all on main"), after all three required checks (build, test, lighthouse) passed. The first build run failed only on Prettier over the three frozen prototype pages, which are now in `.prettierignore`. The Cloudflare Workers Build served it on reiddesignllc.com about 105s after the merge: all four paint chips, the process steps and the testimonials render, `/fonts/*.woff2` answers 200, and the 8 live routes plus `/studio/` return 200. The stega preview fix was verified on staging in a signed-in Presentation by the Dependabot-audit session: 0 decode errors, 9 clean word spans, and a headline click opens `heroHeadline`.
+
 ## 2026-09-30 — rebuild: stega-safe word splitting in preview
 
 Reported by the Dependabot-audit session from a signed-in Presentation check: `RiseWords` split the stega-ENCODED hero headline into words, so the invisible click-to-edit run was carved into 349 word spans, the overlay logged ~744 "Failed to decode stega" errors, and clicking the headline no longer opened its field (preview only; the live build has no stega). The accent phrase is encoded too, so it never matched in preview. Same trap in `PaintChips` (price regex) and `HomeWords` (quote shortening). Fix: `src/lib/split-copy.ts` (`splitHeadlineWords`, `splitPrice`) works on the clean text and returns the run, which the component renders once, whole, outside the animated spans; `HomeWords` does the same inline. 4 new unit tests (459/459). Live output unchanged: no invisible characters and no `data-sanity` in `dist/client`, Playwright 156/156.
