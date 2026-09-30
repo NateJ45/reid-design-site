@@ -52,13 +52,15 @@
       "id": "beadboard",
       "stage": "bones",
       "motion": "sweep",
-      "change": "add white painted beadboard wainscoting with a slim cap rail on the lower third of the plain walls and taller white baseboards, leaving the upper walls painted and clear. Keep the vanity, toilet and tub exactly as they are. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add white painted beadboard wainscoting with a slim cap rail on the lower third of the plain walls and taller white baseboards, leaving the upper walls painted and clear. Keep the vanity, toilet and tub exactly as they are. This is carpentry only: the paint colour, walls, floor, windows and light stay exactly as they are.",
       "seeds": [
         510,
         1510,
         2510
       ],
-      "maxDrift": 10
+      "maxDrift": 10,
+      "workflow": "edit-reflatent-full",
+      "negative": "wallpaper, mural, pattern on walls, stencil, new wall colour, repainted walls, paneling pattern, rug, carpet, furniture, decor, art, cartoon, illustration, cgi, render"
     },
     {
       "id": "mirror",

@@ -206,7 +206,12 @@ async function doStages() {
       await writeFile(rawPath, await sized(buf, `piece ${pc.id} seed ${seed}`));
       const top = await topFifthDrift(prev, rawPath);
       const full = await fullDrift(prev, rawPath);
-      const ok = top <= limit;
+      // Whole-frame guard (2026-09-30): the dining trim step repainted every wall with a mural
+      // while the top fifth barely moved (top 3.6, full 18.6). A piece that changes this much of
+      // the room is not one piece.
+      const fullLimit = pc.maxFullDrift ?? 12;
+      const ok = top <= limit && full <= fullLimit;
+      if (full > fullLimit) console.log(`  full drift ${full.toFixed(2)} > ${fullLimit}: rejected (changed too much of the room)`);
       console.log(`  drift top fifth ${top.toFixed(2)} (limit ${limit}), full ${full.toFixed(2)} -> ${ok ? 'accept' : 'reject'}`);
       await appendLog({ kind: 'piece', piece: pc.id, n, workflow: wfName, seed, topDrift: +top.toFixed(3), fullDrift: +full.toFixed(3), accepted: ok });
       if (!ok) continue;

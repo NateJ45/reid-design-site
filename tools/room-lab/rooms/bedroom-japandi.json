@@ -60,13 +60,15 @@
       "id": "trim",
       "stage": "shell",
       "motion": "sweep",
-      "change": "add wide, flat, square-edged white baseboards and simple square white window casing. Add no furniture and no rug; the floor stays bare. Style: calm Japandi; oatmeal, warm white, soft charcoal and natural ash wood, linen, paper, clay, very little clutter. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add wide, flat, square-edged white baseboards and simple square white window casing. Add no furniture and no rug; the floor stays bare. This is carpentry only: the paint colour, walls, floor, windows and light stay exactly as they are.",
       "seeds": [
         610,
         1610,
         2610
       ],
-      "maxDrift": 10
+      "maxDrift": 10,
+      "workflow": "edit-reflatent-full",
+      "negative": "wallpaper, mural, pattern on walls, stencil, new wall colour, repainted walls, paneling pattern, rug, carpet, furniture, decor, art, cartoon, illustration, cgi, render"
     },
     {
       "id": "rug",

@@ -60,19 +60,21 @@
       "id": "trim",
       "stage": "shell",
       "motion": "sweep",
-      "change": "add wide, flat white farmhouse-style casing around the windows and tall flat white baseboards along every wall. Add no furniture and no rug; the floor stays bare. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add wide, flat white farmhouse-style casing around the windows and tall flat white baseboards along every wall. Add no furniture and no rug; the floor stays bare. This is carpentry only: the paint colour, walls, floor, windows and light stay exactly as they are.",
       "seeds": [
         210,
         1210,
         2210
       ],
-      "maxDrift": 10
+      "maxDrift": 10,
+      "workflow": "edit-reflatent-full",
+      "negative": "wallpaper, mural, pattern on walls, stencil, new wall colour, repainted walls, paneling pattern, rug, carpet, furniture, decor, art, cartoon, illustration, cgi, render"
     },
     {
       "id": "rug",
       "stage": "anchor",
       "motion": "unroll",
-      "change": "add one large vintage-style washed rug in faded blue and cream, lying flat in the middle of the floor. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add one large vintage-style wool area rug with a softly faded, worn traditional medallion pattern in muted slate blue, cream and rust, with a real woven texture, lying flat in the middle of the floor. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         220,
         1220,
@@ -80,7 +82,9 @@
       ],
       "labels": [
         "rug"
-      ]
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "pixelated, geometric blocks, bright saturated colours, digital pattern, cartoon, illustration, cgi, render, flat"
     },
     {
       "id": "sofa",

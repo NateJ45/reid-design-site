@@ -60,13 +60,15 @@
       "id": "trim",
       "stage": "shell",
       "motion": "sweep",
-      "change": "add white crown moulding where the walls meet the ceiling, tall white baseboards and a slim white chair rail around the room at chair-back height. Add no furniture and no rug; the floor stays bare. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add white crown moulding where the walls meet the ceiling, tall white baseboards and a slim white chair rail around the room at chair-back height. Add no furniture and no rug; the floor stays bare. This is carpentry only: the paint colour, walls, floor, windows and light stay exactly as they are.",
       "seeds": [
         310,
         1310,
         2310
       ],
-      "maxDrift": 10
+      "maxDrift": 10,
+      "workflow": "edit-reflatent-full",
+      "negative": "wallpaper, mural, pattern on walls, stencil, new wall colour, repainted walls, paneling pattern, rug, carpet, furniture, decor, art, cartoon, illustration, cgi, render"
     },
     {
       "id": "rug",
@@ -167,7 +169,7 @@
       "id": "styling",
       "stage": "finish",
       "motion": "pop",
-      "change": "place a pair of tall brass candlesticks with white taper candles and a low bowl of white ranunculus on the table, and a black ceramic vase on the sideboard. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "keep the sideboard, mirror, chairs and table exactly as they are, and only place a pair of tall brass candlesticks with white taper candles and a low bowl of white ranunculus on the table, and a black ceramic vase on the sideboard. Style: art deco; deep emerald, black lacquer, cream and warm brass, fluted walnut, frosted glass, geometric fan shapes. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         380,
         1380,
