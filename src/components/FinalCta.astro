@@ -441,12 +441,19 @@ const {
       margin-top: 2rem;
       max-width: 36rem;
     }
-    /* On a phone the plan sits faint behind the headline, top right. */
+    /* On a phone the plan sits faint behind the headline, top right, inside
+       the band (a part hanging above it would sit over the section above,
+       where the accessibility check reads its notes against the wrong
+       ground). Its notes are too small to read at this size, so the phone
+       shows the linework only. */
     .final__grid :global(.final__plan) {
-      top: -3.75rem;
-      right: -2.75rem;
-      width: min(64%, 19rem);
+      top: -2rem;
+      right: 0;
+      width: min(58%, 17rem);
       opacity: 0.2;
+    }
+    .final__grid :global(.fp-notes) {
+      display: none;
     }
   }
 </style>
