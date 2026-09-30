@@ -116,71 +116,76 @@ seed = 300;
 }
 
 // ---- Kitchen, modern ---------------------------------------------------------------------
+// Styling only (Nathan, 2026-09-30): Staci works with the kitchen that is there. The
+// cabinets, counters and appliances stay; the build is hardware, a light fixture, soft
+// goods, art and styling, plus wall colour from the chips. Never a remodel.
 seed = 400;
 {
-  const S = 'warm modern; white oak, white quartz, glossy white tile, matte black and brushed stainless, smoked glass.';
+  const S = 'warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles.';
   write('kitchen-modern', {
-    shell: shell('kitchen space during a remodel, with all the old cabinets removed', 'Finished drywall, a bright window on the back wall where the sink will go, capped plumbing and outlets only, a light plank floor.'),
-    negative: 'cabinets, countertop, island, sink, faucet, stove, range, appliances, refrigerator, stools, pendant lights, backsplash tile, shelves',
+    shell:
+      'A realistic photograph of an ordinary, dated but complete kitchen in a 2000s Midwest American suburban house, not luxury. Honey oak cabinets with round brass knobs, beige laminate countertops, a plain white refrigerator, a white range, a stainless sink with a plain chrome faucet under a bright window, a plain frosted dome ceiling light. Bright, open and airy, lots of soft daylight, light floor. Clean and uncluttered: nothing on the counters, nothing on the walls, no rug. One large plain section of painted wall is clearly visible. Eye-level camera standing in a corner. No people, no text, no logos. Natural colour, gentle shadows, 4:3 photograph.',
+    negative: 'remodel, new cabinets, white cabinets, island, stools, backsplash tile, pendant lights, decor, clutter, rug',
     variants: [
       ['yellow', 'a dated, tired butter yellow that looks a little greasy'],
       ['sage', 'a faded 1990s sage green that looks a little flat'],
     ],
-    baseAlt: 'Concept image: a bright, empty kitchen during a remodel, with dated walls and the old cabinets gone, before any design work.',
-    finalAlt: 'Concept image: the finished modern kitchen with white oak cabinets, quartz counters, a tile backsplash, an island with stools and globe pendants.',
+    baseAlt: 'Concept image: a dated but working kitchen with honey oak cabinets and tired walls, before any styling.',
+    finalAlt: 'Concept image: the same kitchen, restyled with black hardware, a new faucet and light, a runner, a roman shade, art and counter styling.',
     stages: [
-      ['bones', 'A kitchen is built from the back wall out: oak cabinets, a quartz top, a deep sink under the window.'],
-      ['surface', 'Glossy tile behind it all, easy to wipe and full of light.'],
-      ['anchor', 'Then the island, which is where everyone will stand anyway, and the range.'],
-      ['light', 'Two smoked-glass globes over the island.'],
-      ['comfort', 'Stools to pull up, and open shelves instead of upper cabinets, so the room stays airy.'],
-      ['finish', 'A board, a bowl of lemons and a pot of herbs, like someone cooks here.'],
+      ['hardware', 'The cabinets stay. New black pulls and a new faucet change how the whole kitchen reads.'],
+      ['light', 'Swap the dated dome light for one good pendant.'],
+      ['soft', 'A washable runner by the sink and a linen shade in the window.'],
+      ['personal', 'One piece of art on the empty wall.'],
+      ['finish', 'A board, a bowl of lemons and a pot of basil, like someone cooks here.'],
     ],
     pieces: [
-      piece('cabinets', 'bones', 'rise', ['cabinet', 'counter', 'countertop'], 'add a run of flat-panel base cabinets in warm white oak along the back wall with a white quartz countertop, leaving the upper wall clear.', S),
-      piece('sink', 'bones', 'pop', ['sink'], 'add an undermount white sink with a matte black gooseneck faucet in the countertop, centred under the window.', S, { workflow: FULL }),
-      piece('backsplash', 'surface', 'sweep', [], 'add a backsplash of glossy white vertical stacked rectangular tile on the wall directly above the countertop, about eighteen inches tall, leaving the wall above it painted and clear.', S),
-      piece('island', 'anchor', 'slide-left', ['kitchen island', 'counter', 'countertop', 'cabinet'], 'add one large kitchen island with a white oak base and a white quartz waterfall top in the middle of the room.', S),
-      piece('range', 'anchor', 'rise', ['stove', 'oven'], 'add a thirty-inch stainless steel range set into the run of cabinets.', S),
-      piece('pendants', 'light', 'drop', ['light', 'lamp', 'chandelier'], 'hang two globe pendant lights in smoked glass on thin black rods above the island, switched off.', S, { maxDrift: 12, workflow: FULL, negative: NEG_OFF }),
-      piece('stools', 'comfort', 'slide-right', ['stool', 'chair', 'swivel chair'], 'add three counter stools with white oak seats and slim matte black legs along the island.', S),
-      piece('shelves', 'comfort', 'drop', ['shelf'], 'add two floating white oak shelves on the back wall above the backsplash, with a few plain white ceramic bowls and glasses on them, leaving plenty of painted wall visible.', S, { workflow: FULL }),
-      piece('styling', 'finish', 'pop', ['plant', 'pot', 'vase', 'basket'], 'place a wooden cutting board, a white bowl of fresh lemons and a small potted basil plant on the counter and island.', S, { workflow: FULL, negative: `fake fruit, ${NEG_FINE}` }),
+      piece('hardware', 'hardware', 'pop', [], 'replace every round brass cabinet knob with a slim matte black bar pull, on every door and drawer. Keep the honey oak cabinets exactly as they are.', S, { workflow: FULL, negative: NEG_FINE }),
+      piece('faucet', 'hardware', 'pop', ['sink'], 'replace the plain chrome faucet with a matte black gooseneck kitchen faucet. Keep the sink and countertop exactly as they are.', S, { workflow: FULL, negative: NEG_FINE }),
+      piece('pendant', 'light', 'drop', ['light', 'lamp', 'chandelier'], 'replace the frosted dome ceiling light with one simple globe pendant light in smoked glass on a thin black rod, switched off.', S, { maxDrift: 12, workflow: FULL, negative: NEG_OFF }),
+      piece('runner', 'soft', 'unroll', ['rug'], 'add a flat-woven runner rug in cream and charcoal stripes on the floor in front of the sink and cabinets.', S),
+      piece('shade', 'soft', 'drop', ['curtain', 'blind'], 'hang a simple cream linen roman shade inside the window frame, raised most of the way so the window stays bright.', S),
+      piece('art', 'personal', 'drop', ['painting'], 'hang one framed botanical print in a thin black frame on the large plain wall, with plenty of bare wall around it.', S),
+      piece('styling', 'finish', 'pop', ['plant', 'pot', 'vase', 'basket'], 'place a wooden cutting board, a white bowl of fresh lemons and a small potted basil plant on the countertop.', S, { workflow: FULL, negative: `fake fruit, ${NEG_FINE}` }),
     ],
   });
 }
 
 // ---- Bathroom, seaside -------------------------------------------------------------------
+// Styling only: the toilet, tub and shower and the vanity stay. Beadboard stays as the one
+// "bones" step (Nathan kept trim everywhere); the rest is fixtures, soft goods and decor.
 seed = 500;
 {
-  const S = 'light seaside cottage; white, sand, driftwood and soft sea blue, washed white oak, rattan, brushed nickel, seeded glass.';
+  const S = 'light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton.';
   write('bath-seaside', {
-    shell: shell('bathroom being remodelled, with the old fixtures removed', 'A frosted window, a light porcelain tile floor, capped plumbing only, plain thin builder baseboards.'),
-    negative: 'bathtub, toilet, vanity, sink, mirror, shower, towels, lights, cabinets, wainscoting',
+    shell:
+      'A realistic photograph of an ordinary, dated but complete small bathroom in a 2000s Midwest American suburban house, not luxury. A builder oak vanity with a cultured marble top and a plain chrome faucet, a plain frameless mirror above it with a chrome vanity light bar, a white toilet, a white tub and shower combination with a plain white surround and no shower curtain, a frosted window, a light tile floor, thin builder baseboards. Bright soft daylight. Clean: no towels, no rugs, no decor, nothing on the walls. One large plain painted wall is clearly visible. Eye-level camera from the doorway. No people, no text, no logos. Natural colour, gentle shadows, 4:3 photograph.',
+    negative: 'remodel, freestanding tub, new vanity, tile wall, towels, rug, decor, clutter, shower curtain',
     variants: [
       ['pink', 'a dated 1990s pinkish beige that looks a little dingy'],
       ['mint', 'a faded, dated seafoam mint that looks a little flat'],
     ],
-    baseAlt: 'Concept image: a bright, empty bathroom during a remodel, with dated walls and the old fixtures gone, before any design work.',
-    finalAlt: 'Concept image: the finished seaside bathroom with beadboard, a freestanding tub, a washed oak vanity, a rattan mirror, sconces and striped towels.',
+    baseAlt: 'Concept image: a dated but working bathroom with a builder vanity and tired walls, before any styling.',
+    finalAlt: 'Concept image: the same bathroom, restyled with beadboard, a rattan mirror, nickel sconces, a striped shower curtain, towels and a bath mat.',
     stages: [
-      ['bones', 'Beadboard on the lower walls first: it is practical in a bathroom and it says cottage straight away.'],
-      ['anchor', 'A deep freestanding tub under the window and a washed oak vanity.'],
-      ['light', 'A round rattan mirror, with a sconce on each side so the light is kind in the morning.'],
-      ['comfort', 'Striped towels on a wooden ladder, close to the tub.'],
-      ['finish', 'A seagrass basket, a small plant and a jar of shells from somewhere you liked.'],
+      ['bones', 'Beadboard on the lower walls first: practical in a bathroom, and it says cottage straight away.'],
+      ['fixtures', 'The vanity stays. A round rattan mirror, sconces instead of the light bar, and a nickel faucet.'],
+      ['soft', 'A striped shower curtain, fresh towels and a woven mat.'],
+      ['finish', 'A small print, a basket and a plant, and it feels like a different room.'],
     ],
     pieces: [
-      piece('beadboard', 'bones', 'sweep', [], 'add white painted beadboard wainscoting with a slim cap rail on the lower third of every wall and taller white baseboards, leaving the upper walls painted and clear.', S, { maxDrift: 10 }),
-      piece('tub', 'anchor', 'rise', ['bathtub'], 'add one white freestanding oval soaking tub with a brushed nickel floor-mounted tub filler under the window.', S),
-      piece('vanity', 'anchor', 'rise', ['cabinet', 'sink', 'counter', 'countertop'], 'add one washed white oak single vanity with a white quartz top, an undermount sink and a brushed nickel faucet against the large plain wall.', S),
-      piece('mirror', 'light', 'drop', ['mirror'], 'hang one round mirror with a natural rattan frame on the large plain wall, centred above the vanity.', S, { workflow: FULL, negative: 'cartoon, illustration, cgi, render, distorted reflection' }),
-      piece('sconces', 'light', 'pop', ['sconce', 'light', 'lamp'], 'add two brushed nickel wall sconces with seeded glass shades, one on each side of the mirror, switched off.', S, { workflow: FULL, negative: NEG_OFF }),
-      piece('towels', 'comfort', 'slide-right', ['towel'], 'add a leaning wooden ladder beside the tub with two white and soft blue striped bath towels folded over its rungs.', S, { workflow: FULL }),
-      piece('styling', 'finish', 'pop', ['basket', 'plant', 'pot', 'vase'], 'place a woven seagrass basket on the floor by the vanity, a small potted green plant on the vanity and a clear glass jar of seashells on the tub ledge.', S, { workflow: FULL, negative: NEG_FINE }),
+      piece('beadboard', 'bones', 'sweep', [], 'add white painted beadboard wainscoting with a slim cap rail on the lower third of the plain walls and taller white baseboards, leaving the upper walls painted and clear. Keep the vanity, toilet and tub exactly as they are.', S, { maxDrift: 10 }),
+      piece('mirror', 'fixtures', 'drop', ['mirror'], 'replace the plain frameless mirror above the vanity with one round mirror in a natural rattan frame.', S, { workflow: FULL, negative: 'cartoon, illustration, cgi, render, distorted reflection' }),
+      piece('sconces', 'fixtures', 'pop', ['sconce', 'light', 'lamp'], 'replace the chrome vanity light bar with two brushed nickel wall sconces with seeded glass shades, one on each side of the mirror, switched off.', S, { workflow: FULL, negative: NEG_OFF }),
+      piece('faucet', 'fixtures', 'pop', ['sink'], 'replace the plain chrome vanity faucet with a brushed nickel bridge faucet. Keep the vanity and top exactly as they are.', S, { workflow: FULL, negative: NEG_FINE }),
+      piece('curtain', 'soft', 'drop', ['curtain', 'shower'], 'hang a white and soft blue striped cotton shower curtain on a brushed nickel rod across the tub, pulled partly open.', S),
+      piece('towels', 'soft', 'slide-right', ['towel'], 'hang two white towels with a soft blue stripe on a brushed nickel towel bar on the wall near the tub.', S, { workflow: FULL }),
+      piece('mat', 'soft', 'unroll', ['rug'], 'add a woven cotton bath mat in warm sand on the floor in front of the tub.', S),
+      piece('styling', 'finish', 'pop', ['basket', 'plant', 'pot', 'vase', 'painting'], 'hang one small framed coastal print on the plain wall, and place a woven seagrass basket on the floor by the vanity and a small potted green plant on the vanity.', S, { workflow: FULL, negative: NEG_FINE }),
     ],
   });
 }
+
 
 // ---- Bedroom, Japandi --------------------------------------------------------------------
 seed = 600;

@@ -2,6 +2,7 @@
 // The edit model re-renders the whole image with tiny pixel noise; only the region it
 // really changed (the new furniture) should come through.
 import sharp from 'sharp';
+import { fillHoles } from './objectkeep.mjs';
 
 async function rgb(path) {
   const { data, info } = await sharp(path)
@@ -123,6 +124,10 @@ export async function lockDown(prevPath, editPath, outPath, opts = {}) {
   const blurred = await blur1(bin, w, h, dilate / 2);
   const grown = Buffer.alloc(w * h);
   for (let i = 0; i < w * h; i++) grown[i] = blurred[i] > 4 ? 255 : 0;
+  // 3b. Fill small enclosed holes: a patch of the new piece that happens to match what was
+  //     behind it (a cream cushion on sunlit tan wall) shows no difference, and would stay
+  //     the old wall inside the new sofa. Label-free, so nothing is ever clipped by it.
+  if (opts.fillHoles !== false) grown.set(fillHoles(grown, w, h, opts.holeFrac ?? 0.003));
 
   // 4. Feather the edge.
   const mask = await blur1(grown, w, h, feather);

@@ -104,7 +104,7 @@ async function doBase() {
   for (const v of variants) {
     for (const seed of spec.base.seeds) {
       console.log(`base ${v.id} seed ${seed}...`);
-      const buf = await runWorkflow('t2i.json', {
+      const buf = await runWorkflow(`${flag('--workflow') || 't2i'}.json`, {
         __PROMPT__: v.prompt,
         __NEGATIVE__: spec.base.negative,
         __SEED__: seed,
@@ -190,7 +190,9 @@ async function doStages() {
       console.log(`piece ${n} ${pc.id}, seed ${seed}, workflow ${wfName}...`);
       const buf = await runWorkflow(wfName, {
         __PROMPT__: spec.editInstruction + pc.change,
-        __NEGATIVE__: spec.base.negative,
+        // The piece's own negative. The empty room's one says "furniture, sofa, chair", which the
+        // full-quality workflow (true CFG) would use to fight the very piece being added.
+        __NEGATIVE__: pc.negative ?? 'cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated',
         __SEED__: seed,
         __WIDTH__: W,
         __HEIGHT__: H,

@@ -1,27 +1,22 @@
-// preview: the finished room as the SITE will draw it, painted in several chips.
+// preview: the room as the SITE will draw it (manifest v3, whole frames), painted in chips.
 //
-// It paints the empty room's walls with the site's shader maths (linear light,
-// shade = luma(px)/luma(wallMedian), a 0.35 tint term; see src/scripts/room-painter.ts), then
-// stacks every published layer the way RoomScene.astro does: shade (multiply), light
-// (screen), piece (alpha). Holes, halos and unpainted fringes show up here before they reach
-// the page. Found on the living room, 2026-09-30: paint through the sofa cushions, a tan
-// halo round the art and the lamp, tan strips beside the curtains.
+// Reads the PUBLISHED room (src/assets/room/<slug>/: run room:publish first) and paints each
+// frame's own wall mask with the site's shader maths (linear light, shade =
+// luma(px)/luma(wallMedian), a 0.35 tint term; see src/scripts/room-painter.ts). Anything that
+// looks wrong here will look wrong on the page, so review this before committing.
 //
-//   npm run room:preview -- --room living-transitional     -> work/<room>/preview-paint.jpg
+//   npm run room:preview -- --room living-transitional
+//     -> work/<room>/preview-paint.jpg       finished room in six chips
+//     -> work/<room>/preview-sage-full.png   finished room in Sage at full size (check at 1:1)
+//     -> work/<room>/preview-steps.jpg       every frame of the build, painted Sage
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { WORK, FINAL, LAYERS, loadSpec } from './lib/paths.mjs';
+import { WORK, DEST } from './lib/paths.mjs';
 
-const spec = await loadSpec();
-const W = spec.width;
-const H = spec.height;
-const lj = JSON.parse(await readFile(join(LAYERS, 'layers.json'), 'utf8'));
-const walls = JSON.parse(await readFile(join(FINAL, 'walls.json'), 'utf8'));
-const med = (walls.base ?? walls['frame-0'] ?? Object.values(walls)[0]).wallMedianLinear;
-const base = await sharp(join(FINAL, 'frame-0.png')).removeAlpha().raw().toBuffer();
-const mask = await sharp(join(FINAL, 'base-mask.png')).resize(W, H).extractChannel(0).raw().toBuffer();
-const last = join(FINAL, `frame-${spec.pieces.length}.png`);
+const manifest = JSON.parse(await readFile(join(DEST, 'manifest.json'), 'utf8'));
+if (manifest.version !== 3) throw new Error(`Expected manifest v3 in ${DEST}; run room:publish first.`);
+const { width: W, height: H, wallMedianLinear: med, frames } = manifest;
 
 const lin = (v) => {
   v /= 255;
@@ -35,62 +30,34 @@ const luma = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 const lm = luma(...med);
 const hex = (h) => [1, 3, 5].map((i) => lin(parseInt(h.slice(i, i + 2), 16)));
 
-const layers = [];
-for (const L of lj.layers) {
-  layers.push({
-    L,
-    lay: await sharp(join(LAYERS, L.image)).ensureAlpha().raw().toBuffer(),
-    sh: L.shade ? await sharp(join(LAYERS, L.shade)).greyscale().extractChannel(0).raw().toBuffer() : null,
-    lt: L.light ? await sharp(join(LAYERS, L.light)).removeAlpha().raw().toBuffer() : null,
-    wl: L.wall ? await sharp(join(LAYERS, L.wall)).greyscale().extractChannel(0).raw().toBuffer() : null,
-  });
-}
-
-async function paint(h, full = false) {
+async function paintFrame(f, h) {
+  const img = await sharp(join(DEST, f.image)).resize(W, H).removeAlpha().raw().toBuffer();
+  if (!h) return img;
+  const wall = await sharp(join(DEST, f.wall)).resize(W, H).extractChannel(0).raw().toBuffer();
   const chip = hex(h);
-  const R = Buffer.from(base);
+  const R = Buffer.from(img);
   for (let p = 0; p < W * H; p++) {
-    const m = mask[p] / 255;
+    const m = wall[p] / 255;
     if (!m) continue;
-    const px = [lin(base[p * 3]), lin(base[p * 3 + 1]), lin(base[p * 3 + 2])];
+    const px = [lin(img[p * 3]), lin(img[p * 3 + 1]), lin(img[p * 3 + 2])];
     const lp = Math.max(1e-4, luma(...px));
-    const shade = lp / lm;
     for (let c = 0; c < 3; c++) {
       const tint = 1 + 0.35 * (px[c] / lp / (med[c] / lm) - 1);
-      R[p * 3 + c] = srgb(px[c] * (1 - m) + chip[c] * shade * tint * m);
+      R[p * 3 + c] = srgb(px[c] * (1 - m) + chip[c] * (lp / lm) * tint * m);
     }
   }
-  for (const { L, lay, sh, lt, wl } of layers) {
-    const [bx, by, bw, bh] = L.box;
-    for (let y = 0; y < bh; y++)
-      for (let x = 0; x < bw; x++) {
-        const p = ((by + y) * W + bx + x) * 3;
-        const o = y * bw + x;
-        if (sh) for (let c = 0; c < 3; c++) R[p + c] = Math.round((R[p + c] * sh[o]) / 255);
-        if (lt) for (let c = 0; c < 3; c++) R[p + c] = Math.round(255 - ((255 - R[p + c]) * (255 - lt[o * 3 + c])) / 255);
-        const a = lay[o * 4 + 3] / 255;
-        if (a > 0) {
-          // Paint this layer's own wall pixels with the same shader as the base (layers v3).
-          const px = [lin(lay[o * 4]), lin(lay[o * 4 + 1]), lin(lay[o * 4 + 2])];
-          const wm = wl ? wl[o] / 255 : 0;
-          const lp = Math.max(1e-4, luma(...px));
-          for (let c = 0; c < 3; c++) {
-            const tint = 1 + 0.35 * (px[c] / lp / (med[c] / lm) - 1);
-            const v = wm > 0 ? srgb(px[c] * (1 - wm) + chip[c] * (lp / lm) * tint * wm) : lay[o * 4 + c];
-            R[p + c] = Math.round(R[p + c] * (1 - a) + v * a);
-          }
-        }
-      }
-  }
-  const img = sharp(R, { raw: { width: W, height: H, channels: 3 } });
-  return full ? img.png().toBuffer() : img.resize(736).png().toBuffer();
+  return R;
 }
+const png = (raw, w) => sharp(raw, { raw: { width: W, height: H, channels: 3 } }).resize(w).png().toBuffer();
+const label = (text, w) =>
+  Buffer.from(`<svg width="${w}" height="34"><text x="8" y="24" font-family="Segoe UI" font-size="20">${text}</text></svg>`);
 
+const last = frames[frames.length - 1];
 const chips = [
   ['As it is', null],
   ['Sage', '#a8b5a0'],
-  ['Lake (proposed)', '#8b9ea3'],
-  ['Clay (proposed)', '#b5785f'],
+  ['Lake', '#8b9ea3'],
+  ['Clay', '#b5785f'],
   ['Linen', '#f1e7dc'],
   ['Walnut', '#80604f'],
 ];
@@ -98,21 +65,33 @@ const TW = 736;
 const TH = Math.round((TW * H) / W);
 const comps = [];
 for (const [i, [name, h]] of chips.entries()) {
-  const buf = h ? await paint(h) : await sharp(last).resize(TW).png().toBuffer();
   const x = (i % 3) * TW;
   const y = Math.floor(i / 3) * (TH + 34);
-  comps.push({ input: buf, left: x, top: y + 34 });
-  comps.push({
-    input: Buffer.from(`<svg width="${TW}" height="34"><text x="8" y="24" font-family="Segoe UI" font-size="20">${name}</text></svg>`),
-    left: x,
-    top: y,
-  });
+  comps.push({ input: await png(await paintFrame(last, h), TW), left: x, top: y + 34 });
+  comps.push({ input: label(name, TW), left: x, top: y });
 }
-const out = join(WORK, 'preview-paint.jpg');
 await sharp({ create: { width: TW * 3, height: 2 * (TH + 34), channels: 3, background: '#fff' } })
   .composite(comps)
   .jpeg({ quality: 88 })
-  .toFile(out);
-// Full size, for checking pinholes and halos at 1:1.
-await sharp(await paint('#a8b5a0', true)).toFile(join(WORK, 'preview-sage-full.png'));
-console.log(out);
+  .toFile(join(WORK, 'preview-paint.jpg'));
+await sharp(await paintFrame(last, '#a8b5a0'), { raw: { width: W, height: H, channels: 3 } })
+  .png()
+  .toFile(join(WORK, 'preview-sage-full.png'));
+
+// Every step painted Sage: the paint must hold on each frame, not just the last.
+const SW = 480;
+const SH = Math.round((SW * H) / W);
+const cols = 4;
+const rows = Math.ceil(frames.length / cols);
+const steps = [];
+for (const [i, f] of frames.entries()) {
+  const x = (i % cols) * SW;
+  const y = Math.floor(i / cols) * (SH + 34);
+  steps.push({ input: await png(await paintFrame(f, '#a8b5a0'), SW), left: x, top: y + 34 });
+  steps.push({ input: label(`${i} ${f.id ?? 'empty'}`, SW), left: x, top: y });
+}
+await sharp({ create: { width: SW * cols, height: rows * (SH + 34), channels: 3, background: '#fff' } })
+  .composite(steps)
+  .jpeg({ quality: 85 })
+  .toFile(join(WORK, 'preview-steps.jpg'));
+console.log(join(WORK, 'preview-paint.jpg'));
