@@ -22,6 +22,10 @@ const ABOUT_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   // AboutSectionRenderer renders nothing for it; ABOUT_DEFAULT_ORDER skips it.
   { value: 'press', title: 'Press logos (retired, renders nothing)', retired: true },
   { value: 'stats', title: 'Numbers (stats)' },
+  // Added 2026-09-30. A layout saved before this existed has no row for it;
+  // AboutSectionRenderer then places it just before the closing CTA, and the
+  // "Show on the About page" switch in the Kind words tab turns it off.
+  { value: 'kindWords', title: 'Kind words (every review)' },
   { value: 'finalCta', title: 'Closing call to action' },
 ];
 
@@ -31,7 +35,7 @@ export const aboutSectionMarker = defineType({
   type: 'object',
   icon: ComponentIcon,
   description:
-    "One of the About page's built-in sections. Edit its words and photos in the matching tab above. Use this only to set the order, or remove it to hide that section.",
+    "One of the About page's built-in sections. Edit its words and photos in the matching tab above. Use this only to set the order, or remove it to hide that section. (Kind words is the exception: switch it off in its own tab.)",
   fields: [
     defineField({
       name: 'section',
