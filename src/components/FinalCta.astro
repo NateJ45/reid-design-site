@@ -91,7 +91,11 @@ const {
     every page that ends with FinalCta changes together. An optional
     background photo still works: it sits behind a Walnut scrim. */
 }
-<section class:list={['final', hasBackground && 'final--photo']} aria-labelledby={headingId}>
+<section
+  class:list={['final', hasBackground && 'final--photo']}
+  aria-labelledby={headingId}
+  data-window-light="shade"
+>
   {
     hasBackground && (
       <div class="final__bg" aria-hidden="true">
@@ -191,6 +195,10 @@ const {
   }
   .final__grid {
     position: relative;
+    /* Above the window-light canvas (z-index 1, shade only: leaf shadows
+       drifting over the Walnut, which can only raise the cream text's
+       contrast). */
+    z-index: 2;
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 1.5rem;

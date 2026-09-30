@@ -570,5 +570,14 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
       initPolish();
       document.addEventListener('astro:page-load', initPolish);
     </script>
+
+    {/* Window light (2026-09-30): WebGL leaf shadows and window sun on any band
+        marked data-window-light (the home hero, the closing band). Starts only
+        near the screen and when idle; never under reduced motion. */}
+    <script>
+      import { initWindowLight } from '@/scripts/window-light';
+      initWindowLight();
+      document.addEventListener('astro:page-load', initWindowLight);
+    </script>
   </body>
 </html>

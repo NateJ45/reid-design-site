@@ -23,6 +23,11 @@
 // painted on the first frame (the Stone Steps lesson). The fan deck is pure
 // CSS, decorative, aria-hidden. Reduced motion: everything is static.
 //
+// Window light (2026-09-30): data-window-light="sun" lets
+// src/scripts/window-light.ts (WebGL, started from BaseLayout) drift leaf
+// shadows across the band and lay a patch of window sun on the PHOTO side
+// only; see that file for the contrast rules. Reduced motion: nothing runs.
+//
 // Contrast (measured 2026-09-29; the axe gate caught a wrong earlier note):
 // NO text colour passes AA at body size on Warm Bronze #9c7661 (ink 4.06:1,
 // cream 3.5:1). So the hero ground is WALNUT (chip 6, #80604f): cream on it
@@ -90,7 +95,7 @@ const primaryHref = resolveCtaHref(primaryCta, '/services');
 const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
 ---
 
-<section class="home-hero" aria-labelledby={headingId}>
+<section class="home-hero" aria-labelledby={headingId} data-window-light="sun">
   <div class="home-hero__copy">
     {eyebrow && <p class="home-hero__eyebrow">{eyebrow}</p>}
     <RiseWords as="h1" id={headingId} text={headline} accent={accent} class="home-hero__h1" />
@@ -294,6 +299,12 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     background: var(--tone);
     transform-origin: 50% 92%;
     transform: rotate(calc(-6deg + var(--n) * 10deg));
+    /* The pointer play (2026-09-30): the script below sets --spread on the
+       fan as the mouse crosses the hero (-1 closes it a little, +1 fans it
+       wider). It rides on the separate `rotate` property, so it never
+       fights the load animation on `transform`. */
+    rotate: calc(var(--n) * var(--spread, 0) * 2.2deg);
+    transition: rotate 900ms cubic-bezier(0.22, 1, 0.36, 1);
     box-shadow:
       0 20px 40px -24px rgb(0 0 0 / 0.55),
       inset 0 0 0 1px rgb(255 255 255 / 0.08);
@@ -330,6 +341,12 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     }
     .home-hero__photo :global(.home-hero__img) {
       animation: home-settle 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-hero__chip {
+      rotate: none;
+      transition: none;
     }
   }
   @keyframes home-fan {
@@ -376,3 +393,31 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     }
   }
 </style>
+
+<script>
+  // The fan deck follows the mouse (2026-09-30): moving right across the hero
+  // fans the chips wider, moving left closes them a little, like thumbing
+  // through the deck. Mouse and trackpad only (fine pointers), never under
+  // reduced motion. It only sets one CSS variable; the CSS does the motion.
+  function initFanPlay() {
+    if (!window.matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches)
+      return;
+    const hero = document.querySelector<HTMLElement>('.home-hero');
+    const fan = hero?.querySelector<HTMLElement>('.home-hero__fan');
+    if (!hero || !fan || hero.dataset.fanPlay) return;
+    hero.dataset.fanPlay = '1';
+    let frame = 0;
+    hero.addEventListener('pointermove', (e) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const r = hero.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width; // 0 at the left edge, 1 at the right
+        fan.style.setProperty('--spread', (x * 2 - 1).toFixed(3));
+      });
+    });
+    hero.addEventListener('pointerleave', () => fan.style.setProperty('--spread', '0'));
+  }
+  initFanPlay();
+  document.addEventListener('astro:page-load', initFanPlay);
+</script>
