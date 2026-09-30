@@ -272,13 +272,14 @@ describe('the script accent', () => {
     expect(HOME_PAGE).not.toMatch(/name: '\w+Rich'/);
   });
 
-  it('the two honour gaps in Hero.astro are still exactly where they were', () => {
-    // 1. rotatingWords wins: the accent is passed as undefined.
-    expect(HERO).toContain('rotateEnabled ? undefined : scriptAccent');
-    // 2. the text hero drops it: the SectionHeading call in the no-image branch
-    //    forwards eyebrow / headline / subhead / headingId / level and no accent.
-    const textBranch = HERO.slice(HERO.lastIndexOf('<SectionHeading'));
-    expect(textBranch).not.toContain('scriptAccent');
+  it('both heroes draw the accent in every branch (the old honour gaps are gone)', () => {
+    // 2026-09-30: the interior Hero and the home hero hand the accent to
+    // RiseWords unconditionally; there is no rotating word and no text branch
+    // that drops it. If either returns, heroAccentApplies must learn it again.
+    expect(HERO).toContain('<RiseWords');
+    expect(HERO).toMatch(/<RiseWords[^>]*accent={scriptAccent}/);
+    expect(HERO).not.toContain('rotateEnabled');
+    expect(HERO).not.toContain('<SectionHeading');
   });
 });
 
@@ -488,14 +489,20 @@ describe('resolveAccentTarget', () => {
     expect(resolveAccentTarget(DOC, 'pageBuilder[_key=="zz"].headline')).toBeNull();
   });
 
-  it('refuses a hero the renderer would not draw the accent on', () => {
-    // No background image: the text branch drops scriptAccent entirely.
-    expect(resolveAccentTarget(DOC, 'pageBuilder[_key=="d"].headline')).toBeNull();
-    // Rotating words win over the accent.
+  it('offers the accent on every hero now (image-less, rotating, builder block)', () => {
+    // 2026-09-30: these three were refused while Hero.astro dropped the accent.
+    // The rebuilt heroes draw it in every branch, so the picker offers it.
+    expect(resolveAccentTarget(DOC, 'pageBuilder[_key=="d"].headline')).not.toBeNull();
     const rotating = { ...DOC, heroRotatingWords: ['Lived-in', 'Considered'] };
-    expect(resolveAccentTarget(rotating, 'heroHeadline')).toBeNull();
+    expect(resolveAccentTarget(rotating, 'heroHeadline')).toEqual({
+      headingPath: ['heroHeadline'],
+      accentPath: ['heroScriptAccent'],
+    });
     const imageless = { _type: 'aboutPage', heroHeadline: 'People Hire People.' };
-    expect(resolveAccentTarget(imageless, 'heroHeadline')).toBeNull();
+    expect(resolveAccentTarget(imageless, 'heroHeadline')).toEqual({
+      headingPath: ['heroHeadline'],
+      accentPath: ['heroScriptAccent'],
+    });
   });
 
   it('points the document headlines at their own accents', () => {
@@ -517,26 +524,17 @@ describe('resolveAccentTarget', () => {
 });
 
 describe('heroAccentApplies', () => {
-  it('accepts either image field, single or slideshow', () => {
+  it('is true for any hero, with or without an image or rotating words', () => {
     expect(heroAccentApplies({ heroImage: { asset: {} } })).toBe(true);
-    expect(heroAccentApplies({ heroImages: [{ asset: {} }] })).toBe(true);
-    expect(heroAccentApplies({ backgroundImage: { asset: {} } })).toBe(true);
-  });
-
-  it('refuses an image-less hero and a rotating one', () => {
-    expect(heroAccentApplies({})).toBe(false);
-    expect(heroAccentApplies(null)).toBe(false);
-    expect(heroAccentApplies({ heroImages: [{}] })).toBe(false);
+    expect(heroAccentApplies({})).toBe(true);
     expect(heroAccentApplies({ heroImage: { asset: {} }, heroRotatingWords: ['One', 'Two'] })).toBe(
-      false,
+      true,
     );
   });
 
-  it('a single rotating word is not a rotation, and the accent still draws', () => {
-    // Hero only rotates with more than one word, and passes the accent through
-    // otherwise. The gate has to read the same way.
-    expect(HERO).toContain('rotatingWords.length > 1');
-    expect(heroAccentApplies({ heroImage: { asset: {} }, heroRotatingWords: ['One'] })).toBe(true);
+  it('is false only when there is no hero at all', () => {
+    expect(heroAccentApplies(null)).toBe(false);
+    expect(heroAccentApplies(undefined)).toBe(false);
   });
 });
 

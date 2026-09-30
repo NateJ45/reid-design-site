@@ -36,7 +36,7 @@ interface Props {
   primaryCta?: CtaBlock | null;
   secondaryCta?: CtaBlock | null;
   headingId: string;
-  /** Accepted for compatibility; interior heroes have one size. */
+  /** Page-builder hero block Height: tall fills the screen under the header. */
   size?: 'tall' | 'short';
   /** Accepted for compatibility; not used (home-only feature, retired). */
   rotatingWords?: string[];
@@ -53,7 +53,13 @@ const {
   secondaryCta,
   headingId,
   scriptAccent,
+  size = 'short',
 } = Astro.props as Props;
+
+// The Studio layout card swaps these two classes in preview, so they are also
+// listed in src/lib/section-fields.ts (LAYOUT_FIELDS.heroSection); the drift
+// gate in section-fields.test.ts reads this exact line.
+const wrapperHeight = size === 'tall' ? 'phero--tall' : 'phero--short';
 
 const image =
   (Array.isArray(backgroundImages) ? backgroundImages : []).find((i) => i?.asset) ??
@@ -74,7 +80,7 @@ function parseSubhead(s?: string): Array<{ type: 'text' | 'em'; value: string }>
 const subheadParts = parseSubhead(subhead);
 ---
 
-<section class:list={['phero', image && 'phero--image']} aria-labelledby={headingId}>
+<section class:list={['phero', wrapperHeight, image && 'phero--image']} aria-labelledby={headingId}>
   <div class="r-wrap phero__grid">
     <div class="phero__copy">
       {eyebrow && <p class="phero__eyebrow">{eyebrow}</p>}
@@ -120,6 +126,15 @@ const subheadParts = parseSubhead(subhead);
   .phero {
     padding-block: clamp(3.5rem, 8vw, 7rem) clamp(3.5rem, 7vw, 6rem);
     border-bottom: 1px solid var(--color-rule);
+  }
+  /* Tall: fill the first screen under the sticky header, copy at the foot. */
+  .phero--tall {
+    display: flex;
+    align-items: flex-end;
+    min-height: calc(100svh - 5.5rem);
+  }
+  .phero--tall > .r-wrap {
+    width: 100%;
   }
   .phero__grid {
     display: grid;
