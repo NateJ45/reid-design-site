@@ -14,7 +14,6 @@ import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
 import Hero from '@/components/Hero.astro';
-import SectionHeading from '@/components/SectionHeading.astro';
 import FinalCta from '@/components/FinalCta.astro';
 
 const [page, siteSettings] = await Promise.all([getEDesignPage(), getSiteSettings()]);
@@ -64,25 +63,26 @@ const CONTACT_HREF = '/contact?type=e-design';
 
   {/* ------- Content sections (reorderable) or coming-soon state ------------ */}
   {
+    /* Coming soon (no eDesignPage document yet): one quiet fold on linen with
+      a single ink button, in the phase 2 vocabulary (DESIGN.md). */
+  }
+  {
     !page ? (
-      <section class="bg-background" aria-labelledby="edesign-coming-soon">
-        <div class="mx-auto max-w-2xl max-w-content px-m py-section-lg text-center">
-          <SectionHeading
-            eyebrow="Coming Soon."
-            headline="E-Design details are on the way."
-            subhead="We're pulling together the full overview. In the meantime, reach out. We're happy to walk you through the remote design process directly."
-            headingId="edesign-coming-soon"
-            align="center"
-            class="mx-auto"
-          />
-          <div class="mt-l flex justify-center">
-            <a
-              href={CONTACT_HREF}
-              class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-accent-dark"
-            >
-              Inquire about E-Design
-            </a>
-          </div>
+      <section class="eds-soon" aria-labelledby="edesign-coming-soon">
+        <div class="r-wrap">
+          <h2 id="edesign-coming-soon" class="r-h2 eds-soon__h">
+            E-Design details are <span class="r-accent">on the way.</span>
+          </h2>
+          <p class="r-lede eds-soon__p">
+            We're pulling together the full overview. In the meantime, reach out. We're happy to
+            walk you through the remote design process directly.
+          </p>
+          <a href={CONTACT_HREF} class="r-btn r-btn--ink">
+            Inquire about E-Design
+            <span class="r-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
         </div>
       </section>
     ) : (
@@ -91,6 +91,10 @@ const CONTACT_HREF = '/contact?type=e-design';
   }
 
   {/* ------- Final CTA ------------------------------------------------------- */}
+  {
+    /* With no finalCta set in Sanity, a Walnut close drawn here so the button
+      keeps its ?type=e-design (FinalCta's own fallback is plain /contact). */
+  }
   {
     page?.finalCta ? (
       <FinalCta
@@ -102,23 +106,20 @@ const CONTACT_HREF = '/contact?type=e-design';
         backgroundImage={page.finalCtaBackgroundImage}
       />
     ) : (
-      <section class="bg-accent-dark text-bg" aria-labelledby="edesign-final-cta">
-        <div class="h-0.5 bg-primary" aria-hidden="true" />
-        <div class="mx-auto max-w-content px-m py-section-lg text-center">
-          <p class="text-xs tracking-[0.22em] text-bg/75 uppercase">Ready to Start?</p>
-          <div class="mx-auto mt-s mb-m h-px w-12 bg-bg/40" aria-hidden="true" />
-          <h2 id="edesign-final-cta" class="font-display text-h1 leading-tight text-bg">
-            Get a Room You Love From Wherever You Are.
+      <section class="eds-close" aria-labelledby="edesign-final-cta">
+        <div class="r-wrap eds-close__grid">
+          <h2 id="edesign-final-cta" class="eds-close__h">
+            Get a room you love from <span class="r-accent">wherever you are.</span>
           </h2>
-          <p class="mx-auto mt-m max-w-2xl text-lg text-bg/85">
-            Reach out and we'll walk through what E-Design looks like for your space.
-          </p>
-          <div class="mt-l flex justify-center">
-            <a
-              href={CONTACT_HREF}
-              class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary"
-            >
+          <div>
+            <p class="eds-close__p">
+              Reach out and we'll walk through what E-Design looks like for your space.
+            </p>
+            <a href={CONTACT_HREF} class="r-btn r-btn--cream">
               Inquire about E-Design
+              <span class="r-arrow" aria-hidden="true">
+                →
+              </span>
             </a>
           </div>
         </div>
@@ -126,3 +127,45 @@ const CONTACT_HREF = '/contact?type=e-design';
     )
   }
 </BaseLayout>
+
+<style>
+  .eds-soon {
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .eds-soon__h {
+    margin: 0;
+    max-width: 14ch;
+  }
+  .eds-soon__p {
+    margin: 1.5rem 0 2.25rem;
+  }
+  .eds-close {
+    background: var(--color-chip-6);
+    color: var(--color-cream);
+    padding-block: clamp(4.5rem, 10vw, 8rem);
+    --accent-color: var(--color-chip-2);
+  }
+  .eds-close__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
+  }
+  .eds-close__h {
+    margin: 0;
+    font: 300 var(--text-h2) / 1 var(--font-display);
+    letter-spacing: -0.03em;
+    color: var(--color-cream);
+    text-wrap: balance;
+  }
+  .eds-close__p {
+    margin: 0 0 1.75rem;
+    max-width: 34ch;
+    line-height: 1.55;
+  }
+  @media (max-width: 1023px) {
+    .eds-close__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

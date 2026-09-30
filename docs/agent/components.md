@@ -54,7 +54,10 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Marketing cards (all share the brand-stripe + resting-shadow rhythm):**
 
-- `ServiceCard.astro` — service tier (price + features + best-for + CTA).
+- `ServiceCard.astro` — **rebuilt 2026-09-30 (phase 2) as one row of the Services paint strip**: a chip (tone from `services/tones.ts`, No., name, price set huge) beside the description, tone-swatch features, a "best for" sample tag and the ink button. Keeps `id={slug}` for `/services#slug`. Stacked by `sections/ServicesList.astro`, which also draws the deck index (every service, swatch, dotted leader, price, as jump links). No longer card-grid grammar; see DESIGN.md "Services and E-Design".
+- `services/tones.ts` (2026-09-30) — `toneFor(i, n)` (ramp tone + ink/cream text for item i of n, never chip 5) and `chipPrice()` (stega-safe price split over `splitPrice`). Shared by the Services strip and the E-Design tiers.
+- `sections/BuildersRealtors.astro`, `sections/ServiceArea.astro`, `sections/SatisfactionGuarantee.astro` (2026-09-30) — Services bands: the ink trade band with floor-plan linework; towns plus travel fees on a tape measure (takes optional `cities`); the guarantee set large on Oat with a turning stamp.
+- `edesign/EDesignIntro|EDesignSteps|EDesignIncluded|EDesignTiers.astro` (2026-09-30) — the E-Design sections drawn by `EDesignSectionRenderer.astro`: Zodiak lede, numbered thread, sample tags on an Oat board, tiers as paint chips. The FAQ section there still calls `FaqAccordion` unchanged.
 - `ProjectCard.astro` — portfolio grid card. Includes humanized roomType chip top-left on the hero image. Hero image uses the `.img-zoom` + `.img-tint` hover treatment (see Polish layer).
 - `JournalCard.astro` — journal index card (featured variant spans 2 cols). Hero image uses `.img-zoom` + `.img-tint.img-tint-light` (the lighter tint variant).
 - `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
@@ -124,11 +127,11 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 - `ContactForm.tsx` — Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source. See Form section for full field list.
 - `CopyEmailButton.tsx` — mailto link + clipboard fallback. Used in Footer, Contact sidebar, and Contact-page failsafe paragraph.
 - `CalendlyInline.tsx` — click-to-load Calendly iframe placeholder. Heavy widget stays off the budget until visitor opts in.
-- `ServiceAreaMap.astro` — small map for the contact sidebar.
+- `ServiceAreaMap.astro` — small map for the contact sidebar. Restyled 2026-09-30: hairline paper frame, tiles warmed by a CSS filter that lifts on hover or focus; props unchanged.
 
 **Site-wide affordances:**
 
-- `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
+- `StickyCTAChip.tsx` — ink pill (rebuild `.r-btn--ink` look, sentence case, since 2026-09-30) with a "Working on something like this?" style label that fades in past 50% scroll, hides again above it, dismissible per session. Wired into portfolio detail / services / journal post.
 - `SectionDivider.astro` — bronze ornament between sections that share a background color (variants: `ornament` (default ✺) / `line` / `dots`).
 - `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Rewritten in place in the 2026-09-29 rebuild (same role). Falls back to italic single line when no `cities` array passed.
 - `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline. Adds the `.prose-drop-cap` float cap to the first paragraph and renders blockquotes as `.prose-blockquote` (see Polish layer → Editorial typography).
@@ -176,7 +179,7 @@ Audit basis: a 390×844 walk found exactly four "orphan-left" CTAs that benefit 
 
 ### Sticky CTA chip behavior
 
-`StickyCTAChip.tsx` is a bottom-floating bronze pill that appears past 50% scroll on long pages (portfolio detail, services, journal post). Behavior is now simple threshold-based visibility with a 2% hysteresis band — past 50% it shows, above 48% it hides. **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
+`StickyCTAChip.tsx` is a bottom-floating ink pill that appears past 50% scroll on long pages (portfolio detail, services, journal post). Behavior is now simple threshold-based visibility with a 2% hysteresis band — past 50% it shows, above 48% it hides. **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
 
 Positioning: always `bottom-[5.5rem]` (above the BackToTop button which lives at `bottom-6`). On mobile centered via `left-1/2 -translate-x-1/2`; on `sm+` returns to right-aligned via `sm:left-auto sm:translate-x-0 sm:right-m` so it doesn't dominate the reading column on wider viewports.
 

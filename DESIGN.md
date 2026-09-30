@@ -107,6 +107,55 @@ that a stored "dark" preference never engages dark mode.
 
 Home rhythm: Walnut hero, linen, ink, linen, paper, linen, Walnut, ink footer.
 
+## Services and E-Design (phase 2)
+
+Rebuilt 2026-09-30. Services is where visitors decide what to book, so the
+prices are the loudest thing on it.
+
+- `sections/ServicesList.astro`: on paper. A **deck index** first (the back
+  page of a fan deck): every service with its number, a swatch of its tone, a
+  dotted leader and its price, each line a jump link; builders and service
+  area follow as plain links. Then the **strip**: one `ServiceCard.astro` per
+  service, stacked so the chips touch and form a single paint strip down the
+  left, palest to deepest (rounded top with the punched hole, rounded foot).
+  Chips settle into the strip on scroll (CSS view timeline, desktop).
+- `ServiceCard.astro`: one service row. The chip carries No., name and the
+  price set huge (label such as "Starting at" above it); beside it the short
+  description as a Zodiak lede, features with tone-swatch bullets, "best for"
+  as a `.r-tag`, and the ink button. The badged service ("Most popular") is
+  pulled a little out of the deck. Arriving on `/services#slug` (home chips,
+  deck index) the chip slides out and back once (`:target`). The anchor id is
+  the slug; keep it. Phone: chip on top (name left, price right), details below.
+- `services/tones.ts`: `toneFor(i, n)` spreads N items over the ramp (chips
+  1, 2, 3, 4, 6, 7 and ink for a long list; 2, 4, 7 for three or fewer) and
+  says whether the face takes ink or cream. `chipPrice()` wraps `splitPrice`
+  (stega-safe) and drops its "One visit" default. Chip 5 is never a face.
+- `sections/BuildersRealtors.astro`: the one trade-facing band, so a
+  different ground: ink with faint floor-plan grid linework drifting on
+  scroll; the audiences as spec-sheet rows (Oat italic label, cream text).
+- `sections/ServiceArea.astro`: the home ServiceAreaCue's towns line, then the
+  travel fees hanging off a tape measure (priced by drive time, so each tier
+  is a mark further along). Vertical ruler on phones.
+- `sections/SatisfactionGuarantee.astro`: one typographic moment on Oat, with
+  a round studio stamp that turns as the band scrolls past. On Services the
+  page then steps down the strip: linen, Oat, Walnut close, ink footer.
+- `StickyCTAChip.tsx`: now the ink pill, sentence case (also on journal and
+  project pages).
+- `ServiceAreaMap.astro` (Contact): hairline paper frame, tiles warmed with a
+  CSS filter that lifts on hover or focus.
+- E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
+  Zodiak lede beside "What is E-Design?"; how it works as big Walnut italic
+  numerals on one thread that draws on scroll (vertical on phones; the step
+  numbers are real sequence, so they show); what's included as tilted sample
+  tags on an Oat board; the tiers as large paint chips (Oat and Espresso for
+  two) hanging out of line; the FAQ on paper with a sticky heading. The
+  coming-soon state and the no-`finalCta` close in `e-design.astro` use the
+  same primitives.
+
+Services rhythm: linen hero, paper price list, ink trade band, linen service
+area, Oat guarantee, Walnut close. E-Design: linen hero and intro, paper
+steps, Oat board, linen tiers, paper FAQ, Walnut close.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
@@ -132,7 +181,7 @@ Home rhythm: Walnut hero, linen, ink, linen, paper, linen, Walnut, ink footer.
 
 ## Not yet rebuilt (phase 2)
 
-About, Services, Process, E-Design, FAQ, Contact, Privacy and the portfolio
+About, Process, FAQ, Contact, Privacy and the portfolio
 templates still use the older section components, restyled only through the
 shared tokens, fonts, buttons, header, footer and closing CTA. They are the
 next pass, built against this document.

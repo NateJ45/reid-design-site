@@ -1,0 +1,248 @@
+---
+// Safe to edit by hand
+// E-Design packages (phase 2 rebuild, 2026-09-30; DESIGN.md "Services and
+// E-Design"). The same chip language as the Services page and the home paint
+// strip: each tier is a large paint chip (tone from components/services/
+// tones.ts, so two tiers read Oat and Espresso) with the punched hole, the
+// name and the price printed big on its face, and a paper label below with
+// the features, "best for" as a sample tag, and the button. The chips hang a
+// little out of line, like two cards pulled from the deck, and lift on hover.
+//
+// Data: eDesignPage.tiers[] (name, price, features, bestFor, ctaLabel). The
+// price is split stega-safely by chipPrice (src/lib/split-copy.ts). Every
+// button goes to /contact?type=e-design. Renders nothing with no tiers.
+import SectionHeading from '@/components/SectionHeading.astro';
+import { chipPrice, toneFor } from '@/components/services/tones';
+
+interface Tier {
+  name?: string;
+  price?: string;
+  features?: string[];
+  bestFor?: string;
+  ctaLabel?: string;
+}
+interface Props {
+  tiers?: Tier[] | null;
+  href?: string;
+}
+const { tiers, href = '/contact?type=e-design' } = Astro.props as Props;
+const list = tiers ?? [];
+const n = list.length;
+---
+
+{
+  n > 0 && (
+    <section class="edt" aria-labelledby="edesign-tiers-heading">
+      <div class="r-wrap">
+        <SectionHeading headline="Pick your package" headingId="edesign-tiers-heading" />
+        <ul class="edt__list" style={`--cols:${Math.min(n, 3)}`}>
+          {list.map((tier, i) => {
+            const tone = toneFor(i, n);
+            const price = chipPrice(tier.price);
+            return (
+              <li class="edt__tier" style={`--tone:${tone.bg}`} data-on={tone.on}>
+                <div class="edt__face">
+                  <h3 class="edt__name">{tier.name}</h3>
+                  {tier.price && (
+                    <p class="edt__price">
+                      {price.label && <small>{price.label}</small>}
+                      <span class="edt__amount">
+                        {price.amount}
+                        {price.run}
+                        {price.unit && <span class="edt__unit">{price.unit}</span>}
+                      </span>
+                    </p>
+                  )}
+                </div>
+                <div class="edt__label">
+                  {tier.features && tier.features.length > 0 && (
+                    <ul class="edt__features">
+                      {tier.features.map((f) => (
+                        <li>{f}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {tier.bestFor && (
+                    <p class="r-tag edt__tag">
+                      <small>Best for</small>
+                      <strong>{tier.bestFor}</strong>
+                    </p>
+                  )}
+                  <a class="r-btn r-btn--ink edt__cta" href={href}>
+                    {tier.ctaLabel ?? 'Inquire about E-Design'}
+                    <span class="r-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .edt {
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  .edt__list {
+    list-style: none;
+    margin: clamp(3rem, 6vw, 4.5rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+  .edt__tier {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-paper);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 30px 44px -32px rgb(35 30 27 / 0.6);
+    transition:
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* Out of line: every other chip hangs lower, like cards pulled from a deck. */
+  .edt__tier:nth-child(even) {
+    margin-top: 2.5rem;
+  }
+  .edt__tier:hover,
+  .edt__tier:focus-within {
+    transform: translateY(-0.6rem);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 40px 54px -32px rgb(35 30 27 / 0.7);
+  }
+  .edt__face {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    min-height: clamp(15rem, 22vw, 20rem);
+    padding: 2.75rem clamp(1.25rem, 2.5vw, 2rem) clamp(1.25rem, 2.5vw, 2rem);
+    background: var(--tone);
+    color: var(--color-ink);
+  }
+  .edt__tier[data-on='cream'] .edt__face {
+    color: var(--color-cream);
+  }
+  .edt__face::before {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    translate: -50% 0;
+    background: var(--color-paper);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+  .edt__name {
+    margin: 0;
+    max-width: 12ch;
+    font: 300 clamp(1.9rem, 1.3rem + 1.6vw, 2.9rem) / 1 var(--font-display);
+    letter-spacing: -0.025em;
+    color: inherit;
+    text-wrap: balance;
+  }
+  .edt__price {
+    margin: 0;
+  }
+  .edt__price small {
+    display: block;
+    margin-bottom: 0.45rem;
+    font: 500 0.82rem/1.2 var(--font-body);
+  }
+  .edt__amount {
+    display: block;
+    font: 300 clamp(3.4rem, 2.2rem + 3.6vw, 6rem) / 0.9 var(--font-display);
+    letter-spacing: -0.045em;
+    font-variant-numeric: lining-nums;
+  }
+  .edt__unit {
+    font-size: 0.4em;
+  }
+  .edt__label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.6rem clamp(1.25rem, 2.5vw, 2rem) 2rem;
+  }
+  .edt__features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+    color: var(--color-ink-2);
+    line-height: 1.45;
+  }
+  .edt__features li {
+    display: flex;
+    gap: 0.7rem;
+  }
+  .edt__features li::before {
+    content: '';
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-top: 0.42em;
+    background: var(--tone);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.28);
+  }
+  .edt__tag {
+    margin: 0;
+    max-width: 100%;
+  }
+  .edt__tag strong {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  .edt__cta {
+    margin-top: auto;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .edt__tier {
+        animation: edt-in 1ms cubic-bezier(0.23, 1, 0.32, 1) both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+    }
+  }
+  @keyframes edt-in {
+    from {
+      translate: 0 3rem;
+      rotate: 2deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .edt__tier {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .edt__list {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+    }
+    .edt__tier:nth-child(even) {
+      margin-top: 0;
+    }
+    .edt__face {
+      min-height: 13rem;
+    }
+  }
+</style>

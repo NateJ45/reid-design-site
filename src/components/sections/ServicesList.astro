@@ -1,10 +1,24 @@
 ---
-// Services "tier list" section, extracted verbatim from services.astro for the
-// marker-based page builder. The on-page TOC chips link to the builders +
-// service-area sections; pass their presence in so the chips only show when
-// those sections exist. Keeps surface-warm bg-background. Safe to edit by hand.
+// Safe to edit by hand
+// Services page price list (rebuilt 2026-09-30, phase 2 of the art-direction
+// rebuild; see DESIGN.md "Services and E-Design").
+//
+// Two parts on the paper ground (the same ground as the home services band):
+//
+//   1. The DECK INDEX: the back page of a fan deck. Every service with its
+//      number, a swatch of its tone, a dotted leader and its price, so the
+//      whole price list reads at a glance before anyone scrolls. Each line
+//      jumps to its service. Builders and service area follow as plain links
+//      when those sections exist.
+//   2. The STRIP: one ServiceCard per service, stacked so the chips touch and
+//      form a single paint strip down the left, palest to deepest.
+//
+// Data and props are unchanged (servicesPage.servicesList* fields plus the
+// service collection in Staci's order). `eyebrow` is accepted but not printed,
+// the same as SectionHeading.
 import SectionHeading from '@/components/SectionHeading.astro';
 import ServiceCard from '@/components/ServiceCard.astro';
+import { chipPrice, toneFor } from '@/components/services/tones';
 
 interface Props {
   eyebrow?: string;
@@ -17,7 +31,6 @@ interface Props {
 }
 
 const {
-  eyebrow = 'The Tiers.',
   headline = 'Find the right fit for your project.',
   subhead,
   services = [],
@@ -25,92 +38,75 @@ const {
   hasServiceArea = false,
   visibleEDesign = false,
 } = Astro.props as Props;
+
+const n = services.length;
+const showIndex = n >= 3;
 ---
 
-<section class="surface-warm bg-background" aria-labelledby="services-list-heading">
-  <div class="mx-auto max-w-content px-m py-section-lg">
-    <SectionHeading
-      eyebrow={eyebrow}
-      headline={headline}
-      subhead={subhead}
-      headingId="services-list-heading"
-      align="center"
-      class="mx-auto"
-    />
+<section class="svcs" aria-labelledby="services-list-heading">
+  <div class="r-wrap">
+    <SectionHeading headline={headline} subhead={subhead} headingId="services-list-heading" />
 
     {
-      services.length >= 3 && (
-        <nav class="mt-m flex flex-col items-center gap-s" aria-label="On this page">
-          <p class="text-xs tracking-eyebrow text-foreground/80 uppercase">On this page</p>
-          <ul class="flex list-none flex-wrap justify-center gap-xs p-0">
-            {services.map((service: any) =>
-              service.slug?.current ? (
-                <li>
-                  <a
-                    href={`#${service.slug.current}`}
-                    class="press-tactile inline-flex min-h-[36px] items-center rounded-full border border-border-soft px-s py-1.5 text-xs tracking-eyebrow text-foreground/85 uppercase transition-colors hover:border-primary hover:text-link"
-                  >
-                    {service.name}
+      showIndex && (
+        <nav class="deck" aria-label="Services and prices on this page">
+          <ol class="deck__list">
+            {services.map((s: any, i: number) =>
+              s.slug?.current ? (
+                <li style={`--tone:${toneFor(i, n).bg}`}>
+                  <a class="deck__link" href={`#${s.slug.current}`}>
+                    <span class="deck__sw" aria-hidden="true" />
+                    <span class="deck__no">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="deck__name">{s.name}</span>
+                    <span class="deck__dots" aria-hidden="true" />
+                    <span class="deck__price">{chipPrice(s.price).short}</span>
                   </a>
                 </li>
               ) : null,
             )}
-            {hasBuilders && (
-              <li>
-                <a
-                  href="#builders"
-                  class="press-tactile inline-flex min-h-[36px] items-center rounded-full border border-border-soft px-s py-1.5 text-xs tracking-eyebrow text-foreground/85 uppercase transition-colors hover:border-primary hover:text-link"
-                >
-                  Builders &amp; Realtors
+          </ol>
+          {(hasBuilders || hasServiceArea) && (
+            <p class="deck__also">
+              <span>Also on this page</span>
+              {hasBuilders && (
+                <a class="r-link" href="#builders">
+                  Builders and realtors
                 </a>
-              </li>
-            )}
-            {hasServiceArea && (
-              <li>
-                <a
-                  href="#service-area"
-                  class="press-tactile inline-flex min-h-[36px] items-center rounded-full border border-border-soft px-s py-1.5 text-xs tracking-eyebrow text-foreground/85 uppercase transition-colors hover:border-primary hover:text-link"
-                >
-                  Service area
+              )}
+              {hasServiceArea && (
+                <a class="r-link" href="#service-area">
+                  Service area and travel
                 </a>
-              </li>
-            )}
-          </ul>
+              )}
+            </p>
+          )}
         </nav>
       )
     }
 
     {
-      services.length > 0 ? (
-        <div
-          class="mt-section-lg grid grid-cols-1 gap-l md:grid-cols-2 lg:grid-cols-3"
-          data-stagger-grid
-        >
-          {services.map((service: any) => (
-            <ServiceCard service={service} withAnchor={true} />
+      n > 0 ? (
+        <ol class="strip">
+          {services.map((service: any, i: number) => (
+            <li>
+              <ServiceCard
+                service={service}
+                withAnchor={true}
+                index={i}
+                total={n}
+                secondary={
+                  visibleEDesign && service.slug?.current === 'e-design'
+                    ? { href: '/e-design', label: 'See the full E-Design overview' }
+                    : null
+                }
+              />
+            </li>
           ))}
-        </div>
-      ) : null
-    }
-
-    {
-      visibleEDesign && services.some((s: any) => s.slug?.current === 'e-design') && (
-        <div class="mt-section-md flex justify-center">
-          <a
-            href="/e-design"
-            class="press-tactile inline-flex min-h-[36px] items-center gap-xs rounded-full border border-border-soft px-m py-1.5 text-xs tracking-eyebrow text-link uppercase transition-colors hover:border-primary hover:text-primary-dark"
-          >
-            See the full E-Design overview <span aria-hidden="true">→</span>
-          </a>
-        </div>
-      )
-    }
-
-    {
-      services.length === 0 && (
-        <p class="mt-section-lg text-center text-muted-foreground italic">
+        </ol>
+      ) : (
+        <p class="svcs__empty">
           Services are being updated.{' '}
-          <a href="/contact" class="text-link underline underline-offset-2">
+          <a class="r-link" href="/contact">
             Get in touch
           </a>{' '}
           and we'll talk through what you need.
@@ -119,3 +115,167 @@ const {
     }
   </div>
 </section>
+
+<style>
+  .svcs {
+    background: var(--color-paper);
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+
+  /* ---- Deck index ---- */
+  .deck {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-block: 1.25rem 1.5rem;
+    border-block: 1px solid var(--color-ink);
+  }
+  .deck__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2 22rem;
+    column-gap: clamp(2rem, 5vw, 5rem);
+  }
+  .deck__list li {
+    break-inside: avoid;
+  }
+  .deck__link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    min-height: 2.9rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .deck__sw {
+    flex: none;
+    align-self: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--tone);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.18);
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .deck__no {
+    flex: none;
+    font: 500 0.8rem/1 var(--font-body);
+    color: var(--color-ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .deck__name {
+    font: 400 1.1rem/1.25 var(--font-body);
+  }
+  .deck__dots {
+    flex: 1;
+    min-width: 1.5rem;
+    border-bottom: 1.5px dotted rgb(35 30 27 / 0.35);
+    transform: translateY(-0.3em);
+  }
+  .deck__price {
+    flex: none;
+    font: 400 1.35rem/1 var(--font-display);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .deck__link:hover .deck__sw,
+  .deck__link:focus-visible .deck__sw {
+    transform: scale(1.25) rotate(-6deg);
+  }
+  .deck__link:hover .deck__name {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  .deck__link:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .deck__also {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    margin: 1.25rem 0 0;
+    color: var(--color-ink-2);
+    font-size: 0.95rem;
+  }
+  .deck__also a {
+    color: var(--color-ink);
+  }
+
+  /* ---- The strip ---- */
+  .strip {
+    list-style: none;
+    margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+    padding: 0;
+  }
+  /* The strip's card: rounded top with the punched hole it hangs from, and a
+     rounded foot. Only the chip column carries it. */
+  .strip > li:first-child :global(.svc__chip) {
+    border-radius: 0.6rem 0.6rem 0 0;
+    padding-top: 2.6rem;
+  }
+  .strip > li:first-child :global(.svc__chip)::before {
+    content: '';
+    position: absolute;
+    top: 0.95rem;
+    left: 50%;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    translate: -50% 0;
+    background: var(--color-paper);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+  .strip > li:last-child :global(.svc__chip) {
+    border-radius: 0 0 0.6rem 0.6rem;
+  }
+  .strip > li:last-child :global(.svc__body) {
+    border-bottom: 0;
+  }
+
+  /* Scroll-driven, CSS only: each chip settles into the strip as its row
+     comes into view. The default (no support, reduced motion, screenshots)
+     is the finished strip. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+      /* :not(:target) leaves the arrival pull (ServiceCard) its own animation. */
+      .strip > li :global(.svc:not(:target) .svc__chip) {
+        animation: strip-in 1ms cubic-bezier(0.23, 1, 0.32, 1) both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 70%;
+      }
+    }
+  }
+  @keyframes strip-in {
+    from {
+      transform: translateX(-2.25rem) rotate(-1.5deg);
+    }
+  }
+
+  .svcs__empty {
+    margin: clamp(3rem, 6vw, 5rem) 0 0;
+    color: var(--color-ink-2);
+  }
+
+  @media (max-width: 899px) {
+    .strip > li:first-child :global(.svc__chip),
+    .strip > li:last-child :global(.svc__chip),
+    .strip :global(.svc__chip) {
+      border-radius: 0.5rem 0.5rem 0 0;
+    }
+    .strip > li:first-child :global(.svc__chip)::before {
+      display: none;
+    }
+    .strip > li:first-child :global(.svc__chip) {
+      padding-top: 1.25rem;
+    }
+    .deck__name {
+      font-size: 1rem;
+    }
+    .deck__price {
+      font-size: 1.15rem;
+    }
+  }
+</style>

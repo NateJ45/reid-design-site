@@ -4,6 +4,10 @@
 // servicesSectionMarker blocks. Each marker maps to the existing section reading
 // the unchanged servicesPage fields. Inserted general blocks delegate to
 // SectionRenderer. Falls back to the default order when empty.
+//
+// Phase 2 rebuild (2026-09-30): the sections themselves were redrawn (see
+// DESIGN.md "Services and E-Design"); this file only gained the `cities` prop
+// on ServiceArea (businessInfo.serviceAreas, via siteSettings).
 import Hero from '@/components/Hero.astro';
 import ServicesList from '@/components/sections/ServicesList.astro';
 import BuildersRealtors from '@/components/sections/BuildersRealtors.astro';
@@ -86,7 +90,11 @@ const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
         ) : s.section === 'builders' ? (
           <BuildersRealtors builders={builders} />
         ) : s.section === 'serviceArea' ? (
-          <ServiceArea areaSec={areaSec} travelFees={travelFees} />
+          <ServiceArea
+            areaSec={areaSec}
+            travelFees={travelFees}
+            cities={siteSettings?.serviceAreas}
+          />
         ) : s.section === 'guarantee' ? (
           <SatisfactionGuarantee text={siteSettings?.satisfactionGuarantee} />
         ) : s.section === 'finalCta' ? (
