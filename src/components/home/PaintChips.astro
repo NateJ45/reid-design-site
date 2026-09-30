@@ -17,6 +17,8 @@
 // only used there at >= 24px (name, price); small cream text sits on 6-7 only.
 import CtaLink from '@/components/CtaLink.astro';
 import RiseWords from '@/components/RiseWords.astro';
+// A pendant lamp doodle hangs from the top of the band (2026-09-30).
+import Doodle from '@/components/Doodle.astro';
 import type { CtaBlock } from '@/lib/cta';
 import { splitPrice } from '@/lib/split-copy';
 
@@ -61,6 +63,7 @@ const toneFor = (i: number) =>
 ---
 
 <section class="chips" aria-labelledby="services-heading">
+  <Doodle name="pendant" class="chips__doodle" />
   <div class="r-wrap">
     <div class="chips__head">
       <RiseWords
@@ -130,8 +133,18 @@ const toneFor = (i: number) =>
 
 <style>
   .chips {
+    position: relative;
     background: var(--color-paper);
     padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  /* The pendant: its cord starts at the band's top edge, as if it hung from
+     the ceiling of the section. Clear of the heading (left) and the intro
+     (which sits low on the right). */
+  .chips :global(.chips__doodle) {
+    position: absolute;
+    top: -0.25rem;
+    right: max(1rem, calc((100vw - 85rem) / 2 + 3rem));
+    width: clamp(5.5rem, 10vw, 9.5rem);
   }
   .chips__head {
     display: grid;

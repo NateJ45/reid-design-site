@@ -34,6 +34,11 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { Dialog } from 'radix-ui';
 import { telHref } from '@/lib/phone';
 import './mobile-nav/mobile-nav.css';
+// The olive sprig doodle (2026-09-30): drawn in cream beside her logo each
+// time the menu opens. Bundled into this island's JS (not the page HTML), and
+// it is our own generated SVG (scripts/doodles.config.mjs), so it is safe to
+// inline. Decorative: aria-hidden.
+import oliveSprig from '@/assets/doodles/olive-sprig.svg?raw';
 
 // ---- Types ------------------------------------------------------------------
 
@@ -169,6 +174,12 @@ export default function MobileNav({
         <Dialog.Overlay className="mnav-overlay" />
         <Dialog.Content className="mnav" aria-modal="true" aria-describedby={undefined}>
           <Dialog.Title className="sr-only">Menu</Dialog.Title>
+
+          <span
+            className="dd dd--play mnav__doodle"
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{ __html: oliveSprig }}
+          />
 
           <div className="mnav__top">
             <a href="/" onClick={close} className="mnav__logo" aria-label="Reid Design home">

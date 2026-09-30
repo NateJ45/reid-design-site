@@ -49,6 +49,10 @@ import {
 import type { RawNavLink } from '@/lib/nav-href';
 import { getChromeFacts } from '@/lib/queries';
 import { resolveChromeFacts } from '@/lib/chrome-facts';
+// Doodle cards (2026-09-30): each flat nav link drops a small paper card with
+// a hand-drawn doodle when pointed at (src/lib/doodle-map.ts picks it).
+import { doodleForPath } from '@/lib/doodle-map';
+import { doodleUrl } from '@/lib/doodles';
 
 // Logo renditions. The source is 378x400. The header shows it 128px tall at
 // rest (about 121px wide), so 122w/244w cover 1x/2x; the scrolled strip and
@@ -276,8 +280,12 @@ function isGroupActive(items: { href: string }[]) {
               class="hdr__link"
               style={`--tone:${toneOf(i)}`}
               aria-current={isActive(item.href) ? 'page' : undefined}
+              data-doodle-src={doodleUrl(doodleForPath(item.href)) ?? undefined}
             >
               <span class="hdr__label">{item.label}</span>
+              {/* The doodle card: empty until the link is first pointed at
+                  (the script below fetches the drawing), decorative only. */}
+              <span class="hdr__card" aria-hidden="true" />
             </a>
           ) : (
             <details class="site-nav__group hdr__group" style={`--tone:${toneOf(i)}`}>
@@ -460,6 +468,80 @@ function isGroupActive(items: { href: string }[]) {
   .hdr__link:focus-visible {
     outline: 2px solid var(--color-ink);
     outline-offset: -2px;
+  }
+
+  /* ---- The doodle card (2026-09-30): a paper sample card hung from the
+     chip on a short thread, with the page's doodle drawing itself in. Only on
+     devices that can hover; empty (and invisible) until the script has
+     fetched its drawing. ---- */
+  .hdr__card {
+    display: none;
+  }
+  @media (hover: hover) and (min-width: 1024px) {
+    .hdr__card {
+      display: block;
+      position: absolute;
+      top: calc(100% + 0.85rem);
+      left: 50%;
+      width: 7.25rem;
+      padding: 0.6rem;
+      background: var(--color-paper);
+      border-radius: 3px;
+      box-shadow:
+        0 0 0 1px var(--color-rule),
+        0 22px 34px -22px rgb(35 30 27 / 0.55);
+      color: var(--color-chip-7);
+      opacity: 0;
+      translate: -50% -0.5rem;
+      rotate: -4deg;
+      transform-origin: 50% -0.85rem;
+      pointer-events: none;
+      transition:
+        opacity 250ms,
+        translate 500ms var(--ease),
+        rotate 700ms var(--ease);
+    }
+    .hdr__card:empty {
+      visibility: hidden;
+    }
+    /* The thread it hangs from, and the punched hole it hangs by. */
+    .hdr__card::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      width: 1px;
+      height: 1.2rem;
+      background: var(--color-chip-5);
+    }
+    .hdr__card::after {
+      content: '';
+      position: absolute;
+      top: 0.35rem;
+      left: 50%;
+      width: 0.4rem;
+      height: 0.4rem;
+      translate: -50% 0;
+      border-radius: 50%;
+      background: var(--color-bg);
+      box-shadow: inset 0 0 0 1px var(--color-chip-5);
+    }
+    .hdr__link:hover .hdr__card,
+    .hdr__link:focus-visible .hdr__card {
+      opacity: 1;
+      translate: -50% 0;
+      rotate: 2deg;
+    }
+    /* In the condensed strip the card hangs a touch lower, clear of it. */
+    .hdr[data-scrolled] .hdr__card {
+      top: calc(100% + 0.6rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hdr__card {
+      transition: opacity 150ms;
+      rotate: 0deg;
+    }
   }
   .hdr__group {
     position: relative;
@@ -715,6 +797,54 @@ function isGroupActive(items: { href: string }[]) {
     });
   }
 
+  // ---- Doodle cards --------------------------------------------------------
+  // The first time a nav link is pointed at (or focused), fetch its doodle
+  // (a same-origin SVG we generated, src/assets/doodles/) into the card, then
+  // replay the pen-drawing each time the card shows. Fetched drawings are kept
+  // for the whole visit, so later pages reuse them.
+  const doodleCache = new Map<string, Promise<string>>();
+  function initDoodleCards() {
+    if (!window.matchMedia('(hover: hover) and (min-width: 1024px)').matches) return;
+    document.querySelectorAll<HTMLAnchorElement>('.hdr__link[data-doodle-src]').forEach((link) => {
+      if (link.dataset.doodleBound) return;
+      link.dataset.doodleBound = '1';
+      const card = link.querySelector<HTMLElement>('.hdr__card');
+      const src = link.dataset.doodleSrc;
+      if (!card || !src) return;
+      const show = async () => {
+        if (!card.firstElementChild) {
+          if (!doodleCache.has(src)) {
+            doodleCache.set(
+              src,
+              fetch(src)
+                .then((r) => (r.ok ? r.text() : ''))
+                .catch(() => ''),
+            );
+          }
+          const svg = await doodleCache.get(src)!;
+          if (!svg.startsWith('<svg')) return;
+          const wrap = document.createElement('span');
+          wrap.className = 'dd';
+          wrap.innerHTML = svg;
+          card.replaceChildren(wrap);
+        }
+        // Replay the drawing: drop the class, force a reflow, add it back.
+        const dd = card.firstElementChild as HTMLElement;
+        dd.classList.remove('dd--play');
+        void dd.offsetWidth;
+        dd.classList.add('dd--play');
+      };
+      link.addEventListener('pointerenter', (e) => {
+        if (e.pointerType !== 'touch') void show();
+      });
+      link.addEventListener('focus', () => void show());
+    });
+  }
+
   initHeaderNav();
-  document.addEventListener('astro:page-load', initHeaderNav);
+  initDoodleCards();
+  document.addEventListener('astro:page-load', () => {
+    initHeaderNav();
+    initDoodleCards();
+  });
 </script>

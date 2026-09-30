@@ -77,6 +77,28 @@
   outline: 2px solid var(--color-cream);
   outline-offset: 4px;
 }
+/* The olive sprig (2026-09-30): cream ink, drawn in on every open, hung in
+   the gap between her logo and the Close tag. Behind everything, never in the
+   way of a tap. */
+.mnav__doodle {
+  --dd-ink: var(--color-cream);
+  --dd-delay: 0.25s;
+  position: absolute;
+  top: 3.6rem;
+  right: calc(var(--gut) + 0.5rem);
+  width: 7.5rem;
+  rotate: 12deg;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+.mnav__doodle .dd-wash {
+  fill-opacity: 0.35;
+}
+.mnav__top {
+  position: relative;
+  z-index: 1;
+}
 .mnav__close {
   margin-top: 0.35rem;
   min-height: 2.75rem;
@@ -90,6 +112,8 @@
    whole chip. The name sits in the visible strip, so the next chip can never
    cover it. ---- */
 .mnav__deck {
+  position: relative;
+  z-index: 1;
   flex: 1 0 auto;
   margin: 1.4rem var(--gut) 0;
 }
