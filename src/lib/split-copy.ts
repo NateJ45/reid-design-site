@@ -89,3 +89,23 @@ export function splitPrice(input: string | null | undefined): PriceParts {
         : 'One visit';
   return { label, amount: m[2], unit, run };
 }
+
+export interface AccentParts {
+  found: boolean;
+  before: string;
+  word: string;
+  after: string;
+  /** The headline's stega run, to render once after the heading text. */
+  run: string;
+}
+
+/**
+ * Stega-safe version of splitScriptAccent for whole-headline renderers
+ * (SectionHeading, Hero subheads): match the CLEAN accent against the CLEAN
+ * headline and hand the run back separately (2026-09-30, phase 2).
+ */
+export function splitAccent(text: string | null | undefined, accent?: string | null): AccentParts {
+  const { cleaned, encoded } = splitStega(text ?? '');
+  const parts = splitScriptAccent(cleaned, splitStega(accent ?? '').cleaned || undefined);
+  return { ...parts, run: encoded };
+}

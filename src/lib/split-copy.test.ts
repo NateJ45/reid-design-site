@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { splitHeadlineWords, splitPrice } from './split-copy.ts';
+import { splitAccent, splitHeadlineWords, splitPrice } from './split-copy.ts';
 
 // A modern-format stega run (U+200B prefix + base-4 digits) is enough to prove
 // the split: splitStega only needs 4+ characters from the invisible alphabet.
@@ -71,4 +71,16 @@ test('splitPrice: a stega-encoded price parses as if clean and returns the run w
   // A bare amount: before the fix the run fell into the label slot and the
   // chip's small line printed nothing visible instead of "One visit".
   assert.equal(splitPrice(`$225${RUN}`).label, 'One visit');
+});
+
+test('splitAccent: encoded headline + accent still match, run returned whole', () => {
+  const a = splitAccent(`How Reid Design Can Help${RUN}`, `Can Help${RUN}`);
+  assert.equal(a.found, true);
+  assert.equal(a.before, 'How Reid Design ');
+  assert.equal(a.word, 'Can Help');
+  assert.equal(a.after, '');
+  assert.equal(a.run, RUN);
+  const plain = splitAccent('Words from real homes', 'real homes');
+  assert.equal(plain.found, true);
+  assert.equal(plain.run, '');
 });
