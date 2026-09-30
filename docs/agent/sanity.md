@@ -505,7 +505,7 @@ The home page's labelled sample room (`src/components/home/RoomStory.astro`, DES
 
 **Placement: a layout marker, plus a switch** (the Kind words / Instagram pattern, CLAUDE.md rule 13). `roomStory` is a `homeSectionMarker` value after `processPreview`; `HomeSectionRenderer` runs `placeMarker()` so a stored layout without the row gets it just after "How it works" (before whichever of services, instagram, serviceAreaCue, finalCta comes first), and `roomStoryShow === false` removes it. No content write is needed.
 
-**What is NOT in Sanity:** the pictures (base, finished room, furniture layers, shades, wall mask), the stage captions and the alt text. They live in `src/assets/room/rooms.json` (the room tabs) and each room's `src/assets/room/<slug>/manifest.json` (v2) and files, written by tools/room-lab's publish script (`room:publish`), and change only with a commit. The component renders nothing until they exist, so the Show switch has no visible effect before then.
+**What is NOT in Sanity:** the pictures (one complete frame per step of the build, a wall mask per frame, a change mask per piece), the stage captions and the alt text. They live in `src/assets/room/rooms.json` (the room tabs) and each room's `src/assets/room/<slug>/manifest.json` (v3) and files, written by tools/room-lab's publish script (`room:publish`), and change only with a commit. The component renders nothing until they exist, so the Show switch has no visible effect before then.
 
 ### Auto-populated lists
 

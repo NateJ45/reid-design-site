@@ -3,20 +3,22 @@ import { join } from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
 
 // =============================================================================
-// The home page's concept room (added 2026-09-30, manifest v2)
+// The home page's concept room (added 2026-09-30; whole frames, manifest v3)
 // =============================================================================
-// src/components/home/RoomStory.astro + RoomStage.astro + src/scripts/room-painter.ts.
-// Holds the honesty rules (the "Concept room" sample tag, "Concept image:" on
-// every described picture, decorative pieces alt="", no numbering in the
-// captions), the finished room as the default, the pieces building stage by
-// stage as the captions scroll past (scroll-driven CSS, and the scripted
-// fallback under reduced motion), the WebGL paint deck actually repainting
-// the canvas, and the no-WebGL case (chips stay hidden, the room still builds).
+// src/components/home/RoomStory.astro + RoomStage.astro + RoomScene.astro +
+// src/scripts/room-painter.ts. Holds the honesty rules (the "Concept room"
+// sample tag, "Concept image:" on the described picture, every other frame
+// alt="", no numbering in the captions), the FINISHED room as the no-script
+// default (and no other frame downloading), the WebGL canvas actually changing
+// under a paint chip, a stage advance changing the canvas INSIDE the new
+// pieces' change boxes and NOT outside them (the whole-frame promise: nothing
+// outside the change can pop), the no-WebGL fallback (the <img> stack switches
+// frames, the chips stay hidden), and reduced motion (instant frame swaps).
 //
-// The room tabs (2026-09-30): keyboard navigation along the tablist, a switch
-// changing the base picture and the captions, the chip colour surviving a
-// switch (a canvas pixel check), one GL context however many switches, and no
-// tabs without a script or with a single room.
+// The room tabs: keyboard navigation along the tablist, a switch changing the
+// finished picture and the captions, the chip colour surviving a switch (a
+// canvas pixel check), one GL context however many switches, and no tabs
+// without a script or with a single room.
 //
 // The rooms render NOTHING until tools/room-lab publishes src/assets/room/
 // rooms.json and each room's folder, so this whole file skips while there is
@@ -54,16 +56,53 @@ async function toStep(page: Page, i: number) {
   }, i);
 }
 
-/** Opacity of every piece (layers, shades and lights), with its stage. */
-const pieces = (page: Page) =>
+/** The frame each caption shows (data-ends on the showing room). */
+const ends = (page: Page) =>
   page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>('[data-piece]')].map((p) => ({
-      stage: Number(p.dataset.stage),
-      opacity: Number(getComputedStyle(p).opacity),
-      built: p.hasAttribute('data-built'),
-      layer: p.hasAttribute('data-layer'),
-    })),
+    (document.querySelector<HTMLElement>('.room__frames')?.dataset.ends ?? '')
+      .split(',')
+      .map(Number),
   );
+
+/** Index of the top frame the <img> stack shows, and its opacity. */
+const stackTop = (page: Page) =>
+  page.evaluate(() => {
+    const on = [...document.querySelectorAll<HTMLElement>('.room__frame[data-on]')];
+    const top = on[on.length - 1];
+    return top
+      ? { frame: Number(top.dataset.frame), opacity: Number(getComputedStyle(top).opacity) }
+      : null;
+  });
+
+/** Keep a copy of the canvas's pixels in the page, for a later compare. */
+const snap = (page: Page) =>
+  page.evaluate(() => {
+    const c = document.querySelector('.room__canvas') as HTMLCanvasElement;
+    const o = document.createElement('canvas');
+    o.width = c.width;
+    o.height = c.height;
+    const x = o.getContext('2d') as CanvasRenderingContext2D;
+    x.drawImage(c, 0, 0);
+    (window as unknown as { __snap: ImageData }).__snap = x.getImageData(0, 0, o.width, o.height);
+  });
+
+/** Wait until the canvas has stopped changing (the painter is idle). */
+async function settled(page: Page) {
+  let last = '';
+  await expect
+    .poll(
+      async () => {
+        const now = await page.evaluate(() =>
+          (document.querySelector('.room__canvas') as HTMLCanvasElement).toDataURL(),
+        );
+        const same = now === last;
+        last = now;
+        return same;
+      },
+      { timeout: 10_000, intervals: [300] },
+    )
+    .toBe(true);
+}
 
 const stubNoWebGL = (page: Page) =>
   page.addInitScript(() => {
@@ -86,15 +125,18 @@ test.describe('Concept room', () => {
     const imgs = await room
       .locator('img')
       .evaluateAll((els) =>
-        els.map((e) => ({ alt: e.getAttribute('alt'), piece: e.hasAttribute('data-piece') })),
+        els.map((e) => ({ alt: e.getAttribute('alt'), final: e.hasAttribute('data-room-final') })),
       );
     expect(imgs.length).toBeGreaterThanOrEqual(2);
-    for (const { alt, piece } of imgs) {
-      // Every img has an alt; pieces are decorative, everything else is described honestly.
+    expect(imgs.filter((i) => i.final)).toHaveLength(1);
+    for (const { alt, final } of imgs) {
+      // The finished room is described honestly; the other frames are
+      // decorative (the live region narrates the build).
       expect(alt).not.toBeNull();
-      if (piece) expect(alt).toBe('');
-      else expect(alt).toMatch(/^Concept image:/);
+      if (final) expect(alt).toMatch(/^Concept image:/);
+      else expect(alt).toBe('');
     }
+    await expect(room.locator('.room__frames')).toHaveAttribute('data-base-alt', /^Concept image:/);
     // The live region starts on the finished room's description.
     await expect(room.locator('[data-room-live]')).toHaveText(/^Concept image:/);
 
@@ -104,56 +146,40 @@ test.describe('Concept room', () => {
     for (const c of captions) expect(c, c).not.toMatch(/\d/);
   });
 
-  test('without a script the finished room shows: every piece visible', async ({ browser }) => {
+  test('without a script the finished room shows, and no other frame downloads', async ({
+    browser,
+  }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'reduce' });
     const page = await ctx.newPage();
+    const frames: string[] = [];
+    page.on('request', (r) => {
+      if (/\/_astro\/frame-\d+\./.test(r.url())) frames.push(r.url());
+    });
     await page.goto('/', { waitUntil: 'load' });
-    const all = await pieces(page);
-    expect(all.length).toBeGreaterThan(0);
-    for (const p of all) expect(p.opacity).toBe(1);
-    await expect(page.locator('[data-room-chips]')).toBeHidden();
-    await ctx.close();
-  });
-
-  test('a light layer, when a piece has one, screens and sits between its shade and its piece', async ({
-    page,
-  }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const lights = page.locator('section.room .room__light');
-    test.skip((await lights.count()) === 0, 'No piece in the published rooms throws light');
-    const first = lights.first();
-    await expect(first).toHaveAttribute('alt', '');
-    await expect(first).toHaveCSS('mix-blend-mode', 'screen');
-    // Same frame as the canvas (one isolated group), and the very next sibling
-    // is the piece itself (its shade, if any, is the one before).
-    expect(
-      await first.evaluate((el) => ({
-        next: (el.nextElementSibling as HTMLElement | null)?.dataset.layer ?? null,
-        sameGroup: el.parentElement?.querySelector('.room__canvas') !== null,
+    const room = page.locator('section.room');
+    await room.scrollIntoViewIfNeeded();
+    const final = room.locator('[data-room-final]');
+    await expect(final).toBeVisible();
+    await expect(final).toHaveAttribute('src', /.+/);
+    const pics = await room.locator('.room__frame').evaluateAll((els) =>
+      els.map((e) => ({
+        on: e.hasAttribute('data-on'),
+        opacity: Number(getComputedStyle(e).opacity),
+        src: e.querySelector('img')?.getAttribute('src') ?? null,
+        final: e.querySelector('img')?.hasAttribute('data-room-final') ?? false,
       })),
-    ).toMatchObject({ sameGroup: true });
-    expect(
-      await first.evaluate((el) => el.nextElementSibling?.classList.contains('room__layer')),
-    ).toBe(true);
-  });
-
-  test('pieces build stage by stage as the captions scroll past', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const last = (await page.locator('[data-room-step]').count()) - 1;
-    await toStep(page, 1);
-    await expect(page.locator('[data-room-step]').nth(1)).toHaveAttribute('aria-current', 'step');
-    await expect
-      .poll(async () =>
-        (await pieces(page)).filter((p) => p.layer && p.stage <= 1).map((p) => p.opacity),
-      )
-      .toEqual(expect.arrayContaining([1]));
-    const early = await pieces(page);
-    for (const p of early.filter((p) => p.stage > 2)) expect(p.opacity, `stage ${p.stage}`).toBe(0);
-    for (const p of early.filter((p) => p.layer && p.stage <= 1))
-      expect(p.opacity).toBeGreaterThan(0.95);
-
-    await toStep(page, last);
-    await expect.poll(async () => (await pieces(page)).every((p) => p.opacity > 0.95)).toBe(true);
+    );
+    for (const p of pics) {
+      expect(p.on).toBe(p.final);
+      expect(p.opacity).toBe(p.final ? 1 : 0);
+      if (!p.final) expect(p.src).toBeNull();
+    }
+    await expect(room.locator('[data-room-chips]')).toBeHidden();
+    expect((await room.locator('[data-room-step]').allTextContents()).length).toBeGreaterThan(1);
+    await page.waitForLoadState('networkidle');
+    // Only the finished room's own picture (one size of it).
+    expect(new Set(frames.map((u) => /frame-(\d+)\./.exec(u)?.[1])).size).toBeLessThanOrEqual(1);
+    await ctx.close();
   });
 
   test('a paint chip repaints the canvas', async ({ page }) => {
@@ -163,6 +189,7 @@ test.describe('Concept room', () => {
     await expect(room).toHaveAttribute('data-painted', '', { timeout: 15_000 });
     const deck = room.locator('[data-room-chips]');
     await expect(deck).toBeVisible();
+    await settled(page);
 
     const pixels = () =>
       page.evaluate(() =>
@@ -180,19 +207,152 @@ test.describe('Concept room', () => {
     await expect.poll(pixels, { timeout: 5_000 }).not.toBe(before);
   });
 
-  test('without WebGL the chips stay hidden and the room still builds', async ({ page }) => {
+  test('a stage advance changes the canvas inside the new pieces’ boxes, not outside', async ({
+    page,
+  }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await toStep(page, 0);
+    const room = page.locator('section.room');
+    await expect(room).toHaveAttribute('data-painted', '', { timeout: 15_000 });
+    await expect(room.locator('[data-room-step]').first()).toHaveAttribute('aria-current', 'step');
+    await settled(page);
+    await snap(page);
+
+    const e = await ends(page);
+    await toStep(page, 1);
+    await expect(room.locator('[data-room-step]').nth(1)).toHaveAttribute('aria-current', 'step');
+    // Mid-reveal the canvas is already moving...
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const c = document.querySelector('.room__canvas') as HTMLCanvasElement;
+          const a = (window as unknown as { __snap: ImageData }).__snap;
+          const o = document.createElement('canvas');
+          o.width = c.width;
+          o.height = c.height;
+          const x = o.getContext('2d') as CanvasRenderingContext2D;
+          x.drawImage(c, 0, 0);
+          const b = x.getImageData(0, 0, o.width, o.height).data;
+          let d = 0;
+          for (let i = 0; i < b.length; i += 4 * 97) d += Math.abs(b[i] - a.data[i]);
+          return d;
+        }),
+      )
+      .toBeGreaterThan(0);
+    await settled(page);
+
+    // ...and once it lands, it changed only where the pieces did.
+    const r = await page.evaluate(
+      ([from, to]) => {
+        const c = document.querySelector('.room__canvas') as HTMLCanvasElement;
+        const a = (window as unknown as { __snap: ImageData }).__snap.data;
+        const o = document.createElement('canvas');
+        o.width = c.width;
+        o.height = c.height;
+        const x = o.getContext('2d') as CanvasRenderingContext2D;
+        x.drawImage(c, 0, 0);
+        const b = x.getImageData(0, 0, o.width, o.height).data;
+        const imgs = [...document.querySelectorAll<HTMLImageElement>('.room__frame img')];
+        const boxes = imgs
+          .slice(from + 1, to + 1)
+          .map((im) => (im.dataset.box ?? '').split(',').map(Number));
+        // Outside = away from every box by 3% of the frame (the settle moves a
+        // piece at most 2.5%, and the change mask's soft edge sits in the box).
+        const m = 0.03;
+        let inN = 0;
+        let inD = 0;
+        let outN = 0;
+        let outD = 0;
+        let outMax = 0;
+        for (let y = 0; y < o.height; y += 2) {
+          for (let xx = 0; xx < o.width; xx += 2) {
+            const u = xx / o.width;
+            const v = y / o.height;
+            const i = (y * o.width + xx) * 4;
+            const d =
+              (Math.abs(b[i] - a[i]) +
+                Math.abs(b[i + 1] - a[i + 1]) +
+                Math.abs(b[i + 2] - a[i + 2])) /
+              3;
+            const inside = boxes.some(
+              ([bx, by, bw, bh]) => u >= bx && u <= bx + bw && v >= by && v <= by + bh,
+            );
+            const near = boxes.some(
+              ([bx, by, bw, bh]) =>
+                u >= bx - m && u <= bx + bw + m && v >= by - m && v <= by + bh + m,
+            );
+            if (inside) {
+              inN++;
+              inD += d;
+            } else if (!near) {
+              outN++;
+              outD += d;
+              outMax = Math.max(outMax, d);
+            }
+          }
+        }
+        return { boxes: boxes.length, inMean: inD / inN, outMean: outD / outN, outMax };
+      },
+      [e[0], e[1]],
+    );
+    expect(r.boxes).toBeGreaterThan(0);
+    expect(r.inMean, 'the new pieces show inside their boxes').toBeGreaterThan(8);
+    // The frames are separate photos run through AVIF/WebP, so allow the
+    // codec's own noise outside, but nothing that reads as a change.
+    expect(r.outMean, 'nothing outside the change boxes moved').toBeLessThan(1.5);
+    expect(r.outMax).toBeLessThan(24);
+  });
+
+  test('scrolling back returns straight to the earlier frame', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await toStep(page, 0);
+    const room = page.locator('section.room');
+    await expect(room).toHaveAttribute('data-painted', '', { timeout: 15_000 });
+    await settled(page);
+    await snap(page);
+    await toStep(page, 2);
+    await expect(room.locator('[data-room-step]').nth(2)).toHaveAttribute('aria-current', 'step');
+    await settled(page);
+    await toStep(page, 0);
+    await expect(room.locator('[data-room-step]').first()).toHaveAttribute('aria-current', 'step');
+    await settled(page);
+    const diff = await page.evaluate(() => {
+      const c = document.querySelector('.room__canvas') as HTMLCanvasElement;
+      const a = (window as unknown as { __snap: ImageData }).__snap.data;
+      const o = document.createElement('canvas');
+      o.width = c.width;
+      o.height = c.height;
+      const x = o.getContext('2d') as CanvasRenderingContext2D;
+      x.drawImage(c, 0, 0);
+      const b = x.getImageData(0, 0, o.width, o.height).data;
+      let d = 0;
+      for (let i = 0; i < b.length; i++) d = Math.max(d, Math.abs(b[i] - a[i]));
+      return d;
+    });
+    expect(diff, 'back on the very same frame').toBeLessThanOrEqual(1);
+  });
+
+  test('without WebGL the <img> stack switches frames and the chips stay hidden', async ({
+    page,
+  }) => {
     await stubNoWebGL(page);
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
+    const e = await ends(page);
+    await toStep(page, 0);
+    await expect.poll(() => stackTop(page)).toEqual({ frame: e[0], opacity: 1 });
     await toStep(page, 2);
     await expect(room.locator('[data-room-step]').nth(2)).toHaveAttribute('aria-current', 'step');
-    await expect
-      .poll(async () =>
-        (await pieces(page)).filter((p) => p.layer && p.stage <= 2).every((p) => p.opacity > 0.95),
-      )
-      .toBe(true);
-    // Give the painter's loader time to have tried and failed.
-    await page.waitForTimeout(1000);
+    await expect.poll(() => stackTop(page)).toEqual({ frame: e[2], opacity: 1 });
+    // Frames above the one showing are off.
+    const above = await page.evaluate(
+      (n) =>
+        [...document.querySelectorAll<HTMLElement>('.room__frame')]
+          .filter((f) => Number(f.dataset.frame) > n)
+          .some((f) => f.hasAttribute('data-on')),
+      e[2],
+    );
+    expect(above).toBe(false);
     await expect(room.locator('[data-room-chips]')).toBeHidden();
     await expect(room.locator('.room__canvas')).toBeHidden();
     expect(await room.getAttribute('data-painted')).toBeNull();
@@ -201,17 +361,40 @@ test.describe('Concept room', () => {
   test.describe('under reduced motion', () => {
     test.use({ reducedMotion: 'reduce' });
 
-    test('the script builds the room instantly, stage by stage', async ({ page }) => {
+    test('frames swap instantly, with no fade', async ({ page }) => {
       await stubNoWebGL(page);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('section.room')).toHaveAttribute('data-build', '');
-      await toStep(page, 2);
-      await expect
-        .poll(async () => {
-          const all = await pieces(page);
-          return all.every((p) => p.built === p.stage <= 2 && p.opacity === (p.stage <= 2 ? 1 : 0));
-        })
-        .toBe(true);
+      const e = await ends(page);
+      await toStep(page, 1);
+      await expect.poll(() => stackTop(page)).toEqual({ frame: e[1], opacity: 1 });
+      expect(
+        await page
+          .locator('.room__frame')
+          .first()
+          .evaluate((el) => getComputedStyle(el).transitionDuration),
+      ).toBe('0s');
+    });
+
+    test('with WebGL a stage lands at once', async ({ page }) => {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await toStep(page, 0);
+      const room = page.locator('section.room');
+      await expect(room).toHaveAttribute('data-painted', '', { timeout: 15_000 });
+      await settled(page);
+      await snap(page);
+      await toStep(page, 1);
+      await expect(room.locator('[data-room-step]').nth(1)).toHaveAttribute('aria-current', 'step');
+      await settled(page);
+      // The chip, too, is instant: one frame after the click it has landed.
+      const read = () =>
+        page.evaluate(() =>
+          (document.querySelector('.room__canvas') as HTMLCanvasElement).toDataURL(),
+        );
+      await room.getByRole('button', { name: 'Walnut' }).click();
+      await page.waitForTimeout(100);
+      const a = await read();
+      await page.waitForTimeout(400);
+      expect(await read()).toBe(a);
     });
   });
 
@@ -296,12 +479,12 @@ test.describe('Concept room tabs', () => {
   test('choosing a room swaps the picture and the captions, and says so', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
-    const base = room.locator('[data-room-base]');
-    const src0 = (await base.getAttribute('src')) as string;
+    const final = room.locator('[data-room-final]');
+    const src0 = (await final.getAttribute('src')) as string;
     const caps0 = await room.locator('[data-room-step]').allTextContents();
     await page.getByRole('tab').nth(1).click();
-    await expect(base).not.toHaveAttribute('src', src0);
-    await expect(base).toHaveAttribute('alt', /^Concept image:/);
+    await expect(final).not.toHaveAttribute('src', src0);
+    await expect(final).toHaveAttribute('alt', /^Concept image:/);
     const caps1 = await room.locator('[data-room-step]').allTextContents();
     expect(caps1).not.toEqual(caps0);
     expect(caps1.length).toBeGreaterThanOrEqual(2);
@@ -312,7 +495,7 @@ test.describe('Concept room tabs', () => {
     await expect(room.locator('.room__canvas')).toHaveCount(1);
     // And back again.
     await page.getByRole('tab').first().click();
-    await expect(base).toHaveAttribute('src', src0);
+    await expect(final).toHaveAttribute('src', src0);
     expect(await room.locator('[data-room-step]').allTextContents()).toEqual(caps0);
   });
 
@@ -361,6 +544,7 @@ test.describe('Concept room tabs', () => {
     await expect(canvas).toBeVisible();
     await expect(canvas).not.toHaveAttribute('data-loading', '');
     await expect(sage).toHaveAttribute('aria-pressed', 'true');
+    await settled(page);
     // A wall point: right of the window, above the furniture.
     const painted = await canvasPixel(page, 0.8, 0.3);
     await room.getByRole('button', { name: 'As it is' }).click();
@@ -406,20 +590,14 @@ test.describe('Concept room tabs', () => {
   test.describe('under reduced motion', () => {
     test.use({ reducedMotion: 'reduce' });
 
-    test('a switch rebuilds the new room instantly, stage by stage', async ({ page }) => {
+    test('a switch shows the new room’s frames, stage by stage', async ({ page }) => {
       await stubNoWebGL(page);
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.getByRole('tab').nth(1).click();
       await toStep(page, 1);
-      await expect
-        .poll(async () => {
-          const all = await pieces(page);
-          return (
-            all.length > 0 &&
-            all.every((p) => p.built === p.stage <= 1 && p.opacity === (p.stage <= 1 ? 1 : 0))
-          );
-        })
-        .toBe(true);
+      await expect(page.locator('[data-room-step]').nth(1)).toHaveAttribute('aria-current', 'step');
+      const e = await ends(page);
+      await expect.poll(() => stackTop(page)).toEqual({ frame: e[1], opacity: 1 });
     });
   });
 });
