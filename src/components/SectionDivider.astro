@@ -1,50 +1,150 @@
 ---
 // Safe to edit by hand
-// Optional ornament divider between sections that share a background color
-// and need a visual break. Reserved for moments where the alternating
-// bg-background / bg-muted color cadence ISN'T doing the work — most section
-// transitions don't need this, color change is enough.
+// A quiet break between two sections (rebuilt 2026-09-30, phase 2 of the
+// art-direction rebuild; see DESIGN.md "Blocks and Portfolio"). Staci places
+// it with the page builder's "Space between sections" block; SectionRenderer
+// hands it the ground of the section above so it never shows as a stripe.
 //
-// Three variants:
-//   - `ornament` (default): small bronze ✺ glyph, generous vertical space
-//   - `line`:               hairline rule with bronze accent dot in the middle
-//   - `dots`:               three bronze dots, looser and quieter
+// Variants (the names are the schema's, so they stay):
+//   - `ornament` (default): the logo's leaf sprig, small, in Warm Bronze (a
+//     mark, never text), drawn in as it scrolls into view where the browser
+//     supports scroll timelines. The same sprig closes every page behind the
+//     final call to action.
+//   - `line`: a hairline across the reading width with a punched hole in
+//     the middle, like the one on a paint chip.
+//   - `dots`: three small marks. Kept for older content.
 //
-// Visual reference: matches the journal post divider treatment so the
-// pattern reads as "Reid Design" rather than generic editorial chrome.
+// Decorative only (aria-hidden): it separates, it says nothing.
 
 interface Props {
   variant?: 'ornament' | 'line' | 'dots';
-  /** Override the default fluid vertical padding. */
+  /** The ground to sit on: the section above's. Defaults to the page linen. */
+  tone?: 'linen' | 'paper' | 'ink';
+  /** Override the default vertical padding. */
   class?: string;
 }
 
-const { variant = 'ornament', class: extraClass = '' } = Astro.props as Props;
+const { variant = 'ornament', tone = 'linen', class: extraClass = '' } = Astro.props as Props;
 ---
 
-<div class:list={['mx-auto max-w-content px-m py-m text-center', extraClass]} aria-hidden="true">
-  {
-    variant === 'ornament' && (
-      <span class="font-display text-2xl tracking-[0.6em] text-link select-none">✺</span>
-    )
-  }
-
-  {
-    variant === 'line' && (
-      <div class="relative mx-auto flex max-w-md items-center justify-center">
-        <span class="block h-px w-full bg-border-soft" aria-hidden="true" />
-        <span class="absolute inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-      </div>
-    )
-  }
-
-  {
-    variant === 'dots' && (
-      <span class="inline-flex items-center gap-3 text-link/70 select-none" aria-hidden="true">
-        <span class="inline-block h-1 w-1 rounded-full bg-current" />
-        <span class="inline-block h-1 w-1 rounded-full bg-current" />
-        <span class="inline-block h-1 w-1 rounded-full bg-current" />
-      </span>
-    )
-  }
+<div class:list={['sdiv', `sdiv--${tone}`, extraClass]} aria-hidden="true">
+  <div class="r-wrap sdiv__inner">
+    {
+      variant === 'ornament' && (
+        <svg class="sdiv__sprig" viewBox="0 0 300 90" focusable="false">
+          <path d="M4 78 C70 62 150 50 296 20" />
+          <path d="M60 66 C52 48 58 34 74 28 C78 44 72 58 60 66Z" />
+          <path d="M60 66 C44 72 30 70 20 60 C34 52 50 56 60 66Z" />
+          <path d="M118 56 C110 38 116 24 132 18 C136 34 130 48 118 56Z" />
+          <path d="M118 56 C104 64 88 64 76 54 C90 46 106 48 118 56Z" />
+          <path d="M178 44 C172 28 178 14 194 8 C198 24 192 38 178 44Z" />
+          <path d="M178 44 C164 52 148 52 136 44 C150 36 166 36 178 44Z" />
+          <path d="M236 32 C232 18 238 6 252 2 C256 16 250 28 236 32Z" />
+          <path d="M236 32 C224 40 210 40 200 32 C212 24 226 26 236 32Z" />
+        </svg>
+      )
+    }
+    {variant === 'line' && <span class="sdiv__line" />}
+    {
+      variant === 'dots' && (
+        <span class="sdiv__dots">
+          <span />
+          <span />
+          <span />
+        </span>
+      )
+    }
+  </div>
 </div>
+
+<style>
+  .sdiv {
+    padding-block: clamp(1.75rem, 4vw, 3rem);
+  }
+  .sdiv--linen {
+    background: var(--color-bg);
+  }
+  .sdiv--paper {
+    background: var(--color-paper);
+  }
+  .sdiv--ink {
+    background: var(--color-ink);
+  }
+  .sdiv__inner {
+    display: flex;
+    justify-content: center;
+  }
+
+  .sdiv__sprig {
+    width: clamp(8rem, 14vw, 11rem);
+    height: auto;
+    color: var(--color-chip-5);
+  }
+  .sdiv__sprig path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sdiv__line {
+    position: relative;
+    display: block;
+    width: min(100%, 44rem);
+    height: 1px;
+    background: var(--color-rule);
+  }
+  .sdiv--ink .sdiv__line {
+    background: rgb(245 237 227 / 0.18);
+  }
+  /* The punched hole: a ring the colour of the ground, keyed in bronze. */
+  .sdiv__line::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: var(--color-bg);
+    box-shadow: inset 0 0 0 1.5px var(--color-chip-5);
+  }
+  .sdiv--paper .sdiv__line::after {
+    background: var(--color-paper);
+  }
+  .sdiv--ink .sdiv__line::after {
+    background: var(--color-ink);
+  }
+
+  .sdiv__dots {
+    display: inline-flex;
+    gap: 0.75rem;
+  }
+  .sdiv__dots span {
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    background: var(--color-chip-5);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .sdiv__sprig path {
+        stroke-dasharray: 600;
+        animation: sdiv-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 50%;
+      }
+    }
+  }
+  @keyframes sdiv-draw {
+    from {
+      stroke-dashoffset: 600;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

@@ -1,7 +1,9 @@
 // Safe to edit by hand
 // Custom cursor for portfolio cards. Desktop only — bails out on touch input
-// and prefers-reduced-motion. Bronze "View →" chip follows the pointer when
-// hovering anything inside [data-portfolio-cursor-zone].
+// and prefers-reduced-motion. A small ink "View project" pill (restyled
+// 2026-09-30 for the rebuild: ink with cream text, sentence case, the same
+// pill as .r-btn--ink) follows the pointer when hovering anything inside
+// [data-portfolio-cursor-zone].
 //
 // Implementation: one fixed-position element transformed via translate3d for
 // GPU acceleration. The native cursor is hidden over the zone via CSS so the
@@ -63,16 +65,16 @@ export default function PortfolioCursor() {
       aria-hidden="true"
       className={[
         'pointer-events-none fixed top-0 left-0 z-50',
-        'flex items-center gap-1 px-3 py-1.5',
-        'rounded-full bg-primary-dark text-white',
-        'text-[0.7rem] font-semibold tracking-eyebrow uppercase',
-        'shadow-lg shadow-foreground/20',
-        'transition-opacity duration-200 ease-out',
-        active ? 'opacity-100' : 'opacity-0',
+        'flex items-center gap-2 px-4 py-2.5',
+        'rounded-full bg-ink text-cream',
+        'text-[0.85rem] leading-none font-medium',
+        'shadow-[0_12px_26px_-14px_rgb(35_30_27/0.7)]',
+        'transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        active ? 'scale-100 opacity-100' : 'scale-75 opacity-0',
       ].join(' ')}
       style={{ willChange: 'transform' }}
     >
-      View <span aria-hidden="true">→</span>
+      View project <span aria-hidden="true">→</span>
     </div>
   );
 }

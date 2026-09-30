@@ -1,68 +1,175 @@
 ---
 // Safe to edit by hand
-// Project metadata band. Sits between the project hero image and the long
-// intro story. Three columns: "The room" / "The brief" / "The call".
+// The project SPEC SHEET (rebuilt 2026-09-30, phase 2 of the art-direction
+// rebuild; see DESIGN.md "Blocks and Portfolio"). Sits between the project
+// hero and the story, and reads like the sheet clipped to a sample board: the
+// facts in a ruled list on the left (room, style, where, year, reading time),
+// and on the right the two lines that carry the design story, "The brief"
+// (the client's situation) and "The call" (Staci's move), set in Zodiak.
 //
-// This is the "show the thinking, not the credentials" rule made visible.
-// Visitors who don't read the full body still get the design story in three
-// short lines. When fields are missing it falls back to a two-column layout
-// (or one) so the band always reads as deliberate, never half-empty.
+// "Show the thinking, not the credentials": a visitor who never reads the
+// story still gets it in two sentences. Every row is optional; the sheet
+// drops what is missing, keeps its shape, and renders nothing at all when
+// there is nothing to say.
+//
+// The first three props are the originals and keep their meaning; the rest
+// were added with the rebuild and are all optional.
+import { humanizeEnum } from '@/components/portfolio/labels';
 
 interface Props {
   roomType?: string;
-  /** One-sentence client situation. Falls back gracefully when absent. */
+  /** One-sentence client situation. */
   briefLine?: string;
-  /** One-sentence Staci design move. Falls back gracefully when absent. */
+  /** One-sentence Staci design move. */
   designCall?: string;
+  designStyle?: string;
+  location?: string;
+  year?: number | string;
+  /** Pre-formatted, e.g. "4 min read". */
+  readTime?: string;
 }
 
-const { roomType, briefLine, designCall } = Astro.props as Props;
+const { roomType, briefLine, designCall, designStyle, location, year, readTime } =
+  Astro.props as Props;
 
-// Humanize the camelCased room enum value ("modernCoastal" → "Modern coastal").
-function humanizeRoom(value?: string): string {
-  if (!value) return '';
-  return value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
-}
+const facts = [
+  { label: 'Room', value: humanizeEnum(roomType) },
+  { label: 'Style', value: humanizeEnum(designStyle) },
+  { label: 'Where', value: location },
+  { label: 'Year', value: year ? String(year) : '' },
+  { label: 'Reading', value: readTime },
+].filter((f): f is { label: string; value: string } => Boolean(f.value));
 
-const roomLabel = humanizeRoom(roomType);
+const story = [
+  briefLine && { label: 'The brief', body: briefLine },
+  designCall && { label: 'The call', body: designCall },
+].filter(Boolean) as Array<{ label: string; body: string }>;
 
-// Build the columns array so the layout stays balanced when fields are absent.
-const columns = [
-  roomLabel && { eyebrow: 'The room', body: roomLabel },
-  briefLine && { eyebrow: 'The brief', body: briefLine },
-  designCall && { eyebrow: 'The call', body: designCall },
-].filter(Boolean) as Array<{ eyebrow: string; body: string }>;
-
-if (columns.length === 0) return null;
+if (facts.length === 0 && story.length === 0) return null;
 ---
 
-<aside class="mx-auto max-w-content px-m py-section-md" aria-label="Project at a glance">
-  <div
-    class:list={[
-      'grid gap-l border-t border-b border-border-soft py-l text-left',
-      columns.length === 3 && 'md:grid-cols-3',
-      columns.length === 2 && 'md:grid-cols-2',
-      columns.length === 1 && 'md:grid-cols-1',
-    ]}
-  >
+<aside class="r-wrap spec" aria-label="Project at a glance">
+  <div class:list={['spec__sheet', facts.length > 0 && story.length > 0 && 'spec__sheet--both']}>
     {
-      columns.map((col) => (
-        <div>
-          <p class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">{col.eyebrow}</p>
-          <p
-            class:list={[
-              col.eyebrow === 'The room'
-                ? 'font-display text-h3 text-foreground'
-                : 'font-display text-h4 leading-snug text-foreground/90 italic',
-            ]}
-          >
-            {col.body}
-          </p>
+      facts.length > 0 && (
+        <dl class="spec__facts">
+          {facts.map((f) => (
+            <div class="spec__row">
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    {
+      story.length > 0 && (
+        <div class="spec__story">
+          {story.map((s) => (
+            <div class="spec__line">
+              <p class="spec__label">{s.label}</p>
+              <p class="spec__body">{s.body}</p>
+            </div>
+          ))}
         </div>
-      ))
+      )
     }
   </div>
 </aside>
+
+<style>
+  .spec {
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+  .spec__sheet {
+    position: relative;
+    display: grid;
+    gap: 2.5rem;
+    padding: clamp(1.75rem, 4vw, 3rem);
+    background: var(--color-paper);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 26px 40px -34px rgb(35 30 27 / 0.45);
+  }
+  /* The punched hole it hangs on the board by. */
+  .spec__sheet::before {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: var(--color-bg);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+
+  .spec__facts {
+    margin: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .spec__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .spec__row dt {
+    font: 500 0.9rem/1.3 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .spec__row dd {
+    margin: 0;
+    text-align: right;
+    font: 400 1.15rem/1.3 var(--font-display);
+    color: var(--color-ink);
+  }
+
+  /* On a phone the two story lines lead; the facts follow. */
+  .spec__story {
+    order: -1;
+    display: grid;
+    gap: 2rem;
+    align-content: start;
+  }
+  .spec__label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 0.6rem;
+    font: 500 0.9rem/1.3 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .spec__label::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .spec__body {
+    margin: 0;
+    max-width: 34ch;
+    font: 300 clamp(1.4rem, 1.1rem + 0.9vw, 1.9rem) / 1.25 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  .spec__line + .spec__line .spec__body {
+    font-style: italic;
+  }
+
+  @media (min-width: 900px) {
+    .spec__sheet--both {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: clamp(2.5rem, 6vw, 6rem);
+    }
+    .spec__sheet--both .spec__story {
+      order: 0;
+    }
+    .spec__sheet:not(.spec__sheet--both) {
+      max-width: 44rem;
+    }
+  }
+</style>

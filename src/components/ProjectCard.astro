@@ -1,11 +1,18 @@
 ---
 // Safe to edit by hand
-// Project card for the /portfolio grid. Hero image with gentle hover scale,
-// title, location · year meta, brief summary, plus a small room-type chip
-// floating top-left on the hero so the room category reads at a glance when
-// scanning the grid.
-
+// Project card for the /portfolio grid (rebuilt 2026-09-30, phase 2 of the
+// art-direction rebuild; see DESIGN.md "Blocks and Portfolio").
+//
+// Image-led and quiet: the photo does the work, cropped around its Sanity
+// hotspot, with the room tied on as a sample tag. Under it, the title in
+// Zodiak and one plain line of location and year. No border, no shadow, no
+// stripe: the grid around it (portfolio/index.astro) varies the sizes so the
+// page reads as a board, not a catalogue.
+//
+// The photo's shape is the parent's call: the grid sets `--pcard-ratio` per
+// slot (default 4:5, the shape of a phone photo held upright).
 import SanityImage from '@/components/SanityImage.astro';
+import { humanizeEnum } from '@/components/portfolio/labels';
 
 interface Props {
   project: {
@@ -17,73 +24,122 @@ interface Props {
     briefSummary?: string;
     heroImage?: any;
   };
+  /** Heading level for the title. The index uses h3 under its h2. */
+  level?: 'h2' | 'h3';
+  /** The `sizes` hint for the photo, when the grid knows better. */
+  sizes?: string;
 }
 
-const { project } = Astro.props as Props;
+const {
+  project,
+  level = 'h3',
+  sizes = '(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw',
+} = Astro.props as Props;
 const href = project.slug?.current ? `/portfolio/${project.slug.current}` : '#';
+const Title = level;
 
-// Humanize the camelCase room-type enum value ("modernCoastal" → "Modern coastal").
-// Matches the helper the PortfolioFilterChips already uses so the labels stay
-// consistent between the chip filter and the card chips.
-function humanizeRoom(value?: string): string {
-  if (!value) return '';
-  return value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
-}
-const roomLabel = humanizeRoom(project.roomType);
+const roomLabel = humanizeEnum(project.roomType);
+const line = [project.location, project.year].filter(Boolean).join(' · ');
+const spot = project.heroImage?.hotspot;
+const focus = spot
+  ? `--fx:${Math.round(spot.x * 100)}%;--fy:${Math.round(spot.y * 100)}%`
+  : undefined;
 ---
 
-<a
-  href={href}
-  class="card-lift card-lift-slow group block overflow-hidden rounded-md border border-border-soft bg-card shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40"
->
-  {
-    /* Brand accent stripe — matches ServiceCard / JournalCard / TestimonialCard
-      so the marketing-card grammar reads as one brand across the site. */
-  }
-  <div class="h-0.5 bg-primary" aria-hidden="true"></div>
-
-  <div class="img-zoom relative aspect-[4/3] overflow-hidden bg-muted">
+<a href={href} class="pcard">
+  <div class="pcard__media" style={focus}>
     {
       project.heroImage?.asset ? (
-        <SanityImage
-          source={project.heroImage}
-          width={800}
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          class="h-full w-full object-cover"
-        />
+        <SanityImage source={project.heroImage} width={1100} {sizes} class="pcard__img" />
       ) : (
-        <div class="h-full w-full" aria-hidden="true" />
+        <div class="pcard__blank" aria-hidden="true" />
       )
-    }
-    {
-      /* Room-type chip — cream background + bronze text, floating top-left.
-        backdrop-blur keeps the chip readable on busy photos. Hidden if the
-        project doesn't have a roomType set so the image stays clean. */
     }
     {
       roomLabel && (
-        <span
-          class="absolute top-s left-s inline-flex items-center rounded-full bg-bg/85 px-2.5 py-1 text-[0.65rem] font-semibold tracking-eyebrow text-primary-dark uppercase backdrop-blur-sm"
-          aria-hidden="true"
-        >
-          {roomLabel}
+        <span class="r-tag pcard__tag">
+          <strong>{roomLabel}</strong>
         </span>
       )
     }
-    <div class="img-tint" aria-hidden="true"></div>
   </div>
-  <div class="p-m">
-    <h3
-      class="font-display text-h4 text-foreground transition-colors group-hover:text-primary-dark"
-    >
-      {project.title}
-    </h3>
-    <p class="mt-xs text-xs tracking-widest text-foreground/80 uppercase">
-      {project.location}{project.location && project.year ? ' · ' : ''}{project.year}
-    </p>
-    {project.briefSummary && <p class="mt-s text-sm text-foreground/80">{project.briefSummary}</p>}
+  <div class="pcard__meta">
+    <Title class="pcard__title"><span>{project.title}</span></Title>
+    {line && <p class="pcard__line">{line}</p>}
+    {project.briefSummary && <p class="pcard__brief">{project.briefSummary}</p>}
   </div>
 </a>
+
+<style>
+  .pcard {
+    display: block;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .pcard:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 6px;
+  }
+  .pcard__media {
+    position: relative;
+    overflow: clip;
+    aspect-ratio: var(--pcard-ratio, 4 / 5);
+    background: var(--color-chip-1);
+  }
+  .pcard__media :global(.pcard__img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--fx, 50%) var(--fy, 50%);
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pcard:hover .pcard__media :global(.pcard__img),
+  .pcard:focus-visible .pcard__media :global(.pcard__img) {
+    transform: scale(1.04);
+  }
+  .pcard__blank {
+    width: 100%;
+    height: 100%;
+  }
+  .pcard__tag {
+    position: absolute;
+    left: 0.9rem;
+    bottom: 1rem;
+    rotate: -2deg;
+  }
+  .pcard__tag strong {
+    font-size: 0.98rem;
+  }
+
+  .pcard__meta {
+    padding-top: 1.1rem;
+  }
+  .pcard__title {
+    margin: 0;
+    font: 300 clamp(1.45rem, 1.1rem + 1vw, 2rem) / 1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  /* The title underline draws in on hover, like .r-link in reverse. */
+  .pcard__title span {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pcard:hover .pcard__title span,
+  .pcard:focus-visible .pcard__title span {
+    background-size: 100% 1px;
+  }
+  .pcard__line {
+    margin: 0.5rem 0 0;
+    font: 500 0.92rem/1.4 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .pcard__brief {
+    margin: 0.6rem 0 0;
+    max-width: 44ch;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--color-ink-2);
+  }
+</style>

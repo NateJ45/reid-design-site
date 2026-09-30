@@ -5,8 +5,17 @@
 //
 // Style discipline: this component picks the right semantic + brand tokens so
 // Portable Text content inherits theme-aware colors automatically. Body text
-// uses text-foreground (dark-mode-aware). Links use text-link with
-// underline for contrast and discoverability. Don't hard-code colors here.
+// uses text-foreground (ink). Don't hard-code hex colors here.
+//
+// Restyled 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md
+// "Blocks and Portfolio"). Headings are Zodiak Light at BODY scale (the
+// --text-h2 token grew to 5rem for section heads, far too big inside running
+// text), h4 is a General Sans label, links are ink with a Warm Bronze
+// underline (the bronze is a mark, never the text colour), quotes are Zodiak
+// italic off a bronze rule, and photos are square-cornered crops with a plain
+// caption. The API (value, className) is unchanged: FAQ answers, service
+// descriptions, process steps, the about story and project stories all use
+// this component.
 
 import { PortableText as PT, type PortableTextComponents } from '@portabletext/react';
 import type { PortableTextBlock } from '@portabletext/types';
@@ -42,7 +51,7 @@ function makeComponents(): PortableTextComponents {
       h2: ({ children }) => (
         <h2
           id={headingId(children)}
-          className="mt-section-md mb-m scroll-mt-24 font-display text-h2 text-foreground"
+          className="mt-section-md mb-m scroll-mt-24 font-display text-[clamp(1.75rem,1.2rem+1.7vw,2.6rem)] leading-[1.08] font-light tracking-[-0.025em] text-balance text-foreground"
         >
           {children}
         </h2>
@@ -50,7 +59,7 @@ function makeComponents(): PortableTextComponents {
       h3: ({ children }) => (
         <h3
           id={headingId(children)}
-          className="mt-l mb-s scroll-mt-24 font-display text-h3 text-foreground"
+          className="mt-l mb-s scroll-mt-24 font-display text-[clamp(1.35rem,1.1rem+0.8vw,1.75rem)] leading-tight font-light tracking-[-0.015em] text-foreground"
         >
           {children}
         </h3>
@@ -58,23 +67,27 @@ function makeComponents(): PortableTextComponents {
       h4: ({ children }) => (
         <h4
           id={headingId(children)}
-          className="mt-m mb-s scroll-mt-24 font-display text-h4 text-foreground"
+          className="mt-m mb-s scroll-mt-24 font-body text-[1.05rem] leading-snug font-semibold text-foreground"
         >
           {children}
         </h4>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="my-l border-l-4 border-primary pl-m text-foreground/90 italic">
+        <blockquote className="my-l border-l-2 border-chip-5 pl-m font-display text-[clamp(1.25rem,1.05rem+0.6vw,1.55rem)] leading-snug font-light text-foreground italic">
           {children}
         </blockquote>
       ),
     },
     list: {
       bullet: ({ children }) => (
-        <ul className="my-m list-disc space-y-1 pl-l text-foreground">{children}</ul>
+        <ul className="my-m list-disc space-y-1.5 pl-l text-foreground marker:text-chip-5">
+          {children}
+        </ul>
       ),
       number: ({ children }) => (
-        <ol className="my-m list-decimal space-y-1 pl-l text-foreground">{children}</ol>
+        <ol className="my-m list-decimal space-y-1.5 pl-l text-foreground marker:font-medium marker:text-chip-7">
+          {children}
+        </ol>
       ),
     },
     listItem: {
@@ -91,7 +104,7 @@ function makeComponents(): PortableTextComponents {
         return (
           <a
             href={href}
-            className="text-link underline underline-offset-2 transition-colors hover:text-primary"
+            className="text-foreground underline decoration-chip-5 decoration-1 underline-offset-4 transition-[text-decoration-color] duration-300 hover:decoration-foreground"
             target={newTab ? '_blank' : undefined}
             rel={newTab ? 'noopener noreferrer' : undefined}
           >
@@ -107,7 +120,7 @@ function makeComponents(): PortableTextComponents {
           <span className="text-foreground/85 italic">
             {children}
             {label && (
-              <span className="ml-1 align-baseline text-[0.72em] tracking-[0.15em] text-secondary uppercase not-italic">
+              <span className="ml-1 align-baseline text-[0.85em] font-medium text-ink-2 not-italic">
                 · {label}
               </span>
             )}
@@ -119,7 +132,7 @@ function makeComponents(): PortableTextComponents {
             href={value.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-link underline decoration-primary/30 underline-offset-2 transition-colors hover:decoration-primary"
+            className="text-foreground underline decoration-chip-5 decoration-1 underline-offset-4 transition-[text-decoration-color] duration-300 hover:decoration-foreground"
           >
             {inner}
           </a>
@@ -152,17 +165,17 @@ function makeComponents(): PortableTextComponents {
               alt={value.alt ?? ''}
               loading="lazy"
               decoding="async"
-              className="h-auto w-full rounded-md"
+              className="h-auto w-full"
             />
             {(value.decisionLine || value.caption) && (
               <figcaption className="mt-s px-m md:px-0">
                 {value.decisionLine && (
-                  <span className="mb-xs block text-xs tracking-eyebrow text-foreground/80 uppercase">
+                  <span className="mb-xs block text-sm font-medium text-chip-7">
                     {value.decisionLine}
                   </span>
                 )}
                 {value.caption && (
-                  <span className="block text-sm leading-relaxed text-foreground/75 italic md:text-base">
+                  <span className="block text-sm leading-relaxed text-ink-2 md:text-base">
                     {value.caption}
                   </span>
                 )}

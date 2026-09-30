@@ -1,21 +1,25 @@
 ---
 // Safe to edit by hand
-// Home page Featured Work section.
+// Home page "recent work" (rebuilt 2026-09-30, phase 2 of the art-direction
+// rebuild; see DESIGN.md "Blocks and Portfolio"). Hidden today: it renders
+// nothing until the first `project` document exists, and the portfolio itself
+// is switched off in Sanity until then.
 //
-// Layout:
-//   - 1 large editorial "hero" project card on the left (image + title + brief +
-//     location/year meta) at ~60% width on desktop.
-//   - Up to 3 compact horizontal companion cards stacked on the right (~40%).
-//   - Stacks vertically on mobile: hero, then companions in a 1-col list.
+// Layout, in the home page's grammar (PaintChips / HomeStaci):
+//   - The head: the headline rising in Zodiak on the left, the subhead right.
+//   - The lead project large on the left: a framed crop with the room tied on
+//     as a sample tag, then the title, one plain line, the brief summary.
+//   - Up to three more on the right as a ruled list, a small square crop
+//     beside each title.
+//   - Phone: everything stacks, lead first.
+// No dark gradient over photos, no stripes, no card chrome.
 //
-// Data is auto-populated by the home page query — featured-then-newest, capped
-// at 4 (1 hero + 3 companions). Staci pins one via the `featured` boolean on
-// the project doc; otherwise the section just shows latest 4 in publish order.
-// Section is render-suppressed entirely when no projects exist.
-
+// Data is auto-populated by the home page query: featured-then-newest, capped
+// at 4. Staci pins one via the `featured` boolean on the project doc.
 import SanityImage from '@/components/SanityImage.astro';
-import SectionHeading from '@/components/SectionHeading.astro';
+import RiseWords from '@/components/RiseWords.astro';
 import CtaLink from '@/components/CtaLink.astro';
+import { humanizeEnum } from '@/components/portfolio/labels';
 
 interface ProjectLite {
   _id?: string;
@@ -31,6 +35,7 @@ interface ProjectLite {
 
 interface Props {
   projects?: ProjectLite[];
+  /** Accepted for compatibility; the rebuild prints no eyebrow above sections. */
   eyebrow?: string;
   headline?: string;
   subhead?: string;
@@ -40,221 +45,252 @@ interface Props {
 
 const {
   projects = [],
-  eyebrow,
-  headline,
+  headline = 'Recent work',
   subhead,
   cta,
   headingId = 'featured-work-heading',
 } = Astro.props as Props;
 
-const hasProjects = Array.isArray(projects) && projects.length > 0;
-const [hero, ...rest] = projects;
-const companions = rest.slice(0, 3);
-const hasCompanions = companions.length > 0;
-
-// Hero card aspect ratio adapts to how many companions stack alongside it,
-// so the right column doesn't end with a big void. Mobile always stays in
-// the portrait band (4/5) so the bottom-overlay text fits inside the image
-// area — wide mobile aspect would push the title above the image and the
-// overflow:hidden card would clip it.
-//   0 companions → wide editorial spread on desktop (16/10, leaves room
-//                  for the multi-line overlay content without clipping the
-//                  chips row at the top)
-//   with companions → the hero image FILLS the grid-stretched card height
-//                  (lg:h-full) so it always matches the companion panel
-//                  exactly, with a min-height floor so it stays substantial.
-//                  This avoids the bg-card strip that showed when an
-//                  aspect-locked image was shorter than the stretched card.
-const heroAspectClass = !hasCompanions
-  ? 'aspect-[4/5] lg:aspect-[16/10]'
-  : 'aspect-[4/5] lg:aspect-auto lg:h-full lg:min-h-[28rem]';
-
-// Humanize the camelCase room-type enum value ("modernCoastal" → "Modern coastal").
-function humanizeRoom(value?: string): string {
-  if (!value) return '';
-  return value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
-}
-
-const heroRoomLabel = humanizeRoom(hero?.roomType);
-const heroHref = hero?.slug?.current ? `/portfolio/${hero.slug.current}` : '#';
+const list = Array.isArray(projects) ? projects.filter((p) => p?.title) : [];
+const [lead, ...rest] = list;
+const more = rest.slice(0, 3);
+const hrefFor = (p?: ProjectLite) => (p?.slug?.current ? `/portfolio/${p.slug.current}` : '#');
+const lineFor = (p?: ProjectLite) => [p?.location, p?.year].filter(Boolean).join(' · ');
+const leadRoom = humanizeEnum(lead?.roomType);
 ---
 
 {
-  hasProjects && (
-    <section class="surface-warm bg-muted" aria-labelledby={headingId}>
-      <div data-reveal class="mx-auto max-w-content px-m py-section-lg">
-        <SectionHeading
-          eyebrow={eyebrow}
-          headline={headline}
-          subhead={subhead}
-          headingId={headingId}
-          align="center"
-          class="mx-auto"
-        />
+  lead && (
+    <section class="fw" aria-labelledby={headingId}>
+      <div class="r-wrap">
+        <div class="fw__head">
+          <RiseWords as="h2" id={headingId} text={headline ?? ''} class="r-h2" />
+          {subhead && <p class="r-lede fw__sub">{subhead}</p>}
+        </div>
 
-        <div
-          class:list={[
-            'mt-section-lg',
-            hasCompanions
-              ? 'grid grid-cols-1 gap-l lg:grid-cols-[1.55fr_1fr] lg:gap-section-md'
-              : 'mx-auto max-w-4xl',
-          ]}
-        >
-          {/* ------- Hero project — full-bleed editorial card ---------------- */}
-          {/* Image fills the card; title + brief overlay on a dark gradient so
-            the card stays compact and reads as a single editorial spread. */}
-          <a
-            href={heroHref}
-            class="card-lift card-lift-slow group relative block overflow-hidden rounded-md border border-border-soft bg-card shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] transition-colors hover:border-primary/40 lg:h-full"
-          >
-            {/* Brand accent stripe — matches the card grammar across the site. */}
-            <div class="absolute top-0 right-0 left-0 z-20 h-0.5 bg-primary" aria-hidden="true" />
-
-            <div class:list={['relative overflow-hidden bg-muted', heroAspectClass]}>
-              {hero?.heroImage?.asset ? (
+        <div class:list={['fw__grid', more.length > 0 && 'fw__grid--split']}>
+          <a href={hrefFor(lead)} class="fw__lead">
+            <div class="fw__frame">
+              {lead.heroImage?.asset ? (
                 <SanityImage
-                  source={hero.heroImage}
-                  width={1400}
-                  sizes="(min-width: 1024px) 60vw, 100vw"
-                  class="h-full w-full object-cover transition-transform duration-[1500ms] group-hover:scale-[1.02]"
+                  source={lead.heroImage}
+                  width={1100}
+                  height={1375}
+                  sizes="(min-width: 1024px) 55vw, 100vw"
+                  class="fw__img"
                 />
               ) : (
-                <div class="h-full w-full" aria-hidden="true" />
+                <div class="fw__blank" aria-hidden="true" />
               )}
-
-              {/* Full-height gradient so overlay text reads on any image —
-                strong at the bottom for the title block, with a subtle
-                ~20% wash across the rest of the image to handle bright
-                window light or pale wall tones intersecting the title. */}
-              <div
-                class="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/90 via-black/55 to-black/20"
-                aria-hidden="true"
-              />
-
-              {/* Room-type chip top-left — same chip pattern as ProjectCard. */}
-              {heroRoomLabel && (
-                <span
-                  class="absolute top-m left-m z-[2] inline-flex items-center rounded-full bg-bg/85 px-2.5 py-1 text-[0.65rem] font-semibold tracking-eyebrow text-primary-dark uppercase backdrop-blur-sm"
-                  aria-hidden="true"
-                >
-                  {heroRoomLabel}
+              {leadRoom && (
+                <span class="r-tag fw__tag">
+                  {lead.featured && <small>Featured</small>}
+                  <strong>{leadRoom}</strong>
                 </span>
               )}
-
-              {/* Featured pin — only when Staci flagged this project. */}
-              {hero?.featured && (
-                <span
-                  class="absolute top-m right-m z-[2] inline-flex items-center gap-1 rounded-full bg-primary-dark px-2.5 py-1 text-[0.65rem] font-semibold tracking-eyebrow text-white uppercase"
-                  aria-hidden="true"
-                >
-                  ★ Featured
-                </span>
-              )}
-
-              {/* Editorial text overlay — pinned to the bottom of the image.
-                Right padding (`pr-28 md:pr-36`) reserves a corridor for the
-                ★ Featured pill at top-right so a long title never wraps
-                into the pill's column. */}
-              <div class="absolute inset-x-0 bottom-0 z-[3] p-l pr-28 md:p-section-md md:pr-36">
-                <p class="text-xs tracking-widest text-white/80 uppercase">
-                  {hero?.location}
-                  {hero?.location && hero?.year ? ' · ' : ''}
-                  {hero?.year}
-                </p>
-                <h3 class="mt-s max-w-2xl font-display text-h2 leading-tight text-white drop-shadow-sm">
-                  {hero?.title}
-                </h3>
-                {hero?.briefSummary && (
-                  <p class="mt-s max-w-prose text-base leading-relaxed text-white/90">
-                    {hero.briefSummary}
-                  </p>
-                )}
-                <span class="mt-m inline-flex items-center text-sm font-semibold tracking-eyebrow text-white uppercase transition-colors group-hover:text-primary">
-                  See the project
-                  <span
-                    class="ml-2 transition-transform duration-300 group-hover:translate-x-1"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-                </span>
-              </div>
-              <div class="img-curtain" aria-hidden="true" />
             </div>
+            <h3 class="fw__title">
+              <span>{lead.title}</span>
+            </h3>
+            {lineFor(lead) && <p class="fw__line">{lineFor(lead)}</p>}
+            {lead.briefSummary && <p class="fw__brief">{lead.briefSummary}</p>}
           </a>
 
-          {/* ------- Companion projects — one cohesive panel ----------------
-            The companions live inside a SINGLE card (one bronze stripe, one
-            border, one resting shadow) with each project as a row separated
-            by hairline dividers, so the right column reads as one held-
-            together unit rather than loose floating cards. On lg+ the panel
-            fills the grid-stretched column (`lg:h-full`) and each row is
-            `lg:flex-1` so the rows distribute the height evenly and the panel
-            bottom lines up with the hero. Per-row hover tints the row. */}
-          {hasCompanions && (
-            <div class="card-lift card-lift-slow flex flex-col overflow-hidden rounded-md border border-border-soft bg-card shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)] lg:h-full">
-              {/* One brand accent stripe for the whole panel. */}
-              <div class="h-0.5 bg-primary" aria-hidden="true" />
-
-              {companions.map((p, i) => {
-                const cHref = p.slug?.current ? `/portfolio/${p.slug.current}` : '#';
-                const cRoom = humanizeRoom(p.roomType);
-                return (
-                  <a
-                    href={cHref}
-                    class:list={[
-                      'group/row flex min-h-[8.5rem] flex-1 items-stretch gap-m transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
-                      i > 0 && 'border-t border-border-soft',
-                    ]}
-                  >
-                    {/* Square thumb on mobile; fills the row height on lg+. */}
-                    <div class="relative aspect-square w-28 shrink-0 self-stretch overflow-hidden bg-muted sm:w-36 lg:aspect-auto lg:w-40 xl:w-44">
-                      {p.heroImage?.asset ? (
+          {more.length > 0 && (
+            <ul class="fw__more">
+              {more.map((p) => (
+                <li>
+                  <a href={hrefFor(p)} class="fw__row">
+                    <div class="fw__thumb">
+                      {p.heroImage?.asset && (
                         <SanityImage
                           source={p.heroImage}
-                          width={500}
-                          sizes="(min-width: 1280px) 176px, (min-width: 1024px) 160px, (min-width: 640px) 144px, 112px"
-                          class="h-full w-full object-cover transition-transform duration-[1500ms] group-hover/row:scale-[1.04]"
+                          width={400}
+                          height={400}
+                          sizes="(min-width: 1024px) 9rem, 7rem"
+                          class="fw__img"
                         />
-                      ) : (
-                        <div class="h-full w-full" aria-hidden="true" />
                       )}
                     </div>
-
-                    <div class="flex min-w-0 flex-1 flex-col justify-center py-m pr-m">
-                      {cRoom && (
-                        <p class="text-[0.65rem] font-semibold tracking-eyebrow text-link uppercase">
-                          {cRoom}
-                        </p>
-                      )}
-                      <h4 class="mt-1 line-clamp-2 font-display text-h4 leading-tight text-foreground transition-colors group-hover/row:text-primary-dark">
-                        {p.title}
-                      </h4>
-                      <p class="mt-1 truncate text-xs tracking-widest text-foreground/80 uppercase">
-                        {p.location}
-                        {p.location && p.year ? ' · ' : ''}
-                        {p.year}
-                      </p>
+                    <div class="fw__row-copy">
+                      {p.roomType && <p class="fw__room">{humanizeEnum(p.roomType)}</p>}
+                      <h3 class="fw__row-title">
+                        <span>{p.title}</span>
+                      </h3>
+                      {lineFor(p) && <p class="fw__line">{lineFor(p)}</p>}
                     </div>
                   </a>
-                );
-              })}
-            </div>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
 
-        <div class="mt-section-lg flex justify-center">
+        <div class="fw__foot">
           <CtaLink
             cta={cta}
             variant="secondary"
             fallbackHref="/portfolio"
-            fallbackLabel="See all work"
+            fallbackLabel="See all the work"
           />
         </div>
       </div>
     </section>
   )
 }
+
+<style>
+  .fw {
+    background: var(--color-bg);
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+  .fw__head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .fw__head :global(.r-h2) {
+    grid-column: 1 / 8;
+    margin: 0;
+  }
+  .fw__sub {
+    grid-column: 9 / 13;
+    margin: 0;
+  }
+
+  .fw__grid {
+    display: grid;
+    gap: 3rem;
+  }
+  .fw__lead,
+  .fw__row {
+    display: block;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .fw__lead:focus-visible,
+  .fw__row:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 6px;
+  }
+  .fw__frame {
+    position: relative;
+    overflow: clip;
+    background: var(--color-chip-1);
+  }
+  .fw__frame :global(.fw__img),
+  .fw__thumb :global(.fw__img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fw__frame :global(.fw__img) {
+    aspect-ratio: 4 / 5;
+  }
+  .fw__lead:hover :global(.fw__img),
+  .fw__row:hover :global(.fw__img) {
+    transform: scale(1.04);
+  }
+  .fw__blank {
+    aspect-ratio: 4 / 5;
+  }
+  .fw__tag {
+    position: absolute;
+    left: 1rem;
+    bottom: 1.25rem;
+    rotate: -2deg;
+  }
+  .fw__title {
+    margin: 1.25rem 0 0;
+    font: 300 clamp(1.8rem, 1.2rem + 1.9vw, 3rem) / 1.05 var(--font-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .fw__title span,
+  .fw__row-title span {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fw__lead:hover .fw__title span,
+  .fw__row:hover .fw__row-title span {
+    background-size: 100% 1px;
+  }
+  .fw__line {
+    margin: 0.5rem 0 0;
+    font: 500 0.92rem/1.4 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .fw__brief {
+    margin: 0.75rem 0 0;
+    max-width: 46ch;
+    color: var(--color-ink-2);
+  }
+
+  .fw__more {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-rule);
+  }
+  .fw__more li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .fw__row {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    padding-block: 1.25rem;
+  }
+  .fw__thumb {
+    flex: none;
+    width: 7rem;
+    aspect-ratio: 1;
+    overflow: clip;
+    background: var(--color-chip-1);
+  }
+  .fw__row-copy {
+    min-width: 0;
+  }
+  .fw__room {
+    margin: 0 0 0.35rem;
+    font: 500 0.88rem/1.3 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .fw__row-title {
+    margin: 0;
+    font: 300 clamp(1.3rem, 1.1rem + 0.6vw, 1.65rem) / 1.12 var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  .fw__foot {
+    margin-top: clamp(2.5rem, 4vw, 3.5rem);
+  }
+
+  @media (min-width: 1024px) {
+    .fw__grid--split {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+    }
+    .fw__grid:not(.fw__grid--split) .fw__lead {
+      max-width: 40rem;
+    }
+    .fw__grid--split .fw__more {
+      margin-top: 0;
+    }
+    .fw__thumb {
+      width: 9rem;
+    }
+  }
+  @media (max-width: 1023px) {
+    .fw__head {
+      display: block;
+    }
+    .fw__sub {
+      margin-top: 1rem;
+    }
+  }
+</style>
