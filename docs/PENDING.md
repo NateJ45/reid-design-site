@@ -314,7 +314,7 @@ rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5
    `room:grade` → `room:walls` → `room:publish` → `room:preview` (check
    `preview-sage-full.png` at 1:1: rods/legs unpainted, shadows paint) → `npm run build` and
    check the page → show Nathan → commit `src/assets/room/`.
-3. Base picks so far: family-farmhouse **khaki-6606**, dining-deco **salmon-2202**.
+3. Base picks so far: family-farmhouse **khaki-6606**, dining-deco **salmon-2202**, kitchen-modern **yellow-3303**, bath-seaside **pink-6606**, bedroom-japandi **bluegrey-6606**.
    Kitchen, bath: re-rolled as dated-but-complete rooms (specs rewritten), candidates were
    rendering at handoff; pick from their sheets. Bedroom: 13 of 16 candidates exist, no sheet
    yet; rerun `room:generate -- --room bedroom-japandi base`.

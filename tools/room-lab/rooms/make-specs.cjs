@@ -178,7 +178,7 @@ seed = 500;
       piece('mirror', 'fixtures', 'drop', ['mirror'], 'replace the plain frameless mirror above the vanity with one round mirror in a natural rattan frame.', S, { workflow: FULL, negative: 'cartoon, illustration, cgi, render, distorted reflection' }),
       piece('sconces', 'fixtures', 'pop', ['sconce', 'light', 'lamp'], 'replace the chrome vanity light bar with two brushed nickel wall sconces with seeded glass shades, one on each side of the mirror, switched off.', S, { workflow: FULL, negative: NEG_OFF }),
       piece('faucet', 'fixtures', 'pop', ['sink'], 'replace the plain chrome vanity faucet with a brushed nickel bridge faucet. Keep the vanity and top exactly as they are.', S, { workflow: FULL, negative: NEG_FINE }),
-      piece('curtain', 'soft', 'drop', ['curtain', 'shower'], 'hang a white and soft blue striped cotton shower curtain on a brushed nickel rod across the tub, pulled partly open.', S),
+      piece('curtain', 'soft', 'drop', ['curtain', 'shower'], 'replace the plain white shower curtain with a white and soft blue striped cotton shower curtain on the same rod, pulled partly open.', S),
       piece('towels', 'soft', 'slide-right', ['towel'], 'hang two white towels with a soft blue stripe on a brushed nickel towel bar on the wall near the tub.', S, { workflow: FULL }),
       piece('mat', 'soft', 'unroll', ['rug'], 'add a woven cotton bath mat in warm sand on the floor in front of the tub.', S),
       piece('styling', 'finish', 'pop', ['basket', 'plant', 'pot', 'vase', 'painting'], 'hang one small framed coastal print on the plain wall, and place a woven seagrass basket on the floor by the vanity and a small potted green plant on the vanity.', S, { workflow: FULL, negative: NEG_FINE }),
