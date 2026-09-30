@@ -70,13 +70,10 @@ const {
       column-gap: clamp(3rem, 7vw, 7rem);
       align-items: start;
     }
+    /* Clears the condensed header strip and its hanging logo. */
     .pfaq__head {
       position: sticky;
       top: 8.5rem;
-      transition: top 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    :global(:root:has(.site-header[data-state='hidden'])) .pfaq__head {
-      top: 2.5rem;
     }
   }
 </style>

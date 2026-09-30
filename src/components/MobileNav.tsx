@@ -1,46 +1,39 @@
 // Foundation, edit with care
-// Mobile nav drawer. Uses shadcn Sheet (Radix Dialog under the hood).
+// Phone menu: the fan deck (rebuilt 2026-09-30 with the swatch book chrome;
+// DESIGN.md "Chrome", prototype docs/design/prototypes/chrome-a-swatch-book.html).
 //
-// HYDRATED AT client:idle, NOT client:only (2026-09-29, PORTS.md card 52).
-// This file said for a long time that the Sheet had to be client:only="react"
-// because Radix's portal hook threw "Invalid hook call" during Astro's server
-// render. That is not true of the versions this site pins: a closed Sheet
-// server-renders only its trigger button, the portal mounts nothing until the
-// drawer opens, and every page prerenders without a complaint. The starter and
-// stonesteps-50k ship the identical ui/sheet.tsx at client:idle.
+//   Trigger   the ink "Menu" price tag in the header (below 1024px).
+//   Open      a full-screen ink overlay. Staci's logo large (cream, 108px) top
+//             left; "Close" as a cream price tag top right; the menu as a
+//             fanned deck of paint chips, full-width cards on the ramp, each
+//             tilted a hair, names only, set big and never covered by the next
+//             chip; at the foot the booking price tag ("Book the in-home
+//             consult | $225") and phone / email.
+//   Motion    the chips deal in from below, staggered, ONLY under
+//             prefers-reduced-motion: no-preference. Without it they are
+//             simply there.
 //
-// What client:only cost was the hamburger: it skips SSR entirely, so the
-// trigger was absent from the server HTML until React loaded. client:idle puts
-// the button in the markup and defers the runtime behind requestIdleCallback.
+// Accessibility comes from Radix Dialog (the same primitive the old shadcn
+// Sheet wrapped): aria-modal, a focus trap, Escape closes, focus returns to
+// the trigger, and the page behind is scroll-locked. The dialog is labelled
+// by a visually hidden title.
 //
-// If a future island genuinely cannot server-render, the symptom is an
-// "Invalid hook call" thrown during the build's server render, and
-// client:only="react" is still the escape hatch. VisualEditingOverlay in
-// PreviewLayout.astro uses it for that kind of reason.
+// HYDRATED AT client:idle, NOT client:only (2026-09-29, PORTS.md card 52):
+// the closed dialog server-renders only its trigger, so the "Menu" tag is in
+// the static HTML before React loads, and the portal mounts nothing until the
+// menu opens. If a future change makes this island throw "Invalid hook call"
+// during the build's server render, client:only="react" is the escape hatch.
 //
-// Layout (top to bottom inside the sheet):
-//   1. Brand accent stripe (4px Warm Bronze) + "Menu" eyebrow
-//   2. Primary CTA — Book a consultation
-//   3. Tagline in display serif italic
-//   4. Nav links — flat items are single rows; dropdown groups are a heading
-//      row with indented sub-items underneath (always expanded on mobile,
-//      no accordion needed — full-height drawers have plenty of room)
-//   5. Spacer pushes the rest to the bottom
-//   6. Email link with Mail icon
-//   7. Social icons row (Instagram, Facebook). The ThemeToggle that sat on the
-//      right was removed 2026-09-29: the site is light only, and the toggle
-//      re-applied a stored dark preference on mount.
-//   8. Logo centered at the bottom of the panel
+// Styles live in ./mobile-nav/mobile-nav.css (plain CSS, the .mnav-* classes):
+// the deck geometry is bespoke and reads better as CSS than as utilities.
 //
-// Data: tagline, email, social URLs all come from Sanity siteSettings via
-// the Header, with sensible defaults so the menu renders cleanly before
-// content is wired up.
+// Data: nav items, contact details and the consultation price all come from
+// Header.astro (Sanity siteSettings + services via src/lib/chrome-facts.ts).
 
-import { useState } from 'react';
-import { Menu, Mail, Phone, ChevronRight } from 'lucide-react';
-import { IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { Dialog } from 'radix-ui';
 import { telHref } from '@/lib/phone';
+import './mobile-nav/mobile-nav.css';
 
 // ---- Types ------------------------------------------------------------------
 
@@ -59,11 +52,8 @@ interface DropdownNavGroup {
 type NavItem = FlatNavLink | DropdownNavGroup;
 
 interface MobileNavSiteSettings {
-  tagline?: string;
   email?: string;
   phone?: string;
-  socialInstagram?: string;
-  socialFacebook?: string;
   primaryCtaLabel?: string;
 }
 
@@ -78,23 +68,35 @@ interface Props {
   links: NavItem[];
   siteSettings?: MobileNavSiteSettings | null;
   /**
-   * The main button, resolved once in Header.astro so the drawer and the
+   * The main button, resolved once in Header.astro so the menu and the
    * desktop header can never disagree about its wording or destination.
-   * Omitted (older callers) falls back to the built-in Contact button.
+   * Omitted = the built-in "book the consultation" button to Contact.
    */
   cta?: HeaderCta;
-  /** Site settings switch: show the email in "Get in touch". Default yes. */
+  /** The consultation price ("$225") for the booking tag, when known. */
+  price?: string;
+  /** Site settings switch: show the email at the foot. Default yes. */
   showEmail?: boolean;
-  /** Site settings switch: show the social buttons. Default yes. */
-  showSocials?: boolean;
-  /**
-   * Optimized logo URLs pre-rendered by Astro's getImage() in the parent
-   * Header.astro. The parent runs getImage() once at build time and passes
-   * the resulting WebP URLs in as strings, so the island never has to import
-   * the asset itself (its props are serialized into the page either way).
-   */
-  logoLightUrl?: string;
-  logoDarkUrl?: string;
+  /** The cream logo for the ink overlay, pre-rendered by Header.astro's getImage(). */
+  logoUrl?: string;
+  logoSrcset?: string;
+  /** The page being shown (Header.astro's pathname), to mark its chip. */
+  currentPath?: string;
+}
+
+// Chip tones down the deck, palest first, skipping Warm Bronze (chip 5): no
+// text colour passes AA at small sizes on it. Ink text on 1 to 4, cream on 6
+// and 7 (DESIGN.md contrast table).
+const DECK_TONES = [1, 2, 3, 4, 6, 7];
+
+function toneFor(i: number, n: number): { tone: number; on: 'ink' | 'cream' } {
+  // Spread a short deck over the ramp so four items still reach the deep end.
+  const idx =
+    n <= 1
+      ? 0
+      : Math.min(DECK_TONES.length - 1, Math.round((i * (DECK_TONES.length - 1)) / (n - 1)));
+  const tone = n <= DECK_TONES.length ? (DECK_TONES[idx] ?? 1) : (DECK_TONES[i % 6] ?? 1);
+  return { tone, on: tone >= 6 ? 'cream' : 'ink' };
 }
 
 // ---- Component --------------------------------------------------------------
@@ -103,198 +105,138 @@ export default function MobileNav({
   links,
   siteSettings,
   cta,
+  price,
   showEmail = true,
-  showSocials = true,
-  logoLightUrl,
-  logoDarkUrl,
+  logoUrl,
+  logoSrcset,
+  currentPath,
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  const tagline =
-    siteSettings?.tagline ?? 'Plainfield interior design for homes that feel genuinely yours.';
   const email = showEmail ? siteSettings?.email : undefined;
   const phone = siteSettings?.phone;
-  const ig = showSocials ? siteSettings?.socialInstagram : undefined;
-  const fb = showSocials ? siteSettings?.socialFacebook : undefined;
-  const ctaLabel = cta?.label ?? siteSettings?.primaryCtaLabel ?? 'Book a consultation';
-  const ctaHref = cta?.href ?? '/contact';
   const showCta = cta?.show !== false;
+  const ctaHref = cta?.href ?? '/contact';
+  // With the built-in button and a known price, the booking tag says what it
+  // books. A label Staci set herself is used as written.
+  const ctaLabel =
+    cta?.label ??
+    (price ? 'Book a consult' : (siteSettings?.primaryCtaLabel ?? 'Book a consultation'));
+  const ctaPrice = price && ctaHref === '/contact' ? price : undefined;
+
+  // The deck is flat: a group's links become chips of their own (the group's
+  // name was only ever a heading, never a page).
+  const chips = links.flatMap((item) =>
+    item.kind === 'flat' ? [{ label: item.label, href: item.href }] : item.items,
+  );
 
   const close = () => setOpen(false);
 
-  // In flow since the 2026-09-29 header rebuild: Header.astro gives the
-  // trigger a 44px slot (it used to be absolutely positioned in the row).
+  // Same rule as the desktop header's isActive(): '/services' marks
+  // '/services/' and anything under it.
+  const isCurrent = (href: string) => {
+    if (!currentPath) return false;
+    if (href === '/') return currentPath === '/';
+    const base = href.endsWith('/') ? href : `${href}/`;
+    return currentPath === href || currentPath.startsWith(base);
+  };
+
+  // The menu is hidden from 1024px up (the desktop header takes over), so a
+  // window widened while it is open must close it, or the scroll lock would
+  // stay on behind an invisible dialog.
+  useEffect(() => {
+    if (!open) return;
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => mq.matches && setOpen(false);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [open]);
+
   return (
-    <div className="lg:hidden">
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent"
-          >
-            <Menu size={22} />
-          </button>
-        </SheetTrigger>
-        <SheetContent
-          side="right"
-          className="flex w-[min(380px,90vw)] flex-col gap-0 overflow-y-auto border-t-4 border-t-primary bg-background p-0 sm:max-w-none"
-        >
-          {/* Eyebrow header. */}
-          <SheetHeader className="pt-xl px-l pb-m">
-            <SheetTitle className="font-body text-xs font-normal tracking-eyebrow text-foreground/80 uppercase">
-              Menu
-            </SheetTitle>
-          </SheetHeader>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <button type="button" className="r-pricetag mnav-trigger" aria-label="Open menu">
+          <span aria-hidden="true">Menu</span>
+          <span className="mnav-trigger__bars" aria-hidden="true">
+            <i />
+            <i />
+          </span>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        {/* The overlay is what carries Radix's scroll lock (react-remove-scroll)
+            and the outside-click layer; the ink content covers it entirely. */}
+        <Dialog.Overlay className="mnav-overlay" />
+        <Dialog.Content className="mnav" aria-modal="true" aria-describedby={undefined}>
+          <Dialog.Title className="sr-only">Menu</Dialog.Title>
 
-          {/* Primary CTA — main conversion action surfaced before the nav list.
-              Site settings -> Header button can turn it off entirely. */}
-          {showCta && (
-            <div className="px-l pb-l">
-              <a
-                href={ctaHref}
-                onClick={close}
-                className="block w-full rounded-md bg-primary-dark px-m py-m text-center text-xs font-semibold tracking-eyebrow text-white uppercase transition-colors hover:bg-accent-dark"
-              >
-                {ctaLabel}
-              </a>
-            </div>
-          )}
-
-          {/* Tagline in display serif for editorial feel. */}
-          <p className="px-l pb-l font-display text-h4 leading-snug text-foreground/85 italic">
-            {tagline}
-          </p>
-
-          {/* Primary nav — flat items + group headers with indented sub-items. */}
-          <nav className="border-t border-border-soft py-s" aria-label="Primary mobile">
-            {links.map((item) => {
-              if (item.kind === 'flat') {
-                return (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={close}
-                    className="flex items-center px-l py-s font-display text-lg text-foreground transition-colors hover:bg-muted hover:text-link"
-                  >
-                    {item.label}
-                  </a>
-                );
-              }
-
-              // Dropdown group — always expanded in the drawer (no accordion
-              // needed; the drawer has scroll and the groups are small).
-              return (
-                <div key={item.label}>
-                  {/* Group heading — visually distinct from flat items. Not
-                      a link itself; the sub-items carry the real hrefs. */}
-                  <p className="px-l pt-m pb-xs text-xs tracking-eyebrow text-foreground/80 uppercase">
-                    {item.label}
-                  </p>
-                  {item.items.map((sub) => (
-                    <a
-                      key={sub.href}
-                      href={sub.href}
-                      onClick={close}
-                      className="flex items-center gap-xs py-xs pr-l pl-[calc(theme(spacing.l)+0.5rem)] font-body text-base text-foreground transition-colors hover:bg-muted hover:text-link"
-                    >
-                      <ChevronRight
-                        size={12}
-                        className="shrink-0 text-foreground/40"
-                        aria-hidden="true"
-                      />
-                      {sub.label}
-                    </a>
-                  ))}
-                </div>
-              );
-            })}
-          </nav>
-
-          {/* Spacer pushes the contact + logo block to the bottom. */}
-          <div className="flex-1" />
-
-          {/* Contact + socials + theme. */}
-          <div className="border-t border-border-soft px-l pt-m pb-s">
-            <p className="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">
-              Get in touch
-            </p>
-            {email && (
-              <a
-                href={`mailto:${email}`}
-                className="inline-flex items-center gap-s text-sm text-link hover:underline"
-              >
-                <Mail size={16} aria-hidden="true" />
-                {email}
-              </a>
-            )}
-            {phone && (
-              <a
-                href={telHref(phone)}
-                className="mt-s flex items-center gap-s text-sm text-link hover:underline"
-              >
-                <Phone size={16} aria-hidden="true" />
-                {phone}
-              </a>
-            )}
-
-            <div className="mt-m flex items-center gap-s">
-              {ig && (
-                <a
-                  href={ig}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground transition-colors hover:border-primary-dark hover:bg-primary-dark hover:text-white"
-                >
-                  <IconBrandInstagram size={20} stroke={1.5} />
-                </a>
-              )}
-              {fb && (
-                <a
-                  href={fb}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-soft text-foreground transition-colors hover:border-primary-dark hover:bg-primary-dark hover:text-white"
-                >
-                  <IconBrandFacebook size={20} stroke={1.5} />
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Logo at the bottom — brand-anchored close to the sheet's foot.
-              URLs come from Astro's image pipeline via Header.astro's
-              getImage() calls, so this is a WebP file with the same hash
-              as the desktop header logo (free cache hit). */}
-          {logoLightUrl && (
-            <div className="flex justify-center border-t border-border-soft px-l py-l">
-              <img
-                src={logoLightUrl}
-                alt="Reid Design"
-                width={64}
-                height={68}
-                className="block h-16 w-auto dark:hidden"
-                loading="lazy"
-                decoding="async"
-              />
-              {logoDarkUrl && (
+          <div className="mnav__top">
+            <a href="/" onClick={close} className="mnav__logo" aria-label="Reid Design home">
+              {logoUrl ? (
                 <img
-                  src={logoDarkUrl}
-                  alt=""
-                  aria-hidden="true"
-                  width={64}
-                  height={68}
-                  className="hidden h-16 w-auto dark:block"
-                  loading="lazy"
+                  src={logoUrl}
+                  srcSet={logoSrcset}
+                  alt="Reid Design"
+                  width={102}
+                  height={108}
                   decoding="async"
                 />
+              ) : (
+                <span>Reid Design</span>
               )}
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
-    </div>
+            </a>
+            <Dialog.Close asChild>
+              <button type="button" className="r-pricetag r-pricetag--cream mnav__close">
+                Close
+              </button>
+            </Dialog.Close>
+          </div>
+
+          <nav className="mnav__deck" aria-label="Primary mobile">
+            <ul role="list">
+              {chips.map((c, i) => {
+                const t = toneFor(i, chips.length);
+                return (
+                  <li
+                    key={`${c.href}-${i}`}
+                    className="mnav__chip"
+                    data-on={t.on}
+                    style={
+                      {
+                        '--n': i,
+                        '--tone': `var(--color-chip-${t.tone})`,
+                      } as CSSProperties
+                    }
+                  >
+                    <a
+                      href={c.href}
+                      onClick={close}
+                      aria-current={isCurrent(c.href) ? 'page' : undefined}
+                    >
+                      {c.label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="mnav__foot">
+            {showCta && (
+              <a href={ctaHref} onClick={close} className="r-pricetag r-pricetag--cream mnav__book">
+                <span>{ctaLabel}</span>
+                {ctaPrice && <span className="r-pricetag__price">{ctaPrice}</span>}
+              </a>
+            )}
+            {(phone || email) && (
+              <p className="mnav__meta">
+                {phone && <a href={telHref(phone)}>{phone}</a>}
+                {email && <a href={`mailto:${email}`}>{email}</a>}
+              </p>
+            )}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

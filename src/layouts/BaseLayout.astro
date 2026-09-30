@@ -529,38 +529,40 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
           }
         }
 
-        // ---- Sticky-header hide on scroll-down --------------------------
-        // The header is position:sticky via .site-header. We swap a data-state
-        // attribute that the CSS translates into a translateY(-100%) when the
-        // user scrolls downward past the hero band.
+        // ---- Sticky header: condense on scroll ---------------------------
+        // The header (.site-header, position: sticky) rests as a bare row with
+        // the hanging logo, and condenses into a floating paper strip once the
+        // page moves (the swatch book chrome, 2026-09-30). This only toggles a
+        // data-scrolled attribute; Header.astro's CSS does the rest inside a
+        // fixed-height box, so nothing reflows. It used to hide the header on
+        // scroll-down; the condensed strip is small enough to stay.
+        // Re-queried on every page load: the header is swapped by View
+        // Transitions, and a reload mid-page must start condensed.
         const header = document.querySelector<HTMLElement>('.site-header');
-        if (header && !(header as any).__polishWired) {
-          (header as any).__polishWired = true;
-          let lastY = window.scrollY;
-          let ticking = false;
-          const SHOW_THRESHOLD = 80; // small jitter buffer
-          const HIDE_AFTER = 120;    // don't hide until past hero band
-
-          const onScroll = () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-              const y = window.scrollY;
-              const dy = y - lastY;
-              if (reduceMotion) {
-                header.removeAttribute('data-state');
-              } else if (y < HIDE_AFTER) {
-                header.removeAttribute('data-state');
-              } else if (dy > 4) {
-                header.setAttribute('data-state', 'hidden');
-              } else if (dy < -4) {
-                header.removeAttribute('data-state');
-              }
-              lastY = y;
-              ticking = false;
-            });
+        if (header) {
+          const sync = () => {
+            header.toggleAttribute('data-scrolled', window.scrollY > 8);
           };
-          window.addEventListener('scroll', onScroll, { passive: true });
+          sync();
+          const w = window as typeof window & { __hdrScrollBound?: boolean };
+          if (!w.__hdrScrollBound) {
+            w.__hdrScrollBound = true;
+            let ticking = false;
+            window.addEventListener(
+              'scroll',
+              () => {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(() => {
+                  document
+                    .querySelector<HTMLElement>('.site-header')
+                    ?.toggleAttribute('data-scrolled', window.scrollY > 8);
+                  ticking = false;
+                });
+              },
+              { passive: true },
+            );
+          }
         }
       }
 

@@ -4,8 +4,9 @@
 // art-direction rebuild; see DESIGN.md "Process and FAQ").
 //
 //   "full" (the Process page, inside sections/ProcessSteps.astro): a big
-//   moment per step. A large Zodiak numeral and the step's line drawing, the
-//   time estimate on a sample tag, the title, the short description as a
+//   moment per step. The step's line drawing and its time estimate set large
+//   in Warm Bronze italic as the marker ("Single visit", "2 to 3 weeks"), the
+//   title, the short description as a
 //   Zodiak lede, the full description, and the "Quick bullets" (features) on
 //   a paint chip whose tone steps down the strip with the step (chips 1 to 4,
 //   never Warm Bronze, so ink text passes AA on every one). The tier note
@@ -15,8 +16,11 @@
 //   used (title, time, shortDescription). The home page now uses
 //   home/TapeProcess.astro instead; this is kept so that file still builds.
 //
-// The number is real sequence here, so it is shown. It is decorative to a
-// screen reader (aria-hidden) because the heading carries "Step 1:" itself.
+// No big "01" numeral (2026-09-30, the no-decorative-numbering rule in
+// DESIGN.md): the order of the steps and the tape on the rail carry the
+// sequence, and the time estimate is a real fact worth setting large. The
+// heading still carries a screen-reader-only "Step 1:" so the sequence is
+// announced.
 //
 // PortableText renders on the SERVER (no client directive): the description
 // is static text and needs no hydration.
@@ -51,7 +55,6 @@ interface Props {
 
 const { step, variant = 'preview', index = 0, id, timeline } = Astro.props as Props;
 const n = typeof step.stepNumber === 'number' ? step.stepNumber : index + 1;
-const padNum = String(n).padStart(2, '0');
 // Paint-chip tone for the "Quick bullets" card: chips 1 to 4, cycling.
 const tone = (index % 4) + 1;
 const features = (step.features ?? []).filter(Boolean);
@@ -66,14 +69,11 @@ const features = (step.features ?? []).filter(Boolean);
       style={timeline ? `view-timeline-name: ${timeline}` : undefined}
     >
       <div class="pstep__top">
-        <span class="pstep__num" aria-hidden="true">
-          {padNum}
-        </span>
         <ProcessStepIllustration stepNumber={step.stepNumber} size={64} class="pstep__ill" />
         {step.timeEstimate && (
-          <p class="pstep__when r-tag">
-            <small>How long</small>
-            <strong>{step.timeEstimate}</strong>
+          <p class="pstep__when">
+            <span class="sr-only">How long: </span>
+            {step.timeEstimate}
           </p>
         )}
       </div>
@@ -131,21 +131,20 @@ const features = (step.features ?? []).filter(Boolean);
     align-items: flex-end;
     gap: clamp(1rem, 2.5vw, 1.75rem);
   }
-  .pstep__num {
-    font: 300 clamp(4.75rem, 3rem + 7vw, 9.5rem) / 0.8 var(--font-display);
-    letter-spacing: -0.05em;
-    /* Warm Bronze as DISPLAY type only (DESIGN.md): no body text on it. */
-    color: var(--color-chip-5);
-    font-variant-numeric: lining-nums;
-  }
   .pstep :global(.pstep__ill) {
     flex: none;
     color: var(--color-chip-6);
     margin-bottom: 0.2rem;
   }
+  /* The time estimate is the step's marker: display size, Warm Bronze
+     italic (display type only on bronze-coloured text, DESIGN.md), sitting on
+     the line drawing's baseline. */
   .pstep__when {
-    margin: 0 0 0.35rem auto;
-    flex: none;
+    margin: 0;
+    font: 300 italic clamp(2.4rem, 1.6rem + 3vw, 4.4rem) / 0.95 var(--font-display);
+    letter-spacing: -0.03em;
+    color: var(--color-chip-5);
+    text-wrap: balance;
   }
   .pstep__title {
     margin: clamp(1.75rem, 3.5vw, 2.5rem) 0 0;
@@ -259,7 +258,7 @@ const features = (step.features ?? []).filter(Boolean);
         animation-timeline: view();
         animation-range: entry 20% cover 40%;
       }
-      .pstep__num {
+      .pstep__when {
         animation: pstep-num linear both;
         animation-timeline: view();
         animation-range: entry 0% cover 30%;
