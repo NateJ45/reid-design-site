@@ -379,7 +379,10 @@ const guideTrade = {
         'Perigold trade: up to about 25 percent off the luxury catalog.',
       ],
       links: [
-        { label: 'Wayfair Professional', url: 'https://www.wayfair.com/professional/' },
+        {
+          label: 'Wayfair Professional',
+          url: 'https://www.wayfair.com/v/business_account/application/pico',
+        },
         { label: 'Arhaus trade services', url: 'https://www.arhaus.com/pages/trade-services' },
         { label: 'RH trade', url: 'https://rh.com/us/en/trade' },
       ],

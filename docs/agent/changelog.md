@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — Wayfair Professional link replaced
+
+The old `wayfair.com/professional/` link in "Grow your studio" (trade sourcing) was dead. Nathan found the current page; it is now `https://www.wayfair.com/v/business_account/application/pico` (ad-tracking parameters stripped, checked in a browser: "Wayfair Professional - Join Today!"). Patched in Sanity (`studioPlaybook`, one field, revision-pinned) and in `scripts/seed-studio-playbook.mjs` so a reseed keeps it.
+
 ## 2026-09-29 — follow-ups: share links on detail pages, Studio deep links, parity baselines
 
 Branch `claude/reid-followups`, three items from `docs/PENDING.md`.
