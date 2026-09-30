@@ -8,6 +8,7 @@
 
 import { client, sanityFetch } from './sanity';
 import type { SanityClient } from '@sanity/client';
+import type { RawChromeFacts } from './chrome-facts';
 
 // Common Portable Text + image projection shorthand
 const IMAGE_PROJECTION = `{
@@ -593,6 +594,32 @@ export async function getNavPages() {
     {},
     [],
   );
+}
+
+// ---- Chrome facts (the header price tag, the footer index) -----------------
+// The raw figures src/lib/chrome-facts.ts turns into "Book a consult | $225"
+// and the footer index's "from $225" / "19 answers" (2026-09-30, the swatch
+// book chrome). Derived from content so nothing in the chrome can drift from
+// the Services page. Memoized like getSiteSettings: Header and Footer both ask
+// on every page, and one build should make ONE request for it.
+let _chromeFactsPromise: Promise<RawChromeFacts | null> | null = null;
+
+export function getChromeFacts(): Promise<RawChromeFacts | null> {
+  if (_chromeFactsPromise) return _chromeFactsPromise;
+  _chromeFactsPromise = sanityFetch<RawChromeFacts | null>(
+    `{
+    "services": *[_type == "service"] | order(orderRank asc, displayOrder asc){
+      name, "slug": slug.current, price, priceNumeric
+    },
+    "eDesignTiers": *[_type == "eDesignPage"][0].tiers[]{ price, priceNumeric },
+    "faqCount": count(*[_type == "faqItem"]),
+    "processStepCount": count(*[_type == "processStep"]),
+    "projectCount": count(*[_type == "project"])
+  }`,
+    {},
+    null,
+  );
+  return _chromeFactsPromise;
 }
 
 // ---- Announcements (the top-of-site bar and popup) ---------------------------

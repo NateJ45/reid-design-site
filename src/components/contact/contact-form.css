@@ -30,8 +30,9 @@
   padding: 0;
   border: 0;
 }
-/* The legend is a numbered line: a small Walnut numeral, the group name in
-   Zodiak, and a hairline running out to the edge. */
+/* The legend: a small paint-chip swatch (chips 2, 3, 4 down the form), the
+   group name in Zodiak, and a hairline running out to the edge. No numerals:
+   the order of the groups already carries the sequence. */
 .cf-legend {
   display: flex;
   align-items: baseline;
@@ -51,11 +52,20 @@
   margin-left: 0.35rem;
   background: var(--color-rule);
 }
-.cf-legend__n {
-  font: 500 0.85rem/1 var(--font-body);
-  letter-spacing: 0.04em;
-  color: var(--color-chip-6);
-  font-variant-numeric: tabular-nums;
+.cf-legend__sw {
+  flex: none;
+  align-self: center;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  background: var(--color-chip-2);
+  box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.12);
+}
+.cf-legend__sw[data-tone='3'] {
+  background: var(--color-chip-3);
+}
+.cf-legend__sw[data-tone='4'] {
+  background: var(--color-chip-4);
 }
 
 .cf-pair {

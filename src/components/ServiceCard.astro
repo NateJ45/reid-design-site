@@ -5,7 +5,8 @@
 //
 // Each service is one CHIP of a single paint strip that runs down the left of
 // the list, palest first, deepest last (ServicesList.astro stacks the rows so
-// the chips touch). The chip carries the number, the name and the price, big.
+// the chips touch). The chip carries the name and the price, big (no "No. 01"
+// label: the strip order carries the sequence).
 // To its right: the short description, the features, "best for" as a sample
 // tag, and the button.
 //
@@ -70,7 +71,6 @@ const ctaLabel = service.ctaLabel ?? 'Start a conversation';
 const badge = service.badge?.trim();
 const tone = toneFor(index, total);
 const price = chipPrice(service.price);
-const no = String(index + 1).padStart(2, '0');
 const headingId = id ? `${id}-name` : undefined;
 ---
 
@@ -82,10 +82,11 @@ const headingId = id ? `${id}-name` : undefined;
   aria-labelledby={headingId}
 >
   <div class="svc__chip">
-    <div class="svc__top">
-      <span class="svc__no">No. {no}</span>
-      {badge && <span class="svc__flag">{badge}</span>}
-    </div>
+    {
+      /* No "No. 01" label (2026-09-30): the strip's order and the tone ramp
+         already carry the sequence. The top row now only holds the badge. */
+    }
+    <div class="svc__top">{badge && <span class="svc__flag">{badge}</span>}</div>
     <h3 class="svc__name" id={headingId}>{service.name}</h3>
     {
       service.price && (
@@ -168,9 +169,6 @@ const headingId = id ? `${id}-name` : undefined;
     align-items: center;
     gap: 1rem;
     min-height: 1.6rem;
-  }
-  .svc__no {
-    font: 500 0.8rem/1 var(--font-body);
   }
   .svc__flag {
     padding: 0.45rem 0.75rem;

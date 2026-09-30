@@ -1,0 +1,225 @@
+/* Phone menu: the fan deck. Foundation, edit with care.
+   Styles for src/components/MobileNav.tsx (2026-09-30, the swatch book
+   chrome; DESIGN.md "Chrome"). Plain CSS on purpose: the dialog renders in a
+   portal on <body>, outside any Astro scope, and the deck geometry is
+   bespoke.
+
+   Contrast (DESIGN.md): the overlay is ink with cream text (14.2:1). Chips
+   carry ink names on chips 1 to 4 and cream on 6 and 7; Warm Bronze (chip 5)
+   is never a face. The names are display size (2rem+) either way. */
+
+/* ---- The trigger: the ink "Menu" price tag in the header ---- */
+.mnav-trigger {
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0 1rem 0 1.95rem;
+  font-size: 0.9rem;
+}
+.mnav-trigger__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mnav-trigger__bars i {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+/* ---- The overlay. .mnav-overlay only exists for Radix (scroll lock);
+   the ink .mnav panel covers the whole screen on its own. ---- */
+.mnav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  background: var(--color-ink);
+}
+.mnav {
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gut: clamp(1rem, 4vw, 3.5rem);
+  --step: 4.6rem; /* how much of each chip shows above the next */
+  --chip-h: 8rem;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.mnav:focus {
+  outline: none;
+}
+
+.mnav__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem var(--gut) 0;
+}
+.mnav__logo {
+  display: block;
+  flex: none;
+  border-radius: 2px;
+}
+.mnav__logo img {
+  display: block;
+  height: 6.75rem; /* 108px: her mark, large */
+  width: auto;
+}
+.mnav__logo:focus-visible {
+  outline: 2px solid var(--color-cream);
+  outline-offset: 4px;
+}
+.mnav__close {
+  margin-top: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem 0 1.95rem;
+  font-size: 0.9rem;
+}
+
+/* ---- The deck: full-width chips, fanned. Each <li> is only as tall as the
+   strip of its chip that shows; the chip itself is taller and runs on under
+   the next one (later chips paint on top, DOM order). The last <li> is the
+   whole chip. The name sits in the visible strip, so the next chip can never
+   cover it. ---- */
+.mnav__deck {
+  flex: 1 0 auto;
+  margin: 1.4rem var(--gut) 0;
+}
+.mnav__deck ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mnav__chip {
+  position: relative;
+  height: var(--step);
+}
+.mnav__chip:last-child {
+  height: var(--chip-h);
+}
+.mnav__chip > a {
+  position: absolute;
+  inset: 0 0 auto;
+  display: block;
+  height: var(--chip-h);
+  padding: 0.85rem 3rem 0 1.15rem;
+  background: var(--tone);
+  color: var(--color-ink);
+  border-radius: 6px;
+  font: 300 clamp(2rem, 1.6rem + 2vw, 2.6rem) / 1.05 var(--font-display);
+  letter-spacing: -0.025em;
+  text-decoration: none;
+  transform-origin: 1.1rem 100%;
+  transform: rotate(calc((var(--n) - 2) * -1deg));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 -18px 30px -24px rgb(0 0 0 / 0.6);
+}
+.mnav__chip[data-on='cream'] > a {
+  color: var(--color-cream);
+}
+/* The punched hole, top right: shows the ink ground through. */
+.mnav__chip > a::after {
+  content: '';
+  position: absolute;
+  right: 1.15rem;
+  top: 1.1rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+.mnav__chip > a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -6px;
+}
+
+/* The page you are on: its hole is filled and ringed, and the name gets a
+   hairline underline (not colour alone). */
+.mnav__chip > a[aria-current='page'] {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.mnav__chip > a[aria-current='page']::after {
+  background: currentColor;
+  box-shadow: 0 0 0 3px var(--color-ink);
+}
+
+/* ---- Foot: the booking tag, then phone and email ---- */
+.mnav__foot {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.5rem var(--gut) 1.25rem;
+}
+.mnav__book {
+  justify-content: space-between;
+  min-height: 3.4rem;
+  font-size: 1rem;
+}
+.mnav__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 1.25rem;
+  margin: 0;
+  font: 400 0.95rem/1.3 var(--font-body);
+}
+.mnav__meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--color-cream);
+  text-decoration: underline;
+  text-decoration-color: rgb(245 237 227 / 0.35);
+  text-underline-offset: 4px;
+}
+.mnav__meta a:hover {
+  text-decoration-color: currentColor;
+}
+.mnav__meta a:focus-visible {
+  outline: 2px solid var(--color-cream);
+  outline-offset: 2px;
+}
+
+/* ---- Motion: the deck deals in, the ground fades up. Nothing moves under
+   reduced motion; everything is simply there. ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .mnav {
+    animation: mnav-fade 280ms ease-out both;
+  }
+  .mnav__chip > a {
+    animation: mnav-deal 900ms var(--ease) both;
+    animation-delay: calc(80ms + var(--n) * 70ms);
+  }
+  .mnav__foot {
+    animation: mnav-fade 500ms ease-out both;
+    animation-delay: 300ms;
+  }
+}
+@keyframes mnav-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes mnav-deal {
+  from {
+    transform: translateY(120%) rotate(8deg);
+  }
+}
+
+/* The menu is phone and tablet only; the desktop header has the real nav. */
+@media (min-width: 1024px) {
+  .mnav,
+  .mnav-overlay {
+    display: none;
+  }
+}
