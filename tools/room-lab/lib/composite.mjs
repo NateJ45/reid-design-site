@@ -34,6 +34,36 @@ export async function lockDown(prevPath, editPath, outPath, opts = {}) {
   const dilate = opts.dilate ?? Math.round(w / 60);
   const feather = opts.feather ?? w / 150;
 
+  // 0. Tone match. The edit model re-renders the whole frame a touch darker and warmer each
+  //    time; inside the kept region that creep compounds over ten pieces (measured 2026-09-30:
+  //    mean RGB 165,149,119 -> 150,134,105 by the eighth frame). Fit a per-channel gain on the
+  //    pixels that clearly did NOT change (small raw difference) and apply it to the edit before
+  //    anything else, so the new piece is lit like the room it lands in.
+  const gain = [1, 1, 1];
+  {
+    const sp = [0, 0, 0];
+    const se = [0, 0, 0];
+    for (let i = 0; i < w * h; i++) {
+      const j = i * 3;
+      const d = Math.max(
+        Math.abs(prev.data[j] - edit.data[j]),
+        Math.abs(prev.data[j + 1] - edit.data[j + 1]),
+        Math.abs(prev.data[j + 2] - edit.data[j + 2]),
+      );
+      if (d > 40) continue; // part of the new piece, not a tone shift
+      for (let c = 0; c < 3; c++) {
+        sp[c] += prev.data[j + c];
+        se[c] += edit.data[j + c];
+      }
+    }
+    for (let c = 0; c < 3; c++) gain[c] = se[c] > 0 ? Math.min(1.25, Math.max(0.8, sp[c] / se[c])) : 1;
+    if (opts.toneMatch !== false) {
+      for (let i = 0; i < edit.data.length; i++) {
+        edit.data[i] = Math.min(255, Math.round(edit.data[i] * gain[i % 3]));
+      }
+    }
+  }
+
   // 1. Per-pixel max-channel difference on gaussian-blurred copies (sigma 2 damps model noise).
   const bp = await sharp(prev.data, { raw: { width: w, height: h, channels: 3 } })
     .blur(2)
@@ -103,5 +133,9 @@ export async function lockDown(prevPath, editPath, outPath, opts = {}) {
     throw new Error(
       `lockDown assertion failed: ${bad} untouched pixels differ from the previous frame`,
     );
-  return { changedPct: (changed / (w * h)) * 100, untouchedIdentical: true };
+  return {
+    changedPct: (changed / (w * h)) * 100,
+    untouchedIdentical: true,
+    gain: gain.map((g) => +g.toFixed(4)),
+  };
 }

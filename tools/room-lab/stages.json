@@ -60,7 +60,7 @@
       "id": "trim",
       "stage": "shell",
       "motion": "sweep",
-      "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around the windows. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around both windows. Add no furniture and no rug; the floor stays bare. Keep the walls, windows, floor and light exactly the same.",
       "seeds": [
         11,
         12,
@@ -72,7 +72,7 @@
       "id": "rug",
       "stage": "anchor",
       "motion": "unroll",
-      "change": "add one large natural wool area rug on the floor in the middle of the room. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add one large 9 by 12 foot natural wool area rug in a soft oat colour with a subtle low texture, lying flat on the floor in the middle of the room and reaching close to the large plain wall on the right. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         21,
         22,
@@ -83,7 +83,7 @@
       "id": "sofa",
       "stage": "anchor",
       "motion": "slide-left",
-      "change": "add one comfortable oat linen sofa against the right-hand side wall, so that most of the main wall stays clear and visible. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add one comfortable three-seat sofa upholstered in smooth, plain oat linen (no pattern, no weave texture), with slightly rumpled cushions and walnut legs, centred against the large plain wall on the right with its front legs on the rug. The wall above the sofa stays bare and clearly visible. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         31,
         32,
@@ -94,7 +94,7 @@
       "id": "coffee-table",
       "stage": "function",
       "motion": "rise",
-      "change": "add a walnut coffee table on the rug in front of the sofa. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add a low rectangular walnut coffee table on the rug in front of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         41,
         42,
@@ -105,7 +105,7 @@
       "id": "side-table-lamp",
       "stage": "function",
       "motion": "rise",
-      "change": "add a small walnut side table beside the sofa with a table lamp with a cream shade and a brass base on it. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched off. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         51,
         52,
@@ -116,7 +116,7 @@
       "id": "chair",
       "stage": "comfort",
       "motion": "slide-right",
-      "change": "add one upholstered linen accent chair on the left of the rug, angled toward the sofa. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add one upholstered cream linen accent chair on the rug near the windows, angled toward the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         61,
         62,
@@ -127,7 +127,7 @@
       "id": "curtains",
       "stage": "comfort",
       "motion": "drop",
-      "change": "hang simple full-length cream linen curtains on the windows. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "hang simple full-length cream linen curtains on thin brass rods at both windows, pulled open to the sides so the windows stay bright. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         71,
         72,
@@ -138,7 +138,7 @@
       "id": "art",
       "stage": "personal",
       "motion": "drop",
-      "change": "hang one modest framed piece of art with a thin black frame on the main wall, small enough to leave most of the wall clearly visible. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "hang one medium framed landscape print with a thin black frame and a white mat on the large plain wall, centred above the sofa, leaving plenty of bare wall around it. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         81,
         82,
@@ -149,7 +149,7 @@
       "id": "olive",
       "stage": "finish",
       "motion": "pop",
-      "change": "place olive branches in a ceramic vase on the coffee table. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "place three slender olive branches with small, narrow silvery grey-green leaves in a short white ceramic vase at one end of the coffee table; the arrangement is loose, airy and no taller than the sofa back. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         91,
         92,
@@ -160,7 +160,7 @@
       "id": "books-throw",
       "stage": "finish",
       "motion": "pop",
-      "change": "add a short stack of books on the coffee table and a soft knitted throw over the arm of the sofa. Palette: a warm, relaxed transitional style with oat and linen upholstery, walnut wood, brass or black metal accents and a natural wool rug. Do not move or change anything else.",
+      "change": "add a short stack of three books on the coffee table and a soft oat knitted throw draped over the arm of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         101,
         102,
