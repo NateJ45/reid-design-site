@@ -7,7 +7,7 @@
 // sun from a window, cut by its muntins, with the shadows of leaves outside
 // swaying slowly across everything. One small fragment shader, drawn onto a
 // canvas laid over the band with `mix-blend-mode: soft-light`, so it lightens
-// and darkens what is under it (the photo, the fan deck, the Walnut ground)
+// and darkens what is under it (the photo and the Walnut ground)
 // without ever painting a colour of its own.
 //
 // Opt in with an attribute on the band:

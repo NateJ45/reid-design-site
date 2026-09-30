@@ -12,8 +12,8 @@
 // scripts/.og-fonts/ (design E, 2026-09-30; design D used Cormorant and
 // Source Sans from @fontsource).
 //
-// prepareCard() did every image operation (the ground, the graded photo, the
-// fan deck, the logo plate) as ONE background PNG, and computed the title's
+// prepareCard() did every image operation (the ground, the graded photo and
+// the logo plate) as ONE background PNG, and computed the title's
 // line breaks from Zodiak's measured advance widths, so this file places one
 // PNG and sets lines of text exactly as given.
 // =============================================================================

@@ -5,7 +5,7 @@
 // embedded as data URIs (starter PORTS.md card 46). Needs a Playwright
 // chromium on the machine (`npx playwright install chromium`).
 //
-// Design E, "the swatch card" (2026-09-30). Keep the layout in step with
+// Design E, "the hero card" (2026-09-30). Keep the layout in step with
 // og-render-satori.mjs so an A/B of the two renderers stays meaningful.
 //
 // One browser per run. close() is NOT optional: an unclosed Playwright browser

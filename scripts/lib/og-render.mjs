@@ -1,10 +1,11 @@
 // Foundation, edit with care
 // =============================================================================
-// Share card renderer: design E, "the swatch card" (2026-09-30), spec in, PNG out
+// Share card renderer: design E, "the hero card" (2026-09-30), spec in, PNG out
 // =============================================================================
 // Redrawn for the art-direction rebuild so a shared link looks like the site
 // it opens (DESIGN.md). Replaces design D (the Cormorant arch window, the
-// pre-rebuild grammar). The card is the home hero in miniature:
+// pre-rebuild grammar). The card is the home hero in miniature (the decorative
+// fan deck of paint chips at the seam went on 2026-09-30, with the site's own):
 //
 //   ┌──────────── Walnut ground ─────────────┬──── photo ────┐
 //   │ [logo on its paper plate, hung from    │               │
@@ -14,8 +15,8 @@
 //   │ Title in Zodiak Light, cream,          │  melting into │
 //   │ balanced over up to four lines         │  the Walnut   │
 //   │                                        │               │
-//   │ reiddesignllc.com           ◢ fan deck of the seven   │
-//   └────────────────────────────── tones opens at the seam ┘
+//   │ reiddesignllc.com                      │               │
+//   └────────────────────────────────────────┴───────────────┘
 //
 // Contrast: cream on Walnut is 4.9:1 (the site's own pairing); no text sits
 // on Warm Bronze. No tracked small caps: the kicker is sentence case, led by
@@ -24,8 +25,8 @@
 // TWO HALVES, SO THE DRAWING BACKEND CAN BE SWAPPED
 //   prepareCard()   does ALL the image work in sharp: the ground, the photo
 //                   (fetched, graded, cropped around its Sanity hotspot, faded
-//                   into the Walnut), the fan deck and the logo plate, as ONE
-//                   background PNG. Plus the text, already broken into lines.
+//                   into the Walnut) and the logo plate, as ONE background
+//                   PNG. Plus the text, already broken into lines.
 //   a backend       places that PNG and sets the text. See og-render-satori.mjs
 //                   (the build default, no browser) and og-render-chromium.mjs
 //                   (local A/B review only, OG_RENDERER=chromium).
@@ -49,14 +50,12 @@ export const CARD = {
   oat: '#E2CFBD',
   paper: '#FFFDFA',
   ink: '#231E1B',
-  chips: ['#F1E7DC', '#E2CFBD', '#CDB09A', '#B39079', '#9C7661', '#80604F', '#5F4639'],
   // Geometry. Every backend reads these, never its own numbers.
   photo: { left: 690, width: 510 },
   plate: { left: 64, padX: 16, padTop: 18, padBottom: 12, logoHeight: 112 },
-  copy: { left: 64, width: 545, top: 196, bottom: 528 },
+  copy: { left: 64, width: 560, top: 196, bottom: 528 },
   kicker: { size: 19 },
   url: { size: 17, bottom: 44 },
-  fan: { pivotX: 720, pivotY: 694, chipW: 62, chipH: 250, from: -8, step: 9.5 },
 };
 
 /** Title size steps by length, so a long title shrinks instead of spilling. */
@@ -208,40 +207,30 @@ async function colouredLogo(root, name, height, hex) {
 }
 
 // ---------------------------------------------------------------------------
-// The background: ground, photo, fan deck, logo plate, one PNG.
+// The background: ground, photo, logo plate, one PNG.
 // ---------------------------------------------------------------------------
-
-/** The seven chips fanned from one rivet, as in the home hero. */
-function fanSvg() {
-  const { pivotX, pivotY, chipW, chipH, from, step } = CARD.fan;
-  const chips = CARD.chips
-    .map((c, n) => {
-      const x = pivotX - chipW / 2;
-      const y = pivotY - chipH;
-      return `<g transform="rotate(${from + n * step} ${pivotX} ${pivotY})"><rect x="${x}" y="${y}" width="${chipW}" height="${chipH}" rx="9" fill="${c}" filter="url(#s)"/></g>`;
-    })
-    .join('');
-  return `<defs><filter id="s" x="-40%" y="-20%" width="180%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity="0.32"/></filter></defs>${chips}<circle cx="${pivotX}" cy="${pivotY - 22}" r="8" fill="#d8c3a5" stroke="#8a6a4f" stroke-width="3"/>`;
-}
 
 async function background(root, photo) {
   const { width: W, height: H } = CARD;
   const P = CARD.photo;
 
-  // The photo panel, or with no photo, the seven-tone strip standing in.
+  // The photo panel, or with no photo, an Espresso panel carrying her
+  // monogram in cream.
   let panel;
   if (photo) {
     panel = await coverCrop(await loadPhoto(photo.src), P.width, H, photo.hotspot);
   } else {
-    const band = P.width / CARD.chips.length;
-    const bands = CARD.chips
-      .map((c, i) => `<rect x="${i * band}" y="0" width="${band + 1}" height="${H}" fill="${c}"/>`)
-      .join('');
-    panel = await sharp(
-      Buffer.from(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${P.width}" height="${H}">${bands}</svg>`,
-      ),
-    )
+    const mark = await colouredLogo(root, 'reid-mark', 190, CARD.cream);
+    panel = await sharp({
+      create: { width: P.width, height: H, channels: 3, background: CARD.espresso },
+    })
+      .composite([
+        {
+          input: mark.png,
+          left: Math.round((P.width - mark.width) / 2),
+          top: Math.round((H - mark.height) / 2),
+        },
+      ])
       .png()
       .toBuffer();
   }
@@ -261,15 +250,10 @@ async function background(root, photo) {
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><filter id="p" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000" flood-opacity="0.35"/></filter></defs><path d="M${L.left} 0 H${L.left + plateW} V${plateH - 4} Q${L.left + plateW} ${plateH} ${L.left + plateW - 4} ${plateH} H${L.left + 4} Q${L.left} ${plateH} ${L.left} ${plateH - 4} Z" fill="${CARD.paper}" filter="url(#p)"/></svg>`,
   );
 
-  const fan = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${fanSvg()}</svg>`,
-  );
-
   return sharp({ create: { width: W, height: H, channels: 3, background: CARD.walnut } })
     .composite([
       { input: panel, left: P.left, top: 0 },
       { input: seam, left: 0, top: 0 },
-      { input: fan, left: 0, top: 0 },
       { input: plate, left: 0, top: 0 },
       { input: logo.png, left: L.left + L.padX, top: L.padTop },
     ])

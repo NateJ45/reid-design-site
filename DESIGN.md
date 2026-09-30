@@ -131,10 +131,8 @@ no decorative numbering.
   deals in from below under `prefers-reduced-motion: no-preference` only. Foot:
   the cream booking price tag with the price, then phone and email. Radix
   Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
-- **Footer** (`Footer.astro`), on ink. The seven-tone paint strip with its top
-  edge cut by pinking shears into the section above; shade names from 1100px
-  at 24px Zodiak (large text, so cream on Warm Bronze passes), colours only on
-  phones. A page index: tone swatch, page, dotted leader, and a real fact on
+- **Footer** (`Footer.astro`), on ink. (The seven-tone paint strip across its
+  top was removed 2026-09-30, see "Swatches carry content" below.) A page index: tone swatch, page, dotted leader, and a real fact on
   the right ("from $225", "4 steps", "from $250", "19 answers"), all derived
   from content, omitted when not derivable. Contact details as paper sample
   tags at slight angles. "Based in Plainfield" with the Business info towns.
@@ -146,8 +144,9 @@ no decorative numbering.
 ## Signature components (home)
 
 - `home/HomeHero.astro`: Walnut ground, headline with Oat-italic accent, the
-  `heroPortrait` photo on the right, and a CSS fan deck of the seven named tones
-  opening from the seam. Phone: photo on top, copy below.
+  `heroPortrait` photo on the right, leaf shadows and window sun drifting over
+  it (see "The hand layer"). Phone: photo on top, copy below. (The CSS fan
+  deck at the seam was removed 2026-09-30.)
 - `home/HomeStaci.astro`: tall portrait with a sample tag, the first paragraph
   as a Zodiak lede.
 - `home/PaintChips.astro`: services as a paint strip, one chip per service on the
@@ -455,18 +454,24 @@ and still) under reduced motion, none carrying meaning on its own.
   30 fps, started near the screen and when idle, paused off screen. The
   closing Walnut band gets the shade only (`data-window-light="shade"`), which
   can only raise cream-on-Walnut contrast. Never a colour of its own.
-- **The fan follows the mouse.** On the home hero the paint-chip fan opens
-  wider as the pointer moves right and closes a little to the left (the
-  `rotate` property, separate from the load animation). Fine pointers only.
 
-## Share cards: design E, "the swatch card" (2026-09-30)
+## Swatches carry content (2026-09-30)
+
+Nathan found the decorative paint swatches repetitive and a bit fake, so paint
+chips now appear only where they carry information: the services (a chip per
+service, with its price) and the phone menu's deck of pages. The decorative
+repeats are gone: the fan deck on the home hero, the seven-tone strip across
+the top of the footer, and the fan on the share cards. The small tone squares
+beside the footer's page index stay as list markers. Do not add a decorative
+chip, fan or strip back without asking him.
+
+## Share cards: design E, "the hero card" (2026-09-30)
 
 Every page's og:image is the home hero in miniature: Walnut ground, her logo
 hung from the top edge on its paper plate, a sentence-case kicker after a short
 rule, the title in Zodiak Light cream (balanced lines, measured from the real
 font), `reiddesignllc.com` in Oat, the page's photo on the right melting into
-the Walnut, and the seven-tone fan deck opening at the seam. No photo: the
-seven-tone strip stands in. Code: `scripts/lib/og-render*.mjs`; fonts are the
+the Walnut. No photo: an Espresso panel with her monogram in cream. Code: `scripts/lib/og-render*.mjs`; fonts are the
 site's own, as .woff copies fetched into `scripts/.og-fonts/`.
 
 ## Motion
@@ -474,8 +479,8 @@ site's own, as .woff copies fetched into `scripts/.og-fonts/`.
 - Every entrance enhances an already visible default. Nothing starts at
   opacity 0 behind a script-added class. Every animation sits inside
   `prefers-reduced-motion: no-preference`.
-- Load: headline words rise (1s, quint-out, 45ms stagger), fan deck opens
-  (1.6s, 70ms stagger), portrait settles from 110% to 100%.
+- Load: headline words rise (1s, quint-out, 45ms stagger), portrait settles
+  from 110% to 100%.
 - Scroll-driven, CSS only, behind `@supports (animation-timeline: view())`:
   paint chips settle, tape pulls out, the closing sprig draws.
 - Easing: `cubic-bezier(0.22, 1, 0.36, 1)` for interaction,

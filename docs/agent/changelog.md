@@ -15,9 +15,11 @@
   h2/h3 headings, pulled across on scroll.
 - **Window light:** WebGL leaf shadows and window sun (`src/scripts/window-light.ts`)
   on the home hero (sun on the photo side only) and the closing band (shade only).
-  The home fan deck follows the mouse.
-- **Share cards design E, "the swatch card":** Walnut, logo plate, Zodiak title,
-  photo, fan deck. `fetch-fonts.mjs` now also fetches .woff copies for satori
+- **Swatches carry content:** the decorative paint-chip repeats are gone (the
+  home hero fan deck, the footer's seven-tone strip, the share-card fan) at
+  Nathan's call; chips stay on the services and in the phone menu.
+- **Share cards design E, "the hero card":** Walnut, logo plate, Zodiak title,
+  photo. `fetch-fonts.mjs` now also fetches .woff copies for satori
   into gitignored `scripts/.og-fonts/` (lock `ogFiles`). `public/og-default.png`
   redrawn.
 - A photo-traced sketch layer and an AI "room fills up" prototype were built and
