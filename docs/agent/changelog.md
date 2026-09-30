@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-29 — `npm run dev` crash on Windows fixed
+
+`astro dev` exited within a minute with `Error during dependency optimization: Build failed with 364 errors: [MISSING_EXPORT] "DocumentStatus" is not exported by "node_modules/sanity/package.json"`. The leading guess (the workerd environment's optimizer crawling `/studio`) was wrong. The real cause is @sanity/astro's dev-only `sanity:module-dedupe` Vite plugin (3.4.2, still in 3.5.1): it aliases `sanity` and `styled-components` to their package folders using `.replace(/\/package\.json$/, '')`, which does nothing to a Windows backslash path, so the alias pointed at the package.json file. `npm run build` never loads the plugin. Fix: `fixSanityDedupeAliasOnWindows()` in `astro.config.mjs`, a `post` config hook that strips the stray `\package.json` from those alias entries. The upstream off switch (`SANITY_ASTRO_DISABLE_MODULE_DEDUPE`) was tried first and rejected: the Studio then failed to hydrate on `react-compiler-runtime`. Evidence: with the fix, dev served `/`, `/about/` and `/studio/` for 5+ minutes on a clean `npm ci` (one styled-components, one sanity, one React module in the browser); `dist/client` is byte-identical to origin/main's build (550 files) and still has one styled-components chunk. Detail in `docs/agent/stack-and-config.md`. The same regex ships in every studio project on @sanity/astro; tracked in the vault gotcha `sanity-astro-dev-alias-breaks-on-windows`.
+
 ## 2026-09-29 — Wayfair Professional link replaced
 
 The old `wayfair.com/professional/` link in "Grow your studio" (trade sourcing) was dead. Nathan found the current page; it is now `https://www.wayfair.com/v/business_account/application/pico` (ad-tracking parameters stripped, checked in a browser: "Wayfair Professional - Join Today!"). Patched in Sanity (`studioPlaybook`, one field, revision-pinned) and in `scripts/seed-studio-playbook.mjs` so a reseed keeps it.
