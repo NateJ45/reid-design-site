@@ -198,10 +198,7 @@ sources of build nondeterminism.
   this site has none, and its pages are CMS-driven, so pixel diffs would flake
   with content.
 - **Studio behavior is unautomated.** Schema and structure changes are checked
-  by hand at `http://localhost:4321/studio` (`npm run dev`; note the dev server
-  currently crashes in Vite's dependency optimizer on `MISSING_EXPORT ...
-node_modules/sanity/package.json`, being fixed separately, so use
-  `npm run build` + `npm run preview` until then), as Staci would see
+  by hand at `http://localhost:4321/studio` (`npm run dev`), as Staci would see
   them. There is no `studio:dev` any more; the Studio is part of the site.
 
 ## What no suite covers: a failed Sanity read must fail the build (2026-09-29)

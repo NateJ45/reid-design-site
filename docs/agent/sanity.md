@@ -137,6 +137,14 @@ newer copy under a dependant and drag a second `@sanity/ui` in with it.
 the two must be edited in the same step or npm refuses the whole install with
 EOVERRIDE.
 
+**Dependabot ignores every member of the set** (`.github/dependabot.yml`),
+including the four that sit outside the `@sanity/*` namespace: `react`,
+`react-dom`, `react-is` and `styled-components`. Until 2026-09-29 only the
+`sanity` names were ignored, which is how #32 moved the react trio and
+styled-components on its own. That bump was audited and kept (peers satisfied,
+the two checks above each print exactly one line on a 6.5.3 / 19.2.8 build), but
+CI cannot tell a good bump of these from a bad one, so they move by hand now.
+
 **The rule is not "hold `@sanity/ui` at 3.3.5".** It is "`@sanity/ui` must be
 whatever the installed `sanity` core declares" (6.4.0 declared `^3.3.0`, 6.9.1
 declares `^3.5.1`). The worked example that taught it: pinning `@sanity/ui` to
