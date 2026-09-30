@@ -186,7 +186,9 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     flex-direction: column;
     justify-content: flex-end;
     gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding: clamp(2.5rem, 5vw, 4rem) var(--gut) clamp(2.75rem, 6vw, 5.5rem);
+    /* Extra top room (2026-09-30) so the header logo plate, which hangs below
+       the header line, clears the eyebrow. */
+    padding: clamp(3.5rem, 8vw, 6.5rem) var(--gut) clamp(2.75rem, 6vw, 5.5rem);
     /* Start the copy on the page container's left edge on wide screens. */
     padding-left: max(var(--gut), calc((100vw - 85rem) / 2 + var(--gut)));
   }
