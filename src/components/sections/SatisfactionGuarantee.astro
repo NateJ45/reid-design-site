@@ -2,13 +2,12 @@
 // Safe to edit by hand
 // Satisfaction guarantee (rebuilt 2026-09-30, phase 2 of the art-direction
 // rebuild; see DESIGN.md "Services and E-Design"). One confident typographic
-// moment: Staci's promise set large in Zodiak on the Oat chip (ink on Oat is
-// 10.9:1), with a round studio stamp beside it that turns slowly as the band
+// moment: Staci's promise set large in Zodiak on paper (the Oat chip until
+// the 2026-09-30 quiet pass cut each page to fewer grounds), with a round studio stamp beside it that turns slowly as the band
 // scrolls past (CSS only, reduced-motion safe, decorative).
 //
 // On the Services page it usually sits between the linen service area and the
-// Walnut closing CTA, so the page steps down the paint strip: linen, Oat,
-// Walnut, then the ink footer.
+// Walnut closing CTA: linen, paper, Walnut, then the ink footer.
 //
 // Data: siteSettings.satisfactionGuarantee. Self-suppresses when blank.
 interface Props {
@@ -53,7 +52,7 @@ const { text } = Astro.props as Props;
 
 <style>
   .gtee {
-    background: var(--color-chip-2);
+    background: var(--color-paper);
     color: var(--color-ink);
     padding-block: clamp(4.5rem, 9vw, 7.5rem);
     overflow: clip;

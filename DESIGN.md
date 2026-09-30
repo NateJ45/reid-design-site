@@ -125,17 +125,18 @@ no decorative numbering.
   slot is reserved beside the tag.
 - **Phone menu** (`MobileNav.tsx`). The trigger is an ink "Menu" price tag. Open:
   full-screen ink, her cream logo 108px top left, "Close" as a cream price tag,
-  the menu as a fanned deck of full-width paint chips on the ramp (never Warm
-  Bronze), each a hair off square, names only and set big, and never covered
-  by the next chip (each chip shows a fixed strip above the next). The deck
-  deals in from below under `prefers-reduced-motion: no-preference` only. Foot:
+  the menu as a deck of full-width paint chips on the ramp (never Warm
+  Bronze), stacked square with a hairline between them (fanned until the
+  quiet pass), names only and set big, and never covered by the next chip
+  (each chip shows a fixed strip above the next). The deck deals in from
+  below, landing square, under `prefers-reduced-motion: no-preference` only. Foot:
   the cream booking price tag with the price, then phone and email. Radix
   Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
 - **Footer** (`Footer.astro`), on ink. (The seven-tone paint strip across its
   top was removed 2026-09-30, see "Swatches carry content" below.) A page index: tone swatch, page, dotted leader, and a real fact on
   the right ("from $225", "4 steps", "from $250", "19 answers"), all derived
   from content, omitted when not derivable. Contact details as paper sample
-  tags at slight angles. "Based in Plainfield" with the Business info towns.
+  tags, square to the page. "Based in Plainfield" with the Business info towns.
   Her logo large (150 to 228px wide) beside the site tagline, its last two
   words in Sandbar italic. Base row: copyright, Privacy, Search, site credit.
 - Contrast: ink text on chips 1 to 4, cream on 6, 7 and ink; no body-size text
@@ -162,8 +163,8 @@ no decorative numbering.
 - `ServiceAreaCue.astro`: towns set large, home base first in Espresso italic.
 - `FinalCta.astro` (every page): "the planning page" (2026-09-30, Nathan's
   pick from the closing-band mockups). Walnut close drawn as a page from
-  Staci's notebook: faint ruled lines, a faded red margin rule, binder holes
-  and a coffee ring behind; a living-room floor plan in her fine line
+  Staci's notebook: faint ruled lines behind (the red margin rule, binder
+  holes and coffee ring went in the quiet pass); a living-room floor plan in her fine line
   (`closing/FloorPlan.astro`: walls, window, door swing, sofa, rug, table,
   dimension strings, notes like "36″ to walk") drawing itself in at the upper
   right, with the words below it; and under the headline her own checklist
@@ -199,7 +200,7 @@ still reorder or remove sections in the About layout array).
   rule, label and answer rows); local spots as pins on a dashed route over
   graph paper; rapid fire as a strip of paint-chip swatches (question on the
   face in chips 2, 3, 6, 4, never 5; answer on the paper label). Every piece
-  hangs at its own angle and self-hides when empty.
+  sits square (since the quiet pass) and self-hides when empty.
 - `StatsRow.astro` (also the page-builder stats block): numbers set as type, a
   run of big Zodiak figures with the label beside each on its baseline,
   between two hairlines. Server-rendered; the count-up island
@@ -208,7 +209,7 @@ still reorder or remove sections in the About layout array).
 - Motion (CSS scroll-driven, behind `@supports` and reduced-motion): the
   portrait settles and its tag swings on, the pull line rises, the belief
   hairlines draw in from the left, board pieces settle onto the board. A
-  hover straightens a rapid-fire chip.
+  hover lifts a rapid-fire chip.
 
 - `about/KindWords.astro` (2026-09-30): every review, in full, on a paper
   band before the close. Kicker, heading with italic accent, and the rating
@@ -253,9 +254,10 @@ prices are the loudest thing on it.
 - `sections/ServiceArea.astro`: the home ServiceAreaCue's towns line, then the
   travel fees hanging off a tape measure (priced by drive time, so each tier
   is a mark further along). Vertical ruler on phones.
-- `sections/SatisfactionGuarantee.astro`: one typographic moment on Oat, with
-  a round studio stamp that turns as the band scrolls past. On Services the
-  page then steps down the strip: linen, Oat, Walnut close, ink footer.
+- `sections/SatisfactionGuarantee.astro`: one typographic moment on paper (Oat
+  until the quiet pass), with a round studio stamp that turns as the band
+  scrolls past. On Services the page then closes: linen, paper, Walnut close,
+  ink footer.
 - `StickyCTAChip.tsx`: now the ink pill, sentence case (also on project
   pages).
 - `ServiceAreaMap.astro` (Contact): hairline paper frame, tiles warmed with a
@@ -263,13 +265,13 @@ prices are the loudest thing on it.
 - E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
   Zodiak lede beside "What is E-Design?"; how it works as paint-chip swatch
   pins on one thread that draws on scroll (vertical on phones; no numerals);
-  what's included as tilted sample tags on an Oat board; the tiers as large paint chips (Oat and Espresso for
+  what's included as square sample tags on an Oat board; the tiers as large paint chips (Oat and Espresso for
   two) hanging out of line; the FAQ on paper with a sticky heading. The
   coming-soon state and the no-`finalCta` close in `e-design.astro` use the
   same primitives.
 
 Services rhythm: linen hero, paper price list, ink trade band, linen service
-area, Oat guarantee, Walnut close. E-Design: linen hero and intro, paper
+area, paper guarantee, Walnut close. E-Design: linen hero and intro, paper
 steps, Oat board, linen tiers, paper FAQ, Walnut close.
 
 ## Process and FAQ (phase 2)
@@ -390,8 +392,8 @@ portfolio templates are ready for the day the first `project` exists.
 The rating is another object off the work table: a **sample tag**
 (`reviews/RatingTag.astro`, the `.r-tag` shape: paper, notched left edge,
 punched hole with a Warm Bronze ring) with the rating in Zodiak Light, five
-drawn stars and "6 Google reviews" in General Sans 500. It hangs at a slight
-tilt and straightens on hover. The word "Google" is text, never the logo.
+drawn stars and "6 Google reviews" in General Sans 500. It sits square (since
+the quiet pass; `--rt-tilt` is the hook). The word "Google" is text, never the logo.
 
 - Stars are fills: Warm Bronze on the paper tag, Sandbar on the ink band,
   empty stars Oat (or faint cream on ink). Never text colours.
@@ -399,7 +401,7 @@ tilt and straightens on hover. The word "Google" is text, never the logo.
   Linen (`--rt-face`) so it still reads as an object.
 - Placements: home hero (its own row under the buttons, paper tag on Walnut),
   home reviews band (the `stamp`, right of the heading; under it on phones),
-  Contact aside (under the price tag, tilted the other way, with "Leave a
+  Contact aside (under the price tag, with "Leave a
   review" beside it), Services (hanging off the price index's bottom rule, on
   the right), header (`compact`, one line in `currentColor`).
 - Google quotes on the ink band: stars above the words, then the name on its
@@ -421,9 +423,8 @@ feed is connected.
   short ink 2 intro, and the ink pill "Follow @reiddesignin ↗" on the right
   (under the intro on phones).
 - The posts are prints: square crops (the build crops them, 720px) on a
-  paper mat with a soft shadow, each a hair off true in alternating
-  directions like prints pinned to a board. Hover or keyboard focus
-  straightens and lifts the print and the photo eases in 4% inside its mat
+  paper mat with a soft shadow, square to the grid (since the quiet pass).
+  Hover or keyboard focus lifts the print and the photo eases in 4% inside its mat
   (motion only under no-preference). Focus is the house 2px ink outline.
 - A video shows its poster with a small ink disc and cream play triangle in
   the top right corner.
@@ -443,7 +444,9 @@ and still) under reduced motion, none carrying meaning on its own.
   posts Nathan shared 2026-09-30): olive sprig, eucalyptus, willow, berry sprig,
   a sage stem with soft washes, twin twigs. Single weight, a whisper of hand
   wobble, Warm Bronze at about 40% (her muted gold), cream at 20% on the ink
-  and Walnut bands. One grows in from a corner of every content section,
+  and Walnut bands. At most two per page (`MAX_DOODLES` in
+  `src/lib/doodle-map.ts`): one grows in from a corner of the first content
+  section and one from the last,
   clipped at the section's edge the way her branches enter the frame of a post;
   corners alternate so neighbours never match. Behind everything, drawn in as
   the section scrolls up. Not on the page hero or the closing band (it has the
@@ -453,16 +456,41 @@ and still) under reduced motion, none carrying meaning on its own.
   screen, so pages carry none of them in their HTML.
 - **Phone menu sprig.** The olive sprig in faint cream beside her logo, drawn
   in each time the menu opens, behind the chip deck.
-- **Designer markup.** The italic accent phrase in a section heading (h2/h3,
-  never the word-rise page headlines) gets a hand-drawn marker swoosh in
-  Sandbar, pulled across as the heading scrolls in. Sandbar reads on linen,
-  paper, Walnut and ink alike, and it is a mark behind the words, never text.
+- **Designer markup.** The italic accent phrase in the closing band's
+  heading (FinalCta, the planning page) gets a hand-drawn marker swoosh in
+  Sandbar, pulled across as the heading scrolls in. Once per page: every
+  other accent is the Zodiak italic alone. It is a mark behind the words,
+  never text.
 - **Window light** (`src/scripts/window-light.ts`, WebGL). Leaf shadows sway
   slowly across the home hero and a patch of window sun, cut by its muntins,
   falls on the photo side only. A soft-light canvas at half resolution and
   30 fps, started near the screen and when idle, paused off screen. The
   closing Walnut band gets the shade only (`data-window-light="shade"`), which
   can only raise cream-on-Walnut contrast. Never a colour of its own.
+
+## The quiet pass (2026-09-30)
+
+Staci found the site less "fancy, clean" than the Squarespace one, and a
+look at how established designers present their work agreed: restraint
+(white space, straight lines, few objects) is what reads as polished. So the
+craft vocabulary stays, edited down:
+
+- **Nothing tilts at rest.** Sample tags, price and rating tags, footer
+  contact tags, Instagram prints, the About board and the E-Design tags sit
+  square. Motion may still swing or settle a piece in, and hover may lift it,
+  but it lands square. The price tags tilt on hover only where a real
+  pointer hovers (`(hover: hover)`), so a tap never leaves one crooked. The
+  one exception is the turning guarantee stamp, whose angle is its job.
+- **The phone menu deck is a square stack** with hairlines between the
+  chips, not a fan with cast shadows.
+- **Two botanicals per page**, not one per section (`MAX_DOODLES`).
+- **One marker swoosh per page**, on the closing heading.
+- **A plainer notebook page** in the closing band: ruled lines, the floor
+  plan and her checklist; no coffee ring, binder holes or margin rule.
+- **Fewer grounds**: the Services guarantee moved from Oat to paper.
+
+Add a new tilt, doodle, swoosh or ground colour only when it carries
+something, and ask Nathan first.
 
 ## Swatches carry content (2026-09-30)
 

@@ -14,6 +14,17 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
+
+- **Show Staci the calmer version** once it is deployed, and ask which of the
+  remaining touches (tape measure, About board, floor plan) she likes. A
+  local build without the read token rendered services, reviews and process
+  steps empty, so those bands were not seen with the quiet pass applied;
+  check Services, the home reviews band and About's Kind words on a real
+  phone after the deploy.
+- **Her first message said she saw no pictures.** Ask for a screenshot from
+  her phone; if images really are missing there, it is a bug, not taste.
+
 ### From the 2026-09-30 share cards design F branch (`ccr-1d8c83a7-uw3ifl`, second PR)
 
 - **After merging, check the first Workers Build log** for `[og-cards] 8 card(s)

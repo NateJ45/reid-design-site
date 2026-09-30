@@ -2,10 +2,9 @@
 // Safe to edit by hand
 // E-Design "What's included" (phase 2 rebuild, 2026-09-30; DESIGN.md
 // "Services and E-Design"). The deliverables pinned to a sample board: each
-// item is a paper sample tag (.r-tag) set a little off square on the Oat chip,
-// the way they sit on Staci's board. Ink on paper, so every tag reads at 15:1.
-// The tilt is fixed per position (no randomness between builds); the tags
-// straighten on hover.
+// item is a paper sample tag (.r-tag) on the Oat chip. Ink on paper, so every
+// tag reads at 15:1. Square since the 2026-09-30 quiet pass (the old per-
+// position tilts read casual); --tilt stays as a hook.
 //
 // Data: eDesignPage.whatsIncluded (string[]). Renders nothing when empty.
 interface Props {
@@ -70,24 +69,6 @@ const list = (items ?? []).filter(Boolean);
   .edx__tag strong {
     font-size: clamp(1.1rem, 0.95rem + 0.5vw, 1.4rem);
     line-height: 1.25;
-  }
-  .edx__tag:nth-child(5n + 1) {
-    --tilt: -2deg;
-  }
-  .edx__tag:nth-child(5n + 2) {
-    --tilt: 1.5deg;
-  }
-  .edx__tag:nth-child(5n + 3) {
-    --tilt: -1deg;
-  }
-  .edx__tag:nth-child(5n + 4) {
-    --tilt: 2.25deg;
-  }
-  .edx__tag:nth-child(5n + 5) {
-    --tilt: -1.5deg;
-  }
-  .edx__tag:hover {
-    rotate: 0deg;
   }
   @media (prefers-reduced-motion: reduce) {
     .edx__tag {

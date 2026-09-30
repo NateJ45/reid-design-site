@@ -185,7 +185,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
       <ul class="ftr__tags" role="list">
         {
           email && (
-            <li style="--r:-2deg">
+            <li>
               <a class="ftr__tag" href={`mailto:${email}`}>
                 <small>Email</small>
                 <b>{email}</b>
@@ -195,7 +195,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
         }
         {
           phone && (
-            <li style="--r:1.5deg">
+            <li>
               <a class="ftr__tag" href={telHref(phone)}>
                 <small>Call or text</small>
                 <b>{phone}</b>
@@ -205,7 +205,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
         }
         {
           ig && (
-            <li style="--r:-1deg">
+            <li>
               <a class="ftr__tag" href={ig} target="_blank" rel="noopener noreferrer">
                 <small>Instagram</small>
                 <b>{igHandle}</b>
@@ -215,7 +215,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
         }
         {
           fb && (
-            <li style="--r:1deg">
+            <li>
               <a class="ftr__tag" href={fb} target="_blank" rel="noopener noreferrer">
                 <small>Facebook</small>
                 <b>{brandName}</b>
@@ -380,7 +380,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     outline-offset: 2px;
   }
 
-  /* Contact details as paper sample tags, each at its own slight angle. */
+  /* Contact details as paper sample tags, square to the page. */
   .ftr__tags {
     list-style: none;
     display: grid;
@@ -391,7 +391,6 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
   }
   .ftr__tags li {
     max-width: 100%;
-    transform: rotate(var(--r, 0deg));
   }
   .ftr__tag {
     position: relative;

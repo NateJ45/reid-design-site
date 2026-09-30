@@ -16,7 +16,7 @@
 //
 // Variants:
 //   inline   the default: home hero (under the buttons), Contact, Services
-//   stamp    larger and tilted, for the heading of the home reviews band
+//   stamp    larger, for the heading of the home reviews band
 //   compact  one short line with no tag shape, for the header. Takes
 //            currentColor, so it reads on any ground; stars via --star-on /
 //            --star-off (see Stars.astro).
@@ -113,10 +113,9 @@ const linkAttrs = summary?.profileUrl
   .rt--stamp {
     display: inline-block;
     max-width: 100%;
-    rotate: var(--rt-tilt, -1.5deg);
-  }
-  .rt--stamp {
-    --rt-tilt: 2deg;
+    /* Square at rest since the 2026-09-30 quiet pass; --rt-tilt stays as a
+       hook for a placement that wants one. */
+    rotate: var(--rt-tilt, 0deg);
   }
   .rt__tag {
     position: relative;

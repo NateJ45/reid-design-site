@@ -5,8 +5,8 @@
 //   Trigger   the ink "Menu" price tag in the header (below 1024px).
 //   Open      a full-screen ink overlay. Staci's logo large (cream, 108px) top
 //             left; "Close" as a cream price tag top right; the menu as a
-//             fanned deck of paint chips, full-width cards on the ramp, each
-//             tilted a hair, names only, set big and never covered by the next
+//             deck of paint chips, full-width cards on the ramp stacked
+//             square, names only, set big and never covered by the next
 //             chip; at the foot the booking price tag ("Book the in-home
 //             consult | $225") and phone / email.
 //   Motion    the chips deal in from below, staggered, ONLY under
