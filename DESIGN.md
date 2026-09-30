@@ -423,6 +423,58 @@ feed is connected.
   4 across from 1024px (eight). Every print opens the post in a new tab and is
   named from its caption (hashtags dropped); the picture itself is `alt=""`.
 
+## The hand layer (2026-09-30)
+
+The site should feel worked on by a person, the way a project board does:
+ink doodles in the margins, a marker under the word that matters, afternoon
+light moving across the room. Four pieces, all decorative, all off under
+reduced motion, none carrying meaning on its own.
+
+- **Doodles** (`Doodle.astro`, `src/styles/doodle.css`). Eight small ink
+  drawings of things from a designer's table: olive sprig (the signature, after
+  Staci's Instagram drawings), pendant lamp, table lamp with a ginger-jar base,
+  tub armchair, vase of branches, arched mirror, coffee mug, stack of books.
+  Authored as plain geometry in `scripts/doodles.config.mjs`; `npm run doodles`
+  gives every stroke a hand (a slow seeded wobble, overshoot at the ends, a
+  closed shape that does not quite meet) and sets watercolour washes a few px
+  off the line, then writes `src/assets/doodles/*.svg` (committed). Ink is
+  `currentColor` (Espresso on light, cream on ink); washes are the house tones
+  plus the paint deck's Sage, Lake and Clay at 55%. They draw themselves in
+  stroke by stroke (scroll-driven, or on open), then the washes bloom.
+  Placements: Home "Meet Staci" (olive sprig over the heading), Home services
+  (a pendant hanging from the band's top edge), About Kind words (vase of
+  branches), Contact "A note to Staci" (a steaming mug), the desktop header's
+  hover cards, the phone menu. Page to doodle: `src/lib/doodle-map.ts`.
+- **Header doodle cards.** Pointing at a flat nav link drops a small paper card
+  on a Warm Bronze thread from its chip, with that page's doodle drawing in.
+  The SVG is fetched on the first hover (same origin, cached), so no page
+  carries all eight. Hover-capable screens from 1024px only.
+- **Phone menu sprig.** The olive sprig in cream beside her logo, drawn in each
+  time the menu opens, behind the chip deck.
+- **Designer markup.** The italic accent phrase in a section heading (h2/h3,
+  never the word-rise page headlines) gets a hand-drawn marker swoosh in
+  Sandbar, pulled across as the heading scrolls in. Sandbar reads on linen,
+  paper, Walnut and ink alike, and it is a mark behind the words, never text.
+- **Window light** (`src/scripts/window-light.ts`, WebGL). Leaf shadows sway
+  slowly across the home hero and a patch of window sun, cut by its muntins,
+  falls on the photo side only. A soft-light canvas at half resolution and
+  30 fps, started near the screen and when idle, paused off screen. The
+  closing Walnut band gets the shade only (`data-window-light="shade"`), which
+  can only raise cream-on-Walnut contrast. Never a colour of its own.
+- **The fan follows the mouse.** On the home hero the paint-chip fan opens
+  wider as the pointer moves right and closes a little to the left (the
+  `rotate` property, separate from the load animation). Fine pointers only.
+
+## Share cards: design E, "the swatch card" (2026-09-30)
+
+Every page's og:image is the home hero in miniature: Walnut ground, her logo
+hung from the top edge on its paper plate, a sentence-case kicker after a short
+rule, the title in Zodiak Light cream (balanced lines, measured from the real
+font), `reiddesignllc.com` in Oat, the page's photo on the right melting into
+the Walnut, and the seven-tone fan deck opening at the seam. No photo: the
+seven-tone strip stands in. Code: `scripts/lib/og-render*.mjs`; fonts are the
+site's own, as .woff copies fetched into `scripts/.og-fonts/`.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at

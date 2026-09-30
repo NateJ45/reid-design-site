@@ -2,6 +2,27 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — The hand layer, window light, share cards design E (branch `ccr-1d8c83a7-uw3ifl`)
+
+- **Doodles:** eight hand-drawn ink doodles with watercolour washes
+  (`scripts/doodles.config.mjs` geometry, `scripts/lib/doodle-kit.mjs` hand,
+  `npm run doodles`, committed `src/assets/doodles/`), drawn in by
+  `Doodle.astro` + `src/styles/doodle.css`. On Home (Meet Staci, services), About
+  Kind words, Contact, the desktop header's hover cards (fetched on first hover)
+  and the phone menu.
+- **Designer markup:** a Sandbar marker swoosh under the italic accent phrase of
+  h2/h3 headings, pulled across on scroll.
+- **Window light:** WebGL leaf shadows and window sun (`src/scripts/window-light.ts`)
+  on the home hero (sun on the photo side only) and the closing band (shade only).
+  The home fan deck follows the mouse.
+- **Share cards design E, "the swatch card":** Walnut, logo plate, Zodiak title,
+  photo, fan deck. `fetch-fonts.mjs` now also fetches .woff copies for satori
+  into gitignored `scripts/.og-fonts/` (lock `ogFiles`). `public/og-default.png`
+  redrawn.
+- A photo-traced sketch layer and an AI "room fills up" prototype were built and
+  then dropped at Nathan's call; the room moves to a local GPU session
+  (`docs/design/2026-09-30-concept-room-handoff.md`).
+
 ## 2026-09-30 — Kind words on About, Instagram feed (branch `claude/kind-words-instagram`)
 
 Delegated agent, reviewed by the main session.
