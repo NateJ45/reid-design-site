@@ -10,6 +10,7 @@
 // which gives the home its rhythm: bronze, linen, paper, linen, INK, linen,
 // bronze-deep.
 import { splitScriptAccent } from '@/lib/scriptAccent';
+import { splitStega } from '@/lib/preview-stega';
 interface Testimonial {
   _id?: string;
   quote?: string;
@@ -39,7 +40,10 @@ const {
   googleBusinessUrl,
 } = Astro.props as Props;
 
-const h = splitScriptAccent(headline ?? '', scriptAccent ?? undefined);
+// PREVIEW (stega): split and slice CLEAN text only, then reattach each run
+// once and whole, or the overlay cannot decode it (2026-09-30). No-op live.
+const head = splitStega(headline ?? '');
+const h = splitScriptAccent(head.cleaned, splitStega(scriptAccent ?? '').cleaned || undefined);
 
 const lead = featuredQuote?.quote ? featuredQuote : gridQuotes.find((q) => q?.quote);
 const more = gridQuotes.filter((q) => q?.quote && q._id !== lead?._id).slice(0, 3);
@@ -68,7 +72,10 @@ const cite = (t?: Testimonial | null) =>
   [t?.attribution, monthYear(t?.date), t?.source && `on ${t.source}`].filter(Boolean).join(' · ');
 
 // Short quotes read best in the loose columns: cap at ~180 chars on a word.
-const trim = (s = '') => (s.length > 180 ? s.slice(0, s.lastIndexOf(' ', 176)) + '…' : s);
+const trim = (input = '') => {
+  const { cleaned: s, encoded } = splitStega(input);
+  return (s.length > 180 ? s.slice(0, s.lastIndexOf(' ', 176)) + '…' : s) + encoded;
+};
 ---
 
 <section class="words" aria-labelledby="words-heading">
@@ -80,6 +87,7 @@ const trim = (s = '') => (s.length > 180 ? s.slice(0, s.lastIndexOf(' ', 176)) +
             {h.before}
             <span class="r-accent">{h.word}</span>
             {h.after}
+            {head.encoded}
           </>
         ) : (
           headline

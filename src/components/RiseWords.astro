@@ -12,7 +12,7 @@
 // --accent-color for dark grounds). No match, or no accent, renders plain.
 //
 // Usage: <RiseWords as="h1" text={headline} accent={scriptAccent} class="r-display" />
-import { splitScriptAccent } from '@/lib/scriptAccent';
+import { splitHeadlineWords } from '@/lib/split-copy';
 
 interface Props {
   text: string;
@@ -25,26 +25,11 @@ interface Props {
 }
 
 const { text, accent, as: Tag = 'h1', class: className, id, delay = 0 } = Astro.props as Props;
-const parts = splitScriptAccent(text ?? '', accent ?? undefined);
-const segments = parts.found
-  ? [
-      { text: parts.before, accent: false },
-      { text: parts.word, accent: true },
-      { text: parts.after, accent: false },
-    ]
-  : [{ text: text ?? '', accent: false }];
-
-// Flatten to words, keeping which segment each came from and the spaces
-// between them (a space is emitted as plain text so lines still wrap).
-let i = 0;
-const tokens: { word?: string; space?: boolean; accent: boolean; i: number }[] = [];
-for (const seg of segments) {
-  for (const piece of seg.text.split(/(\s+)/)) {
-    if (!piece) continue;
-    if (/^\s+$/.test(piece)) tokens.push({ space: true, accent: seg.accent, i });
-    else tokens.push({ word: piece, accent: seg.accent, i: i++ });
-  }
-}
+// Words are split from the CLEAN text; in /preview the headline's stega run
+// comes back as textRun and is rendered ONCE, whole, as a plain text node of
+// the heading (outside the animated spans) so click-to-edit resolves the
+// heading to its field. See src/lib/split-copy.ts. No-op on the live build.
+const { tokens, run: textRun } = splitHeadlineWords(text, accent);
 ---
 
 <Tag
@@ -63,4 +48,5 @@ for (const seg of segments) {
       ),
     )
   }
+  {textRun}
 </Tag>

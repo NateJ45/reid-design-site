@@ -18,6 +18,7 @@
 import CtaLink from '@/components/CtaLink.astro';
 import RiseWords from '@/components/RiseWords.astro';
 import type { CtaBlock } from '@/lib/cta';
+import { splitPrice } from '@/lib/split-copy';
 
 interface Service {
   _id?: string;
@@ -55,22 +56,8 @@ const RAMP = [1, 2, 3, 4, 6, 7];
 const toneFor = (i: number) =>
   RAMP[n <= 1 ? 0 : Math.round((i * (RAMP.length - 1)) / (n - 1))] ?? 1;
 
-function splitPrice(raw = '') {
-  const m = raw.match(/^(.*?)(\$[\d,]+(?:\.\d+)?)(.*)$/);
-  if (!m) return { label: '', amount: raw, unit: '' };
-  const lead = m[1].trim();
-  const tail = m[3].trim();
-  // "per hour" / "/hr" read best right after the number, small.
-  const unit = /^(per\s+hour|\/\s*hr|an?\s+hour|hourly)$/i.test(tail) ? '/hr' : '';
-  const label = lead
-    ? lead.charAt(0).toUpperCase() + lead.slice(1)
-    : unit
-      ? 'Billed hourly'
-      : tail
-        ? tail.charAt(0).toUpperCase() + tail.slice(1)
-        : 'One visit';
-  return { label, amount: m[2], unit };
-}
+// splitPrice (src/lib/split-copy.ts) parses the CLEAN price and returns the
+// stega run separately, rendered once after the amount (preview only).
 ---
 
 <section class="chips" aria-labelledby="services-heading">
@@ -90,7 +77,7 @@ function splitPrice(raw = '') {
       {
         services.map((s, i) => {
           const tone = toneFor(i);
-          const { label, amount, unit } = splitPrice(s.price);
+          const { label, amount, unit, run } = splitPrice(s.price);
           const href = s.slug?.current ? `/services#${s.slug.current}` : '/services';
           return (
             <li
@@ -106,6 +93,7 @@ function splitPrice(raw = '') {
                   <p class="chip__price">
                     <small>{label}</small>
                     {amount}
+                    {run}
                     {unit && <span class="chip__unit">{unit}</span>}
                   </p>
                 </div>
