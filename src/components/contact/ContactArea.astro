@@ -1,0 +1,97 @@
+---
+// Safe to edit by hand
+// "Where Staci works" on the contact page (added 2026-09-30, phase 2 of the
+// art-direction rebuild). The towns from Business info -> Service areas set
+// large on the left (home base first, in Espresso italic, the same grammar as
+// the home page's ServiceAreaCue), and the OpenStreetMap embed on the right in
+// a plain frame. ServiceAreaMap.astro is used as is (another pass owns it).
+//
+// No towns in Sanity: the list is skipped and the map carries the section.
+import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
+
+interface Props {
+  towns?: string[] | null;
+}
+
+const { towns } = Astro.props as Props;
+const list = (Array.isArray(towns) ? towns : []).filter(Boolean).slice(0, 12);
+const [home, ...rest] = list;
+---
+
+<section class="carea" aria-labelledby="contact-area-heading">
+  <div class="r-wrap carea__grid">
+    <div class="carea__copy">
+      <h2 id="contact-area-heading" class="r-h2 carea__h">
+        Based in {home || 'Plainfield'}. <span class="r-accent">Happy to drive.</span>
+      </h2>
+      {
+        list.length > 0 && (
+          <p class="carea__towns">
+            <b>{home}</b>
+            {rest.map((t) => (
+              <>
+                {' '}
+                <i aria-hidden="true">/</i> {t}
+              </>
+            ))}
+          </p>
+        )
+      }
+      <p class="carea__note">Outside these towns? Ask anyway.</p>
+    </div>
+    <div class="carea__map">
+      <ServiceAreaMap height={380} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .carea {
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .carea__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .carea__h {
+    margin: 0;
+    max-width: 13ch;
+    font-size: clamp(2.2rem, 1.3rem + 2.8vw, 4rem);
+    color: var(--color-ink);
+  }
+  .carea__towns {
+    margin: 1.75rem 0 0;
+    max-width: 30ch;
+    font: 300 clamp(1.45rem, 1.15rem + 1vw, 2.1rem) / 1.3 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink-2);
+  }
+  .carea__towns b {
+    font-weight: 300;
+    font-style: italic;
+    color: var(--color-chip-7);
+  }
+  .carea__towns i {
+    font-style: normal;
+    color: var(--color-chip-4);
+  }
+  .carea__note {
+    margin: 1.5rem 0 0;
+    max-width: 40ch;
+    color: var(--color-ink-2);
+  }
+  .carea__map {
+    min-width: 0;
+    padding: 0.6rem;
+    background: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    border-radius: 0.5rem;
+  }
+  @media (min-width: 1024px) {
+    .carea__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: clamp(2rem, 6vw, 6rem);
+      align-items: center;
+    }
+  }
+</style>

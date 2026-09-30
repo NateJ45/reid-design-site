@@ -1,12 +1,20 @@
 ---
 // Safe to edit by hand
 // Privacy policy page. Fetches the privacyPage singleton from Sanity for the
-// body and lastUpdated date. When the doc doesn't exist yet (or Sanity isn't
-// reachable), a plain-voice fallback policy is rendered so the page is always
-// live and accurate.
+// body and lastUpdated date. When the doc doesn't exist yet (or has no body),
+// a plain-voice fallback policy is rendered so the page is always live and
+// accurate.
 //
-// Reuses PortableText for the body when Sanity content is present; falls back
-// to static HTML copy for the period before Staci publishes the doc.
+// Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md
+// "Contact and Privacy") as a long-form reading page:
+//   - a measure of about 66 characters, 17px text at 1.7 line height;
+//   - numbered section headings (a CSS counter, so Sanity is untouched);
+//   - a table of contents built from the body's own h2 headings: sticky in
+//     a left column on desktop, a collapsed "On this page" on phones. The ids
+//     come from src/components/contact/doc-anchors.ts, the same function
+//     PortableTextStatic (variant="doc") uses to print them;
+//   - the current section is marked in the contents while reading (a small
+//     IntersectionObserver; without JS the contents are plain links).
 //
 // "How traffic is measured" is NOT editable copy, on purpose (PORTS.md card 54).
 // It renders after either body and is derived from src/lib/analytics-config.ts,
@@ -23,6 +31,7 @@ import { getPrivacyPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
+import { docHeadings } from '@/components/contact/doc-anchors';
 
 const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSettings()]);
 
@@ -40,7 +49,14 @@ function formatDate(d?: string): string {
   if (!d) return '';
   const date = new Date(d);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  // timeZone UTC: Sanity's date is a calendar day ("2026-09-28"), parsed as UTC
+  // midnight; formatting it in a US zone printed the day before.
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 const lastUpdated = formatDate(page?.lastUpdated);
 
@@ -55,15 +71,26 @@ const schemas = [
 const contactEmail = siteSettings?.email ?? 'staci@reiddesignllc.com';
 
 // Whether to use Sanity body content
-const hasSanityBody = Boolean(page?.body);
+const hasSanityBody = Array.isArray(page?.body) && page.body.length > 0;
 
-// The derived "How traffic is measured" section borrows the styling of whichever
-// body rendered above it, so it reads as part of the policy, not an appendix.
-// These match PortableTextStatic's h2 / normal-block classes and the fallback's.
-const measuredH2 = hasSanityBody
-  ? 'mt-section-md mb-m font-display text-h2 text-foreground'
-  : 'mt-l mb-s font-display text-h3 text-foreground';
-const measuredP = hasSanityBody ? 'my-m text-foreground' : 'mt-s text-foreground/80';
+// The measurement section is printed by this page, so its id is reserved:
+// a Sanity heading with the same words gets "-2" instead of colliding.
+const MEASURED_ID = 'how-traffic-is-measured';
+
+// The fallback policy's sections, with fixed ids for the contents.
+const FALLBACK_SECTIONS = [
+  { id: 'what-gets-collected', text: 'What gets collected' },
+  { id: 'what-doesnt-happen', text: 'What doesn’t happen' },
+  { id: 'unsubscribing', text: 'Unsubscribing from the newsletter' },
+  { id: 'questions-or-data-requests', text: 'Questions or data requests' },
+];
+
+const toc = [
+  ...(hasSanityBody
+    ? docHeadings(page!.body, [MEASURED_ID]).map(({ id, text }) => ({ id, text }))
+    : FALLBACK_SECTIONS),
+  { id: MEASURED_ID, text: 'How traffic is measured' },
+];
 ---
 
 <BaseLayout
@@ -74,7 +101,6 @@ const measuredP = hasSanityBody ? 'my-m text-foreground' : 'mt-s text-foreground
   seoImage={page?.seoImage}
   card={{ headline: page?.heroHeadline, image: page?.heroImage }}
 >
-  {/* Hero — text variant, short height. */}
   <Hero
     eyebrow={heroEyebrow}
     headline={heroHeadline}
@@ -84,132 +110,474 @@ const measuredP = hasSanityBody ? 'my-m text-foreground' : 'mt-s text-foreground
   />
 
   {
-    /* No aria-label here on purpose. The hero section is already a landmark
-      named by the "Privacy Policy" heading, and labelling this one the same
-      thing produced two identically-named regions (axe: landmark-unique). A
-      <section> without an accessible name is not exposed as a landmark, which
-      is the right answer for a plain content wrapper. */
+    /* No aria-label on this section on purpose. The hero is already a
+      landmark named by the "Privacy Policy" heading, and labelling this one
+      the same thing produced two identically-named regions (axe:
+      landmark-unique). A <section> without an accessible name is not exposed
+      as a landmark, which is right for a plain content wrapper. */
   }
-  <section class="bg-background">
-    <div class="mx-auto max-w-3xl px-m py-section-lg">
-      {
-        lastUpdated && (
-          <p class="mb-l text-xs tracking-eyebrow text-foreground/80 uppercase">
-            Last updated: {lastUpdated}
-          </p>
-        )
-      }
+  <section class="doc">
+    <div class="r-wrap doc__grid">
+      {/* Desktop contents: sticky in the left column. */}
+      <nav class="doc__toc" aria-labelledby="doc-toc-heading" data-doc-toc>
+        <p id="doc-toc-heading" class="doc__toc-h">On this page</p>
+        <ol class="doc__toc-list" role="list">
+          {
+            toc.map((t) => (
+              <li>
+                <a href={`#${t.id}`}>{t.text}</a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
 
-      {
-        hasSanityBody ? (
-          <PortableTextStatic value={page!.body} className="prose-friendly" />
-        ) : (
-          <div class="space-y-l leading-relaxed text-foreground">
-            <p class="text-foreground/80">
-              This is the privacy policy for Reid Design LLC, a one-person interior design studio
-              based in Plainfield, Indiana. The goal here is to be straightforward about what
-              information is collected and why.
-            </p>
+      <article class="doc__body">
+        {
+          /* Phone contents: collapsed, above the text. Not a second <nav>
+            landmark; the desktop one is display:none at this width. */
+        }
+        <details class="doc__toc-m">
+          <summary>On this page</summary>
+          <ol class="doc__toc-list" role="list">
+            {
+              toc.map((t) => (
+                <li>
+                  <a href={`#${t.id}`}>{t.text}</a>
+                </li>
+              ))
+            }
+          </ol>
+        </details>
 
-            <div>
-              <h2 class="mb-s font-display text-h3 text-foreground">What gets collected</h2>
-              <p class="text-foreground/80">
+        {lastUpdated && <p class="doc__updated">Last updated {lastUpdated}</p>}
+
+        {
+          hasSanityBody ? (
+            <PortableTextStatic
+              value={page!.body}
+              variant="doc"
+              reservedIds={[MEASURED_ID]}
+              className="doc__prose"
+            />
+          ) : (
+            <div class="doc__prose">
+              <p class="ptd-p doc__lead">
+                This is the privacy policy for Reid Design LLC, a one-person interior design studio
+                based in Plainfield, Indiana. The goal here is to be straightforward about what
+                information is collected and why.
+              </p>
+
+              <h2 id="what-gets-collected" class="ptd-h2">
+                What gets collected
+              </h2>
+              <p class="ptd-p">
                 When you fill out the contact form on this site, you share your name, email address,
                 and whatever details you include in your message. That information is used only to
                 respond to you and to help plan your project. Nothing else.
               </p>
-              <p class="mt-s text-foreground/80">
+              <p class="ptd-p">
                 If you subscribe to the newsletter, your email address goes to the email marketing
                 provider so occasional studio updates, room ideas, and project previews can reach
                 you. It is not shared with anyone else.
               </p>
-            </div>
 
-            <div>
-              <h2 class="mb-s font-display text-h3 text-foreground">What doesn't happen</h2>
-              <ul class="list-disc space-y-1 pl-l text-foreground/80">
-                <li>Your information is never sold.</li>
-                <li>There is no ad targeting or retargeting on this site.</li>
+              <h2 id="what-doesnt-happen" class="ptd-h2">
+                What doesn't happen
+              </h2>
+              <ul class="ptd-ul">
+                <li class="ptd-li">Your information is never sold.</li>
+                <li class="ptd-li">There is no ad targeting or retargeting on this site.</li>
               </ul>
-            </div>
 
-            <div>
-              <h2 class="mb-s font-display text-h3 text-foreground">
+              <h2 id="unsubscribing" class="ptd-h2">
                 Unsubscribing from the newsletter
               </h2>
-              <p class="text-foreground/80">
+              <p class="ptd-p">
                 Every email includes an unsubscribe link at the bottom. Click it and you're off the
                 list right away. If you run into any trouble, email directly and it'll be handled
                 promptly.
               </p>
-            </div>
 
-            <div>
-              <h2 class="mb-s font-display text-h3 text-foreground">Questions or data requests</h2>
-              <p class="text-foreground/80">
+              <h2 id="questions-or-data-requests" class="ptd-h2">
+                Questions or data requests
+              </h2>
+              <p class="ptd-p">
                 If you have questions about how your information is handled, or want your data
                 removed, reach out at{' '}
-                <a
-                  href={`mailto:${contactEmail}`}
-                  class="text-link underline underline-offset-2 transition-colors hover:text-primary"
-                >
+                <a class="ptd-a" href={`mailto:${contactEmail}`}>
                   {contactEmail}
                 </a>
                 . You'll hear back within a few business days.
               </p>
+
+              <p class="ptd-p doc__fine">
+                This policy was last reviewed in May 2026 and will be updated if anything meaningful
+                changes about how this site handles your data.
+              </p>
             </div>
+          )
+        }
 
-            <p class="border-t border-border-soft pt-l text-xs text-foreground/80">
-              This policy was last reviewed in May 2026 and will be updated if anything meaningful
-              changes about how this site handles your data.
-            </p>
-          </div>
-        )
-      }
-
-      {
-        /*
-        Measurement, described from the build's real configuration rather than
-        asserted (see the header). Each branch says what the tool actually does,
-        including the cookie.
-      */
-      }
-      <div class="leading-relaxed text-foreground">
-        <h2 class={measuredH2}>How traffic is measured</h2>
         {
-          !hasGa && !hasCfAnalytics && (
-            <p class={measuredP}>
-              This site runs no analytics. Visits are not counted, and nothing is stored on your
-              device for measurement.
-            </p>
-          )
+          /*
+          Measurement, described from the build's real configuration rather
+          than asserted (see the header). Each branch says what the tool
+          actually does, including the cookie.
+        */
         }
-        {
-          hasCfAnalytics && (
-            <p class={measuredP}>
-              Page visits are counted with Cloudflare Web Analytics, which sets no cookies and does
-              not identify individual visitors.
-            </p>
-          )
-        }
-        {
-          hasGa && (
-            <p class={measuredP}>
-              {/* "also" only reads right when the cookieless paragraph above rendered. */}
-              Visits are {hasCfAnalytics ? 'also ' : ''}measured with Google Analytics, which sets
-              cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by an
-              id) so a returning visit is recognized as the same visitor. It records which pages are
-              opened, roughly where the visit came from, and what kind of device was used. It is not
-              used for advertising, and the data is not sold. You can block these cookies in your
-              browser settings or with a tracker-blocking extension, and the site works exactly the
-              same.
-            </p>
-          )
-        }
-      </div>
+        <div class="doc__prose">
+          <h2 id={MEASURED_ID} class="ptd-h2">How traffic is measured</h2>
+          {
+            !hasGa && !hasCfAnalytics && (
+              <p class="ptd-p">
+                This site runs no analytics. Visits are not counted, and nothing is stored on your
+                device for measurement.
+              </p>
+            )
+          }
+          {
+            hasCfAnalytics && (
+              <p class="ptd-p">
+                Page visits are counted with Cloudflare Web Analytics, which sets no cookies and
+                does not identify individual visitors.
+              </p>
+            )
+          }
+          {
+            hasGa && (
+              <p class="ptd-p">
+                {/* "also" only reads right when the cookieless paragraph above rendered. */}
+                Visits are {hasCfAnalytics ? 'also ' : ''}measured with Google Analytics, which sets
+                cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by an
+                id) so a returning visit is recognized as the same visitor. It records which pages
+                are opened, roughly where the visit came from, and what kind of device was used. It
+                is not used for advertising, and the data is not sold. You can block these cookies
+                in your browser settings or with a tracker-blocking extension, and the site works
+                exactly the same.
+              </p>
+            )
+          }
+        </div>
+      </article>
     </div>
   </section>
 
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="privacy-extra" />
 </BaseLayout>
+
+<script>
+  // Marks the section being read in the contents (aria-current="location").
+  // Progressive: without JS the contents are plain in-page links. Re-inits on
+  // every View Transitions navigation.
+  function initDocToc() {
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('[data-doc-toc] a[href^="#"]'),
+    );
+    if (links.length === 0) return;
+    const byId = new Map(links.map((a) => [decodeURIComponent(a.hash.slice(1)), a]));
+    const heads = Array.from(byId.keys())
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (heads.length === 0 || !('IntersectionObserver' in window)) return;
+
+    const setCurrent = (id: string) => {
+      for (const [key, a] of byId) {
+        if (key === id) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      }
+    };
+
+    // The current section is the last heading that has scrolled above a line
+    // a third of the way down the viewport.
+    const pick = () => {
+      const line = window.innerHeight * 0.33;
+      let current = heads[0].id;
+      for (const h of heads) {
+        if (h.getBoundingClientRect().top <= line) current = h.id;
+      }
+      setCurrent(current);
+    };
+    const io = new IntersectionObserver(pick, {
+      rootMargin: '0px 0px -60% 0px',
+      threshold: [0, 1],
+    });
+    heads.forEach((h) => io.observe(h));
+    window.addEventListener('scroll', pick, { passive: true });
+    pick();
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        io.disconnect();
+        window.removeEventListener('scroll', pick);
+      },
+      { once: true },
+    );
+  }
+  initDocToc();
+  document.addEventListener('astro:page-load', initDocToc);
+</script>
+
+<style>
+  .doc {
+    padding-block: clamp(3.5rem, 7vw, 6rem) clamp(5rem, 10vw, 8rem);
+  }
+  .doc__grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .doc__body {
+    min-width: 0;
+    max-width: 44rem; /* about 66 characters of 17px General Sans */
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-ink-2);
+    counter-reset: doc-section;
+  }
+
+  /* ---- Contents ---- */
+  .doc__toc {
+    display: none;
+  }
+  .doc__toc-h {
+    margin: 0 0 1rem;
+    font: 500 0.95rem/1.3 var(--font-body);
+    color: var(--color-ink);
+  }
+  .doc__toc-list {
+    counter-reset: toc;
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .doc__toc-list li {
+    counter-increment: toc;
+  }
+  .doc__toc-list a {
+    position: relative;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.5rem 0 0.5rem 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--color-ink-2);
+    text-decoration: none;
+    border-left: 1px solid var(--color-rule);
+  }
+  .doc__toc-list a::before {
+    content: counter(toc, decimal-leading-zero);
+    flex: none;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-chip-6);
+  }
+  .doc__toc-list a:hover {
+    color: var(--color-ink);
+  }
+  .doc__toc-list a[aria-current='location'] {
+    color: var(--color-ink);
+    border-left: 2px solid var(--color-chip-6);
+    padding-left: calc(0.9rem - 1px);
+  }
+  .doc__toc-list a:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .doc__toc-list a {
+      transition:
+        color 250ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 250ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  /* Phone contents: a quiet disclosure above the text. */
+  .doc__toc-m {
+    margin-bottom: 2.5rem;
+    border-block: 1px solid var(--color-rule);
+  }
+  .doc__toc-m summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+  .doc__toc-m summary::-webkit-details-marker {
+    display: none;
+  }
+  .doc__toc-m summary::after {
+    content: '+';
+    font: 300 1.5rem/1 var(--font-display);
+    color: var(--color-chip-6);
+  }
+  .doc__toc-m[open] summary::after {
+    content: '−';
+  }
+  .doc__toc-m summary:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .doc__toc-m .doc__toc-list {
+    padding-bottom: 1rem;
+  }
+
+  .doc__updated {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 2.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-chip-7);
+  }
+  .doc__updated::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+
+  /* ---- The prose (PortableTextStatic variant="doc" and the fallback) ---- */
+  .doc__body :global(.ptd-h2) {
+    counter-increment: doc-section;
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin: 3.5rem 0 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-rule);
+    font: 300 clamp(1.65rem, 1.3rem + 1vw, 2.25rem) / 1.12 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: balance;
+    scroll-margin-top: 7rem;
+  }
+  .doc__body :global(.ptd-h2::before) {
+    content: counter(doc-section, decimal-leading-zero);
+    flex: none;
+    font: 500 0.8rem/1 var(--font-body);
+    letter-spacing: 0.04em;
+    color: var(--color-chip-6);
+    transform: translateY(-0.35em);
+  }
+  /* The first section of the body sits right under the date, no rule. */
+  .doc__body :global(.doc__prose:first-of-type > .ptd-h2:first-child) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+  .doc__body :global(.ptd-h3) {
+    margin: 2rem 0 0.5rem;
+    font: 400 1.35rem/1.2 var(--font-display);
+    color: var(--color-ink);
+    scroll-margin-top: 7rem;
+  }
+  .doc__body :global(.ptd-h4) {
+    margin: 1.5rem 0 0.5rem;
+    font: 500 1.0625rem/1.4 var(--font-body);
+    color: var(--color-ink);
+  }
+  .doc__body :global(.ptd-p) {
+    margin: 0 0 1.1rem;
+    text-wrap: pretty;
+  }
+  .doc__body :global(.doc__lead) {
+    margin-bottom: 0;
+    font: 300 clamp(1.2rem, 1.05rem + 0.45vw, 1.45rem) / 1.5 var(--font-display);
+    color: var(--color-ink);
+  }
+  .doc__body :global(.ptd-ul),
+  .doc__body :global(.ptd-ol) {
+    margin: 0 0 1.25rem;
+    padding-left: 1.35rem;
+  }
+  .doc__body :global(.ptd-ul) {
+    list-style: none;
+    padding-left: 0;
+  }
+  .doc__body :global(.ptd-ul > .ptd-li) {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  /* A short Walnut dash instead of a bullet. */
+  .doc__body :global(.ptd-ul > .ptd-li::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.85em;
+    width: 0.7rem;
+    height: 1px;
+    background: var(--color-chip-6);
+  }
+  .doc__body :global(.ptd-li + .ptd-li) {
+    margin-top: 0.4rem;
+  }
+  .doc__body :global(.ptd-strong) {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .doc__body :global(.ptd-em) {
+    font-style: italic;
+  }
+  .doc__body :global(.ptd-a) {
+    color: var(--color-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--color-chip-5);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+  .doc__body :global(.ptd-a:hover) {
+    text-decoration-color: currentColor;
+  }
+  .doc__body :global(.ptd-a:focus-visible) {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  .doc__body :global(.ptd-quote) {
+    margin: 2rem 0;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--color-chip-5);
+    font: 300 1.3rem/1.5 var(--font-display);
+    font-style: italic;
+    color: var(--color-ink);
+  }
+  .doc__body code {
+    padding: 0.05em 0.35em;
+    border-radius: 0.25rem;
+    background: var(--color-chip-1);
+    font-size: 0.9em;
+    color: var(--color-ink);
+  }
+  .doc__body :global(.doc__fine) {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+  }
+
+  @media (min-width: 1024px) {
+    .doc__grid {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 8fr);
+      gap: clamp(3rem, 7vw, 7rem);
+    }
+    .doc__toc {
+      display: block;
+      position: sticky;
+      top: 7rem;
+      align-self: start;
+    }
+    .doc__toc-m {
+      display: none;
+    }
+  }
+</style>
