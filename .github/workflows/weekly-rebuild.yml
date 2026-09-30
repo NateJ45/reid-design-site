@@ -1,0 +1,43 @@
+name: Weekly rebuild
+
+# Added 2026-09-30 with the Instagram feed. The site is static: the Instagram
+# tiles are only as fresh as the last build, and a build only happens on a push to main or a
+# Sanity publish. This asks Cloudflare for a production build every Monday so
+# the feed is never more than a week behind, even in a quiet week.
+#
+# It POSTs to a Workers Builds DEPLOY HOOK. The hook URL is the secret (the
+# endpoint needs no other auth), so it lives in:
+#   CF_DEPLOY_HOOK_URL   Settings > Secrets and variables > Actions. Create a
+#                        hook at Cloudflare > Workers & Pages > reid-design-site
+#                        > Settings > Build > Deploy hooks (branch main), or
+#                        reuse the one the Sanity "Rebuild live site" webhook
+#                        already calls. Looks like
+#                        https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<uuid>
+#
+# Without the secret it warns and exits 0. A build Cloudflare coalesces with
+# one already running is fine. Uses a few build minutes a month (free tier:
+# 3,000 minutes, 500 builds).
+on:
+  schedule:
+    - cron: '0 8 * * 1' # Mondays 08:00 UTC (after the token refresh at 07:00)
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask Cloudflare for a production build
+        env:
+          HOOK: ${{ secrets.CF_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::warning::CF_DEPLOY_HOOK_URL is not set, so no weekly rebuild. See docs/agent/deployment.md."
+            exit 0
+          fi
+          CODE=$(curl -sS --max-time 30 -o response.json -w '%{http_code}' -X POST "$HOOK")
+          echo "Cloudflare answered $CODE"
+          # Print only the status fields, never the URL.
+          jq -c '{success, status: .result.status, already_exists: .result.already_exists}' response.json 2>/dev/null || true
+          case "$CODE" in 2*) ;; *) echo "::error::The deploy hook answered $CODE"; exit 1 ;; esac

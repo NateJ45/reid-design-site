@@ -22,6 +22,7 @@ import {
   RemoveIcon,
   PlayIcon,
   ThLargeIcon,
+  HeartIcon,
 } from '@sanity/icons';
 
 // Shared image field with required alt text (accessibility + SEO).
@@ -421,6 +422,41 @@ export const spacerSection = defineType({
   preview: { prepare: () => ({ title: 'Spacer / divider' }) },
 });
 
+// ── 10. Instagram feed (2026-09-30) ──────────────────────────────────────────
+// The latest posts from Staci's Instagram, baked in at build time
+// (InstagramFeed.astro, scripts/fetch-instagram.mjs). It FILLS ITSELF: there is
+// nothing to pick. The heading, intro and follow button words default to the
+// site-wide ones in Site settings > Instagram feed; the two fields here only
+// override them for this one page. Renders nothing until the feed is
+// connected (INSTAGRAM_TOKEN on the build).
+export const instagramSection = defineType({
+  name: 'instagramSection',
+  title: 'Instagram feed',
+  type: 'object',
+  icon: HeartIcon,
+  description:
+    'Your latest Instagram posts, refreshed every week. Nothing to add: it fills itself. It shows nothing until the Instagram feed is connected.',
+  fields: [
+    defineField({
+      name: 'heading',
+      title: 'Heading (optional)',
+      type: 'string',
+      description: 'Leave blank to use the heading from Site settings > Instagram feed.',
+    }),
+    defineField({
+      name: 'subhead',
+      title: 'Short intro (optional)',
+      type: 'text',
+      rows: 2,
+      description: 'Leave blank to use the intro from Site settings > Instagram feed.',
+    }),
+  ],
+  preview: {
+    select: { title: 'heading' },
+    prepare: ({ title }) => ({ title: title || 'Instagram feed', subtitle: 'Latest posts' }),
+  },
+});
+
 // ── Exports ──────────────────────────────────────────────────────────────────
 
 // All section schema objects, to register in the schema index.
@@ -434,6 +470,7 @@ export const pageSectionSchemas = [
   ctaBandSection,
   videoSection,
   spacerSection,
+  instagramSection,
 ];
 
 // The list a pageBuilder array uses for `of`. Single source of truth so every
@@ -474,7 +511,7 @@ export const SECTION_INSERT_MENU: InsertMenuOptions = {
     {
       name: 'photos',
       title: 'Photos and video',
-      of: ['imageTextSection', 'gallerySection', 'videoSection'],
+      of: ['imageTextSection', 'gallerySection', 'videoSection', 'instagramSection'],
     },
     { name: 'spacing', title: 'Space between sections', of: ['spacerSection'] },
   ],

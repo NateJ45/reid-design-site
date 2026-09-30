@@ -15,6 +15,7 @@ export const siteSettings = defineType({
     { name: 'visibility', title: 'Section visibility' },
     { name: 'social', title: 'Social & footer' },
     { name: 'reviews', title: 'Reviews' },
+    { name: 'instagram', title: 'Instagram feed' },
   ],
   fields: [
     defineField({
@@ -311,11 +312,72 @@ export const siteSettings = defineType({
       name: 'socialInstagram',
       title: 'Instagram URL',
       type: 'url',
+      // Also shown in the Instagram feed tab (2026-09-30): the feed's follow
+      // button and its "@handle" come from this one address.
+      group: 'instagram',
+      description:
+        'Your Instagram profile, for example https://www.instagram.com/reiddesignin/. The footer icon and the Instagram feed follow button use it.',
     }),
     defineField({
       name: 'socialFacebook',
       title: 'Facebook URL',
       type: 'url',
+    }),
+
+    // ── Instagram feed (2026-09-30) ─────────────────────────────────────────
+    // The latest posts, baked in at every build by scripts/fetch-instagram.mjs
+    // (InstagramFeed.astro). Shows NOTHING until the INSTAGRAM_TOKEN build
+    // variable is set (docs/agent/deployment.md, "Instagram feed"). The words
+    // are shared by every placement: Home (a built-in section in its layout),
+    // Contact, and any custom page that adds the "Instagram feed" block.
+    defineField({
+      name: 'instagramFeedHeadline',
+      title: 'Heading',
+      type: 'string',
+      group: 'instagram',
+      description: 'Optional. Leave blank for "Lately, in the studio".',
+    }),
+    defineField({
+      name: 'instagramFeedScriptAccent',
+      title: 'Heading accent (optional)',
+      type: 'string',
+      group: 'instagram',
+      description:
+        'Optional. A word or short phrase from the heading to set in italic. Must match the heading exactly.',
+    }),
+    defineField({
+      name: 'instagramFeedSubhead',
+      title: 'Short intro',
+      type: 'text',
+      rows: 2,
+      group: 'instagram',
+      description:
+        'Optional. Leave blank for "Rooms in progress, paint on the walls, and the finds that make a room. Straight from Instagram."',
+    }),
+    defineField({
+      name: 'instagramFeedLinkLabel',
+      title: 'Follow button words',
+      type: 'string',
+      group: 'instagram',
+      description:
+        'Optional. Leave blank for "Follow @reiddesignin" (read from the Instagram URL). The button goes to the Instagram URL in this tab.',
+    }),
+    defineField({
+      name: 'instagramFeedOnHome',
+      title: 'Show on the home page',
+      type: 'boolean',
+      group: 'instagram',
+      initialValue: true,
+      description:
+        'It sits just before the service-area line by itself; drag the "Instagram feed" section in the home page Layout to move it. Untick to hide it there.',
+    }),
+    defineField({
+      name: 'instagramFeedOnContact',
+      title: 'Show on the Contact page',
+      type: 'boolean',
+      group: 'instagram',
+      initialValue: true,
+      description: 'Near the bottom of the Contact page. Untick to hide it there.',
     }),
     defineField({
       name: 'seoImage',

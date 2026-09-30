@@ -65,6 +65,8 @@ export const SELF_FILLING_SECTIONS = [
   'servicesSectionMarker',
   'eDesignSectionMarker',
   'spacerSection',
+  // 2026-09-30: the latest Instagram posts, baked in at build time.
+  'instagramSection',
 ] as const;
 
 // -----------------------------------------------------------------------------

@@ -8,6 +8,10 @@
 // home reviews band AUTOMATICALLY, newest first (getHomePage().googleReviews),
 // unless "Hide on the website" is ticked. Staci enters them by hand for now.
 //
+// KIND WORDS (added 2026-09-30). EVERY testimonial with words and without
+// "Hide on the website" is listed on the About page wall, whatever its source
+// (src/lib/kind-words.ts). That is why the switch now shows for every source.
+//
 // A future Google Business Profile API sync writes the same fields, one
 // document per review, with a deterministic id so re-running never duplicates:
 //
@@ -72,7 +76,7 @@ export const testimonial = defineType({
       title: 'Source',
       type: 'string',
       description:
-        'Where the testimonial came from. Pick Google for a Google review: the star rating and "Hide on the website" boxes then appear below.',
+        'Where the testimonial came from. Pick Google for a Google review: the star rating box then appears below.',
       options: {
         list: [
           { title: 'Facebook', value: 'Facebook' },
@@ -163,8 +167,9 @@ export const testimonial = defineType({
       title: 'Hide on the website',
       type: 'boolean',
       description:
-        'Google reviews show on the home page by themselves, newest first. Tick this to keep this one off the site (it stays here, and on Google).',
-      hidden: ({ document }) => !isGoogleDoc(document),
+        'Every testimonial shows on the About page wall ("Kind words"), newest first, and rated Google reviews also show on the home page by themselves. Tick this to keep this one off the site everywhere (it stays here, and on Google or Facebook).',
+      // Shown for EVERY source since 2026-09-30: the About "Kind words" wall
+      // lists every testimonial, so a Facebook one needs the switch too.
       initialValue: false,
     }),
     defineField({

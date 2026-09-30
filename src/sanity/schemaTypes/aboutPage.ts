@@ -18,6 +18,7 @@ export const aboutPage = defineType({
     { name: 'philosophy', title: 'Philosophy' },
     { name: 'personal', title: 'Personal' },
     { name: 'stats', title: 'Stats' },
+    { name: 'kindWords', title: 'Kind words' },
     { name: 'final', title: 'Final CTA' },
   ],
   fields: [
@@ -379,6 +380,53 @@ export const aboutPage = defineType({
         }),
       ],
       validation: (Rule) => Rule.max(4),
+    }),
+
+    // ── Kind words (2026-09-30): every review, in full ──────────────────────
+    // The wall lists EVERY testimonial not ticked "Hide on the website",
+    // newest first (src/components/about/KindWords.astro). These fields only
+    // set its words. Placement: the "Kind words" marker in the layout above;
+    // a layout saved before the marker existed gets it just before the closing
+    // call to action. Off: untick "Show on the About page" below.
+    defineField({
+      name: 'kindWordsShow',
+      title: 'Show on the About page',
+      type: 'boolean',
+      group: 'kindWords',
+      initialValue: true,
+      description:
+        'The wall of every review, newest first. It shows by itself just before the closing call to action; drag the "Kind words" section in Layout & order to move it. Untick to hide it. To hide ONE review, open it under Testimonials and tick "Hide on the website".',
+    }),
+    defineField({
+      name: 'kindWordsEyebrow',
+      title: 'Small line above the heading',
+      type: 'string',
+      group: 'kindWords',
+      description: 'Optional. Leave blank for "Kind words".',
+    }),
+    defineField({
+      name: 'kindWordsHeadline',
+      title: 'Heading',
+      type: 'string',
+      group: 'kindWords',
+      description: 'Optional. Leave blank for "In their own words".',
+    }),
+    defineField({
+      name: 'kindWordsScriptAccent',
+      title: 'Heading accent (optional)',
+      type: 'string',
+      group: 'kindWords',
+      description:
+        'Optional. A word or short phrase from the heading to set in italic. Must match the heading exactly.',
+    }),
+    defineField({
+      name: 'kindWordsSubhead',
+      title: 'Short intro',
+      type: 'text',
+      rows: 2,
+      group: 'kindWords',
+      description:
+        'Optional. Leave blank for "Every review from Google and Facebook, newest first, word for word."',
     }),
 
     defineField({

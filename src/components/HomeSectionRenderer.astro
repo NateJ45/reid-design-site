@@ -11,6 +11,11 @@
 // those rows do not fail validation and block publishing), but the journal and
 // press were removed, so both fall through to the final `null` below and
 // render nothing.
+//
+// Instagram feed (2026-09-30): the layouts stored before its marker existed
+// do not have it, so placeMarker() puts it just before the service-area line;
+// siteSettings.instagramFeedOnHome === false removes it. It renders nothing
+// until the build has a feed (INSTAGRAM_TOKEN), so this changes no HTML today.
 import HomeHero from '@/components/home/HomeHero.astro';
 import HomeStaci from '@/components/home/HomeStaci.astro';
 import HomeWords from '@/components/home/HomeWords.astro';
@@ -20,7 +25,9 @@ import FeaturedWork from '@/components/FeaturedWork.astro';
 import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import InstagramFeed from '@/components/InstagramFeed.astro';
 import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { placeMarker } from '@/lib/auto-marker';
 
 interface Props {
   sections?: any[];
@@ -56,12 +63,18 @@ const DEFAULT_ORDER = [
   'testimonials',
   'processPreview',
   'services',
+  'instagram',
   'serviceAreaCue',
   'finalCta',
 ].map((section) => ({ _type: 'homeSectionMarker', section }));
 
 const list = (sections ?? []).filter((s) => s && s._type);
-const rows = list.length > 0 ? list : DEFAULT_ORDER;
+const rows = placeMarker(list.length > 0 ? list : DEFAULT_ORDER, {
+  markerType: 'homeSectionMarker',
+  value: 'instagram',
+  show: siteSettings?.instagramFeedOnHome,
+  before: ['serviceAreaCue', 'finalCta'],
+});
 ---
 
 {
@@ -132,6 +145,8 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
             cta={page?.servicesGridCta}
             footnote={page?.servicesGridFootnote}
           />
+        ) : s.section === 'instagram' ? (
+          <InstagramFeed settings={siteSettings} headingId="home-instagram-heading" />
         ) : s.section === 'serviceAreaCue' ? (
           <ServiceAreaCue text={page?.serviceAreaCue} cities={siteSettings?.serviceAreas} />
         ) : s.section === 'finalCta' ? (

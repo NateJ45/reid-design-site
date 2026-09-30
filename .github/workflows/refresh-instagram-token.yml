@@ -1,0 +1,168 @@
+name: Refresh Instagram token
+
+# Added 2026-09-30 with the Instagram feed (src/components/InstagramFeed.astro).
+# Modelled on WCP's refresh-instagram-token.yml, adapted to how Reid deploys.
+#
+# WHY. The feed is baked in at build time by scripts/fetch-instagram.mjs, which
+# reads INSTAGRAM_TOKEN. That is a long-lived Instagram token: valid about 60
+# days, and Meta's refresh endpoint trades it (once it is 24h old) for a new
+# 60-day one. Refreshing every 50 days keeps it alive for good. If it ever
+# expires the site does not break: the feed simply renders nothing until a new
+# token is set.
+#
+# THE REID DIFFERENCE. WCP builds in GitHub Actions, so its token is a GitHub
+# secret. Reid builds on Cloudflare Workers Builds (push to main, and the
+# Sanity publish webhook), so the value the BUILD reads is a Workers Builds
+# build variable, set per build trigger. This job writes it there through the
+# Workers Builds API:
+#
+#   PATCH /accounts/{account_id}/builds/triggers/{trigger_uuid}/environment_variables
+#         {"INSTAGRAM_TOKEN": {"value": "...", "is_secret": true}}
+#   POST  /accounts/{account_id}/builds/triggers/{trigger_uuid}/builds  {"branch": "main"}
+#
+# A secret build variable reads back as null, so the job also keeps the
+# current token as the GitHub secret INSTAGRAM_TOKEN (it needs the OLD token to
+# ask for the new one). Both copies are updated on every refresh.
+#
+# CADENCE. GitHub cron is calendar-based, so this runs weekly and a timestamp
+# on the unprotected `ops-state` branch (file instagram-token-refreshed-at)
+# gates the real work to once every 50 days. `main` is protected by the
+# ruleset "main: PR + green CI", so the marker cannot live there. A missing
+# marker (or branch) counts as "never refreshed" and refreshes.
+#
+# SECRETS (Settings > Secrets and variables > Actions). Until INSTAGRAM_TOKEN
+# and the three Cloudflare ones exist the job warns and exits 0.
+#   INSTAGRAM_TOKEN        the current long-lived token (same value as the build variable)
+#   CF_BUILDS_API_TOKEN    a USER API token with "Workers Builds Configuration: Edit"
+#                          (account-owned tokens are rejected by the Builds API)
+#   CF_ACCOUNT_ID          the Cloudflare account id
+#   CF_BUILD_TRIGGER_UUID  the PRODUCTION trigger of reid-design-site (the one that
+#                          builds main); see docs/agent/deployment.md for how to find it
+#   GH_ACTIONS_PAT         fine-grained PAT on this repo with "Secrets: Read and write",
+#                          so the job can store the new token as INSTAGRAM_TOKEN
+#                          (the default GITHUB_TOKEN cannot write secrets)
+on:
+  schedule:
+    - cron: '0 7 * * 1' # Mondays 07:00 UTC; the gate below decides if it acts
+  workflow_dispatch:
+
+permissions:
+  contents: write # push the timestamp to ops-state
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      IG_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+      CF_TOKEN: ${{ secrets.CF_BUILDS_API_TOKEN }}
+      CF_ACCOUNT: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_TRIGGER: ${{ secrets.CF_BUILD_TRIGGER_UUID }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the secrets are set up
+        id: ready
+        run: |
+          if [ -z "$IG_TOKEN" ] || [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ] || [ -z "$CF_TRIGGER" ]; then
+            echo "::warning::Instagram token refresh is not set up yet (INSTAGRAM_TOKEN and the CF_* secrets). Skipping."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if 50 days have passed
+        id: check
+        if: steps.ready.outputs.ok == 'true'
+        run: |
+          LAST=0
+          if git fetch --depth=1 origin ops-state 2>/dev/null; then
+            LAST=$(git show FETCH_HEAD:instagram-token-refreshed-at 2>/dev/null || echo 0)
+          fi
+          case "$LAST" in ''|*[!0-9]*) LAST=0 ;; esac
+          DAYS=$(( ($(date +%s) - LAST) / 86400 ))
+          echo "$DAYS days since the last refresh (a huge number = never)"
+          if [ "$DAYS" -ge 50 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "due=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "due=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # graph.instagram.com/refresh_access_token trades a still-valid
+      # long-lived token for a new 60-day one. Neither token is echoed: the old
+      # one is a masked secret, the new one is masked before it is stored.
+      - name: Refresh the long-lived token
+        id: refresh
+        if: steps.check.outputs.due == 'true'
+        run: |
+          RESPONSE=$(curl -sS --max-time 30 "https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${IG_TOKEN}")
+          NEW=$(echo "$RESPONSE" | jq -r '.access_token // empty')
+          if [ -z "$NEW" ]; then
+            echo "::error::Instagram refused the refresh: $(echo "$RESPONSE" | jq -c '.error // .' )"
+            exit 1
+          fi
+          echo "::add-mask::$NEW"
+          echo "new_token=$NEW" >> "$GITHUB_OUTPUT"
+
+      # The copy the BUILD reads. Fails the job (before the marker is written)
+      # if Cloudflare says no, so next Monday tries again with the old token,
+      # which is still valid.
+      - name: Store it as the Workers Builds variable
+        if: steps.check.outputs.due == 'true'
+        env:
+          NEW_TOKEN: ${{ steps.refresh.outputs.new_token }}
+        run: |
+          BODY=$(jq -n --arg v "$NEW_TOKEN" '{INSTAGRAM_TOKEN: {value: $v, is_secret: true}}')
+          RESULT=$(curl -sS --max-time 30 -X PATCH \
+            "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/builds/triggers/${CF_TRIGGER}/environment_variables" \
+            -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" \
+            --data "$BODY")
+          if [ "$(echo "$RESULT" | jq -r '.success')" != "true" ]; then
+            echo "::error::Cloudflare did not store the build variable: $(echo "$RESULT" | jq -c '.errors')"
+            exit 1
+          fi
+          echo "INSTAGRAM_TOKEN build variable updated."
+
+      # The copy THIS job reads next time (a secret build variable reads back
+      # as null). Needs a PAT: GITHUB_TOKEN cannot write Actions secrets.
+      - name: Store it as the GitHub secret
+        if: steps.check.outputs.due == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACTIONS_PAT }}
+          NEW_TOKEN: ${{ steps.refresh.outputs.new_token }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::GH_ACTIONS_PAT is not set, so the GitHub copy of INSTAGRAM_TOKEN was not updated. The build already has the new token; set the secret by hand."
+            exit 1
+          fi
+          printf '%s' "$NEW_TOKEN" | gh secret set INSTAGRAM_TOKEN --repo "$GITHUB_REPOSITORY"
+
+      - name: Record the refresh on ops-state
+        if: steps.check.outputs.due == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BLOB=$(date +%s | git hash-object -w --stdin)
+          GIT_INDEX_FILE=$(mktemp -u)
+          export GIT_INDEX_FILE
+          git update-index --add --cacheinfo 100644,$BLOB,instagram-token-refreshed-at
+          TREE=$(git write-tree)
+          unset GIT_INDEX_FILE
+          if git fetch --depth=1 origin ops-state 2>/dev/null; then
+            COMMIT=$(git commit-tree "$TREE" -p FETCH_HEAD -m "chore: record Instagram token refresh")
+          else
+            # First run: ops-state does not exist yet, so start it.
+            COMMIT=$(git commit-tree "$TREE" -m "chore: record Instagram token refresh")
+          fi
+          git push origin "$COMMIT:refs/heads/ops-state"
+
+      # Bake the new token in now rather than at the next publish.
+      - name: Start a production build
+        if: steps.check.outputs.due == 'true'
+        run: |
+          RESULT=$(curl -sS --max-time 30 -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/builds/triggers/${CF_TRIGGER}/builds" \
+            -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" \
+            --data '{"branch":"main"}')
+          if [ "$(echo "$RESULT" | jq -r '.success')" != "true" ]; then
+            echo "::warning::The build did not start ($(echo "$RESULT" | jq -c '.errors')). The token is stored; the next publish or the weekly rebuild picks it up."
+          fi

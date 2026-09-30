@@ -20,8 +20,10 @@ const img = { _type: 'image', asset: { _type: 'reference', _ref: 'image-abc-600x
 const para = [{ _type: 'block', children: [{ _type: 'span', text: 'Hello' }] }];
 
 describe('the registry', () => {
-  it('covers every library block except the deliberately wordless spacer', () => {
-    const library = pageSectionSchemas.map((s) => s.name).filter((n) => n !== 'spacerSection');
+  it('covers every library block except the wordless spacer and the self-filling Instagram feed', () => {
+    const library = pageSectionSchemas
+      .map((s) => s.name)
+      .filter((n) => n !== 'spacerSection' && n !== 'instagramSection');
     expect([...COACHED_SECTION_TYPES].sort()).toEqual([...library].sort());
     expect(sectionCoach({ _type: 'spacerSection', variant: 'space' })).toBeNull();
   });
@@ -55,6 +57,8 @@ describe('the registry', () => {
     ).toBeNull();
     expect(sectionCoach({ _type: 'ctaBandSection', cta: { label: 'Book' } })).toBeNull();
     expect(sectionCoach({ _type: 'videoSection', url: 'https://youtu.be/x' })).toBeNull();
+    // Fills itself from Instagram: there is never anything to coach.
+    expect(sectionCoach({ _type: 'instagramSection' })).toBeNull();
   });
 
   it('accepts an already-projected image (the query expands asset to a document)', () => {

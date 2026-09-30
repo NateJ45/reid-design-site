@@ -1,0 +1,287 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// InstagramFeed: Staci's latest Instagram posts (added 2026-09-30)
+// =============================================================================
+// Modelled on the West Chester Preschool site's "Life inside WCP" band, in
+// Reid's grammar. The posts are baked in at BUILD time:
+//
+//   scripts/fetch-instagram.mjs (predev/prebuild) -> public/ig/<id>.jpg
+//                                                  + src/generated/instagram-feed.json
+//   src/lib/instagram.ts getInstagramTiles()       -> validated tiles (same-origin only)
+//
+// So the page never names an Instagram host (signed CDN links expire within
+// days; no new CSP origin is needed) and no visitor's browser talks to
+// Instagram. **No token, a failed fetch or
+// zero posts: this renders NOTHING**, on every page, which keeps the static
+// output byte-identical until the feed is connected.
+//
+// Placements: Home (the "instagram" layout marker, HomeSectionRenderer),
+// Contact (contact.astro), and any page builder page (the `instagramSection`
+// library block, via SectionRenderer). The words come from Site settings >
+// Instagram feed; a block may override the heading and intro.
+//
+// Design (DESIGN.md "Instagram feed"): a Linen (chip 1) band, Zodiak heading
+// with an italic accent, the ink follow pill, then square prints on a paper
+// mat that hang a hair off true and straighten on hover. 6 tiles on a phone
+// and tablet (2 and 3 across), 8 on desktop (4 across). A video shows its
+// poster with a play mark. Each tile opens the post in a new tab; its
+// accessible name is built from the caption (the picture's alt stays empty so
+// the words are not read twice).
+// =============================================================================
+import { splitScriptAccent } from '@/lib/scriptAccent';
+import { splitStega } from '@/lib/preview-stega';
+import { followLabel, getInstagramTiles, instagramProfileUrl, type IgTile } from '@/lib/instagram';
+
+interface Props {
+  /** getSiteSettings(): the words and the profile link. */
+  settings?: {
+    socialInstagram?: string | null;
+    instagramFeedHeadline?: string | null;
+    instagramFeedScriptAccent?: string | null;
+    instagramFeedSubhead?: string | null;
+    instagramFeedLinkLabel?: string | null;
+  } | null;
+  /** Per-page overrides (the page-builder block). */
+  heading?: string | null;
+  subhead?: string | null;
+  headingId?: string;
+  /** For tests only; the build passes nothing and reads the baked feed. */
+  tiles?: IgTile[];
+}
+
+const {
+  settings,
+  heading,
+  subhead,
+  headingId = 'instagram-heading',
+  tiles = getInstagramTiles(8),
+} = Astro.props as Props;
+
+const custom = heading || settings?.instagramFeedHeadline;
+const headText = custom || 'Lately, in the studio';
+// The accent applies to the site-wide heading (or the default); a block's own
+// heading takes none, since its accent field would live elsewhere.
+const accentText = heading
+  ? undefined
+  : settings?.instagramFeedHeadline
+    ? settings?.instagramFeedScriptAccent
+    : (settings?.instagramFeedScriptAccent ?? 'in the studio');
+const head = splitStega(headText);
+const h = splitScriptAccent(head.cleaned, splitStega(accentText ?? '').cleaned || undefined);
+const intro =
+  subhead ||
+  settings?.instagramFeedSubhead ||
+  'Rooms in progress, paint on the walls, and the finds that make a room. Straight from Instagram.';
+const profile = instagramProfileUrl(settings?.socialInstagram);
+const follow = followLabel(settings?.instagramFeedLinkLabel, settings?.socialInstagram);
+---
+
+{
+  tiles.length > 0 && (
+    <section class="ig" aria-labelledby={headingId} data-ig-feed>
+      <div class="r-wrap">
+        <header class="ig__head">
+          <div class="ig__intro">
+            <h2 id={headingId} class="r-h2 ig__h">
+              {h.found ? (
+                <>
+                  {h.before}
+                  <span class="r-accent">{h.word}</span>
+                  {h.after}
+                  {head.encoded}
+                </>
+              ) : (
+                headText
+              )}
+            </h2>
+            <p class="ig__sub">{intro}</p>
+          </div>
+          {profile && (
+            <a
+              class="r-btn r-btn--ink ig__follow"
+              href={profile}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {follow}
+              <span class="sr-only">, opens Instagram in a new tab</span>
+              <span class="r-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+          )}
+        </header>
+
+        <ul class="ig__grid" role="list">
+          {tiles.map((t) => (
+            <li class="ig__tile">
+              <a
+                href={t.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${t.label} (opens in a new tab)`}
+              >
+                <span class="ig__print">
+                  <span class="ig__photo">
+                    <img
+                      src={t.src}
+                      alt=""
+                      width="720"
+                      height="720"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {t.isVideo && (
+                      <span class="ig__play" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                          <path d="M8 5.5v13l11-6.5z" />
+                        </svg>
+                      </span>
+                    )}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .ig {
+    background: var(--color-chip-1);
+    color: var(--color-ink);
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .ig__head {
+    display: grid;
+    gap: 1.75rem;
+    align-items: end;
+    margin-bottom: clamp(2.25rem, 5vw, 3.75rem);
+  }
+  .ig__h {
+    margin: 0;
+  }
+  .ig__sub {
+    margin: 1.1rem 0 0;
+    max-width: 46ch;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--color-ink-2);
+    text-wrap: pretty;
+  }
+  .ig__follow {
+    justify-self: start;
+  }
+  @media (min-width: 900px) {
+    .ig__head {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 3rem;
+    }
+  }
+
+  /* ---- The prints. 2 across on a phone, 3 on a tablet (six tiles, the last
+     two hidden so the grid ends square), 4 across from 1024px (all eight). */
+  .ig__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.85rem, 2.2vw, 1.75rem);
+  }
+  .ig__tile:nth-child(n + 7) {
+    display: none;
+  }
+  @media (min-width: 640px) {
+    .ig__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .ig__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .ig__tile:nth-child(n + 7) {
+      display: block;
+    }
+  }
+
+  .ig__tile a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    /* A hair off true, alternating, like prints pinned to a board. */
+    rotate: var(--tilt, -0.6deg);
+  }
+  .ig__tile:nth-child(even) a {
+    --tilt: 0.7deg;
+  }
+  .ig__tile:nth-child(3n) a {
+    --tilt: -0.3deg;
+  }
+  .ig__tile a:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  .ig__print {
+    position: relative;
+    display: block;
+    padding: 0.4rem;
+    background: var(--color-paper);
+    box-shadow:
+      0 1px 2px rgb(35 30 27 / 0.12),
+      0 10px 22px -12px rgb(35 30 27 / 0.35);
+  }
+  /* The photo's own box clips the hover zoom inside the paper mat. */
+  .ig__photo {
+    position: relative;
+    display: block;
+    overflow: hidden;
+  }
+  .ig__print img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--color-chip-2);
+  }
+  /* The play mark on a video's poster: an ink disc, cream triangle. */
+  .ig__play {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding-left: 2px;
+    border-radius: 50%;
+    background: rgb(35 30 27 / 0.82);
+    color: var(--color-cream);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ig__tile a {
+      transition:
+        rotate 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .ig__print img {
+      transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .ig__tile a:hover,
+    .ig__tile a:focus-visible {
+      rotate: 0deg;
+      translate: 0 -3px;
+    }
+    .ig__tile a:hover img {
+      scale: 1.04;
+    }
+  }
+</style>

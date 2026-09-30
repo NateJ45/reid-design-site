@@ -3,7 +3,8 @@
 // Renders a page-builder section array. Maps each block _type to its component
 // and OWNS the alternating background cadence for content blocks, so reordering
 // can never break the page rhythm (that is why blocks have no color field).
-// Self-contained blocks (hero, CTA band, stats, spacer) manage their own surface.
+// Self-contained blocks (hero, CTA band, stats, spacer, and since 2026-09-30
+// the Instagram feed on its Linen chip ground) manage their own surface.
 //
 // Used by custom pages (src/pages/[...slug].astro) and, after the retrofit, by
 // the core pages. The GROQ query that loads `sections` must project images with
@@ -18,6 +19,8 @@ import ImageText from '@/components/sections/ImageText.astro';
 import GalleryGrid from '@/components/sections/GalleryGrid.astro';
 import QuoteBlock from '@/components/sections/QuoteBlock.astro';
 import VideoEmbed from '@/components/sections/VideoEmbed.astro';
+import InstagramFeed from '@/components/InstagramFeed.astro';
+import { getSiteSettings } from '@/lib/queries';
 import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
 import SectionCoach from '@/components/SectionCoach.astro';
@@ -55,6 +58,13 @@ interface Props {
 }
 
 const { sections = [], idPrefix = 'section', editDoc, coach = false } = Astro.props as Props;
+
+// The Instagram block's shared words live on siteSettings (2026-09-30). Read
+// only when a section list actually has one, and through the memoized build
+// read, so no other page makes an extra request.
+const igSettings = (sections ?? []).some((s: any) => s?._type === 'instagramSection')
+  ? await getSiteSettings()
+  : null;
 
 // -------------------------------------------------------------------------
 // Empty-section coaching (PREVIEW ONLY, 2026-09-29)
@@ -231,6 +241,13 @@ const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as con
         <QuoteBlock {...s} surface={surface ?? 'background'} />
       ) : s._type === 'videoSection' ? (
         <VideoEmbed {...s} surface={surface} headingId={headingId} />
+      ) : s._type === 'instagramSection' ? (
+        <InstagramFeed
+          settings={igSettings}
+          heading={s.heading}
+          subhead={s.subhead}
+          headingId={headingId}
+        />
       ) : null}
       {handle && (
         <div

@@ -518,6 +518,12 @@ export type SiteSettings = {
   }>;
   socialInstagram?: string;
   socialFacebook?: string;
+  instagramFeedHeadline?: string;
+  instagramFeedScriptAccent?: string;
+  instagramFeedSubhead?: string;
+  instagramFeedLinkLabel?: string;
+  instagramFeedOnHome?: boolean;
+  instagramFeedOnContact?: boolean;
   seoImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -587,13 +593,21 @@ export type HomeSectionMarker = {
     | 'services'
     | 'featuredJournal'
     | 'press'
+    | 'instagram'
     | 'serviceAreaCue'
     | 'finalCta';
 };
 
 export type AboutSectionMarker = {
   _type: 'aboutSectionMarker';
-  section?: 'hero' | 'story' | 'philosophy' | 'personal' | 'press' | 'stats' | 'finalCta';
+  section?:
+    'hero' | 'story' | 'philosophy' | 'personal' | 'press' | 'stats' | 'kindWords' | 'finalCta';
+};
+
+export type InstagramSection = {
+  _type: 'instagramSection';
+  heading?: string;
+  subhead?: string;
 };
 
 export type SpacerSection = {
@@ -816,6 +830,9 @@ export type PrivacyPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
 };
 
@@ -880,6 +897,9 @@ export type PortfolioPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
 };
 
@@ -937,6 +957,9 @@ export type EDesignPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1055,6 +1078,9 @@ export type Page = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
   addToMainNav?: boolean;
   navGroup?: 'top' | 'services' | 'resources';
@@ -1161,6 +1187,9 @@ export type ContactPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
 };
 
@@ -1235,6 +1264,9 @@ export type FaqPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
 };
 
@@ -1285,6 +1317,9 @@ export type ServicesPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1391,6 +1426,9 @@ export type ProcessPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1468,6 +1506,9 @@ export type AboutPage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1547,6 +1588,11 @@ export type AboutPage = {
     _type: 'statItem';
     _key: string;
   }>;
+  kindWordsShow?: boolean;
+  kindWordsEyebrow?: string;
+  kindWordsHeadline?: string;
+  kindWordsScriptAccent?: string;
+  kindWordsSubhead?: string;
   finalCtaEyebrow?: string;
   finalCtaHeadline?: string;
   finalCtaScriptAccent?: string;
@@ -1615,6 +1661,9 @@ export type HomePage = {
     | ({
         _key: string;
       } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -2013,6 +2062,7 @@ export type AllSanitySchemaTypes =
   | ServicesSectionMarker
   | HomeSectionMarker
   | AboutSectionMarker
+  | InstagramSection
   | SpacerSection
   | VideoSection
   | CtaBandSection

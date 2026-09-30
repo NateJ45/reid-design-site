@@ -18,7 +18,7 @@
 // section on the LIVE site behaves exactly as it did before. Do not wire this
 // into a block component.
 //
-// Only the nine library blocks are here. The "Built-in section" markers render
+// Only the library blocks are here. The "Built-in section" markers render
 // a page's own tabs, never an empty band of their own, and they do not reach
 // SectionRenderer at all.
 //
@@ -107,8 +107,9 @@ const COACH: Record<string, CoachEntry> = {
 
 /**
  * The coaching note for a section with nothing in it yet, or `null` when the
- * section has something to show (or has no entry, like the spacer, which is
- * wordless on purpose).
+ * section has something to show (or has no entry: the spacer, which is
+ * wordless on purpose, and the Instagram feed (2026-09-30), which fills
+ * itself from the build and has nothing for Staci to add).
  *
  * PREVIEW ONLY. Call this only behind the preview signal; see the header.
  */
