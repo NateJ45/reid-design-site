@@ -245,6 +245,12 @@ Phase 1 (home, header, footer, closing CTA, tokens, fonts, buttons) is on
   path bug in @sanity/astro's dev-only alias; not merged yet). Until
   then, iterate with `npm run build` (about 45s) and a static server over
   `dist/client`.
+- **CI and Lighthouse build without a Sanity read token.** Anonymous reads
+  return only the page singletons (dotted _ids like `service.*` are private),
+  so `ci.yml` and `lighthouse.yml` audit pages with no services, testimonials
+  or process steps. Staging was fixed on `claude/redesign` (2026-09-29) by
+  passing `SANITY_AUTH_TOKEN` as `SANITY_API_READ_TOKEN`; do the same for the
+  CI build/Playwright job and the Lighthouse job so the gates see real pages.
 - **Parity baselines** (`scripts/.parity`) will differ everywhere after the
   rebuild by design. Recapture them from the merged build, after checking the
   static build still carries no `data-sanity` attributes (checked 2026-09-29:
