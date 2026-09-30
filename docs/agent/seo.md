@@ -83,6 +83,12 @@ Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUS
 
 Test every schema with Google's Rich Results Test (https://search.google.com/test/rich-results) before launch. Errors at scale will tank rankings rather than fail loudly.
 
+### Why there is no review schema (2026-09-30)
+
+The site shows Staci's Google rating (`RatingTag`) and Google review quotes, but `localBusinessSchema()` deliberately carries **no `aggregateRating` and no `review`**. Google treats review markup a business puts about itself on its own LocalBusiness or Organization as "self-serving" and has shown no review stars for it since 2019; marking up reviews collected on another platform (Google itself) also breaks the review-snippet guidelines and can draw a manual action. So it would buy nothing and risk something. The stars people see in search and Maps come from the Business Profile. The comment in `src/lib/schemas.ts` says the same; do not "fix" it.
+
+What the schema does do: `sameAs` now includes `siteSettings.googleBusinessUrl` beside Instagram and Facebook, tying the site to the Maps listing as the same business.
+
 ### Google Business Profile
 
 A complete GBP listing is the single biggest local-SEO lever for a Plainfield service business. The site supports the listing but doesn't replace it. Confirm at launch:

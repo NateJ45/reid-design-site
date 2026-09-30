@@ -28,7 +28,7 @@
 // (each block type exists, each key is unique, no em-dashes in the copy).
 // =============================================================================
 import type { Template } from 'sanity';
-import { DocumentsIcon, PinIcon, ImagesIcon } from '@sanity/icons';
+import { DocumentsIcon, PinIcon, ImagesIcon, StarIcon } from '@sanity/icons';
 
 /** One paragraph of Portable Text. */
 const para = (key: string, text: string) => ({
@@ -225,6 +225,24 @@ export const STARTING_TEMPLATES: Template[] = [
         ),
         para('tpl-story-p3', '[Then the result: how the room works for them now. Stop there.]'),
       ],
+    }),
+  },
+  // ------------------------------------------------------------ Google review
+  // Added 2026-09-30. Offered by the "Google reviews" desk list (structure.ts)
+  // so a new review starts with both source dropdowns already on Google, which
+  // is what makes the stars field appear and the review show on the home page.
+  {
+    id: 'testimonial-google',
+    title: 'Google review',
+    description: 'A review copied from your Google profile, with its stars.',
+    schemaType: 'testimonial',
+    icon: StarIcon,
+    value: () => ({
+      source: 'Google',
+      sourceType: 'Google',
+      rating: 5,
+      featured: false,
+      hideOnWebsite: false,
     }),
   },
 ];

@@ -1,0 +1,82 @@
+---
+// Foundation, edit with care
+// The citation under a Google review quote (added 2026-09-30): the reviewer's
+// name as Google shows it on its own line, then the review's age and
+// "Read on Google" on the next, split by a small Saddle dot. Two lines rather
+// than one run, so a narrow column never wraps a separator onto a new line.
+//
+// The age is a <time data-rel>: worded at build by relativeDate(), then
+// refreshed in the browser by the script in home/HomeWords.astro, so
+// "3 weeks ago" stays true between rebuilds.
+//
+// Colours inherit (the caller sets `color`); the name takes --gcite-strong.
+import { relativeDate, type ReviewLike } from '@/lib/reviews';
+import { splitStega } from '@/lib/preview-stega';
+
+interface Props {
+  review: ReviewLike;
+  /** Where "Read on Google" goes (the review, else the profile); none = no link. */
+  href?: string | null;
+}
+
+const { review, href } = Astro.props as Props;
+const age = relativeDate(review.date);
+const plainName = splitStega(review.attribution ?? '').cleaned;
+---
+
+<figcaption class="gcite">
+  <span class="gcite__who">{review.attribution}</span>
+  {
+    (age || href) && (
+      <span class="gcite__meta">
+        {age && (
+          <time datetime={splitStega(review.date ?? '').cleaned} data-rel>
+            {age}
+          </time>
+        )}
+        {href && (
+          <a class="r-link gcite__read" href={href} target="_blank" rel="noopener noreferrer">
+            Read on Google
+            <span class="sr-only">: {plainName}’s review, opens in a new tab</span>
+          </a>
+        )}
+      </span>
+    )
+  }
+</figcaption>
+
+<style>
+  .gcite {
+    display: grid;
+    gap: 0.3rem;
+    justify-items: start;
+  }
+  .gcite__who {
+    color: var(--gcite-strong, inherit);
+  }
+  .gcite__meta {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  /* The dot between the age and the link is drawn by the link's ::after,
+     outside its box, so the link's drawn underline starts at the words. */
+  .gcite__meta > time + .gcite__read {
+    margin-left: 1.65rem;
+    position: relative;
+  }
+  .gcite__meta > time + .gcite__read::after {
+    content: '';
+    position: absolute;
+    left: -0.95rem;
+    top: 50%;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 50%;
+    translate: 0 -50%;
+    background: var(--color-chip-4);
+  }
+  .gcite__read {
+    color: var(--gcite-strong, inherit);
+  }
+</style>

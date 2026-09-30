@@ -157,6 +157,9 @@ no decorative numbering.
   scroll, each marked by its time estimate in Zodiak italic; a vertical ruler
   on phones.
 - `home/HomeWords.astro`: the ink band, one big italic quote, three loose ones.
+  Since 2026-09-30 the Google rating hangs in its heading as a stamp, and rated
+  Google reviews come first, newest first, each with Sandbar stars, the
+  reviewer's name, its age and "Read on Google" (see "Google reviews").
 - `ServiceAreaCue.astro`: towns set large, home base first in Espresso italic.
 - `FinalCta.astro` (every page): Walnut close, big headline, the logo's sprig
   drawing itself in behind.
@@ -361,6 +364,31 @@ portfolio templates are ready for the day the first `project` exists.
   Home/End.
 - `FeaturedWork` (home, hidden until projects exist): the home head grammar,
   a lead project with a sample tag, up to three more as a ruled list.
+
+## Google reviews (2026-09-30)
+
+The rating is another object off the work table: a **sample tag**
+(`reviews/RatingTag.astro`, the `.r-tag` shape: paper, notched left edge,
+punched hole with a Warm Bronze ring) with the rating in Zodiak Light, five
+drawn stars and "6 Google reviews" in General Sans 500. It hangs at a slight
+tilt and straightens on hover. The word "Google" is text, never the logo.
+
+- Stars are fills: Warm Bronze on the paper tag, Sandbar on the ink band,
+  empty stars Oat (or faint cream on ink). Never text colours.
+- Text on the tag is ink and ink 2 on paper; on a paper band the tag face turns
+  Linen (`--rt-face`) so it still reads as an object.
+- Placements: home hero (its own row under the buttons, paper tag on Walnut),
+  home reviews band (the `stamp`, right of the heading; under it on phones),
+  Contact aside (under the price tag, tilted the other way, with "Leave a
+  review" beside it), Services (hanging off the price index's bottom rule, on
+  the right), header (`compact`, one line in `currentColor`).
+- Google quotes on the ink band: stars above the words, then the name on its
+  own line and "3 weeks ago · Read on Google" under it (two lines, so a narrow
+  column never wraps a separator). "Reviews from Google, newest first" sits
+  under the heading when any are shown.
+- No data, no trace: every piece renders nothing until Staci fills in the
+  rating and count, and older testimonials render as before until they have
+  stars.
 
 ## Motion
 

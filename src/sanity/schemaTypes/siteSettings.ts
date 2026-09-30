@@ -421,17 +421,83 @@ export const siteSettings = defineType({
     }),
 
     // ── Reviews ──────────────────────────────────────────────────────────────
+    // The Google rating summary (added 2026-09-30). Staci types these in by
+    // hand for now; a future Google Business Profile API sync job will write
+    // the SAME fields, so nothing on the site changes when it arrives:
+    //
+    //   GBP API (reviews list response)        -> field here
+    //   averageRating (round to 1 decimal)     -> googleRating
+    //   totalReviewCount                       -> googleReviewCount
+    //   the day the sync ran (YYYY-MM-DD)      -> googleReviewsUpdatedAt
+    //   (not in the API; set once by hand)     -> googleBusinessUrl, googleWriteReviewUrl,
+    //                                             googlePlaceId (ChIJ...; the sync looks the
+    //                                             location up by it, and
+    //                                             search.google.com/local/writereview?placeid=<id>
+    //                                             is the write-a-review link it can rebuild)
+    //
+    // The individual reviews are `testimonial` documents (source "Google",
+    // googleReviewId for dedupe); see testimonial.ts. The rating tag
+    // (src/components/reviews/RatingTag.astro) renders nothing until BOTH the
+    // rating and the count are filled in. Full plan: docs/agent/sanity.md,
+    // "Google reviews".
     defineField({
       name: 'googleBusinessUrl',
-      title: 'Google Business Profile URL',
+      title: 'Google Business Profile link',
       type: 'url',
+      group: 'reviews',
       description:
-        'Link to the Reid Design Google Business listing. When set, a "Read more on Google" link appears in the testimonials section.',
+        'The link to your Google listing. The star rating on the site links here, and so does "Read more reviews on Google". Example: https://maps.google.com/?cid=4965899650606392676 (the stable link to the Reid Design LLC listing).',
+    }),
+    defineField({
+      name: 'googleRating',
+      title: 'Google star rating',
+      type: 'number',
+      group: 'reviews',
+      description:
+        'Copy the number shown next to the stars on your Google profile, for example 4.9 or 5.0. One decimal. The rating shows on the home page, Services and Contact once this AND the review count are filled in.',
+      validation: (Rule) => Rule.min(1).max(5).precision(1),
+    }),
+    defineField({
+      name: 'googleReviewCount',
+      title: 'Number of Google reviews',
+      type: 'number',
+      group: 'reviews',
+      description:
+        'Copy the number in brackets next to your rating on Google, for example 27. Update it when new reviews come in, along with the date below.',
+      validation: (Rule) => Rule.integer().min(0),
+    }),
+    defineField({
+      name: 'googleWriteReviewUrl',
+      title: '"Leave a review" link',
+      type: 'url',
+      group: 'reviews',
+      description:
+        'The link that opens Google\'s "write a review" box for your business. To get it: open your Business Profile on Google (search "Reid Design LLC" while signed in), click "Ask for reviews" (or "Read reviews", then "Get more reviews"), then "Copy link". It looks like https://g.page/r/CWRlofhra-pEEBE/review (the Reid Design LLC link). Optional: when it is empty, the Contact page simply leaves out the "Leave a review" link.',
+    }),
+    defineField({
+      name: 'googlePlaceId',
+      title: 'Google place ID',
+      type: 'string',
+      group: 'reviews',
+      description:
+        'The ID Google gives your listing, starting "ChIJ" (Reid Design LLC is ChIJn4hYoY0EZiMRZGWh-Gtr6kQ). Set once, then leave it alone: the future automatic review sync uses it to find your listing, and it can rebuild the "Leave a review" link. Not shown on the site.',
+      validation: (Rule) =>
+        Rule.regex(/^ChIJ[\w-]+$/, { name: 'Google place ID (starts with ChIJ)' }).warning(),
+    }),
+    defineField({
+      name: 'googleReviewsUpdatedAt',
+      title: 'Rating last checked',
+      type: 'date',
+      group: 'reviews',
+      description:
+        'The day you last copied the rating and count from Google. Not shown on the site; it tells you (and a future automatic sync) how fresh the numbers are.',
+      options: { dateFormat: 'MMMM D, YYYY' },
     }),
     defineField({
       name: 'reviewsNote',
       title: 'Reviews note',
       type: 'string',
+      group: 'reviews',
       description:
         'Optional small-print line near the reviews section. Example: "Reviews from Google, Facebook, and Houzz."',
     }),

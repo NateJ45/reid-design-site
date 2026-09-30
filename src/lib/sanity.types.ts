@@ -540,6 +540,11 @@ export type SiteSettings = {
     consentNote?: string;
   };
   googleBusinessUrl?: string;
+  googleRating?: number;
+  googleReviewCount?: number;
+  googleWriteReviewUrl?: string;
+  googlePlaceId?: string;
+  googleReviewsUpdatedAt?: string;
   reviewsNote?: string;
   sectionVisibility?: {
     showPortfolio?: boolean;
@@ -1735,6 +1740,9 @@ export type Testimonial = {
   relatedProject?: ProjectReference;
   sourceType?: 'Google' | 'Facebook' | 'Houzz' | 'Direct';
   reviewUrl?: string;
+  rating?: 5 | 4 | 3 | 2 | 1;
+  hideOnWebsite?: boolean;
+  googleReviewId?: string;
 };
 
 export type Project = {

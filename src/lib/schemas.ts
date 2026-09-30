@@ -26,6 +26,8 @@ interface SiteSettings {
   geoLng?: number;
   socialInstagram?: string;
   socialFacebook?: string;
+  /** The Google Business Profile link (siteSettings, Reviews tab). */
+  googleBusinessUrl?: string;
 }
 
 interface Service {
@@ -80,7 +82,18 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
       name: city,
     })),
     priceRange: '$$',
-    sameAs: [s.socialInstagram, s.socialFacebook].filter(Boolean),
+    // The Google Business Profile joins the socials here (2026-09-30): it ties
+    // this site to the Maps listing as the same business.
+    sameAs: [s.socialInstagram, s.socialFacebook, s.googleBusinessUrl].filter(Boolean),
+    // NO aggregateRating AND NO review HERE, ON PURPOSE (2026-09-30). The
+    // Google rating is shown on the page (RatingTag), but marking it up on our
+    // own LocalBusiness is "self-serving" review markup: since 2019 Google
+    // shows no review stars for a LocalBusiness or Organization that reviews
+    // itself on its own site, and markup that repeats reviews collected on
+    // another platform breaks the review-snippet guidelines, which can earn a
+    // manual action. So it would buy nothing and risk something. The stars
+    // people see in search come from the Google Business Profile itself.
+    // Detail: docs/agent/seo.md, "Why there is no review schema".
   };
   if (s.phone) schema.telephone = s.phone;
   return JSON.stringify(schema);

@@ -65,6 +65,13 @@ The current component set, by role. All in `src/components/` unless noted.
 - `TestimonialCard.astro` — quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
 - `FeaturedTestimonial.astro` — large editorial pull-quote variant of TestimonialCard.
 
+**Google reviews (2026-09-30, `src/components/reviews/`):**
+
+- `RatingTag.astro` — the Google rating as a sample tag: "5.0" in Zodiak, drawn stars, "6 Google reviews", links to the profile in a new tab. Props: `settings` (the getSiteSettings() result) and `variant`: `inline` (home hero under the buttons, Contact aside under the price tag, Services under the price index), `stamp` (larger, tilted, the home reviews band heading), `compact` (one line, no tag shape, `currentColor`, for the header; exported, placed by the header work). Renders nothing without both rating and count. Accessible name "Rated 5.0 out of 5 from 6 Google reviews, opens Google in a new tab" (visible words plus sr-only words, so 2.5.3 holds). Tag face via `--rt-face` (Services sets Linen so it reads on paper), tilt via `--rt-tilt`.
+- `Stars.astro` — five stars in one SVG; partial fill by nested-svg clipping (no ids). Colours `--star-on` / `--star-off`, size `--star-h`. Always `aria-hidden`; callers print the number.
+- `GoogleCite.astro` — the citation under a Google quote: name, then age ("3 weeks ago", a `<time data-rel>`) and "Read on Google". `HomeWords` re-words the ages in the browser on `astro:page-load` via the import-free `src/lib/relative-date.ts`, so they stay true between rebuilds.
+- Logic in `src/lib/reviews.ts` (tested in `reviews.test.ts`): `googleRatingFrom`, `googleWriteReviewUrl`, `starFills`, `formatRating`, `reviewCountLabel`, `relativeDate`, `isGoogleReview` / `isRatedGoogleReview`, `orderReviews`.
+
 **Home page Featured sections (auto-from-Sanity hero + companion panel):**
 
 - `FeaturedWork.astro` — rebuilt 2026-09-30 in the home grammar: a rising Zodiak headline with the subhead beside it, the lead project as a framed 4:5 crop with its room on a sample tag and the title, line and brief underneath (no overlay), and up to three more as a ruled list with square thumbnails. Renders nothing until a project exists.

@@ -107,6 +107,19 @@ const studioGuideDoc = {
       ],
     },
     {
+      _key: 'h30',
+      _type: 'howTo',
+      title: 'Update your Google rating and reviews',
+      steps: [
+        'Open your Google Business Profile (search "Reid Design LLC" on Google while signed in) and look at the rating: the number next to the stars (like 5.0) and the number of reviews in brackets (like 6).',
+        'In the Studio, click "Content", then "Google reviews", then "Star rating and review count". That opens Site Settings: click the "Reviews" tab.',
+        'Type the rating into "Google star rating" and the count into "Number of Google reviews", and set "Rating last checked" to today. Click Publish. The rating shows on the home page, Services and Contact once both numbers are in.',
+        'The "Leave a review" link on Contact comes from the "Leave a review" link field. On Google, click "Ask for reviews", then "Copy link", and paste it there (it looks like https://g.page/r/.../review).',
+        'To add a review itself: "Content", then "Google reviews", then "Reviews from Google", then +. Paste their words exactly, copy their name as Google shows it, pick the day, pick the stars, and paste the link to the review if you have it. Publish.',
+        'Google reviews with stars show on the home page by themselves, newest first. To keep one off the site, tick "Hide on the website" on it.',
+      ],
+    },
+    {
       _key: 'h8',
       _type: 'howTo',
       title: 'Change a price or service description',

@@ -19,6 +19,9 @@
 import SectionHeading from '@/components/SectionHeading.astro';
 import ServiceCard from '@/components/ServiceCard.astro';
 import { chipPrice, toneFor } from '@/components/services/tones';
+// Google reviews insertion (2026-09-30): the rating tag under the price index.
+import RatingTag from '@/components/reviews/RatingTag.astro';
+import { googleRatingFrom, type GoogleRatingSettings } from '@/lib/reviews';
 
 interface Props {
   eyebrow?: string;
@@ -28,6 +31,8 @@ interface Props {
   hasBuilders?: boolean;
   hasServiceArea?: boolean;
   visibleEDesign?: boolean;
+  /** siteSettings, for the Google rating tag (renders nothing without data). */
+  ratingSettings?: GoogleRatingSettings | null;
 }
 
 const {
@@ -37,6 +42,7 @@ const {
   hasBuilders = false,
   hasServiceArea = false,
   visibleEDesign = false,
+  ratingSettings,
 } = Astro.props as Props;
 
 const n = services.length;
@@ -83,6 +89,15 @@ const showIndex = n >= 3;
       )
     }
 
+    {/* ---- Google reviews insertion (2026-09-30) ---- */}
+    {
+      googleRatingFrom(ratingSettings) && (
+        <div class:list={['svcs__rating', { 'is-under-deck': showIndex }]}>
+          <RatingTag settings={ratingSettings} />
+        </div>
+      )
+    }
+
     {
       n > 0 ? (
         <ol class="strip">
@@ -119,6 +134,19 @@ const showIndex = n >= 3;
   .svcs {
     background: var(--color-paper);
     padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+
+  /* Google reviews insertion (2026-09-30): the rating tag hangs off the
+     index's bottom rule on the right, like a tag tied to the deck. */
+  .svcs__rating {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-right: 1rem;
+    --rt-face: var(--color-chip-1);
+  }
+  .svcs__rating.is-under-deck {
+    margin-top: -1.35rem;
   }
 
   /* ---- Deck index ---- */

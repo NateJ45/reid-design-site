@@ -447,6 +447,44 @@ The Sanity client is at `src/lib/sanity.ts`. It exports `client`, `sanityFetch()
 
 **Section-array projection.** Any page-builder array (the marker `pageBuilder` arrays, custom-page `pageBuilder`, and the `additionalSections` "Extra sections" zone on faq/contact/privacy/portfolio) is projected with the single `sectionsProjection(field = 'pageBuilder')` helper in `queries.ts`. It spreads each block and resolves the per-type references (hero/CTA-band background images + cta blocks, image+text image + cta, gallery images). To wire a new section-array field on any page, add the field with the shared helper in the schema, then add `${sectionsProjection('<fieldName>')}` to that page's query and render it through `SectionRenderer`. See [Page builder](page-architecture.md) for the component side.
 
+### Google reviews (added 2026-09-30)
+
+Staci has a Google Business Profile ("Reid Design LLC", stable link `https://maps.google.com/?cid=4965899650606392676`, place ID `ChIJn4hYoY0EZiMRZGWh-Gtr6kQ`). Nathan's decision: **manual entry now, an automatic Google Business Profile API sync later**. The fields are shaped so the sync writes exactly what Staci types today; nothing on the site changes when it arrives. The sync is NOT built.
+
+**The rating summary** lives on `siteSettings` (Reviews tab), because the profile link was already there and `getSiteSettings()` is already on every page (memoized), so the hero, Contact and Services read it with no new query:
+
+| Field                    | Type                        | What Staci does                                                                                                                       |
+| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `googleBusinessUrl`      | url                         | The profile link (existing field, now in the Reviews tab). The rating tag and "Read more reviews on Google" link here.                |
+| `googleRating`           | number, 1 to 5, one decimal | Copies the number next to the stars (5.0 today).                                                                                      |
+| `googleReviewCount`      | number, integer             | Copies the count in brackets (6 today).                                                                                               |
+| `googleWriteReviewUrl`   | url, optional               | Google, "Ask for reviews", "Copy link": `https://g.page/r/CWRlofhra-pEEBE/review`. Drives "Leave a review" on Contact.                |
+| `googlePlaceId`          | string, optional            | `ChIJ...`, set once. Not shown; for the sync and for rebuilding the review link (`search.google.com/local/writereview?placeid=<id>`). |
+| `googleReviewsUpdatedAt` | date                        | The day she last copied the numbers. Not shown.                                                                                       |
+
+`RatingTag` renders nothing until BOTH `googleRating` and `googleReviewCount` are set (`googleRatingFrom()` in `src/lib/reviews.ts`), so every placement is empty with no gap until then. "Leave a review" on Contact needs only `googleWriteReviewUrl`.
+
+**The reviews themselves** are `testimonial` documents, extended rather than a new type: Source "Google" (either `source` or the older `sourceType`; both are already in `NON_STEGA_FIELDS`, and `rating` was added there for form's sake), plus `rating` (1 to 5 radio, shown only for Google), `hideOnWebsite` (boolean, shown only for Google), and `googleReviewId` (read-only, invisible until a sync writes it). The reviewer's name is `attribution`, the date `date`, the link `reviewUrl`. **A Google testimonial gets the Google treatment only once it has stars** (`isRatedGoogleReview`): the testimonials already marked Google before 2026-09-30 have none and render exactly as before. Rated, unhidden Google reviews are collected automatically by `getHomePage().googleReviews` (newest first, up to six) and ordered by `orderReviews()`: Staci's featured pick stays the big lead quote; then Google reviews newest first; then her other "Testimonials to show".
+
+**Where Staci finds it:** Content > Google reviews. "Star rating and review count" opens Site Settings (Reviews tab); "Reviews from Google" lists them newest first, and + starts one from the `testimonial-google` template (both source fields on Google, 5 stars). The Studio guide how-to "Update your Google rating and reviews" is in `scripts/seed-studio-guide.mjs` (seed file only; re-run the seeder to publish it to the guide).
+
+**The future sync (plan, not built).** A scheduled job (a Cloudflare cron Worker or a GitHub Action, then the publish webhook to rebuild) using the Google Business Profile API with OAuth for Staci's account:
+
+| API                                               | Sanity                                                                                             |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| location lookup by `googlePlaceId`                | (input)                                                                                            |
+| reviews list `averageRating` (round to 1 decimal) | `siteSettings.googleRating`                                                                        |
+| reviews list `totalReviewCount`                   | `siteSettings.googleReviewCount`                                                                   |
+| the run date                                      | `siteSettings.googleReviewsUpdatedAt`                                                              |
+| `review.reviewId`                                 | `testimonial.googleReviewId`, doc id `testimonial-google-<reviewId>` (createOrReplace-safe dedupe) |
+| `review.reviewer.displayName`                     | `attribution`                                                                                      |
+| `review.starRating` (`ONE`..`FIVE`)               | `rating` (1..5)                                                                                    |
+| `review.comment`                                  | `quote` (skip reviews with no text: `quote` is required)                                           |
+| `review.createTime` (date part)                   | `date`                                                                                             |
+| constant                                          | `source` and `sourceType` "Google"                                                                 |
+
+Rules for the sync: patch with `setIfMissing` for `hideOnWebsite` and never touch `featured`, `hideOnWebsite` or a hand-pasted `reviewUrl` (the API gives no per-review public URL); never overwrite a hand-typed quote without a diff check. API access for reviews needs Google's approval for the Business Profile APIs, which is the real lead time.
+
 ### Auto-populated lists
 
 Several pages pull their content from collections automatically rather than requiring per-page configuration. Examples:
@@ -456,6 +494,7 @@ Several pages pull their content from collections automatically rather than requ
 - Process steps everywhere: all `processStep` documents in `stepNumber` order.
 - FAQs on the FAQ page: grouped by `category`, in the order defined in `faqPage.categoryOrder`.
 - FAQs on the Process page: only those with `alsoShowOnProcessPage: true`.
+- Google reviews on the home band: `testimonial` documents with Source Google, a star rating and "Hide on the website" unticked, newest first (see "Google reviews" above).
 - Philosophy points on About: all `philosophyPoint` documents in `orderRank` (drag order). The visible card numbers (01 / 02 / 03) are assigned by render position (`idx + 1`), not by the `displayOrder` field. Do not restore `displayOrder`-based numbering: the numbers are always sequential and always match what the editor sees on screen. `displayOrder` on `philosophyPoint` is now optional and serves only as a backup sort key when `orderRank` is absent.
 
 This trades a small amount of flexibility for a much simpler editor experience. Staci adds a service in Sanity, sets `showOnHomepage: true`, and it appears on both the Services page and the homepage without touching any other document.

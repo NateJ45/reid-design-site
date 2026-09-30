@@ -103,6 +103,12 @@ export const SITE_SETTINGS_PROJECTION = `{
     footerCredit,
     footerCreditUrl,
     googleBusinessUrl,
+    // Google rating summary (2026-09-30), read by RatingTag through
+    // googleRatingFrom() in src/lib/reviews.ts. Manual now, a GBP sync later.
+    googleRating,
+    googleReviewCount,
+    googleWriteReviewUrl,
+    googleReviewsUpdatedAt,
     reviewsNote,
     satisfactionGuarantee,
     navItems[]{
@@ -208,6 +214,19 @@ export async function getHomePage(c: SanityClient = client) {
     "testimonialsToShow": testimonialsToShow[]->{
       ...,
       "relatedProject": relatedProject->{ title, "slug": slug.current }
+    },
+    // Google reviews WITH STARS show on the home band by themselves
+    // (2026-09-30), newest first, unless Staci ticks "Hide on the website".
+    // Older testimonials marked Google have no stars and are left alone. Collected here rather
+    // than picked, so a review a future GBP sync writes appears on the next
+    // build with nothing to click. orderReviews() in src/lib/reviews.ts merges
+    // them with her featured pick and her "Testimonials to show".
+    "googleReviews": *[_type == "testimonial"
+      && (source == "Google" || sourceType == "Google")
+      && hideOnWebsite != true
+      && defined(rating)
+      && defined(quote)] | order(date desc)[0...6]{
+      _id, quote, attribution, date, source, sourceType, rating, reviewUrl, hideOnWebsite
     },
     servicesGridEyebrow,
     servicesGridHeadline,
