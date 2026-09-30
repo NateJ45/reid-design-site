@@ -5,19 +5,21 @@ import { settle } from './helpers';
 import { site } from '../src/data/site';
 
 // =============================================================================
-// Accessibility (axe-core): dark mode, every route
+// Light-only guard (rewritten 2026-09-29, the art-direction rebuild)
 // =============================================================================
-// Mirrors a11y.spec.ts with the site in dark mode. Dark mode is a large,
-// mostly CSS-driven repaint of the whole site (the `.dark { ... }` block in
-// globals.css); this is what proves the palette actually holds up to AA
-// everywhere, not just by manual math.
+// This file used to audit the whole site in dark mode. Since 2026-09-29 the
+// site is LIGHT ONLY (Nathan's decision, the FBCM precedent): the theme
+// bootstrap in BaseLayout.astro never adds .dark to <html>, and the dark
+// tokens stay dormant in globals.css. What is worth guarding now:
+//   1. A visitor who saved 'dark' before the rebuild still gets the light
+//      site, and it passes axe (a stored preference must not half-apply).
+//   2. The focus-indicator check below, which caught a real WebKit bug, keeps
+//      running in the one theme that exists.
+// The ink footer applies the .dark palette to its own subtree on purpose; it
+// is audited on every route by a11y.spec.ts.
 //
-// This repo's theme bootstrap (src/layouts/BaseLayout.astro, inline script
-// right after <head>) reads localStorage[site.themeStorageKey]
-// ('reid-design-theme') and toggles the `dark` CLASS on <html>; it does NOT
-// set a data-theme attribute. So dark mode is forced by seeding that key
-// BEFORE the page's inline bootstrap runs, via addInitScript, exactly the way
-// a remembered preference would apply on a real visit.
+// The storage key is seeded BEFORE the page's inline bootstrap runs, via
+// addInitScript, exactly the way a remembered preference would apply.
 // =============================================================================
 
 async function forceDark(page: Parameters<typeof settle>[0]) {
@@ -26,16 +28,14 @@ async function forceDark(page: Parameters<typeof settle>[0]) {
   }, site.themeStorageKey);
 }
 
-test.describe('Accessibility (dark mode): no axe violations', () => {
+test.describe('Light only: a stored dark preference still renders light and passes axe', () => {
   for (const route of routes) {
-    test(`${route} passes axe in dark mode`, async ({ page }) => {
+    test(`${route} ignores a stored dark preference and passes axe`, async ({ page }) => {
       await forceDark(page);
       await page.goto(route);
 
-      // Verify dark mode actually engaged. If this ever fails, the bootstrap
-      // script's storage key or class-toggle mechanism changed, and this suite
-      // would otherwise silently audit light mode twice.
-      await expect(page.locator('html')).toHaveClass(/dark/);
+      // Light only: the stored 'dark' must NOT engage dark mode.
+      await expect(page.locator('html')).not.toHaveClass(/dark/);
 
       await settle(page);
 
@@ -54,7 +54,7 @@ test.describe('Accessibility (dark mode): no axe violations', () => {
 });
 
 // =============================================================================
-// Focus indicators in dark mode
+// Focus indicators (light only since 2026-09-29; the file name is historical)
 // =============================================================================
 // axe has NO rule for focus-indicator contrast, and the sweep above audits the
 // resting DOM only, so nothing above ever focuses an element. That blind spot
@@ -72,9 +72,9 @@ test.describe('Accessibility (dark mode): no axe violations', () => {
 
 const FORM_ROUTES = ['/contact'];
 
-test.describe('Focus indicators are visible in dark mode', () => {
+test.describe('Focus indicators are visible', () => {
   for (const route of FORM_ROUTES) {
-    test(`${route} gives every field a visible focus ring in dark mode`, async ({ page }) => {
+    test(`${route} gives every field a visible focus ring`, async ({ page }) => {
       // Runs on BOTH engines, deliberately. This check was briefly skipped on
       // webkit (2026-09-05) on the theory that a programmatic `.focus()` could
       // not put a <select> into :focus there. That theory was wrong and the
@@ -87,7 +87,7 @@ test.describe('Focus indicators are visible in dark mode', () => {
       // is exactly where the check has to run.
       await forceDark(page);
       await page.goto(route);
-      await expect(page.locator('html')).toHaveClass(/dark/);
+      await expect(page.locator('html')).not.toHaveClass(/dark/);
       await settle(page);
 
       const fields = page.locator(

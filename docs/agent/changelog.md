@@ -2,6 +2,61 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — art-direction rebuild phase 1 live
+
+PR #53 (`claude/redesign`) merged to `main` as 7bffc16 at Nathan's request ("get it all on main"), after all three required checks (build, test, lighthouse) passed. The first build run failed only on Prettier over the three frozen prototype pages, which are now in `.prettierignore`. The Cloudflare Workers Build served it on reiddesignllc.com about 105s after the merge: all four paint chips, the process steps and the testimonials render, `/fonts/*.woff2` answers 200, and the 8 live routes plus `/studio/` return 200. The stega preview fix was verified on staging in a signed-in Presentation by the Dependabot-audit session: 0 decode errors, 9 clean word spans, and a headline click opens `heroHeadline`.
+
+## 2026-09-30 — rebuild: stega-safe word splitting in preview
+
+Reported by the Dependabot-audit session from a signed-in Presentation check: `RiseWords` split the stega-ENCODED hero headline into words, so the invisible click-to-edit run was carved into 349 word spans, the overlay logged ~744 "Failed to decode stega" errors, and clicking the headline no longer opened its field (preview only; the live build has no stega). The accent phrase is encoded too, so it never matched in preview. Same trap in `PaintChips` (price regex) and `HomeWords` (quote shortening). Fix: `src/lib/split-copy.ts` (`splitHeadlineWords`, `splitPrice`) works on the clean text and returns the run, which the component renders once, whole, outside the animated spans; `HomeWords` does the same inline. 4 new unit tests (459/459). Live output unchanged: no invisible characters and no `data-sanity` in `dist/client`, Playwright 156/156.
+
+## 2026-09-29 — art-direction rebuild, phase 1: home, chrome, type, palette
+
+Branch `claude/redesign`. Nathan judged the site generic next to FBCM and
+Stone Steps and asked for portfolio-award quality. Audit, photo inventory and
+the two prototypes are in `docs/design/2026-09-29-art-direction.md`; the brief
+is `PRODUCT.md`; the system is `DESIGN.md`. Nathan's calls: keep the logo and
+Warm Bronze, design around the existing photos, light only, scope = 8 live
+pages + portfolio templates, and the MERGE of prototype B (hero, type, bronze)
+with prototype A (paint chips, tape measure, sample tags).
+
+**Type.** Zodiak + General Sans (Fontshare) replace Cormorant, Pinyon and
+Source Sans. The licence forbids redistribution via a public repository, so
+the files are fetched at build time (`scripts/fetch-fonts.mjs`, hash-locked)
+and never committed; Nathan chose that over making the repo private. Fallback
+faces re-measured in Chrome (home CLS 0.002). The `scriptAccent` fields now
+render in Zodiak italic.
+
+**Palette.** Warm Bronze becomes a seven-tone paint strip (`--color-chip-1..7`)
+plus ink, cream, paper. The axe gate caught a wrong contrast note of mine:
+nothing passes AA at body size on Warm Bronze (ink 4.07, cream 3.50), so the
+hero ground is Walnut and paint-chip faces skip chip 5.
+
+**Built.** `HomeHero` (Walnut, word-rise headline, portrait, CSS fan deck),
+`HomeStaci`, `PaintChips`, `TapeProcess`, `HomeWords`, rebuilt `ServiceAreaCue`
+and `FinalCta` (every page), one-row header, ink footer (the dormant `.dark`
+palette scoped to the footer subtree), `CtaLink` buttons as pills site-wide,
+primitives in `src/styles/reid.css`, `RiseWords.astro`, `src/lib/cta.ts`.
+Schema: `homePage.heroPortrait` (new, optional), `heroRotatingWords` hidden.
+Light only: bootstrap never adds `.dark`, ThemeToggle removed from the header
+and drawer (it re-applied a stored dark preference on mount);
+`a11y-dark.spec.ts` rewritten as a light-only guard.
+
+**Fixed on the way.** Headings without their own colour class rendered in
+`--color-accent`, which `@theme inline` remaps to the pale hover surface; the
+base rule now uses `--foreground`. The newsletter consent line printed "agree
+to our . Unsubscribe anytime. privacy policy." and now links the phrase in
+place.
+
+**Gates.** astro check 0 errors; lint 0 errors (no new warnings); unit 455/455;
+Playwright chromium 117/117 and webkit-iphone 39/39 (axe included); no
+`data-sanity` in the static build; changed files prettier-clean.
+
+**Font fetch hardened (same day).** The first staging build asked the Fontshare CSS API from a GitHub runner and got 4 of 7 faces back (all 7 from Nathan's machine, every time). Normal runs now download straight from the content-addressed CDN URLs in `fonts.lock.json` and verify the hashes; only `npm run fonts:update` touches the CSS API.
+
+**Found, not fixed here.** `npm run dev` crashes in Vite's dependency optimizer
+on clean main (own session). Parity baselines will need recapturing after merge.
+
 ## 2026-09-29 — Windows dev alias fix moved to the canonical starter module (PORTS.md card 60)
 
 The inline `fixSanityDedupeAliasOnWindows()` in `astro.config.mjs` is replaced by the starter's PORTABLE `src/lib/sanity-dedupe-alias.ts` (`fixSanityDedupeAlias()`, byte-identical, drift-gated by `sync-check`). Behaviour is the same; the module is now shared by every studio repo and adds a testable `repairSanityDedupeAlias()`. The starter's node:test spec does not run under vitest, so `src/lib/sanity-dedupe-alias.test.ts` is a Reid-local vitest translation with no PORTABLE marker. Detail in `docs/agent/stack-and-config.md`.

@@ -11,7 +11,7 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 - `<title>` — unique per page, 50–60 characters, brand name as suffix ("Services — Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
 - `<meta name="description">` — unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
 - `<link rel="canonical">` — absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
-- Open Graph + Twitter meta — set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (2026-09-29, design D "arch window": one of Staci's photos in an arch, the logo, the title in Cormorant Garamond, a small caps line in Source Sans 3). See "Share cards" below.
+- Open Graph + Twitter meta — set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (2026-09-29, design D "arch window": one of Staci's photos in an arch, the logo, the title in Cormorant Garamond, a small caps line in Source Sans 3; the renderer still uses these old faces even though the site moved to Zodiak + General Sans on 2026-09-29, a known open item). See "Share cards" below.
 
 ### Share cards (og:image)
 
@@ -22,7 +22,7 @@ Priority, highest first:
 3. The generated card at `/og/<route>.png` (`/` is `/og/home.png`, `/portfolio/foo` is `/og/portfolio-foo.png`).
 4. `siteSettings.seoImage`, then `/og-default.png`. These are used ONLY by pages that get no card (noindex pages such as the 404), and as the image copied into a card's place if that card fails to draw. **The global `siteSettings.seoImage` does not override the cards.** Before 2026-09-29 it sat above them, so setting one site-wide photo would have hidden every page's card.
 
-Sanity images (2 and 4) run through `urlFor().width(1200).height(630).fit('crop')` via `ogUrlFromImage`. BaseLayout also emits `og:locale`, `og:image:alt`, and a theme-aware `theme-color`.
+Sanity images (2 and 4) run through `urlFor().width(1200).height(630).fit('crop')` via `ogUrlFromImage`. BaseLayout also emits `og:locale`, `og:image:alt`, and a single `theme-color` (#F7F3EE, the Linen ground; one value since the site went light only on 2026-09-29).
 
 What a card says: the page's hero headline, else its SEO title, with a "Reid Design" / "Reid Design LLC" suffix or prefix stripped (the logo already says it) and any em-dash replaced by a comma, with a build warning, never a failure (a throw would stop Staci's content deploys). The small caps line: "Interior design · Plainfield, Indiana" from Business info, or "Portfolio · <location>", "The Journal", "Free guide" on detail pages. The photo: the page's hero image (projects: the hero, plus the first gallery photo in the circle; journal and guides: the cover), else one of Staci's finished-project photos, picked per route so a page keeps the same one between builds. The Sanity hotspot sets the crop, so a bad crop is fixed in the Studio, not in code. Any asset named or tagged `midwest-cabinet-connection` is refused.
 
