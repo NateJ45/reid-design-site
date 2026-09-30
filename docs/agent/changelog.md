@@ -2,6 +2,15 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Lenis removed
+
+- Nathan asked whether smooth scroll helps visitors; the answer was no (it
+  replaced their own wheel/trackpad feel, and the scroll animations are CSS
+  scroll-driven), so the Lenis init in BaseLayout, the `lenis` dependency
+  and the `window.lenis` path in `CaseStudyTOC.tsx` are gone. CLAUDE.md rule
+  5 now covers native scrolling; `tests/scroll-reset.spec.ts` checks the
+  ClientRouter on a mouse and a phone and that `window.lenis` stays absent.
+
 ## 2026-09-30 — Window light removed
 
 - Nathan did not like the WebGL leaf shadows and window sun on the home hero

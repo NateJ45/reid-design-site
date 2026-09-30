@@ -1,6 +1,6 @@
 # Polish layer
 
-> Custom CSS utilities and JS behaviors layered on Tailwind: card-lift, nav underline, scroll reveals, Lenis reset, script accents (now Zodiak italic), and the retired brand stripe.
+> Custom CSS utilities and JS behaviors layered on Tailwind: card-lift, nav underline, scroll reveals, native scroll reset, script accents (now Zodiak italic), and the retired brand stripe.
 
 ## Polish layer
 
@@ -116,19 +116,17 @@ initThing();
 document.addEventListener('astro:page-load', initThing);
 ```
 
-Pattern used by: scroll-reveal observer, sticky-header listener, sticky CTA chip, hero word-swap. The Lenis init does NOT re-run because the smooth-scroll instance persists across navigations. That single instance is exposed as `window.lenis`, so in-page controls (e.g. the home hero scroll cue) can trigger a smooth programmatic scroll via `window.lenis.scrollTo(top)` instead of fighting it with a native `scrollTo`.
+Pattern used by: scroll-reveal observer, sticky-header listener, sticky CTA chip, hero word-swap.
 
-**Lenis scroll-on-navigation reset (do not remove):** because that single Lenis instance persists, any in-flight momentum carries across a swap. While Lenis is actively smoothing it ignores the router's scroll-to-top reset, so a link clicked mid-scroll would open the next page at its bottom (the stale scroll target clamps to the new, often shorter, page's maximum). The fix lives in the Lenis init block: an `astro:after-swap` listener calls `lenis.scrollTo(0, { immediate: true, force: true })` (which also cancels the in-flight momentum) plus `lenis.resize()`. It runs on forward navigations only: it reads `navigationType` off the `astro:before-swap` event and skips the reset when that is `traverse`, so browser back/forward keeps Astro's built-in scroll restoration. Caveat for testing: Astro dev full-reloads on back/forward, so the traverse (restore-position) behavior can only be verified against the production build via `npm run preview`, not `npm run dev`.
-
-**Lenis is wheel-devices only (2026-09-29).** The init returns early unless the device has a fine pointer AND is at least 1024px wide, so phones and tablets never load it (touch scrolling is already inertial, and Lenis only cost main-thread time there). The reset above still holds on those devices without any code: it exists to cancel Lenis's momentum, and with no Lenis the ClientRouter itself opens a clicked page at the top and restores the position on Back. `window.lenis` is therefore undefined on touch devices; every caller (hero scroll cue, `CaseStudyTOC`) already falls back to native `scrollTo` / `scrollIntoView`. `tests/scroll-reset.spec.ts` pins top-on-click and restore-on-Back for both a desktop mouse (Lenis running) and a phone (no Lenis).
+**Scroll position on navigation (no Lenis since 2026-09-30).** Lenis smooth scroll was removed at Nathan's call: it replaced the visitor's own wheel and trackpad feel, and every scroll animation on the site is CSS scroll-driven, which needs no library. With native scrolling, Astro's ClientRouter opens a clicked page at the top and restores the position on browser Back by itself, so the old Lenis momentum reset is gone too. `tests/scroll-reset.spec.ts` pins top-on-click and restore-on-Back on a desktop mouse and a phone, and fails if `window.lenis` ever reappears. Caveat for testing: Astro dev full-reloads on back/forward, so the restore behaviour can only be verified against the production build (`npm run preview` or `serve:dist`).
 
 ### Page cross-fade (`view-transition-name`)
 
 `<main id="main">` carries `view-transition-name: main-content` and cross-fades on every navigation (`vt-fade-out` 150ms → `vt-fade-in` 200ms). The header and footer are named (`site-header` / `site-footer`) and pinned with `animation: none` so they stay put through the swap instead of flashing. Astro respects `prefers-reduced-motion` automatically — reduced-motion users get an instant cut. Pure CSS, no JS.
 
-### In-page smooth scroll through Lenis
+### In-page smooth scroll
 
-In-page anchor navigation routes through the persistent `window.lenis` instance so it glides instead of snapping. Both the home hero scroll cue and the case-study TOC (`CaseStudyTOC.tsx`) do this: intercept the click, call `window.lenis.scrollTo(target)`, and fall back to native scroll when Lenis hasn't loaded or the reader prefers reduced motion. Lenis honors the headings' `scroll-mt-24`, so TOC targets clear the sticky header **without** a manual offset — don't add one (it double-applies and lands the heading ~96px too low). The TOC click also updates the URL hash via `history.pushState` so the section stays shareable and the back button works.
+The case-study TOC (`CaseStudyTOC.tsx`) intercepts the click and calls `scrollIntoView({ behavior: 'smooth' })` (`'auto'` under reduced motion). That honors the headings' `scroll-mt-24`, so TOC targets clear the sticky header **without** a manual offset — don't add one (it double-applies and lands the heading ~96px too low). The TOC click also updates the URL hash via `history.pushState` so the section stays shareable and the back button works.
 
 ### Script accents (Zodiak italic flourish; formerly Pinyon Script)
 
@@ -186,7 +184,7 @@ The image-variant Hero now renders a 12-pixel-wide cream hairline (`bg-bg/40`) b
 
 The home hero (`size="tall"`, the only `tall` usage) fills the screen below the sticky header on first load. `Hero.astro` applies a `.hero-fill` class = `min-height: calc(100svh - var(--header-h))`, where `--header-h` is measured from the live header by an inline script that runs synchronously on parse (so the height is set before first paint — no layout shift) and refreshes on load / resize / `astro:page-load`. `svh` keeps the hero within the initially-visible viewport on mobile (browser chrome shown) so it never forces an immediate scroll; a `vh` line precedes it as the pre-`svh` fallback, and a per-breakpoint fallback header height covers the no-JS / pre-measure window.
 
-A bottom-center chevron button (`[data-scroll-cue]`) softly bobs and pulses (`scroll-cue-bob`, 2.4s; static under reduced-motion) to signal there is more below. Clicking it scrolls just past the hero, preferring `window.lenis.scrollTo()` when Lenis has loaded and falling back to native smooth `scrollTo`. Both the fill and the cue are scoped to `size="tall"`, so interior-page heroes are unaffected.
+A bottom-center chevron button (`[data-scroll-cue]`) softly bobs and pulses (`scroll-cue-bob`, 2.4s; static under reduced-motion) to signal there is more below. Clicking it scrolls just past the hero with a native smooth `scrollTo`. Both the fill and the cue are scoped to `size="tall"`, so interior-page heroes are unaffected.
 
 ### Home hero slideshow (`HeroBackground.astro` + globals.css; old home hero, superseded 2026-09-29)
 

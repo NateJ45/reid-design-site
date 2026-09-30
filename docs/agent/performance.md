@@ -21,7 +21,7 @@ Reid Design's audience arrives on mobile, often on Indiana suburban networks (ce
 | Total CSS (compressed)                          | < 30KB  |
 | Hero image (any viewport)                       | < 200KB |
 
-If a new dependency pushes a budget, that's a discussion before merging. Some are worth it (Lenis adds smooth scroll, motion is the interaction language); some aren't (a 60KB icon library when three lucide-react icons would cover it).
+If a new dependency pushes a budget, that's a discussion before merging. Some are worth it (motion is the interaction language); some aren't (a 60KB icon library when three lucide-react icons would cover it).
 
 ### Image weight by slot
 
@@ -43,12 +43,12 @@ Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than
 - **No font preload was a measured decision on the OLD fonts (2026-09-29, before the rebuild).** A preload is possible (a `?url` import of the woff2 returns the hashed URL). On Lighthouse mobile the 23KB font competed with the stylesheet and the hero photo, and LCP (then always the hero PHOTO, never text) rose about 250-300ms on `/`, `/about` and `/services`, so the preload was taken out. The reasoning is in a comment in BaseLayout's `<head>`. That measurement predates Zodiak / General Sans and the new home hero; it was not re-run for the rebuild. Revisit if a page's LCP element becomes text.
 - **`<link rel="preconnect" href="https://cdn.sanity.io">`** (no `crossorigin`: images are no-cors, and a crossorigin preconnect opens a socket the images cannot use).
 
-### Hero slideshow and Lenis (2026-09-29)
+### Hero slideshow (2026-09-29)
 
 > The slideshow bullet describes `Hero.astro` / `HeroBackground.astro`. The rebuilt home page uses `HomeHero.astro` (a single `heroPortrait` image) instead; the slideshow lever now applies only where `Hero.astro` is still used.
 
 - **Only the first hero slide loads before the page does.** With 2+ hero images, `HeroBackground.astro` renders every slide after the first with `SanityImage`'s `defer` prop: no `src`, URLs parked in `data-src` / `data-srcset`, moved across 800ms after the load event. `loading="lazy"` never held them back, because every slide is stacked inside the viewport; on the mobile Lighthouse run all six extra slides (about 225KB) downloaded next to the LCP photo and the fonts. The slideshow timer also refuses to fade to a slide whose image has not arrived, and reduced-motion visitors never fetch the extra slides at all.
-- **Lenis runs on wheel devices only** (`pointer: fine` and 1024px+, from presacademy). Touch scrolling is already inertial. The navigation scroll reset still works on phones: without Lenis there is no momentum to cancel, and Astro's ClientRouter restores top-on-click and position-on-Back itself. `tests/scroll-reset.spec.ts` pins both devices.
+- **No Lenis (removed 2026-09-30).** It had been limited to wheel devices since 2026-09-29; now no device loads it, which also drops its ~10KB idle chunk.
 
 ### Current Lighthouse scorecard (May 2026)
 
@@ -65,7 +65,6 @@ Desktop scores match (also 100s across the board). Remaining `ImageDelivery` "Es
 **Levers that got us here — preserve unless you have a stronger reason than "I want to simplify":**
 
 - All site islands hydrate at `client:idle` or `client:visible`, `MobileNav` included since 2026-09-29 (PORTS.md card 52: the old "Radix Sheet portal requires `client:only`" rule was never true on the pinned set). Only the preview-only `VisualEditingOverlay` is `client:only="react"`.
-- Lenis init wrapped in `requestIdleCallback`, and skipped entirely on touch / narrow screens
 - Non-first hero slides deferred until after the load event (`SanityImage defer`)
 - Metric-matched fallback faces for both families (and, as measured on the old fonts, no font preload)
 - Logo PNGs moved from `public/` to `src/assets/` so Astro emits WebPs
