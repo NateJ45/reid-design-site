@@ -5,8 +5,15 @@
 //
 // Sections:
 //   1. Hero (text-only)
-//   2. Full FAQ list, grouped by category (FaqAccordion island)
-//   3. Final CTA
+//   2. The reference (rebuilt 2026-09-30, phase 2; DESIGN.md "Process and FAQ"):
+//      a category index of jump links (sticky on desktop, a row of chips on a
+//      phone) beside the grouped FaqAccordion island.
+//   3. Extra sections (optional, editor-added)
+//   4. Final CTA
+//
+// The index and the accordion both group through groupFaqs()
+// (src/components/faq/group-faqs.ts) with the same idPrefix, so every jump
+// link lands on a real heading.
 //
 // Per CLAUDE.md: this page injects FAQPage JSON-LD so each question is eligible for
 // Google's rich-result accordion in search.
@@ -20,13 +27,14 @@ import Hero from '@/components/Hero.astro';
 import FaqAccordion from '@/components/FaqAccordion';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import { groupFaqs } from '@/components/faq/group-faqs';
 
 const [page, siteSettings] = await Promise.all([getFaqPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'Frequently Asked Questions · Reid Design';
 const description =
   page?.seoDescription ??
-  'Pricing, process, logistics, and service area — everything visitors ask before reaching out to Reid Design.';
+  'Pricing, process, logistics and service area: everything visitors ask before reaching out to Reid Design.';
 
 const heroEyebrow = page?.heroEyebrow ?? 'Common Questions.';
 const heroHeadline = page?.heroHeadline ?? 'Everything You Want to Know.';
@@ -34,6 +42,11 @@ const heroSubhead = page?.heroSubhead ?? '';
 
 const categoryOrder = page?.categoryOrder ?? [];
 const faqs = page?.faqs ?? [];
+
+// Same grouping + ids as the island (idPrefix must match the prop below).
+const ID_PREFIX = 'faq-page';
+const groups = groupFaqs(faqs, categoryOrder, ID_PREFIX).filter((g) => g.category);
+const total = groups.reduce((n, g) => n + g.items.length, 0);
 
 const schemas = [
   breadcrumbSchema([
@@ -63,22 +76,50 @@ const schemas = [
     scriptAccent={page?.heroScriptAccent ?? 'Know'}
   />
 
-  {/* ------- 2. FAQ accordion (grouped by category) ------------------------- */}
-  <section class="bg-background" aria-label="Frequently asked questions">
-    <div class="mx-auto max-w-content px-m py-section-lg">
-      <div class="mx-auto max-w-3xl">
+  {/* ------- 2. The reference: topic index + grouped accordion -------------- */}
+  <section class="faqp" aria-label="Frequently asked questions">
+    <div class:list={['r-wrap faqp__grid', groups.length > 1 && 'faqp__grid--index']}>
+      {
+        groups.length > 1 && (
+          <nav class="faqp__index" aria-labelledby="faqp-index-heading">
+            <p id="faqp-index-heading" class="faqp__index-h">
+              {total} questions, {groups.length} topics
+            </p>
+            <ol class="faqp__topics" role="list">
+              {groups.map((g) => (
+                <li>
+                  <a href={`#${g.id}`} class="faqp__topic">
+                    <span class="faqp__swatch" aria-hidden="true" />
+                    <span class="faqp__topic-name">{g.category}</span>
+                    <span class="faqp__topic-n" aria-hidden="true">
+                      {g.items.length}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <p class="faqp__ask">
+              Something not covered?{' '}
+              <a href="/contact" class="r-link">
+                Ask Staci
+              </a>
+            </p>
+          </nav>
+        )
+      }
+      <div class="faqp__list">
         {
           faqs.length > 0 ? (
             <FaqAccordion
               client:visible
               faqs={faqs}
               categoryOrder={categoryOrder}
-              idPrefix="faq-page"
+              idPrefix={ID_PREFIX}
             />
           ) : (
-            <p class="text-center text-muted-foreground italic">
+            <p class="faqp__empty">
               FAQ content is being updated.{' '}
-              <a href="/contact" class="text-link underline underline-offset-2">
+              <a href="/contact" class="r-link">
                 Ask anything
               </a>{' '}
               in the meantime.
@@ -103,3 +144,187 @@ const schemas = [
     backgroundImage={page?.finalCtaBackgroundImage}
   />
 </BaseLayout>
+
+<style>
+  .faqp {
+    padding-block: clamp(3.5rem, 8vw, 7rem) clamp(5rem, 10vw, 8.5rem);
+  }
+  .faqp__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .faqp__list {
+    min-width: 0;
+  }
+
+  /* ---- The index ---- */
+  .faqp__index-h {
+    margin: 0 0 1rem;
+    font: 500 0.95rem/1.35 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .faqp__topics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .faqp__topic {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .faqp__topic-name {
+    flex: 1;
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: -0.015em;
+  }
+
+  /* Each topic gets a paint chip from the strip, and the same chip marks its
+     heading in the list, so the index and the answers read as one sample
+     book. Order-matched: both follow groupFaqs(). Five tones, cycling (Warm
+     Bronze included: these are fills, never under text). */
+  .faqp__swatch,
+  .faqp :global(.faqa__head)::before {
+    flex: none;
+    width: 0.8rem;
+    height: 1.15rem;
+    border-radius: 2px;
+    background: var(--sw);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.08);
+  }
+  .faqp__topics li:nth-child(5n + 1),
+  .faqp :global(.faqa__group:nth-child(5n + 1)) {
+    --sw: var(--color-chip-2);
+  }
+  .faqp__topics li:nth-child(5n + 2),
+  .faqp :global(.faqa__group:nth-child(5n + 2)) {
+    --sw: var(--color-chip-3);
+  }
+  .faqp__topics li:nth-child(5n + 3),
+  .faqp :global(.faqa__group:nth-child(5n + 3)) {
+    --sw: var(--color-chip-4);
+  }
+  .faqp__topics li:nth-child(5n + 4),
+  .faqp :global(.faqa__group:nth-child(5n + 4)) {
+    --sw: var(--color-chip-5);
+  }
+  .faqp__topics li:nth-child(5n + 5),
+  .faqp :global(.faqa__group:nth-child(5n + 5)) {
+    --sw: var(--color-chip-6);
+  }
+  .faqp :global(.faqa__head) {
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: 0.9rem;
+  }
+  .faqp :global(.faqa__head)::before {
+    content: '';
+    width: 1rem;
+    height: 1.45rem;
+  }
+  .faqp :global(.faqa__count) {
+    margin-left: auto;
+  }
+  .faqp__topic-n {
+    font: 500 0.8rem/1 var(--font-body);
+    color: var(--color-ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .faqp__topic:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  .faqp__ask {
+    margin: 1.75rem 0 0;
+    font-size: 0.97rem;
+    color: var(--color-ink-2);
+  }
+  .faqp__ask .r-link {
+    color: var(--color-ink);
+  }
+  .faqp__empty {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--color-ink-2);
+  }
+
+  /* Phone and tablet: the topics are a wrapping row of paint-chip pills. */
+  @media (max-width: 1023px) {
+    .faqp__topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .faqp__topic {
+      min-height: 2.75rem;
+      align-items: center;
+      padding: 0.55rem 0.95rem 0.55rem 1.05rem;
+      border-radius: 999px;
+      background: var(--color-chip-1);
+      transition: background-color 350ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .faqp__topic:hover {
+      background: var(--color-chip-2);
+    }
+    .faqp__topic-name {
+      font-size: 1.05rem;
+    }
+    .faqp__topic-n {
+      display: grid;
+      place-items: center;
+      min-width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 999px;
+      background: var(--color-paper);
+    }
+    .faqp__ask {
+      margin-top: 1.25rem;
+    }
+  }
+
+  /* Desktop: a sticky column of topics beside the answers, set like the
+     contents page of a sample book. It rides up when the header hides. */
+  @media (min-width: 1024px) {
+    .faqp__grid--index {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      column-gap: clamp(3rem, 6vw, 6.5rem);
+      align-items: start;
+    }
+    .faqp__index {
+      position: sticky;
+      top: 8.5rem;
+      transition: top 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    :global(:root:has(.site-header[data-state='hidden'])) .faqp__index {
+      top: 2.5rem;
+    }
+    .faqp__topics {
+      border-top: 1px solid var(--color-ink);
+    }
+    .faqp__topics li {
+      border-bottom: 1px solid var(--color-rule);
+    }
+    .faqp__topic {
+      padding: 0.95rem 0;
+      transition:
+        color 350ms cubic-bezier(0.22, 1, 0.36, 1),
+        padding 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .faqp__topic-name {
+      font-size: 1.45rem;
+      line-height: 1.15;
+    }
+    .faqp__topic:hover {
+      color: var(--color-chip-7);
+      padding-left: 0.6rem;
+    }
+    .faqp__grid:not(.faqp__grid--index) .faqp__list {
+      max-width: 56rem;
+    }
+  }
+</style>

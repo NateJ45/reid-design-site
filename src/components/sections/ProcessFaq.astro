@@ -1,7 +1,12 @@
 ---
-// Process FAQ block, extracted verbatim from process.astro for the marker-based
-// page builder. Shows faqItems flagged alsoShowOnProcessPage (passed in).
-// Self-suppresses with no FAQs. Keeps bg-muted. Safe to edit by hand.
+// Safe to edit by hand
+// Process page FAQ block (rebuilt 2026-09-30, phase 2; see DESIGN.md
+// "Process and FAQ"). Shows the faqItems flagged alsoShowOnProcessPage
+// (passed in). Self-suppresses with no FAQs.
+//
+// Paper ground to set it apart from the linen steps above. Desktop: the
+// heading and the link to the full FAQ stay put on the left while the
+// questions scroll on the right. Phone: stacked.
 import SectionHeading from '@/components/SectionHeading.astro';
 import FaqAccordion from '@/components/FaqAccordion';
 
@@ -20,28 +25,58 @@ const {
 
 {
   faqs.length > 0 && (
-    <section class="bg-muted" aria-labelledby="process-faq-heading">
-      <div class="mx-auto max-w-content px-m py-section-lg">
-        <SectionHeading
-          eyebrow={eyebrow}
-          headline={headline}
-          headingId="process-faq-heading"
-          align="center"
-          class="mx-auto"
-        />
-
-        <div class="mx-auto mt-section-lg max-w-3xl">
+    <section class="pfaq" aria-labelledby="process-faq-heading">
+      <div class="r-wrap pfaq__grid">
+        <div class="pfaq__head">
+          <SectionHeading eyebrow={eyebrow} headline={headline} headingId="process-faq-heading" />
+          <p class="pfaq__more">
+            More questions?{' '}
+            <a href="/faq" class="r-link">
+              See the full FAQ
+            </a>
+          </p>
+        </div>
+        <div class="pfaq__list">
           <FaqAccordion client:visible faqs={faqs} idPrefix="process-faq" />
         </div>
-
-        <p class="mt-l text-center text-sm text-muted-foreground">
-          More questions?{' '}
-          <a href="/faq" class="text-link underline underline-offset-2 hover:text-primary-dark">
-            See the full FAQ
-          </a>
-          .
-        </p>
       </div>
     </section>
   )
 }
+
+<style>
+  .pfaq {
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-rule);
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+  }
+  .pfaq__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .pfaq__list {
+    min-width: 0;
+  }
+  .pfaq__more {
+    margin: 1.5rem 0 0;
+    color: var(--color-ink-2);
+  }
+  .pfaq__more .r-link {
+    color: var(--color-ink);
+  }
+  @media (min-width: 1024px) {
+    .pfaq__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: clamp(3rem, 7vw, 7rem);
+      align-items: start;
+    }
+    .pfaq__head {
+      position: sticky;
+      top: 8.5rem;
+      transition: top 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    :global(:root:has(.site-header[data-state='hidden'])) .pfaq__head {
+      top: 2.5rem;
+    }
+  }
+</style>

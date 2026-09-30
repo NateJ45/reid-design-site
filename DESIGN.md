@@ -194,6 +194,35 @@ Services rhythm: linen hero, paper price list, ink trade band, linen service
 area, Oat guarantee, Walnut close. E-Design: linen hero and intro, paper
 steps, Oat board, linen tiers, paper FAQ, Walnut close.
 
+## Process and FAQ (phase 2)
+
+- `sections/ProcessSteps.astro`: the big sibling of the home tape. Desktop:
+  a sticky rail on the left (the ink tape case, a vertical Oat tape, and the
+  step index with each step's time estimate as jump links) beside the steps.
+  The tape pulls out across the whole journey and the step in view lights up
+  in the index, both CSS scroll-driven (named view timelines shared through
+  `timeline-scope`, behind `@supports` and reduced motion). Phone: the rail
+  is the journey at a glance above the stacked steps.
+- `ProcessStep.astro` ("full"): one big moment per step. A huge Warm Bronze
+  numeral (display type), the step's line drawing (draws itself on scroll),
+  the time estimate on a sample tag, the title, the short description as a
+  Zodiak lede, the full description, and the "Quick bullets" on a paint chip
+  whose tone steps down the strip with the step (chips 1 to 4). The tier note
+  hangs under the chip on a bronze rule.
+- `sections/ProcessFaq.astro`: paper band, heading and "See the full FAQ"
+  sticky on the left, questions on the right.
+- `FaqAccordion.tsx` (shared with /e-design): no Radix. Each question is a
+  button in an h3 with `aria-expanded`/`aria-controls`; every answer is in the
+  static HTML, collapsed with a grid-row + `visibility` transition. The
+  affordance is a ring with a plus that fills ink and turns to a minus.
+  Questions in Zodiak, answers in General Sans at 64ch max. Styles live in
+  `faq/faq-accordion.css`; grouping in `faq/group-faqs.ts`.
+- `/faq`: a topic index (question count per topic) sticky on the left on
+  desktop, a wrapping row of Linen pills on a phone, beside the grouped
+  accordion. Index and accordion share `groupFaqs()`, so anchors always agree.
+
+Process rhythm: linen hero, linen journey, paper FAQ, Walnut close, ink footer.
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
@@ -219,7 +248,7 @@ steps, Oat board, linen tiers, paper FAQ, Walnut close.
 
 ## Not yet rebuilt (phase 2)
 
-Process, FAQ, Contact, Privacy and the portfolio
+Contact, Privacy and the portfolio
 templates still use the older section components, restyled only through the
 shared tokens, fonts, buttons, header, footer and closing CTA. They are the
 next pass, built against this document.
