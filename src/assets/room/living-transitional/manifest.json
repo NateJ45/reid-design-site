@@ -1,0 +1,134 @@
+{
+  "version": 3,
+  "width": 1472,
+  "height": 1104,
+  "wallMedianLinear": [0.4397, 0.3278, 0.147],
+  "base": {
+    "alt": "Concept image: a bright, empty living room with dated walls, big windows and a bare floor, before any design work."
+  },
+  "final": {
+    "alt": "Concept image: the finished living room with crown moulding, a rug, sofa, tables, chair, curtains, art and styling."
+  },
+  "stages": [
+    {
+      "id": "shell",
+      "caption": "Before any furniture, the room gets its bones: crown moulding, taller baseboards and a wider window frame."
+    },
+    {
+      "id": "anchor",
+      "caption": "Then the anchors: a rug that sets the scale, and a sofa that fits the room without hiding the big wall."
+    },
+    {
+      "id": "function",
+      "caption": "Tables and a lamp come next, so there is a place to set a mug and a soft light for the evenings."
+    },
+    {
+      "id": "comfort",
+      "caption": "A chair to angle toward the conversation, and curtains that finish the windows."
+    },
+    {
+      "id": "personal",
+      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture."
+    },
+    {
+      "id": "finish",
+      "caption": "Then the small things that make it feel lived in: olive branches, books and a soft throw."
+    }
+  ],
+  "frames": [
+    {
+      "image": "frame-0.jpg",
+      "wall": "wall-0.png"
+    },
+    {
+      "id": "trim",
+      "stage": "shell",
+      "image": "frame-1.jpg",
+      "wall": "wall-1.png",
+      "change": "change-1.png",
+      "box": [0, 3, 1472, 957],
+      "motion": "sweep"
+    },
+    {
+      "id": "rug",
+      "stage": "anchor",
+      "image": "frame-2.jpg",
+      "wall": "wall-2.png",
+      "change": "change-2.png",
+      "box": [101, 753, 1352, 351],
+      "motion": "unroll"
+    },
+    {
+      "id": "sofa",
+      "stage": "anchor",
+      "image": "frame-3.jpg",
+      "wall": "wall-3.png",
+      "change": "change-3.png",
+      "box": [496, 583, 976, 521],
+      "motion": "slide-left"
+    },
+    {
+      "id": "coffee-table",
+      "stage": "function",
+      "image": "frame-4.jpg",
+      "wall": "wall-4.png",
+      "change": "change-4.png",
+      "box": [410, 728, 893, 376],
+      "motion": "rise"
+    },
+    {
+      "id": "side-table-lamp",
+      "stage": "function",
+      "image": "frame-5.jpg",
+      "wall": "wall-5.png",
+      "change": "change-5.png",
+      "box": [421, 488, 429, 616],
+      "motion": "rise"
+    },
+    {
+      "id": "chair",
+      "stage": "comfort",
+      "image": "frame-6.jpg",
+      "wall": "wall-6.png",
+      "change": "change-6.png",
+      "box": [106, 623, 952, 481],
+      "motion": "slide-right"
+    },
+    {
+      "id": "curtains",
+      "stage": "comfort",
+      "image": "frame-7.jpg",
+      "wall": "wall-7.png",
+      "change": "change-7.png",
+      "box": [0, 5, 925, 1062],
+      "motion": "drop"
+    },
+    {
+      "id": "art",
+      "stage": "personal",
+      "image": "frame-8.jpg",
+      "wall": "wall-8.png",
+      "change": "change-8.png",
+      "box": [0, 299, 1426, 805],
+      "motion": "drop"
+    },
+    {
+      "id": "olive",
+      "stage": "finish",
+      "image": "frame-9.jpg",
+      "wall": "wall-9.png",
+      "change": "change-9.png",
+      "box": [699, 512, 321, 400],
+      "motion": "pop"
+    },
+    {
+      "id": "books-throw",
+      "stage": "finish",
+      "image": "frame-10.jpg",
+      "wall": "wall-10.png",
+      "change": "change-10.png",
+      "box": [612, 657, 860, 404],
+      "motion": "pop"
+    }
+  ]
+}
