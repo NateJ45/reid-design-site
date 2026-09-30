@@ -1,0 +1,777 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomStage: draws the concept room (added 2026-09-30). Only RoomStory.astro
+// renders it, and only with a valid, complete manifest, so this markup and its
+// script never reach a page that has no room.
+// =============================================================================
+// THE STACK, inside one positioned box with the frame's aspect ratio, bottom
+// to top:
+//   1. the base <img> (the empty room; alt = the manifest's base alt)
+//   2. the WebGL canvas (src/scripts/room-painter.ts), which repaints ONLY the
+//      base wall; hidden until the painter's first successful draw
+//   3. per piece, in paint order: its shade <img> (greyscale, mix-blend-mode
+//      multiply, so its shadow darkens whatever paint is under it) and the
+//      piece itself (RGBA WebP), both placed by its box as percentages and
+//      alt="" (the figure's text covers them).
+// A visually hidden live region says what the room shows now (the finished
+// room by default, then the current stage's caption as it builds). The
+// "Concept room" sample tag stays on the picture.
+//
+// DEFAULT (no script, no scroll-driven animation support, or both): every
+// piece is in place, so the visitor sees the FINISHED room and every caption.
+// Nothing is hidden behind a script-added class unless a script is there to
+// build it back.
+//
+// SCROLL CHOREOGRAPHY
+//   Primary, CSS only: each caption <li> is a named view timeline
+//   (--room-s0, --room-s1, ...), shared through `timeline-scope` on the
+//   section. A piece in stage k animates on --room-s<k> over
+//     animation-range: cover <start> cover <end>
+//   where the stage window runs from the caption's top entering the bottom of
+//   the screen (+--w0) to it reaching the reading line (--w1 = 50svh on a
+//   laptop, i.e. mid screen; 30svh on a phone, i.e. 70% down, below the pinned
+//   room). Several pieces in one stage are staggered across that window in
+//   paint order (layerTimings() in src/lib/room-story.ts gives each its
+//   --a..--b fraction). So stage k is finished exactly as caption k reaches
+//   the line, which is also where the script marks it aria-current. Behind
+//   `@supports (timeline-scope) and (animation-timeline: view())` AND
+//   `prefers-reduced-motion: no-preference`, like TapeProcess and
+//   ProcessSteps.
+//   Fallback (no support, or reduced motion): the script adds data-build to
+//   the section and, as each caption passes the line, data-built to the
+//   pieces of every stage up to it. Short CSS transitions under
+//   no-preference; instant under reduced motion.
+//
+// LAYOUT: desktop (1024px+) the room is sticky on the left and the captions
+// scroll past on the right; phone: the room pins under the header strip, the
+// captions scroll beneath it, and the paint deck scrolls sideways. The deck
+// is `hidden` until the painter has drawn.
+// =============================================================================
+import RiseWords from '@/components/RiseWords.astro';
+import { ROOM_CHIPS, linearToHex } from '@/lib/room-story';
+
+export interface StageBase {
+  avifSrcset: string;
+  webpSrcset: string;
+  src: string;
+  alt: string;
+  maskUrl: string;
+  median: [number, number, number];
+}
+
+interface Picture {
+  srcset: string;
+  src: string;
+  sizes: string;
+}
+
+export interface StageLayer {
+  id: string;
+  motion: string;
+  /** Stage (caption) index. */
+  stage: number;
+  /** Fractions of the stage window this piece moves across. */
+  from: number;
+  to: number;
+  width: number;
+  height: number;
+  /** left/top/width/height as percentages of the frame. */
+  place: string;
+  image: Picture;
+  shade: Picture | null;
+}
+
+interface Props {
+  width: number;
+  height: number;
+  base: StageBase;
+  finalAlt: string;
+  /** Captions, in stage order. */
+  stages: string[];
+  layers: StageLayer[];
+  headline: string;
+  scriptAccent?: string | null;
+  intro: string;
+}
+
+const { width, height, base, finalAlt, stages, layers, headline, scriptAccent, intro } =
+  Astro.props as Props;
+const tl = (k: number) => `--room-s${k}`;
+const scope = stages.map((_, k) => tl(k)).join(', ');
+// "As it is" shows the room's own wall colour as its swatch.
+const asIsHex = linearToHex(base.median);
+const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.from};--b:${l.to}`;
+---
+
+<section
+  class="room"
+  aria-labelledby="room-heading"
+  data-room
+  data-base-alt={base.alt}
+  data-mask={base.maskUrl}
+  data-median={base.median.join(',')}
+  style={`--ar:${width} / ${height};--hw:${(height / width).toFixed(4)};timeline-scope:${scope}`}
+>
+  <div class="r-wrap">
+    <div class="room__head">
+      <RiseWords as="h2" id="room-heading" text={headline} accent={scriptAccent} class="r-h2" />
+      <p class="r-lede">{intro}</p>
+    </div>
+
+    <div class="room__body">
+      <div class="room__stage">
+        <figure class="room__figure">
+          <div class="room__frames">
+            <picture class="room__base">
+              <source
+                type="image/avif"
+                srcset={base.avifSrcset}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+              <source
+                type="image/webp"
+                srcset={base.webpSrcset}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+              <img
+                src={base.src}
+                alt={base.alt}
+                width={width}
+                height={height}
+                loading="lazy"
+                decoding="async"
+                data-room-base
+              />
+            </picture>
+            <canvas class="room__canvas" aria-hidden="true" hidden></canvas>
+            {
+              layers.map((l) => (
+                <Fragment>
+                  {l.shade && (
+                    <img
+                      class="room__shade"
+                      data-piece
+                      data-stage={l.stage}
+                      style={pieceStyle(l)}
+                      src={l.shade.src}
+                      srcset={l.shade.srcset}
+                      sizes={l.shade.sizes}
+                      alt=""
+                      width={l.width}
+                      height={l.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
+                  <img
+                    class={`room__layer room__layer--${l.motion}`}
+                    data-piece
+                    data-layer={l.id}
+                    data-stage={l.stage}
+                    style={pieceStyle(l)}
+                    src={l.image.src}
+                    srcset={l.image.srcset}
+                    sizes={l.image.sizes}
+                    alt=""
+                    width={l.width}
+                    height={l.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </Fragment>
+              ))
+            }
+          </div>
+          <figcaption class="room__tag r-tag"><strong>Concept room</strong></figcaption>
+        </figure>
+        <p class="sr-only" aria-live="polite" data-room-live>{finalAlt}</p>
+
+        <fieldset class="room__deck" data-room-chips hidden>
+          <legend class="room__legend">Try a paint colour on the walls</legend>
+          <div class="room__chips">
+            {
+              ROOM_CHIPS.map((c, i) => (
+                <button
+                  type="button"
+                  class="room__chip"
+                  aria-pressed={i === 0 ? 'true' : 'false'}
+                  data-hex={c.hex ?? ''}
+                >
+                  <span class="room__swatch" style={`background:${c.hex ?? asIsHex}`} />
+                  <span>{c.name}</span>
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
+      </div>
+
+      <ol class="room__captions">
+        {
+          stages.map((caption, k) => (
+            <li class="room__step" data-room-step style={`view-timeline-name:${tl(k)}`}>
+              <p>{caption}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .room {
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    /* Where the room pins on a phone: the header's sticky box is 4.5rem
+       below 1024px (Header.astro, --hdr-h). That variable is scoped to the
+       header, so it is mirrored here rather than read. */
+    --room-pin: 4.5rem;
+    /* A stage's scroll window, measured from its caption's top entering the
+       bottom of the screen: it builds from --w0 to --w1 (the reading line). */
+    --w0: 4svh;
+    --w1: 30svh;
+    background: var(--color-chip-1);
+    padding-block: clamp(5rem, 10vw, 8.5rem);
+  }
+  .room [hidden] {
+    display: none !important;
+  }
+  .room__head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+  }
+  .room__head :global(.r-h2) {
+    grid-column: 1 / 8;
+    margin: 0;
+    max-width: 14ch;
+  }
+  .room__head .r-lede {
+    grid-column: 9 / 13;
+    margin: 0;
+  }
+
+  .room__body {
+    display: grid;
+    /* minmax(0, 1fr), not auto: the chip row is wider than a phone and must
+       scroll inside its own box, never widen the page. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  /* ---- the room ---------------------------------------------------------- */
+  .room__stage {
+    min-width: 0;
+    position: sticky;
+    top: var(--room-pin);
+    z-index: 2;
+    padding-block: 0.5rem 0.75rem;
+    background: var(--color-chip-1);
+    /* Fill the sliver between the floating header strip and the pinned room,
+       so the caption scrolling past does not peek through it. */
+    box-shadow: 0 -1rem 0 var(--color-chip-1);
+  }
+  .room__figure {
+    position: relative;
+    margin: 0;
+  }
+  .room__frames {
+    position: relative;
+    /* cqw units in the motions are fractions of the frame's width. */
+    container-type: inline-size;
+    /* The shades multiply with the base and the painted wall only. */
+    isolation: isolate;
+    aspect-ratio: var(--ar);
+    width: 100%;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-chip-2);
+    box-shadow: 0 18px 40px -24px rgb(35 30 27 / 0.45);
+  }
+  .room__base,
+  .room__base img,
+  .room__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .room__base img {
+    display: block;
+    object-fit: cover;
+  }
+  .room__layer,
+  .room__shade {
+    position: absolute;
+    display: block;
+    max-width: none;
+  }
+  .room__shade {
+    mix-blend-mode: multiply;
+  }
+  .room__tag {
+    position: absolute;
+    left: -0.4rem;
+    bottom: 1rem;
+    rotate: -2deg;
+  }
+  .room__tag strong {
+    font-size: 1rem;
+  }
+
+  /* ---- the paint deck ---------------------------------------------------- */
+  .room__deck {
+    min-width: 0; /* a fieldset is min-content wide by default; let the row scroll */
+    margin: 1rem 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .room__legend {
+    padding: 0;
+    margin-bottom: 0.6rem;
+    font: 500 0.92rem/1.3 var(--font-body);
+    color: var(--color-ink);
+  }
+  .room__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .room__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.3rem 0.8rem 0.3rem 0.35rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 3px;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font: 500 0.85rem/1 var(--font-body);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .room__chip[aria-pressed='true'] {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+  }
+  .room__chip:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .room__swatch {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.14);
+  }
+
+  /* ---- captions ---------------------------------------------------------- */
+  .room__captions {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .room__step {
+    display: flex;
+    align-items: flex-start;
+    min-height: 55svh;
+  }
+  .room__step:last-child {
+    min-height: 35svh;
+  }
+  .room__step p {
+    margin: 0;
+    max-width: 22ch;
+    font: 300 clamp(1.35rem, 2.2vw, 2rem) / 1.25 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+  }
+  /* Each caption is led by a short Warm Bronze rule (a mark, not a numeral). */
+  .room__step p::before {
+    content: '';
+    display: block;
+    width: 2.25rem;
+    height: 2px;
+    margin-bottom: 0.75rem;
+    background: var(--color-chip-5);
+  }
+  /* With the script, the stage in view leads and the rest step back. */
+  .room[data-enhanced] .room__step p {
+    color: var(--color-ink-2);
+  }
+  .room[data-enhanced] .room__step p::before {
+    background: var(--color-rule);
+  }
+  .room[data-enhanced] .room__step[aria-current='step'] p {
+    color: var(--color-ink);
+  }
+  .room[data-enhanced] .room__step[aria-current='step'] p::before {
+    background: var(--color-chip-5);
+  }
+
+  @media (max-width: 1023px) {
+    .room__head :global(.r-h2),
+    .room__head .r-lede {
+      grid-column: 1 / -1;
+    }
+    /* Phone: one row of chips that scrolls sideways. */
+    .room__chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 0.25rem;
+      padding: 0.25rem;
+      margin: -0.25rem;
+      scrollbar-width: none;
+    }
+    .room__chips::-webkit-scrollbar {
+      display: none;
+    }
+    .room__chip {
+      flex: none;
+      scroll-snap-align: start;
+    }
+    /* Keep the pinned room short enough to leave the captions some screen. */
+    .room__frames {
+      width: min(100%, calc((100svh - var(--room-pin) - 17rem) * var(--ar)));
+      margin-inline: auto;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .room {
+      --w0: 6svh;
+      --w1: 50svh;
+    }
+    .room__body {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .room__stage {
+      grid-column: 1 / 8;
+      top: 7rem;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+    }
+    /* Sized by the screen's height too, so the room and its chips fit. */
+    .room__frames {
+      width: min(100%, calc((100svh - 16rem) * var(--ar)));
+    }
+    .room__captions {
+      grid-column: 9 / 13;
+    }
+    .room__step {
+      align-items: center;
+      min-height: 80svh;
+    }
+    .room__step:last-child {
+      min-height: 70svh;
+    }
+  }
+
+  /* ---- how each piece arrives -------------------------------------------- */
+  @keyframes room-sweep {
+    from {
+      mask-position: 100% 0;
+    }
+  }
+  @keyframes room-unroll {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+  @keyframes room-slide-left {
+    from {
+      opacity: 0;
+      translate: 3cqw 0;
+      scale: 1.015;
+    }
+  }
+  @keyframes room-slide-right {
+    from {
+      opacity: 0;
+      translate: -3cqw 0;
+      scale: 1.015;
+    }
+  }
+  @keyframes room-rise {
+    from {
+      opacity: 0;
+      translate: 0 calc(2cqw * var(--hw));
+    }
+  }
+  @keyframes room-drop {
+    from {
+      opacity: 0;
+      translate: 0 calc(-2cqw * var(--hw));
+    }
+  }
+  @keyframes room-pop {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+  /* A piece's shadow "sets down" in the last third of its motion. */
+  @keyframes room-shade {
+    0%,
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Primary: scroll-driven, CSS only. */
+  @supports (timeline-scope: --a) and (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .room__layer--sweep {
+        mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+        mask-size: 250% 100%;
+        mask-repeat: no-repeat;
+        mask-position: 0 0;
+        animation: room-sweep linear both;
+      }
+      .room__layer--unroll {
+        animation: room-unroll linear both;
+      }
+      .room__layer--slide-left {
+        animation: room-slide-left linear both;
+      }
+      .room__layer--slide-right {
+        animation: room-slide-right linear both;
+      }
+      .room__layer--rise {
+        animation: room-rise linear both;
+      }
+      .room__layer--drop {
+        animation: room-drop linear both;
+      }
+      .room__layer--pop {
+        animation: room-pop linear both;
+      }
+      .room__shade {
+        animation: room-shade linear both;
+      }
+      /* After the shorthands above (which reset the timeline). */
+      .room .room__layer,
+      .room .room__shade {
+        animation-timeline: var(--tl);
+        animation-range: cover calc(var(--w0) + (var(--w1) - var(--w0)) * var(--a)) cover
+          calc(var(--w0) + (var(--w1) - var(--w0)) * var(--b));
+      }
+      .room .room__layer {
+        animation-timing-function: var(--ease);
+      }
+    }
+  }
+
+  /* Fallback: the script sets data-build and marks built pieces. */
+  .room[data-build] .room__layer--sweep {
+    mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+    mask-size: 250% 100%;
+    mask-repeat: no-repeat;
+    mask-position: 0 0;
+  }
+  .room[data-build] [data-piece]:not([data-built]) {
+    opacity: 0;
+  }
+  .room[data-build] .room__layer--sweep:not([data-built]) {
+    mask-position: 100% 0;
+  }
+  .room[data-build] .room__layer--unroll:not([data-built]) {
+    clip-path: inset(0 100% 0 0);
+  }
+  .room[data-build] .room__layer--slide-left:not([data-built]) {
+    translate: 3cqw 0;
+    scale: 1.015;
+  }
+  .room[data-build] .room__layer--slide-right:not([data-built]) {
+    translate: -3cqw 0;
+    scale: 1.015;
+  }
+  .room[data-build] .room__layer--rise:not([data-built]) {
+    translate: 0 calc(2cqw * var(--hw));
+  }
+  .room[data-build] .room__layer--drop:not([data-built]) {
+    translate: 0 calc(-2cqw * var(--hw));
+  }
+  .room[data-build] .room__layer--pop:not([data-built]) {
+    scale: 0.96;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .room[data-build] .room__layer {
+      transition:
+        opacity 500ms var(--ease),
+        translate 700ms var(--ease),
+        scale 700ms var(--ease),
+        clip-path 700ms var(--ease),
+        mask-position 700ms var(--ease);
+    }
+    .room[data-build] .room__shade {
+      transition: opacity 350ms var(--ease) 350ms;
+    }
+    .room[data-enhanced] .room__step p,
+    .room[data-enhanced] .room__step p::before {
+      transition:
+        color 250ms var(--ease),
+        background-color 250ms var(--ease);
+    }
+    .room__chip {
+      transition: border-color 150ms ease;
+    }
+  }
+</style>
+
+<script>
+  import { hexToLinear } from '@/lib/room-story';
+  import type { RoomPainter } from '@/scripts/room-painter';
+
+  let teardown: (() => void) | null = null;
+
+  function init() {
+    teardown?.();
+    teardown = null;
+    const root = document.querySelector<HTMLElement>('[data-room]');
+    if (!root) return;
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-room-step]')];
+    const pieces = [...root.querySelectorAll<HTMLElement>('[data-piece]')];
+    const baseImg = root.querySelector<HTMLImageElement>('[data-room-base]');
+    const canvas = root.querySelector<HTMLCanvasElement>('.room__canvas');
+    const deck = root.querySelector<HTMLElement>('[data-room-chips]');
+    const live = root.querySelector<HTMLElement>('[data-room-live]');
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('.room__chip')];
+    if (steps.length < 2 || !baseImg || !canvas || !deck || !live) return;
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wide = matchMedia('(min-width: 1024px)');
+    // Scroll-driven CSS builds the room by itself; otherwise (or under
+    // reduced motion, where that CSS is off) this script builds it.
+    const scrollDriven =
+      CSS.supports('timeline-scope: --a') && CSS.supports('animation-timeline: view()');
+    const scripted = reduced || !scrollDriven;
+    let painter: RoomPainter | null = null;
+    let chip: [number, number, number] | null = null;
+    let stage = -2; // -1 = nothing built yet; -2 = not read yet
+    let dead = false;
+
+    root.dataset.enhanced = '';
+    if (scripted) root.dataset.build = '';
+
+    const show = (i: number) => {
+      if (i === stage) return;
+      const first = stage === -2;
+      stage = i;
+      steps.forEach((s, k) => {
+        if (k === i) s.setAttribute('aria-current', 'step');
+        else s.removeAttribute('aria-current');
+      });
+      if (scripted) {
+        pieces.forEach((p) => p.toggleAttribute('data-built', Number(p.dataset.stage) <= i));
+      }
+      // Say what the room shows now; not on the first read, so loading the
+      // page announces nothing.
+      if (!first) {
+        live.textContent =
+          i < 0 ? (root.dataset.baseAlt ?? '') : (steps[i].textContent ?? '').trim();
+      }
+    };
+
+    // The stage is the last caption whose top has passed the reading line
+    // (the same line the CSS ranges end on: mid screen on a laptop, 70% down
+    // on a phone), or -1 before the first.
+    const line = () => innerHeight * (wide.matches ? 0.5 : 0.7);
+    const pick = () => {
+      const y = line();
+      let i = -1;
+      steps.forEach((s, k) => {
+        if (s.getBoundingClientRect().top <= y) i = k;
+      });
+      show(i);
+    };
+    let band: IntersectionObserver | null = null;
+    const watch = () => {
+      band?.disconnect();
+      const top = wide.matches ? 45 : 65;
+      const bottom = wide.matches ? 45 : 25;
+      band = new IntersectionObserver(pick, { rootMargin: `-${top}% 0px -${bottom}% 0px` });
+      steps.forEach((s) => band?.observe(s));
+    };
+    watch();
+    pick();
+    wide.addEventListener('change', watch);
+
+    // ---- paint chips ------------------------------------------------------
+    const onChip = (e: Event) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === btn)));
+      chip = btn.dataset.hex ? hexToLinear(btn.dataset.hex) : null;
+      painter?.setChip(chip);
+    };
+    chips.forEach((c) => c.addEventListener('click', onChip));
+
+    // ---- the painter, loaded about a screen early -------------------------
+    const fallback = () => {
+      painter = null;
+      canvas.hidden = true;
+      deck.hidden = true;
+      delete root.dataset.painted;
+    };
+    const near = new IntersectionObserver(
+      async (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        near.disconnect();
+        try {
+          const { createRoomPainter } = await import('@/scripts/room-painter');
+          if (dead) return;
+          const [r, g, b] = (root.dataset.median ?? '').split(',').map(Number);
+          painter = createRoomPainter(
+            canvas,
+            { img: baseImg, maskUrl: root.dataset.mask ?? '', median: [r, g, b] },
+            {
+              reducedMotion: reduced,
+              onReady: () => {
+                if (dead) return;
+                canvas.hidden = false;
+                deck.hidden = false;
+                root.dataset.painted = '';
+              },
+              onLost: fallback,
+            },
+          );
+          if (!painter) fallback();
+          else if (chip) painter.setChip(chip);
+        } catch {
+          fallback();
+        }
+      },
+      { rootMargin: '100% 0px' },
+    );
+    near.observe(root);
+
+    teardown = () => {
+      dead = true;
+      band?.disconnect();
+      near.disconnect();
+      wide.removeEventListener('change', watch);
+      chips.forEach((c) => c.removeEventListener('click', onChip));
+      painter?.destroy();
+      painter = null;
+    };
+  }
+
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => {
+    teardown?.();
+    teardown = null;
+  });
+</script>

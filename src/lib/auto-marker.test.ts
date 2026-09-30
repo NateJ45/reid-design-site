@@ -43,6 +43,65 @@ describe('placeMarker', () => {
     expect(placeMarker(rows, { ...opts, show: null })).toBe(rows);
   });
 
+  it('places the Home concept room right after "How it works" (2026-09-30)', () => {
+    // Mirrors HomeSectionRenderer: `before` is every section that follows
+    // processPreview in its DEFAULT_ORDER, then Instagram is placed after it.
+    const h = (section: string, _key?: string): MarkerRow => ({
+      _type: 'homeSectionMarker',
+      section,
+      ...(_key ? { _key } : {}),
+    });
+    const room = {
+      markerType: 'homeSectionMarker',
+      value: 'roomStory',
+      before: ['services', 'instagram', 'serviceAreaCue', 'finalCta'],
+    };
+    const stored = [
+      h('hero'),
+      h('meetStaci'),
+      h('testimonials'),
+      h('processPreview'),
+      h('services'),
+      h('serviceAreaCue'),
+      h('finalCta'),
+    ];
+    const placed = placeMarker(stored, room);
+    expect(sections(placed)).toEqual([
+      'hero',
+      'meetStaci',
+      'testimonials',
+      'processPreview',
+      'roomStory',
+      'services',
+      'serviceAreaCue',
+      'finalCta',
+    ]);
+    // Then the Instagram marker still lands before the service-area line.
+    expect(
+      sections(
+        placeMarker(placed, {
+          markerType: 'homeSectionMarker',
+          value: 'instagram',
+          before: ['serviceAreaCue', 'finalCta'],
+        }),
+      ),
+    ).toEqual([
+      'hero',
+      'meetStaci',
+      'testimonials',
+      'processPreview',
+      'roomStory',
+      'services',
+      'instagram',
+      'serviceAreaCue',
+      'finalCta',
+    ]);
+    // roomStoryShow === false takes it out; Staci's own placement is kept.
+    expect(sections(placeMarker(placed, { ...room, show: false }))).toEqual(sections(stored));
+    const moved = [h('hero'), h('roomStory', 'r'), h('processPreview'), h('finalCta')];
+    expect(placeMarker(moved, room)).toBe(moved);
+  });
+
   it('ignores library blocks and other marker types when looking for the anchor', () => {
     const rows: MarkerRow[] = [
       m('hero'),

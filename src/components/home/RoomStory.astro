@@ -1,0 +1,141 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomStory: the home page's CONCEPT ROOM (added 2026-09-30)
+// =============================================================================
+// A labelled, AI-generated sample living room. It starts EMPTY and the
+// furniture fades and moves into place piece by piece as the visitor scrolls
+// past short captions (trim, then the rug and sofa, tables and a lamp,
+// curtains and a chair, art, styling), while a deck of paint chips repaints
+// the walls in WebGL. It is openly a concept: a "Concept room" sample tag sits
+// on the picture and every alt text opens "Concept image:". It must never
+// read as Staci's portfolio (no town or project names, no numbering).
+//
+// This file only LOADS and CHECKS the room; RoomStage.astro draws it (and
+// carries the script), so when anything is missing the page gets no markup
+// and no script at all:
+//
+//   src/assets/room/manifest.json -> parseRoomManifest() (src/lib/room-story.ts, v2)
+//   base image                    -> getImage(): avif + webp at 640/960/1440
+//   layer + shade images          -> getImage(): webp at the same fractions of
+//                                    their box, so a phone gets small pieces
+//   base wall mask                -> ?url (fetched by the painter only)
+//
+// The files are made by tools/room-lab (room:publish). Captions and alt text
+// live in that manifest, NOT in Sanity; Sanity only holds the heading, its
+// italic phrase, the intro and the Show switch (homePage.roomStory*). Placed
+// by the `roomStory` Home marker (CLAUDE.md rule 13).
+// =============================================================================
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import RoomStage, { type StageBase, type StageLayer } from './RoomStage.astro';
+import { layerTimings, parseRoomManifest, roomFiles } from '@/lib/room-story';
+
+interface Props {
+  headline?: string | null;
+  scriptAccent?: string | null;
+  intro?: string | null;
+}
+
+const { headline, scriptAccent, intro } = Astro.props as Props;
+
+// Globs, not imports: a missing folder is an empty object, never a build error.
+const manifests = import.meta.glob<{ default: unknown }>('../../assets/room/manifest.json', {
+  eager: true,
+});
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/room/*.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+const pngUrls = import.meta.glob<string>('../../assets/room/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
+const manifest = parseRoomManifest(Object.values(manifests)[0]?.default);
+const at = (name: string) => `../../assets/room/${name}`;
+const complete =
+  manifest !== null &&
+  roomFiles(manifest).every((f) => images[at(f)]) &&
+  Boolean(pngUrls[at(manifest.base.mask)]);
+
+// The room is about half an 85rem page on a laptop, full width on a phone.
+const WIDTHS = [640, 960, 1440];
+const BASE_SIZES = '(min-width: 1024px) 50vw, 100vw';
+
+let base: StageBase | null = null;
+let layers: StageLayer[] = [];
+if (manifest && complete) {
+  const { width: W, height: H } = manifest;
+  const src = images[at(manifest.base.image)].default;
+  const [avif, webp, fallback] = await Promise.all([
+    getImage({ src, format: 'avif', widths: WIDTHS, sizes: BASE_SIZES }),
+    getImage({ src, format: 'webp', widths: WIDTHS, sizes: BASE_SIZES }),
+    getImage({ src, format: 'webp', width: 960 }),
+  ]);
+  base = {
+    avifSrcset: avif.srcSet.attribute,
+    webpSrcset: webp.srcSet.attribute,
+    src: fallback.src,
+    alt: manifest.base.alt,
+    maskUrl: pngUrls[at(manifest.base.mask)],
+    median: manifest.base.wallMedianLinear,
+  };
+
+  // A piece's picture is `w / W` of the room's width, so it gets the same
+  // fractions of the room's widths and a matching `sizes`.
+  const piece = async (file: string, w: number) => {
+    const img = images[at(file)].default;
+    const f = w / W;
+    const widths = [...new Set(WIDTHS.map((x) => Math.round(x * f)))].filter(
+      (x) => x > 0 && x <= img.width,
+    );
+    const sizes = `(min-width: 1024px) calc(50vw * ${f.toFixed(4)}), calc(100vw * ${f.toFixed(4)})`;
+    const [set, one] = await Promise.all([
+      getImage({ src: img, format: 'webp', widths: widths.length ? widths : [img.width], sizes }),
+      getImage({ src: img, format: 'webp', width: Math.min(img.width, Math.round(960 * f)) }),
+    ]);
+    return { srcset: set.srcSet.attribute, src: one.src, sizes };
+  };
+
+  const timings = layerTimings(manifest);
+  const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(4)}%`;
+  layers = await Promise.all(
+    manifest.layers.map(async (l, i) => {
+      const [x, y, w, h] = l.box;
+      return {
+        id: l.id,
+        motion: l.motion,
+        stage: timings[i].stage,
+        from: timings[i].from,
+        to: timings[i].to,
+        width: Math.round(w),
+        height: Math.round(h),
+        place: `left:${pct(x, W)};top:${pct(y, H)};width:${pct(w, W)};height:${pct(h, H)}`,
+        image: await piece(l.image, w),
+        shade: l.shade ? await piece(l.shade, w) : null,
+      };
+    }),
+  );
+}
+---
+
+{
+  manifest && base && (
+    <RoomStage
+      width={manifest.width}
+      height={manifest.height}
+      base={base}
+      finalAlt={manifest.final.alt}
+      stages={manifest.stages.map((s) => s.caption)}
+      layers={layers}
+      headline={headline || 'Watch a room come together'}
+      scriptAccent={headline ? scriptAccent : (scriptAccent ?? 'come together')}
+      intro={
+        intro ||
+        'This is a concept room, not a client’s home. It fills up the way a project does, one piece at a time, and the paint chips try a colour on its walls.'
+      }
+    />
+  )
+}
