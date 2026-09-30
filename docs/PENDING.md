@@ -57,10 +57,6 @@ drawn with satori, 0 fallback(s)` and no `photo enlarged` or `photo failed`
   redrawn from the four Instagram posts Nathan shared. If Staci has original
   drawings (not the template art in her posts), trace one or two into
   `scripts/doodles.config.mjs` and `npm run doodles`.
-- **Look at the window light on a real phone and laptop** (home hero, and the
-  shade on the closing band). It is tuned by eye in headless Chromium; if it
-  reads too strong or too faint, the two numbers are the `0.28` (sun) and
-  `0.16` (leaf shade) in `src/scripts/window-light.ts`.
 
 ### From the 2026-09-30 Kind words + Instagram branch (`claude/kind-words-instagram`)
 
@@ -507,6 +503,8 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
 
 ## Recently closed
 
+- **2026-09-30 — window light removed.** Nathan looked at it and did not like
+  it, so the WebGL layer was deleted rather than tuned.
 - **2026-09-29 — parity baselines recaptured (branch `claude/reid-followups`).**
   Stale since 2026-08-28. Against a production-like build of this branch the
   old set scored 10/20, and the measured diffs were: the favicon, manifest and

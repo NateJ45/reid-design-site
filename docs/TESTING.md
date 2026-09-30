@@ -77,7 +77,7 @@ That file splits the list in three, and the split is load-bearing:
   exists: axe has no focus-indicator rule and only audits the resting DOM, and
   that blind spot once shipped invisible keyboard focus on WCP with Lighthouse
   at 100. The ring's contrast is pinned by the theme-token test below.
-- **`tests/scroll-reset.spec.ts`** (2026-09-29) — CLAUDE.md rule 5 on both engines. A link clicked from 1400px down the home page must open `/about` at the top, and Back must restore the position, once on a 1280px mouse viewport (asserts `window.lenis` exists, so Lenis is the engine under test) and once on a 390px touch phone (asserts Lenis never started, so the ClientRouter is). Chromium only: it sets its own viewport and touch flags.
+- **`tests/scroll-reset.spec.ts`** (2026-09-29, native-only since 2026-09-30) — CLAUDE.md rule 5. A link clicked from 1400px down the home page must open `/about` at the top, and Back must restore the position, on a 1280px mouse viewport and a 390px touch phone. Both assert `window.lenis` is absent, so a smooth-scroll library cannot come back unnoticed.
 - **`tests/reflow.spec.ts`** — WCAG 1.4.10 at 320, 768, 1024 and 1440 px on
   every route: `documentElement.scrollWidth` must not exceed `clientWidth`. It
   starts at 320 because the success criterion does; a single 375px screenshot

@@ -17,25 +17,18 @@ interface Props {
   headings: Heading[];
 }
 
-// Smooth-scroll the TOC link through Lenis instead of letting the browser snap
-// instantly to the anchor. Lenis honors the `scroll-mt-24` on the headings, so
-// the target clears the sticky header without a manual offset — matching where
-// a native anchor jump lands. Falls back to scrollIntoView (which also honors
-// scroll-mt-24) when Lenis hasn't loaded yet or the reader prefers reduced motion.
+// Smooth-scroll the TOC link instead of letting the browser snap instantly to
+// the anchor (an instant jump under reduced motion). scrollIntoView honors the
+// `scroll-mt-24` on the headings, so the target clears the sticky header
+// without a manual offset, matching where a native anchor jump lands.
 function handleTocClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
   const target = document.getElementById(id);
   if (!target) return;
 
   event.preventDefault();
 
-  const lenis = (window as unknown as { lenis?: { scrollTo: (t: HTMLElement) => void } }).lenis;
-
-  if (lenis) {
-    lenis.scrollTo(target);
-  } else {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  }
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
 
   history.pushState(null, '', `#${id}`);
 }
