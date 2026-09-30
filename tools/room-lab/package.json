@@ -1,0 +1,17 @@
+{
+  "name": "room-lab",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline authoring kit for the Reid Design concept room. Never part of the site install or the Cloudflare build.",
+  "scripts": {
+    "generate": "node generate.mjs",
+    "walls": "node walls.mjs",
+    "publish": "node publish.mjs",
+    "sheet": "node sheet.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.0",
+    "sharp": "^0.35.4"
+  }
+}

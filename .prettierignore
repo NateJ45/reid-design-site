@@ -51,3 +51,6 @@ src/layouts/BaseLayout.astro
 # Frozen decision artifacts from the 2026-09-29 art-direction rebuild: the
 # exact prototype pages Nathan chose between. Kept as they were compared.
 docs/design/prototypes/
+
+# Offline concept-room authoring kit (own package.json, own lockfile).
+tools

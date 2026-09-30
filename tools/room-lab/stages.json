@@ -1,0 +1,53 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "prompt": "A realistic photograph of an EMPTY living room in an ordinary 1990s to 2010s Midwest American suburban house, a two-storey tract home, not a loft and not luxury. Eye-level camera standing in a corner of the room. One large plain main wall is clearly visible and completely unobstructed, painted a flat neutral colour, ready to be repainted. A window with plain white trim on the side wall. Painted white baseboards and white trim, a flat white ceiling with a simple crown line. Neutral beige carpet or light wood floor. Soft natural daylight from the window. No furniture, no rugs, no people, no plants, no artwork, no text, no logos. Natural colour, gentle shadows, 4:3 photograph.",
+    "negative": "furniture, sofa, chair, table, rug, lamp, curtains, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR",
+    "seeds": [1101, 2202, 3303, 4404, 5505, 6606, 7707, 8808]
+  },
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "empty",
+      "change": null,
+      "caption": "Every room starts like this: four walls, a window, and a lot of questions.",
+      "alt": "Concept image: an empty living room with a plain painted wall, a window with white trim and a bare floor."
+    },
+    {
+      "id": "rug-sofa",
+      "change": "add a large neutral woven area rug on the floor and a comfortable linen sofa placed against the side wall, leaving most of the main wall clear and visible",
+      "seeds": [11, 12, 13],
+      "caption": "Start with what stays put: a rug that sets the scale, and a sofa that fits the room.",
+      "alt": "Concept image: the same living room with a woven rug on the floor and a linen sofa along the side wall."
+    },
+    {
+      "id": "tables-lamp",
+      "change": "add a wooden coffee table on the rug in front of the sofa, a small wooden side table beside the sofa, and a table lamp with a cream shade on the side table",
+      "seeds": [21, 22, 23],
+      "caption": "Next come the tables and a lamp, so there is somewhere to set a mug and a soft light for the evenings.",
+      "alt": "Concept image: the living room now with a wooden coffee table, a side table and a table lamp beside the sofa."
+    },
+    {
+      "id": "chair-curtains",
+      "change": "add an upholstered accent chair angled toward the sofa, and hang simple full-length linen curtains on the window",
+      "seeds": [31, 32, 33],
+      "caption": "A chair to angle toward the conversation, and curtains that finish the window.",
+      "alt": "Concept image: the living room with an accent chair and linen curtains hung on the window."
+    },
+    {
+      "id": "art",
+      "change": "hang one framed piece of art on the main wall, small enough to leave most of the wall clearly visible",
+      "seeds": [41, 42, 43],
+      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture.",
+      "alt": "Concept image: the living room with a single framed piece of art hung on the main wall."
+    },
+    {
+      "id": "styling",
+      "change": "add olive branches in a ceramic vase on the coffee table, a short stack of books, a soft knitted throw over the arm of the sofa and two pillows on the sofa",
+      "seeds": [51, 52, 53],
+      "caption": "Then the small things that make it feel lived in: branches, books, a throw and a couple of pillows.",
+      "alt": "Concept image: the finished living room styled with olive branches in a vase, stacked books, a throw and pillows."
+    }
+  ]
+}
