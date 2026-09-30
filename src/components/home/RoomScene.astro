@@ -1,0 +1,318 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomScene: ONE concept room's picture stack (split out of RoomStage.astro on
+// 2026-09-30 for the room tabs). RoomStage renders the first room's scene in
+// place and every other room's inside a <template>, so their pictures download
+// only when a tab is chosen; the script swaps this whole `.room__frames` box.
+// =============================================================================
+// THE STACK, inside one positioned box with the frame's aspect ratio, bottom
+// to top:
+//   1. the base <img> (the empty room; alt = the manifest's base alt)
+//   2. the WebGL canvas (src/scripts/room-painter.ts), which repaints ONLY the
+//      base wall. It is rendered once, in the first room (`canvas`), and the
+//      script MOVES it into whichever room is showing, so the painter keeps
+//      one GL context for the life of the page.
+//   3. per piece, in paint order: its shade <img> (greyscale, mix-blend-mode
+//      multiply, so its shadow darkens whatever paint is under it) and the
+//      piece itself (RGBA WebP), both placed by its box as percentages and
+//      alt="" (the figure's text covers them).
+//
+// The room's own data rides on the box (not the section) so it swaps with it:
+// data-mask, data-median, data-base-alt, and --ar / --hw.
+//
+// SCROLL CHOREOGRAPHY: a piece in stage k animates on the view timeline
+// --room-s<k> of caption k (RoomCaptions.astro), across
+//   animation-range: cover <start> cover <end>
+// where the stage window runs from the caption's top entering the bottom of
+// the screen (+--w0) to it reaching the reading line (--w1, set on the
+// section). layerTimings() gives each piece its --a..--b fraction. Behind
+// `@supports (timeline-scope) and (animation-timeline: view())` AND
+// `prefers-reduced-motion: no-preference`. Fallback: the script sets
+// data-build on the section and data-built on the pieces it has reached.
+// Default (no script): every piece in place, the FINISHED room.
+// =============================================================================
+import type { RoomView, StageLayer } from './room-view';
+
+interface Props {
+  room: RoomView;
+  /** Render the painter's canvas (the first room only). */
+  canvas?: boolean;
+}
+
+const { room, canvas = false } = Astro.props as Props;
+const { width, height, base, layers } = room;
+const tl = (k: number) => `--room-s${k}`;
+const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.from};--b:${l.to}`;
+---
+
+<div
+  class="room__frames"
+  data-room-frames={room.slug}
+  data-base-alt={base.alt}
+  data-mask={base.maskUrl}
+  data-median={base.median.join(',')}
+  style={`--ar:${width} / ${height};--hw:${(height / width).toFixed(4)}`}
+>
+  <picture class="room__base">
+    <source type="image/avif" srcset={base.avifSrcset} sizes="(min-width: 1024px) 50vw, 100vw" />
+    <source type="image/webp" srcset={base.webpSrcset} sizes="(min-width: 1024px) 50vw, 100vw" />
+    <img
+      src={base.src}
+      alt={base.alt}
+      width={width}
+      height={height}
+      loading="lazy"
+      decoding="async"
+      data-room-base
+    />
+  </picture>
+  {canvas && <canvas class="room__canvas" aria-hidden="true" hidden />}
+  {
+    layers.map((l) => (
+      <Fragment>
+        {l.shade && (
+          <img
+            class="room__shade"
+            data-piece
+            data-stage={l.stage}
+            style={pieceStyle(l)}
+            src={l.shade.src}
+            srcset={l.shade.srcset}
+            sizes={l.shade.sizes}
+            alt=""
+            width={l.width}
+            height={l.height}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <img
+          class={`room__layer room__layer--${l.motion}`}
+          data-piece
+          data-layer={l.id}
+          data-stage={l.stage}
+          style={pieceStyle(l)}
+          src={l.image.src}
+          srcset={l.image.srcset}
+          sizes={l.image.sizes}
+          alt=""
+          width={l.width}
+          height={l.height}
+          loading="lazy"
+          decoding="async"
+        />
+      </Fragment>
+    ))
+  }
+</div>
+
+<style>
+  .room__frames {
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    /* cqw units in the motions are fractions of the frame's width. */
+    container-type: inline-size;
+    /* The shades multiply with the base and the painted wall only. */
+    isolation: isolate;
+    aspect-ratio: var(--ar);
+    width: 100%;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-chip-2);
+    box-shadow: 0 18px 40px -24px rgb(35 30 27 / 0.45);
+  }
+  .room__base,
+  .room__base img,
+  .room__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .room__base img {
+    display: block;
+    object-fit: cover;
+  }
+  .room__canvas[hidden] {
+    display: none !important;
+  }
+  /* While a newly chosen room's textures load: keep the canvas's size (so
+     the painter can measure it) but show the plain photo. */
+  .room__canvas[data-loading] {
+    visibility: hidden;
+  }
+  .room__layer,
+  .room__shade {
+    position: absolute;
+    display: block;
+    max-width: none;
+  }
+  .room__shade {
+    mix-blend-mode: multiply;
+  }
+
+  @media (max-width: 1023px) {
+    /* Keep the pinned room short enough to leave the captions some screen
+       (the tabs, when there are any, take --room-tabs of it). */
+    .room__frames {
+      width: min(
+        100%,
+        calc((100svh - var(--room-pin, 4.5rem) - 17rem - var(--room-tabs, 0rem)) * var(--ar))
+      );
+      margin-inline: auto;
+    }
+  }
+  @media (min-width: 1024px) {
+    /* Sized by the screen's height too, so the room, its tabs and its chips fit. */
+    .room__frames {
+      width: min(100%, calc((100svh - 16rem - var(--room-tabs, 0rem)) * var(--ar)));
+    }
+  }
+
+  /* ---- how each piece arrives -------------------------------------------- */
+  @keyframes room-sweep {
+    from {
+      mask-position: 100% 0;
+    }
+  }
+  @keyframes room-unroll {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+  @keyframes room-slide-left {
+    from {
+      opacity: 0;
+      translate: 3cqw 0;
+      scale: 1.015;
+    }
+  }
+  @keyframes room-slide-right {
+    from {
+      opacity: 0;
+      translate: -3cqw 0;
+      scale: 1.015;
+    }
+  }
+  @keyframes room-rise {
+    from {
+      opacity: 0;
+      translate: 0 calc(2cqw * var(--hw));
+    }
+  }
+  @keyframes room-drop {
+    from {
+      opacity: 0;
+      translate: 0 calc(-2cqw * var(--hw));
+    }
+  }
+  @keyframes room-pop {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+  /* A piece's shadow "sets down" in the last third of its motion. */
+  @keyframes room-shade {
+    0%,
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Primary: scroll-driven, CSS only. */
+  @supports (timeline-scope: --a) and (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .room__layer--sweep {
+        mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+        mask-size: 250% 100%;
+        mask-repeat: no-repeat;
+        mask-position: 0 0;
+        animation: room-sweep linear both;
+      }
+      .room__layer--unroll {
+        animation: room-unroll linear both;
+      }
+      .room__layer--slide-left {
+        animation: room-slide-left linear both;
+      }
+      .room__layer--slide-right {
+        animation: room-slide-right linear both;
+      }
+      .room__layer--rise {
+        animation: room-rise linear both;
+      }
+      .room__layer--drop {
+        animation: room-drop linear both;
+      }
+      .room__layer--pop {
+        animation: room-pop linear both;
+      }
+      .room__shade {
+        animation: room-shade linear both;
+      }
+      /* After the shorthands above (which reset the timeline). */
+      .room__frames .room__layer,
+      .room__frames .room__shade {
+        animation-timeline: var(--tl);
+        animation-range: cover calc(var(--w0) + (var(--w1) - var(--w0)) * var(--a)) cover
+          calc(var(--w0) + (var(--w1) - var(--w0)) * var(--b));
+      }
+      .room__frames .room__layer {
+        animation-timing-function: var(--ease);
+      }
+    }
+  }
+
+  /* Fallback: the script sets data-build and marks built pieces. */
+  :global(.room[data-build]) .room__layer--sweep {
+    mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+    mask-size: 250% 100%;
+    mask-repeat: no-repeat;
+    mask-position: 0 0;
+  }
+  :global(.room[data-build]) [data-piece]:not([data-built]) {
+    opacity: 0;
+  }
+  :global(.room[data-build]) .room__layer--sweep:not([data-built]) {
+    mask-position: 100% 0;
+  }
+  :global(.room[data-build]) .room__layer--unroll:not([data-built]) {
+    clip-path: inset(0 100% 0 0);
+  }
+  :global(.room[data-build]) .room__layer--slide-left:not([data-built]) {
+    translate: 3cqw 0;
+    scale: 1.015;
+  }
+  :global(.room[data-build]) .room__layer--slide-right:not([data-built]) {
+    translate: -3cqw 0;
+    scale: 1.015;
+  }
+  :global(.room[data-build]) .room__layer--rise:not([data-built]) {
+    translate: 0 calc(2cqw * var(--hw));
+  }
+  :global(.room[data-build]) .room__layer--drop:not([data-built]) {
+    translate: 0 calc(-2cqw * var(--hw));
+  }
+  :global(.room[data-build]) .room__layer--pop:not([data-built]) {
+    scale: 0.96;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.room[data-build]) .room__layer {
+      transition:
+        opacity 500ms var(--ease),
+        translate 700ms var(--ease),
+        scale 700ms var(--ease),
+        clip-path 700ms var(--ease),
+        mask-position 700ms var(--ease);
+    }
+    :global(.room[data-build]) .room__shade {
+      transition: opacity 350ms var(--ease) 350ms;
+    }
+  }
+</style>

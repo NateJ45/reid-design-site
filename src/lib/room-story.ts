@@ -182,6 +182,71 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
   };
 }
 
+// -----------------------------------------------------------------------------
+// The room index (rooms.json, added 2026-09-30 with the room tabs)
+// -----------------------------------------------------------------------------
+// Several concept rooms, one per tab above the room. tools/room-lab publishes
+//
+//   src/assets/room/rooms.json
+//     { "version": 1, "rooms": [ { "slug": "living-transitional",
+//         "label": "Living room", "type": "living", "style": "Transitional",
+//         "manifest": "living-transitional/manifest.json" }, ... ] }
+//
+// and each room's own folder src/assets/room/<folder>/ with a manifest v2
+// (above) whose file names are relative to that folder. Order = tab order.
+// Every room shares the same paint chips.
+
+export interface RoomIndexEntry {
+  /** Stable id, [a-z0-9-]+, unique. Used in element ids. */
+  slug: string;
+  /** The tab's main line ("Living room"). */
+  label: string;
+  /** Room kind ("living", "kitchen", ...). Never shown. */
+  type: string;
+  /** The tab's second line ("Transitional"). */
+  style: string;
+  /** "<folder>/manifest.json", relative to src/assets/room/. */
+  manifest: string;
+}
+
+export interface RoomIndex {
+  version: 1;
+  rooms: RoomIndexEntry[];
+}
+
+const SLUG = /^[a-z0-9-]+$/;
+const MANIFEST_PATH = /^[a-z0-9-]+\/manifest\.json$/;
+
+/**
+ * Validate rooms.json. Strict like the manifest: anything off (a bad or
+ * duplicate slug, a blank label or style, a manifest path that is not
+ * "<folder>/manifest.json") returns null, and the section renders nothing.
+ * An empty list is valid and simply means no rooms.
+ */
+export function parseRoomIndex(raw: unknown): RoomIndex | null {
+  if (!isObj(raw) || raw.version !== 1 || !Array.isArray(raw.rooms)) return null;
+  const rooms: RoomIndexEntry[] = [];
+  const slugs = new Set<string>();
+  for (const r of raw.rooms) {
+    if (!isObj(r)) return null;
+    const { slug, label, type, style, manifest } = r;
+    if (typeof slug !== 'string' || !SLUG.test(slug) || slugs.has(slug)) return null;
+    if (!isText(label) || !isText(type) || !isText(style)) return null;
+    if (typeof manifest !== 'string' || !MANIFEST_PATH.test(manifest)) return null;
+    slugs.add(slug);
+    rooms.push({ slug, label: label.trim(), type: type.trim(), style: style.trim(), manifest });
+  }
+  return { version: 1, rooms };
+}
+
+/** The folder a room's manifest (and so its files) lives in. */
+export const roomFolder = (entry: RoomIndexEntry): string => entry.manifest.split('/')[0];
+
+/** What the live region says when a tab is chosen ("Showing the kitchen, modern style."). */
+export function roomAnnouncement(entry: Pick<RoomIndexEntry, 'label' | 'style'>): string {
+  return `Showing the ${entry.label.toLowerCase()}, ${entry.style.toLowerCase()} style.`;
+}
+
 /** Every file the manifest names (for the component's "is it all there?" check). */
 export function roomFiles(m: RoomManifest): string[] {
   return [
