@@ -1,62 +1,97 @@
 ---
 // Safe to edit by hand
-// "Plainfield-first" service area cue. Sits between the Services grid and the
-// Final CTA on the home page. Two render modes:
+// Home service-area band (rebuilt 2026-09-29). A short heading on the left,
+// the towns set large on the right with the home base first, in bronze
+// italic. Staci's own note (homePage.serviceAreaCue) sits under the list.
+// Towns come from Business info -> Service areas.
 //
-//   1) `cities` array passed → confident typographic row, Plainfield in bronze,
-//      the rest in Warm Taupe. This is the high-end editorial treatment.
-//   2) Only `text` passed → quieter italic fallback (legacy behavior).
-//
-// The cities mode signals "local studio" much more strongly than a single
-// sentence. It also gives Google another local-SEO anchor on the home page.
+// Only the home page uses this component.
 
 interface Props {
-  /** Optional fallback line ("Serving Plainfield, Indianapolis, and the surrounding suburbs.") */
+  /** Staci's note under the towns (homePage.serviceAreaCue). Optional. */
   text?: string;
-  /** Preferred: ordered array of service-area city names. First entry rendered in bronze. */
+  /** Business info -> Service areas. The first one is treated as home base. */
   cities?: string[];
-  /** Eyebrow above the cities row. Defaults to a short geographic eyebrow. */
+  /** Kept for the renderer's existing call; the rebuild does not print it. */
   eyebrow?: string;
 }
 
-const { text, cities, eyebrow = 'Service area' } = Astro.props as Props;
+const { text, cities } = Astro.props as Props;
 
 const cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
-const cue = text ?? 'Serving Plainfield, Indianapolis, and the surrounding suburbs.';
+const [home, ...rest] = cityList;
+const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding suburbs.';
 ---
 
-<div class="border-y border-border-soft bg-muted">
-  <div class="mx-auto max-w-content px-m py-section-md text-center">
-    {
-      cityList.length > 0 ? (
-        <>
-          <p class="mb-m text-xs tracking-eyebrow text-foreground/80 uppercase">{eyebrow}</p>
-          <p
-            class="flex flex-wrap items-baseline justify-center gap-x-s gap-y-xs font-display text-h3 leading-snug"
-            aria-label={`Reid Design serves ${cityList.join(', ')}`}
-          >
-            {cityList.map((city, i) => (
+<section class="area" aria-labelledby="area-heading">
+  <div class="r-wrap area__grid">
+    <h2 id="area-heading" class="r-h2 area__h">
+      Based in {home || 'Plainfield'}. <span class="r-accent">Happy to drive.</span>
+    </h2>
+    <div class="area__list">
+      {
+        cityList.length > 0 && (
+          <p>
+            <b>{home}</b>
+            {rest.map((c) => (
               <>
-                <span
-                  class:list={[
-                    i === 0 ? 'font-medium text-link' : 'font-normal text-foreground/85',
-                  ]}
-                >
-                  {city}
-                </span>
-                {i < cityList.length - 1 && (
-                  <span class="font-normal text-foreground/40" aria-hidden="true">
-                    ·
-                  </span>
-                )}
+                {' '}
+                <i aria-hidden="true">/</i> {c}
               </>
             ))}
           </p>
-          {text && <p class="mx-auto mt-m max-w-2xl text-sm text-foreground/85 italic">{text}</p>}
-        </>
-      ) : (
-        <p class="text-sm text-foreground/75 italic">{cue}</p>
-      )
-    }
+        )
+      }
+      <p class="area__note">{note}</p>
+    </div>
   </div>
-</div>
+</section>
+
+<style>
+  .area {
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+    border-top: 1px solid var(--color-rule);
+  }
+  .area__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+  .area__h {
+    grid-column: 1 / 6;
+    margin: 0;
+    font-size: clamp(2.2rem, 1.3rem + 2.8vw, 4rem);
+  }
+  .area__list {
+    grid-column: 6 / 13;
+  }
+  .area__list > p:first-child {
+    margin: 0;
+    font: 300 clamp(1.7rem, 1.2rem + 1.6vw, 2.9rem) / 1.25 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink-2);
+  }
+  .area__list b {
+    font-weight: 300;
+    font-style: italic;
+    color: var(--color-chip-7);
+  }
+  .area__list i {
+    font-style: normal;
+    color: var(--color-chip-3);
+    padding-inline: 0.15em;
+  }
+  .area__note {
+    margin: 1.5rem 0 0;
+    max-width: 52ch;
+    color: var(--color-ink-2);
+  }
+  @media (max-width: 1023px) {
+    .area__grid {
+      display: block;
+    }
+    .area__list {
+      margin-top: 1.5rem;
+    }
+  }
+</style>

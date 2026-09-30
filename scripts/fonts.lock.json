@@ -1,0 +1,41 @@
+{
+  "note": "Written by scripts/fetch-fonts.mjs --update. The font files themselves are NOT committed: ITF Free Font License 2.0 forbids redistribution via a public repository. See the script header.",
+  "license": "ITF Free Font License 2.0 (Fontshare). Licensee: Reid Design LLC, for reiddesignllc.com only.",
+  "files": {
+    "Zodiak-300.woff2": {
+      "sha256": "0cff7678eb5ee92955f35041befc933a4f13014aad58c52e8e18b5612f24c77a",
+      "bytes": 21756,
+      "source": "https://cdn.fontshare.com/wf/IF5ZIT3FMSFNWCWOG7ZASDFHEMLSIUEE/OMOWAZNE73OKOHTUSHA6P7FH44MIVQTO/UREX64UV4XADQWU6EF6JRA5XVIEJPRP4.woff2"
+    },
+    "Zodiak-300i.woff2": {
+      "sha256": "bca6c4402a37888dca3bcf5e6f9a456e667a401b46c05a6693dbfff25e435ca4",
+      "bytes": 23352,
+      "source": "https://cdn.fontshare.com/wf/DLIOQN7BAIDF52NEOLWMG25TF2G4E5BG/2SBXS5PNCQ52C2STGTCLTGD7FAKWZYER/ZRX2TEYEJEWBO7BARVINFDFGSQVQCGX6.woff2"
+    },
+    "Zodiak-400.woff2": {
+      "sha256": "81bf124d17416df8fb656393c46fb34bb74e5d472f07cec9ab295269f372098a",
+      "bytes": 21912,
+      "source": "https://cdn.fontshare.com/wf/ECUEQQ5BLZLFJS3PPLWOEEVS7SQONQMH/WNTXEMDDVWUVWDURRKDXCJC6G7TMP277/TBWKTFSYABV4KN4GNIJMAOQUOTYBUWB3.woff2"
+    },
+    "Zodiak-400i.woff2": {
+      "sha256": "63af701809888107dcb1d97912db01f713602b83f58b86a67ec404675f8ed0dd",
+      "bytes": 23484,
+      "source": "https://cdn.fontshare.com/wf/YFLZBMMI3DYRSZHBNXVNB72OCINBINIT/AJUISU4RPSUOUSQPHGNMFKZ4M6TTQGWF/HUKQ64PZXOIVT5LHOHNUDCYHXBK5OR45.woff2"
+    },
+    "GeneralSans-400.woff2": {
+      "sha256": "3ec2be771caf168b077ca05af4df1dace77088e2b3a27da570036e61be58a039",
+      "bytes": 23084,
+      "source": "https://cdn.fontshare.com/wf/MFQT7HFGCR2L5ULQTW6YXYZXXHMPKLJ3/YWQ244D6TACUX5JBKATPOW5I5MGJ3G73/7YY3ZAAE3TRV2LANYOLXNHTPHLXVWTKH.woff2"
+    },
+    "GeneralSans-500.woff2": {
+      "sha256": "c30377df1de8444d07161725c751f458beec07c28034df2fd275d1aa587a239f",
+      "bytes": 22904,
+      "source": "https://cdn.fontshare.com/wf/3RZHWSNONLLWJK3RLPEKUZOMM56GO4LJ/BPDRY7AHVI3MCDXXVXTQQ76H3UXA63S3/SB2OEB6IKZPRR6JT4GFJ2TFT6HBB6AZN.woff2"
+    },
+    "GeneralSans-600.woff2": {
+      "sha256": "94a2a0e1ef59728eb65498ed7fe26e5af7e2858a3a4a278a89ac1f83a0544945",
+      "bytes": 23092,
+      "source": "https://cdn.fontshare.com/wf/K46YRH762FH3QJ25IQM3VAXAKCHEXXW4/ISLWQPUZHZF33LRIOTBMFOJL57GBGQ4B/3ZLMEXZEQPLTEPMHTQDAUXP5ZZXCZAEN.woff2"
+    }
+  }
+}

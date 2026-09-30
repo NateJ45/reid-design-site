@@ -19,7 +19,7 @@ File naming:
 
 ### Project-specific Button variants
 
-Reid Design's primary CTA (Warm Bronze background, white text, generous uppercase letter-spacing) extends `src/components/ui/button.tsx` with `variant="brand"` + `size="cta"`. The convention from NCS. Don't override the shadcn defaults inline. Leave other shadcn variants unmodified so future `npx shadcn add` commands don't fight with the extensions.
+Reid Design's shadcn Button extends `src/components/ui/button.tsx` with `variant="brand"` + `size="cta"` (Warm Bronze background, white text, generous uppercase letter-spacing; the convention from NCS). **Since 2026-09-29 the site's own CTAs no longer use this variant:** `CtaLink.astro` renders the `src/styles/reid.css` primitives (ink pill `.r-btn--ink`, underline link `.r-link`), and the old uppercase-tracked `rounded-sm` buttons are gone site-wide. The `brand` variant remains available for shadcn-based UI. Don't override the shadcn defaults inline. Leave other shadcn variants unmodified so future `npx shadcn add` commands don't fight with the extensions.
 
 ### Radix-based primitives server-render fine, so hydrate them at `client:idle`
 
@@ -37,15 +37,17 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Page chrome:**
 
-- `Announcements.astro` (2026-09-29) — the announcement bar(s) and the one popup, drawn once by `BaseLayout` above `Header`. Renders nothing when no announcement applies. Full behavior in docs/agent/sanity.md ("Announcements"). The header now also carries a **search icon** to `/search` (in the eyebrow strip on desktop, beside the hamburger on mobile); the mobile drawer (`MobileNav.tsx`) does not have a Search entry yet.
-- `Header.astro` — two-row desktop (eyebrow strip + main nav), single-row mobile. Bronze top stripe + sticky-with-hide-on-scroll-down behavior wired via `.site-header` (see Polish layer). New logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`. The eyebrow strip carries the availability status (also a compact pill on the mobile row), email, and phone; on mobile the availability shows a compact "Open" that expands to the full status from md up.
+- `Announcements.astro` (2026-09-29) — the announcement bar(s) and the one popup, drawn once by `BaseLayout` above `Header`. Renders nothing when no announcement applies. Full behavior in docs/agent/sanity.md ("Announcements"). The header also carries a **search icon** to `/search` (in the single header row on desktop since 2026-09-29, beside the hamburger on mobile); the mobile drawer (`MobileNav.tsx`) does not have a Search entry yet.
+- `Header.astro` — **one row on desktop and mobile since 2026-09-29.** Desktop: logo, server-rendered nav (still native `<details>` dropdowns, behaviour unchanged), an availability pill, search icon, ink pill CTA. Mobile: logo left, availability pill, search, hamburger (the `MobileNav` trigger is now in normal flow, not absolutely positioned). The old desktop eyebrow strip (tagline, email, phone, socials, theme toggle) and the 4px bronze stripe are gone, and `ThemeToggle` is no longer in the header (the site is light only). Sticky-with-hide-on-scroll-down behavior is still wired via `.site-header` (see Polish layer). Logo source: `reid-design-logo-2.jpg` → trimmed to 798×844 PNG variants in `public/`.
 - `Footer.astro` — bronze stripe, a compact brand bar (just the studio logo, which wraps in `<a href="/">` so click returns home), a responsive link grid (1 / 2 / 3 / 5 columns as the viewport widens, so a column never gets too narrow for the email), latest projects from Sanity, auto-year copyright + "Site by …" credit now on a thin bottom bar (not stacked in a column). The fifth grid column (Get in touch) lists email + phone (`tel:` via `telHref`) + socials. The compact brand bar instead of the old tall stacked block keeps the footer to roughly half its previous height (~half the viewport on desktop).
-- `MobileNav.tsx` — shadcn Sheet drawer (`client:idle`; the closed Sheet server-renders its trigger, so the hamburger is in the server HTML). Bronze stripe top, primary CTA, tagline, nav links, email + phone (`tel:` via `telHref`) + socials + theme toggle, logo at bottom.
+- `MobileNav.tsx` — shadcn Sheet drawer (`client:idle`; the closed Sheet server-renders its trigger, so the hamburger is in the server HTML). Primary CTA, tagline, nav links, email + phone (`tel:` via `telHref`) + socials, logo at bottom. The theme toggle was removed from the drawer 2026-09-29 (light only), and the trigger now sits in normal flow in the header row. (Whether the bronze top stripe survives in the drawer was not re-verified.)
 - `BaseLayout.astro` — anti-FOUC theme bootstrap, View Transitions, Lenis init, **scroll-reveal observer**, **sticky-header scroll listener**.
 
 **Hero + page-top:**
 
-- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap, and `backgroundImages?: SanityImageObject[]` for the home hero slideshow (falls back to the single `backgroundImage` for every other page). Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
+- `HomeHero.astro` (+ `HomeStaci`, `PaintChips`, `TapeProcess`, `HomeWords` in `src/components/home/`, 2026-09-29) — the rebuilt home page sections, rendered by `HomeSectionRenderer.astro`. `HomeHero` has a Walnut ground and the new `homePage.heroPortrait` image (image, hotspot); its headline uses `RiseWords.astro` (server-split word-rise). The `PaintChips` faces skip chip 5 (Warm Bronze fails AA under body-size text). `homePage.heroRotatingWords` is hidden and unused by the new hero.
+- `RiseWords.astro` (2026-09-29) — server-side word split for the word-rise headline animation. `src/lib/cta.ts` exports `resolveCtaHref`, shared with `CtaLink.astro`.
+- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap, and `backgroundImages?: SanityImageObject[]` for the old home hero slideshow (falls back to the single `backgroundImage` for every other page). Image variant passes `onDark` to its CTAs automatically. **The home page no longer renders through `Hero.astro`** (it uses `HomeHero.astro` since 2026-09-29), so the `size="tall"` fill + scroll cue and the slideshow described in Polish layer are legacy for the home page.
 - `HeroBackground.astro` — the hero background layer. Renders a single static `SanityImage` for 0-1 images, or a cross-fading Ken Burns slideshow for 2+ (see Polish layer, Home hero slideshow), plus the two readability overlays. The slide CSS lives in `globals.css`. Used only by `Hero.astro`.
 - `SectionHeading.astro` — eyebrow + bronze hairline accent + headline + subhead. Used by text-variant Hero and every interior section heading. Supports `tone="inverse"` for dark FinalCta panels.
 - `ReadingProgress.astro` — fixed 3px bronze track at the top of `<article>`-wrapped pages. Used on journal posts.
@@ -128,11 +130,11 @@ The Portable Text renderers (`PortableText.tsx` for case studies, `JournalPortab
 
 - `StickyCTAChip.tsx` — bronze "Working on something like this?" pill that fades in past 50% scroll, hides on scroll-down, dismissible per session. Wired into portfolio detail / services / journal post.
 - `SectionDivider.astro` — bronze ornament between sections that share a background color (variants: `ornament` (default ✺) / `line` / `dots`).
-- `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Falls back to italic single line when no `cities` array passed.
+- `ServiceAreaCue.astro` — Plainfield-first typographic city row at the bottom of the home page. Rewritten in place in the 2026-09-29 rebuild (same role). Falls back to italic single line when no `cities` array passed.
 - `JournalPortableText.tsx` — journal body renderer with 7 custom block types (pullQuote, beforeAfter, sourceCard, tipCallout, imageGallery, divider, videoEmbed) + a `sourcedFrom` annotation mark for italic small-caps vendor mentions inline. Adds the `.prose-drop-cap` float cap to the first paragraph and renders blockquotes as `.prose-blockquote` (see Polish layer → Editorial typography).
 - `PortableText.tsx` — project introStory renderer (plus other rich-text fields). Same `sourcedFrom` annotation mark; case-study image block supports an optional `decisionLine` eyebrow above the caption.
 - `FaqAccordion.tsx` — shadcn Accordion wrapper. **Note:** `src/components/ui/accordion.tsx` has been customized — the original `h-(--radix-accordion-content-height)` lock on the inner content div was removed (caused a big empty-space bug after expand), and the trigger no longer carries `text-sm font-medium` so consumer typography wins the cascade.
-- `ThemeToggle.tsx`, `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
+- `ThemeToggle.tsx` (still in the repo but **not rendered anywhere** since 2026-09-29; the site is light only), `BackToTop.tsx`, `SanityImage.astro`, `CtaLink.astro`.
 
 **Capture tools + offerings (conversion build):**
 
@@ -182,11 +184,13 @@ Labels are Sanity-editable now: `servicesPage.stickyCtaLabel` for /services, `jo
 
 ### CtaLink `onDark` prop
 
-`src/components/CtaLink.astro` accepts an `onDark?: boolean` prop. When true:
+**2026-09-29:** `CtaLink.astro` now renders the rebuild primitives from `src/styles/reid.css` (shared `resolveCtaHref` in `src/lib/cta.ts`): primary is an ink pill (`.r-btn--ink`), or a **cream pill** when `onDark`; secondary is an underline link (`.r-link`). The old uppercase-tracked `rounded-sm` bordered buttons are gone site-wide. The prop still exists and still means "this sits on a dark ground"; the per-variant class details below describe the pre-rebuild output.
 
-- **Secondary variant** swaps from `border-primary text-link` (bronze on light) to `border-white/70 text-white hover:bg-white/10` (cream on dark).
+`src/components/CtaLink.astro` accepts an `onDark?: boolean` prop. Originally, when true:
+
+- **Secondary variant** swapped from `border-primary text-link` (bronze on light) to `border-white/70 text-white hover:bg-white/10` (cream on dark).
 - **Focus ring** offsets against `transparent` instead of `--background` so the ring still reads on photographic surfaces.
 
-Use it on any CTA over a hero image, the Charcoal Dark `FinalCta` panel, or any other dark surface. `Hero.astro` (image variant) and `FinalCta.astro` set it automatically. Do NOT try to override secondary-variant colors via `class="text-bg ..."` — Tailwind v4 generates utilities alphabetically and `text-link` beats `text-bg` in the cascade. Use the prop instead.
+Use it on any CTA over a hero image, the ink `FinalCta` panel, or any other dark surface. `Hero.astro` (image variant) and `FinalCta.astro` set it automatically. Do NOT try to override secondary-variant colors via `class="text-bg ..."` — Tailwind v4 generates utilities alphabetically and `text-link` beats `text-bg` in the cascade. Use the prop instead.
 
-`FinalCta.astro` accepts an optional `backgroundImage` (Sanity image). When set, the closing panel renders the photo full-bleed behind a `bg-accent-dark/70` scrim with the content lifted to `z-10`; the bronze stripe stays on top. Empty or missing asset falls back to the solid Charcoal Dark panel. The image is decorative (`aria-hidden`, empty alt). Wired on the 7 page singletons only. The guides pages (`/guides`, `/guides/[slug]`) also render a Final CTA but have no Sanity singleton to hold the field, so they intentionally do not support a background image and always show the solid panel.
+`FinalCta.astro` accepts an optional `backgroundImage` (Sanity image). When set, the closing panel renders the photo full-bleed behind a `bg-accent-dark/70` scrim with the content lifted to `z-10`; the bronze stripe stays on top. Empty or missing asset falls back to the solid ink panel. The image is decorative (`aria-hidden`, empty alt). Wired on the 7 page singletons only. The guides pages (`/guides`, `/guides/[slug]`) also render a Final CTA but have no Sanity singleton to hold the field, so they intentionally do not support a background image and always show the solid panel.

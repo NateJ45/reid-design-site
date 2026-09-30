@@ -1,0 +1,152 @@
+---
+// Safe to edit by hand
+// Home "Meet Staci" (2026-09-29 rebuild). Replaces sections/MeetStaci.astro on
+// the home page only; same Sanity fields (meetStaciPhoto, meetStaciEyebrow,
+// meetStaciHeadline, meetStaciContent, meetStaciCta).
+//
+// Layout: a tall portrait on the left with a sample tag clipped to it
+// (her name, like the tag on a fabric sample), the headline big on the right,
+// the FIRST paragraph of the content set large in Zodiak as the lede, the
+// rest as normal body. The eyebrow is used as the sample tag's small line,
+// not as a tracked caps label above the heading (the rebuild drops that
+// grammar everywhere).
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaLink from '@/components/CtaLink.astro';
+import type { CtaBlock } from '@/lib/cta';
+import type { PortableTextBlock } from '@portabletext/types';
+
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+/** A Portable Text block: the shape PortableText renders, plus the span text we read for the lede. */
+type Block = PortableTextBlock & { children?: { text?: string }[] };
+
+interface Props {
+  photo?: SanityImageObject | null;
+  eyebrow?: string | null;
+  headline?: string | null;
+  content?: Block[] | null;
+  cta?: CtaBlock | null;
+}
+
+const { photo, eyebrow, headline = 'Hi, I’m Staci.', content, cta } = Astro.props as Props;
+
+// First block = lede, the rest = body. Plain-text lede for the big line.
+const blocks = Array.isArray(content) ? content : [];
+const [first, ...rest] = blocks;
+const lede =
+  first?._type === 'block'
+    ? (first.children ?? []).map((c: { text?: string }) => c.text ?? '').join('')
+    : '';
+const body = first?._type === 'block' ? rest : blocks;
+---
+
+<section class="staci" aria-labelledby="meet-staci-heading">
+  <div class="r-wrap staci__grid">
+    <figure class="staci__photo">
+      {
+        photo?.asset && (
+          <SanityImage
+            source={photo}
+            width={900}
+            height={1125}
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            class="staci__img"
+          />
+        )
+      }
+      <figcaption class="r-tag staci__tag">
+        <small>{eyebrow || 'Meet Staci'}</small>
+        <strong>Staci Perkins, owner and designer</strong>
+      </figcaption>
+    </figure>
+
+    <div class="staci__copy">
+      <h2 id="meet-staci-heading" class="r-h2">{headline}</h2>
+      {lede && <p class="staci__lede">{lede}</p>}
+      {
+        body.length > 0 && (
+          <div class="staci__body">
+            <PortableText value={body} />
+          </div>
+        )
+      }
+      {
+        cta?.label && (
+          <CtaLink cta={cta} variant="secondary" fallbackHref="/about" class="staci__cta" />
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .staci {
+    padding-block: clamp(5rem, 10vw, 9rem);
+  }
+  .staci__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .staci__photo {
+    grid-column: 1 / 6;
+    position: relative;
+    margin: 0;
+  }
+  .staci__photo :global(.staci__img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .staci__tag {
+    position: absolute;
+    right: -1.5rem;
+    bottom: 2.5rem;
+    rotate: -3deg;
+  }
+  .staci__copy {
+    grid-column: 7 / 13;
+  }
+  .staci__lede {
+    margin: 1.75rem 0 1.25rem;
+    max-width: 34ch;
+    font: 300 clamp(1.3rem, 1.1rem + 0.6vw, 1.6rem) / 1.38 var(--font-display);
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  .staci__body {
+    max-width: 46ch;
+    color: var(--color-ink-2);
+  }
+  .staci__body :global(p) {
+    margin: 0 0 1rem;
+  }
+  .staci__copy :global(.staci__cta) {
+    display: inline-block;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 1023px) {
+    .staci__grid {
+      display: block;
+    }
+    .staci__photo {
+      max-width: 34rem;
+    }
+    .staci__tag {
+      right: 1rem;
+      bottom: 1.25rem;
+    }
+    .staci__copy {
+      margin-top: 2.75rem;
+    }
+  }
+</style>

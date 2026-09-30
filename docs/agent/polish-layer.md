@@ -1,22 +1,26 @@
 # Polish layer
 
-> Custom CSS utilities and JS behaviors layered on Tailwind: brand stripe, card-lift, nav underline, scroll reveals, Lenis reset, script accents.
+> Custom CSS utilities and JS behaviors layered on Tailwind: card-lift, nav underline, scroll reveals, Lenis reset, script accents (now Zodiak italic), and the retired brand stripe.
 
 ## Polish layer
 
 Custom CSS utilities and JS behaviors layered on top of Tailwind + shadcn. All declared in `src/styles/globals.css` and (where JS is needed) initialized in `BaseLayout.astro` with re-init on `astro:page-load` so they survive View Transitions.
 
-### Brand-stripe rhythm (THE primary visual signature)
+> **2026-09-29 rebuild note.** The art-direction rebuild (homepage + site chrome) changed several things this doc describes. The header is now one row (logo, server-rendered nav, availability pill, search icon, ink pill CTA): the desktop eyebrow strip and the 4px bronze header stripe are gone, and `ThemeToggle` left the header and drawer (the site is light only). The "script accent" no longer renders in Pinyon Script (see the Script accents section). Buttons come from `src/styles/reid.css` (`.r-btn--ink`, `.r-link`) via `CtaLink.astro`, not the old bronze `press-tactile` pills. The home page renders through `src/components/home/*` (`HomeHero`, `HomeStaci`, `PaintChips`, `TapeProcess`, `HomeWords`) plus a server-split word-rise headline in `RiseWords.astro`. Sections below that describe the old home hero or the header stripe are kept as history and marked where they no longer apply.
+
+### Brand-stripe rhythm (retired in the header, 2026-09-29)
+
+**Status (checked in the code 2026-09-29):** the stripe is GONE from the header, the footer and FinalCta (all rebuilt). It is still on the mobile drawer (`border-t-4 border-t-primary` in MobileNav.tsx) and on the older cards that phase 2 has not reached. The rebuild does not use it; do NOT add it to new components (the advice below is historical).
 
 A 2px Warm Bronze line — `<div class="h-0.5 bg-primary" aria-hidden="true"></div>` — is the brand's repeating visual signature. It appears at the top of:
 
-- The site header (above the eyebrow strip)
+- The site header (above the eyebrow strip; both removed 2026-09-29)
 - The mobile menu drawer (`border-t-4 border-t-primary` on SheetContent)
 - The footer (above the brand block)
 - Every marketing card (ServiceCard, ProjectCard, JournalCard, TestimonialCard)
 - The FinalCta dark panel
 
-If you add a new card-like component or section that should feel part of the brand, include this stripe at the top edge. The repetition is what makes the site read as one designed object.
+(Historical, pre-rebuild:) If you add a new card-like component or section that should feel part of the brand, include this stripe at the top edge. Superseded 2026-09-29: new work follows `DESIGN.md`, which has no stripe.
 
 ### Card resting + hover shadow
 
@@ -36,7 +40,7 @@ The `card-lift` utility class lives in `globals.css`. Defines `:hover { translat
 <a class="press-tactile bg-primary-dark text-white ...">Book a consultation</a>
 ```
 
-Applied to CtaLink, header consultation pill, contact form submit, sticky CTA chip, filter chips. Honors reduced-motion via the global transition kill.
+Originally applied to CtaLink, header consultation pill, contact form submit, sticky CTA chip, filter chips. Since 2026-09-29 `CtaLink.astro` renders the `reid.css` button primitives instead (primary = ink pill `.r-btn--ink`, cream pill via `onDark`; secondary = underline link `.r-link`), so the CtaLink and header CTA no longer use this class. Honors reduced-motion via the global transition kill.
 
 ### Animated nav underline (`.nav-underline`)
 
@@ -66,7 +70,7 @@ A 2px bronze thread draws downward from each step number badge toward the next s
 
 ### Editorial typography — drop cap + blockquote (`.prose-drop-cap` / `.prose-blockquote`)
 
-Journal posts open with a floated Cormorant drop cap on the first paragraph and render blockquotes with a 3px bronze left border in Cormorant italic. `JournalPortableText.tsx` adds `.prose-drop-cap` to the first `normal` block only (a `firstNormalRendered` flag in the `makeComponents()` closure, rebuilt per render) and sets `className="prose-blockquote"` on blockquotes. The drop cap is pure CSS (`::first-letter`) — nothing to gate for reduced motion. Don't apply `.prose-drop-cap` to short paragraphs; the floated cap needs a substantial opening paragraph to wrap against.
+Journal posts open with a floated display-serif drop cap on the first paragraph and render blockquotes with a 3px bronze left border in display-serif italic. (The display face is now Zodiak; earlier text said Cormorant.) `JournalPortableText.tsx` adds `.prose-drop-cap` to the first `normal` block only (a `firstNormalRendered` flag in the `makeComponents()` closure, rebuilt per render) and sets `className="prose-blockquote"` on blockquotes. The drop cap is pure CSS (`::first-letter`) — nothing to gate for reduced motion. Don't apply `.prose-drop-cap` to short paragraphs; the floated cap needs a substantial opening paragraph to wrap against.
 
 ### Image zoom + warm tint on hover (`.img-zoom` / `.img-tint` / `.img-tint-light`)
 
@@ -74,7 +78,7 @@ Card hero images scale to 1.06 and gain a faint bronze wash on hover. Add `.img-
 
 ### Studio stat counters (`StatsRow` + `StatsCounter`)
 
-The About page can show up to four large Cormorant figures that count up from zero (easeOutQuart over 1.8s) when scrolled into view. `StatsRow.astro` is the server shell (renders nothing when `stats` is empty); `StatsCounter.tsx` is a `client:visible` React island driven by `requestAnimationFrame` — no animation library. Numbers come from the `aboutPage.stats` array in Sanity (suppresses until Staci fills it in). Reduced-motion users see the final values immediately.
+The About page can show up to four large display-serif figures that count up from zero (easeOutQuart over 1.8s) when scrolled into view. `StatsRow.astro` is the server shell (renders nothing when `stats` is empty); `StatsCounter.tsx` is a `client:visible` React island driven by `requestAnimationFrame` — no animation library. Numbers come from the `aboutPage.stats` array in Sanity (suppresses until Staci fills it in). Reduced-motion users see the final values immediately.
 
 ### Reading progress (`.reading-progress`)
 
@@ -84,7 +88,7 @@ Lives in `ReadingProgress.astro` (rendered inside `BaseLayout`'s slot on journal
 
 ### Surface-warm (`.surface-warm`)
 
-A bronze-tinted radial gradient overlay for sections that want dimensional warmth. ~7% opacity in light, ~10% in dark. Apply alongside `bg-muted` or `bg-background`:
+A bronze-tinted radial gradient overlay for sections that want dimensional warmth. ~7% opacity in light (a ~10% variant exists in the dormant dark block). Apply alongside `bg-muted` or `bg-background`:
 
 ```html
 <section class="surface-warm bg-muted">…</section>
@@ -94,7 +98,7 @@ Currently applied to: home Kind Words section, home Services grid, /services Ser
 
 ### Paper grain (`body::before`)
 
-A faint SVG noise tile at 4% opacity sits behind everything via `body::before`. Adds tactile warmth across all surfaces. Multiply blend in light, screen blend in dark. Pointer-events none, z-index 0.
+A faint SVG noise tile at 4% opacity sits behind everything via `body::before`. Adds tactile warmth across all surfaces. Multiply blend in light (screen blend in the dormant dark block). Pointer-events none, z-index 0.
 
 ### Section dividers (when to use)
 
@@ -128,9 +132,11 @@ Pattern used by: scroll-reveal observer, sticky-header listener, reading-progres
 
 In-page anchor navigation routes through the persistent `window.lenis` instance so it glides instead of snapping. Both the home hero scroll cue and the case-study TOC (`CaseStudyTOC.tsx`) do this: intercept the click, call `window.lenis.scrollTo(target)`, and fall back to native scroll when Lenis hasn't loaded or the reader prefers reduced motion. Lenis honors the headings' `scroll-mt-24`, so TOC targets clear the sticky header **without** a manual offset — don't add one (it double-applies and lands the heading ~96px too low). The TOC click also updates the URL hash via `history.pushState` so the section stays shareable and the back button works.
 
-### Script accents (Pinyon Script flourish)
+### Script accents (Zodiak italic flourish; formerly Pinyon Script)
 
-The Pinyon Script accent now works in two places: hero headlines and section headings. The shared logic lives in `src/lib/scriptAccent.ts` (`splitScriptAccent(headline, accent)`), which splits a headline string around the matching accent word and returns the before/after fragments for the template to wrap in `<span class="font-script">`. The `.font-script` utility handles font-family + 1.25em scale + baseline tweak to match Cormorant visual weight. If the accent word is not found in the current headline, the heading renders plain — Staci can edit copy without breaking anything.
+**Status as of 2026-09-29:** the accent no longer renders in Pinyon Script. Pinyon Script is no longer used anywhere on the site. The Sanity fields (`scriptAccent`, `*ScriptAccent`) and the `splitScriptAccent()` helper are unchanged, but the accented phrase now renders in **Zodiak italic** (the `font-script` utility, class `.r-accent`), **bronze on light grounds and Oat on dark ones**. `--font-script` in `globals.css` points at Zodiak. The mechanics below are otherwise still accurate; read "Pinyon Script" as "Zodiak italic" and ignore the "1.25em scale to match Cormorant" detail.
+
+The accent works in two places: hero headlines and section headings. The shared logic lives in `src/lib/scriptAccent.ts` (`splitScriptAccent(headline, accent)`), which splits a headline string around the matching accent word and returns the before/after fragments for the template to wrap in `<span class="font-script">`. The `.font-script` utility handles the accent styling (originally font-family + 1.25em scale + baseline tweak for Pinyon; now Zodiak italic). If the accent word is not found in the current headline, the heading renders plain — Staci can edit copy without breaking anything.
 
 **Discipline:** use at most one script accent per heading. Over-use dilutes the effect. The accent word must match the headline text exactly (case-sensitive). Think of it as an editorial signature, not decoration.
 
@@ -138,7 +144,7 @@ The Pinyon Script accent now works in two places: hero headlines and section hea
 
 The image-variant Hero supports three optional editorial flourishes on the headline + subhead. Each is independent; pick at most one for any given page so they don't compete.
 
-1. **`rotatingWords` prop** — array of words that cycle through in place of the headline's FIRST word, once per session. Honors prefers-reduced-motion. Currently used on `/` (home): `['Lived-in', 'Considered', 'Quiet']`. Hardcoded in the page's Hero call. The animation drops the trailing redundant cycle (was a fencepost bug at first — see the 2026-05-27 commit for the trace).
+1. **`rotatingWords` prop** — array of words that cycle through in place of the headline's FIRST word, once per session. Honors prefers-reduced-motion. Was used on `/` (home): `['Lived-in', 'Considered', 'Quiet']`. **Since 2026-09-29 the home page no longer uses it:** the new `HomeHero.astro` does not use rotating words, and the `homePage.heroRotatingWords` schema field is now hidden. The animation drops the trailing redundant cycle (was a fencepost bug at first — see the 2026-05-27 commit for the trace).
 
 2. **`scriptAccent` prop** — passes through to `splitScriptAccent()`. The first matching occurrence is wrapped. Behavior is unchanged from before; Hero was refactored to use `src/lib/scriptAccent.ts` internally but renders identically. Currently wired:
    - `/services` → `"reveal"`
@@ -148,7 +154,7 @@ The image-variant Hero supports three optional editorial flourishes on the headl
 
    Don't combine with `rotatingWords` (they may target the same first word). The Hero component enforces this — `rotatingWords` wins if both are passed.
 
-3. **Subhead italic emphasis via markdown `_word_`** — the Hero subhead parses `_…_` markers into italic Cormorant `<em>` spans. Editor-friendly: Staci can write "Pick the tier that fits _where you are_." in Sanity and the wrapped phrase renders in italic Cormorant. No HTML in the field. This is the ONE flourish that's editor-controlled rather than hardcoded — works passively via the existing `heroSubhead` field on every page singleton.
+3. **Subhead italic emphasis via markdown `_word_`** — the Hero subhead parses `_…_` markers into italic `<em>` spans in the display face (Zodiak since 2026-09-29). Editor-friendly: Staci can write "Pick the tier that fits _where you are_." in Sanity and the wrapped phrase renders in italic. No HTML in the field. This is the ONE flourish that's editor-controlled rather than hardcoded — works passively via the existing `heroSubhead` field on every page singleton.
 
 #### Section heading and final CTA accents
 
@@ -178,12 +184,16 @@ Don't apply this class to other components — the per-child delays are tuned fo
 
 The image-variant Hero now renders a 12-pixel-wide cream hairline (`bg-bg/40`) beneath the eyebrow, mirroring the SectionHeading inverse-tone treatment so heroes carry the same editorial signature as every interior section heading. No prop — automatic whenever an eyebrow is set on an image hero.
 
-### Full-viewport home hero + scroll cue
+### Full-viewport home hero + scroll cue (old home hero; superseded 2026-09-29)
+
+**Superseded:** the home page now renders `src/components/home/HomeHero.astro` (Walnut ground, `heroPortrait` image, `RiseWords.astro` word-rise headline). The `Hero.astro` behaviour described here applied to the old home hero; it may still apply wherever `Hero.astro` is used on interior pages.
 
 The home hero (`size="tall"`, the only `tall` usage) fills the screen below the sticky header on first load. `Hero.astro` applies a `.hero-fill` class = `min-height: calc(100svh - var(--header-h))`, where `--header-h` is measured from the live header by an inline script that runs synchronously on parse (so the height is set before first paint — no layout shift) and refreshes on load / resize / `astro:page-load`. `svh` keeps the hero within the initially-visible viewport on mobile (browser chrome shown) so it never forces an immediate scroll; a `vh` line precedes it as the pre-`svh` fallback, and a per-breakpoint fallback header height covers the no-JS / pre-measure window.
 
 A bottom-center chevron button (`[data-scroll-cue]`) softly bobs and pulses (`scroll-cue-bob`, 2.4s; static under reduced-motion) to signal there is more below. Clicking it scrolls just past the hero, preferring `window.lenis.scrollTo()` when Lenis has loaded and falling back to native smooth `scrollTo`. Both the fill and the cue are scoped to `size="tall"`, so interior-page heroes are unaffected.
 
-### Home hero slideshow (`HeroBackground.astro` + globals.css)
+### Home hero slideshow (`HeroBackground.astro` + globals.css; old home hero, superseded 2026-09-29)
+
+**Superseded for the home page:** `HomeHero.astro` has a single `heroPortrait` image (a new `homePage` field, image with hotspot), not a slideshow. `HeroBackground.astro` is used only by `Hero.astro`. The description below is the old behaviour.
 
 The home hero can be a single static image (default) or a slideshow. `homePage.heroImages` is an array: one image renders the static hero, two or more render a slow cross-fading slideshow with a subtle Ken Burns zoom. `HeroBackground.astro` owns the background markup (single `SanityImage` for 0-1 images, or stacked `.hero-slide` images for 2+) plus the two readability overlays. The slide CSS lives in `globals.css`, not a scoped component style, because the slides are rendered by the child `SanityImage` component and would not inherit a scoped style (the same reason `.img-zoom` and `.hero-entry-stagger` are global). Each slide is `position: absolute`, `opacity: 0` with a `1.5s` opacity transition; the active slide is `opacity: 1` and all slides run a gentle continuous `scale(1)` to `scale(1.07)` Ken Burns (alternating, varied origin/duration). A small `<script is:inline>` in HeroBackground advances the active slide every 4500ms (3s hold + 1.5s fade) using a single `window`-scoped timer that is cleared on every re-init, pauses while the tab is hidden, re-registers once on `astro:page-load` (guarded by `window.__reidHeroSlideshowBound`), and never starts under `prefers-reduced-motion`. The first slide stays the eager `fetchpriority="high"` LCP image; the rest lazy-load. Reduced-motion users always see the first slide, static. The first slide carries its alt; the additional slides use empty alt so they are decorative.
