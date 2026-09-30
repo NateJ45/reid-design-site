@@ -1,118 +1,72 @@
 ---
 // Foundation, edit with care
 // =============================================================================
-// RoomStage: draws the concept room (added 2026-09-30). Only RoomStory.astro
-// renders it, and only with a valid, complete manifest, so this markup and its
-// script never reach a page that has no room.
+// RoomStage: draws the concept rooms (added 2026-09-30; room tabs the same
+// day). Only RoomStory.astro renders it, and only with at least one valid,
+// complete room, so this markup and its script never reach a page that has
+// no room.
 // =============================================================================
-// THE STACK, inside one positioned box with the frame's aspect ratio, bottom
-// to top:
-//   1. the base <img> (the empty room; alt = the manifest's base alt)
-//   2. the WebGL canvas (src/scripts/room-painter.ts), which repaints ONLY the
-//      base wall; hidden until the painter's first successful draw
-//   3. per piece, in paint order: its shade <img> (greyscale, mix-blend-mode
-//      multiply, so its shadow darkens whatever paint is under it) and the
-//      piece itself (RGBA WebP), both placed by its box as percentages and
-//      alt="" (the figure's text covers them).
-// A visually hidden live region says what the room shows now (the finished
-// room by default, then the current stage's caption as it builds). The
-// "Concept room" sample tag stays on the picture.
+// PARTS
+//   - Heading and intro.
+//   - Room tabs (only with two or more rooms): a real ARIA tablist above the
+//     room, `hidden` in the markup and shown by the script, so without a
+//     script the first room shows exactly as the single-room section did.
+//     Manual activation: arrows / Home / End move focus, Enter or Space (or a
+//     click) chooses, because choosing downloads a room's pictures and may
+//     scroll the page. The chosen tab is a pulled paper sample tag.
+//   - The first room's scene (RoomScene.astro) and captions
+//     (RoomCaptions.astro), server-rendered in place.
+//   - Every other room's scene and captions inside a <template>, with the
+//     optimised srcsets baked in. Template content is inert, so none of those
+//     pictures download until the tab is chosen.
+//   - The "Concept room" sample tag, a visually hidden live region, and the
+//     paint deck (shared by every room; `hidden` until the painter has drawn).
 //
-// DEFAULT (no script, no scroll-driven animation support, or both): every
-// piece is in place, so the visitor sees the FINISHED room and every caption.
-// Nothing is hidden behind a script-added class unless a script is there to
-// build it back.
+// SWITCHING (the script below): the chosen room's `.room__frames` and
+// `.room__captions` replace the showing ones (the outgoing pair is kept,
+// detached, so going back is instant); the painter's canvas MOVES into the
+// new frames and reloads its textures (base, mask, wall median) in the SAME
+// GL context, keeping the chosen chip colour; the build re-arms (the
+// scroll-driven CSS picks up the new captions' view timelines by itself, and
+// the IntersectionObserver fallback re-observes them); the live region says
+// "Showing the kitchen, modern style."; and if the section's top has scrolled
+// above the screen, the page scrolls back so the room's top sits just under
+// the header (Lenis when it is running, native smooth scroll otherwise,
+// instant under reduced motion), which also restarts the build. Rooms with
+// different stage counts simply change the caption list's height; the sticky
+// layout is pure CSS, so nothing needs recomputing by hand.
 //
-// SCROLL CHOREOGRAPHY
-//   Primary, CSS only: each caption <li> is a named view timeline
-//   (--room-s0, --room-s1, ...), shared through `timeline-scope` on the
-//   section. A piece in stage k animates on --room-s<k> over
-//     animation-range: cover <start> cover <end>
-//   where the stage window runs from the caption's top entering the bottom of
-//   the screen (+--w0) to it reaching the reading line (--w1 = 50svh on a
-//   laptop, i.e. mid screen; 30svh on a phone, i.e. 70% down, below the pinned
-//   room). Several pieces in one stage are staggered across that window in
-//   paint order (layerTimings() in src/lib/room-story.ts gives each its
-//   --a..--b fraction). So stage k is finished exactly as caption k reaches
-//   the line, which is also where the script marks it aria-current. Behind
-//   `@supports (timeline-scope) and (animation-timeline: view())` AND
-//   `prefers-reduced-motion: no-preference`, like TapeProcess and
-//   ProcessSteps.
-//   Fallback (no support, or reduced motion): the script adds data-build to
-//   the section and, as each caption passes the line, data-built to the
-//   pieces of every stage up to it. Short CSS transitions under
-//   no-preference; instant under reduced motion.
-//
-// LAYOUT: desktop (1024px+) the room is sticky on the left and the captions
-// scroll past on the right; phone: the room pins under the header strip, the
-// captions scroll beneath it, and the paint deck scrolls sideways. The deck
-// is `hidden` until the painter has drawn.
+// LAYOUT: desktop (1024px+) the room (with its tabs) is sticky on the left and
+// the captions scroll past on the right; phone: the room pins under the header
+// strip, the captions scroll beneath it, and the tabs and the paint deck each
+// scroll sideways with scroll-snap.
 // =============================================================================
 import RiseWords from '@/components/RiseWords.astro';
 import { ROOM_CHIPS, linearToHex } from '@/lib/room-story';
-
-export interface StageBase {
-  avifSrcset: string;
-  webpSrcset: string;
-  src: string;
-  alt: string;
-  maskUrl: string;
-  median: [number, number, number];
-}
-
-interface Picture {
-  srcset: string;
-  src: string;
-  sizes: string;
-}
-
-export interface StageLayer {
-  id: string;
-  motion: string;
-  /** Stage (caption) index. */
-  stage: number;
-  /** Fractions of the stage window this piece moves across. */
-  from: number;
-  to: number;
-  width: number;
-  height: number;
-  /** left/top/width/height as percentages of the frame. */
-  place: string;
-  image: Picture;
-  shade: Picture | null;
-}
+import RoomScene from './RoomScene.astro';
+import RoomCaptions from './RoomCaptions.astro';
+import type { RoomView } from './room-view';
 
 interface Props {
-  width: number;
-  height: number;
-  base: StageBase;
-  finalAlt: string;
-  /** Captions, in stage order. */
-  stages: string[];
-  layers: StageLayer[];
+  /** At least one room; the first shows on load. */
+  rooms: RoomView[];
   headline: string;
   scriptAccent?: string | null;
   intro: string;
 }
 
-const { width, height, base, finalAlt, stages, layers, headline, scriptAccent, intro } =
-  Astro.props as Props;
-const tl = (k: number) => `--room-s${k}`;
-const scope = stages.map((_, k) => tl(k)).join(', ');
-// "As it is" shows the room's own wall colour as its swatch.
-const asIsHex = linearToHex(base.median);
-const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.from};--b:${l.to}`;
+const { rooms, headline, scriptAccent, intro } = Astro.props as Props;
+const [first, ...others] = rooms;
+const tabbed = rooms.length > 1;
+// One timeline name per stage of the room with the most stages.
+const most = Math.max(...rooms.map((r) => r.stages.length));
+const scope = Array.from({ length: most }, (_, k) => `--room-s${k}`).join(', ');
+// "As it is" shows the first room's own wall colour as its swatch (the script
+// updates it on a switch).
+const asIsHex = linearToHex(first.base.median);
 ---
 
-<section
-  class="room"
-  aria-labelledby="room-heading"
-  data-room
-  data-base-alt={base.alt}
-  data-mask={base.maskUrl}
-  data-median={base.median.join(',')}
-  style={`--ar:${width} / ${height};--hw:${(height / width).toFixed(4)};timeline-scope:${scope}`}
->
+<section class="room" aria-labelledby="room-heading" data-room style={`timeline-scope:${scope}`}>
   <div class="r-wrap">
     <div class="room__head">
       <RiseWords as="h2" id="room-heading" text={headline} accent={scriptAccent} class="r-h2" />
@@ -121,71 +75,39 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
 
     <div class="room__body">
       <div class="room__stage">
-        <figure class="room__figure">
-          <div class="room__frames">
-            <picture class="room__base">
-              <source
-                type="image/avif"
-                srcset={base.avifSrcset}
-                sizes="(min-width: 1024px) 50vw, 100vw"
-              />
-              <source
-                type="image/webp"
-                srcset={base.webpSrcset}
-                sizes="(min-width: 1024px) 50vw, 100vw"
-              />
-              <img
-                src={base.src}
-                alt={base.alt}
-                width={width}
-                height={height}
-                loading="lazy"
-                decoding="async"
-                data-room-base
-              />
-            </picture>
-            <canvas class="room__canvas" aria-hidden="true" hidden></canvas>
-            {
-              layers.map((l) => (
-                <Fragment>
-                  {l.shade && (
-                    <img
-                      class="room__shade"
-                      data-piece
-                      data-stage={l.stage}
-                      style={pieceStyle(l)}
-                      src={l.shade.src}
-                      srcset={l.shade.srcset}
-                      sizes={l.shade.sizes}
-                      alt=""
-                      width={l.width}
-                      height={l.height}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                  <img
-                    class={`room__layer room__layer--${l.motion}`}
-                    data-piece
-                    data-layer={l.id}
-                    data-stage={l.stage}
-                    style={pieceStyle(l)}
-                    src={l.image.src}
-                    srcset={l.image.srcset}
-                    sizes={l.image.sizes}
-                    alt=""
-                    width={l.width}
-                    height={l.height}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </Fragment>
-              ))
-            }
-          </div>
-          <figcaption class="room__tag r-tag"><strong>Concept room</strong></figcaption>
-        </figure>
-        <p class="sr-only" aria-live="polite" data-room-live>{finalAlt}</p>
+        {
+          tabbed && (
+            <div class="room__tabs" role="tablist" aria-label="Concept rooms" data-room-tabs hidden>
+              {rooms.map((r, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  class="room__tab"
+                  id={`room-tab-${r.slug}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  aria-controls="room-panel room-captions"
+                  tabindex={i === 0 ? 0 : -1}
+                  data-room-tab={r.slug}
+                  data-announce={r.announce}
+                >
+                  <span class="room__tab-label">{r.label}</span>
+                  <span class="room__tab-style">{r.style}</span>
+                </button>
+              ))}
+            </div>
+          )
+        }
+        {
+          /* The tab panel is a plain div around the figure (a figure may not
+            take role="tabpanel"); the script adds the role only with tabs. */
+        }
+        <div id="room-panel" data-room-panel>
+          <figure class="room__figure">
+            <RoomScene room={first} canvas />
+            <figcaption class="room__tag r-tag"><strong>Concept room</strong></figcaption>
+          </figure>
+        </div>
+        <p class="sr-only" aria-live="polite" data-room-live>{first.finalAlt}</p>
 
         <fieldset class="room__deck" data-room-chips hidden>
           <legend class="room__legend">Try a paint colour on the walls</legend>
@@ -198,7 +120,11 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
                   aria-pressed={i === 0 ? 'true' : 'false'}
                   data-hex={c.hex ?? ''}
                 >
-                  <span class="room__swatch" style={`background:${c.hex ?? asIsHex}`} />
+                  <span
+                    class="room__swatch"
+                    data-as-is={c.hex ? undefined : ''}
+                    style={`background:${c.hex ?? asIsHex}`}
+                  />
                   <span>{c.name}</span>
                 </button>
               ))
@@ -207,17 +133,18 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
         </fieldset>
       </div>
 
-      <ol class="room__captions">
-        {
-          stages.map((caption, k) => (
-            <li class="room__step" data-room-step style={`view-timeline-name:${tl(k)}`}>
-              <p>{caption}</p>
-            </li>
-          ))
-        }
-      </ol>
+      <RoomCaptions stages={first.stages} />
     </div>
   </div>
+
+  {
+    others.map((r) => (
+      <template data-room-tpl={r.slug}>
+        <RoomScene room={r} />
+        <RoomCaptions stages={r.stages} />
+      </template>
+    ))
+  }
 </section>
 
 <style>
@@ -227,12 +154,17 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
        below 1024px (Header.astro, --hdr-h). That variable is scoped to the
        header, so it is mirrored here rather than read. */
     --room-pin: 4.5rem;
+    /* The tab row's share of the pinned stage (0 without tabs). */
+    --room-tabs: 0rem;
     /* A stage's scroll window, measured from its caption's top entering the
        bottom of the screen: it builds from --w0 to --w1 (the reading line). */
     --w0: 4svh;
     --w1: 30svh;
     background: var(--color-chip-1);
     padding-block: clamp(5rem, 10vw, 8.5rem);
+  }
+  .room[data-tabbed] {
+    --room-tabs: 4.25rem;
   }
   .room [hidden] {
     display: none !important;
@@ -255,8 +187,8 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
 
   .room__body {
     display: grid;
-    /* minmax(0, 1fr), not auto: the chip row is wider than a phone and must
-       scroll inside its own box, never widen the page. */
+    /* minmax(0, 1fr), not auto: the chip and tab rows are wider than a phone
+       and must scroll inside their own boxes, never widen the page. */
     grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
     margin-top: clamp(2.5rem, 5vw, 4rem);
@@ -278,40 +210,6 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
     position: relative;
     margin: 0;
   }
-  .room__frames {
-    position: relative;
-    /* cqw units in the motions are fractions of the frame's width. */
-    container-type: inline-size;
-    /* The shades multiply with the base and the painted wall only. */
-    isolation: isolate;
-    aspect-ratio: var(--ar);
-    width: 100%;
-    overflow: hidden;
-    border-radius: 2px;
-    background: var(--color-chip-2);
-    box-shadow: 0 18px 40px -24px rgb(35 30 27 / 0.45);
-  }
-  .room__base,
-  .room__base img,
-  .room__canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .room__base img {
-    display: block;
-    object-fit: cover;
-  }
-  .room__layer,
-  .room__shade {
-    position: absolute;
-    display: block;
-    max-width: none;
-  }
-  .room__shade {
-    mix-blend-mode: multiply;
-  }
   .room__tag {
     position: absolute;
     left: -0.4rem;
@@ -320,6 +218,91 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
   }
   .room__tag strong {
     font-size: 1rem;
+  }
+
+  /* ---- the room tabs: a row of sample tags; the chosen one is pulled ----- */
+  .room__tabs {
+    display: flex;
+    gap: 0.25rem;
+    /* Room for the focus outline and the pulled tag's lift and shadow
+       inside the scroll box. */
+    padding: 0.45rem 0.3rem 0.5rem;
+    margin: -0.45rem -0.3rem 0.4rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.3rem;
+    scrollbar-width: none;
+  }
+  .room__tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .room__tab {
+    position: relative;
+    isolation: isolate;
+    flex: none;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.2rem;
+    min-height: 3rem;
+    padding: 0.45rem 0.95rem 0.5rem 1.7rem;
+    border: 0;
+    background: none;
+    color: var(--color-ink-2);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  /* The tag's body: a paper shape with a notched left edge (as .r-tag), drawn
+     on ::before so the focus outline is never clipped. Empty until hover or
+     choice. */
+  .room__tab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: transparent;
+    clip-path: polygon(0.9rem 0, 100% 0, 100% 100%, 0.9rem 100%, 0 50%);
+  }
+  /* The tag's punched hole: a ring, Warm Bronze on the chosen tag. */
+  .room__tab::after {
+    content: '';
+    position: absolute;
+    left: 0.7rem;
+    top: 50%;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    translate: 0 -50%;
+    box-shadow: inset 0 0 0 1.5px var(--color-rule);
+  }
+  .room__tab-label {
+    font: 500 0.92rem/1.1 var(--font-body);
+  }
+  .room__tab-style {
+    font: 400 0.74rem/1.1 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .room__tab:hover::before {
+    background: color-mix(in oklab, var(--color-paper) 55%, transparent);
+  }
+  .room__tab[aria-selected='true'] {
+    color: var(--color-ink);
+    rotate: -1.5deg;
+    translate: 0 -2px;
+    filter: drop-shadow(0 8px 10px rgb(35 30 27 / 0.18));
+  }
+  .room__tab[aria-selected='true']::before {
+    background: var(--color-paper);
+  }
+  .room__tab[aria-selected='true']::after {
+    box-shadow: inset 0 0 0 1.5px var(--color-chip-5);
+  }
+  .room__tab:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
 
   /* ---- the paint deck ---------------------------------------------------- */
@@ -370,50 +353,6 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
     box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.14);
   }
 
-  /* ---- captions ---------------------------------------------------------- */
-  .room__captions {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .room__step {
-    display: flex;
-    align-items: flex-start;
-    min-height: 55svh;
-  }
-  .room__step:last-child {
-    min-height: 35svh;
-  }
-  .room__step p {
-    margin: 0;
-    max-width: 22ch;
-    font: 300 clamp(1.35rem, 2.2vw, 2rem) / 1.25 var(--font-display);
-    letter-spacing: -0.015em;
-    color: var(--color-ink);
-  }
-  /* Each caption is led by a short Warm Bronze rule (a mark, not a numeral). */
-  .room__step p::before {
-    content: '';
-    display: block;
-    width: 2.25rem;
-    height: 2px;
-    margin-bottom: 0.75rem;
-    background: var(--color-chip-5);
-  }
-  /* With the script, the stage in view leads and the rest step back. */
-  .room[data-enhanced] .room__step p {
-    color: var(--color-ink-2);
-  }
-  .room[data-enhanced] .room__step p::before {
-    background: var(--color-rule);
-  }
-  .room[data-enhanced] .room__step[aria-current='step'] p {
-    color: var(--color-ink);
-  }
-  .room[data-enhanced] .room__step[aria-current='step'] p::before {
-    background: var(--color-chip-5);
-  }
-
   @media (max-width: 1023px) {
     .room__head :global(.r-h2),
     .room__head .r-lede {
@@ -436,11 +375,6 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
       flex: none;
       scroll-snap-align: start;
     }
-    /* Keep the pinned room short enough to leave the captions some screen. */
-    .room__frames {
-      width: min(100%, calc((100svh - var(--room-pin) - 17rem) * var(--ar)));
-      margin-inline: auto;
-    }
   }
 
   @media (min-width: 1024px) {
@@ -460,197 +394,59 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
       background: none;
       box-shadow: none;
     }
-    /* Sized by the screen's height too, so the room and its chips fit. */
-    .room__frames {
-      width: min(100%, calc((100svh - 16rem) * var(--ar)));
-    }
-    .room__captions {
-      grid-column: 9 / 13;
-    }
-    .room__step {
-      align-items: center;
-      min-height: 80svh;
-    }
-    .room__step:last-child {
-      min-height: 70svh;
-    }
-  }
-
-  /* ---- how each piece arrives -------------------------------------------- */
-  @keyframes room-sweep {
-    from {
-      mask-position: 100% 0;
-    }
-  }
-  @keyframes room-unroll {
-    from {
-      clip-path: inset(0 100% 0 0);
-    }
-  }
-  @keyframes room-slide-left {
-    from {
-      opacity: 0;
-      translate: 3cqw 0;
-      scale: 1.015;
-    }
-  }
-  @keyframes room-slide-right {
-    from {
-      opacity: 0;
-      translate: -3cqw 0;
-      scale: 1.015;
-    }
-  }
-  @keyframes room-rise {
-    from {
-      opacity: 0;
-      translate: 0 calc(2cqw * var(--hw));
-    }
-  }
-  @keyframes room-drop {
-    from {
-      opacity: 0;
-      translate: 0 calc(-2cqw * var(--hw));
-    }
-  }
-  @keyframes room-pop {
-    from {
-      opacity: 0;
-      scale: 0.96;
-    }
-  }
-  /* A piece's shadow "sets down" in the last third of its motion. */
-  @keyframes room-shade {
-    0%,
-    66% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  /* Primary: scroll-driven, CSS only. */
-  @supports (timeline-scope: --a) and (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .room__layer--sweep {
-        mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
-        mask-size: 250% 100%;
-        mask-repeat: no-repeat;
-        mask-position: 0 0;
-        animation: room-sweep linear both;
-      }
-      .room__layer--unroll {
-        animation: room-unroll linear both;
-      }
-      .room__layer--slide-left {
-        animation: room-slide-left linear both;
-      }
-      .room__layer--slide-right {
-        animation: room-slide-right linear both;
-      }
-      .room__layer--rise {
-        animation: room-rise linear both;
-      }
-      .room__layer--drop {
-        animation: room-drop linear both;
-      }
-      .room__layer--pop {
-        animation: room-pop linear both;
-      }
-      .room__shade {
-        animation: room-shade linear both;
-      }
-      /* After the shorthands above (which reset the timeline). */
-      .room .room__layer,
-      .room .room__shade {
-        animation-timeline: var(--tl);
-        animation-range: cover calc(var(--w0) + (var(--w1) - var(--w0)) * var(--a)) cover
-          calc(var(--w0) + (var(--w1) - var(--w0)) * var(--b));
-      }
-      .room .room__layer {
-        animation-timing-function: var(--ease);
-      }
-    }
-  }
-
-  /* Fallback: the script sets data-build and marks built pieces. */
-  .room[data-build] .room__layer--sweep {
-    mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
-    mask-size: 250% 100%;
-    mask-repeat: no-repeat;
-    mask-position: 0 0;
-  }
-  .room[data-build] [data-piece]:not([data-built]) {
-    opacity: 0;
-  }
-  .room[data-build] .room__layer--sweep:not([data-built]) {
-    mask-position: 100% 0;
-  }
-  .room[data-build] .room__layer--unroll:not([data-built]) {
-    clip-path: inset(0 100% 0 0);
-  }
-  .room[data-build] .room__layer--slide-left:not([data-built]) {
-    translate: 3cqw 0;
-    scale: 1.015;
-  }
-  .room[data-build] .room__layer--slide-right:not([data-built]) {
-    translate: -3cqw 0;
-    scale: 1.015;
-  }
-  .room[data-build] .room__layer--rise:not([data-built]) {
-    translate: 0 calc(2cqw * var(--hw));
-  }
-  .room[data-build] .room__layer--drop:not([data-built]) {
-    translate: 0 calc(-2cqw * var(--hw));
-  }
-  .room[data-build] .room__layer--pop:not([data-built]) {
-    scale: 0.96;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .room[data-build] .room__layer {
-      transition:
-        opacity 500ms var(--ease),
-        translate 700ms var(--ease),
-        scale 700ms var(--ease),
-        clip-path 700ms var(--ease),
-        mask-position 700ms var(--ease);
-    }
-    .room[data-build] .room__shade {
-      transition: opacity 350ms var(--ease) 350ms;
-    }
-    .room[data-enhanced] .room__step p,
-    .room[data-enhanced] .room__step p::before {
-      transition:
-        color 250ms var(--ease),
-        background-color 250ms var(--ease);
-    }
     .room__chip {
       transition: border-color 150ms ease;
+    }
+    .room__tab {
+      transition:
+        color 200ms var(--ease),
+        rotate 400ms var(--ease),
+        translate 400ms var(--ease);
+    }
+    .room__tab::before {
+      transition: background-color 200ms var(--ease);
     }
   }
 </style>
 
 <script>
-  import { hexToLinear } from '@/lib/room-story';
-  import type { RoomPainter } from '@/scripts/room-painter';
+  import { hexToLinear, linearToHex } from '@/lib/room-story';
+  import type { PainterBase, RoomPainter } from '@/scripts/room-painter';
 
   let teardown: (() => void) | null = null;
+
+  /** The painter's view of a room's frames box. */
+  function baseOf(frames: HTMLElement): PainterBase | null {
+    const img = frames.querySelector<HTMLImageElement>('[data-room-base]');
+    const median = (frames.dataset.median ?? '').split(',').map(Number);
+    if (!img || median.length !== 3 || median.some((n) => !(n > 0))) return null;
+    return {
+      img,
+      maskUrl: frames.dataset.mask ?? '',
+      median: median as [number, number, number],
+    };
+  }
 
   function init() {
     teardown?.();
     teardown = null;
     const root = document.querySelector<HTMLElement>('[data-room]');
     if (!root) return;
-    const steps = [...root.querySelectorAll<HTMLElement>('[data-room-step]')];
-    const pieces = [...root.querySelectorAll<HTMLElement>('[data-piece]')];
-    const baseImg = root.querySelector<HTMLImageElement>('[data-room-base]');
     const canvas = root.querySelector<HTMLCanvasElement>('.room__canvas');
     const deck = root.querySelector<HTMLElement>('[data-room-chips]');
     const live = root.querySelector<HTMLElement>('[data-room-live]');
+    const panel = root.querySelector<HTMLElement>('[data-room-panel]');
+    const body = root.querySelector<HTMLElement>('.room__body');
     const chips = [...root.querySelectorAll<HTMLButtonElement>('.room__chip')];
-    if (steps.length < 2 || !baseImg || !canvas || !deck || !live) return;
+    const asIs = root.querySelector<HTMLElement>('.room__swatch[data-as-is]');
+    const tablist = root.querySelector<HTMLElement>('[data-room-tabs]');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-room-tab]')];
+    const frames = () => root.querySelector<HTMLElement>('.room__frames');
+    const captions = () => root.querySelector<HTMLElement>('.room__captions');
+    if (!canvas || !deck || !live || !panel || !body || !frames() || !captions()) return;
 
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const wide = matchMedia('(min-width: 1024px)');
@@ -661,11 +457,19 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
     const scripted = reduced || !scrollDriven;
     let painter: RoomPainter | null = null;
     let chip: [number, number, number] | null = null;
-    let stage = -2; // -1 = nothing built yet; -2 = not read yet
     let dead = false;
 
+    if (captions()!.querySelectorAll('[data-room-step]').length < 2) return;
     root.dataset.enhanced = '';
     if (scripted) root.dataset.build = '';
+
+    // ---- the build of whichever room is showing ----------------------------
+    let steps: HTMLElement[] = [];
+    let pieces: HTMLElement[] = [];
+    let stage = -2; // -1 = nothing built yet; -2 = not read yet
+    // After a room is chosen, its "Showing the ..." line stands while the page
+    // scrolls back to the room's top; stage lines resume after that.
+    let quietUntil = 0;
 
     const show = (i: number) => {
       if (i === stage) return;
@@ -679,10 +483,10 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
         pieces.forEach((p) => p.toggleAttribute('data-built', Number(p.dataset.stage) <= i));
       }
       // Say what the room shows now; not on the first read, so loading the
-      // page announces nothing.
-      if (!first) {
+      // page (or choosing a room) announces nothing extra.
+      if (!first && performance.now() >= quietUntil) {
         live.textContent =
-          i < 0 ? (root.dataset.baseAlt ?? '') : (steps[i].textContent ?? '').trim();
+          i < 0 ? (frames()?.dataset.baseAlt ?? '') : (steps[i].textContent ?? '').trim();
       }
     };
 
@@ -706,8 +510,17 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
       band = new IntersectionObserver(pick, { rootMargin: `-${top}% 0px -${bottom}% 0px` });
       steps.forEach((s) => band?.observe(s));
     };
-    watch();
-    pick();
+    /** (Re-)arm the build for the room now in the DOM. */
+    const arm = () => {
+      const f = frames();
+      const c = captions();
+      steps = c ? [...c.querySelectorAll<HTMLElement>('[data-room-step]')] : [];
+      pieces = f ? [...f.querySelectorAll<HTMLElement>('[data-piece]')] : [];
+      stage = -2;
+      watch();
+      pick();
+    };
+    arm();
     wide.addEventListener('change', watch);
 
     // ---- paint chips ------------------------------------------------------
@@ -718,6 +531,10 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
       painter?.setChip(chip);
     };
     chips.forEach((c) => c.addEventListener('click', onChip));
+    const paintAsIs = () => {
+      const b = baseOf(frames() as HTMLElement);
+      if (asIs && b) asIs.style.background = linearToHex(b.median);
+    };
 
     // ---- the painter, loaded about a screen early -------------------------
     const fallback = () => {
@@ -732,22 +549,18 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
         near.disconnect();
         try {
           const { createRoomPainter } = await import('@/scripts/room-painter');
-          if (dead) return;
-          const [r, g, b] = (root.dataset.median ?? '').split(',').map(Number);
-          painter = createRoomPainter(
-            canvas,
-            { img: baseImg, maskUrl: root.dataset.mask ?? '', median: [r, g, b] },
-            {
-              reducedMotion: reduced,
-              onReady: () => {
-                if (dead) return;
-                canvas.hidden = false;
-                deck.hidden = false;
-                root.dataset.painted = '';
-              },
-              onLost: fallback,
+          const base = baseOf(frames() as HTMLElement);
+          if (dead || !base) return;
+          painter = createRoomPainter(canvas, base, {
+            reducedMotion: reduced,
+            onReady: () => {
+              if (dead) return;
+              canvas.hidden = false;
+              deck.hidden = false;
+              root.dataset.painted = '';
             },
-          );
+            onLost: fallback,
+          });
           if (!painter) fallback();
           else if (chip) painter.setChip(chip);
         } catch {
@@ -758,12 +571,119 @@ const pieceStyle = (l: StageLayer) => `${l.place};--tl:${tl(l.stage)};--a:${l.fr
     );
     near.observe(root);
 
+    // ---- room tabs (two or more rooms) -------------------------------------
+    // Rooms already shown, kept detached so going back is instant.
+    const kept = new Map<string, { frames: HTMLElement; captions: HTMLElement }>();
+    let current = 0;
+    const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+
+    const select = (k: number) => {
+      if (k === current || !tabs[k]) return;
+      const slug = tabs[k].dataset.roomTab ?? '';
+      let next = kept.get(slug);
+      if (!next) {
+        const tpl = root.querySelector<HTMLTemplateElement>(`template[data-room-tpl="${slug}"]`);
+        const frag = tpl?.content.cloneNode(true) as DocumentFragment | undefined;
+        const f = frag?.querySelector<HTMLElement>('.room__frames');
+        const c = frag?.querySelector<HTMLElement>('.room__captions');
+        if (!f || !c) return;
+        next = { frames: f, captions: c };
+      }
+      const outFrames = frames();
+      const outCaptions = captions();
+      if (!outFrames || !outCaptions) return;
+      kept.set(tabs[current].dataset.roomTab ?? '', { frames: outFrames, captions: outCaptions });
+      kept.delete(slug);
+
+      // Swap. The canvas moves with the room; it shows the plain photo until
+      // the painter has the new room's textures.
+      band?.disconnect();
+      canvas.toggleAttribute('data-loading', !canvas.hidden);
+      outFrames.replaceWith(next.frames);
+      next.frames.querySelector('.room__base')?.after(canvas);
+      outCaptions.replaceWith(next.captions);
+
+      tabs.forEach((t, i) => {
+        t.setAttribute('aria-selected', String(i === k));
+        t.tabIndex = i === k ? 0 : -1;
+      });
+      panel.setAttribute('aria-labelledby', tabs[k].id);
+      current = k;
+      arm();
+      paintAsIs();
+      live.textContent = tabs[k].dataset.announce ?? '';
+      quietUntil = performance.now() + 1500;
+
+      const base = baseOf(next.frames);
+      if (painter && base) {
+        const mine = k;
+        painter.setBase(base).then((ok) => {
+          // null: a later choice superseded this load.
+          if (dead || ok === null || current !== mine) return;
+          canvas.removeAttribute('data-loading');
+          canvas.hidden = !ok;
+          deck.hidden = !ok;
+          root.toggleAttribute('data-painted', ok);
+        });
+      } else {
+        canvas.removeAttribute('data-loading');
+      }
+
+      // If the room's story has scrolled away, bring its top back to just
+      // under the header, which also starts the new room's build afresh.
+      if (root.getBoundingClientRect().top < 0) {
+        const offset = (wide.matches ? 7 : 4.5) * rem();
+        const y = scrollY + body.getBoundingClientRect().top - offset;
+        const lenis = (
+          window as unknown as {
+            lenis?: { scrollTo: (y: number, o?: { immediate?: boolean }) => void };
+          }
+        ).lenis;
+        if (lenis) lenis.scrollTo(y, { immediate: reduced });
+        else window.scrollTo({ top: y, behavior: reduced ? 'instant' : 'smooth' });
+      }
+    };
+
+    const onTabClick = (e: Event) => select(tabs.indexOf(e.currentTarget as HTMLButtonElement));
+    // Manual activation: the arrows, Home and End move focus along the row;
+    // Enter or Space (the buttons' own click) chooses.
+    const onTabKey = (e: KeyboardEvent) => {
+      const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      if (i < 0) return;
+      const n = tabs.length;
+      const to =
+        e.key === 'ArrowRight'
+          ? (i + 1) % n
+          : e.key === 'ArrowLeft'
+            ? (i - 1 + n) % n
+            : e.key === 'Home'
+              ? 0
+              : e.key === 'End'
+                ? n - 1
+                : -1;
+      if (to < 0) return;
+      e.preventDefault();
+      tabs[to].focus();
+      tabs[to].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    };
+    if (tablist && tabs.length > 1) {
+      tablist.hidden = false;
+      root.dataset.tabbed = '';
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', tabs[0].id);
+      tabs.forEach((t) => t.addEventListener('click', onTabClick));
+      tablist.addEventListener('keydown', onTabKey);
+    }
+
     teardown = () => {
       dead = true;
       band?.disconnect();
       near.disconnect();
       wide.removeEventListener('change', watch);
       chips.forEach((c) => c.removeEventListener('click', onChip));
+      tabs.forEach((t) => t.removeEventListener('click', onTabClick));
+      tablist?.removeEventListener('keydown', onTabKey);
+      kept.clear();
       painter?.destroy();
       painter = null;
     };

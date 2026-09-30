@@ -7,8 +7,11 @@ import {
   hexToLinear,
   layerTimings,
   linearToHex,
+  parseRoomIndex,
   parseRoomManifest,
+  roomAnnouncement,
   roomFiles,
+  roomFolder,
   srgbToLinear,
 } from './room-story';
 
@@ -135,6 +138,63 @@ describe('parseRoomManifest (v2)', () => {
     expect(
       parseRoomManifest(manifest({ layers: [layer('wall', { box: [0, 0, 1472, 1104] })] })),
     ).not.toBeNull();
+  });
+});
+
+describe('parseRoomIndex (rooms.json v1)', () => {
+  const entry = (slug: string, over: Record<string, unknown> = {}) => ({
+    slug,
+    label: 'Living room',
+    type: 'living',
+    style: 'Transitional',
+    manifest: `${slug}/manifest.json`,
+    ...over,
+  });
+  const index = (rooms: unknown[], over: Record<string, unknown> = {}) => ({
+    version: 1,
+    rooms,
+    ...over,
+  });
+
+  it('accepts the contract, keeps tab order and drops unknown keys', () => {
+    const i = parseRoomIndex(
+      index([entry('living-transitional', { extra: true }), entry('kitchen-modern')]),
+    );
+    expect(i?.rooms.map((r) => r.slug)).toEqual(['living-transitional', 'kitchen-modern']);
+    expect(i?.rooms[0]).not.toHaveProperty('extra');
+    expect(i && roomFolder(i.rooms[0])).toBe('living-transitional');
+  });
+
+  it('accepts an empty list (no rooms, nothing rendered)', () => {
+    expect(parseRoomIndex(index([]))?.rooms).toEqual([]);
+  });
+
+  it.each([
+    ['not an object', null],
+    ['an array', []],
+    ['version 2', index([entry('a')], { version: 2 })],
+    ['no rooms list', { version: 1 }],
+    ['a room that is not an object', index(['living'])],
+    ['an upper-case slug', index([entry('Living')])],
+    ['a slug with a space', index([entry('living room')])],
+    ['a slug with a slash', index([entry('a/b', { manifest: 'a/manifest.json' })])],
+    ['an empty slug', index([entry('', { manifest: 'x/manifest.json' })])],
+    ['duplicate slugs', index([entry('a'), entry('a')])],
+    ['a blank label', index([entry('a', { label: ' ' })])],
+    ['a missing style', index([entry('a', { style: undefined })])],
+    ['a missing type', index([entry('a', { type: undefined })])],
+    ['a manifest outside a folder', index([entry('a', { manifest: 'manifest.json' })])],
+    ['a manifest climbing out', index([entry('a', { manifest: '../a/manifest.json' })])],
+    ['a manifest with another name', index([entry('a', { manifest: 'a/room.json' })])],
+    ['a manifest URL', index([entry('a', { manifest: 'https://x.test/a/manifest.json' })])],
+  ])('rejects %s', (_label, raw) => {
+    expect(parseRoomIndex(raw)).toBeNull();
+  });
+
+  it('announces a room in plain words', () => {
+    expect(roomAnnouncement({ label: 'Kitchen', style: 'Modern' })).toBe(
+      'Showing the kitchen, modern style.',
+    );
   });
 });
 

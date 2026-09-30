@@ -27,7 +27,12 @@
 //
 // Texture: the page's own base <img> (whatever currentSrc it chose), so the
 // painter downloads no picture the page has not already loaded; the mask is
-// fetched once.
+// fetched once per room.
+//
+// Several rooms (the room tabs, 2026-09-30): setBase() swaps the base, mask
+// and median for another room's, re-using the same context, program and the
+// same two texture objects, so switching rooms never creates a GL context
+// (tests/room-story.spec.ts counts them). The chip in force carries over.
 //
 // Failure: createRoomPainter() returns null when there is no WebGL or a shader
 // fails to compile; `onLost` fires if the context is lost later. Either way
@@ -46,6 +51,13 @@ export interface PainterBase {
 export interface RoomPainter {
   /** Paint the walls this colour (linear rgb), or null for "As it is". */
   setChip(linear: [number, number, number] | null): void;
+  /**
+   * Switch to another room (the room tabs): reload the base and mask
+   * textures and the wall median in the SAME GL context, keeping the chip.
+   * Resolves true once the new room is drawn, false if its pictures failed,
+   * or null if a later setBase() superseded it.
+   */
+  setBase(base: PainterBase): Promise<boolean | null>;
   /** Tear everything down (also frees the GL context). */
   destroy(): void;
 }
@@ -162,14 +174,23 @@ export function createRoomPainter(
   // Keep the photo's own bytes: the colour maths is done in the shader.
   g.pixelStorei(g.UNPACK_COLORSPACE_CONVERSION_WEBGL, g.NONE);
 
-  const texture = (unit: number, src: TexImageSource) => {
+  // Two texture objects for the life of the painter (unit 0 base, unit 1
+  // mask); a room switch re-uploads into them.
+  const makeTexture = (unit: number) => {
+    const t = g.createTexture();
     g.activeTexture(g.TEXTURE0 + unit);
-    g.bindTexture(g.TEXTURE_2D, g.createTexture());
+    g.bindTexture(g.TEXTURE_2D, t);
     // Non-power-of-two in WebGL1: clamp, linear, no mipmaps.
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
+    return t;
+  };
+  const textures = [makeTexture(0), makeTexture(1)];
+  const upload = (unit: number, src: TexImageSource) => {
+    g.activeTexture(g.TEXTURE0 + unit);
+    g.bindTexture(g.TEXTURE_2D, textures[unit]);
     g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, src);
   };
 
@@ -219,6 +240,9 @@ export function createRoomPainter(
   // ---- sizing --------------------------------------------------------------
   const resize = () => {
     const r = canvas.getBoundingClientRect();
+    // Hidden (display: none): nothing to measure; the observer fires again
+    // when it shows.
+    if (!r.width || !r.height) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.max(1, Math.min(2048, Math.round(r.width * dpr)));
     const h = Math.max(1, Math.min(2048, Math.round(r.height * dpr)));
@@ -241,28 +265,35 @@ export function createRoomPainter(
   };
   canvas.addEventListener('webglcontextlost', lost);
 
-  // ---- load the base and its mask, then draw once --------------------------
-  const mask = new Promise<HTMLImageElement>((res, rej) => {
-    const im = new Image();
-    im.decoding = 'async';
-    im.onload = () => res(im);
-    im.onerror = rej;
-    im.src = base.maskUrl;
-  });
-  // A lazy <img> may not have started yet; ask for it now.
-  if (!base.img.complete || !base.img.naturalWidth) base.img.loading = 'eager';
-  Promise.all([base.img.decode().then(() => base.img), mask])
-    .then(([img, m]) => {
-      if (dead) return;
-      texture(0, img);
-      texture(1, m);
-      loaded = true;
-      resize();
-      draw();
-    })
-    .catch(() => {
-      /* the plain <img> stays in charge and the chips stay hidden */
+  // ---- load a room's base and mask, then draw -----------------------------
+  let generation = 0;
+  const load = (b: PainterBase): Promise<boolean | null> => {
+    const mine = ++generation;
+    const mask = new Promise<HTMLImageElement>((res, rej) => {
+      const im = new Image();
+      im.decoding = 'async';
+      im.onload = () => res(im);
+      im.onerror = rej;
+      im.src = b.maskUrl;
     });
+    // A lazy <img> may not have started yet; ask for it now.
+    if (!b.img.complete || !b.img.naturalWidth) b.img.loading = 'eager';
+    return Promise.all([b.img.decode().then(() => b.img), mask])
+      .then(([img, m]) => {
+        if (dead) return false;
+        if (mine !== generation) return null;
+        upload(0, img);
+        upload(1, m);
+        g.uniform3fv(U.d, b.median);
+        loaded = true;
+        resize();
+        draw();
+        return true;
+      })
+      .catch(() => (dead || mine === generation ? false : null));
+    /* On failure the plain <img> stays in charge and the chips stay hidden. */
+  };
+  void load(base);
 
   return {
     setChip(linear) {
@@ -279,6 +310,12 @@ export function createRoomPainter(
       chipT = 0;
       chipStart = performance.now();
       if (!raf) raf = requestAnimationFrame(tick);
+    },
+    setBase(b) {
+      if (dead) return Promise.resolve(false);
+      // Land a roll in progress, so the new room shows the chip in force.
+      if (busy) land();
+      return load(b);
     },
     destroy() {
       if (dead) return;
