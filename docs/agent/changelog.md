@@ -18,6 +18,11 @@
 - **Swatches carry content:** the decorative paint-chip repeats are gone (the
   home hero fan deck, the footer's seven-tone strip, the share-card fan) at
   Nathan's call; chips stay on the services and in the phone menu.
+- **The planning page:** the closing band on every page (`FinalCta.astro`)
+  became a notebook page with a self-drawing floor plan
+  (`closing/FloorPlan.astro`) and Staci's Instagram checklist
+  (`src/data/closing-notes.ts`), chosen from a mockup board of five ideas and
+  eight mixes.
 - **Share cards design E, "the hero card":** Walnut, logo plate, Zodiak title,
   photo. `fetch-fonts.mjs` now also fetches .woff copies for satori
   into gitignored `scripts/.og-fonts/` (lock `ogFiles`). `public/og-default.png`

@@ -1,16 +1,31 @@
 ---
 // Safe to edit by hand
-// The full-bleed call-to-action section that closes every interior page (and the home page).
-// Charcoal Dark panel with editorial headline, optional subhead, and a Bronze CTA pill.
-// This is intentionally the only section on the page that uses the dark brand panel:
-// it punctuates the read and pushes toward booking a consultation.
+// The Walnut call-to-action band that closes every page (home included).
 //
-// scriptAccent: optional single word/phrase from the headline to render in handwritten
-// Pinyon Script via the `.font-script` utility. Inherits the heading color (text-bg) so
-// it reads correctly on the Charcoal Dark surface in both light and dark theme.
-// Falls back silently when undefined, blank, or not found. No existing CTA is affected.
+// "The planning page" (2026-09-30, chosen by Nathan from the mockups, mix 1 + 2):
+// the band is drawn as a page from Staci's planning notebook. Ruled lines, a
+// margin rule, binder holes and a coffee ring sit behind everything; a
+// living-room floor plan in her fine line (closing/FloorPlan.astro) draws
+// itself in the upper right; and under the headline her own checklist from
+// Instagram ticks itself off, closing on "It's all in the details."
+// (src/data/closing-notes.ts). It shows the part of the job clients never
+// see, right where they decide whether to book. Replaces the logo's leaf
+// sprig that used to be drawn behind.
+//
+// Words: the headline, subhead and button are each page's own finalCta fields
+// in Sanity; the checklist is edited in src/data/closing-notes.ts.
+//
+// scriptAccent: optional word or phrase from the headline, set in italic Oat
+// with the Sandbar marker under it. Falls back silently when not found.
+//
+// Motion: the plan's strokes and the checklist's ticks are CSS scroll-driven
+// (they draw as the band scrolls up), behind @supports and reduced motion; the
+// resting state is the finished drawing. The window-light "shade" drifts leaf
+// shadows over the page (src/scripts/window-light.ts).
 
 import CtaLink from '@/components/CtaLink.astro';
+import FloorPlan from '@/components/closing/FloorPlan.astro';
+import { CLOSING_NOTES } from '@/data/closing-notes';
 import SanityImage from '@/components/SanityImage.astro';
 import { splitScriptAccent } from '@/lib/scriptAccent';
 
@@ -86,10 +101,11 @@ const {
 {
   /* Rebuilt 2026-09-29 (art-direction rebuild). The close of every page: a
     Walnut bronze ground (chip 6; cream on it is 5.1:1), the headline very
-    large on the left, the subhead and the button on the right, and the
-    logo's leaf sprig drawn faint and huge behind. Same props as before, so
-    every page that ends with FinalCta changes together. An optional
-    background photo still works: it sits behind a Walnut scrim. */
+    large on the left, the subhead and the button on the right. Since
+    2026-09-30 it is also the planning page (see the header). Same props as
+    before, so every page that ends with FinalCta changes together. An
+    optional background photo still works: it sits behind a Walnut scrim,
+    with the notebook page over it. */
 }
 <section
   class:list={['final', hasBackground && 'final--photo']}
@@ -110,18 +126,10 @@ const {
       </div>
     )
   }
-  <svg class="final__sprig" viewBox="0 0 300 90" aria-hidden="true" focusable="false">
-    <path d="M4 78 C70 62 150 50 296 20"></path>
-    <path d="M60 66 C52 48 58 34 74 28 C78 44 72 58 60 66Z"></path>
-    <path d="M60 66 C44 72 30 70 20 60 C34 52 50 56 60 66Z"></path>
-    <path d="M118 56 C110 38 116 24 132 18 C136 34 130 48 118 56Z"></path>
-    <path d="M118 56 C104 64 88 64 76 54 C90 46 106 48 118 56Z"></path>
-    <path d="M178 44 C172 28 178 14 194 8 C198 24 192 38 178 44Z"></path>
-    <path d="M178 44 C164 52 148 52 136 44 C150 36 166 36 178 44Z"></path>
-    <path d="M236 32 C232 18 238 6 252 2 C256 16 250 28 236 32Z"></path>
-    <path d="M236 32 C224 40 210 40 200 32 C212 24 226 26 236 32Z"></path>
-  </svg>
+  {/* The notebook page: ruled lines, margin rule, binder holes, coffee ring. */}
+  <div class="final__page" aria-hidden="true"><i class="final__ring"></i></div>
   <div class="r-wrap final__grid">
+    <FloorPlan class="final__plan" />
     <div class="final__main">
       {eyebrow && <p class="final__eyebrow">{eyebrow}</p>}
       <h2 id={headingId} class="final__h">
@@ -137,6 +145,23 @@ const {
           )
         }
       </h2>
+      <div class="final__notes">
+        <p class="final__notes-h">{CLOSING_NOTES.heading}</p>
+        <ul class="final__check" role="list">
+          {
+            CLOSING_NOTES.items.map((item, i) => (
+              <li style={`--i:${i}`}>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle pathLength="1" cx="12" cy="12" r="10" />
+                  <path pathLength="1" d="M7 12.5l3.2 3.2L17 9" />
+                </svg>
+                {item}
+              </li>
+            ))
+          }
+        </ul>
+        <p class="final__notes-foot">{CLOSING_NOTES.footer}</p>
+      </div>
     </div>
     <div class="final__side">
       {subhead && <p class="final__sub">{subhead}</p>}
@@ -178,21 +203,140 @@ const {
     inset: 0;
     background: rgb(95 70 57 / 0.82);
   }
-  .final__sprig {
+  /* ---- The notebook page (behind everything, below the window light) ---- */
+  .final__page {
+    --margin-x: calc(
+      max(0px, (100vw - 85rem) / 2) + clamp(1rem, 4vw, 3.5rem) - clamp(0.55rem, 1.6vw, 1.4rem)
+    );
     position: absolute;
-    right: -6%;
-    bottom: -14%;
-    width: min(64vw, 50rem);
-    color: rgb(245 237 227 / 0.14);
+    inset: 0;
+    pointer-events: none;
+    /* Ruled lines every 36px, faint cream. */
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 35px,
+      rgb(245 237 227 / 0.085) 35px 36px
+    );
+  }
+  /* The margin rule, just left of the words, in a faded notebook red. */
+  .final__page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--margin-x);
+    width: 1.5px;
+    background: rgb(221 139 118 / 0.32);
+  }
+  /* Punched binder holes down the left edge. */
+  .final__page::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: clamp(0.5rem, 2vw, 1.4rem);
+    background: radial-gradient(circle at 50% 50%, rgb(35 30 27 / 0.28) 0 4.5px, transparent 5.5px)
+      0 12px / 100% 72px repeat-y;
+  }
+  /* A coffee ring, left by the mug at the consultation. */
+  .final__ring {
+    position: absolute;
+    top: -3.5rem;
+    right: 32%;
+    width: 11rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    rotate: 20deg;
+    box-shadow:
+      inset 0 0 0 6px rgb(35 30 27 / 0.1),
+      inset 0 0 0 9px rgb(35 30 27 / 0.04),
+      0 0 0 1.5px rgb(35 30 27 / 0.05);
+  }
+
+  /* ---- The floor plan: upper right on desktop; faint behind the headline
+     on phones. Oat lines, notes in Zodiak italic. ---- */
+  .final__grid :global(.final__plan) {
+    position: absolute;
+    top: 0;
+    right: clamp(1rem, 4vw, 3.5rem);
+    width: var(--plan-w);
+    color: var(--color-chip-2);
+    opacity: 0.5;
+    overflow: visible;
     pointer-events: none;
   }
-  .final__sprig path {
+  .final__grid :global(.fp-ink path),
+  .final__grid :global(.fp-ink circle),
+  .final__grid :global(.fp-rug) {
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.1;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .final__grid :global(.fp-rug) {
+    stroke-dasharray: 7 5;
+  }
+  .final__grid :global(.fp-notes text) {
+    fill: currentColor;
+    font: italic 300 15px var(--font-display);
+  }
+  .final__grid :global(.fp-notes .fp-note) {
+    font-size: 16px;
+  }
+  .final__grid :global(.fp-notes .fp-small) {
+    font-size: 12.5px;
+  }
+
+  /* ---- Her checklist, under the headline ---- */
+  .final__notes {
+    margin-top: clamp(2rem, 4vw, 2.75rem);
+  }
+  .final__notes-h,
+  .final__notes-foot {
+    margin: 0;
+    font: italic 300 1.08rem/1.35 var(--font-display);
+    color: var(--color-cream);
+  }
+  .final__notes-h {
+    margin-bottom: 0.7rem;
+  }
+  .final__notes-foot {
+    margin-top: 1rem;
+  }
+  .final__check {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .final__check li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font: italic 300 clamp(1.3rem, 1.1rem + 0.6vw, 1.65rem) / 1.3 var(--font-display);
+    color: var(--color-cream);
+  }
+  .final__check svg {
+    flex: none;
+    width: 1.3rem;
+    height: 1.3rem;
+    fill: none;
+    stroke: var(--color-chip-3);
+    stroke-width: 1.4;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  @media (min-width: 640px) {
+    .final__check {
+      grid-template-columns: repeat(2, max-content);
+      column-gap: 2.5rem;
+    }
+  }
+
   .final__grid {
     position: relative;
     /* Above the window-light canvas (z-index 1, shade only: leaf shadows
@@ -203,6 +347,8 @@ const {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 1.5rem;
     align-items: end;
+    /* The plan's width; its height is 0.7 of it (viewBox 560 x 390). */
+    --plan-w: clamp(19rem, 30vw, 27rem);
   }
   .final__main {
     grid-column: 1 / 9;
@@ -221,6 +367,8 @@ const {
   }
   .final__side {
     grid-column: 9 / 13;
+    /* Drop the words below the floor plan, so nothing sits behind them. */
+    margin-top: calc(var(--plan-w) * 0.7 + 1.75rem);
   }
   .final__sub {
     margin: 0 0 1.75rem;
@@ -233,24 +381,56 @@ const {
     align-items: center;
     gap: 1rem 1.75rem;
   }
+  /* ---- Motion: scroll-driven, as the band comes up the screen. The plan's
+     strokes draw one after another, its notes fade in, and the checklist
+     ticks itself off line by line. At rest (reduced motion, or a browser
+     without view timelines) everything is simply drawn. ---- */
   @media (prefers-reduced-motion: no-preference) {
-    .final__sprig path {
-      stroke-dasharray: 600;
-      stroke-dashoffset: 600;
-      animation: final-draw linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 55%;
-    }
-  }
-  @supports not (animation-timeline: view()) {
-    .final__sprig path {
-      stroke-dashoffset: 0;
-      animation: none;
+    @supports (animation-timeline: view()) {
+      .final {
+        view-timeline-name: --final;
+      }
+      .final__grid :global(.fp-ink > *) {
+        stroke-dasharray: 1 1.05;
+        animation: final-draw linear both;
+        animation-timeline: --final;
+        animation-range: entry calc(5% + var(--i, 0) * 4%) entry calc(45% + var(--i, 0) * 4%);
+      }
+      .final__grid :global(.fp-rug),
+      .final__grid :global(.fp-notes text) {
+        animation: final-fade linear both;
+        animation-timeline: --final;
+        animation-range: entry calc(60% + var(--i, 0) * 5%) cover 45%;
+      }
+      .final__check circle,
+      .final__check path {
+        stroke-dasharray: 1 1.05;
+        animation: final-draw linear both;
+        animation-timeline: --final;
+      }
+      .final__check circle {
+        animation-range: entry calc(35% + var(--i, 0) * 10%) entry calc(55% + var(--i, 0) * 10%);
+      }
+      .final__check path {
+        animation-range: entry calc(50% + var(--i, 0) * 10%) entry calc(62% + var(--i, 0) * 10%);
+      }
     }
   }
   @keyframes final-draw {
-    to {
+    0% {
+      stroke-dashoffset: 1.02;
+      opacity: 0;
+    }
+    3% {
+      opacity: 1;
+    }
+    100% {
       stroke-dashoffset: 0;
+    }
+  }
+  @keyframes final-fade {
+    from {
+      opacity: 0;
     }
   }
   @media (max-width: 1023px) {
@@ -260,6 +440,13 @@ const {
     .final__side {
       margin-top: 2rem;
       max-width: 36rem;
+    }
+    /* On a phone the plan sits faint behind the headline, top right. */
+    .final__grid :global(.final__plan) {
+      top: -3.75rem;
+      right: -2.75rem;
+      width: min(64%, 19rem);
+      opacity: 0.2;
     }
   }
 </style>

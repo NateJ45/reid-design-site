@@ -160,8 +160,17 @@ no decorative numbering.
   Google reviews come first, newest first, each with Sandbar stars, the
   reviewer's name, its age and "Read on Google" (see "Google reviews").
 - `ServiceAreaCue.astro`: towns set large, home base first in Espresso italic.
-- `FinalCta.astro` (every page): Walnut close, big headline, the logo's sprig
-  drawing itself in behind.
+- `FinalCta.astro` (every page): "the planning page" (2026-09-30, Nathan's
+  pick from the closing-band mockups). Walnut close drawn as a page from
+  Staci's notebook: faint ruled lines, a faded red margin rule, binder holes
+  and a coffee ring behind; a living-room floor plan in her fine line
+  (`closing/FloorPlan.astro`: walls, window, door swing, sofa, rug, table,
+  dimension strings, notes like "36″ to walk") drawing itself in at the upper
+  right, with the words below it; and under the headline her own checklist
+  from Instagram ("lighting · scale · texture · balance · what's missing",
+  `src/data/closing-notes.ts`) ticking itself off, closing on "It's all in the
+  details." On phones the plan sits faint in the top corner. Replaced the
+  logo's sprig.
 
 Home rhythm: Walnut hero, linen, ink, linen, paper, (Linen chip Instagram),
 linen, Walnut, ink footer.
