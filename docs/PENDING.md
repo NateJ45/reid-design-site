@@ -241,7 +241,8 @@ Phase 1 (home, header, footer, closing CTA, tokens, fonts, buttons) is on
   place so phase 1 did not also churn the lockfile.
 - **`npm run dev` crashes** in Vite's dependency optimizer
   (`MISSING_EXPORT ... node_modules/sanity/package.json`), reproduced on clean
-  main; production build unaffected. Being fixed in its own session. Until
+  main; production build unaffected. Root cause and fix are in PR #48 (a Windows
+  path bug in @sanity/astro's dev-only alias; not merged yet). Until
   then, iterate with `npm run build` (about 45s) and a static server over
   `dist/client`.
 - **Parity baselines** (`scripts/.parity`) will differ everywhere after the
