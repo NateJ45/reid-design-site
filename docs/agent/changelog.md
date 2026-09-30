@@ -2,6 +2,32 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — Kind words on About, Instagram feed (branch `claude/kind-words-instagram`)
+
+Delegated agent, reviewed by the main session.
+
+- **Kind words** (`about/KindWords.astro`, `src/lib/kind-words.ts`): the About
+  page lists every testimonial not ticked "Hide on the website", newest first,
+  in full, with stars for rated Google reviews and "Recommends Reid Design on
+  Facebook" for Facebook ones. The 8 Facebook recommendations were on no page
+  before (the home band fills with Google reviews). "Hide on the website" now
+  shows on every testimonial. New `kindWords` About marker, auto-placed before
+  the close on existing layouts (`src/lib/auto-marker.ts`), switched off in the
+  new Kind words tab.
+- **Instagram feed** (`InstagramFeed.astro`, `scripts/fetch-instagram.mjs`,
+  `scripts/lib/instagram-feed.mjs`, `src/lib/instagram.ts`): WCP's build-time
+  feed, but fetched and rehosted in `prebuild` so the HTML only names
+  same-origin `/ig/` files and a failed picture drops its tile. Home marker
+  `instagram` (auto-placed), Contact, and a new `instagramSection` library
+  block. Words in Site settings > Instagram feed. Renders nothing without
+  `INSTAGRAM_TOKEN`, so the live site is unchanged until the token is set.
+- **Workflows:** `refresh-instagram-token.yml` (50-day refresh written to the
+  Workers Builds build variable through the Builds API, then a build) and
+  `weekly-rebuild.yml` (deploy hook, Mondays). Secrets in docs/agent/deployment.md.
+- Parity against a fresh main build: 12/13 PASS, the one DIFF is the About
+  page's added Kind words section (the committed baselines under
+  `scripts/.parity/` are stale against current main and were not moved).
+
 ## 2026-09-30 — release: hidden sections removed, swatch-book chrome, Google reviews
 
 Branch `claude/release-chrome-reviews`, one release as Nathan asked. Three

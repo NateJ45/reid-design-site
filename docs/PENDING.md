@@ -14,6 +14,50 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-30 Kind words + Instagram branch (`claude/kind-words-instagram`)
+
+The code ships dark: with no `INSTAGRAM_TOKEN` the feed renders nothing, and
+the About "Kind words" wall already shows every review. What only a human can do:
+
+- **Staci's one-time Instagram approval.** The feed reads @reiddesignin through
+  the SAME Meta app WCP uses ("Instagram API with Instagram Login" product; WCP
+  site/docs/PAGE_BUILDER.md has the notes). Staci's account must be a
+  **Business or Creator** account linked to a Facebook Page (Instagram app >
+  Settings > Account type and tools; free, reversible), and she must be added
+  as an **Instagram Tester** on the Meta app (App roles > Roles > Instagram
+  testers) and accept the invite FROM HER INSTAGRAM ACCOUNT (Settings > Website
+  permissions > Apps and websites > Tester invites), or the token step fails
+  with "Insufficient developer role".
+- **Generate the long-lived token.** In the Meta app, Instagram > API setup
+  with Instagram login > "Generate access tokens", add her account and
+  authorize: that gives a long-lived (~60 day) token. Check it with
+  `curl "https://graph.instagram.com/me/media?fields=id,permalink&limit=1&access_token=<token>"`.
+- **Set it in three places** (the same value):
+  1. Cloudflare > Workers & Pages > reid-design-site > Settings > Build >
+     Variables and secrets: `INSTAGRAM_TOKEN`, type Secret, on the PRODUCTION
+     (main) trigger. Then publish anything or push, and the next build logs
+     `[ig] 8 tiles saved to public/ig/`.
+  2. GitHub > Settings > Secrets and variables > Actions: `INSTAGRAM_TOKEN`.
+  3. Locally in `.env` only if you want the real feed under `npm run dev`.
+- **GitHub secrets for the two new workflows** (docs/agent/deployment.md,
+  "Instagram feed"): `CF_BUILDS_API_TOKEN` (a USER API token with Workers
+  Builds Configuration: Edit; account-owned tokens are rejected by the Builds
+  API), `CF_ACCOUNT_ID`, `CF_BUILD_TRIGGER_UUID` (the production trigger's
+  UUID), `GH_ACTIONS_PAT` (fine-grained, this repo, Secrets: Read and write),
+  and `CF_DEPLOY_HOOK_URL` (a Workers Builds deploy hook on main, or the one the
+  Sanity webhook already uses). Until they exist both workflows warn and exit 0.
+  After setting them, run "Refresh Instagram token" once by hand
+  (workflow_dispatch forces a refresh) to prove the Cloudflare write.
+- **Check the populated feed live** after the first token build: Home (just
+  above the service-area line) and Contact (above the footer), 375 and 1280,
+  and that every tile image is `/ig/<id>.jpg` on reiddesignllc.com.
+- **Nothing to write in Sanity.** The Kind words wall and the Instagram section
+  place themselves on the existing About and Home layouts (see
+  docs/agent/sanity.md). Optional for Staci: drag "Kind words" / "Instagram
+  feed" in Layout & order to move them, or edit their words (About > Kind
+  words tab; Site settings > Instagram feed tab). "Hide on the website" now
+  shows on every testimonial, not only Google ones.
+
 ### From the 2026-09-29 art-direction rebuild (PR #53, live 2026-09-30)
 
 - **Get Staci's reaction to the new home page, now LIVE.** Nathan first

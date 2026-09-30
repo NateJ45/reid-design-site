@@ -164,7 +164,8 @@ no decorative numbering.
 - `FinalCta.astro` (every page): Walnut close, big headline, the logo's sprig
   drawing itself in behind.
 
-Home rhythm: Walnut hero, linen, ink, linen, paper, linen, Walnut, ink footer.
+Home rhythm: Walnut hero, linen, ink, linen, paper, (Linen chip Instagram),
+linen, Walnut, ink footer.
 
 ## About (phase 2)
 
@@ -201,8 +202,19 @@ still reorder or remove sections in the About layout array).
   hairlines draw in from the left, board pieces settle onto the board. A
   hover straightens a rapid-fire chip.
 
+- `about/KindWords.astro` (2026-09-30): every review, in full, on a paper
+  band before the close. Kicker, heading with italic accent, and the rating
+  tag (Linen face on paper) on the right. The quotes run as newspaper columns
+  (1, 2, then 3 across) so an 85 character line and a 700 character review
+  pack without equal-height cards: each hangs a Warm Bronze open-quote mark,
+  sits under a hairline, and is sized by its length (Zodiak Light large for
+  short, smaller for medium, Zodiak Regular at 17px for long). Under it: the
+  name, the month and year, then the source on its own line (Warm Bronze star
+  fills plus "on Google", or "Recommends Reid Design on Facebook"). "Read
+  them on Google / Facebook" close the band.
+
 About rhythm: linen hero, linen story, ink beliefs, Linen chip board,
-(linen numbers), Walnut close, ink footer.
+(linen numbers), paper Kind words, Walnut close, ink footer.
 
 ## Services and E-Design (phase 2)
 
@@ -389,6 +401,27 @@ tilt and straightens on hover. The word "Google" is text, never the logo.
 - No data, no trace: every piece renders nothing until Staci fills in the
   rating and count, and older testimonials render as before until they have
   stars.
+
+## Instagram feed (2026-09-30)
+
+`InstagramFeed.astro`, on Home (before the service-area line), Contact (after
+"Where Staci works") and as a page-builder block. Renders nothing until the
+feed is connected.
+
+- Linen chip (chip 1) band, so it reads apart from the linen sections around
+  it. Zodiak heading with the italic accent ("Lately, _in the studio_"), a
+  short ink 2 intro, and the ink pill "Follow @reiddesignin ↗" on the right
+  (under the intro on phones).
+- The posts are prints: square crops (the build crops them, 720px) on a
+  paper mat with a soft shadow, each a hair off true in alternating
+  directions like prints pinned to a board. Hover or keyboard focus
+  straightens and lifts the print and the photo eases in 4% inside its mat
+  (motion only under no-preference). Focus is the house 2px ink outline.
+- A video shows its poster with a small ink disc and cream play triangle in
+  the top right corner.
+- 2 across on phones and 3 on tablets (six posts, so the grid ends square),
+  4 across from 1024px (eight). Every print opens the post in a new tab and is
+  named from its caption (hashtags dropped); the picture itself is `alt=""`.
 
 ## Motion
 

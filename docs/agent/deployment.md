@@ -30,10 +30,11 @@ As of early 2026, Cloudflare merged Pages into Workers. Pages is in maintenance 
 
 The site is `output: 'static'` — every page is **pre-rendered to HTML at build time, not fetched at runtime**. Practical implication: when Staci edits a field in Sanity and clicks Publish, **the change does NOT appear on the live site until the site rebuilds**. The Sanity dataset updates instantly, but the live HTML is whatever was generated at the last build.
 
-There are two ways the site rebuilds:
+There are three ways the site rebuilds:
 
 1. **A merge to `main`** → Cloudflare detects the push → triggers `npm run build` → site updates in ~1-3 min. Since 2026-09-29 `main` only accepts merged pull requests with `build`, `test` and `lighthouse` green (ruleset "main: PR + green CI", no bypass); a direct `git push origin main` is rejected. See OPERATIONS.md.
 2. **Cloudflare deploy hook** → an HTTP POST to a private Cloudflare URL triggers the same build.
+3. **Weekly, on a schedule** (added 2026-09-30) → `.github/workflows/weekly-rebuild.yml` POSTs to a deploy hook every Monday so the Instagram feed stays fresh in a quiet week, and `refresh-instagram-token.yml` starts a build after each token refresh. See "Instagram feed" below.
 
 Without a webhook, every Sanity edit waits until the next code push. That's not a sustainable editor experience for Staci.
 
@@ -76,6 +77,7 @@ Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variabl
 - `PUBLIC_CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token. Without it the analytics beacon doesn't render.
 - `PUBLIC_GA_ID` — GA4 stream id (`G-YSVYFME1FT`). Production Workers Builds only; see "Privacy and analytics" below. Even when set, it fires only on the host of `site` in astro.config (apex and www). Renamed from `PUBLIC_GA_MEASUREMENT_ID` on 2026-09-28 (the old name no longer does anything).
 - `PUBLIC_CALENDLY_URL` — Staci's public Calendly URL.
+- `INSTAGRAM_TOKEN` (added 2026-09-30) — the long-lived Instagram token for the feed (see "Instagram feed" below). Mark it Secret, on the PRODUCTION (main) trigger. Optional: without it every Instagram placement renders nothing. Read only by `scripts/fetch-instagram.mjs` in `prebuild` (Node), never through Vite, so it is not inlined into any bundle.
 - Removed 2026-09-30 (never launched): `PUBLIC_NEWSLETTER_FORM_ACTION` and `NEWSLETTER_API_KEY` are no longer read by anything (the newsletter was removed). Delete them from the Workers settings if they are still set.
 
 All documented in `.env.example`; copy to `.env` and fill in real values for local dev.
@@ -86,6 +88,32 @@ All documented in `.env.example`; copy to `.env` and fill in real values for loc
 - `CF_ANALYTICS_TOKEN` (added 2026-09-29) — a read-only Cloudflare API token, exactly one permission (Zone > Analytics > Read, zone reiddesignllc.com), for the Studio "Site stats" panel. Optional: without it `/api/stats` answers 503 and the panel says it is not set up yet. `CF_ZONE_ID` optionally overrides the zone id constant in `src/pages/api/stats.ts`.
 
 **Site search (2026-09-29).** `npm run build` ends with `postbuild` = `pagefind --site dist/client`. The index is built against `dist/client` because adapter 14 splits the output, and it lands in `dist/client/pagefind/`, which the Workers `assets` binding serves like any other static file (nothing extra in `wrangler.jsonc`). The Workers Build runs `npm run build`, so it indexes on every deploy; the Linux Pagefind binary is in the lockfile (all seven platforms are). **If a full Content-Security-Policy is ever added** (see below), `script-src` needs `'wasm-unsafe-eval'` or `/search` will load and then fail to start Pagefind's WebAssembly; today only `frame-ancestors` is set, so nothing blocks it.
+
+### Instagram feed (added 2026-09-30)
+
+Staci's latest posts on Home, Contact and any custom page with the "Instagram feed" block. Modelled on WCP's feed, moved earlier in the build:
+
+1. `prebuild` runs `scripts/fetch-instagram.mjs` after the fonts. With `INSTAGRAM_TOKEN` it calls `graph.instagram.com/me/media` (12 newest, 10s cap), downloads each picture (a video's poster), crops it square at 720px with sharp into gitignored `public/ig/<post id>.jpg`, and writes gitignored `src/generated/instagram-feed.json` (8 tiles at most). A picture that fails to download drops its tile. No token, an API error or zero posts writes an empty feed. **It always exits 0**: Instagram never fails a build. One `[ig] ...` line in the build log says what happened.
+2. `astro build` copies `public/ig/` into `dist/client/ig/`, and `src/lib/instagram.ts` reads the JSON (through `import.meta.glob`, so a missing file is an empty feed) and re-validates every tile: only `/ig/<id>.jpg` pictures and `instagram.com` post links survive. The HTML therefore never names an Instagram host, which is why no CSP change was needed and why the tiles cannot rot when Instagram's signed CDN links expire (WCP learned that the hard way and rehosts after the build; Reid rehosts before the render instead, so a failed download drops the tile rather than leaving a CDN URL behind).
+3. **Dev fixture:** `INSTAGRAM_FIXTURE_DIR=<folder of .jpg files> npm run dev` builds the feed from local pictures (posts 2 and 5 pose as videos). Honoured only as `predev` and never on CI or Workers Builds. No fixture pictures are committed.
+
+**Two scheduled workflows keep it alive** (both warn and exit 0 until their secrets exist):
+
+- `.github/workflows/refresh-instagram-token.yml` (Mondays 07:00 UTC; acts every 50 days, gated by `instagram-token-refreshed-at` on the unprotected `ops-state` branch, created on first run; `workflow_dispatch` forces a refresh). It trades the token at `graph.instagram.com/refresh_access_token`, then writes the new value to the **Workers Builds build variable** with the Builds API, `PATCH /accounts/{account_id}/builds/triggers/{trigger_uuid}/environment_variables` with `{"INSTAGRAM_TOKEN":{"value":"…","is_secret":true}}` (add-or-replace, other variables untouched), stores it as the GitHub secret `INSTAGRAM_TOKEN` too (a secret build variable reads back as `null`, so the job keeps its own copy to refresh from next time), records the timestamp, and starts a production build with `POST /accounts/{account_id}/builds/triggers/{trigger_uuid}/builds` `{"branch":"main"}`. A Cloudflare failure stops the job before the timestamp, so next Monday retries with the old token, which is still valid.
+- `.github/workflows/weekly-rebuild.yml` (Mondays 08:00 UTC) POSTs to a Workers Builds deploy hook so the feed is never more than a week stale when nothing is published.
+
+**Secrets (GitHub > Settings > Secrets and variables > Actions):**
+
+| Secret                  | What                                                                                                                                                                                                           |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `INSTAGRAM_TOKEN`       | The current long-lived token (same value as the build variable).                                                                                                                                               |
+| `CF_BUILDS_API_TOKEN`   | A **user** API token (dash > My Profile > API Tokens) with Account > **Workers Builds Configuration: Edit**. The Builds API rejects account-owned tokens ("Invalid token").                                    |
+| `CF_ACCOUNT_ID`         | The Cloudflare account id.                                                                                                                                                                                     |
+| `CF_BUILD_TRIGGER_UUID` | The production trigger. Find it with `GET /accounts/{account_id}/builds/workers/{worker_tag}/triggers` (the one whose `branch_includes` is `main`); the worker tag is on `GET /accounts/{id}/workers/scripts`. |
+| `GH_ACTIONS_PAT`        | Fine-grained PAT on this repo with Secrets: Read and write (the default `GITHUB_TOKEN` cannot write Actions secrets).                                                                                          |
+| `CF_DEPLOY_HOOK_URL`    | A Workers Builds deploy hook on `main` (`https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<uuid>`); the Sanity webhook's hook can be reused.                                                   |
+
+Build variables are **per trigger**: a branch-preview trigger without `INSTAGRAM_TOKEN` simply builds previews with no feed, which is fine.
 
 **Weekly link report.** `.github/workflows/link-health.yml` runs `scripts/check-live-links.mjs` on Mondays 09:15 UTC (and on demand from the Actions tab). It reads every published document in the dataset, probes each outbound link, and writes a table to the run's Summary page. A link that is gone fails the run (GitHub emails the owner); one whose host refuses scripts is reported without failing. It needs no secrets (it uses the `PUBLIC_SANITY_*` repository variables, already set).
 
