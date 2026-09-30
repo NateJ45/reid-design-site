@@ -38,7 +38,7 @@ This applies to editor-authored Portable Text too, so the block-style options a 
 - `--foreground` (Ink `#231E1B`; was Charcoal `#3D3D3D` before 2026-09-29): headings and body text. Secondary text on linen uses `--color-ink-2` (`#5A4E46`, 7.4:1).
 - `--secondary` (Warm Taupe): borders, dividers, decorative ornaments. **NOT eyebrow labels** — those use `text-foreground/65` (see Eyebrow contrast lesson above).
 
-**Motion.** `globals.css` disables animations and transitions globally under `prefers-reduced-motion: reduce`, and Lenis smooth scroll becomes a no-op. The before/after slider falls back to a tap-to-toggle behavior. View Transitions become instant cross-fades. New animations inherit this; no per-component handling needed.
+**Motion.** `globals.css` disables animations and transitions globally under `prefers-reduced-motion: reduce` (animations at `0.01ms` so `animationend` still fires; transitions at `0s` duration AND `0s` delay, since 2026-09-30, because WebKit never finishes a 0.01ms transition and strands the property at its old value; nothing may rely on `transitionend` under reduce; starter PORTS.md card 61; held by `tests/reduced-motion.spec.ts`), and Lenis smooth scroll becomes a no-op. The before/after slider falls back to a tap-to-toggle behavior. View Transitions become instant cross-fades. New animations inherit this; no per-component handling needed.
 
 **Language and metadata.** `<html lang="en">` and the document `title` and `description` come from `BaseLayout`. Pass `title` and `description` through every page that uses the layout. The contactPage Calendly embed needs an `aria-label` on its iframe.
 

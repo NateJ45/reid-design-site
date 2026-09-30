@@ -2,6 +2,16 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — reduced-motion transitions zeroed (starter PORTS.md card 61)
+
+The reduced-motion reset in `globals.css` now sets `transition-duration: 0s`
+and `transition-delay: 0s` instead of `0.01ms`. `transition-property`
+defaults to `all`, so 0.01ms gave every element a transition, and WebKit never
+finishes one that short (they stack at progress 0 holding the old value).
+Animations keep 0.01ms so `animationend` still fires. Nothing in `src` listens
+for `transitionend` (grepped). New PORTABLE `tests/reduced-motion.spec.ts`,
+added to the `webkit-iphone` project's `testMatch` in `playwright.config.ts`.
+
 ## 2026-09-30 — art-direction rebuild, phase 2: every interior page
 
 **Live:** PR #58 merged as 3c17ab8 after Nathan reviewed it on staging and
