@@ -4,6 +4,14 @@
 
 ## 2026-09-30 — art-direction rebuild, phase 2: every interior page
 
+**Live:** PR #58 merged as 3c17ab8 after Nathan reviewed it on staging and
+said go. Production served it about 150s later; the 8 live routes and
+`/studio/` return 200, the FAQPage JSON-LD is present, and axe on the live
+/about, /services and /contact at 390 finds 0 violations. Before the PR, a
+first Playwright run on the merged code failed 155/156 on connection
+timeouts; six leftover static servers from the agent runs were loading the
+machine. With them stopped: 156/156.
+
 Branch `claude/redesign-phase2`. Nathan: "start phase 2, rebuild the other
 pages". The main session rebuilt the two shared pieces first, then five Opus
 agents rebuilt the pages in parallel worktrees, each against `DESIGN.md` with
