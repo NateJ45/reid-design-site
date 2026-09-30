@@ -2,6 +2,46 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — art-direction rebuild, phase 2: every interior page
+
+Branch `claude/redesign-phase2`. Nathan: "start phase 2, rebuild the other
+pages". The main session rebuilt the two shared pieces first, then five Opus
+agents rebuilt the pages in parallel worktrees, each against `DESIGN.md` with
+its own files and gates. The main session reviewed their screenshots, merged,
+fixed what review found, and ran the gates on the merged code.
+
+- **Shared (main session):** `Hero.astro` (linen, word rise, framed 4:5 photo,
+  no scrim; honours the builder hero Height again) and `SectionHeading.astro`
+  (split head via container query; eyebrow and centring no longer printed).
+  My first Hero commit broke the `section-fields` drift gate (layout card and
+  accent picker still described the old Hero); the agents reported it and it
+  was fixed in 47f927a: the accent picker now offers the accent on every hero.
+- **About** (agent): Oat-mat portrait with sample tag, Zodiak lede + pull
+  line, beliefs as statements on ink, a pinned "about me" board, stats as
+  type (the StatsCounter island, which showed 0 before JS, is deleted).
+- **Services + E-Design** (agent): deck index with prices, services as one
+  continuous paint strip (skips Warm Bronze), guarantee stamp, builders on
+  ink, travel fees on a tape; E-Design steps, included tags, tier chips.
+- **Process + FAQ** (agent): sticky tape-measure rail with scroll progress,
+  big numbered steps; FAQ without Radix, all 19 answers in the static HTML,
+  topic index. FAQ JSON-LD intact.
+- **Contact + Privacy** (agent): "a note to Staci" form in three groups (same
+  fields and submission), portrait aside with the $225 tag read from the
+  services data, Calendly on ink, roadmap; privacy as a long-form document
+  with a contents list. Focus goes to the first invalid field.
+- **Blocks + Portfolio** (agent): new SectionRenderer cadence, editorial rich
+  text, image+text, gap-free gallery mosaic, quote on ink; portfolio index
+  with paint-deck filters, case-study detail, and the before/after slider
+  bug fixed (it showed "after" under the "Before" label).
+- **Review fixes (main session):** three left-border side stripes replaced
+  (contact error box, contact note, process tier note); CLAUDE.md no longer
+  lists StatsCounter.
+
+Gates on the merged branch: astro check 0 errors, lint 0 errors, unit
+477/477, Playwright 156/156 (chromium + webkit), axe 0 violations on all 8
+live pages at 1440 and 390, no overflow at 390, no `data-sanity` in
+`dist/client`.
+
 ## 2026-09-30 — art-direction rebuild phase 1 live
 
 PR #53 (`claude/redesign`) merged to `main` as 7bffc16 at Nathan's request ("get it all on main"), after all three required checks (build, test, lighthouse) passed. The first build run failed only on Prettier over the three frozen prototype pages, which are now in `.prettierignore`. The Cloudflare Workers Build served it on reiddesignllc.com about 105s after the merge: all four paint chips, the process steps and the testimonials render, `/fonts/*.woff2` answers 200, and the 8 live routes plus `/studio/` return 200. The stega preview fix was verified on staging in a signed-in Presentation by the Dependabot-audit session: 0 decode errors, 9 clean word spans, and a headline click opens `heroHeadline`.

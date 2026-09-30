@@ -244,16 +244,27 @@ one still open. Kept here in full because they document WHY each is needed.
 
 ## Open — code and content work queued
 
-### Art-direction rebuild, phase 2 (opened 2026-09-29)
+### Art-direction rebuild, follow-ups (phase 1 live; phase 2 on `claude/redesign-phase2`)
 
-Phase 1 (home, header, footer, closing CTA, tokens, fonts, buttons) is on
-`claude/redesign`. Still to do, all against `DESIGN.md`:
+Phase 2 (all seven interior pages, the page-builder blocks and the portfolio
+templates) was built 2026-09-30. Left:
 
-- **The other seven live pages** (About, Services, Process, E-Design, FAQ,
-  Contact, Privacy) and the **portfolio templates** (ready to switch on once
-  project documents exist). They currently inherit only the shared tokens,
-  fonts, buttons, header, footer and closing CTA, and still use the old
-  eyebrow-plus-centred-heading section grammar.
+- **Content fixes for Staci**, which the rebuild makes more visible:
+  E-Design shows "from $695" on Services but $425 / $250 packages on its own
+  page; `servicesPage.heroScriptAccent` is "reveal", which is not in the
+  headline; the service-area copy says "30 miles" while the travel fees are in
+  minutes; em-dashes remain in the "Shopping & sourcing" and "Builder &
+  realtor partnerships" descriptions and in the Contact `seoTitle`; interior
+  hero photos are wide phone shots (Contact shows her children), best swapped
+  for close-ups or her brand shoot.
+- **Hidden sections** (journal, shop, quiz, calculator, guides, press, gift,
+  resources) keep their older section components; rebuild each against
+  `DESIGN.md` when it is switched on.
+- **Dead code after phase 2:** `HeroBackground.astro`,
+  `sections/ProcessPreview.astro`, `sections/MeetStaci.astro`,
+  `sections/HomeServices.astro`, `sections/HomeTestimonials.astro`,
+  `ui/accordion.tsx`, the `.step-connector` CSS + its BaseLayout observer.
+  Confirm nothing imports each, then delete in one commit.
 - **Share cards still use Cormorant + Source Sans** (`scripts/lib/og-render*.mjs`;
   satori needs a static WOFF, never WOFF2). Move them to Zodiak/General Sans
   once the fetch script can supply a WOFF, and re-run the Chromium comparison.
