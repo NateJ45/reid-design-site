@@ -31,8 +31,6 @@ import ContactAside from '@/components/contact/ContactAside.astro';
 import CallBand from '@/components/contact/CallBand.astro';
 import ContactArea from '@/components/contact/ContactArea.astro';
 import InstagramFeed from '@/components/InstagramFeed.astro';
-// The coffee mug doodle beside "A note to Staci" (2026-09-30).
-import Doodle from '@/components/Doodle.astro';
 
 const [page, siteSettings, home, servicesPage] = await Promise.all([
   getContactPage(),
@@ -123,7 +121,6 @@ const schemas = [
   <section class="note" aria-labelledby="contact-form-heading">
     <div class="r-wrap note__grid">
       <header class="note__head">
-        <Doodle name="coffee-mug" class="note__doodle" />
         <h2 id="contact-form-heading" class="r-h2 note__h">
           A note to <span class="r-accent">Staci</span>
         </h2>
@@ -225,16 +222,7 @@ const schemas = [
     gap: 2.5rem;
   }
   .note__head {
-    position: relative;
     grid-area: head;
-  }
-  /* The coffee a consultation starts with, steaming beside the heading. */
-  .note__head :global(.note__doodle) {
-    position: absolute;
-    top: clamp(-4.5rem, -6vw, -2.5rem);
-    right: 0;
-    width: clamp(4.5rem, 8vw, 6.5rem);
-    rotate: -8deg;
   }
   .note__aside {
     grid-area: aside;

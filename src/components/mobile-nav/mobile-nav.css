@@ -77,7 +77,7 @@
   outline: 2px solid var(--color-cream);
   outline-offset: 4px;
 }
-/* The olive sprig (2026-09-30): cream ink, drawn in on every open, hung in
+/* The olive sprig (2026-09-30): faint cream ink, drawn in on every open, in
    the gap between her logo and the Close tag. Behind everything, never in the
    way of a tap. */
 .mnav__doodle {
@@ -86,9 +86,10 @@
   position: absolute;
   top: 3.6rem;
   right: calc(var(--gut) + 0.5rem);
-  width: 7.5rem;
+  width: 9rem;
   rotate: 12deg;
-  opacity: 0.9;
+  /* Background ambience, like the section doodles: faint behind the deck. */
+  opacity: 0.32;
   pointer-events: none;
   z-index: 0;
 }

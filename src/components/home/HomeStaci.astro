@@ -13,8 +13,6 @@
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaLink from '@/components/CtaLink.astro';
-// The olive sprig doodle (2026-09-30), drawn in as the section scrolls up.
-import Doodle from '@/components/Doodle.astro';
 import type { CtaBlock } from '@/lib/cta';
 import type { PortableTextBlock } from '@portabletext/types';
 
@@ -69,7 +67,6 @@ const body = first?._type === 'block' ? rest : blocks;
     </figure>
 
     <div class="staci__copy">
-      <Doodle name="olive-sprig" class="staci__doodle" />
       <h2 id="meet-staci-heading" class="r-h2">{headline}</h2>
       {lede && <p class="staci__lede">{lede}</p>}
       {
@@ -115,16 +112,7 @@ const body = first?._type === 'block' ? rest : blocks;
     rotate: -3deg;
   }
   .staci__copy {
-    position: relative;
     grid-column: 7 / 13;
-  }
-  /* The olive sprig hangs in the air above the heading, off to the right. */
-  .staci__copy :global(.staci__doodle) {
-    position: absolute;
-    top: clamp(-7rem, -8vw, -4rem);
-    right: 0;
-    width: clamp(6rem, 11vw, 10.5rem);
-    rotate: 14deg;
   }
   .staci__lede {
     margin: 1.75rem 0 1.25rem;

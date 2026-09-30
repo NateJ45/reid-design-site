@@ -579,5 +579,13 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
       initWindowLight();
       document.addEventListener('astro:page-load', initWindowLight);
     </script>
+
+    {/* Ambient doodles (2026-09-30): one faint ink doodle in a corner of each
+        content section, drawn in as it scrolls into view. See the script. */}
+    <script>
+      import { initAmbientDoodles } from '@/scripts/ambient-doodles';
+      initAmbientDoodles();
+      document.addEventListener('astro:page-load', initAmbientDoodles);
+    </script>
   </body>
 </html>

@@ -4,12 +4,13 @@
 
 ## 2026-09-30 — The hand layer, window light, share cards design E (branch `ccr-1d8c83a7-uw3ifl`)
 
-- **Doodles:** eight hand-drawn ink doodles with watercolour washes
-  (`scripts/doodles.config.mjs` geometry, `scripts/lib/doodle-kit.mjs` hand,
-  `npm run doodles`, committed `src/assets/doodles/`), drawn in by
-  `Doodle.astro` + `src/styles/doodle.css`. On Home (Meet Staci, services), About
-  Kind words, Contact, the desktop header's hover cards (fetched on first hover)
-  and the phone menu.
+- **Botanical ambience:** six fine-line botanicals in the style of Staci's own
+  Instagram drawings (`scripts/doodles.config.mjs` geometry,
+  `scripts/lib/doodle-kit.mjs` hand, `npm run doodles`, committed
+  `src/assets/doodles/`), one growing faintly in from a corner of every content
+  section (`src/scripts/ambient-doodles.ts`), plus the phone menu. A first pass
+  of object doodles (mug, armchair, lamps) as foreground accents and header
+  hover cards was replaced the same day at Nathan's call.
 - **Designer markup:** a Sandbar marker swoosh under the italic accent phrase of
   h2/h3 headings, pulled across on scroll.
 - **Window light:** WebGL leaf shadows and window sun (`src/scripts/window-light.ts`)

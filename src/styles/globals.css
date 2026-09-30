@@ -26,7 +26,7 @@
    sample tag, word rise. See the file header. */
 @import './reid.css';
 /* Doodles and designer markup (2026-09-30): the hand-drawn ink layer. See the
-   file header, src/components/Doodle.astro and scripts/doodles.config.mjs. */
+   file header, src/scripts/ambient-doodles.ts and scripts/doodles.config.mjs. */
 @import './doodle.css';
 /* ---------- Brand web fonts (art-direction rebuild, 2026-09-29) -------------
    Zodiak (display) + General Sans (text), both Fontshare, ITF Free Font

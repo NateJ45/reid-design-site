@@ -23,7 +23,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { hand, rng, smoothPath, washShape } from './lib/doodle-kit.mjs';
-import { DOODLES } from './doodles.config.mjs';
+import { DOODLES, HAND } from './doodles.config.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'src', 'assets', 'doodles');
@@ -46,13 +46,13 @@ for (const name of names) {
   const inkPaths = ink
     .map(
       (stroke, i) =>
-        `<path pathLength="1" style="--i:${i}" d="${smoothPath(hand(stroke, random))}"/>`,
+        `<path pathLength="1" style="--i:${i}" d="${smoothPath(hand(stroke, random, HAND))}"/>`,
     )
     .join('');
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" data-doodle="${name}">` +
-    `<g class="dd-wash" fill-opacity="0.55">${washPaths}</g>` +
-    `<g class="dd-ink" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${inkPaths}</g>` +
+    `<g class="dd-wash" fill-opacity="0.45">${washPaths}</g>` +
+    `<g class="dd-ink" fill="none" stroke="currentColor" stroke-width="${HAND.strokeWidth}" stroke-linecap="round" stroke-linejoin="round">${inkPaths}</g>` +
     `</svg>\n`;
   writeFileSync(join(outDir, `${name}.svg`), svg);
   console.log(

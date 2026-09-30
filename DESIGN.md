@@ -426,31 +426,25 @@ feed is connected.
 ## The hand layer (2026-09-30)
 
 The site should feel worked on by a person, the way a project board does:
-ink doodles in the margins, a marker under the word that matters, afternoon
-light moving across the room. Four pieces, all decorative, all off under
-reduced motion, none carrying meaning on its own.
+botanical line drawings in the margins, a marker under the word that matters,
+afternoon light moving across the room. All decorative, all off (or finished
+and still) under reduced motion, none carrying meaning on its own.
 
-- **Doodles** (`Doodle.astro`, `src/styles/doodle.css`). Eight small ink
-  drawings of things from a designer's table: olive sprig (the signature, after
-  Staci's Instagram drawings), pendant lamp, table lamp with a ginger-jar base,
-  tub armchair, vase of branches, arched mirror, coffee mug, stack of books.
-  Authored as plain geometry in `scripts/doodles.config.mjs`; `npm run doodles`
-  gives every stroke a hand (a slow seeded wobble, overshoot at the ends, a
-  closed shape that does not quite meet) and sets watercolour washes a few px
-  off the line, then writes `src/assets/doodles/*.svg` (committed). Ink is
-  `currentColor` (Espresso on light, cream on ink); washes are the house tones
-  plus the paint deck's Sage, Lake and Clay at 55%. They draw themselves in
-  stroke by stroke (scroll-driven, or on open), then the washes bloom.
-  Placements: Home "Meet Staci" (olive sprig over the heading), Home services
-  (a pendant hanging from the band's top edge), About Kind words (vase of
-  branches), Contact "A note to Staci" (a steaming mug), the desktop header's
-  hover cards, the phone menu. Page to doodle: `src/lib/doodle-map.ts`.
-- **Header doodle cards.** Pointing at a flat nav link drops a small paper card
-  on a Warm Bronze thread from its chip, with that page's doodle drawing in.
-  The SVG is fetched on the first hover (same origin, cached), so no page
-  carries all eight. Hover-capable screens from 1024px only.
-- **Phone menu sprig.** The olive sprig in cream beside her logo, drawn in each
-  time the menu opens, behind the chip deck.
+- **Botanical ambience** (`src/scripts/ambient-doodles.ts`, `src/styles/doodle.css`).
+  Fine-line botanicals in the style of Staci's own Instagram drawings (the four
+  posts Nathan shared 2026-09-30): olive sprig, eucalyptus, willow, berry sprig,
+  a sage stem with soft washes, twin twigs. Single weight, a whisper of hand
+  wobble, Warm Bronze at about 40% (her muted gold), cream at 20% on the ink
+  and Walnut bands. One grows in from a corner of every content section,
+  clipped at the section's edge the way her branches enter the frame of a post;
+  corners alternate so neighbours never match. Behind everything, drawn in as
+  the section scrolls up. Not on the page hero or the closing band (it has the
+  logo's sprig). Authored as geometry in `scripts/doodles.config.mjs`;
+  `npm run doodles` writes the committed `src/assets/doodles/*.svg`; which one
+  goes where is `src/lib/doodle-map.ts`. Fetched per section as it nears the
+  screen, so pages carry none of them in their HTML.
+- **Phone menu sprig.** The olive sprig in faint cream beside her logo, drawn
+  in each time the menu opens, behind the chip deck.
 - **Designer markup.** The italic accent phrase in a section heading (h2/h3,
   never the word-rise page headlines) gets a hand-drawn marker swoosh in
   Sandbar, pulled across as the heading scrolls in. Sandbar reads on linen,

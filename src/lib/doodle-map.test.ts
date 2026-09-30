@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { DOODLE_NAMES, PAGE_DOODLES, doodleForPath, firstSegment } from './doodle-map';
+import { DOODLE_NAMES, PAGE_DOODLES, doodlesForPage, firstSegment } from './doodle-map';
 
 const dir = fileURLToPath(new URL('../assets/doodles/', import.meta.url));
 
@@ -12,10 +12,19 @@ describe('doodle map', () => {
     expect(firstSegment('/portfolio/before-after?x=1#top')).toBe('portfolio');
   });
 
-  it('maps pages, and anything else to the vase', () => {
-    expect(doodleForPath('/about/')).toBe('olive-sprig');
-    expect(doodleForPath('/contact')).toBe('coffee-mug');
-    expect(doodleForPath('/kitchen-refresh')).toBe('vase-stems');
+  it("leads with the page's own doodle", () => {
+    expect(doodlesForPage('/about/', 3)[0]).toBe('olive-sprig');
+    expect(doodlesForPage('/contact', 3)[0]).toBe('berry-sprig');
+  });
+
+  it('never repeats a doodle in two sections in a row, and is stable', () => {
+    for (const path of ['/', '/about/', '/services/', '/faq/', '/kitchen-refresh']) {
+      const list = doodlesForPage(path, 12);
+      expect(list).toHaveLength(12);
+      for (let i = 1; i < list.length; i++) expect(list[i]).not.toBe(list[i - 1]);
+      expect(doodlesForPage(path, 12)).toEqual(list);
+      for (const n of list) expect(DOODLE_NAMES).toContain(n);
+    }
   });
 
   it('only names doodles that exist, and every file is listed', () => {

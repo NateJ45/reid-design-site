@@ -191,7 +191,9 @@ export function smoothPath(pts, closed = false) {
   if (pts.length < 2) return '';
   let d = `M${r(pts[0][0])} ${r(pts[0][1])}`;
   // Thin the points first: every ~6px is plenty for a smooth curve.
-  const thin = pts.filter((_, i) => i % 4 === 0 || i === pts.length - 1);
+  // (Small shapes, a berry or a bud, keep every point or they collapse.)
+  const step = pts.length < 60 ? 1 : 4;
+  const thin = pts.filter((_, i) => i % step === 0 || i === pts.length - 1);
   for (let i = 0; i < thin.length - 1; i++) {
     const p0 = thin[Math.max(0, i - 1)];
     const p1 = thin[i];

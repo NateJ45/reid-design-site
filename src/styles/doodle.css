@@ -4,9 +4,11 @@
    =============================================================================
    Two hand-drawn layers that make the site feel worked on by a person:
 
-   1. DOODLES: small ink drawings from a designer's table (src/components/
-      Doodle.astro, the header's hover cards, the phone menu). Every doodle has
-      the same shape (scripts/generate-doodles.mjs):
+   1. DOODLES: fine-line botanicals in the style of Staci's own Instagram
+      drawings (olive, eucalyptus, willow, berries), as faint background
+      ambience: one growing in from a corner of every content section
+      (src/scripts/ambient-doodles.ts, `.dd-amb` below) and one behind the
+      phone menu. Every doodle has the same shape (scripts/generate-doodles.mjs):
         <g class="dd-wash">  watercolour fills, set a little off the line
         <g class="dd-ink">   pen strokes, pathLength="1", style="--i:N"
       pathLength="1" makes every stroke one unit long, so one pair of dash
@@ -33,6 +35,71 @@
   width: 100%;
   height: auto;
   overflow: visible;
+}
+
+/* ---- Ambient placement: a botanical growing in from one corner of a
+   section, faint, behind everything. ambient-doodles.ts makes the section its
+   frame (position + isolation) and adds a clipping frame, so the stem can run
+   off the section's edge like the branches in Staci's Instagram posts, and
+   z-index -1 keeps it above the section's ground and below all its content.
+   Every drawing's stem starts at its bottom left; the corner classes turn or
+   mirror the SVG so the stem enters from that corner. ---- */
+.dd-amb-frame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.dd-amb {
+  position: absolute;
+  width: clamp(11rem, 24vw, 20rem);
+  /* Warm Bronze fine line, very soft: her muted gold. */
+  --dd-ink: var(--color-chip-5);
+  opacity: 0.42;
+}
+.dd-amb .dd-wash {
+  fill-opacity: 0.5;
+}
+/* Cream on the ink and Walnut bands, fainter still. */
+.dd-amb--dark {
+  --dd-ink: var(--color-cream);
+  opacity: 0.2;
+}
+.dd-amb--bl {
+  left: -1.5rem;
+  bottom: -1.5rem;
+}
+.dd-amb--br {
+  right: -1.5rem;
+  bottom: -1.5rem;
+}
+.dd-amb--br svg {
+  transform: scaleX(-1);
+}
+.dd-amb--tr {
+  right: -1.5rem;
+  top: -1.5rem;
+}
+.dd-amb--tr svg {
+  transform: rotate(180deg);
+}
+.dd-amb--tl {
+  left: -1.5rem;
+  top: -1.5rem;
+}
+.dd-amb--tl svg {
+  transform: scaleY(-1);
+}
+/* A phone has less margin: smaller, and fainter behind the words. */
+@media (max-width: 767px) {
+  .dd-amb {
+    width: 9.5rem;
+    opacity: 0.32;
+  }
+  .dd-amb--dark {
+    opacity: 0.16;
+  }
 }
 
 @keyframes dd-draw {

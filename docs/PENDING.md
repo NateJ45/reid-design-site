@@ -21,10 +21,14 @@ items to "Recently closed" with a date, and prune that section when it grows.
   everything the cloud session learned (wall masks, the paint shader, the sharp
   channel trap) are in `docs/design/2026-09-30-concept-room-handoff.md`. Nothing
   of it is in the repo yet.
-- **Staci's own drawings.** The doodles are a placeholder hand (loose single
-  line ink with watercolour washes). Send a few of her Instagram drawings (the
-  olives) and redraw `scripts/doodles.config.mjs` to match her line, then
-  `npm run doodles`.
+- **Botanicals in her hand, from four posts.** The section ambience was
+  redrawn from the four Instagram posts Nathan shared. If Staci has original
+  drawings (not the template art in her posts), trace one or two into
+  `scripts/doodles.config.mjs` and `npm run doodles`.
+- **The paint-chip swatches: Nathan finds them repetitive and a bit fake**
+  (2026-09-30). Open question: which ones to keep (hero fan, services chips,
+  footer strip, phone menu deck, share-card fan) and whether to make the kept
+  ones read as real paper samples. Waiting on his call.
 - **Look at the window light on a real phone and laptop** (home hero, and the
   shade on the closing band). It is tuned by eye in headless Chromium; if it
   reads too strong or too faint, the two numbers are the `0.28` (sun) and

@@ -1,251 +1,194 @@
 // Safe to edit by hand (it is drawing, not plumbing)
 // =============================================================================
-// The doodles: small ink drawings of the things on a designer's table
-// (2026-09-30)
+// The doodles: fine-line botanicals in Staci's own hand (2026-09-30)
 // =============================================================================
-// Each doodle is plain geometry in a 200 x 200 box (x right, y down).
-// `npm run doodles` turns it into a hand-drawn SVG in src/assets/doodles/
-// (the wobble, the overshoot and the offset colour washes come from
-// scripts/lib/doodle-kit.mjs), then commit the SVGs.
+// Matched to the drawings on her Instagram posts (Nathan shared four,
+// 2026-09-30): fine, single-weight line art of olive and eucalyptus branches,
+// willowy stems with long pointed leaves and small berry clusters, drawn in a
+// muted gold, growing in from the corners of the frame behind the words.
 //
-//   ink:    strokes, drawn with the pen, in the order listed (the site draws
-//           them in that order too, so list the big shapes first)
-//   washes: watercolour fills set a few px off the line, as [colour, shape]
+// Every drawing is plain geometry in a 200 x 200 box (x right, y down) with
+// its STEM BASE AT THE BOTTOM LEFT, growing up and to the right. The site
+// mirrors or turns it so the stem always enters from the corner of the section
+// it sits in (src/styles/doodle.css, .dd-amb--*).
 //
-// Wash colours are the site's own tones plus the paint deck's Sage, Lake and
-// Clay. Keep them soft; the ink line carries the drawing.
+// `npm run doodles` gives the lines a light hand (scripts/lib/doodle-kit.mjs)
+// and writes src/assets/doodles/<name>.svg. Commit the SVGs.
 //
-// The placeholder style is a loose single-line ink hand. If Staci shares her
-// own Instagram drawings (the olives), match their line here and rerun.
+//   ink:    strokes, in drawing order (the stem first, then leaves up it)
+//   washes: optional soft fills, as [colour, shape] (her sage watercolour leaves)
 // =============================================================================
 
-import { arc, curve, ellipse, join, leaf, line, poly, quad } from './lib/doodle-kit.mjs';
+import { curve, ellipse, leaf, line } from './lib/doodle-kit.mjs';
 
 const SAGE = '#a3ad92';
-const OLIVE = '#7d7a4f';
-const OAT = '#e2cfbd';
-const SANDBAR = '#cdb09a';
-const CLAY = '#b9765a';
-const LAKE = '#8fa3ad';
-const GLOW = '#f3dcae';
 
-// ---- Olive sprig: the signature one ------------------------------------------
+/** Point and heading (degrees) at t (0..1) along a sampled stroke. */
+function at(pts, t) {
+  const i = Math.max(1, Math.min(pts.length - 1, Math.round(t * (pts.length - 1))));
+  const [x0, y0] = pts[i - 1];
+  const [x1, y1] = pts[i];
+  return { x: x1, y: y1, angle: (Math.atan2(y1 - y0, x1 - x0) * 180) / Math.PI };
+}
+
+/** Leaves up a stem, alternating sides (or in pairs), smaller towards the tip. */
+function leavesAlong(
+  stem,
+  {
+    from = 0.1,
+    to = 0.94,
+    count = 9,
+    spread = 38,
+    len = 30,
+    width = 6,
+    pairs = false,
+    taper = 0.45,
+  },
+) {
+  const out = [];
+  for (let k = 0; k < count; k++) {
+    const t = from + ((to - from) * k) / Math.max(1, count - 1);
+    const p = at(stem, t);
+    const size = 1 - taper * t;
+    const sides = pairs ? [1, -1] : [k % 2 === 0 ? 1 : -1];
+    for (const side of sides) {
+      out.push(leaf(p.x, p.y, p.angle + side * spread, len * size, width * size));
+    }
+  }
+  return out;
+}
+
+// ---- Olive branch: narrow paired leaves, three olives ----------------------
 function oliveSprig() {
-  const stem = curve(28, 182, 70, 150, 108, 96, 172, 26);
-  // Leaves in pairs along the stem, pointing up and out.
-  const L = [
-    leaf(48, 166, -118, 40, 10),
-    leaf(56, 160, -14, 42, 10),
-    leaf(80, 132, -122, 44, 10.5),
-    leaf(88, 124, -18, 44, 10.5),
-    leaf(112, 94, -118, 40, 10),
-    leaf(120, 86, -22, 40, 10),
-    leaf(144, 58, -112, 32, 8.5),
-    leaf(150, 50, -24, 30, 8),
-  ]; // Olives on short stalks.
-  const olives = [
-    { stalk: line(76, 138, 82, 152), body: ellipse(86, 163, 9, 12) },
-    { stalk: line(104, 106, 112, 118), body: ellipse(116, 129, 8.5, 11.5) },
-    { stalk: line(134, 70, 141, 80), body: ellipse(145, 90, 7.5, 10) },
-  ];
+  const stem = curve(10, 194, 14, 120, 84, 52, 186, 30);
+  const leaves = leavesAlong(stem, {
+    count: 7,
+    spread: 34,
+    len: 38,
+    width: 5.5,
+    pairs: true,
+    from: 0.14,
+    to: 0.9,
+  });
+  const olives = [0.32, 0.55, 0.74].map((t, i) => {
+    const p = at(stem, t);
+    const a = ((p.angle + (i % 2 ? -70 : 70)) * Math.PI) / 180;
+    const sx = p.x + Math.cos(a) * 11;
+    const sy = p.y + Math.sin(a) * 11;
+    return {
+      stalk: line(p.x, p.y, sx, sy),
+      body: ellipse(sx + Math.cos(a) * 7, sy + Math.sin(a) * 7, 5.5, 7.5),
+    };
+  });
   return {
     ink: [
       stem,
-      ...L.flatMap((l) => [l.outline, l.rib]),
+      ...leaves.flatMap((l) => [l.outline, l.rib]),
       ...olives.flatMap((o) => [o.stalk, o.body]),
     ],
-    washes: [...L.map((l) => [SAGE, l.outline]), ...olives.map((o) => [OLIVE, o.body])],
   };
 }
 
-// ---- Pendant lamp ---------------------------------------------------------------
-function pendant() {
-  const shade = join(arc(100, 122, 46, 56, 180, 360), line(146, 122, 54, 122).slice(1));
-  return {
-    ink: [
-      poly([90, 4], [110, 4], [106, 10], [94, 10]),
-      line(100, 10, 100, 66),
-      shade,
-      curve(52, 123, 70, 131, 130, 131, 148, 123),
-      arc(100, 127, 8, 7, 0, 180),
-    ],
-    washes: [
-      [GLOW, poly([60, 128], [140, 128], [178, 196], [22, 196])],
-      [SANDBAR, shade],
-    ],
-  };
+// ---- Eucalyptus: round coin leaves ----------------------------------------------
+function eucalyptus() {
+  const stem = curve(12, 194, 70, 170, 64, 70, 164, 22);
+  const leaves = leavesAlong(stem, {
+    count: 10,
+    spread: 62,
+    len: 24,
+    width: 11,
+    from: 0.08,
+    to: 0.96,
+    taper: 0.4,
+  });
+  return { ink: [stem, ...leaves.flatMap((l) => [l.outline, l.rib])] };
 }
 
-// ---- Table lamp with a pleated shade and a ginger jar base ----------------------
-function tableLamp() {
-  const shade = poly([70, 38], [130, 38], [148, 98], [52, 98]);
-  const pleats = [0.2, 0.35, 0.5, 0.65, 0.8].map((t) => line(70 + 60 * t, 40, 52 + 96 * t, 96));
-  const jar = join(
-    curve(90, 108, 58, 114, 56, 168, 84, 180),
-    line(84, 180, 116, 180).slice(1),
-    curve(116, 180, 144, 168, 142, 114, 110, 108).slice(1),
+// ---- Willow stem: a long arc with long, drooping pointed leaves -----------------
+function willow() {
+  const stem = curve(8, 196, 18, 96, 92, 30, 194, 52);
+  const leaves = leavesAlong(stem, {
+    count: 11,
+    spread: 26,
+    len: 42,
+    width: 4.2,
+    from: 0.12,
+    to: 0.97,
+    taper: 0.35,
+  });
+  return { ink: [stem, ...leaves.map((l) => l.outline)] };
+}
+
+// ---- Berry sprig: side twigs ending in little clusters, a few small leaves ------
+function berrySprig() {
+  const stem = curve(14, 194, 30, 124, 110, 118, 150, 26);
+  const ink = [stem];
+  [0.28, 0.46, 0.63, 0.8, 0.95].forEach((t, k) => {
+    const p = at(stem, t);
+    const a = ((p.angle + (k % 2 ? -48 : 48)) * Math.PI) / 180;
+    const ex = p.x + Math.cos(a) * 20;
+    const ey = p.y + Math.sin(a) * 20;
+    ink.push(line(p.x, p.y, ex, ey));
+    // A cluster of four berries round the twig's end.
+    for (const [dx, dy] of [
+      [0, 0],
+      [5.5, -3],
+      [-3.5, -5.5],
+      [3, 5],
+    ]) {
+      ink.push(ellipse(ex + dx * 1.2, ey + dy * 1.2, 3.4, 3.4));
+    }
+  });
+  leavesAlong(stem, { count: 4, spread: 40, len: 22, width: 5, from: 0.08, to: 0.38 }).forEach(
+    (l) => ink.push(l.outline, l.rib),
   );
+  return { ink };
+}
+
+// ---- Sage stem: broad soft leaves with veins, washed in sage --------------------
+function leafyStem() {
+  const stem = curve(16, 194, 70, 160, 50, 80, 128, 24);
+  const leaves = leavesAlong(stem, {
+    count: 7,
+    spread: 44,
+    len: 34,
+    width: 11,
+    from: 0.12,
+    to: 0.95,
+    taper: 0.4,
+  });
   return {
-    ink: [
-      shade,
-      ...pleats,
-      line(100, 98, 100, 104),
-      poly([88, 104], [112, 104], [112, 109], [88, 109]),
-      jar,
-      poly([80, 181], [120, 181], [117, 190], [83, 190]),
-      curve(74, 140, 90, 126, 110, 152, 126, 138),
-    ],
-    washes: [
-      [OAT, shade],
-      [LAKE, jar],
-    ],
+    ink: [stem, ...leaves.flatMap((l) => [l.outline, l.rib])],
+    washes: leaves.map((l) => [SAGE, l.outline]),
   };
 }
 
-// ---- Armchair: a curved tub chair ---------------------------------------------
-function armchair() {
-  const back = join(curve(34, 128, 30, 38, 170, 38, 166, 128));
-  const body = join(
-    back,
-    line(166, 128, 166, 156).slice(1),
-    line(166, 156, 34, 156).slice(1),
-    line(34, 156, 34, 128).slice(1),
+// ---- Twin twigs: two fine crossing stems with buds ------------------------------
+function twig() {
+  const a = curve(10, 196, 64, 170, 110, 130, 160, 70);
+  const b = curve(26, 196, 30, 130, 94, 96, 90, 16);
+  const ink = [a, b];
+  leavesAlong(a, { count: 5, spread: 40, len: 20, width: 4.5, from: 0.25, to: 0.9 }).forEach((l) =>
+    ink.push(l.outline),
   );
-  return {
-    ink: [
-      back,
-      curve(52, 112, 60, 64, 140, 64, 148, 112),
-      curve(46, 128, 80, 116, 120, 116, 154, 128),
-      line(34, 128, 34, 156),
-      line(166, 128, 166, 156),
-      curve(34, 156, 70, 162, 130, 162, 166, 156),
-      line(48, 158, 42, 188),
-      line(152, 158, 158, 188),
-      line(82, 161, 80, 176),
-      line(118, 161, 120, 176),
-    ],
-    washes: [[CLAY, body]],
-  };
-}
-
-// ---- Vase of branches -------------------------------------------------------------
-function vaseStems() {
-  const vase = join(
-    line(88, 104, 86, 122),
-    curve(86, 122, 56, 138, 58, 186, 84, 190).slice(1),
-    line(84, 190, 116, 190).slice(1),
-    curve(116, 190, 142, 186, 144, 138, 114, 122).slice(1),
-    line(114, 122, 112, 104).slice(1),
+  leavesAlong(b, { count: 5, spread: 36, len: 18, width: 4, from: 0.3, to: 0.92 }).forEach((l) =>
+    ink.push(l.outline),
   );
-  const stems = [
-    curve(98, 102, 90, 70, 70, 44, 52, 20),
-    curve(100, 102, 102, 70, 98, 40, 104, 8),
-    curve(104, 102, 116, 74, 134, 50, 152, 32),
-  ];
-  const leaves = [
-    leaf(80, 60, -150, 22, 5),
-    leaf(66, 38, -120, 20, 4.5),
-    leaf(100, 52, -150, 20, 4.5),
-    leaf(102, 30, -40, 18, 4),
-    leaf(124, 62, -30, 22, 5),
-    leaf(140, 44, -80, 18, 4),
-  ];
-  return {
-    ink: [vase, ellipse(100, 104, 13, 3.5, 180), ...stems, ...leaves.map((l) => l.outline)],
-    washes: [[OAT, vase], ...leaves.map((l) => [SAGE, l.outline])],
-  };
-}
-
-// ---- Arched window-pane mirror --------------------------------------------------
-function archedMirror() {
-  const frame = join(
-    line(52, 190, 52, 82),
-    arc(100, 82, 48, 52, 180, 360).slice(1),
-    line(148, 82, 148, 190).slice(1),
-    line(148, 190, 52, 190).slice(1),
-  );
-  return {
-    ink: [
-      frame,
-      join(
-        line(62, 186, 62, 84),
-        arc(100, 84, 38, 42, 180, 360).slice(1),
-        line(138, 84, 138, 186).slice(1),
-      ),
-      line(100, 42, 100, 186),
-      line(62, 112, 138, 112),
-      line(62, 150, 138, 150),
-      line(100, 84, 72, 56),
-      line(100, 84, 128, 56),
-      quad(118, 128, 124, 122, 130, 128),
-    ],
-    washes: [[LAKE, frame]],
-  };
-}
-
-// ---- Coffee mug with steam: where a consultation starts --------------------------
-function coffeeMug() {
-  const mug = join(
-    line(60, 92, 132, 92),
-    curve(132, 92, 132, 150, 126, 176, 96, 176).slice(1),
-    curve(96, 176, 66, 176, 60, 150, 60, 92).slice(1),
-  );
-  return {
-    ink: [
-      mug,
-      curve(132, 106, 160, 100, 164, 140, 128, 146),
-      curve(132, 116, 148, 114, 150, 134, 130, 136),
-      ellipse(96, 184, 58, 7, 180),
-      curve(80, 78, 72, 66, 90, 56, 82, 40),
-      curve(98, 80, 90, 64, 108, 54, 100, 32),
-      curve(116, 78, 108, 66, 126, 56, 118, 42),
-    ],
-    washes: [
-      [CLAY, mug],
-      [OAT, ellipse(96, 184, 58, 7, 180)],
-    ],
-  };
-}
-
-// ---- A stack of books with a bud vase -------------------------------------------
-function bookStack() {
-  const b1 = poly([34, 160], [166, 160], [166, 184], [34, 184]);
-  const b2 = poly([44, 138], [156, 134], [157, 158], [45, 162]);
-  const b3 = poly([52, 116], [150, 118], [148, 136], [50, 134]);
-  const bud = join(
-    curve(92, 116, 80, 108, 82, 92, 94, 88),
-    line(94, 88, 106, 88).slice(1),
-    curve(106, 88, 118, 92, 120, 108, 108, 116).slice(1),
-  );
-  return {
-    ink: [
-      b1,
-      b2,
-      b3,
-      line(40, 172, 160, 172),
-      line(52, 150, 150, 147),
-      curve(100, 88, 98, 64, 88, 48, 76, 34),
-      leaf(92, 60, -150, 16, 4).outline,
-      curve(100, 88, 104, 64, 116, 50, 126, 42),
-      bud,
-    ],
-    washes: [
-      [SAGE, b1],
-      [SANDBAR, b2],
-      [CLAY, b3],
-      [OAT, bud],
-    ],
-  };
+  const tipA = at(a, 1);
+  const tipB = at(b, 1);
+  ink.push(ellipse(tipA.x + 3, tipA.y - 3, 3, 3), ellipse(tipB.x + 1, tipB.y - 4, 3, 3));
+  return { ink };
 }
 
 /** name -> drawing. Keep in step with DOODLE_NAMES in src/lib/doodle-map.ts. */
 export const DOODLES = {
   'olive-sprig': oliveSprig,
-  pendant,
-  'table-lamp': tableLamp,
-  armchair,
-  'vase-stems': vaseStems,
-  'arched-mirror': archedMirror,
-  'coffee-mug': coffeeMug,
-  'book-stack': bookStack,
+  eucalyptus,
+  willow,
+  'berry-sprig': berrySprig,
+  'leafy-stem': leafyStem,
+  twig,
 };
+
+/** The hand: her lines are fine and steady, so only a whisper of wobble. */
+export const HAND = { amp: 0.35, overshoot: 0.8, lap: 2, strokeWidth: 1.15 };

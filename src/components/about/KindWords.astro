@@ -42,8 +42,6 @@ import {
   quoteSize,
   reviewSource,
 } from '@/lib/kind-words';
-// A vase of branches doodle in the head (2026-09-30).
-import Doodle from '@/components/Doodle.astro';
 
 interface Props {
   eyebrow?: string | null;
@@ -93,7 +91,6 @@ const plain = (v?: string | null) => splitStega(v ?? '').cleaned.trim();
       <div class="r-wrap">
         <header class="kw__head">
           <div class="kw__intro">
-            <Doodle name="vase-stems" class="kw__doodle" />
             <AboutKicker text={eyebrow || 'Kind words'} />
             <h2 id={headingId} class="r-h2 kw__h">
               {h.found ? (
@@ -204,17 +201,6 @@ const plain = (v?: string | null) => splitStega(v ?? '').cleaned.trim();
   }
   .kw__h {
     margin: 0;
-  }
-  /* A vase of branches in the empty space right of the intro (2026-09-30). */
-  .kw__intro {
-    position: relative;
-  }
-  .kw__intro :global(.kw__doodle) {
-    position: absolute;
-    top: -1.5rem;
-    right: 0;
-    width: clamp(4.5rem, 9vw, 8rem);
-    rotate: 6deg;
   }
   .kw__sub {
     margin: 1.25rem 0 0;
