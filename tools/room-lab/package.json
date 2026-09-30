@@ -10,7 +10,8 @@
     "walls": "node walls.mjs",
     "layers": "node layers.mjs",
     "publish": "node publish.mjs",
-    "sheet": "node sheet.mjs"
+    "sheet": "node sheet.mjs",
+    "candidates": "node candidates.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.0",

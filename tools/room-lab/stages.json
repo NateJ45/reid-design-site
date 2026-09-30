@@ -25,7 +25,7 @@
       "prompt": "A realistic photograph of an EMPTY living room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, a high or vaulted ceiling, light wood or light laminate floor. Minimal builder-grade trim only: thin white baseboards, NO crown moulding, plain flat window returns. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No furniture, no rugs, no people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded, dated peach, a tired pinkish orange that looks a little washed out."
     }
   ],
-  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
   "stages": [
     {
       "id": "shell",
@@ -63,8 +63,8 @@
       "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around both windows. Add no furniture and no rug; the floor stays bare. Keep the walls, windows, floor and light exactly the same.",
       "seeds": [
         11,
-        12,
-        13
+        1011,
+        2011
       ],
       "maxDrift": 10
     },
@@ -75,30 +75,31 @@
       "change": "add one large 9 by 12 foot natural wool area rug in a soft oat colour with a subtle low texture, lying flat on the floor in the middle of the room and reaching close to the large plain wall on the right. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         21,
-        22,
-        23
+        1021,
+        2021
       ]
     },
     {
       "id": "sofa",
       "stage": "anchor",
       "motion": "slide-left",
-      "change": "add one comfortable three-seat sofa upholstered in smooth, plain oat linen (no pattern, no weave texture), with slightly rumpled cushions and walnut legs, centred against the large plain wall on the right with its front legs on the rug. The wall above the sofa stays bare and clearly visible. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add one relaxed three-seat sofa upholstered in a smooth, solid, matte oat brushed-cotton fabric with a soft even surface (like a well-worn cotton slipcover), gentle natural creases, slightly rumpled seat cushions, rolled arms and short walnut legs. Centred against the large plain wall on the right with its front legs on the rug; the wall above it stays bare. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
+        3031,
         31,
-        32,
-        33
+        1031,
+        2031
       ]
     },
     {
       "id": "coffee-table",
       "stage": "function",
       "motion": "rise",
-      "change": "add a low rectangular walnut coffee table on the rug in front of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add a low rectangular coffee table in solid oiled walnut with simple straight legs, plain wood only (no metal inlays, no brass corners), standing on the rug in front of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
+        1041,
         41,
-        42,
-        43
+        2041
       ]
     },
     {
@@ -108,19 +109,19 @@
       "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched off. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         51,
-        52,
-        53
+        1051,
+        2051
       ]
     },
     {
       "id": "chair",
       "stage": "comfort",
       "motion": "slide-right",
-      "change": "add one upholstered cream linen accent chair on the rug near the windows, angled toward the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "add one mid-century accent chair with a solid walnut frame and a cushioned seat and back in plain cream boucle, on the rug near the windows, angled toward the sofa. Plain wooden arms with no pads. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
+        1061,
         61,
-        62,
-        63
+        2061
       ]
     },
     {
@@ -129,9 +130,9 @@
       "motion": "drop",
       "change": "hang simple full-length cream linen curtains on thin brass rods at both windows, pulled open to the sides so the windows stay bright. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
+        1071,
         71,
-        72,
-        73
+        2071
       ]
     },
     {
@@ -141,19 +142,19 @@
       "change": "hang one medium framed landscape print with a thin black frame and a white mat on the large plain wall, centred above the sofa, leaving plenty of bare wall around it. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         81,
-        82,
-        83
+        1081,
+        2081
       ]
     },
     {
       "id": "olive",
       "stage": "finish",
       "motion": "pop",
-      "change": "place three slender olive branches with small, narrow silvery grey-green leaves in a short white ceramic vase at one end of the coffee table; the arrangement is loose, airy and no taller than the sofa back. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "place a small real-looking bunch of fresh olive branches, with many small narrow silvery sage-green leaves photographed naturally (not a silhouette, not a graphic), in a short matte white ceramic vase at one end of the coffee table; loose and airy, no taller than the sofa back. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         91,
-        92,
-        93
+        1091,
+        2091
       ]
     },
     {
@@ -163,8 +164,8 @@
       "change": "add a short stack of three books on the coffee table and a soft oat knitted throw draped over the arm of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         101,
-        102,
-        103
+        1101,
+        2101
       ]
     }
   ]
