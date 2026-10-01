@@ -275,6 +275,11 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     content: '';
     position: absolute;
     inset: 0;
+    /* Above the header shade (::before), so the photo always melts into the
+       flat Walnut beside it. With the shade on top, the faded edge came out
+       darker than the Walnut near the header: a hard vertical seam
+       (2026-10-01). */
+    z-index: 2;
     background: linear-gradient(90deg, var(--color-chip-6) 0, transparent 16%);
     pointer-events: none;
   }

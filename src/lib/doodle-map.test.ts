@@ -1,14 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import {
-  DOODLE_NAMES,
-  MAX_DOODLES,
-  PAGE_DOODLES,
-  doodleSlots,
-  doodlesForPage,
-  firstSegment,
-} from './doodle-map';
+import { DOODLE_NAMES, PAGE_DOODLES, doodlesForPage, firstSegment } from './doodle-map';
 
 const dir = fileURLToPath(new URL('../assets/doodles/', import.meta.url));
 
@@ -17,16 +10,6 @@ describe('doodle map', () => {
     expect(firstSegment('/')).toBe('');
     expect(firstSegment('/services/')).toBe('services');
     expect(firstSegment('/portfolio/before-after?x=1#top')).toBe('portfolio');
-  });
-
-  it('gives a page at most MAX_DOODLES botanicals, first and last section', () => {
-    expect(doodleSlots(0)).toEqual([]);
-    expect(doodleSlots(1)).toEqual([0]);
-    expect(doodleSlots(2)).toEqual([0, 1]);
-    expect(doodleSlots(7)).toEqual([0, 6]);
-    expect(doodleSlots(7, 3)).toEqual([0, 3, 6]);
-    expect(doodleSlots(7, 1)).toEqual([0]);
-    for (let n = 0; n < 20; n++) expect(doodleSlots(n).length).toBeLessThanOrEqual(MAX_DOODLES);
   });
 
   it("leads with the page's own doodle", () => {

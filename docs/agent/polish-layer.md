@@ -122,7 +122,7 @@ Pattern used by: scroll-reveal observer, sticky-header listener, sticky CTA chip
 
 ### Page cross-fade (`view-transition-name`)
 
-`<main id="main">` carries `view-transition-name: main-content` and cross-fades on every navigation (`vt-fade-out` 150ms → `vt-fade-in` 200ms). The header and footer are named (`site-header` / `site-footer`) and pinned with `animation: none` so they stay put through the swap instead of flashing. Astro respects `prefers-reduced-motion` automatically — reduced-motion users get an instant cut. Pure CSS, no JS.
+`<main id="main">` carries `view-transition-name: main-content`: on every navigation the old page fades out with a 6px lift (`vt-out`, 180ms) and the new one fades in rising 10px (`vt-in`, 420ms quint-out, 80ms in). The header and footer are named (`site-header` / `site-footer`) so they do not fade with the page, and their OLD snapshot is `display: none`: with both snapshots shown at full opacity (the pre-2026-10-01 rule, `animation: none` on old and new) every header word looked double printed for the length of the transition. Reduced motion: a plain 120ms cross-fade, no movement (Astro also strips animations under it). Pure CSS, no JS.
 
 ### In-page smooth scroll
 

@@ -26,7 +26,7 @@
    sample tag, word rise. See the file header. */
 @import './reid.css';
 /* Doodles and designer markup (2026-09-30): the hand-drawn ink layer. See the
-   file header, src/scripts/ambient-doodles.ts and scripts/doodles.config.mjs. */
+   file header and scripts/doodles.config.mjs. */
 @import './doodle.css';
 /* ---------- Brand web fonts (art-direction rebuild, 2026-09-29) -------------
    Zodiak (display) + General Sans (text), both Fontshare, ITF Free Font
@@ -989,10 +989,19 @@
   transform: scaleY(1);
 }
 
-/* ---- View transitions — cross-fade for <main> content on every navigation.
-   Header and footer are named and pinned with animation: none so they stay
-   put during the swap. Astro's ClientRouter is already wired in BaseLayout.
-   Astro respects prefers-reduced-motion automatically — no extra rule needed. ---- */
+/* ---- View transitions (rewritten 2026-10-01) -----------------------------
+   The page content fades and settles; the header and footer stay put.
+   Astro's ClientRouter is wired in BaseLayout.
+
+   - main: the old page fades out with a slight lift (180ms), the new one
+     fades in and rises 10px into place (420ms, quint out), overlapping a
+     little so there is never a blank frame.
+   - header and footer: named so they do not fade with the page. The OLD
+     snapshot is hidden and the new one shown at once. Before this both
+     snapshots sat fully opaque on top of each other for the whole
+     transition, so every word in the header looked double printed (heavier)
+     for a moment on every click (Nathan, 2026-10-01).
+   - Reduced motion: no movement, a plain quick cross-fade only. ---- */
 main#main {
   view-transition-name: main-content;
 }
@@ -1003,34 +1012,46 @@ footer {
   view-transition-name: site-footer;
 }
 
-@keyframes vt-fade-out {
-  from {
-    opacity: 1;
-  }
+@keyframes vt-out {
   to {
     opacity: 0;
+    transform: translateY(-6px);
   }
 }
-@keyframes vt-fade-in {
+@keyframes vt-in {
   from {
     opacity: 0;
-  }
-  to {
-    opacity: 1;
+    transform: translateY(10px);
   }
 }
 ::view-transition-old(main-content) {
-  animation: vt-fade-out 150ms ease forwards;
+  animation: vt-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
 }
 ::view-transition-new(main-content) {
-  animation: vt-fade-in 200ms ease forwards;
+  animation: vt-in 420ms cubic-bezier(0.23, 1, 0.32, 1) 80ms both;
 }
 
 ::view-transition-old(site-header),
+::view-transition-old(site-footer) {
+  display: none;
+}
 ::view-transition-new(site-header),
-::view-transition-old(site-footer),
 ::view-transition-new(site-footer) {
   animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(main-content) {
+    animation: vt-fade 120ms linear both reverse;
+  }
+  ::view-transition-new(main-content) {
+    animation: vt-fade 120ms linear both;
+  }
+}
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
 }
 
 /* Reading-room paper grain. A very subtle SVG noise tile at ~3% opacity over

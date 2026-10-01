@@ -500,22 +500,12 @@ botanical line drawings in the margins, a marker under the word that matters,
 afternoon light moving across the room. All decorative, all off (or finished
 and still) under reduced motion, none carrying meaning on its own.
 
-- **Botanical ambience** (`src/scripts/ambient-doodles.ts`, `src/styles/doodle.css`).
-  Fine-line botanicals in the style of Staci's own Instagram drawings (the four
-  posts Nathan shared 2026-09-30): olive sprig, eucalyptus, berry sprig and a
-  sage stem with soft washes. (Willow and twin twigs were retired the same
-  day: their single-line leaves read as loose dashes at ambient opacity.) Single weight, a whisper of hand
-  wobble, Warm Bronze at about 40% (her muted gold), cream at 20% on the ink
-  and Walnut bands. At most two per page (`MAX_DOODLES` in
-  `src/lib/doodle-map.ts`): one grows in from a corner of the first content
-  section and one from the last,
-  clipped at the section's edge the way her branches enter the frame of a post;
-  corners alternate so neighbours never match. Behind everything, drawn in as
-  the section scrolls up. Not on the page hero or the closing band (it has the
-  logo's sprig). Authored as geometry in `scripts/doodles.config.mjs`;
-  `npm run doodles` writes the committed `src/assets/doodles/*.svg`; which one
-  goes where is `src/lib/doodle-map.ts`. Fetched per section as it nears the
-  screen, so pages carry none of them in their HTML.
+- **Botanical ambience: removed 2026-10-01.** The faint botanicals that grew
+  in from a corner of a page's sections (`src/scripts/ambient-doodles.ts`)
+  are gone (Nathan: they still looked bad, half-drawn as they scrolled in).
+  The drawings themselves stay (`scripts/doodles.config.mjs`,
+  `src/assets/doodles/`) for the phone menu's sprig and the share cards;
+  `src/lib/doodle-map.ts` now only picks each card's botanical.
 - **Phone menu sprig.** The olive sprig in faint cream beside her logo, drawn
   in each time the menu opens, behind the chip deck.
 - **Designer markup.** The italic accent phrase in the closing band's

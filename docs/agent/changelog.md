@@ -2,6 +2,17 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — No section doodles, no hero seam, calmer page changes
+
+- The ambient section botanicals are removed (`src/scripts/ambient-doodles.ts`
+  deleted; the drawings stay for the phone menu and share cards).
+- Home hero: the photo's Walnut edge fade sits above the header shade, so
+  the photo no longer meets the Walnut in a hard vertical seam near the
+  header.
+- View transitions: the header and footer no longer double print during a
+  page change (the old snapshot is hidden); the page content fades out with
+  a slight lift and the new page rises in.
+
 ## 2026-10-01 — Header: on the hero, her pen stroke, the logo inks in
 
 - From the header research and `docs/design/prototypes/header-e-on-hero.html`
