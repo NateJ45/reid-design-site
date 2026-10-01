@@ -85,7 +85,7 @@ interface Props {
    * Omitted = the built-in "book the consultation" button to Contact.
    */
   cta?: HeaderCta;
-  /** The Google rating line ("5.0", "6 Google reviews"), when Staci has set it. */
+  /** The Google rating line ("5.0", "on Google"), when Staci has set it. */
   rating?: { value: string; label: string } | null;
   /** Site settings switch: show the email at the foot. Default yes. */
   showEmail?: boolean;
@@ -247,10 +247,10 @@ export default function MobileNav({
                   ★
                 </span>
                 <span>
+                  {/* "5.0 on Google": no review count (it was typed by hand
+                      and went stale; see googleRatingFrom). */}
                   {rating.value}
-                  <span aria-hidden="true"> · </span>
-                  <span className="sr-only"> out of 5 from </span>
-                  {rating.label}
+                  <span className="sr-only"> out of 5</span> {rating.label}
                 </span>
               </p>
             )}
