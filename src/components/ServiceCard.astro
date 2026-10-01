@@ -18,11 +18,14 @@
 //
 // Data: the `service` document fields as before (name, slug, price,
 // shortDescription, features, bestFor, ctaLabel, badge). featuredImage is
-// accepted but not drawn: the chip is the image.
+// accepted but not drawn: the chip is the image. Since the 2026-09-30 design
+// pass the chip carries one of Staci's finished rooms faded into its paint
+// (RoomBackdrop; src/data/room-backdrops.ts says which).
 //
 // Prices are free text in Sanity ("$225", "starting at $995", "$100 per
 // hour", "Custom"). chipPrice() splits them stega-safely (split-copy.ts).
 import { chipPrice, toneFor } from '@/components/services/tones';
+import RoomBackdrop from '@/components/RoomBackdrop.astro';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
@@ -81,7 +84,13 @@ const headingId = id ? `${id}-name` : undefined;
   data-on={tone.on}
   aria-labelledby={headingId}
 >
-  <div class="svc__chip">
+  <div class="svc__chip r-backdrop-host">
+    <RoomBackdrop
+      index={index}
+      start={2}
+      ratio={0.75}
+      tone={tone.on === 'cream' ? 'deep' : 'pale'}
+    />
     {
       /* No "No. 01" label (2026-09-30): the strip's order and the tone ramp
          already carry the sequence. The top row now only holds the badge. */

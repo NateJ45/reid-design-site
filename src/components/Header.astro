@@ -4,16 +4,17 @@
 // prototype docs/design/prototypes/chrome-a-swatch-book.html; DESIGN.md
 // "Chrome").
 //
-//   At rest    no bar at all. Staci's logo hangs from the top edge on a paper
-//              plate, large (128px on desktop), overlapping below the header
-//              line like a hanging sign. Nav on the right: hover, keyboard
-//              focus or the current page raise a paint chip behind the label
+//   At rest    no bar at all. Staci's logo sits straight on the page at the
+//              left of the row (84px tall on desktop; the paper plate it
+//              used to hang from was dropped in the 2026-09-30 design pass).
+//              Nav on the right: hover, keyboard focus or the current
+//              page raise a paint chip behind the label
 //              (tones from the ramp, chips 1 to 3, ink text on every one).
 //              Then the ink price tag: "Book a consult | $225".
 //   Scrolled   the same row condenses into a floating paper strip with a
-//              shadow; the plate and logo shrink to 76px and still hang off
-//              it. BaseLayout's scroll listener sets data-scrolled.
-//   Phone      logo left (88px, same plate), the ink "Menu" price tag right,
+//              shadow; the logo shrinks to 52px inside it. BaseLayout's
+//              scroll listener sets data-scrolled.
+//   Phone      logo left (58px), the ink "Menu" price tag right,
 //              which opens MobileNav's full-screen fan deck.
 //
 // The availability pill and the search icon that used to sit here were
@@ -50,8 +51,8 @@ import type { RawNavLink } from '@/lib/nav-href';
 import { getChromeFacts } from '@/lib/queries';
 import { resolveChromeFacts } from '@/lib/chrome-facts';
 
-// Logo renditions. The source is 378x400. The header shows it 128px tall at
-// rest (about 121px wide), so 122w/244w cover 1x/2x; the scrolled strip and
+// Logo renditions. The source is 378x400. The header shows it 84px tall at
+// rest (about 80px wide), so 122w/244w cover 1x/2x with room to spare; the scrolled strip and
 // the phone header draw the same files smaller. The phone menu shows the
 // cream logo 108px tall on ink (102w/204w).
 const logo1x = await getImage({ src: logoLightAsset, format: 'webp', width: 122 });
@@ -351,8 +352,8 @@ function isGroupActive(items: { href: string }[]) {
      clicks through; only the strip's own pieces take the pointer. */
   .hdr {
     --hdr-h: 6.25rem;
-    --logo-h: 8rem;
-    --logo-h-scrolled: 4.75rem;
+    --logo-h: 5.25rem;
+    --logo-h-scrolled: 3.25rem;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     height: var(--hdr-h);
     pointer-events: none;
@@ -380,24 +381,19 @@ function isGroupActive(items: { href: string }[]) {
     pointer-events: auto;
   }
 
-  /* ---- The logo: a hanging sign. It hangs from the top edge on a paper
-     plate and overlaps the page below the header line, so it reads on any
-     ground (the Walnut home hero included). ---- */
+  /* ---- The logo (2026-09-30 design pass): set straight on the page, no
+     paper plate. Nathan found the boxed "hanging sign" read as a sticker
+     rather than a signature, so the logo now sits inside the header row at
+     a size the row holds (84px at rest on desktop), vertically centred, with
+     nothing behind it. It never overlaps the section below, so it can never
+     sit on the Walnut home hero (where the ink logo would not read). ---- */
   .hdr__logo {
     position: relative;
     z-index: 2;
-    align-self: flex-start;
     display: block;
     flex: none;
-    padding: 0.7rem 0.75rem 0.45rem;
-    background: var(--color-paper);
-    border-radius: 0 0 3px 3px;
-    box-shadow:
-      0 1px 0 var(--color-rule),
-      0 22px 34px -22px rgb(35 30 27 / 0.5);
-    transition:
-      padding 600ms var(--ease),
-      transform 600ms var(--ease);
+    border-radius: 2px;
+    transition: opacity 300ms;
   }
   .hdr__logo :global(.hdr__logo-img),
   .hdr__logo-img {
@@ -406,14 +402,12 @@ function isGroupActive(items: { href: string }[]) {
     width: auto;
     transition: height 600ms var(--ease);
   }
+  .hdr__logo:hover {
+    opacity: 0.8;
+  }
   .hdr__logo:focus-visible {
     outline: 2px solid var(--color-ink);
-    outline-offset: 3px;
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .hdr__logo:hover {
-      transform: rotate(-1.5deg);
-    }
+    outline-offset: 4px;
   }
 
   /* ---- Nav: a paint chip rises behind the label ---- */
@@ -546,10 +540,6 @@ function isGroupActive(items: { href: string }[]) {
       0 1px 0 var(--color-rule),
       0 22px 40px -28px rgb(35 30 27 / 0.55);
   }
-  .hdr[data-scrolled] .hdr__logo {
-    padding: 0.45rem 0.5rem 0.4rem;
-    box-shadow: 0 16px 26px -18px rgb(35 30 27 / 0.5);
-  }
   .hdr[data-scrolled] .hdr__logo :global(.hdr__logo-img),
   .hdr[data-scrolled] .hdr__logo-img {
     height: var(--logo-h-scrolled);
@@ -585,20 +575,14 @@ function isGroupActive(items: { href: string }[]) {
   @media (max-width: 1023px) {
     .hdr {
       --hdr-h: 4.5rem;
-      --logo-h: 5.5rem;
-      --logo-h-scrolled: 3.6rem;
-    }
-    .hdr__logo {
-      padding: 0.6rem 0.55rem 0.5rem;
+      --logo-h: 3.6rem;
+      --logo-h-scrolled: 2.75rem;
     }
     .hdr[data-scrolled] .hdr__bar {
       height: 3.4rem;
       margin-top: 0.5rem;
       max-width: calc(100% - 1rem);
       padding-inline: 0.75rem 0.4rem;
-    }
-    .hdr[data-scrolled] .hdr__logo {
-      padding: 0.35rem 0.4rem 0.3rem;
     }
   }
   @media (prefers-reduced-motion: reduce) {

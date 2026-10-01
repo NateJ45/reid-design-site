@@ -48,7 +48,7 @@ const body = first?._type === 'block' ? rest : blocks;
 
 <section class="staci" aria-labelledby="meet-staci-heading">
   <div class="r-wrap staci__grid">
-    <figure class="staci__photo">
+    <figure class="staci__photo r-frame">
       {
         photo?.asset && (
           <SanityImage
@@ -100,7 +100,9 @@ const body = first?._type === 'block' ? rest : blocks;
     position: relative;
     margin: 0;
   }
+  /* Framed (.r-frame, 2026-09-30 design pass): paper mat, bronze keyline. */
   .staci__photo :global(.staci__img) {
+    display: block;
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;

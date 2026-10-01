@@ -2,6 +2,27 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-09-30 — The design pass (branch `claude/great-mendel-v4xvi0`)
+
+- Nathan's notes: cards needed depth, the tape measure should be more refined
+  and outlined in her colours, the "Based in" band wanted a sketch map, the
+  OpenStreetMap embed was ugly, the footer and the boxed header logo were not
+  classy, the guarantee stamp's middle icon was unreadable, a botanical
+  looked broken, photos sat loose on their bands, and some phone crops kept
+  almost nothing. All of it is in DESIGN.md "The 2026-09-30 design pass".
+- New: `RoomBackdrop.astro` + `src/data/room-backdrops.ts`, `.r-backdrop` and
+  `.r-frame` in `reid.css`, `AreaSketchMap.astro` + `src/lib/area-map.ts`
+  (+ test), `src/assets/logo-mark.png` and `logo-lockup-mask.png` (clean
+  masks cut from the share-card masks in `scripts/og-assets/`).
+- Changed: Header (no plate), Footer (framed stationery), TapeProcess,
+  ProcessSteps and ServiceArea tapes, PaintChips, ServiceCard, ProcessStep,
+  EDesignTiers, ServiceAreaCue, ServiceAreaMap (no iframe, no script),
+  SatisfactionGuarantee (her monogram), Hero / HomeStaci / AboutStory /
+  ContactAside / ImageText / ProjectDetail (framed), SanityImage (hotspot
+  object-position when not CDN-cropped).
+- Removed: the willow and twin-twig botanicals (`npm run doodles` no longer
+  writes them; `doodle-map.ts` rotation is four drawings).
+
 ## 2026-09-30 — Lenis removed
 
 - Nathan asked whether smooth scroll helps visitors; the answer was no (it

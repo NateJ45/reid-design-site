@@ -103,7 +103,7 @@ const specs = [
 <section class="story" aria-labelledby={headingId}>
   <div class="r-wrap story__grid">
     <figure class="story__photo">
-      <div class="story__mat">
+      <div class="story__mat r-frame">
         {
           photo?.asset ? (
             <SanityImage
@@ -196,10 +196,14 @@ const specs = [
     top: 6.5rem;
     margin: 0;
   }
+  /* The portrait in the house frame (.r-frame: paper mat, bronze keyline;
+     2026-09-30 design pass), still set on its Oat mat behind. */
   .story__mat {
     position: relative;
     overflow: clip;
-    box-shadow: 1.1rem 1.1rem 0 var(--color-chip-2);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      1.1rem 1.1rem 0 var(--color-chip-2);
   }
   .story__photo :global(.story__img) {
     display: block;

@@ -65,7 +65,7 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
   <div class="cx__staci">
     {
       photo?.asset && (
-        <figure class="cx__photo">
+        <figure class="cx__photo r-frame">
           <SanityImage
             source={photo}
             width={640}
@@ -169,11 +169,10 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     display: grid;
     gap: 1rem;
   }
+  /* Framed (.r-frame, 2026-09-30 design pass): paper mat, bronze keyline. */
   .cx__photo {
     position: relative;
     margin: 0;
-    overflow: clip;
-    background: var(--color-chip-1);
   }
   .cx__photo :global(.cx__img) {
     display: block;
@@ -303,6 +302,9 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     .cx__staci {
       grid-template-columns: 5.5rem minmax(0, 1fr);
       align-items: center;
+    }
+    .cx__photo {
+      --frame-pad: 0.35rem;
     }
     .cx__photo :global(.cx__img) {
       aspect-ratio: 1;

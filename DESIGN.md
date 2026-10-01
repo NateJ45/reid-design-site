@@ -110,17 +110,17 @@ Built from the approved prototype `docs/design/prototypes/chrome-a-swatch-book.h
 Two hard rules from Nathan: Staci's logo is prominent everywhere, and there is
 no decorative numbering.
 
-- **Header** (`Header.astro`, server-rendered). No bar at rest. Her logo hangs
-  from the top edge on a paper plate, 128px tall on desktop and 88px below
-  1024px, overlapping the page like a hanging sign (the plate keeps it legible
-  on any ground, the Walnut home hero included). Nav on the right: hover,
+- **Header** (`Header.astro`, server-rendered). No bar at rest. Her logo sits
+  straight on the page at the left of the row, 84px tall on desktop and 58px
+  below 1024px, with nothing behind it and never overlapping the section
+  below (the paper plate it used to hang from was dropped in the 2026-09-30
+  design pass: Nathan found the box unclassy). Nav on the right: hover,
   keyboard focus or the current page raises a paint chip behind the label
   (Oat and Sandbar alternating; Linen reads as nothing on the linen page).
   Then the ink price tag "Book a consult | $225". The price is read from the
   consultation service (`src/lib/chrome-facts.ts`) and only shows while the
   button books the consultation. Scrolled, the row condenses into a floating
-  paper strip with a shadow; the plate and logo shrink to 76px and still hang
-  off it. The sticky box never changes height, so nothing reflows. No
+  paper strip with a shadow; the logo shrinks to 52px inside it. The sticky box never changes height, so nothing reflows. No
   availability pill, no search icon (search lives in the footer). A rating
   slot is reserved beside the tag.
 - **Phone menu** (`MobileNav.tsx`). The trigger is an ink "Menu" price tag. Open:
@@ -132,13 +132,17 @@ no decorative numbering.
   below, landing square, under `prefers-reduced-motion: no-preference` only. Foot:
   the cream booking price tag with the price, then phone and email. Radix
   Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
-- **Footer** (`Footer.astro`), on ink. (The seven-tone paint strip across its
-  top was removed 2026-09-30, see "Swatches carry content" below.) A page index: tone swatch, page, dotted leader, and a real fact on
-  the right ("from $225", "4 steps", "from $250", "19 answers"), all derived
-  from content, omitted when not derivable. Contact details as paper sample
-  tags, square to the page. "Based in Plainfield" with the Business info towns.
-  Her logo large (150 to 228px wide) beside the site tagline, its last two
-  words in Sandbar italic. Base row: copyright, Privacy, Search, site credit.
+- **Footer** (`Footer.astro`), on ink, as letterpress stationery (2026-09-30
+  design pass; Nathan wanted it "truly classy and refined"). A fine double
+  rule in Sandbar frames it. Her clean line logo (the wash-free lockup mask,
+  painted cream) sits centred ON the top rule like a seal, the site tagline
+  centred under it (last two words in Sandbar italic), then a rule-dot-rule
+  ornament. Three quiet columns inside the frame: the page index (page,
+  dotted leader, a real fact in Sandbar italic: "from $225", "19 answers",
+  derived from content, omitted when not derivable), "Get in touch" as small
+  label + Zodiak value rows (the paper contact tags and the tone swatches
+  are gone), and "Based in Plainfield" with the Business info towns. Base
+  row under the frame: copyright, Privacy, Search, site credit.
 - Contrast: ink text on chips 1 to 4, cream on 6, 7 and ink; no body-size text
   on Warm Bronze anywhere in the chrome.
 
@@ -151,15 +155,19 @@ no decorative numbering.
   as a Zodiak lede.
 - `home/PaintChips.astro`: services as a paint strip, one chip per service on the
   ramp (skipping Warm Bronze), punched hole, name and price on the face (no
-  "No. 01"). Swipe on phones.
-- `home/TapeProcess.astro`: steps hanging off a tape measure that pulls out on
-  scroll, each marked by its time estimate in Zodiak italic; a vertical ruler
-  on phones.
+  "No. 01"), one of Staci's rooms faded into each face (see "Room backdrops").
+  Swipe on phones.
+- `home/TapeProcess.astro`: steps as paper cards hanging off a tape measure
+  that pulls out on scroll, each marked by its time estimate in Zodiak italic,
+  a room faded behind each card; a vertical ruler on phones. The tape is drawn
+  in line (see "The tape measure").
 - `home/HomeWords.astro`: the ink band, one big italic quote, three loose ones.
   Since 2026-09-30 the Google rating hangs in its heading as a stamp, and rated
   Google reviews come first, newest first, each with Sandbar stars, the
   reviewer's name, its age and "Read on Google" (see "Google reviews").
-- `ServiceAreaCue.astro`: towns set large, home base first in Espresso italic.
+- `ServiceAreaCue.astro`: heading and towns on the left (home base first in
+  Espresso italic), the hand-drawn sketch map of Greater Indianapolis on the
+  right, faded off the right edge (see "The sketch map").
 - `FinalCta.astro` (every page): "the planning page" (2026-09-30, Nathan's
   pick from the closing-band mockups). Walnut close drawn as a page from
   Staci's notebook: faint ruled lines behind (the red margin rule, binder
@@ -254,13 +262,16 @@ prices are the loudest thing on it.
   travel fees hanging off a tape measure (priced by drive time, so each tier
   is a mark further along). Vertical ruler on phones.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on paper (Oat
-  until the quiet pass), with a round studio stamp that turns as the band
-  scrolls past. On Services the page then closes: linen, paper, Walnut close,
+  until the quiet pass), with a round studio stamp whose lettered ring turns
+  as the band scrolls past. Its middle is Staci's RD monogram (the clean
+  mask, `src/assets/logo-mark.png`, painted Espresso), held upright; it was a
+  small sprig until 2026-09-30. On Services the page then closes: linen, paper, Walnut close,
   ink footer.
 - `StickyCTAChip.tsx`: now the ink pill, sentence case (also on project
   pages).
-- `ServiceAreaMap.astro` (Contact): hairline paper frame, tiles warmed with a
-  CSS filter that lifts on hover or focus.
+- `ServiceAreaMap.astro` (Contact): the sketch map in the house photo frame,
+  with a caption and "Open in Google Maps" (the OpenStreetMap iframe it used
+  to be was retired 2026-09-30).
 - E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
   Zodiak lede beside "What is E-Design?"; how it works as paint-chip swatch
   pins on one thread that draws on scroll (vertical on phones; no numerals);
@@ -440,8 +451,9 @@ and still) under reduced motion, none carrying meaning on its own.
 
 - **Botanical ambience** (`src/scripts/ambient-doodles.ts`, `src/styles/doodle.css`).
   Fine-line botanicals in the style of Staci's own Instagram drawings (the four
-  posts Nathan shared 2026-09-30): olive sprig, eucalyptus, willow, berry sprig,
-  a sage stem with soft washes, twin twigs. Single weight, a whisper of hand
+  posts Nathan shared 2026-09-30): olive sprig, eucalyptus, berry sprig and a
+  sage stem with soft washes. (Willow and twin twigs were retired the same
+  day: their single-line leaves read as loose dashes at ambient opacity.) Single weight, a whisper of hand
   wobble, Warm Bronze at about 40% (her muted gold), cream at 20% on the ink
   and Walnut bands. At most two per page (`MAX_DOODLES` in
   `src/lib/doodle-map.ts`): one grows in from a corner of the first content
@@ -536,6 +548,47 @@ whose site it was or which page. Design F is an interiors-magazine cover:
 Code: `src/lib/og-card.ts` (what a card says), `scripts/lib/og-render.mjs`
 (layout + every image layer, in sharp) and `og-render-satori.mjs` (the words).
 Fonts are the site's own, as .woff copies fetched into `scripts/.og-fonts/`.
+
+## The 2026-09-30 design pass
+
+Nathan's notes after the quiet pass: cards felt flat, the tape measure was
+heavy, the service area and its map were plain or ugly, the footer and the
+boxed header logo were not classy, photos sat loose on their bands, and some
+phone crops kept almost nothing of the picture.
+
+- **Room backdrops.** Pricing chips (home), service chips (Services), the
+  process cards (home) and "At a glance" chips (Process), and the E-Design
+  tiers each carry one of Staci's finished rooms faded into the card
+  (`RoomBackdrop.astro` + `.r-backdrop` in `reid.css`; which rooms in
+  `src/data/room-backdrops.ts`, safe to edit). The photo is MULTIPLIED into
+  the card, warmed toward the strip and masked toward the top and bottom
+  edges: pale cards show a soft photograph (opacity ~0.2, 0.16 on the
+  all-text Process chip), deep cards show it as shadow (0.8). Multiply only
+  darkens, so cream text gains contrast and ink on chip 4 stays above AA.
+  A photo that fails to load removes itself.
+- **The tape measure** (home process, the Process rail, the Services travel
+  fees) is drawn in line: a paper blade outlined in Walnut, fine ticks in
+  Warm Bronze, half and inch marks in Walnut, a printed hairline along the
+  edge, figures in Zodiak italic Espresso, an outlined hook; the case is an
+  outlined paper housing with a bronze ring and hub. Drops end in outlined
+  rings, not filled dots. No ink blocks, no Oat fill.
+- **The sketch map** (`AreaSketchMap.astro`, geography in `src/lib/area-map.ts`,
+  tested): Greater Indianapolis in fine line, real coordinates. I-465 and
+  the interstates as double-line roads with small route ovals, US-31 dashed,
+  the White River and Fall Creek, Geist and Eagle Creek hatched, the Mile
+  Square, a north arrow and a five-mile bar. Every Business info town the
+  map knows gets a dot and a Zodiak italic name; home base is ringed and
+  marked "the studio". `ambient` on the home band, `framed` on Contact. On
+  phones the names are set larger and the road ovals, compass and scale drop.
+- **Photo frames** (`.r-frame` in `reid.css`): a photo is hung, never set
+  down. Paper mat, a Warm Bronze keyline in the mat, a soft shadow. On the
+  interior hero, Meet Staci, About story (still on its Oat mat), the Contact
+  portrait, the page-builder image block and the project hero.
+- **Phone crops.** The interior hero keeps the 4:5 shape the CDN cut around
+  the hotspot on phones (it used to re-crop to 5:4 from the centre and keep
+  barely a third). `SanityImage` now points `object-position` at the
+  hotspot whenever it is not cropping on the CDN, so CSS crops keep the
+  subject in any box shape.
 
 ## Motion
 

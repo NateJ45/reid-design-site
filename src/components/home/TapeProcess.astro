@@ -12,9 +12,18 @@
 // the order already say which comes first. The inch figures printed on the
 // tape itself are part of the drawing (aria-hidden) and stay.
 //
-// Phone: the tape turns vertical and runs down the left edge of the steps.
+// 2026-09-30 design pass (Nathan: make the tape "more classy and refined,
+// more outlined in her brand colours"): the tape is now drawn in line, a
+// paper blade with a Warm Bronze outline, bronze ticks and Espresso figures,
+// ending in a small outlined hook; the case is an outlined paper housing with
+// a bronze ring, not a black block. Each step is a paper card hanging off
+// the tape by a bronze drop line and ring, with one of Staci's rooms faded
+// behind the words (RoomBackdrop; src/data/room-backdrops.ts).
+//
+// Phone: the tape turns vertical and runs down the left edge of the cards.
 import CtaLink from '@/components/CtaLink.astro';
 import RiseWords from '@/components/RiseWords.astro';
+import RoomBackdrop from '@/components/RoomBackdrop.astro';
 import type { CtaBlock } from '@/lib/cta';
 
 interface Step {
@@ -52,16 +61,19 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
       <div class="tape__band">
         <div class="tape__nums">{INCHES.map((n) => <span>{n}</span>)}</div>
       </div>
-      <div class="tape__case"></div>
+      <div class="tape__case"><i></i></div>
     </div>
 
     <ol class="tape__steps">
       {
-        steps.map((s) => (
+        steps.map((s, i) => (
           <li class="tape__step">
-            {s.timeEstimate && <span class="tape__when">{s.timeEstimate}</span>}
-            <h3 class="r-h3">{s.title}</h3>
-            {s.shortDescription && <p>{s.shortDescription}</p>}
+            <div class="tape__card r-backdrop-host">
+              <RoomBackdrop index={i} start={3} ratio={0.9} />
+              {s.timeEstimate && <span class="tape__when">{s.timeEstimate}</span>}
+              <h3 class="r-h3">{s.title}</h3>
+              {s.shortDescription && <p>{s.shortDescription}</p>}
+            </div>
           </li>
         ))
       }
@@ -77,6 +89,11 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
 
 <style>
   .tape {
+    /* Line colours for the drawing: the outline and inch marks in Walnut,
+       the fine ticks in Warm Bronze, the blade in paper. */
+    --tp-line: var(--color-chip-6);
+    --tp-tick: var(--color-chip-5);
+    --tp-blade: var(--color-paper);
     padding-block: clamp(5rem, 10vw, 8.5rem);
     overflow-x: clip;
   }
@@ -99,99 +116,165 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
   .tape__rule {
     position: relative;
     margin-top: clamp(3rem, 6vw, 4.5rem);
+    margin-left: 3rem;
   }
-  /* The tape: three tick lengths (1/8, 1/2, inch) over the tape colour. */
+  /* The blade: paper, outlined in Walnut, with three tick lengths (1/8 in
+     fine bronze, 1/2 and the inch in Walnut) hanging from the top edge, and
+     a second hairline just inside the bottom edge like a printed border. */
   .tape__band {
     position: relative;
-    height: 3.5rem;
-    border-radius: 2px 0.5rem 0.5rem 2px;
+    height: 2.75rem;
+    border: 1px solid var(--tp-line);
+    border-radius: 1px 3px 3px 1px;
     background:
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 0.75rem
-        0.85rem repeat-x,
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 3.75rem
-        1.5rem repeat-x,
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1.5px, transparent 1.5px 100%) 0 0 /
-        7.5rem 2.1rem repeat-x,
-      var(--color-chip-2);
-    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.06);
+      linear-gradient(var(--tp-tick), var(--tp-tick)) 0 calc(100% - 4px) / 100% 1px no-repeat,
+      repeating-linear-gradient(90deg, var(--tp-tick) 0 1px, transparent 1px 100%) 0 0 / 0.75rem
+        0.55rem repeat-x,
+      repeating-linear-gradient(90deg, var(--tp-line) 0 1px, transparent 1px 100%) 0 0 / 3.75rem
+        0.95rem repeat-x,
+      repeating-linear-gradient(90deg, var(--tp-line) 0 1.25px, transparent 1.25px 100%) 0 0 /
+        7.5rem 1.35rem repeat-x,
+      var(--tp-blade);
+    box-shadow: 0 14px 22px -18px rgb(35 30 27 / 0.35);
     overflow: hidden;
+  }
+  /* The hook at the free end: a small outlined tab. */
+  .tape__band::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -1px;
+    bottom: -1px;
+    width: 0.55rem;
+    border-left: 1px solid var(--tp-line);
+    background: var(--color-chip-1);
   }
   .tape__nums {
     position: absolute;
     left: 0;
-    bottom: 0.35rem;
+    bottom: 0.55rem;
     display: flex;
-    font: 500 0.7rem/1 var(--font-body);
-    color: var(--color-ink);
+    font: 400 italic 0.78rem/1 var(--font-display);
+    color: var(--color-chip-7);
   }
   .tape__nums span {
     flex: none;
     width: 7.5rem;
     padding-left: 0.3rem;
   }
+  /* The case: an outlined paper housing with a bronze ring and hub, and the
+     thumb lock on top, drawn in the same line as the blade. */
   .tape__case {
     position: absolute;
-    left: -1.5rem;
-    top: -1.4rem;
+    left: -3rem;
+    top: 50%;
     display: grid;
     place-items: center;
-    width: 6.25rem;
-    height: 6.25rem;
-    border-radius: 1.4rem;
-    background: var(--color-ink);
-    box-shadow: 0 20px 30px -18px rgb(0 0 0 / 0.6);
+    width: 5.25rem;
+    height: 5.25rem;
+    translate: 0 -50%;
+    border: 1.5px solid var(--tp-line);
+    border-radius: 1.1rem;
+    background: var(--tp-blade);
+    box-shadow:
+      inset 0 0 0 4px var(--tp-blade),
+      inset 0 0 0 5px rgb(156 118 97 / 0.35),
+      0 18px 28px -20px rgb(35 30 27 / 0.45);
   }
-  .tape__case::after {
+  .tape__case::before {
     content: '';
-    width: 2.1rem;
-    height: 2.1rem;
+    position: absolute;
+    top: -0.45rem;
+    left: 50%;
+    width: 1.5rem;
+    height: 0.45rem;
+    translate: -50% 0;
+    border: 1.5px solid var(--tp-line);
+    border-bottom: 0;
+    border-radius: 3px 3px 0 0;
+    background: var(--tp-blade);
+  }
+  .tape__case i {
+    display: grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.3rem;
     border-radius: 50%;
-    border: 2px solid rgb(245 237 227 / 0.3);
+    border: 1px solid var(--tp-tick);
+  }
+  .tape__case i::after {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--tp-line);
   }
 
   .tape__steps {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 7rem;
+    padding: 0 0 0 5.5rem;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     grid-auto-flow: column;
-    gap: 1.5rem;
+    gap: clamp(1rem, 1.6vw, 1.5rem);
   }
   .tape__step {
     position: relative;
-    padding-top: 3.4rem;
+    display: flex;
+    padding-top: 2.6rem;
   }
-  /* Drop line from the tape to the step, with a pin at its foot. */
+  /* Drop line from the tape to the card, ending in an outlined ring that sits
+     on the card's top edge. */
   .tape__step::before {
     content: '';
     position: absolute;
-    left: 0;
+    left: 1.5rem;
     top: 0;
-    width: 1.5px;
-    height: 2.5rem;
-    background: var(--color-chip-5);
+    width: 1px;
+    height: 2.6rem;
+    background: var(--tp-line);
   }
   .tape__step::after {
     content: '';
     position: absolute;
-    left: -4px;
-    top: 2.4rem;
-    width: 9px;
-    height: 9px;
+    z-index: 1;
+    left: calc(1.5rem - 5px);
+    top: calc(2.6rem - 5px);
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    background: var(--color-chip-5);
+    border: 1px solid var(--tp-line);
+    background: var(--color-paper);
+  }
+  /* The card: paper, a hairline and an inner bronze keyline, her room faded
+     behind the words. */
+  .tape__card {
+    flex: 1;
+    padding: 1.6rem 1.4rem 1.7rem;
+    background: var(--color-paper);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 26px 40px -32px rgb(35 30 27 / 0.5);
+    --bd-opacity: 0.18;
+  }
+  .tape__card::after {
+    content: '';
+    position: absolute;
+    inset: 0.4rem;
+    border: 1px solid rgb(156 118 97 / 0.3);
+    pointer-events: none;
   }
   .tape__when {
     display: block;
-    font: 300 italic 1.4rem/1.1 var(--font-display);
+    font: 300 italic 1.35rem/1.1 var(--font-display);
     letter-spacing: -0.01em;
     color: var(--color-chip-7);
   }
-  .tape__step :global(.r-h3) {
-    margin: 0.75rem 0 0.8rem;
+  .tape__card :global(.r-h3) {
+    margin: 0.7rem 0 0.8rem;
   }
-  .tape__step p {
+  .tape__card p {
     margin: 0;
     max-width: 30ch;
     font-size: 0.97rem;
@@ -212,14 +295,14 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
   }
   @keyframes tape-pull {
     from {
-      clip-path: inset(0 86% 0 0);
+      clip-path: inset(-2rem 86% -2rem 0);
     }
     to {
-      clip-path: inset(0 0 0 0);
+      clip-path: inset(-2rem 0 -2rem 0);
     }
   }
 
-  /* Phone and tablet: a vertical ruler down the left of the steps. */
+  /* Phone and tablet: a vertical outlined ruler down the left of the cards. */
   @media (max-width: 1023px) {
     .tape__head {
       display: block;
@@ -235,9 +318,9 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
       display: grid;
       grid-auto-flow: row;
       grid-template-columns: 1fr;
-      gap: 2.75rem;
+      gap: 1.25rem;
       margin-top: 2.75rem;
-      padding-left: 3.6rem;
+      padding-left: 3.4rem;
     }
     .tape__steps::before {
       content: '';
@@ -245,27 +328,32 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
       left: 0;
       top: 0;
       bottom: 0;
-      width: 1.9rem;
-      border-radius: 2px 2px 0.5rem 0.5rem;
+      width: 1.75rem;
+      border: 1px solid var(--tp-line);
+      border-radius: 1px 1px 3px 3px;
       background:
-        repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 /
-          0.75rem 0.75rem repeat-y,
-        repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 /
-          1.25rem 3.75rem repeat-y,
-        var(--color-chip-2);
+        repeating-linear-gradient(180deg, var(--tp-tick) 0 1px, transparent 1px 100%) 0 0 / 0.5rem
+          0.75rem repeat-y,
+        repeating-linear-gradient(180deg, var(--tp-line) 0 1px, transparent 1px 100%) 0 0 / 0.9rem
+          3.75rem repeat-y,
+        var(--tp-blade);
     }
     .tape__step {
       padding-top: 0;
     }
+    /* The drop line runs sideways from the ruler into the card. */
     .tape__step::before {
-      left: -1.75rem;
-      top: 0.55rem;
-      width: 1.5rem;
-      height: 1.5px;
+      left: -1.65rem;
+      top: 1.9rem;
+      width: 1.65rem;
+      height: 1px;
     }
     .tape__step::after {
-      left: -0.35rem;
-      top: 0.3rem;
+      left: -5px;
+      top: calc(1.9rem - 5px);
+    }
+    .tape__card {
+      padding: 1.3rem 1.2rem 1.4rem;
     }
   }
 </style>

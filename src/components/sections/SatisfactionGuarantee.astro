@@ -9,11 +9,23 @@
 // On the Services page it usually sits between the linen service area and the
 // Walnut closing CTA: linen, paper, Walnut, then the ink footer.
 //
+// The stamp's middle is Staci's own RD monogram (2026-09-30 design pass; it
+// was a small hand-drawn sprig nobody could read). The monogram is a MASK
+// (src/assets/logo-mark.png, white ink on transparent, cut from the same
+// source as the share-card masks in scripts/og-assets/), so CSS paints it in
+// the stamp's Espresso ink. Only the lettered ring turns on scroll; the
+// monogram stays upright so it always reads.
+//
 // Data: siteSettings.satisfactionGuarantee. Self-suppresses when blank.
+import { getImage } from 'astro:assets';
+import markAsset from '@/assets/logo-mark.png';
+
 interface Props {
   text?: string;
 }
 const { text } = Astro.props as Props;
+// The monogram shows at most ~125px wide; 320px keeps it crisp on 2x screens.
+const mark = await getImage({ src: markAsset, format: 'webp', width: 320 });
 ---
 
 {
@@ -26,25 +38,21 @@ const { text } = Astro.props as Props;
           </h2>
           <p class="gtee__text">{text}</p>
         </div>
-        <svg class="gtee__stamp" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-          <defs>
-            <path id="gtee-ring" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" />
-          </defs>
-          <circle cx="100" cy="100" r="96" class="gtee__o" />
-          <circle cx="100" cy="100" r="56" class="gtee__o" />
-          <text class="gtee__ring">
-            <textPath href="#gtee-ring" textLength="460" lengthAdjust="spacing">
-              Satisfaction guarantee · Reid Design · Plainfield, Indiana ·
-            </textPath>
-          </text>
-          <g class="gtee__sprig">
-            <path d="M72 124 C92 110 110 98 132 78" />
-            <path d="M88 113 C84 102 88 94 97 90 C99 99 96 107 88 113Z" />
-            <path d="M88 113 C79 117 71 116 65 110 C73 105 82 107 88 113Z" />
-            <path d="M110 97 C107 86 111 78 120 74 C122 83 119 91 110 97Z" />
-            <path d="M110 97 C101 102 92 101 86 95 C94 90 103 91 110 97Z" />
-          </g>
-        </svg>
+        <div class="gtee__stamp" aria-hidden="true">
+          <svg class="gtee__ring-svg" viewBox="0 0 200 200" focusable="false">
+            <defs>
+              <path id="gtee-ring" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" />
+            </defs>
+            <circle cx="100" cy="100" r="96" class="gtee__o" />
+            <circle cx="100" cy="100" r="92" class="gtee__o gtee__o--fine" />
+            <text class="gtee__ring">
+              <textPath href="#gtee-ring" textLength="460" lengthAdjust="spacing">
+                Satisfaction guarantee · Reid Design · Plainfield, Indiana ·
+              </textPath>
+            </text>
+          </svg>
+          <span class="gtee__mark" style={`--mark: url(${mark.src})`} />
+        </div>
       </div>
     </section>
   )
@@ -85,30 +93,41 @@ const { text } = Astro.props as Props;
     text-wrap: pretty;
   }
   .gtee__stamp {
+    position: relative;
     width: clamp(9rem, 16vw, 14rem);
-    height: auto;
-    rotate: -12deg;
+    aspect-ratio: 1;
     color: var(--color-chip-7);
+  }
+  .gtee__ring-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    rotate: -12deg;
+  }
+  /* Her monogram, painted in the stamp's ink through the mask. */
+  .gtee__mark {
+    position: absolute;
+    inset: 22%;
+    background: currentColor;
+    -webkit-mask: var(--mark) center / contain no-repeat;
+    mask: var(--mark) center / contain no-repeat;
   }
   .gtee__o {
     fill: none;
     stroke: currentColor;
     stroke-width: 1.5;
   }
+  .gtee__o--fine {
+    stroke-width: 0.6;
+  }
   .gtee__ring {
     font: 500 13.5px var(--font-body);
     letter-spacing: 0.06em;
     fill: currentColor;
   }
-  .gtee__sprig path {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-  }
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-      .gtee__stamp {
+      .gtee__ring-svg {
         animation: gtee-turn linear both;
         animation-timeline: view();
       }

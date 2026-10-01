@@ -124,6 +124,27 @@ const srcset = widths.map((w) => `${buildUrl(w)} ${w}w`).join(', ');
 const src = buildUrl(width);
 
 const resolvedAlt = alt !== undefined ? alt : (source.alt ?? '');
+
+// Aim CSS crops at the hotspot (2026-09-30 mobile pass). When the caller asks
+// for no fixed crop (no height), the full photo comes back and the component
+// usually crops it with object-fit: cover, which by default keeps the CENTRE.
+// On a phone, where the box is a different shape from the photo, that can
+// keep a slice of wall and lose the room. Pointing object-position at Staci's
+// hotspot keeps what she marked as the subject in every box shape. With a
+// fixed crop (height set) the CDN already crops around the hotspot, so this
+// stays out of the way. The hotspot is measured on the ORIGINAL image; if
+// the image also has a crop, convert it into the cropped picture's frame.
+function hotspotPosition(): string | undefined {
+  const h = image.hotspot;
+  if (height || !h) return undefined;
+  const c = image.crop ?? { top: 0, bottom: 0, left: 0, right: 0 };
+  const w = 1 - c.left - c.right;
+  const ht = 1 - c.top - c.bottom;
+  if (w <= 0 || ht <= 0) return undefined;
+  const clamp = (n: number) => Math.min(100, Math.max(0, Math.round(n * 1000) / 10));
+  return `object-position: ${clamp((h.x - c.left) / w)}% ${clamp((h.y - c.top) / ht)}%`;
+}
+const positionStyle = hotspotPosition();
 ---
 
 <img
@@ -139,4 +160,5 @@ const resolvedAlt = alt !== undefined ? alt : (source.alt ?? '');
   fetchpriority={fetchpriority}
   sizes={sizes ?? `(max-width: ${width}px) 100vw, ${width}px`}
   class={className}
+  style={positionStyle}
 />

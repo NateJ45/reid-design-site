@@ -14,6 +14,23 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-30 design pass (`claude/great-mendel-v4xvi0`)
+
+- **Look at the room backdrops with real content.** The anonymous build in
+  the session could not read services or process steps, so the Services
+  service chips, the Process "At a glance" chips and the home process cards
+  were only seen with stand-in text. After the deploy check them on a phone:
+  if a room fights a chip's words, swap it in `src/data/room-backdrops.ts`
+  or lower `--bd-opacity` for that band. Contrast was reasoned (multiply only
+  darkens), not machine-checked on those three bands.
+- **Check the sketch map's towns.** It draws every Business info town it
+  knows (`TOWNS` in `src/lib/area-map.ts`). If Staci adds a town it does not
+  know (Avon, Brownsburg, Greenwood and a few others are already there), it
+  is simply missing from the map until someone adds its coordinates.
+- **CSP leftover:** `frame-src https://www.openstreetmap.org` in
+  `public/_headers` is no longer used by anything (the map is drawn now). It
+  is harmless; drop it in the next headers change.
+
 ### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
 
 - **Show Staci the calmer version** once it is deployed, and ask which of the
