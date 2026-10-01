@@ -106,7 +106,10 @@ figures printed on the tape measure (part of the drawing, aria-hidden).
   hover (pointer screens, motion allowed) and the arrow nudges. A
   container that holds more than one control (the floating chip) draws the
   tag with `.r-tagshape`. Secondary actions are ALWAYS `.r-link`, never a
-  second button shape. `CtaLink.astro` renders these for every CMS button
+  second button shape, and one content button per screen (the header's
+  booking tag is chrome and not counted; the E-Design tier cards, a
+  side-by-side choice, are the one exception). Only the booking tags
+  (`.r-pricetag`) tilt on hover. `CtaLink.astro` renders these for every CMS button
   (primary = tag, secondary = `.r-link`). Do not add a pill, a rounded
   rectangle or an uppercase-tracked button anywhere; the round back-to-top
   control is an icon, not a button style.
@@ -183,7 +186,9 @@ no decorative numbering.
   rule in Sandbar frames it. Her clean line logo (the wash-free lockup mask,
   painted cream) sits centred ON the top rule like a seal, the site tagline
   centred under it (last two words in Sandbar italic), then the cream
-  "Book a consultation" tag (2026-10-01; the header button's label and link)
+  "Book a consultation" tag (2026-10-01; the header button's label and link;
+  an underline link instead on pages that end with the closing band, which
+  already offers the button just above: one button per screen)
   and a rule-dot-rule ornament. Three quiet columns inside the frame: the page index (page,
   dotted leader, a real fact in Sandbar italic: "from $225", "19 answers",
   derived from content, omitted when not derivable), "Get in touch" as small
@@ -467,17 +472,18 @@ portfolio templates are ready for the day the first `project` exists.
 
 ## Google reviews (2026-09-30)
 
-The rating is another object off the work table: a **sample tag**
-(`reviews/RatingTag.astro`, the `.r-tag` shape: paper, notched left edge,
-punched hole with a Warm Bronze ring) with the rating in Zodiak Light, five
-drawn stars and "6 Google reviews" in General Sans 500. It sits square (since
+The rating is a **printed card** (`reviews/RatingTag.astro`; a sample tag
+until 2026-10-01, when the tag became the site's one BUTTON shape and a badge
+in the same shape read as "book now"): flat paper, a fine Sandbar double
+rule 3px in, no shadow and no hole, with the rating in Zodiak Light, a
+hairline, five drawn stars and "6 Google reviews" in General Sans 500. It sits square (since
 the quiet pass; `--rt-tilt` is the hook). The word "Google" is text, never the logo.
 
 - Stars are fills: Warm Bronze on the paper tag, Sandbar on the ink band,
   empty stars Oat (or faint cream on ink). Never text colours.
-- Text on the tag is ink and ink 2 on paper; on a paper band the tag face turns
+- Text on the card is ink and ink 2 on paper; on a paper band the card face turns
   Linen (`--rt-face`) so it still reads as an object.
-- Placements: home hero (its own row under the buttons, paper tag on Walnut),
+- Placements: home hero (top line, opposite the eyebrow, paper card on Walnut),
   home reviews band (the `stamp`, right of the heading; under it on phones),
   Contact aside (under the price tag, with "Leave a
   review" beside it), Services (hanging off the price index's bottom rule, on

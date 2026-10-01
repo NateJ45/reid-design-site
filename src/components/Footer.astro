@@ -378,6 +378,26 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     min-height: 3rem;
     font-size: 1rem;
   }
+  /* One button per screen (DESIGN.md "Primitives", 2026-10-01): a page that
+     ends with the closing band already offers a booking button just above
+     the footer, so here the booking becomes an underline link (the tag's
+     drawing is switched off). Pages without the band (Contact, Privacy,
+     Search, 404) keep the cream tag. */
+  :global(body:has(.final .r-btn)) .ftr__cta {
+    min-height: 0;
+    padding: 0 0 2px;
+    color: var(--color-cream);
+    background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+    transform: none;
+    transition: background-size 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(body:has(.final .r-btn)) .ftr__cta::before {
+    display: none;
+  }
+  :global(body:has(.final .r-btn)) .ftr__cta:hover {
+    background-size: 0 1px;
+    background-position: 100% 100%;
+  }
   /* A short rule, a dot, a short rule. */
   .ftr__orn {
     display: block;

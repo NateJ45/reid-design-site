@@ -4,6 +4,10 @@
 
 ## 2026-10-01 — No section doodles, no hero seam, calmer page changes
 
+- Tag refinements: the Google rating is a flat printed card (a badge in
+  the button shape read as "book now"); one content button per screen (the
+  footer's booking becomes a link under a closing band; the 404 search is a
+  link); only the booking tags tilt on hover.
 - One button identity: every button is the notched tag (`.r-btn` now draws
   the `.r-pricetag` shape). The 404 and search pages' old uppercase
   rounded buttons, the announcement popup CTA and the floating chip were

@@ -31,8 +31,13 @@
      second button shape.
 
      Ink is the default; cream sits on bronze or ink; bronze is for linen
-     when ink would be too heavy. 46px tall for touch. Hover tilts the tag
-     a touch (pointer screens only) and nudges the arrow. ---- */
+     when ink would be too heavy. 46px tall for touch. Hover deepens the
+     tag and nudges the arrow; only the BOOKING tags (.r-pricetag) tilt, so
+     the main call to action keeps that bit of personality to itself.
+
+     One content button per screen: where two actions sit together, the
+     lesser one is an .r-link. The header's booking tag is the chrome, not
+     counted. ---- */
   .r-btn {
     --tag-bg: var(--color-ink);
     --tag-bg-hover: var(--color-chip-7);
@@ -269,8 +274,7 @@
   /* The hover tilt only where a real pointer hovers: on touch screens a tap
      can leave :hover stuck, which left the tag sitting crooked. */
   @media (prefers-reduced-motion: no-preference) and (hover: hover) {
-    .r-pricetag:hover,
-    .r-btn:hover {
+    .r-pricetag:hover {
       transform: rotate(-2deg);
     }
   }
