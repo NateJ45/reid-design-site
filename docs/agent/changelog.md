@@ -23,14 +23,16 @@
   the site; the schema default "People Hire People." and a few code fallbacks
   follow. The seeded "Off the Clock" lists are removed only while they still
   match the seed word for word. "completely yours" stays as the one brand line.
-- **No em-dashes anywhere.** `scripts/sweep-em-dashes.mjs` rewrote 168 repo
+- **No em-dashes anywhere.** `scripts/sweep-em-dashes.mjs` rewrote 158 repo
   files (comments, docs, scripts, copy) with one rule
   (`scripts/lib/em-dash.mjs`, tested in `src/lib/em-dash.test.ts`);
   `--check` lists what is left. Code that works on the character (card-title
   cleaners, test assertions, the legacy title suffix in BaseLayout) uses the
   escape `\u2014`. The site title suffix is now " | Reid Design LLC"; old
   em-dash suffixes saved in Sanity are still recognised. `scripts/.parity/`
-  baselines are skipped (generated; refresh with the next parity update).
+  baselines are skipped, and so are the 10 files marked PORTABLE (they must stay
+  byte-equal to the starter or the CI sync-check fails; their em-dashes go when the
+  starter is cleaned and the copies pulled back) (generated; refresh with the next parity update).
   `scripts/strip-em-dashes.mjs` does the same for the dataset.
 - `public/llms.txt` and `llms-full.txt` had stale prices ($150, $450, $650,
   $850, $75) and listed the sample projects; corrected by hand.

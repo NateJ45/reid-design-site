@@ -44,6 +44,13 @@ Editor role; never commit it). Every script is a dry run until `--apply`.
 5. Push or publish anything so the site rebuilds, then look at Home, Services,
    E-Design and About on a phone.
 
+- **Starter em-dashes (Nathan).** Ten PORTABLE files (`docs/RESTORE-DRILL.md`,
+  `scripts/lib/loadEnv.mjs`, `scripts/propose-drift.mjs`, and seven
+  `src/lib/preview-*.ts`) still hold em-dashes in comments. The CI sync-check
+  needs them byte-equal to `ncs-astro-sanity-starter`, so they can only change
+  there: run `node scripts/sweep-em-dashes.mjs` in the starter, add a PORTS.md
+  card, then pull the copies back here.
+
 What only Staci can do:
 
 - **Fill in the room story** she just finished. Open Projects > First room

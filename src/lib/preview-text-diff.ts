@@ -1,6 +1,6 @@
 // PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
-// preview-text-diff, which plain strings changed between two draft snapshots
+// preview-text-diff — which plain strings changed between two draft snapshots
 // (2026-08-28)
 // =============================================================================
 // The instant-text path watches the optimistic document actor and gets handed a
@@ -19,7 +19,7 @@
 //     disappears cannot be un-rendered by editing characters. Both are the soft
 //     refresh's job.
 //  3. PORTABLE TEXT IS SKIPPED WHOLE. The rich twins are arrays of blocks, and
-//     their `children[].text` spans are real strings that would match, but a
+//     their `children[].text` spans are real strings that would match — but a
 //     block's marks, splits and merges move text between spans as you type, so
 //     patching one span's characters can show a sentence that never existed.
 //     Any array whose items are `_type: "block"` is stepped over entirely.
@@ -36,7 +36,7 @@
 export interface StringChange {
   /** Studio path string of the field. */
   path: string;
-  /** The value in the OLD snapshot, the caller matches it against the DOM. */
+  /** The value in the OLD snapshot — the caller matches it against the DOM. */
   previous: string;
   /** The value in the NEW snapshot. */
   next: string;

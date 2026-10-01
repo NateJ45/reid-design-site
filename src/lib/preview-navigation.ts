@@ -1,6 +1,6 @@
 // PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
-// preview-navigation, the bounce-aware page-switch state machine (2026-08-28)
+// preview-navigation — the bounce-aware page-switch state machine (2026-08-28)
 // =============================================================================
 // Clicking a page in the Presentation navigator took TWO clicks, every time. The
 // panel would change to the new page, the iframe would not, and then the panel
@@ -30,15 +30,15 @@
 //  2. The iframe then reports where it really is. Our history adapter reports the
 //     frame's location whenever it subscribes, and Presentation's
 //     `visual-editing/navigate` handler treats any reported url that differs from
-//     `frameStateRef.current.url` as "the frame moved, sync my param", writing
+//     `frameStateRef.current.url` as "the frame moved, sync my param" — writing
 //     `params.preview` back to the OLD path. That is the bounce the editor sees.
 //     It is the frame correcting the record, not the fault itself.
 //
 //  3. The old sticky retry could not help. It re-issued `navigate(sameHref)`,
 //     which leaves `params.preview` at the value it already had, so the effect in
 //     (1) never re-ran and nothing was ever posted. It also cleared `pending` the
-//     instant `params.preview` matched the target, which is instant, studio-side
-//     state, so it was always gone before the bounce arrived.
+//     instant `params.preview` matched the target — which is instant, studio-side
+//     state — so it was always gone before the bounce arrived.
 //
 // THE FIX MODELLED HERE: hold the intent through the match, watch for the flip
 // back to the path we came from, and re-issue on that flip. The re-issue works
@@ -92,7 +92,7 @@ export interface PendingNav {
   /** Document type + id to open beside it (passed straight to navigate). */
   type: string;
   id: string;
-  /** The preview path showing when the click was made, the bounce target. */
+  /** The preview path showing when the click was made — the bounce target. */
   from: string;
   /** navigate() calls made for this intent so far. */
   attempts: number;
@@ -106,8 +106,8 @@ export interface PendingNav {
    *
    * Without it, a second click about a second after the first was silently
    * dropped. Presentation ignores a navigate() issued while it is still moving,
-   * so the FIRST click's destination arrives afterwards, a path that is
-   * neither this intent's target nor the path it started from, and the last
+   * so the FIRST click's destination arrives afterwards — a path that is
+   * neither this intent's target nor the path it started from — and the last
    * branch of stepNav read that as "the editor moved on" and gave up.
    *
    * Knowing where the superseded click was heading is what separates "my own
@@ -136,7 +136,7 @@ export interface NavStep {
  * Record a click. `from` is the preview path currently showing.
  *
  * `superseded` is the href of the intent still in flight, if the editor clicked
- * again before the last one landed, pass `previous?.href`.
+ * again before the last one landed — pass `previous?.href`.
  */
 export function startNav(
   href: string,
@@ -156,7 +156,7 @@ export function startNav(
     startedAt: now,
     // A click that re-selects the page already in flight is not superseding
     // anything, and neither is one whose predecessor was heading where this
-    // intent started from, `from` already covers that as the bounce target.
+    // intent started from — `from` already covers that as the bounce target.
     ...(superseded && superseded !== href && superseded !== from ? { superseded } : {}),
   };
 }
@@ -187,7 +187,7 @@ export function stepNav(pending: PendingNav, current: string, now: number): NavS
     if (!pending.sawTarget) {
       return expired ? { pending: null, action: 'settle' } : { pending, action: 'wait' };
     }
-    // A BOUNCE. Ask again, and this time it is a real change to params.preview.
+    // A BOUNCE. Ask again — and this time it is a real change to params.preview.
     if (pending.attempts >= NAV_MAX_ATTEMPTS) return { pending: null, action: 'settle' };
     return {
       pending: { ...pending, attempts: pending.attempts + 1, sawTarget: false, startedAt: now },
@@ -199,7 +199,7 @@ export function stepNav(pending: PendingNav, current: string, now: number): NavS
   // The editor clicked again before the last navigation landed. Presentation
   // dropped this intent's navigate() because it was still moving, and what has
   // just shown up is where the PREVIOUS click was going. Nothing else will
-  // re-issue this one, so the click would be lost, which is precisely the
+  // re-issue this one, so the click would be lost — which is precisely the
   // "I click, nothing happens, I have to click again" report. Ask again, under
   // the same attempt and window bounds as a bounce.
   if (pending.superseded && current === pending.superseded) {
@@ -223,7 +223,7 @@ export function stepNav(pending: PendingNav, current: string, now: number): NavS
     };
   }
 
-  // Somewhere else entirely: the editor moved on, or something else navigated
+  // Somewhere else entirely: the editor moved on, or something else navigated —
   // a link clicked inside the preview, say. Leave it alone.
   return { pending: null, action: 'settle' };
 }

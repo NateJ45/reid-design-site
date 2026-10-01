@@ -1,12 +1,12 @@
 // PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
-// preview-stega, reading (and putting back) the invisible marks in preview text
+// preview-stega — reading (and putting back) the invisible marks in preview text
 // (2026-08-28)
 // =============================================================================
 // Every display string the preview client returns carries a STEGA RUN: a few
 // hundred invisible characters appended by @vercel/stega, holding a JSON blob
 // `{origin: "sanity.io", href: "<studio edit intent url>"}`. That href is what
-// makes click-to-edit work, the overlay decodes it to learn which document and
+// makes click-to-edit work — the overlay decodes it to learn which document and
 // which field a piece of text came from.
 //
 // The instant-text path (src/components/preview/overlay/useInstantText.ts) needs
@@ -20,15 +20,15 @@
 // only as a transitive of @sanity/client and @sanity/visual-editing), and
 // visual-editing-csm is installed NESTED under @sanity/visual-editing, so
 // `import '@sanity/visual-editing-csm'` does not resolve from src/. The one
-// stega utility this project can import, `stegaClean` from
-// '@sanity/client/stega', throws the run away, which is exactly the half we
+// stega utility this project can import — `stegaClean` from
+// '@sanity/client/stega' — throws the run away, which is exactly the half we
 // need to keep. Taking on a dependency to read forty lines of format is the
 // worse trade, so: forty lines, here, pure, and tested against runs captured
 // from the real pipeline (src/lib/preview-stega.test.ts).
 //
 // THE FORMAT, from @vercel/stega 1.1.0:
 //   - A run is 4+ consecutive characters from a fixed invisible alphabet.
-//   - The modern encoding uses four of them: U+200B, U+200C, U+200D, U+FEFF
+//   - The modern encoding uses four of them — U+200B, U+200C, U+200D, U+FEFF —
 //     as base-4 digits: a 4-character prefix of U+200B, then four characters per
 //     UTF-8 byte of the JSON, most significant pair first.
 //   - The wider alphabet in RUN_SOURCE below also covers the LEGACY hex
@@ -64,8 +64,8 @@ export interface StegaSplit {
 
 /**
  * Separate visible text from its invisible payload. The counterpart of
- * `reattachStega`: for any string carrying a single run, which is how the
- * preview client emits them, splitting and reattaching is a round trip.
+ * `reattachStega`: for any string carrying a single run — which is how the
+ * preview client emits them — splitting and reattaching is a round trip.
  */
 export function splitStega(text: string): StegaSplit {
   const match = RUN_FIRST.exec(text);
@@ -137,7 +137,7 @@ export interface StegaSource {
  * or carries a payload that is not a Sanity edit intent.
  *
  * The href is a studio intent URL whose SEARCH PARAMS repeat id/type/path in
- * un-escaped form, see `createEditUrl` in @sanity/client. Reading the params
+ * un-escaped form — see `createEditUrl` in @sanity/client. Reading the params
  * rather than the intent segments is what the Studio's own decoder does too, and
  * it avoids re-implementing the segment grammar.
  */

@@ -9,7 +9,8 @@
 //   - Code that DETECTS or STRIPS an em-dash (card-title cleaners, test
 //     assertions): the character becomes the escape: , so the code keeps
 //     working and the file still holds no literal em-dash.
-// Generated or third-party files are skipped (see SKIP below).
+// Generated or third-party files are skipped (see SKIP below), and so is every
+// file marked PORTABLE (see isPortable).
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { EM, deDash } from './lib/em-dash.mjs';
@@ -38,8 +39,15 @@ const files = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], { e
   .filter(Boolean)
   .filter((f) => !SKIP.some((re) => re.test(f)));
 
+// Files marked PORTABLE are byte-for-byte copies of the starter repo's, and the
+// sync-check gate in CI fails on ANY difference (this sweep broke it once, on
+// 2026-10-01, by rewriting comments in 10 of them). Never touch them here: an
+// em-dash in one is removed by editing the STARTER and pulling the copy back.
+const isPortable = (text) => /PORTABLE/.test(text.split('\n').slice(0, 8).join('\n'));
+
 let changedFiles = 0;
 let remaining = 0;
+const skippedPortable = [];
 for (const file of files) {
   let text;
   try {
@@ -48,6 +56,10 @@ for (const file of files) {
     continue; // deleted in the working tree
   }
   if (!text.includes(EM)) continue;
+  if (isPortable(text)) {
+    skippedPortable.push(file);
+    continue;
+  }
 
   if (CHECK) {
     text.split('\n').forEach((l, i) => {
@@ -75,6 +87,9 @@ for (const file of files) {
   }
 }
 
+if (skippedPortable.length > 0) {
+  console.log(`Left alone (PORTABLE, must match the starter): ${skippedPortable.join(', ')}`);
+}
 if (CHECK) {
   console.log(remaining ? `\n${remaining} line(s) still hold an em-dash.` : 'No em-dashes left.');
   process.exit(remaining ? 1 : 0);

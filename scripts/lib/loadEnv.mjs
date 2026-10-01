@@ -13,7 +13,7 @@
 //     (e.g. KEY=hello # comment => value is "hello")
 //   - Quoted values are taken literally: # inside quotes is part of the value
 //     (e.g. KEY='hello # world' => value is "hello # world")
-//   - process.env variables always win, a .env entry never overwrites them
+//   - process.env variables always win — a .env entry never overwrites them
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -52,7 +52,7 @@ export function loadEnv(root) {
       env[key] = value;
     }
   } catch {
-    /* .env is optional, no error when absent */
+    /* .env is optional — no error when absent */
   }
   return env;
 }
