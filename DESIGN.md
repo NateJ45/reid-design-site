@@ -32,7 +32,7 @@ utilities (`bg-chip-6`, `text-ink`).
 | `--color-chip-3` | `#cdb09a` | Sandbar     | chips, accent text on ink                                  |
 | `--color-chip-4` | `#b39079` | Saddle      | chips                                                      |
 | `--color-chip-5` | `#9c7661` | Warm Bronze | the house colour: fan deck, pins, rules, display type only |
-| `--color-chip-6` | `#80604f` | Walnut      | home hero ground, closing CTA ground, bronze pill          |
+| `--color-chip-6` | `#80604f` | Walnut      | home hero ground, closing CTA ground, bronze tag           |
 | `--color-chip-7` | `#5f4639` | Espresso    | deepest chip, emphasis text on linen                       |
 | `--color-ink`    | `#231e1b` | Ink         | text, the testimonial band, the footer                     |
 | `--color-ink-2`  | `#5a4e46` | Ink 2       | secondary text                                             |
@@ -98,10 +98,18 @@ figures printed on the tape measure (part of the drawing, aria-hidden).
 ## Primitives (`src/styles/reid.css`)
 
 - `.r-wrap`: page container, max 85rem, fluid gutter (16px on a phone).
-- `.r-btn` + `--ink` (default on light), `--cream` (on Walnut or ink), `--bronze`
-  (Walnut, reads on both linen and ink). Pills, 46px tall, arrow nudges on hover.
-  `CtaLink.astro` renders these for every CMS button (primary = pill,
-  secondary = `.r-link`).
+- **One button identity: the tag** (2026-10-01, Nathan's pick over "the
+  pill everywhere"). `.r-btn` + `--ink` (default on light), `--cream` (on
+  Walnut or ink), `--bronze` (Walnut). Every button on the site is the same
+  notched tag with a punched hole as the booking tags below (`.r-btn` and
+  `.r-pricetag` share one `::before` drawing), 46px tall; it tilts 2deg on
+  hover (pointer screens, motion allowed) and the arrow nudges. A
+  container that holds more than one control (the floating chip) draws the
+  tag with `.r-tagshape`. Secondary actions are ALWAYS `.r-link`, never a
+  second button shape. `CtaLink.astro` renders these for every CMS button
+  (primary = tag, secondary = `.r-link`). Do not add a pill, a rounded
+  rectangle or an uppercase-tracked button anywhere; the round back-to-top
+  control is an icon, not a button style.
 - `.r-link`: underline link that draws away on hover.
 - `.r-display`, `.r-h2`, `.r-h3`, `.r-lede`, `.r-accent`, `.r-muted`.
 - `.r-tag`: the sample tag (paper, notched left edge, punched hole). Used for
@@ -324,8 +332,8 @@ prices are the loudest thing on it.
   mask, `src/assets/logo-mark.png`, painted Espresso), held upright; it was a
   small sprig until 2026-09-30. On Services the page then closes: linen, paper, Walnut close,
   ink footer.
-- `StickyCTAChip.tsx`: now the ink pill, sentence case (also on project
-  pages).
+- `StickyCTAChip.tsx`: the ink tag (`.r-tagshape`, a drop-shadow that
+  follows the notch), sentence case (also on project pages).
 - `ServiceAreaMap.astro` (Contact): a real Google map (the plain keyless
   embed, Nathan's pick 2026-10-01) centred on home base, in the house photo
   frame, loaded only as it nears the screen, with a caption and "Open in
@@ -391,7 +399,7 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
   **Focus is a 2px ink outline at 2px offset on every control**, never a
   box-shadow ring, because WebKit drops box-shadow on native selects.
 - **Two doors.** The Calendly call is its own ink band ("Rather talk it
-  through first?") with the cream pill, so it reads as an alternative, not a
+  through first?") with the cream tag, so it reads as an alternative, not a
   footnote. The scheduler only loads on click.
 - **What happens next** hangs the roadmap steps from one thread with Warm
   Bronze pins, time estimates on small linen tags (no numerals).
@@ -490,7 +498,7 @@ feed is connected.
 
 - Linen chip (chip 1) band, so it reads apart from the linen sections around
   it. Zodiak heading with the italic accent ("Lately, _in the studio_"), a
-  short ink 2 intro, and the ink pill "Follow @reiddesignin ↗" on the right
+  short ink 2 intro, and the ink tag "Follow @reiddesignin ↗" on the right
   (under the intro on phones).
 - The posts are prints: square crops (the build crops them, 720px) on a
   paper mat with a soft shadow, square to the grid (since the quiet pass).

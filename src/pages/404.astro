@@ -68,23 +68,18 @@ const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
         {body}
       </p>
 
-      <div class="mt-l flex flex-wrap justify-center gap-m md:justify-start">
-        <a
-          href={primaryHref}
-          class="press-tactile inline-flex items-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-eyebrow text-white uppercase hover:bg-accent-dark"
-        >
+      {
+        /* One tag button, then underline links (the site's one button
+          identity, 2026-10-01; reid.css "Buttons"). */
+      }
+      <div class="mt-l flex flex-wrap items-center justify-center gap-x-l gap-y-m md:justify-start">
+        <a href={primaryHref} class="r-btn r-btn--ink">
           {primaryLabel}
         </a>
-        <a
-          href={secondaryHref}
-          class="press-tactile inline-flex items-center rounded-sm border border-primary px-l py-s text-xs font-semibold tracking-eyebrow text-link uppercase hover:bg-accent"
-        >
+        <a href={secondaryHref} class="r-link">
           {secondaryLabel}
         </a>
-        <a
-          href={tertiaryHref}
-          class="press-tactile inline-flex items-center rounded-sm border border-border-soft px-l py-s text-xs font-semibold tracking-eyebrow text-foreground/85 uppercase hover:border-primary hover:text-primary-dark"
-        >
+        <a href={tertiaryHref} class="r-link">
           {tertiaryLabel}
         </a>
       </div>
@@ -105,12 +100,7 @@ const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
           placeholder="Or search the site"
           class="min-w-0 flex-1 rounded-sm border border-border-soft bg-card px-m py-2.5 text-base text-foreground placeholder:text-foreground/60 focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         />
-        <button
-          type="submit"
-          class="press-tactile inline-flex items-center rounded-sm bg-primary-dark px-l py-2.5 text-xs font-semibold tracking-eyebrow text-white uppercase hover:bg-accent-dark"
-        >
-          Search
-        </button>
+        <button type="submit" class="r-btn r-btn--ink"> Search </button>
       </form>
     </div>
 

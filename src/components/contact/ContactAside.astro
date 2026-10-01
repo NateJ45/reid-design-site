@@ -18,7 +18,7 @@
 //   - Email (mailto + copy), phone (tel:), and a jump to the "book a call"
 //     band when a scheduling link exists.
 //
-// Phones: the portrait shrinks to a small square beside the "reads every note"
+// Phones: the portrait shrinks to a small 4:5 print beside the "reads every note"
 // line so the form is still close to the top of the page.
 import SanityImage from '@/components/SanityImage.astro';
 import CopyEmailButton from '@/components/CopyEmailButton';
@@ -352,7 +352,7 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     color: var(--color-ink);
   }
 
-  /* Phones and tablets: portrait as a small square beside the name. */
+  /* Phones and tablets: a small portrait beside the name. */
   @media (max-width: 1023px) {
     .cx__staci {
       grid-template-columns: 5.5rem minmax(0, 1fr);
@@ -361,9 +361,8 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     .cx__photo {
       --frame-pad: 0.35rem;
     }
-    .cx__photo :global(.cx__img) {
-      aspect-ratio: 1;
-    }
+    /* Keeps the 4:5 portrait it is fetched at (2026-10-01): cropping that
+       to a square cut from the middle and took Staci's head off. */
     .cx__name {
       font-size: 1.4rem;
     }
