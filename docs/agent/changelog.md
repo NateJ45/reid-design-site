@@ -4,6 +4,11 @@
 
 ## 2026-10-01 — No section doodles, no hero seam, calmer page changes
 
+- Travel-fee clocks animate: the hands sweep from 12 and fill each hour face
+  in turn, stopping at the minute mark, once the clocks are seen (the
+  unused `wedgePath`/`handPoint` helpers went with the old wedges).
+- Home hero (phones): the eyebrow is no longer clipped by the photo's fade.
+
 - The ambient section botanicals are removed (`src/scripts/ambient-doodles.ts`
   deleted; the drawings stay for the phone menu and share cards).
 - Home hero: the photo's Walnut edge fade sits above the header shade, so
