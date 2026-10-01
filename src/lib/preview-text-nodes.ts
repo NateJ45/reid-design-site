@@ -1,6 +1,6 @@
 // PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
-// preview-text-nodes — matching draft fields to the text on the page (2026-08-28)
+// preview-text-nodes, matching draft fields to the text on the page (2026-08-28)
 // =============================================================================
 // The instant-text path knows WHICH FIELD changed (src/lib/preview-text-diff.ts)
 // and needs to find the text showing it. Every display string the preview client
@@ -29,8 +29,8 @@
 // that follows a second later renders it correctly. A missed instant update is
 // invisible; a wrong one is a lie about what the page says.
 //
-// `applyKnownChange` widens WHICH value counts as "the old one" — a whole set of
-// values the field is known to have held — without loosening the match itself,
+// `applyKnownChange` widens WHICH value counts as "the old one", a whole set of
+// values the field is known to have held, without loosening the match itself,
 // which stays exact. See its own note for why that is still the same promise.
 // =============================================================================
 import { reattachStega, sourceKey, splitStega, stegaSource } from './preview-stega.ts';
@@ -46,8 +46,8 @@ export const MAX_INDEXED_NODES = 4000;
 /**
  * Build a map from `sourceKey(documentId, path)` to the text nodes rendering it.
  *
- * Nodes with no stega — whitespace between tags, hard-coded copy, anything a
- * component transformed — are skipped, so the map holds only the text that can
+ * Nodes with no stega, whitespace between tags, hard-coded copy, anything a
+ * component transformed, are skipped, so the map holds only the text that can
  * be matched to a field with certainty.
  */
 export function indexStegaNodes<T extends TextLike>(
@@ -72,7 +72,7 @@ export function indexStegaNodes<T extends TextLike>(
 /**
  * Swap a node's visible characters, keeping its stega payload.
  *
- * Returns false — and changes nothing — unless the node currently reads exactly
+ * Returns false, and changes nothing, unless the node currently reads exactly
  * `previous`. A node that already reads `next` counts as done and also returns
  * false, so a caller re-applying a pending edit after a refresh can tell "the
  * server caught up" from "still waiting".
@@ -90,12 +90,12 @@ export function applyTextChange(node: TextLike, previous: string, next: string):
  * The generalisation of `applyTextChange` used by the pending-swap re-apply
  * after a soft refresh, where the question is not "does this node still show the
  * value the burst started from" but "is this node showing a STALE version of
- * this field" — and server HTML that started rendering mid-burst holds an
+ * this field", and server HTML that started rendering mid-burst holds an
  * INTERMEDIATE value, which is stale but is not the starting one.
  *
  * The match is still exact against a value the field is KNOWN to have held (the
  * caller's job: see `PendingSwap.seen`), so nothing here can invent text. A node
- * already showing `next` is done, not stale, and returns false — that is how the
+ * already showing `next` is done, not stale, and returns false, that is how the
  * caller tells "the server caught up" from "still waiting".
  */
 export function applyKnownChange(node: TextLike, known: readonly string[], next: string): boolean {

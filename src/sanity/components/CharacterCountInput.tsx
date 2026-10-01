@@ -38,7 +38,7 @@ function maxLenFromValidation(schemaType: unknown): number | undefined {
       }
     }
   } catch {
-    // Internal validation shape changed — silently skip the counter.
+    // Internal validation shape changed, silently skip the counter.
   }
   return undefined;
 }
@@ -48,7 +48,7 @@ export function CharacterCountInput(props: InputProps) {
 
   // jsonType 'string' covers both the `string` and `text` field types.
   const isStringType = (schemaType as { jsonType?: string })?.jsonType === 'string';
-  // Skip dropdowns — a counter under a fixed list of options is just noise.
+  // Skip dropdowns, a counter under a fixed list of options is just noise.
   const isDropdown = Boolean((schemaType as { options?: { list?: unknown } })?.options?.list);
 
   const max = useMemo(() => {

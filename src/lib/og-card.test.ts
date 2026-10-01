@@ -19,7 +19,7 @@ const ORIGIN = 'https://reiddesignllc.com';
 describe('cleanCardTitle', () => {
   it('prefers the hero headline over the SEO title', () => {
     expect(
-      cleanCardTitle(['People Hire People.', 'About Staci Perkins — Reid Design LLC']).title,
+      cleanCardTitle(['People Hire People.', 'About Staci Perkins \u2014 Reid Design LLC']).title,
     ).toBe('People Hire People.');
   });
 
@@ -32,8 +32,8 @@ describe('cleanCardTitle', () => {
   });
 
   it.each([
-    ['About Staci Perkins — Reid Design LLC', 'About Staci Perkins'],
-    ['Services — Reid Design LLC', 'Services'],
+    ['About Staci Perkins \u2014 Reid Design LLC', 'About Staci Perkins'],
+    ['Services \u2014 Reid Design LLC', 'Services'],
     ['Portfolio · Reid Design', 'Portfolio'],
     [
       'Interior Design in Plainfield & Indianapolis | Reid Design',
@@ -55,14 +55,14 @@ describe('cleanCardTitle', () => {
   });
 
   it('replaces an em-dash with a warning instead of throwing', () => {
-    const r = cleanCardTitle(['Fishers Kitchen — before and after']);
+    const r = cleanCardTitle(['Fishers Kitchen \u2014 before and after']);
     expect(r.title).toBe('Fishers Kitchen, before and after');
-    expect(r.title).not.toMatch(/—/);
+    expect(r.title).not.toMatch(/\u2014/);
     expect(r.warnings).toHaveLength(1);
   });
 
   it('drops a dangling em-dash at either end', () => {
-    expect(cleanCardTitle(['— Kitchens —']).title).toBe('Kitchens');
+    expect(cleanCardTitle(['\u2014 Kitchens \u2014']).title).toBe('Kitchens');
   });
 
   it('collapses whitespace', () => {
@@ -78,7 +78,7 @@ describe('cleanCardLine', () => {
     });
   });
   it('turns an em-dash into a middle dot and warns', () => {
-    const r = cleanCardLine('Plain language — no legalese');
+    const r = cleanCardLine('Plain language \u2014 no legalese');
     expect(r.line).toBe('Plain language · no legalese');
     expect(r.warnings).toHaveLength(1);
   });
@@ -157,7 +157,7 @@ describe('cardContent (design F)', () => {
   });
 
   it('labels a custom page with its own title, brand stripped, stable colour', () => {
-    const a = cardContent({ label: 'Holiday Styling — Reid Design' }, ctx);
+    const a = cardContent({ label: 'Holiday Styling \u2014 Reid Design' }, ctx);
     expect(a.label).toBe('Holiday Styling');
     expect(['oat', 'linen', 'sandbar']).toContain(a.tone);
     expect(cardContent({ label: 'Holiday Styling' }, ctx).tone).toBe(a.tone);
@@ -168,7 +168,7 @@ describe('cardContent (design F)', () => {
 
   it('never grounds a card on Warm Bronze, and never puts an em-dash on one', () => {
     expect(Object.values(CARD_TONES)).not.toContain('bronze');
-    const c = cardContent({ kind: 'project', title: 'Fishers — before and after' }, ctx);
+    const c = cardContent({ kind: 'project', title: 'Fishers \u2014 before and after' }, ctx);
     expect(c.title).toBe('Fishers, before and after');
     expect(c.warnings).toHaveLength(1);
   });

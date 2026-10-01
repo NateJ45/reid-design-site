@@ -16,7 +16,7 @@
 
 ---
 
-## Phase 1 — Schemas, registration, singleton enforcement, typegen
+## Phase 1: Schemas, registration, singleton enforcement, typegen
 
 Add fields only; never rename/remove existing ones (live content). After each schema task, run typegen. Register every new type in `studio/schemaTypes/index.ts` and add singleton enforcement in `sanity.config.ts` for each new singleton (follow the existing singleton pattern there).
 
@@ -39,7 +39,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Run: `npm run typegen`. Expected: types update cleanly.
 - [ ] Commit: `feat(sanity): post-inquiry roadmap + testimonial source fields`
 
-### Task 1.3: New collections — `leadMagnet`, `pressItem`, `shopCollection`, `shopItem`
+### Task 1.3: New collections, `leadMagnet`, `pressItem`, `shopCollection`, `shopItem`
 
 **Files:** Create `studio/schemaTypes/leadMagnet.ts`, `pressItem.ts`, `shopCollection.ts`, `shopItem.ts`
 
@@ -50,7 +50,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Register all four in `index.ts` (collections section). Run `npm run typegen`.
 - [ ] Commit: `feat(sanity): leadMagnet, pressItem, shopCollection, shopItem collections`
 
-### Task 1.4: New singletons — page singletons
+### Task 1.4: New singletons, page singletons
 
 **Files:** Create `studio/schemaTypes/eDesignPage.ts`, `shopPage.ts`, `giftPage.ts`, `resourcesPage.ts`, `privacyPage.ts`, `pressPage.ts`
 
@@ -59,7 +59,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Run `npm run typegen`.
 - [ ] Commit: `feat(sanity): e-design, shop, gift, resources, privacy, press page singletons`
 
-### Task 1.5: New singletons — interactive tool configs
+### Task 1.5: New singletons, interactive tool configs
 
 **Files:** Create `studio/schemaTypes/styleQuiz.ts`, `budgetCalculator.ts`
 
@@ -69,7 +69,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Studio check: `npm run studio:dev`, confirm both docs render and are editable without console errors.
 - [ ] Commit: `feat(sanity): styleQuiz + budgetCalculator config singletons`
 
-## Phase 2 — Queries
+## Phase 2: Queries
 
 **Files:** Modify `src/lib/queries.ts`
 
@@ -77,7 +77,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Run `npm run build`. Expected: compiles, queries type-check against generated types.
 - [ ] Commit: `feat(queries): add queries for new pages, tools, shop, press, before/after`
 
-## Phase 3 — Site-wide plumbing
+## Phase 3: Site-wide plumbing
 
 ### Task 3.1: Nav restructure (dropdowns) + footer
 
@@ -99,7 +99,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Playwright pass + Lighthouse on `/privacy`.
 - [ ] Commit: `feat(privacy): privacy page, consent notice, ESP env wiring`
 
-## Phase 4 — Confidence surfaces
+## Phase 4: Confidence surfaces
 
 ### Task 4.1: Post-inquiry roadmap + autoresponder
 
@@ -128,7 +128,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Playwright + Lighthouse.
 - [ ] Commit: `feat(press): as-seen-in strip + press page`
 
-## Phase 5 — Capture tools
+## Phase 5: Capture tools
 
 ### Task 5.1: Newsletter signup
 
@@ -164,7 +164,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Playwright + Lighthouse.
 - [ ] Commit: `feat(capture): budget calculator + resources hub`
 
-## Phase 6 — Offerings
+## Phase 6: Offerings
 
 ### Task 6.1: E-Design landing
 
@@ -183,7 +183,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 - [ ] Playwright + Lighthouse on both.
 - [ ] Commit: `feat(offerings): shop page + gift certificates`
 
-## Phase 7 — Verification + docs
+## Phase 7: Verification + docs
 
 - [ ] Full `npm run build`; confirm bundle budgets (home JS < 100KB, any island < 50KB). Investigate regressions.
 - [ ] Lighthouse pass on every new route (mobile + desktop): A11y 100, BP/SEO 100, Perf 95+.
@@ -196,7 +196,7 @@ Add fields only; never rename/remove existing ones (live content). After each sc
 
 ## Self-review
 
-**Spec coverage:** Every spec feature (1-14) maps to a task: newsletter 5.1; lead magnets 5.2; quiz 5.3; calculator + resources 5.4; e-design 6.1; shop + gift 6.2; press 4.3; roadmap 4.1; discovery call (already wired, surfaced in 4.1/contact + homepage CTA — add to 4.1); reviews + before/after 4.2; guarantee 4.2; privacy/consent 3.2. Nav 3.1. Schemas 1.1-1.5. Queries Phase 2.
+**Spec coverage:** Every spec feature (1-14) maps to a task: newsletter 5.1; lead magnets 5.2; quiz 5.3; calculator + resources 5.4; e-design 6.1; shop + gift 6.2; press 4.3; roadmap 4.1; discovery call (already wired, surfaced in 4.1/contact + homepage CTA, add to 4.1); reviews + before/after 4.2; guarantee 4.2; privacy/consent 3.2. Nav 3.1. Schemas 1.1-1.5. Queries Phase 2.
 
 **Gap fixed:** discovery-call homepage CTA folds into Task 4.1 (note added). Archetypes kept inline in `styleQuiz` per spec to keep Studio simple.
 

@@ -13,7 +13,7 @@ about ten minutes and touches nothing live.
 
 ## What you need
 
-- `BACKUP_PASSPHRASE` for that site (the copy stored **outside** GitHub — GitHub
+- `BACKUP_PASSPHRASE` for that site (the copy stored **outside** GitHub: GitHub
   never shows a secret twice, and a backup nobody can decrypt is no backup)
 - A **write** token, as `SANITY_API_WRITE_TOKEN` or `SANITY_AUTH_TOKEN`. The
   backup itself only needs read, so the workflow's secret may not be enough.
@@ -30,7 +30,7 @@ plainly rather than letting the import fail later with "Dataset not found".
 
 **On a plan without private datasets**, the scratch dataset will be public.
 That is fine only when the site's production dataset is already public and holds
-nothing but website content — presacademy, for instance, exposes the same 51
+nothing but website content, presacademy, for instance, exposes the same 51
 published documents either way, and drafts stay protected in both. It is NOT
 fine for a dataset holding form submissions or member records: a public dataset
 is readable by anyone with the project id (which ships in your JS bundle) over a
@@ -65,7 +65,7 @@ node node_modules/sanity/bin/sanity documents query 'count(*)' --project-id <pro
 latter is a POSIX-only path, and on Windows npm writes a `.cmd` shim there that
 Node has refused to spawn since the CVE-2024-27980 fix.)
 
-They should be close. Exactly equal is unlikely and not required — the backup
+They should be close. Exactly equal is unlikely and not required, the backup
 is a snapshot from 07:00 UTC and editors have worked since. A count that is
 **zero, or an order of magnitude off, is a failed drill** even though every
 command exited 0. That is the entire point of the exercise.
@@ -103,7 +103,7 @@ tells them apart.
 ## If the drill fails
 
 Do not delete anything. The failure is the most valuable output this system has
-produced, and it is recoverable while production is still healthy — which is
+produced, and it is recoverable while production is still healthy, which is
 exactly why the drill happens on a calm day rather than during an incident.
 Common causes, in the order they are worth checking:
 

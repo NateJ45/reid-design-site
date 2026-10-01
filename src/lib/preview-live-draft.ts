@@ -1,6 +1,6 @@
 // PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
-// preview-live-draft — the contract for the Studio's local-edit-state channel
+// preview-live-draft, the contract for the Studio's local-edit-state channel
 // (2026-08-28)
 // =============================================================================
 // WHY THERE IS A SECOND CHANNEL AT ALL. `useInstantText` already swaps changed
@@ -14,7 +14,7 @@
 //
 // The Studio holds the answer a whole network round trip earlier. `useEditState`
 // reads its LOCAL document store, whose draft snapshot is updated as the editor
-// types — optimistic local patches, applied before anything is sent. The Studio
+// types, optimistic local patches, applied before anything is sent. The Studio
 // and the preview iframe are the same origin, so that snapshot can simply be
 // posted across.
 //
@@ -27,8 +27,8 @@
 // EVERY MESSAGE IS UNTRUSTED. The island ships in the public preview bundle, and
 // `window.addEventListener('message')` hears from ANY frame or opener that cares
 // to speak, so `parseLiveDraft` is written as a rejection funnel: the origin
-// check is the caller's (it needs `window`), and everything after it — the
-// envelope, the document, its `_id` and `_type` — has to be exactly right or the
+// check is the caller's (it needs `window`), and everything after it, the
+// envelope, the document, its `_id` and `_type`, has to be exactly right or the
 // message is dropped silently. Nothing here throws and nothing here logs; a
 // hostile page must learn nothing and cost nothing.
 // =============================================================================
@@ -85,7 +85,7 @@ export type DraftSource = 'local' | 'actor';
  *
  * THE HAZARD THIS EXISTS FOR. Both sources feed ONE "last document I applied"
  * memory, and the diff is against that memory, so a snapshot that is OLDER than
- * the memory does not read as "nothing changed" — it reads as a change BACK to
+ * the memory does not read as "nothing changed", it reads as a change BACK to
  * the older words, and the swap would be applied. The local channel is always
  * ahead of the actor (it is pre-network by definition), so every actor snapshot
  * that lands mid-burst is exactly that stale snapshot, and left alone the page
@@ -135,7 +135,7 @@ export interface PendingSwap {
    * that server HTML is either up to date or still showing the value the burst
    * started from. It can be neither: a render that started mid-burst reads the
    * query index at ITS OWN instant, so the words it carries are an INTERMEDIATE
-   * value — the editor's sentence as it stood half a second ago. That HTML
+   * value, the editor's sentence as it stood half a second ago. That HTML
    * matches neither `previous` nor `next`, so the re-apply could not correct it
    * and the editor watched half a sentence sit on the page until the following
    * render. (The seq bump in useInstantText is the real fix; this is the belt to
@@ -146,8 +146,8 @@ export interface PendingSwap {
    * stega identity, not by searching for words. So "this node shows a value from
    * this field's own past" means exactly "this node is showing a stale render of
    * this field", and writing the newest value is a correction, not a guess. A
-   * node showing anything else — a transformed rendering, another editor's
-   * words, a value from before this session — matches nothing and is left alone,
+   * node showing anything else, a transformed rendering, another editor's
+   * words, a value from before this session, matches nothing and is left alone,
    * which is the same rule as before: a missed instant update is invisible; a
    * wrong one is a lie about what the page says.
    */
@@ -185,7 +185,7 @@ function addSeen(seen: readonly string[], value: string, max: number): string[] 
 }
 
 /**
- * Record a swap, SOURCE-AGNOSTICALLY — the memory is keyed by field, never by
+ * Record a swap, SOURCE-AGNOSTICALLY, the memory is keyed by field, never by
  * where the snapshot came from, which is what lets the two channels take turns
  * on one field without either forgetting the other's work.
  *
@@ -218,8 +218,8 @@ export function rememberSwap(
     pending.delete(key);
     return;
   }
-  // A field this page does not show still costs one entry — cheap, and dropped
-  // at the next refresh — but the map must not grow without a bound.
+  // A field this page does not show still costs one entry, cheap, and dropped
+  // at the next refresh, but the map must not grow without a bound.
   if (!already && pending.size >= max) return;
   // The value this entry was showing a moment ago is now history, and so is the
   // value the caller diffed FROM (normally the same thing, but the two channels

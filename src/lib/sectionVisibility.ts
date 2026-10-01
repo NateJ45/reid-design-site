@@ -1,7 +1,7 @@
 // Safe to edit by hand
 // Normalizes the sectionVisibility object from siteSettings into a flat set of
 // booleans. The critical rule: an UNSET field (undefined or null) counts as
-// VISIBLE — only an explicit `false` hides a section. This means the live site
+// VISIBLE, only an explicit `false` hides a section. This means the live site
 // is completely unchanged until Staci explicitly turns something off in Studio.
 //
 // Two switches are left: Portfolio and E-Design. The other eight (journal,
@@ -21,7 +21,7 @@ interface RawSectionVisibility {
   showEDesign?: boolean | null;
 }
 
-/** Normalized visibility map — all values are plain booleans. */
+/** Normalized visibility map, all values are plain booleans. */
 export interface SectionVisibility {
   portfolio: boolean;
   eDesign: boolean;

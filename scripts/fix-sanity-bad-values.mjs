@@ -5,19 +5,19 @@
 //
 // What gets fixed (in order of severity):
 //
-//   1) homePage.heroImage         — string TODO → field removed (was supposed to be image)
-//   2) homePage.meetStaciPhoto    — string TODO → field removed (was supposed to be image)
-//   3) aboutPage.staciPhoto       — string TODO → field removed (was supposed to be image)
-//   4) contactPage.schedulingLink — string TODO → field removed (was supposed to be URL)
-//   5) homePage.serviceAreaCue        — strip "[NEW per audit] " prefix
-//   6) aboutPage.serviceAreaMention   — strip "[NEW per audit] " prefix
-//   7) aboutPage.backgroundLine       — string TODO → field cleared (Staci writes her own)
-//   8) contactPage.formIntroNote      — strip "[NEW per audit] " prefix
+//   1) homePage.heroImage, string TODO → field removed (was supposed to be image)
+//   2) homePage.meetStaciPhoto, string TODO → field removed (was supposed to be image)
+//   3) aboutPage.staciPhoto, string TODO → field removed (was supposed to be image)
+//   4) contactPage.schedulingLink, string TODO → field removed (was supposed to be URL)
+//   5) homePage.serviceAreaCue, strip "[NEW per audit] " prefix
+//   6) aboutPage.serviceAreaMention, strip "[NEW per audit] " prefix
+//   7) aboutPage.backgroundLine, string TODO → field cleared (Staci writes her own)
+//   8) contactPage.formIntroNote, strip "[NEW per audit] " prefix
 //
 // Strategy: fetch each affected doc fresh from the dataset (via the read token in
 // .env so we get current state, not the stale migration JSON on disk), mutate in
 // memory, write NDJSON, hand off to `sanity dataset import --replace` for the
-// write (the CLI has the user's auth — we don't need a write token here).
+// write (the CLI has the user's auth, we don't need a write token here).
 //
 // Safe to re-run: cleanup steps are all idempotent. Won't touch fields that
 // already look clean (no TODO/NEW markers).
@@ -66,7 +66,7 @@ if (!byId.homePage || !byId.aboutPage || !byId.contactPage) {
 
 // ---- Cleanup helpers ----
 
-/** Returns true if val is a string AND starts with "[TODO" — the migration's image-field placeholders. */
+/** Returns true if val is a string AND starts with "[TODO", the migration's image-field placeholders. */
 function isStringTodo(val) {
   return typeof val === 'string' && /^\[TODO/i.test(val);
 }
@@ -112,7 +112,7 @@ if (isStringTodo(about.backgroundLine)) {
   // Background line is a real string field, but the value is a multi-paragraph TODO.
   // Clear it so the section either hides (when empty) or Staci writes her own.
   delete about.backgroundLine;
-  note('removed backgroundLine (was a TODO string — Staci writes her own)');
+  note('removed backgroundLine (was a TODO string: Staci writes her own)');
 }
 if (
   typeof about.serviceAreaMention === 'string' &&
@@ -137,19 +137,19 @@ if (
   contact.formIntroNote = stripNewPerAudit(contact.formIntroNote);
   note('stripped "[NEW per audit] " prefix from formIntroNote');
 }
-// availabilityNote is `null` in the data — that's a value-type mismatch (schema is string).
+// availabilityNote is `null` in the data, that's a value-type mismatch (schema is string).
 // Sanity tolerates null but the safest cleanup is to remove the field entirely.
 if (contact.availabilityNote === null) {
   delete contact.availabilityNote;
   note(
-    'removed availabilityNote (was null — Studio shows it as "missing string"; cleared field instead)',
+    'removed availabilityNote (was null: Studio shows it as "missing string"; cleared field instead)',
   );
 }
 
 // ---- Write NDJSON ----
 
 if (cleanups === 0) {
-  console.log('\nNothing to clean — all bad values already fixed.');
+  console.log('\nNothing to clean, all bad values already fixed.');
   process.exit(0);
 }
 

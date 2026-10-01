@@ -1,4 +1,4 @@
-// Custom page — the document Staci creates herself to build a brand-new page
+// Custom page, the document Staci creates herself to build a brand-new page
 // from the section block library, without needing Nathan. She picks a web
 // address, drags in sections, and optionally adds it to the menu.
 //

@@ -74,7 +74,7 @@ const TIER = 'Signature Room Design + Styling';
 
 const patches = [
   {
-    label: 'faqItem.howMuchCost — the full price rundown, every number stale',
+    label: 'faqItem.howMuchCost \u2014 the full price rundown, every number stale',
     id: 'faqItem.howMuchCost',
     set: {
       answer: [
@@ -97,7 +97,7 @@ const patches = [
     // The old answer said "45 minutes or more from Plainfield" while the
     // services page now says "within 30 miles of Plainfield are included".
     // Two different rules for the same thing on the same site.
-    label: 'faqItem.suburbsExtra — travel rule contradicted the new 30-mile line',
+    label: 'faqItem.suburbsExtra \u2014 travel rule contradicted the new 30-mile line',
     id: 'faqItem.suburbsExtra',
     set: {
       answer: [
@@ -113,7 +113,7 @@ const patches = [
   },
 
   {
-    label: 'budgetCalculator — price note + "Book a $150 consultation" button',
+    label: 'budgetCalculator \u2014 price note + "Book a $150 consultation" button',
     id: 'budgetCalculator',
     set: {
       consultPriceNote:
@@ -123,7 +123,7 @@ const patches = [
   },
 
   {
-    label: 'giftPage — gift amounts still sold the old prices',
+    label: 'giftPage \u2014 gift amounts still sold the old prices',
     id: 'giftPage',
     set: {
       options: [
@@ -158,7 +158,7 @@ const patches = [
   {
     // The contact form's Project Type dropdown offered a tier that no longer
     // exists by that name, and had no option for the new top tier at all.
-    label: 'contactPage — Project Type dropdown: rename tier, add whole-home',
+    label: 'contactPage \u2014 Project Type dropdown: rename tier, add whole-home',
     id: 'contactPage',
     set: {
       formProjectTypeOptions: [
@@ -176,7 +176,7 @@ const patches = [
   },
 
   {
-    label: 'service.shoppingAndSourcing — long description still said $75/hour',
+    label: 'service.shoppingAndSourcing \u2014 long description still said $75/hour',
     id: 'service.shoppingAndSourcing',
     set: {
       longDescription: [
@@ -192,7 +192,7 @@ const patches = [
   },
 
   {
-    label: 'processStep.shoppingSelections — retired tier name (2 fields)',
+    label: 'processStep.shoppingSelections \u2014 retired tier name (2 fields)',
     id: 'processStep.shoppingSelections',
     set: {
       tierNote: `*Included with ${TIER}`,
@@ -211,7 +211,7 @@ const patches = [
   },
 
   {
-    label: 'processStep.stylingReveal — retired tier name (2 fields)',
+    label: 'processStep.stylingReveal \u2014 retired tier name (2 fields)',
     id: 'processStep.stylingReveal',
     set: {
       tierNote: `Included with ${TIER}`,
@@ -233,7 +233,7 @@ const patches = [
     // Title only. The slug is how-to-get-the-most-from-a-150-consultation and
     // changing it would break the published /guides URL, so that stays until
     // someone decides a redirect is worth it.
-    label: 'seed.leadMagnet.consultPrep — title named the old price',
+    label: 'seed.leadMagnet.consultPrep \u2014 title named the old price',
     id: 'seed.leadMagnet.consultPrep',
     set: { title: 'How to Get the Most From Your Consultation' },
   },
@@ -264,7 +264,7 @@ for (const { id, set } of patches) {
   const strings = [];
   collectStrings(set, id, strings);
   for (const [path, text] of strings) {
-    if (text.includes('—')) problems.push(`${path}: em-dash in site copy`);
+    if (text.includes('\u2014')) problems.push(`${path}: em-dash in site copy`);
     for (const w of BANNED)
       if (text.toLowerCase().includes(w)) problems.push(`${path}: banned phrase "${w}"`);
   }
@@ -302,7 +302,7 @@ for (const { label, id, set } of patches) {
     (await client.fetch(`*[_id==$d][0]`, { d: draftId(id) })) ??
     (await client.fetch(`*[_id==$p][0]`, { p: id }));
   if (!base) {
-    console.log(`    [${id}] SKIPPED — not found\n`);
+    console.log(`    [${id}] SKIPPED \u2014 not found\n`);
     continue;
   }
   const changed = Object.entries(set).filter(
@@ -341,7 +341,7 @@ if (APPLY && PUBLISH) {
       console.log(`  published  ${id}`);
       n += 1;
     } catch (e) {
-      console.log(`  FAILED     ${id} — ${e.message}`);
+      console.log(`  FAILED     ${id} \u2014 ${e.message}`);
     }
   }
   console.log(`\n[done] ${n} document(s) published.\n`);

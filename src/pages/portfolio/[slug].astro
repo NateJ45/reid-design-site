@@ -17,7 +17,7 @@ import { urlFor } from '@/lib/sanity';
 import ProjectDetail from '@/components/detail/ProjectDetail.astro';
 
 // Static site: enumerate all project slugs at build time.
-// Returns [] when portfolio is off — no detail pages build and they 404.
+// Returns [] when portfolio is off, no detail pages build and they 404.
 export async function getStaticPaths() {
   const [projects, settings] = await Promise.all([getAllProjects(), getSiteSettings()]);
   const visible = getSectionVisibility(settings?.sectionVisibility);
@@ -66,7 +66,7 @@ if (!project) {
 
 // SEO overrides win when set; fall back to title + briefSummary so existing
 // projects keep working without a content update.
-const title = project.metaTitle ?? `${project.title} — ${project.location}`;
+const title = project.metaTitle ?? `${project.title}, ${project.location}`;
 const description =
   project.metaDescription ?? project.briefSummary ?? 'A Reid Design project case study.';
 const heroOg = project.heroImage?.asset

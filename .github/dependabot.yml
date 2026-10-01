@@ -1,12 +1,12 @@
 # =============================================================================
-# Dependabot — grouped weekly dependency PRs, validated by the existing gates
+# Dependabot, grouped weekly dependency PRs, validated by the existing gates
 # =============================================================================
 # One PR per week per ecosystem, minor+patch grouped so a Monday merge is one
 # green-CI review, not twelve. Majors arrive as their own PRs (they deserve
-# individual attention on this stack — Astro/Sanity/wrangler majors have
+# individual attention on this stack: Astro/Sanity/wrangler majors have
 # real migration notes). CI + the Playwright suite are the safety net that
 # makes auto-updates sane on a solo project.
-# (Dependabot over Renovate: no app install needed — config-only, so it
+# (Dependabot over Renovate: no app install needed, config-only, so it
 # ships from a session without account-owner clicks. Same idea, less setup.)
 # =============================================================================
 version: 2

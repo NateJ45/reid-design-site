@@ -1,6 +1,6 @@
 // Find + strip editor/audit meta annotations from Sanity content. These are
 // bracketed prefixes/inlines that snuck in via AI-assisted drafting and were
-// never meant to ship — things like "[NEW per audit, softer framing] …" or
+// never meant to ship, things like "[NEW per audit, softer framing] …" or
 // "[NEW] …" leading a paragraph.
 //
 // Behavior:
@@ -10,7 +10,7 @@
 //   - Default mode: DRY RUN (prints what it would change). Pass --apply to
 //     actually patch documents.
 //
-// Annotation patterns matched (conservative — designed to avoid false
+// Annotation patterns matched (conservative, designed to avoid false
 // positives on legitimate bracketed prose):
 //   [NEW …]                      e.g. "[NEW] ", "[NEW per audit, …]"
 //   [per audit …]                e.g. "[per audit] ", "[per audit notes]"
@@ -18,7 +18,7 @@
 //   [DRAFT …]
 //   [WIP …]
 //   [v2 …] / [v3 …]
-//   [softer framing]             standalone — agent-style tag
+//   [softer framing]             standalone, agent-style tag
 //   [audit: …]
 //   [note: …] / [NOTE: …]
 //
@@ -109,7 +109,7 @@ function walk(node, path, onChange) {
   if (node && typeof node === 'object') {
     const out = {};
     for (const [k, v] of Object.entries(node)) {
-      // Skip Sanity internals — they're never editor text.
+      // Skip Sanity internals, they're never editor text.
       if (k.startsWith('_') && k !== '_key') {
         out[k] = v;
         continue;
@@ -125,8 +125,8 @@ function walk(node, path, onChange) {
 
 console.log(
   APPLY
-    ? 'APPLY mode — will patch Sanity\n'
-    : 'DRY RUN — no changes will be written. Pass --apply to patch.\n',
+    ? 'APPLY mode, will patch Sanity\n'
+    : 'DRY RUN, no changes will be written. Pass --apply to patch.\n',
 );
 
 // Pull every published document. Drafts can also carry annotations; we patch

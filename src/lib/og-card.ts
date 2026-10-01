@@ -299,12 +299,12 @@ export function ogCardPath(pathname: string): string {
 }
 
 // A brand name glued onto a title, as editors actually type it:
-// "Services — Reid Design LLC", "Portfolio · Reid Design",
+// "Services: Reid Design LLC", "Portfolio · Reid Design",
 // "Interior Design in Plainfield & Indianapolis | Reid Design",
 // "Reid Design LLC: About". The card already carries the logo, so the brand in
 // the title only repeats it.
 const BRAND = String.raw`Reid\s+Design(?:\s+LLC)?`;
-const SEP = String.raw`\s*(?:—|–|-|\||·|:|,)\s*`;
+const SEP = String.raw`\s*(?:\u2014|–|-|\||·|:|,)\s*`;
 const BRAND_SUFFIX = new RegExp(`${SEP}${BRAND}\\s*\\.?$`, 'i');
 const BRAND_PREFIX = new RegExp(`^${BRAND}${SEP}`, 'i');
 const BRAND_ONLY = new RegExp(`^${BRAND}\\.?$`, 'i');
@@ -317,7 +317,7 @@ const BRAND_ONLY = new RegExp(`^${BRAND}\\.?$`, 'i');
  * prefix is stripped. An em-dash is never allowed on a public surface
  * (CLAUDE.md rule 2) but it is also never worth failing a build over: an
  * editor's seoTitle with one in it would otherwise stop her content deploy.
- * So it is replaced (" — " becomes ", ") and a warning is returned.
+ * So it is replaced (", " becomes ", ") and a warning is returned.
  */
 export function cleanCardTitle(
   candidates: Array<string | null | undefined>,
@@ -327,17 +327,17 @@ export function cleanCardTitle(
   for (const raw of candidates) {
     if (!raw || !raw.trim()) continue;
     let t = raw.replace(/\s+/g, ' ').trim();
-    // Brand first: " — Reid Design LLC" is the commonest em-dash of all, and
+    // Brand first: ": Reid Design LLC" is the commonest em-dash of all, and
     // it should vanish with the brand rather than turn into a comma.
     t = t.replace(BRAND_SUFFIX, '').replace(BRAND_PREFIX, '').trim();
     // A title that is nothing BUT the brand says nothing the logo does not.
     if (BRAND_ONLY.test(t)) continue;
-    if (/—/.test(t)) {
+    if (/\u2014/.test(t)) {
       warnings.push(`em-dash replaced in card title "${t}"`);
       t = t
-        .replace(/\s*—\s*$/, '')
-        .replace(/^\s*—\s*/, '')
-        .replace(/\s*—\s*/g, ', ');
+        .replace(/\s*\u2014\s*$/, '')
+        .replace(/^\s*\u2014\s*/, '')
+        .replace(/\s*\u2014\s*/g, ', ');
     }
     t = t.replace(/\s+/g, ' ').trim();
     if (t) return { title: t, warnings };
@@ -347,9 +347,9 @@ export function cleanCardTitle(
 
 /** Same em-dash rule for any other line on a card, which is built from content too. */
 export function cleanCardLine(k: string): { line: string; warnings: string[] } {
-  if (!/—/.test(k)) return { line: k, warnings: [] };
+  if (!/\u2014/.test(k)) return { line: k, warnings: [] };
   return {
-    line: k.replace(/\s*—\s*/g, ' · '),
+    line: k.replace(/\s*\u2014\s*/g, ' · '),
     warnings: [`em-dash replaced in card line "${k}"`],
   };
 }

@@ -147,7 +147,7 @@ function makeComponents(): PortableTextComponents {
         // Intrinsic dimensions from the asset _ref serve two purposes:
         // (1) the browser reserves aspect-ratio space before the image lands
         //     (kills CLS), and (2) we can detect orientation to choose a
-        //     sensible figure width — portrait shots blown out to full column
+        //     sensible figure width, portrait shots blown out to full column
         //     width are taller than the viewport, so we cap them ~600 px wide
         //     and center. Landscape shots keep the editorial full-bleed.
         const dims = parseSanityAssetDimensions(value);

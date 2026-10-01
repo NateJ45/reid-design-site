@@ -2,8 +2,8 @@
 // The ONE place a Sanity `navLink` becomes an href.
 // (ported from presacademy 2026-08-27; the "chrome options" pattern)
 //
-// Every menu Staci can edit — the top menu, the footer link columns, the
-// small-print row, the header button — flows through here, so a document type
+// Every menu Staci can edit, the top menu, the footer link columns, the
+// small-print row, the header button, flows through here, so a document type
 // maps to a route in exactly ONE table.
 //
 // THE MAP MIRRORS SINGLETON_PREVIEW_PATHS in src/sanity/preview-routes.ts with
@@ -86,7 +86,7 @@ const STEGA_CHARS = new RegExp('[\u200B-\u200F\uFEFF\u{E0000}-\u{E007F}]', 'gu')
 /**
  * Strip the invisible characters Sanity's stega encoder hides inside strings in
  * preview builds (Unicode tag characters, plus the zero-width family). Labels
- * keep theirs — that is what makes click-to-edit work — but anything used as
+ * keep theirs, that is what makes click-to-edit work, but anything used as
  * LOGIC or as a URL must be compared and emitted clean.
  */
 export function plain(value?: string | null): string {

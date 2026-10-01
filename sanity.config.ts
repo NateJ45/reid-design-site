@@ -58,7 +58,7 @@ normalizeStudioDeepLink();
 // stock cool gray. The state colors keep inline validation and the custom
 // document badges visually consistent (same amber for every warning).
 const reidThemeProps = {
-  // Foundation — warm neutrals everything else derives from.
+  // Foundation, warm neutrals everything else derives from.
   '--black': '#2b2926',
   '--white': '#fffdfa',
   '--gray-base': '#6e6760',
@@ -126,7 +126,7 @@ export default defineConfig({
     envVal('SANITY_STUDIO_PROJECT_ID', 'PUBLIC_SANITY_PROJECT_ID') || 'placeholder-project-id',
   dataset: envVal('SANITY_STUDIO_DATASET', 'PUBLIC_SANITY_DATASET') || 'production',
 
-  // Brand theme — bronze primary color + warm linen background.
+  // Brand theme, bronze primary color + warm linen background.
   theme: reidTheme,
 
   // Studio chrome overrides. Logo replaces the default Sanity wordmark.
@@ -191,14 +191,14 @@ export default defineConfig({
         },
       },
     }),
-    // Unsplash plugin — adds an "Unsplash" tab to every image picker. The
+    // Unsplash plugin, adds an "Unsplash" tab to every image picker. The
     // package's correct registration is via the plugins array (not
-    // form.image.assetSources — that was my earlier bug). Picking a photo
+    // form.image.assetSources, that was my earlier bug). Picking a photo
     // uploads it to the Sanity library + attaches to the field in one shot.
     // Held at 7.0.15: newer versions demand @sanity/ui ^3.4, which would drag
     // the pinned 3.5.4 forward and break the theme context.
     unsplashImageAsset(),
-    // Media browser — adds a top-level "Media" icon in the Studio sidebar
+    // Media browser, adds a top-level "Media" icon in the Studio sidebar
     // for browsing every uploaded image at once with tag + filter + bulk-edit.
     // Much better than the inline image picker for "what's in our library".
     media(),
@@ -300,7 +300,7 @@ const ARCHIVABLE_TYPES = new Set<string>([
   'project',
 ]);
 
-// Singleton document types — one instance each, not duplicable.
+// Singleton document types, one instance each, not duplicable.
 const SINGLETON_TYPES = new Set<string>([
   'siteSettings',
   'businessInfo',

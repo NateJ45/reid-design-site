@@ -1,6 +1,6 @@
 // PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
-// preview-morph — update the preview in place instead of rebuilding it
+// preview-morph, update the preview in place instead of rebuilding it
 // (2026-08-28)
 // =============================================================================
 // THE FAILURE THIS ANSWERS, measured in the deployed Studio. The editor's words:
@@ -10,7 +10,7 @@
 //   - a SINGLE keystroke produced TWO `#main` swaps about two seconds apart (the
 //     rate-limited follow-up in src/lib/preview-refresh.ts, which is deliberate);
 //   - nothing was left faded, hidden or zero-height afterwards, at +0/+100/+400/
-//     +900ms across forty sampled elements — so this was never an animation
+//     +900ms across forty sampled elements, so this was never an animation
 //     replaying and never a forced motion end-state failing;
 //   - `#main` holds FOURTEEN `<img>` elements and zero astro-islands;
 //   - callbacks scheduled at +100/+400/+900ms all fired about a SECOND late, so
@@ -25,7 +25,7 @@
 //
 // So: morph. Walk the old and new trees together, keep every node that can be
 // kept, and write only the differences. A kept `<img>` keeps its identity, its
-// decoded bitmap, its layout box and its place in the scroll — which is the
+// decoded bitmap, its layout box and its place in the scroll, which is the
 // entire point, and the reason the img rule below is stated as a guarantee
 // rather than left to fall out of the attribute sync.
 //
@@ -37,7 +37,7 @@
 // which has no DOM.
 //
 // THE BAIL-OUT IS PART OF THE CONTRACT. Every cap and every thrown error makes
-// `morph` return false, and the caller then does exactly what it used to do —
+// `morph` return false, and the caller then does exactly what it used to do
 // re-parse the response and `replaceWith` it. A morph bug can therefore make the
 // preview slow again, but it can never leave a half-updated page on screen.
 // =============================================================================
@@ -163,7 +163,7 @@ export function imageSourceUnchanged(from: MorphElement, to: MorphElement): bool
  *     task and then re-apply them, which is pure cost.
  *
  * Case 2 is the reason the caller must NOT treat a skip as "the server agrees"
- * — see the note on SOFT_REFRESH_EVENT in VisualEditingOverlay.tsx.
+ * see the note on SOFT_REFRESH_EVENT in VisualEditingOverlay.tsx.
  *
  * Case 1 would be theoretical on the public site, where scroll-driven scripts
  * add classes and inline styles that make the live serialization drift from the
@@ -216,7 +216,7 @@ interface MorphContext {
  * Make `from` read like `to`, in place, reusing every node that can be reused.
  *
  * Returns true when the tree now matches. Returns FALSE when anything at all
- * went wrong — a cap, a DOM exception, a shape this does not handle — in which
+ * went wrong, a cap, a DOM exception, a shape this does not handle, in which
  * case `from` may be half-updated and the caller MUST fall back to replacing it
  * outright. Note that `to`'s children are MOVED into `from` as the walk goes, so
  * a caller falling back cannot reuse `to`; it has to re-parse.
@@ -292,7 +292,7 @@ function syncAttributes(from: MorphElement, to: MorphElement, keepImageSource: b
  * MATCHING, in two passes so that a reorder moves nodes rather than rebuilding
  * them. A keyed new child claims the old child with the same key, wherever it
  * sits. A keyless new child claims the next unclaimed KEYLESS old child, which
- * keeps the common case — a run of text, spans and images nobody keyed — matched
+ * keeps the common case, a run of text, spans and images nobody keyed, matched
  * in order. Positional matching deliberately steps over keyed old children: they
  * belong to whichever new child names them, and letting position steal one is
  * how a morph ends up rebuilding a section it could have kept.

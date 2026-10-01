@@ -3,7 +3,7 @@
 // Run ONCE after deploying the new schemas to Sanity Studio.
 //
 // Run: node scripts/seed-studio-guide.mjs
-// (Do NOT run during an active editing session — createOrReplace is safe
+// (Do NOT run during an active editing session, createOrReplace is safe
 // but it will overwrite any in-progress edits in those documents.)
 
 import { createClient } from '@sanity/client';

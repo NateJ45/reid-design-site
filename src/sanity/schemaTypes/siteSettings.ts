@@ -7,7 +7,7 @@ export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
-  // Configuration, not prose — don't surface in Canvas's AI-assisted writing UI.
+  // Configuration, not prose, don't surface in Canvas's AI-assisted writing UI.
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'identity', title: 'Identity & contact' },
@@ -569,7 +569,7 @@ export const siteSettings = defineType({
 
     // ── Section visibility ────────────────────────────────────────────────────
     // Controls which optional sections appear on the live site.
-    // IMPORTANT: an unset field (undefined/null) counts as VISIBLE — only an
+    // IMPORTANT: an unset field (undefined/null) counts as VISIBLE, only an
     // explicit `false` hides a section. This means the existing live site is
     // completely unaffected until Staci intentionally turns something off.
     defineField({

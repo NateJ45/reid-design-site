@@ -13,7 +13,7 @@ export const philosophyPoint = defineType({
     { path: 'title', weight: 5 },
     { path: 'description', weight: 2 },
   ],
-  // Three locked About-page values — not free-form writing fodder for Canvas.
+  // Three locked About-page values, not free-form writing fodder for Canvas.
   options: { canvasApp: { exclude: true } },
   fields: [
     defineField({

@@ -1,4 +1,4 @@
-# Reid Design LLC — Migration Plan
+# Reid Design LLC: Migration Plan
 
 **From:** Squarespace 7.1 at reiddesignllc.com
 **To:** Astro 6 + Sanity v5 + Cloudflare Workers

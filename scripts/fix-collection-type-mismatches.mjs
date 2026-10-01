@@ -2,17 +2,17 @@
 // the content collections in Studio. Both shown as "Invalid property value"
 // validation errors:
 //
-//   1) service.longDescription stored as String — schema declares Array
+//   1) service.longDescription stored as String, schema declares Array
 //      (Portable Text). Hits 4 services. Convert each string into one or more
 //      PT paragraph blocks (split on \n\n if present), strip any leading
 //      "[NEW per audit]" / "[NEW per audit, reframed as invitation]" prefix.
 //
-//   2) testimonial.relatedProject stored as null — schema declares it as a
+//   2) testimonial.relatedProject stored as null, schema declares it as a
 //      reference. Sanity tolerates a missing field or a real reference object,
 //      but rejects null. Hits all 7 testimonials. Solution: remove the field
 //      entirely. Staci can wire it to a project later via the dropdown.
 //
-// Idempotent — already-Array longDescriptions and already-missing relatedProject
+// Idempotent, already-Array longDescriptions and already-missing relatedProject
 // fields pass through untouched.
 
 import { createClient } from '@sanity/client';
@@ -114,7 +114,7 @@ console.log(
 );
 
 if (patched.length === 0) {
-  console.log('Nothing to write — all collection docs already valid.');
+  console.log('Nothing to write, all collection docs already valid.');
   process.exit(0);
 }
 

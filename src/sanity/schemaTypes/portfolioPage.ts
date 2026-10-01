@@ -9,7 +9,7 @@ export const portfolioPage = defineType({
   name: 'portfolioPage',
   title: 'Portfolio Page',
   type: 'document',
-  // Page singleton — structural copy, not free-form drafting.
+  // Page singleton, structural copy, not free-form drafting.
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },

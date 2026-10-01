@@ -9,7 +9,7 @@
 
 import { site } from '@/data/site';
 
-// ---------- Types (loose — Sanity provides the actual document shapes) ----
+// ---------- Types (loose: Sanity provides the actual document shapes) ----
 
 interface SiteSettings {
   title?: string;
@@ -120,7 +120,7 @@ export function serviceListSchema(
       provider: { '@id': `${site.url}/#business` },
       areaServed,
       // Schema.org wants a bare number in Offer.price, so the display string
-      // ("starting at $995", "$100 per hour") can't go here — Google reads that
+      // ("starting at $995", "$100 per hour") can't go here: Google reads that
       // as an invalid offer and drops it. priceNumeric exists for exactly this.
       //
       // Every tier is an "on request / from" price rather than a fixed one, so

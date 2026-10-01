@@ -1,4 +1,4 @@
-// StudioLogo.tsx — Brand logo for the Sanity Studio header.
+// StudioLogo.tsx: Brand logo for the Sanity Studio header.
 // Rendered as a small image in the top-left of the Studio UI.
 // Safe to edit by hand.
 

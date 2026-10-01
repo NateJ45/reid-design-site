@@ -4,7 +4,7 @@
 // asks Sanity's CDN to deliver an optimized variant, and renders an <img> with a
 // real responsive srcset.
 //
-// Sanity's CDN is the image-processing pipeline here — Astro's built-in <Image>
+// Sanity's CDN is the image-processing pipeline here: Astro's built-in <Image>
 // is reserved for local files under src/assets/. Sanity transforms beat Astro
 // Sharp at runtime for two reasons: (1) it's edge-cached worldwide, (2) it can
 // emit AVIF on the fly.
@@ -28,7 +28,7 @@ interface Props {
   source: SanityImageObject | undefined | null;
   /** Maximum width the image will ever render at. Used as the upper bound of the responsive srcset. */
   width: number;
-  /** Optional height — only set when you need a specific aspect-ratio crop. */
+  /** Optional height, only set when you need a specific aspect-ratio crop. */
   height?: number;
   /** Override the alt text from Sanity. Pass "" only for decorative images that have an adjacent text equivalent. */
   alt?: string;
@@ -40,7 +40,7 @@ interface Props {
   quality?: number;
   /**
    * Output format. Default 'auto' lets Sanity choose the best format the
-   * client supports — AVIF on modern browsers (~25% smaller than WebP),
+   * client supports: AVIF on modern browsers (~25% smaller than WebP),
    * WebP elsewhere, JPEG/PNG as final fallback. Pass 'webp' to force WebP.
    */
   format?: 'auto' | 'webp';
@@ -77,7 +77,7 @@ const {
   defer = false,
 } = Astro.props;
 
-// Build the URL. If source is null/undefined we render nothing — pages should handle absence explicitly.
+// Build the URL. If source is null/undefined we render nothing, pages should handle absence explicitly.
 if (!source?.asset) {
   return null;
 }
@@ -119,7 +119,7 @@ const widths = BREAKPOINTS.filter((w) => w <= width);
 if (widths[widths.length - 1] !== width) widths.push(width);
 
 const srcset = widths.map((w) => `${buildUrl(w)} ${w}w`).join(', ');
-// `src` is the largest variant — used by browsers that don't support srcset
+// `src` is the largest variant, used by browsers that don't support srcset
 // (vanishingly rare) and by accessibility tools that grab a single src.
 const src = buildUrl(width);
 

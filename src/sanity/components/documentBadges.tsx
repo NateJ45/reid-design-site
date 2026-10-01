@@ -4,9 +4,9 @@
 // the Published/Draft pill and give Staci an at-a-glance read on a document's
 // state without opening it or hunting through fields:
 //
-//   - "Featured"      — a project pinned to a prominent spot
-//   - "Needs a photo" — a project whose hero image is still empty
-//   - "Add SEO"       — an indexable page whose SEO title or description is blank
+//   - "Featured", a project pinned to a prominent spot
+//   - "Needs a photo", a project whose hero image is still empty
+//   - "Add SEO", an indexable page whose SEO title or description is blank
 //
 // Registered via document.badges in sanity.config.ts. Each badge returns null
 // when it doesn't apply, so a doc only shows the badges that are relevant to it.
@@ -90,7 +90,7 @@ const SeoBadge: DocumentBadgeComponent = (props) => {
   return { label: 'Add SEO', title: `Missing SEO ${missing}`, color: 'warning', icon: SearchIcon };
 };
 
-// Order matters — badges render left to right in this order.
+// Order matters, badges render left to right in this order.
 export const documentBadges = [FeaturedBadge, NeedsPhotoBadge, SeoBadge];
 
 export default documentBadges;

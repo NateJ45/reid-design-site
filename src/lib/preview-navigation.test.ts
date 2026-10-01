@@ -1,5 +1,5 @@
 // =============================================================================
-// preview-navigation — the bounce-aware page-switch state machine
+// preview-navigation, the bounce-aware page-switch state machine
 // =============================================================================
 // The editor-visible promise these pin down: one click switches the page, even
 // when Presentation drops the first navigate and then bounces its own param back
@@ -111,7 +111,7 @@ test('one click end to end: dropped navigate, bounce, automatic second attempt',
 // Reproduced in a deployed Studio: click one page, click another about a second
 // later, and the second click did nothing. Presentation ignores a navigate()
 // issued while it is still moving, so the first click's destination arrives
-// afterwards — neither the second intent's target nor where it started — and the
+// afterwards, neither the second intent's target nor where it started, and the
 // last branch used to call that "the editor moved on" and drop the click.
 
 /** Click /preview/about, then /preview/faq before about had arrived. */
@@ -142,7 +142,7 @@ test('the predecessor landing re-issues the dropped click instead of losing it',
 });
 
 test('a page the editor navigated to themselves is still left alone', () => {
-  // Same intent, but the preview went somewhere neither click asked for — a
+  // Same intent, but the preview went somewhere neither click asked for, a
   // link clicked inside the iframe. Dropping the intent is correct here.
   const step = stepNav(secondClick(), '/preview/enroll', T0 + 400);
   assert.equal(step.action, 'settle');

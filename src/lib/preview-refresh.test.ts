@@ -1,5 +1,5 @@
 // =============================================================================
-// preview-refresh — the scheduler that stopped the preview melting the Worker
+// preview-refresh, the scheduler that stopped the preview melting the Worker
 // =============================================================================
 // The editor-visible promises pinned down here: a burst of edits costs a
 // bounded number of server renders (not one per event), typed text never
@@ -175,7 +175,7 @@ test('the debounce measures from the FIRST event of a run, not the last', () => 
 });
 
 test('a long typing session cannot outrun the rate limit', () => {
-  // One event every 40ms for 12 seconds — an editor holding down a key.
+  // One event every 40ms for 12 seconds, an editor holding down a key.
   const events: Array<[number, number]> = Array.from({ length: 300 }, (_, i) => [T0 + i * 40, 1]);
   const { starts } = drive(events);
   const span = 300 * 40;
@@ -232,8 +232,8 @@ test('a slow render does not lose the change that arrived during it', () => {
 // applies the Studio's local draft in ~100ms. A render started inside that gap
 // landed looking current and was morphed in holding a HALF-TYPED sentence.
 //
-// The fix is upstream of this file — every document instant text applies now
-// calls `onChange` (VisualEditingOverlay) — so what is pinned down here is that
+// The fix is upstream of this file, every document instant text applies now
+// calls `onChange` (VisualEditingOverlay), so what is pinned down here is that
 // the scheduler does the right thing with those events, and that the extra ones
 // cost discards rather than renders.
 
@@ -339,7 +339,7 @@ test('a burst of instant-text documents converges without a discard loop', () =>
 
 /**
  * The overlay resolves a caller when a refresh that STARTED after it asked is
- * ACCEPTED. This models that bookkeeping to prove nobody waits forever — the
+ * ACCEPTED. This models that bookkeeping to prove nobody waits forever, the
  * comlink ⟳ button spins until its promise resolves.
  */
 test('every awaiting caller is resolved by the refresh that covers it', () => {

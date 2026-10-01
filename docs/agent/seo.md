@@ -8,10 +8,10 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 
 ### Foundation (BaseLayout, every page)
 
-- `<title>` — unique per page, 50–60 characters, brand name as suffix ("Services — Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
-- `<meta name="description">` — unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
-- `<link rel="canonical">` — absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
-- Open Graph + Twitter meta — set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (drawn since 2026-09-29; design F "the cover" since 2026-09-30: Staci's branding portrait with her name tag, her real logo in the masthead, the page's own name as the big line, one real fact, at most one object, one ground colour per page; DESIGN.md "Share cards". Replaced design E "the hero card", which replaced design D, the Cormorant arch window). See "Share cards" below.
+- `<title>`, unique per page, 50–60 characters, brand name as suffix ("Services: Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
+- `<meta name="description">`, unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
+- `<link rel="canonical">`, absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
+- Open Graph + Twitter meta, set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (drawn since 2026-09-29; design F "the cover" since 2026-09-30: Staci's branding portrait with her name tag, her real logo in the masthead, the page's own name as the big line, one real fact, at most one object, one ground colour per page; DESIGN.md "Share cards". Replaced design E "the hero card", which replaced design D, the Cormorant arch window). See "Share cards" below.
 
 ### Share cards (og:image)
 
@@ -73,14 +73,14 @@ Every page receives a relevant structured data block via the `schemas` prop on B
 }
 ```
 
-Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUST match Google Business Profile exactly — Google compares them for NAP (Name/Address/Phone) consistency, and a mismatch tanks local ranking.
+Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUST match Google Business Profile exactly: Google compares them for NAP (Name/Address/Phone) consistency, and a mismatch tanks local ranking.
 
 **Per-page schemas to add:**
 
-- `/services` — array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id` (`serviceListSchema`).
-- `/faq` — `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer` (`faqPageSchema`).
-- `/portfolio/[slug]` — `CreativeWork` schema for the project (`projectSchema`).
-- Every internal page — `BreadcrumbList` from `/` to the current page (`breadcrumbSchema`).
+- `/services`, array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id` (`serviceListSchema`).
+- `/faq`, `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer` (`faqPageSchema`).
+- `/portfolio/[slug]`, `CreativeWork` schema for the project (`projectSchema`).
+- Every internal page, `BreadcrumbList` from `/` to the current page (`breadcrumbSchema`).
 - Removed 2026-09-30 (never launched): the `BlogPosting` (`blogPostingSchema`) and shop `ItemList` (`shopItemListSchema`) schemas went with the journal and shop.
 
 Test every schema with Google's Rich Results Test (https://search.google.com/test/rich-results) before launch. Errors at scale will tank rankings rather than fail loudly.
@@ -114,7 +114,7 @@ Plainfield-first means Plainfield gets named in:
 - The contact page's geographic copy
 - At least one inline link from each major page back to home using "Plainfield interior design" anchor text where it reads naturally
 
-Other cities appear in the service-area list and (optionally) in case-study geo tags. Don't keyword-stuff city names into body copy — Google detects it and Staci's voice rejects it. One mention per page is plenty.
+Other cities appear in the service-area list and (optionally) in case-study geo tags. Don't keyword-stuff city names into body copy: Google detects it and Staci's voice rejects it. One mention per page is plenty.
 
 ### Image SEO
 
@@ -127,7 +127,7 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 - Every Sanity page singleton has `seoTitle` and `seoDescription` fields. They MUST be unique across pages.
 - Title: target 50–60 characters. Front-load the keyword (location or service).
 - Description: target 150–160 characters. Speak to the reader, not the search engine. Don't restate the title.
-- If `seoTitle` is empty, BaseLayout falls back to the page's primary headline. Don't rely on the fallback for launch — fill the field.
+- If `seoTitle` is empty, BaseLayout falls back to the page's primary headline. Don't rely on the fallback for launch, fill the field.
 
 ### Sitemap and robots
 
@@ -146,9 +146,9 @@ Allow: /
 Sitemap: https://reiddesignllc.com/sitemap-index.xml
 ```
 
-`public/llms.txt` also ships — an AI/LLM crawler index of the site for tools that follow the emerging llms.txt convention. Keep it updated if major pages are added or removed.
+`public/llms.txt` also ships, an AI/LLM crawler index of the site for tools that follow the emerging llms.txt convention. Keep it updated if major pages are added or removed.
 
-After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify the property via DNS TXT record (preferred — survives redeploys) or HTML file upload.
+After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify the property via DNS TXT record (preferred, survives redeploys) or HTML file upload.
 
 ### Pre-launch SEO checklist
 

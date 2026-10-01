@@ -1,5 +1,5 @@
 // Patches heroImage on each page singleton in Sanity with a chosen asset from
-// the media library. Idempotent — skips a doc whose heroImage is already set
+// the media library. Idempotent, skips a doc whose heroImage is already set
 // unless --force is passed.
 //
 // Pairings (chosen for landscape orientation + page tone):
@@ -79,7 +79,7 @@ const PAIRINGS = [
 ];
 
 for (const { docType, assetRef, alt } of PAIRINGS) {
-  // Find the singleton — there's always exactly one per type.
+  // Find the singleton, there's always exactly one per type.
   const doc = await client.fetch(`*[_type == "${docType}"][0]{ _id, heroImage }`);
   if (!doc) {
     console.warn(`! ${docType}: no singleton document found. Skipping.`);

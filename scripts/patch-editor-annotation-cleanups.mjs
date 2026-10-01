@@ -1,13 +1,13 @@
 // Targeted cleanup for the two editor-meta annotations that the
 // strip-editor-annotations.mjs dry-run surfaced. We don't run the generic
 // strip directly because one of the matches (faqItem.background) is
-// ENTIRELY annotation text — blanket stripping would leave the FAQ answer
+// ENTIRELY annotation text, blanket stripping would leave the FAQ answer
 // empty, which is worse than leaving the editor note visible. Instead:
 //
 //   1. servicesPage.builderRealtorSection.description.0.children.0.text
-//      — strip the leading "[NEW per audit, softer framing] " prefix only.
+// strip the leading "[NEW per audit, softer framing] " prefix only.
 //   2. faqItem.background.answer
-//      — replace the placeholder with a brand-voice "still in progress"
+// replace the placeholder with a brand-voice "still in progress"
 //        line that keeps the FAQ live until Staci writes the real copy.
 //
 // Idempotent: re-running matches nothing on the second pass.
@@ -82,7 +82,7 @@ if (faq) {
     faq.answer[0]?.children?.[0]?.text?.startsWith('[TODO');
 
   if (isTodoOnly) {
-    // Brand-voice placeholder. Stops short of fabricating credentials —
+    // Brand-voice placeholder. Stops short of fabricating credentials
     // says "in progress, ask if it matters" so Staci can write the real
     // answer when she's ready, and the FAQ doesn't show TODO copy in the
     // meantime.

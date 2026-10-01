@@ -1,10 +1,10 @@
 // Enrich the home page copy for warmth + conversion (2026-05 pass).
 //
 // Two write modes:
-//   set()         — overwrite genuinely-thin existing copy (Services +
+//   set(), overwrite genuinely-thin existing copy (Services +
 //                   Final CTA subheads). These already had Sanity content,
 //                   so a code fallback can't reach them; we must patch.
-//   setIfMissing() — seed new/empty fields (Process + Testimonials subheads,
+//   setIfMissing(), seed new/empty fields (Process + Testimonials subheads,
 //                   Featured Work + Featured Journal copy) without clobbering
 //                   anything Staci may have written in Studio already.
 //
@@ -45,7 +45,7 @@ const client = createClient({
   token: env.SANITY_API_WRITE_TOKEN,
 });
 
-// Overwrite — thin existing copy we're deliberately enriching.
+// Overwrite, thin existing copy we're deliberately enriching.
 const overwrite = {
   servicesGridSubhead:
     'From a single room that never quite worked to a whole home you are ready to rethink, there is a way to work together that fits where you are, and what you are ready to take on. Here is where most people start.',
@@ -53,7 +53,7 @@ const overwrite = {
     'Every project starts the same way: a relaxed conversation about your space, your budget, and what you are hoping for. No pressure, no obligation, just a friendly first step toward a home you love coming back to.',
 };
 
-// Seed — new or empty fields. Won't clobber existing values.
+// Seed, new or empty fields. Won't clobber existing values.
 const seed = {
   processPreviewSubhead:
     'No guesswork and no pressure. From our first conversation to the day everything comes together, you will always know exactly where things stand and what happens next.',
@@ -71,7 +71,7 @@ const seed = {
 
 const doc = await client.fetch(`*[_type == "homePage"][0]{ _id }`);
 if (!doc?._id) {
-  console.error('No homePage doc found — nothing to patch.');
+  console.error('No homePage doc found, nothing to patch.');
   process.exit(1);
 }
 
@@ -88,4 +88,4 @@ if (!apply) {
 
 await client.patch(doc._id).set(overwrite).setIfMissing(seed).commit();
 
-console.log('\nPatched. Remember: the site is prerendered — push/redeploy to see it live.\n');
+console.log('\nPatched. Remember: the site is prerendered, push/redeploy to see it live.\n');

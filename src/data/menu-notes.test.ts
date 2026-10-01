@@ -22,7 +22,7 @@ describe('phone menu notes', () => {
   it('keeps every note short, with no em-dashes and no stale counts', () => {
     for (const note of Object.values(MENU_NOTES)) {
       expect(note.length).toBeLessThanOrEqual(40);
-      expect(note).not.toMatch(/—/);
+      expect(note).not.toMatch(/\u2014/);
       expect(note).not.toMatch(/\d/);
     }
   });

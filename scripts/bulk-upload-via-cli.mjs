@@ -1,6 +1,6 @@
 // Fallback bulk upload that uses the Sanity CLI's user auth instead of an API
 // token. The token-based path (scripts/bulk-upload-photos.mjs) failed with
-// "project user not found for user ID g-PYKgPTD1Da7C" — a known issue where
+// "project user not found for user ID g-PYKgPTD1Da7C", a known issue where
 // newer Sanity projects don't auto-grant robot tokens project membership for
 // asset operations. The CLI uses the human user's auth (your `sanity login`
 // session), which has full membership.
@@ -9,7 +9,7 @@
 // body.imageGallery.images array, write NDJSON, import via CLI. The import
 // uploads each _sanityAsset file and resolves the reference. After upload,
 // the assets are in the library AND referenced by the temp doc. Delete the
-// temp doc afterward (assets persist — Sanity doesn't garbage-collect them).
+// temp doc afterward (assets persist: Sanity doesn't garbage-collect them).
 //
 // Why a draft (drafts.* _id)? Drafts don't appear in `perspective: 'published'`
 // queries, which is what the Astro build uses. So the temp doc is invisible
@@ -89,10 +89,10 @@ const galleryImages = photos.map((p) => ({
 const tempDoc = {
   _id: 'drafts._tmp.assetBundle',
   _type: 'journalEntry',
-  title: '[TEMP] Bulk asset upload — safe to delete',
+  title: '[TEMP] Bulk asset upload, safe to delete',
   slug: { _type: 'slug', current: '_tmp-asset-bundle' },
   excerpt:
-    'Internal-only holding document used to upload the Reid Design photo library in bulk. Safe to delete — the underlying image assets remain in the library after this doc is removed.',
+    'Internal-only holding document used to upload the Reid Design photo library in bulk. Safe to delete, the underlying image assets remain in the library after this doc is removed.',
   author: 'System',
   publishedAt: '2020-01-01T00:00:00Z',
   featured: false,
@@ -106,7 +106,7 @@ const tempDoc = {
         {
           _type: 'span',
           _key: shortKey('s'),
-          text: 'This document exists only to bulk-upload the Reid Design photo library to Sanity. It is a draft, so it never appears on the live site. Delete it whenever — the photos stay in the asset library.',
+          text: 'This document exists only to bulk-upload the Reid Design photo library to Sanity. It is a draft, so it never appears on the live site. Delete it whenever, the photos stay in the asset library.',
           marks: [],
         },
       ],
@@ -125,8 +125,8 @@ writeFileSync(outPath, JSON.stringify(tempDoc) + '\n', 'utf-8');
 
 console.log(`\nWrote temp-bundle NDJSON to ${outPath}`);
 console.log(`Bundle holds ${galleryImages.length} image references.`);
-console.log('\nNext step — upload + import (paste this):');
+console.log('\nNext step, upload + import (paste this):');
 console.log(`  cd studio && npx sanity dataset import "${outPath}" production --replace`);
 console.log('\nAfter import completes, the temp draft doc lives at _id "drafts._tmp.assetBundle".');
 console.log('Delete it via: cd studio && npx sanity documents delete drafts._tmp.assetBundle');
-console.log('(or leave it — drafts are invisible to the live site)');
+console.log('(or leave it, drafts are invisible to the live site)');

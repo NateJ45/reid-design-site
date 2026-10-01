@@ -1,4 +1,4 @@
-// StudioGuide.tsx — Panel 1 of the Start Here handbook.
+// StudioGuide.tsx: Panel 1 of the Start Here handbook.
 // Renders the editable `studioGuide` singleton (fetched via useClient). The
 // rendered view is read-only and pretty; editing happens in the sibling "Edit"
 // form tab wired in structure.ts. Safe to edit by hand (layout only).

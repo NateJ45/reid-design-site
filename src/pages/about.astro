@@ -21,7 +21,7 @@ const [page, siteSettings] = await Promise.all([getAboutPage(), getSiteSettings(
 const title = page?.seoTitle ?? 'About Staci · Reid Design';
 const description =
   page?.seoDescription ??
-  'Meet Staci Perkins, founder of Reid Design — a Plainfield-based interior designer working across Greater Indianapolis.';
+  'Meet Staci Perkins, founder of Reid Design, a Plainfield-based interior designer working across Greater Indianapolis.';
 
 const philosophyPoints = page?.philosophyPoints ?? [];
 

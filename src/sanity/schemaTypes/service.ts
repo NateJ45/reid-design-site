@@ -1,4 +1,4 @@
-// Paid offerings — Consultation, Full Room Design, Styling, Shopping, B&R Partnerships.
+// Paid offerings: Consultation, Full Room Design, Styling, Shopping, B&R Partnerships.
 // Used by both the Services page and the homepage services grid.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
@@ -35,7 +35,7 @@ export const service = defineType({
       title: 'Price display',
       type: 'string',
       description:
-        'How the price reads on the card. Examples: "$150" / "starting at $650" / "Custom quote".',
+        'How the price reads on the card. Examples: "$225" / "starting at $995" / "Custom quote".',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -156,7 +156,7 @@ export const service = defineType({
       validation: (Rule) => Rule.max(20),
     }),
     // Hidden field managed by the orderable-document-list plugin. Required
-    // even when no one's reordered anything yet — the plugin validates the
+    // even when no one's reordered anything yet, the plugin validates the
     // schema declares it.
     orderRankField({ type: 'service' }),
   ],

@@ -10,7 +10,7 @@
 // Auth: SANITY_API_WRITE_TOKEN from .env. Create one at
 //   https://sanity.io/manage/project/ba403vjc/api/tokens
 // with Editor permission, paste into .env, run this script, then you can
-// delete or downgrade the token afterward — Phase 1 wiring + future Studio
+// delete or downgrade the token afterward: Phase 1 wiring + future Studio
 // edits use Sanity's CLI auth, not this token.
 //
 // Concurrency: 4 uploads in flight at a time. Sanity's free tier allows much

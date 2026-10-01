@@ -6,7 +6,7 @@
 
 Reid Design has two parallel content sources:
 
-### `src/data/site.ts` — static identity (rare edits)
+### `src/data/site.ts`, static identity (rare edits)
 
 Hardcoded constants that don't change between deploys: domain name, GitHub repo URL, Web3Forms access key reference, Calendly URL template, brand asset paths, the `localStorage` key prefix for the theme system. Things Nathan edits in code when something structural shifts.
 
@@ -20,7 +20,7 @@ export const site = {
 } as const;
 ```
 
-### Sanity — everything Staci edits
+### Sanity, everything Staci edits
 
 All publicly-visible content lives in Sanity, not in code or markdown files. This is the deliberate departure from the NCS pattern (which uses MDX content collections). Staci is the editor, not Nathan, so the content needs a real CMS UI.
 
@@ -28,43 +28,43 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 
 **Settings & globals (1):**
 
-- `siteSettings` (singleton) — email, phone (shown site-wide as a tap-to-call link in the header, footer, mobile menu, and contact page), social links, service areas, availability status (the header pill; the desktop eyebrow strip it also used to appear in was removed 2026-09-29), travel fees, footer tagline. Most user-visible identity text comes from here.
+- `siteSettings` (singleton), email, phone (shown site-wide as a tap-to-call link in the header, footer, mobile menu, and contact page), social links, service areas, availability status (the header pill; the desktop eyebrow strip it also used to appear in was removed 2026-09-29), travel fees, footer tagline. Most user-visible identity text comes from here.
 
 **Reusable content collections (6):**
 
-- `service` — In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder & Realtor Partnerships, plus E-Design. Optional `featuredImage` renders a small visual at the top of each pricing card (`ServiceCard.astro` falls back gracefully when absent).
-- `testimonial` — Client testimonials with attribution, source, date. Optional `photo` (circular avatar), `location` (e.g., "Fishers, IN"), and `relatedProject` (reference) are real trust-currency for a local studio. When `relatedProject` is set, both `TestimonialCard.astro` and `FeaturedTestimonial.astro` render a "See this project →" link that jumps to the case study.
-- `faqItem` — FAQ questions with category, displayed on both FAQ page and (selectively) Process page
-- `philosophyPoint` — The 3 values on the About page
-- `processStep` — The 4 numbered steps in Staci's process
-- `project` — Case studies. Optional `metaTitle` / `metaDescription` override the default SEO fields per-project. `roomType` + `designStyle` enums drive portfolio filtering (both required). The `gallery` is labeled "Project photos," sits directly under the hero, and requires at least 3 images so a project never ships as a lone hero shot. `beforeAfters` holds structured before/after pairs (each a required before + after image) that feed the slider and `/portfolio/before-after`. **Project page extra fields (post-polish):**
-  - `briefLine` (required) — one-sentence client situation, e.g. "Beautiful reno but the family room felt unfinished." Renders in the ProjectMetaBand.
-  - `designCall` (required) — one-sentence Staci response, e.g. "Edit, don't add. Source vintage. Anchor seating." Renders in the ProjectMetaBand.
-  - `heroImage.caption` — optional italic caption beneath the hero image.
-  - **introStory** Portable Text accepts an inline image with `caption` + `decisionLine` (optional uppercase eyebrow above the caption — for "the decision that drove this image" moments).
-  - **introStory** accepts a `sourcedFrom` annotation mark — wrap any text inline and pair with vendor + optional URL. Renders as italic small-caps with the vendor as a trailing eyebrow, becomes a quiet bronze link when URL set.
+- `service`: In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder & Realtor Partnerships, plus E-Design. Optional `featuredImage` renders a small visual at the top of each pricing card (`ServiceCard.astro` falls back gracefully when absent).
+- `testimonial`: Client testimonials with attribution, source, date. Optional `photo` (circular avatar), `location` (e.g., "Fishers, IN"), and `relatedProject` (reference) are real trust-currency for a local studio. When `relatedProject` is set, both `TestimonialCard.astro` and `FeaturedTestimonial.astro` render a "See this project →" link that jumps to the case study.
+- `faqItem`: FAQ questions with category, displayed on both FAQ page and (selectively) Process page
+- `philosophyPoint`: The 3 values on the About page
+- `processStep`: The 4 numbered steps in Staci's process
+- `project`: Case studies. Optional `metaTitle` / `metaDescription` override the default SEO fields per-project. `roomType` + `designStyle` enums drive portfolio filtering (both required). The `gallery` is labeled "Project photos," sits directly under the hero, and requires at least 3 images so a project never ships as a lone hero shot. `beforeAfters` holds structured before/after pairs (each a required before + after image) that feed the slider and `/portfolio/before-after`. **Project page extra fields (post-polish):**
+  - `briefLine` (required), one-sentence client situation, e.g. "Beautiful reno but the family room felt unfinished." Renders in the ProjectMetaBand.
+  - `designCall` (required), one-sentence Staci response, e.g. "Edit, don't add. Source vintage. Anchor seating." Renders in the ProjectMetaBand.
+  - `heroImage.caption`, optional italic caption beneath the hero image.
+  - **introStory** Portable Text accepts an inline image with `caption` + `decisionLine` (optional uppercase eyebrow above the caption, for "the decision that drove this image" moments).
+  - **introStory** accepts a `sourcedFrom` annotation mark, wrap any text inline and pair with vendor + optional URL. Renders as italic small-caps with the vendor as a trailing eyebrow, becomes a quiet bronze link when URL set.
   - (The "Featured in the journal" band and its reverse lookup in `getProjectBySlug` went with the journal on 2026-09-30.)
 
 **Page singletons (7):**
 
-- `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage` — One document per page. All six page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`.
+- `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`: One document per page. All six page-hero variants now accept a `heroImage` field (with optional caption on hero image where it makes sense, alt text required). The home page also has `heroImage` and `meetStaciPhoto`.
 
 **Removed 2026-09-30 (never launched):** `journalEntry`, `journalCategory`, `journalPage`, `shopItem`, `shopCollection`, `shopPage`, `styleQuiz`, `budgetCalculator`, `leadMagnet`, `pressItem`, `pressPage`, `giftPage`, `resourcesPage`, and the `giftSectionMarker` / `pressSectionMarker` / `resourcesSectionMarker` objects. The types left `schemaTypes/index.ts` and their files were deleted; the roughly 25 documents of those types were deliberately left in the dataset (nothing was written or deleted), and no kept document references them. Studio consequences: no desk entries, no singleton/archive set membership, no Presentation locations, no preview paths, no reference targets on `navLink` / `ctaBlock` / `announcement`. Fields on KEPT types that only served them are hidden + read-only, never removed, with a "retired 2026-09-30" comment: `siteSettings.newsletter` (the footer signup is gone too), the eight retired `siteSettings.sectionVisibility` switches, and `homePage.featuredJournal*`. The home `featuredJournal`/`press` and About `press` marker VALUES stay in their `options.list`, titled "(retired, renders nothing)": Sanity infers a hard `valid()` rule from any `options.list` (see `inferFromSchemaType` in the sanity package), so dropping a value would turn the rows already stored on those pages into validation errors that block Publish.
 
 - `homePage` additionally has a `heroImages` array (images with optional alt). One image renders the static hero; two or more render a cross-fading slideshow with a subtle Ken Burns zoom (`HeroBackground.astro`, CSS in `globals.css`). It supersedes the home page's single `heroImage`, which was migrated into `heroImages[0]` by `scripts/migrate-home-hero-images.mjs` and hidden in the Studio (data preserved, used only as a fallback). Projected as `heroImages[]` in `getHomePage`. The slideshow is home-only; other pages keep their single `heroImage`.
 - `aboutPage` has a `personal` field group with: `personalEyebrow`, `personalHeadline`, `personalIntro`, `currentlyList[]` (label + value pairs), `rapidFire[]` (prompt + answer pairs), `localSpots[]` (name + optional note), `beyondDesign` (text paragraph), `candidPhoto` (image with required alt). All of these are projected in `getAboutPage()` in `src/lib/queries.ts` via the shared `IMAGE_PROJECTION`. The whole section self-suppresses when `personalHeadline` is not set and all list fields are empty.
-- `aboutPage` also has a `stats` group/field — an array (max 4) of `statItem` objects (`number` required, `suffix` optional like "+" or "k", `label` required). It drives the `StatsRow` section between Personal and FinalCta on `/about` (`getAboutPage()` projects `stats[]{number, suffix, label}`). The section hides entirely when the array is empty, so the page is unchanged until Staci fills in the Stats tab. The front-end filters the Sanity array down to fully-populated rows before rendering, so a half-filled stat never shows a `NaN`.
+- `aboutPage` also has a `stats` group/field, an array (max 4) of `statItem` objects (`number` required, `suffix` optional like "+" or "k", `label` required). It drives the `StatsRow` section between Personal and FinalCta on `/about` (`getAboutPage()` projects `stats[]{number, suffix, label}`). The section hides entirely when the array is empty, so the page is unchanged until Staci fills in the Stats tab. The front-end filters the Sanity array down to fully-populated rows before rendering, so a half-filled stat never shows a `NaN`.
 - Every page singleton with a Final CTA (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `eDesignPage`) has an optional `finalCtaBackgroundImage` in its `'final'` group. When set, `FinalCta.astro` renders it behind a Walnut scrim (`rgb(95 70 57 / 0.82)`) so the cream headline stays readable; when empty, the Final CTA is the solid Walnut panel with the faint leaf sprig (rebuilt 2026-09-29; the background-image path was kept). Projected with `IMAGE_PROJECTION` in each page query.
 
 **Studio guide singletons (3, protected):**
 
-- `studioGuide` — drives the "How the website works" panel (StudioGuide.tsx). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]` (with a tone enum). Plain text throughout (no Portable Text).
-- `studioNotes` — drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout.
-- `studioPlaybook` — drives the "Grow your studio" panel (StudioPlaybook.tsx). Fields: `title`, `intro`, `guides[]` (each `playbookGuide`: `title`, `summary`, `sections[]`; each `playbookSection`: `heading`, `tone` enum, `body`, `bullets[]`, `links[]` of label+url). Five professional-development guides (photography, portfolio and journal writing, software toolkit, e-design, trade sourcing), seeded by `scripts/seed-studio-playbook.mjs`. Plain text throughout. All three guide singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
+- `studioGuide`, drives the "How the website works" panel (StudioGuide.tsx). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]` (with a tone enum). Plain text throughout (no Portable Text).
+- `studioNotes`, drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout.
+- `studioPlaybook`, drives the "Grow your studio" panel (StudioPlaybook.tsx). Fields: `title`, `intro`, `guides[]` (each `playbookGuide`: `title`, `summary`, `sections[]`; each `playbookSection`: `heading`, `tone` enum, `body`, `bullets[]`, `links[]` of label+url). Five professional-development guides (photography, portfolio and journal writing, software toolkit, e-design, trade sourcing), seeded by `scripts/seed-studio-playbook.mjs`. Plain text throughout. All three guide singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
 
 **Reusable object types (embedded, not standalone documents):**
 
-- `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
+- `ctaBlock`, label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
 
 ### Where the Studio lives (rewritten 2026-08-28)
 
@@ -178,20 +178,20 @@ Five parts that only work together:
    `previewMode.enable: '/api/draft-mode/enable'`. `disable` is a documented
    no-op in this Sanity version, so leaving preview is a plain link to
    `/api/draft-mode/disable`.
-2. **`src/sanity/resolve.ts`** — the document/URL map in both directions.
-3. **`src/pages/preview/[...slug].astro`** — one SSR route that renders any page
+2. **`src/sanity/resolve.ts`** the document/URL map in both directions.
+3. **`src/pages/preview/[...slug].astro`** one SSR route that renders any page
    draft-aware. The five builder singletons (home, about, process, services,
    e-design) and custom `page` docs go
    through their REAL renderers, so the preview cannot drift from the page. The
    bespoke ones (faq, contact, portfolio, privacy, 404) preview
    their editable surface (hero, Extra sections, closing CTA) with a note on the
    page saying the middle is drawn in code.
-4. **`src/pages/preview/live.ts`** — an SSE proxy holding the token server-side
+4. **`src/pages/preview/live.ts`** an SSE proxy holding the token server-side
    over ONE long-lived connection to Sanity's listen API. A listen connection is
    a single API request no matter how long it stays open, and events ride it for
    free. **Never replace it with an interval poll**; that is what burned a
    sibling site's Sanity quota.
-5. **`src/lib/preview-auth.ts`** — the preview cookie's value is a SHA-256
+5. **`src/lib/preview-auth.ts`** the preview cookie's value is a SHA-256
    fingerprint of the server-side token, not the package's forgeable static
    `true`. **Both preview routes check that VALUE** with
    `isStudioPreview(cookies.get(perspectiveCookieName)?.value)` (2026-09-29,
@@ -406,25 +406,25 @@ Tests: `src/lib/redirects.test.ts` (the starter's cases, re-run under vitest) an
 
 ### Canvas (AI-assisted writing)
 
-[Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio — an AI-assisted free-form drafting tool that creates drafts in the production dataset; the drafts flow into Studio for review and publish. (It was set up mainly for journal posts; the journal was removed on 2026-09-30, so today it reaches project stories and services.)
+[Sanity Canvas](https://www.sanity.io/docs/canvas) is a separate workspace from Studio, an AI-assisted free-form drafting tool that creates drafts in the production dataset; the drafts flow into Studio for review and publish. (It was set up mainly for journal posts; the journal was removed on 2026-09-30, so today it reaches project stories and services.)
 
 Two schema-level controls govern what Canvas sees, both expressed as `options.canvasApp.*` on a defineType or defineField:
 
 **Excluded from Canvas entirely** (`options.canvasApp.exclude: true` at the type level):
 
-- All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`) — marketing copy is structural and locked; edit fields directly in Studio.
-- `siteSettings` — configuration, not prose.
-- `studioGuide`, `studioNotes`, `studioPlaybook` — Studio handbook content; edit directly in Studio (all excluded by design to avoid a renderer dependency).
-- `testimonial` — verbatim client quotes; AI must not "improve" them.
-- `philosophyPoint`, `processStep` — short, locked structural content.
+- All page singletons (`homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage`), marketing copy is structural and locked; edit fields directly in Studio.
+- `siteSettings`, configuration, not prose.
+- `studioGuide`, `studioNotes`, `studioPlaybook`: Studio handbook content; edit directly in Studio (all excluded by design to avoid a renderer dependency).
+- `testimonial`, verbatim client quotes; AI must not "improve" them.
+- `philosophyPoint`, `processStep`, short, locked structural content.
 
 **Available in Canvas with per-field voice hints** (`options.canvasApp.purpose: '...'` on prose fields):
 
-- `project` — title, briefSummary, introStory, metaTitle, metaDescription
-- `service` — shortDescription, bestFor, longDescription
-- `faqItem` — question, answer
+- `project`, title, briefSummary, introStory, metaTitle, metaDescription
+- `service`, shortDescription, bestFor, longDescription
+- `faqItem`, question, answer
 
-The `purpose` strings carry a compressed version of the voice manifesto ("warm, plain-spoken, slightly informal, confident about money; sounds like a smart friend, not a brochure; banned vocabulary: transformative, curated, elevated, tailored, investment in your space") plus per-field role guidance. These ride along with every Canvas suggestion for that field, but they are NOT a hard guardrail — Staci should still apply the manifesto in review, and Claude in chat can run a `brand-voice:enforce-voice` pass over any Canvas draft before publish.
+The `purpose` strings carry a compressed version of the voice manifesto ("warm, plain-spoken, slightly informal, confident about money; sounds like a smart friend, not a brochure; banned vocabulary: transformative, curated, elevated, tailored, investment in your space") plus per-field role guidance. These ride along with every Canvas suggestion for that field, but they are NOT a hard guardrail: Staci should still apply the manifesto in review, and Claude in chat can run a `brand-voice:enforce-voice` pass over any Canvas draft before publish.
 
 **Deploying changes** that touch Canvas annotations: push to `main` and let the site deploy. Canvas reads the project's registered schema, and since 2026-08-28 that is refreshed by the site build rather than by a separate `studio:deploy` (which no longer exists).
 
@@ -521,13 +521,13 @@ The contact form posts to Web3Forms (see Deployment section for env vars). On su
 **Current form fields (in order):**
 
 1. **Name** (required)
-2. **Email** (required) + **Phone** (optional) — side-by-side row
-3. **Where's the project?** (required) — dropdown of service-area cities + "Outside the area"
-4. **Project type** (required) — dropdown sourced from `contactPage.formProjectTypeOptions` in Sanity, falls back to `DEFAULT_PROJECT_TYPES` in the component. All four other dropdowns (location, budget, timeline, source) are also Sanity-editable now via `contactPage.form{Location,Budget,Timeline,Source}Options` with the previously-hardcoded constants as fallback.
-5. **Rough budget range** (required) — dropdown of 6 brackets sized to Reid Design's actual pricing
-6. **Timeline** (required) — dropdown of 5 buckets
+2. **Email** (required) + **Phone** (optional), side-by-side row
+3. **Where's the project?** (required), dropdown of service-area cities + "Outside the area"
+4. **Project type** (required), dropdown sourced from `contactPage.formProjectTypeOptions` in Sanity, falls back to `DEFAULT_PROJECT_TYPES` in the component. All four other dropdowns (location, budget, timeline, source) are also Sanity-editable now via `contactPage.form{Location,Budget,Timeline,Source}Options` with the previously-hardcoded constants as fallback.
+5. **Rough budget range** (required), dropdown of 6 brackets sized to Reid Design's actual pricing
+6. **Timeline** (required), dropdown of 5 buckets
 7. **Tell us about the space** (required, textarea)
-8. **How did you hear about Reid Design?** (optional) — dropdown of 8 source options (the "Took the style quiz", "Downloaded a free guide" and "Reading the journal" options went with those sections on 2026-09-30; the live `contactPage.formSourceOptions` override still lists them until Staci removes them in the Studio)
+8. **How did you hear about Reid Design?** (optional), dropdown of 8 source options (the "Took the style quiz", "Downloaded a free guide" and "Reading the journal" options went with those sections on 2026-09-30; the live `contactPage.formSourceOptions` override still lists them until Staci removes them in the Studio)
 
 The **email subject line** front-loads project type + location for inbox triage: `"Inquiry: Full Room Design in Carmel (Sarah Hooker)"`. Staci can sort and prioritize from her inbox without opening.
 
@@ -560,4 +560,4 @@ Sanity Canvas (AI-assisted drafting) sometimes lets prefix annotations like `[NE
 
 Default mode is dry-run; pass `--apply` to actually patch. Re-run after large Canvas batches to catch drift.
 
-If a full-field annotation is the entire content (like `faqItem.background` was when it shipped), don't blindly strip — that leaves the field empty. Replace with a brand-voice placeholder instead (see `scripts/patch-editor-annotation-cleanups.mjs` for the pattern).
+If a full-field annotation is the entire content (like `faqItem.background` was when it shipped), don't blindly strip, that leaves the field empty. Replace with a brand-voice placeholder instead (see `scripts/patch-editor-annotation-cleanups.mjs` for the pattern).

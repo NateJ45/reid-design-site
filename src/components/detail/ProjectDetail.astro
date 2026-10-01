@@ -118,6 +118,8 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
   designStyle={project.designStyle}
   location={project.location}
   year={project.year}
+  houseDescription={project.houseDescription}
+  scopeLine={project.scopeLine}
   readTime={readMinutes > 0 ? formatReadingTime(readMinutes) : undefined}
 />
 
@@ -256,7 +258,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
 }
 
 {
-  /* Sticky contextual CTA — appears past 50% scroll, hides on scroll-up.
+  /* Sticky contextual CTA, appears past 50% scroll, hides on scroll-up.
       Label is Sanity-editable per-project (project.stickyCtaLabel); clearing
       the field hides the chip for that project. */
 }

@@ -1,4 +1,4 @@
-/* Starwind UI — supplementary CSS. Foundation, edit with care.
+/* Starwind UI, supplementary CSS. Foundation, edit with care.
    This file is imported AFTER globals.css in BaseLayout.astro.
    globals.css owns :root / .dark semantic tokens and the @custom-variant dark rule.
    This file adds ONLY:
@@ -34,7 +34,7 @@
 }
 
 @theme inline {
-  /* Starwind-specific semantic tokens — map to the :root vars declared in globals.css. */
+  /* Starwind-specific semantic tokens, map to the :root vars declared in globals.css. */
   --color-primary-accent: var(--primary-accent);
   --color-secondary-accent: var(--secondary-accent);
   --color-info: var(--info);

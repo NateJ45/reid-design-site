@@ -1,4 +1,4 @@
-// BusinessOverview.tsx — Panel 2 of the Start Here handbook.
+// BusinessOverview.tsx: Panel 2 of the Start Here handbook.
 // Staci's single source of truth: live data from Sanity (services + site settings)
 // alongside static reference info about the business, ideal client, and voice.
 // Safe to edit by hand.
@@ -114,7 +114,7 @@ export default function BusinessOverview() {
       .then((data) => setSettings(data ?? null))
       .catch(() => setSettingsError(true));
 
-    // Fetch business notes (optional — a failure does not break the live sections)
+    // Fetch business notes (optional, a failure does not break the live sections)
     client
       .fetch<NotesData | null>(NOTES_QUERY)
       .then((data) => setNotes(data ?? null))
@@ -175,7 +175,7 @@ export default function BusinessOverview() {
                         <Text size={1} weight="semibold">
                           {svc.name ?? 'Unnamed service'}
                         </Text>
-                        <Text size={1}>{svc.price ?? '—'}</Text>
+                        <Text size={1}>{svc.price ?? 'n/a'}</Text>
                       </Box>
                       {svc.bestFor ? (
                         <Text size={1} muted>

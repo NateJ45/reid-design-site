@@ -2,9 +2,9 @@
 // source JPG (dark ink on white background). Outputs go to src/assets/ so
 // they're picked up by Astro's <Image> pipeline (auto WebP + hashed names).
 //
-//   src/assets/logo-light.png  — original Charcoal ink on transparent background.
+//   src/assets/logo-light.png, original Charcoal ink on transparent background.
 //                                For use on light surfaces (Soft Linen, white).
-//   src/assets/logo-dark.png   — Cream ink on transparent background.
+//   src/assets/logo-dark.png: Cream ink on transparent background.
 //                                For use on the dark mode surface (Charcoal Dark).
 //
 // Strategy:
@@ -28,7 +28,7 @@ const root = resolve(__dirname, '..');
 // PNG bytes (this script + optimize-logo-files.mjs) reads/writes here now.
 const assetsDir = resolve(root, 'src', 'assets');
 // Source logo variant. The 09-Logos folder ships with several iterations
-// (reid-design-logo.jpg, -logo-2.jpg, etc.) — point this at whichever is the
+// (reid-design-logo.jpg, -logo-2.jpg, etc.), point this at whichever is the
 // current published mark. Override via CLI arg: `node generate-logo-variants.mjs reid-design-logo-3.jpg`
 const sourceFile = process.argv[2] ?? 'reid-design-logo-2.jpg';
 const src = resolve(

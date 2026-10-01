@@ -123,7 +123,7 @@ export default defineConfig({
   // deliberately.
   session: false,
   // `imageService: 'compile'` tells @astrojs/cloudflare to process images
-  // with Sharp at build time and ship plain static files — no Cloudflare
+  // with Sharp at build time and ship plain static files, no Cloudflare
   // Images runtime, no per-transform fees, no Workers binding required.
   // The adapter's default would otherwise wire up the IMAGES binding which
   // is meant for SSR sites that want on-demand transforms (we don't).
@@ -224,7 +224,7 @@ export default defineConfig({
   // meta tag. It got past Lighthouse's csp-xss check on paper, but Astro
   // missed at least one runtime-generated inline script (probably from
   // ClientRouter view-transitions) and one inline style, which the browser
-  // then blocked — breaking theme bootstrap and various islands. Do not
+  // then blocked, breaking theme bootstrap and various islands. Do not
   // turn it back on. Since 2026-09-29 the full CSP is delivered as a
   // HEADER from `public/_headers` instead (origin allow-lists with
   // 'unsafe-inline', scoped separately for /studio/*), which needs no

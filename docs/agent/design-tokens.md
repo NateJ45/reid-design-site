@@ -21,8 +21,8 @@ Font families are declared in the `@theme` block in `src/styles/globals.css` as 
 
 Two utility classes layered on top of the families. Use them instead of ad-hoc arbitrary values so the system stays consistent across components.
 
-- `tracking-eyebrow` (`0.18em`) — applied to every uppercase eyebrow label above a heading. Used in `Hero.astro`, `SectionHeading.astro`, `ServiceCard.astro`, `TestimonialCard.astro`, `FeaturedTestimonial.astro`. Token: `--tracking-eyebrow`.
-- `leading-headline-tight` (`1.05`) — applied to hero-scale H1s. Combined with `tracking-[-0.02em]` it gives the display serif (Zodiak since 2026-09-29; Cormorant Garamond before) editorial proportions at the 40px to 80px hero range. Token: `--leading-headline-tight`.
+- `tracking-eyebrow` (`0.18em`), applied to every uppercase eyebrow label above a heading. Used in `Hero.astro`, `SectionHeading.astro`, `ServiceCard.astro`, `TestimonialCard.astro`, `FeaturedTestimonial.astro`. Token: `--tracking-eyebrow`.
+- `leading-headline-tight` (`1.05`), applied to hero-scale H1s. Combined with `tracking-[-0.02em]` it gives the display serif (Zodiak since 2026-09-29; Cormorant Garamond before) editorial proportions at the 40px to 80px hero range. Token: `--leading-headline-tight`.
 
 Both are declared in `src/styles/globals.css` via `@utility`. Don't replace with arbitrary values (`leading-[1.05]`, `tracking-[0.18em]`) in new code; use the named utilities so a future scale change is one edit.
 

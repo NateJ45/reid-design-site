@@ -8,7 +8,7 @@ export const contactPage = defineType({
   name: 'contactPage',
   title: 'Contact Page',
   type: 'document',
-  // Marketing copy is locked and structural — edit fields directly in Studio, not Canvas.
+  // Marketing copy is locked and structural, edit fields directly in Studio, not Canvas.
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
@@ -133,7 +133,7 @@ export const contactPage = defineType({
       type: 'array',
       group: 'form',
       description:
-        'Budget brackets shown on the form. The wording matters — keep the "Not sure yet" option so the form stays approachable. Leave blank to use the built-in defaults.',
+        'Budget brackets shown on the form. The wording matters, keep the "Not sure yet" option so the form stays approachable. Leave blank to use the built-in defaults.',
       of: [defineArrayMember({ type: 'string' })],
     }),
     defineField({
@@ -194,7 +194,7 @@ export const contactPage = defineType({
       type: 'array',
       group: 'form',
       description:
-        'Numbered "what happens after you reach out" steps — the scannable version of the What to Expect content. Each step shows as a numbered item on the Contact page.',
+        'Numbered "what happens after you reach out" steps, the scannable version of the What to Expect content. Each step shows as a numbered item on the Contact page.',
       of: [
         defineArrayMember({
           type: 'object',

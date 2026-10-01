@@ -1,4 +1,4 @@
-# Design Polish Batch 1 — CSS-Native Flourishes
+# Design Polish Batch 1: CSS-Native Flourishes
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -39,7 +39,7 @@
 Line 519 is the closing `}` of the `.hero-entry-stagger` reduced-motion reset. Insert this block directly after it (before the `/* Reading-room paper grain */` comment):
 
 ```css
-/* ---- Drop cap — float cap on the first paragraph of every journal post.
+/* ---- Drop cap, float cap on the first paragraph of every journal post.
    JournalPortableText.tsx adds .prose-drop-cap to the first <p> only. ---- */
 .prose-drop-cap::first-letter {
   font-family: var(--font-display);
@@ -52,7 +52,7 @@ Line 519 is the closing `}` of the `.hero-entry-stagger` reduced-motion reset. I
   font-weight: 400;
 }
 
-/* ---- Blockquote — 3px bronze left border, Cormorant italic. Replaces the
+/* ---- Blockquote, 3px bronze left border, Cormorant italic. Replaces the
    inline Tailwind classes previously on <blockquote> in JournalPortableText. ---- */
 .prose-blockquote {
   border-left: 3px solid var(--primary);
@@ -153,7 +153,7 @@ git commit -m "feat: add CSS utilities for drop cap, blockquote, img-zoom, and s
 
 ---
 
-### Task 2: Update JournalPortableText.tsx — drop cap and blockquote
+### Task 2: Update JournalPortableText.tsx, drop cap and blockquote
 
 **Files:**
 - Modify: `src/components/JournalPortableText.tsx`
@@ -168,7 +168,7 @@ Find line 71 (inside `makeComponents()`):
 
   return {
     block: {
-      // Default paragraph — comfortable reading rhythm + foreground color.
+      // Default paragraph, comfortable reading rhythm + foreground color.
       normal: ({ children }) => (
         <p className="my-m text-foreground/90 leading-relaxed text-lg">{children}</p>
       ),
@@ -181,7 +181,7 @@ Replace with:
 
   return {
     block: {
-      // Default paragraph — drop cap on the first paragraph only, via CSS ::first-letter.
+      // Default paragraph, drop cap on the first paragraph only, via CSS ::first-letter.
       normal: ({ children }) => {
         const isFirst = !firstNormalRendered;
         firstNormalRendered = true;
@@ -235,7 +235,7 @@ git commit -m "feat: add drop cap to journal post opener and bronze blockquote t
 
 ---
 
-### Task 3: Update ProjectCard.astro — zoom + warm tint on hover
+### Task 3: Update ProjectCard.astro, zoom + warm tint on hover
 
 **Files:**
 - Modify: `src/components/ProjectCard.astro`
@@ -266,7 +266,7 @@ Replace with:
 class="w-full h-full object-cover"
 ```
 
-(The `.img-zoom` CSS class handles scale and transition now — the inline Tailwind utilities are superseded.)
+(The `.img-zoom` CSS class handles scale and transition now, the inline Tailwind utilities are superseded.)
 
 - [ ] **Step 3: Add tint overlay div**
 
@@ -279,9 +279,9 @@ Inside the image wrapper (after the `<SanityImage ...>` and its fallback `<div>`
 - [ ] **Step 4: Visual check**
 
 Open `http://localhost:4321/portfolio` and hover project cards.
-Expected: Image scales smoothly to 1.06x inside the card boundary (card doesn't overflow — it's clipped). A subtle warm bronze tint appears over the image. The card-lift shadow/translateY still applies on the card itself (these are on the `<a>` wrapper, not the image wrapper).
+Expected: Image scales smoothly to 1.06x inside the card boundary (card doesn't overflow, it's clipped). A subtle warm bronze tint appears over the image. The card-lift shadow/translateY still applies on the card itself (these are on the `<a>` wrapper, not the image wrapper).
 
-Check dark mode too — the bronze tint should read clearly on dark surfaces.
+Check dark mode too, the bronze tint should read clearly on dark surfaces.
 
 - [ ] **Step 5: Commit**
 
@@ -292,12 +292,12 @@ git commit -m "feat: add zoom+tint hover treatment to project cards"
 
 ---
 
-### Task 4: Update JournalCard.astro — zoom + lighter tint on hover
+### Task 4: Update JournalCard.astro, zoom + lighter tint on hover
 
 **Files:**
 - Modify: `src/components/JournalCard.astro`
 
-Identical pattern to Task 3 but with `img-tint-light` (0.08 opacity instead of 0.15) — appropriate for the more editorial journal context.
+Identical pattern to Task 3 but with `img-tint-light` (0.08 opacity instead of 0.15), appropriate for the more editorial journal context.
 
 - [ ] **Step 1: Add img-zoom class to image wrapper**
 
@@ -386,7 +386,7 @@ Inside `initPolish()`, after the closing `}` of the `if (reveals.length > 0)` bl
 Navigate to `http://localhost:4321/portfolio`. If the grid is above the fold, scroll up above it, then scroll down.
 Expected: Grid cards fade up in sequence with 100ms spacing between each. Cards 5 and beyond stagger in together at 400ms.
 
-If all cards are visible on first paint (they're above the fold), open a new tab or navigate away and back — the observer fires on every page load.
+If all cards are visible on first paint (they're above the fold), open a new tab or navigate away and back, the observer fires on every page load.
 
 - [ ] **Step 3: Commit**
 
@@ -471,11 +471,11 @@ Replace with:
 - [ ] **Step 6: Visual check across all 5 pages**
 
 Visit each page and scroll to find the grid:
-- `http://localhost:4321/portfolio` — project cards stagger in
-- `http://localhost:4321/journal` — post cards stagger in
-- `http://localhost:4321/` — services section (section 6) cards stagger in
-- `http://localhost:4321/about` — philosophy point cards stagger in
-- `http://localhost:4321/services` — service cards stagger in
+- `http://localhost:4321/portfolio`, project cards stagger in
+- `http://localhost:4321/journal`, post cards stagger in
+- `http://localhost:4321/`, services section (section 6) cards stagger in
+- `http://localhost:4321/about`, philosophy point cards stagger in
+- `http://localhost:4321/services`, service cards stagger in
 
 Expected on each: cards fade up one by one with 100ms spacing. No flash of invisible cards on initial paint if the grid is above the fold (the observer should fire quickly enough, but if there's a flash, check that the `:not(.is-staggered)` selector correctly re-fires after navigation).
 

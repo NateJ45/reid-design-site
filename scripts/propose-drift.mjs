@@ -52,7 +52,7 @@ const LIBRARY = 'NateJ45/ncs-astro-sanity-starter';
  * might contain a credential defeats the very protection you are relying on.
  *
  * So: redact first, slice second, and do it in the sink rather than at each call
- * site — every future message through warn() is covered without anyone
+ * site, every future message through warn() is covered without anyone
  * remembering to think about it.
  */
 const redact = (m) =>
@@ -228,7 +228,7 @@ try {
   }
 } catch (err) {
   // redact() runs inside warn(), so the slice below can never cut through a
-  // live credential — the secret is already gone by the time it is shortened.
+  // live credential, the secret is already gone by the time it is shortened.
   warn(
     `could not open the PR (${redact(err.message || err).slice(0, 160)}). The sync-check failure still stands.`,
   );
