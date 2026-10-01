@@ -8,12 +8,12 @@
 // measure until then, which said distance when the fees are about time).
 // Each tier is a small stopwatch in her line style with its drive-time
 // window shaded, read from the tier's own label by src/lib/drive-time.ts
-// ("45 to 75 minutes" -> 45 to 75). Each is a real 60-minute clock face
-// (2026-10-01; a two-hour dial drew "within 30" as a quarter turn, which
-// reads as 15): the wedge runs from the start minute to the end minute the
-// way a minute hand would, wrapping over the top past the hour, and a
-// window that ends past the hour carries a small "+1 hr" under the pin. A
-// label with no number still gets a clock, just with no wedge.
+// ("45 to 75 minutes" -> 45 to 75). Each clock is a real 60-minute face and
+// each face is one hour of driving, shaded from 12 up to the top of the
+// window (2026-10-01, Nathan's idea): "within 30" is one face half shaded,
+// "45 to 75" a full face and one to :15, "75 to 120" two full faces. The
+// label beside them carries the whole range. A label with no number still
+// gets a blank face.
 //
 // Data unchanged: servicesPage.serviceAreaSection (headline, description) and
 // businessInfo.travelFees. `cities` (businessInfo.serviceAreas, first = home
@@ -22,9 +22,9 @@
 
 import {
   DIAL_MINUTES,
+  faceMinutes,
   handPoint,
   parseDriveWindow,
-  pastTheHour,
   wedgePath,
 } from '@/lib/drive-time';
 
@@ -39,8 +39,10 @@ const show = areaSec?.headline || travelFees.length > 0;
 const cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
 const [home, ...rest] = cityList;
 
-// The clocks: one window per tier, each on a 60-minute face.
+// The clocks: one window per tier, drawn as hour faces (faceMinutes). Every
+// row reserves room for the most faces any tier has, so the words line up.
 const windows = travelFees.map((t: any) => parseDriveWindow(t?.distanceLabel));
+const maxFaces = Math.max(1, ...windows.map((w) => faceMinutes(w).length));
 // Dial geometry (viewBox 0 0 100 112): the face centred at (50, 62), the
 // crown and button above it like a stopwatch.
 const CX = 50;
@@ -87,43 +89,57 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
 
         {travelFees.length > 0 && (
           <div class="sa__fees">
-            <ul class="sa__tiers" role="list" style={`--n:${travelFees.length}`}>
+            <ul
+              class="sa__tiers"
+              role="list"
+              style={`--n:${travelFees.length}; --faces:${maxFaces}`}
+            >
               {travelFees.map((tier: any, i: number) => {
-                const w = windows[i] ?? null;
-                const wedge = wedgePath(w, CX, CY, R - 1);
-                const hand = handPoint(w, CX, CY, R - 11);
-                const overHour = pastTheHour(w);
+                // One face per hour of driving, up to the top of the window
+                // (30 -> [30], 75 -> [60, 15]). No number in the label: one
+                // blank face, so the row still lines up.
+                const faces = faceMinutes(windows[i] ?? null);
+                const shown = faces.length > 0 ? faces : [0];
                 return (
                   <li class="sa__tier">
-                    <svg
-                      class="sa__clock"
-                      viewBox="0 0 100 112"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      {/* Crown and side button: the stopwatch silhouette. */}
-                      <rect class="sa__crown" x="44" y="6" width="12" height="7" rx="1.5" />
-                      <path class="sa__line" d="M50 13v11" />
-                      <path class="sa__line" d="M77 30l5-5" />
-                      <circle class="sa__face" cx={CX} cy={CY} r={R} />
-                      {wedge && <path class="sa__wedge" d={wedge} />}
-                      {ticks.map((t) => (
-                        <line
-                          class:list={['sa__tick', t.major && 'sa__tick--major']}
-                          x1={t.x1}
-                          y1={t.y1}
-                          x2={t.x2}
-                          y2={t.y2}
-                        />
-                      ))}
-                      {hand && <line class="sa__hand" x1={CX} y1={CY} x2={hand.x} y2={hand.y} />}
-                      <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
-                      {overHour && (
-                        <text class="sa__lap" x={CX} y={CY + 21} text-anchor="middle">
-                          +1 hr
-                        </text>
-                      )}
-                    </svg>
+                    <div class="sa__clocks" data-faces={shown.length}>
+                      {shown.map((minutes, f) => {
+                        const wedge = wedgePath(minutes, CX, CY, R - 1);
+                        // The hand only on the last face: the full hours
+                        // before it are simply filled.
+                        const last = f === shown.length - 1;
+                        const hand =
+                          last && minutes > 0 ? handPoint(minutes, CX, CY, R - 11) : null;
+                        return (
+                          <svg
+                            class="sa__clock"
+                            viewBox="0 0 100 112"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            {/* Crown and side button: the stopwatch silhouette. */}
+                            <rect class="sa__crown" x="44" y="6" width="12" height="7" rx="1.5" />
+                            <path class="sa__line" d="M50 13v11" />
+                            <path class="sa__line" d="M77 30l5-5" />
+                            <circle class="sa__face" cx={CX} cy={CY} r={R} />
+                            {wedge && <path class="sa__wedge" d={wedge} />}
+                            {ticks.map((t) => (
+                              <line
+                                class:list={['sa__tick', t.major && 'sa__tick--major']}
+                                x1={t.x1}
+                                y1={t.y1}
+                                x2={t.x2}
+                                y2={t.y2}
+                              />
+                            ))}
+                            {hand && (
+                              <line class="sa__hand" x1={CX} y1={CY} x2={hand.x} y2={hand.y} />
+                            )}
+                            <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
+                          </svg>
+                        );
+                      })}
+                    </div>
                     <div class="sa__words">
                       <p class="sa__when">{tier.distanceLabel}</p>
                       <p class="sa__fee">{tier.fee}</p>
@@ -200,14 +216,19 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
   .sa__tier {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
   /* The stopwatch, in her fine line: a paper face outlined in Walnut, Warm
      Bronze ticks (quarter hours longer, in Walnut), the window shaded in
      Sandbar, and an Espresso hand to the end of the window. */
+  .sa__tiers {
+    --clock-w: clamp(4.4rem, 3.2rem + 2.6vw, 6.25rem);
+  }
   .sa__clock {
     flex: none;
-    width: clamp(5.5rem, 4rem + 4vw, 8rem);
+    /* One size for every face, so a two-hour tier reads as two of the same
+       clock, not a smaller one. */
+    width: var(--clock-w);
     height: auto;
     overflow: visible;
   }
@@ -245,11 +266,19 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     stroke-width: 1.6;
     stroke-linecap: round;
   }
-  /* "+1 hr" under the pin when the window runs past the hour. */
-  .sa__lap {
-    font: 600 8.5px var(--font-body);
-    letter-spacing: 0.02em;
-    fill: var(--color-chip-7);
+  /* The hour faces for one tier, side by side. */
+  .sa__clocks {
+    display: flex;
+    flex: none;
+    gap: 0.3rem;
+  }
+  /* Phones and tablets stack the tiers: reserve room for the most faces any
+     tier has, so every row's words start on the same line. (Side by side on
+     desktop, the reserve would only leave a gap.) */
+  @media (max-width: 1023px) {
+    .sa__clocks {
+      width: calc(var(--faces, 1) * var(--clock-w) + (var(--faces, 1) - 1) * 0.3rem);
+    }
   }
   .sa__pin {
     fill: var(--color-chip-7);
