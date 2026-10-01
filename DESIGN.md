@@ -312,7 +312,10 @@ prices are the loudest thing on it.
   "within 30" is one face half shaded, "45 to 75" a full face and one to
   :15, "75 to 120" two full faces; at most three. The hand sits on the last
   face only. All faces are one size; on phones every row reserves room for
-  the most faces so the words line up. The wedges sweep in on scroll.
+  the most faces so the words line up. When the clocks scroll into view the
+  hands sweep round from 12 and fill the faces behind them, one hour face
+  after another (about 1.6s an hour), stopping at the minute mark; under
+  reduced motion they simply rest there.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on paper (Oat
   until the quiet pass): "The guarantee" as the big Zodiak heading with an
   italic accent, Staci's promise under it as a General Sans lede (the

@@ -15,18 +15,20 @@
 // label beside them carries the whole range. A label with no number still
 // gets a blank face.
 //
+// MOTION (2026-10-01, Nathan's idea): when the clocks scroll into view, each
+// hand sweeps round from 12 and the face fills behind it, one hour face
+// after another, stopping at the minute mark (about 1.6s an hour). The fill
+// is a circle whose fat stroke is dashed to the minutes (pathLength 60), so
+// the same `--m` drives the resting picture and the animation. The small
+// script at the bottom only holds the clocks at 12 until they are seen;
+// without it, or under reduced motion, they simply rest at their minutes.
+//
 // Data unchanged: servicesPage.serviceAreaSection (headline, description) and
 // businessInfo.travelFees. `cities` (businessInfo.serviceAreas, first = home
 // base) is optional; with none, the towns line is skipped.
 // Self-suppresses with no headline and no travel fees.
 
-import {
-  DIAL_MINUTES,
-  faceMinutes,
-  handPoint,
-  parseDriveWindow,
-  wedgePath,
-} from '@/lib/drive-time';
+import { DIAL_MINUTES, faceMinutes, parseDriveWindow } from '@/lib/drive-time';
 
 interface Props {
   areaSec?: any;
@@ -48,6 +50,8 @@ const maxFaces = Math.max(1, ...windows.map((w) => faceMinutes(w).length));
 const CX = 50;
 const CY = 62;
 const R = 38;
+// Seconds the animation spends on a full hour face.
+const HOUR_S = 1.6;
 const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
   const m = i * 5;
   const a = (m / DIAL_MINUTES) * 2 * Math.PI - Math.PI / 2;
@@ -104,25 +108,40 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
                   <li class="sa__tier">
                     <div class="sa__clocks" data-faces={shown.length}>
                       {shown.map((minutes, f) => {
-                        const wedge = wedgePath(minutes, CX, CY, R - 1);
-                        // The hand only on the last face: the full hours
-                        // before it are simply filled.
+                        // The hand rests only on the last face: the full
+                        // hours before it sweep round, then hand over.
                         const last = f === shown.length - 1;
-                        const hand =
-                          last && minutes > 0 ? handPoint(minutes, CX, CY, R - 11) : null;
+                        // Timing: each face starts when the one before it
+                        // finishes; a face takes its share of an hour.
+                        const delay = f * HOUR_S + i * 0.15;
+                        const dur = Math.max(0.35, (minutes / DIAL_MINUTES) * HOUR_S);
                         return (
                           <svg
-                            class="sa__clock"
+                            class:list={['sa__clock', { 'is-full': !last }]}
                             viewBox="0 0 100 112"
                             aria-hidden="true"
                             focusable="false"
+                            style={`--m:${minutes}; --delay:${delay}s; --dur:${dur}s`}
                           >
                             {/* Crown and side button: the stopwatch silhouette. */}
                             <rect class="sa__crown" x="44" y="6" width="12" height="7" rx="1.5" />
                             <path class="sa__line" d="M50 13v11" />
                             <path class="sa__line" d="M77 30l5-5" />
                             <circle class="sa__face" cx={CX} cy={CY} r={R} />
-                            {wedge && <path class="sa__wedge" d={wedge} />}
+                            {minutes > 0 && (
+                              /* The shaded minutes: a circle at half the
+                                 radius with a stroke as wide as the radius,
+                                 dashed to --m of 60, starting at 12. */
+                              <circle
+                                class="sa__fill"
+                                cx={CX}
+                                cy={CY}
+                                r={(R - 1) / 2}
+                                stroke-width={R - 1}
+                                pathLength={DIAL_MINUTES}
+                                transform={`rotate(-90 ${CX} ${CY})`}
+                              />
+                            )}
                             {ticks.map((t) => (
                               <line
                                 class:list={['sa__tick', t.major && 'sa__tick--major']}
@@ -132,8 +151,9 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
                                 y2={t.y2}
                               />
                             ))}
-                            {hand && (
-                              <line class="sa__hand" x1={CX} y1={CY} x2={hand.x} y2={hand.y} />
+                            {minutes > 0 && (
+                              /* Drawn at 12, turned to the minutes by CSS. */
+                              <line class="sa__hand" x1={CX} y1={CY} x2={CX} y2={CY - (R - 11)} />
                             )}
                             <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
                           </svg>
@@ -248,9 +268,11 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     stroke-width: 1.25;
     stroke-linecap: round;
   }
-  .sa__wedge {
-    fill: var(--color-chip-3);
-    fill-opacity: 0.55;
+  .sa__fill {
+    fill: none;
+    stroke: var(--color-chip-3);
+    stroke-opacity: 0.55;
+    stroke-dasharray: var(--m) 60;
   }
   .sa__tick {
     stroke: var(--color-chip-5);
@@ -265,6 +287,13 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     stroke: var(--color-chip-7);
     stroke-width: 1.6;
     stroke-linecap: round;
+    transform-box: view-box;
+    transform-origin: 50px 62px;
+    rotate: calc(var(--m) * 6deg);
+  }
+  /* A full hour face rests filled, with no hand. */
+  .sa__clock.is-full .sa__hand {
+    opacity: 0;
   }
   /* The hour faces for one tier, side by side. */
   .sa__clocks {
@@ -300,22 +329,45 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     color: var(--color-ink-2);
   }
 
-  /* Motion: the shaded window sweeps in as the band scrolls up (CSS only;
-     at rest, or under reduced motion, it is simply there). */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .sa__wedge {
-        animation: sa-sweep linear both;
-        animation-timeline: view();
-        animation-range: entry 20% cover 45%;
-        transform-origin: 50px 62px;
-      }
+  /* Motion: the hands sweep and the faces fill (see the header comment).
+     Gated on [data-sweep], which the script sets only when motion is
+     allowed; until the clocks are seen ([data-on]) they wait at 12. */
+  @media (prefers-reduced-motion: no-preference) {
+    .sa__tiers[data-sweep] .sa__fill {
+      animation: sa-fill var(--dur) linear var(--delay) both;
+    }
+    .sa__tiers[data-sweep] .sa__hand {
+      animation: sa-hand var(--dur) linear var(--delay) both;
+    }
+    /* A full face's hand shows only while it sweeps, then hands over. */
+    .sa__tiers[data-sweep] .sa__clock.is-full .sa__hand {
+      animation-name: sa-hand-pass;
+    }
+    .sa__tiers[data-sweep]:not([data-on]) :is(.sa__fill, .sa__hand) {
+      animation-play-state: paused;
     }
   }
-  @keyframes sa-sweep {
+  @keyframes sa-fill {
     from {
+      stroke-dasharray: 0 60;
+    }
+  }
+  @keyframes sa-hand {
+    from {
+      rotate: 0deg;
+    }
+  }
+  @keyframes sa-hand-pass {
+    from {
+      rotate: 0deg;
+      opacity: 1;
+    }
+    99% {
+      opacity: 1;
+    }
+    to {
+      rotate: 360deg;
       opacity: 0;
-      scale: 0.6;
     }
   }
 
@@ -333,3 +385,26 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     }
   }
 </style>
+
+<script>
+  // Start the clocks when they scroll into view (see the header comment).
+  // Runs on every page load, including view-transition navigations. Under
+  // reduced motion it does nothing and the clocks rest at their minutes.
+  function startClocks() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.querySelectorAll<HTMLElement>('.sa__tiers:not([data-sweep])').forEach((list) => {
+      list.dataset.sweep = '';
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            list.dataset.on = '';
+            io.disconnect();
+          }
+        },
+        { threshold: 0.35 },
+      );
+      io.observe(list);
+    });
+  }
+  document.addEventListener('astro:page-load', startClocks);
+</script>

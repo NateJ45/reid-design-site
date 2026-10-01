@@ -171,7 +171,11 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
 
   .home-hero__copy {
     position: relative;
-    z-index: 2;
+    /* Above the photo's fades (z-index 2). On phones the copy tucks 1.5rem
+       up into the photo, and the photo comes later in the page, so at an
+       equal z-index its bronze fade painted over the eyebrow's first line
+       (2026-10-01). */
+    z-index: 3;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;

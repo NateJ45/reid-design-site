@@ -61,12 +61,6 @@ export const DIAL_MINUTES = 60;
 /** At most this many faces, so a long "over 3 hours" tier stays tidy. */
 export const MAX_FACES = 3;
 
-/** A point on the dial: minutes clockwise from 12 o'clock. */
-function point(cx: number, cy: number, r: number, minutes: number) {
-  const a = (minutes / DIAL_MINUTES) * 2 * Math.PI - Math.PI / 2;
-  return { x: +(cx + r * Math.cos(a)).toFixed(2), y: +(cy + r * Math.sin(a)).toFixed(2) };
-}
-
 /**
  * The minutes shown on each face: full hours first, then what is left.
  * 30 -> [30], 75 -> [60, 15], 120 -> [60, 60]. An open-ended window ("over
@@ -81,26 +75,4 @@ export function faceMinutes(w: DriveWindow | null): number[] {
     faces.push(Math.min(DIAL_MINUTES, left));
   }
   return faces;
-}
-
-/**
- * The shaded wedge for one face: from 12 o'clock round to `minutes`. A full
- * hour fills the face. Returns '' for nothing to shade.
- */
-export function wedgePath(minutes: number, cx: number, cy: number, r: number): string {
-  if (!(minutes > 0)) return '';
-  if (minutes >= DIAL_MINUTES) {
-    const top = point(cx, cy, r, 0);
-    const bottom = point(cx, cy, r, DIAL_MINUTES / 2);
-    return `M${cx} ${cy}L${top.x} ${top.y}A${r} ${r} 0 1 1 ${bottom.x} ${bottom.y}A${r} ${r} 0 1 1 ${top.x} ${top.y}Z`;
-  }
-  const a = point(cx, cy, r, 0);
-  const b = point(cx, cy, r, minutes);
-  const large = minutes > DIAL_MINUTES / 2 ? 1 : 0;
-  return `M${cx} ${cy}L${a.x} ${a.y}A${r} ${r} 0 ${large} 1 ${b.x} ${b.y}Z`;
-}
-
-/** Where a face's hand points: its minutes (12 for a full hour). */
-export function handPoint(minutes: number, cx: number, cy: number, r: number) {
-  return point(cx, cy, r, minutes % DIAL_MINUTES);
 }

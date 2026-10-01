@@ -14,6 +14,16 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From 2026-10-01: builder and realtor partnerships show twice on Services
+
+- **One Studio step.** Services has a seventh service card, "Builder &
+  realtor partnerships" (a `service` document), AND the page's own Builders
+  and realtors section right below it, which says the same thing in more
+  detail. Suggested: Archive that service document (Services desk, open
+  it, Archive), keeping the dedicated section. Its card, its line in the
+  price index and its Service JSON-LD entry go with it on the next build.
+  Close this item once it is archived.
+
 ### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
 
 - **Show Staci the calmer version** once it is deployed, and ask which of the
