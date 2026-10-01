@@ -249,6 +249,27 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     object-fit: cover;
     object-position: 50% 30%;
   }
+  /* The header sits on this hero in cream (Header.astro "On hero",
+     2026-10-01): a soft ink shade along the top of the photo keeps the
+     cream links, rating and booking tag readable over any part of it. */
+  .home-hero__photo::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 11rem;
+    /* Eased, so the shade is deepest right behind the header and fades out
+       without a visible edge. */
+    background: linear-gradient(rgb(35 30 27 / 0.62), rgb(35 30 27 / 0.38) 40%, rgb(35 30 27 / 0));
+    pointer-events: none;
+  }
+  /* Desktop: the copy clears the header that now overlaps the top of the
+     hero. (On a phone the photo comes first and takes the overlap.) */
+  @media (min-width: 1024px) {
+    :global(body:has(.hdr[data-over-hero])) .home-hero__copy {
+      padding-top: calc(6.25rem + clamp(3.5rem, 8vw, 6.5rem));
+    }
+  }
   /* A soft bronze edge so the photo melts into the ground, not a hard seam. */
   .home-hero__photo::after {
     content: '';
@@ -283,6 +304,16 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     }
     .home-hero__photo::after {
       background: linear-gradient(0deg, var(--color-chip-6) 0, transparent 28%);
+    }
+    /* The phone header sits over the brightest part of the photo (the
+       window), so its shade is deeper and shorter. */
+    .home-hero__photo::before {
+      height: 8.5rem;
+      background: linear-gradient(
+        rgb(35 30 27 / 0.72),
+        rgb(35 30 27 / 0.42) 45%,
+        rgb(35 30 27 / 0)
+      );
     }
     .home-hero__copy {
       padding-top: 0.5rem;

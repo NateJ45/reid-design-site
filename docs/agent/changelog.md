@@ -2,6 +2,25 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Header: on the hero, her pen stroke, the logo inks in
+
+- From the header research and `docs/design/prototypes/header-e-on-hero.html`
+  (Nathan: "do all 4"). Home only: the header sits on the Walnut hero in
+  cream until the page scrolls (`headerOverHero` from `index.astro` through
+  BaseLayout; HomeHero shades the photo top and clears the overlap on
+  desktop). Everywhere: a pen-stroke underline replaces the rising paint
+  chip, and the logo inks in on the first page of a visit (sessionStorage).
+
+## 2026-10-01 — Phone menu: the Walnut contents page
+
+- Two prototype rounds (`docs/design/prototypes/menu-d-magazine.html`):
+  Nathan kept the live header, dropped the room photos and picked the Walnut
+  version. `MobileNav.tsx` + `mobile-nav.css` rebuilt: large Zodiak names
+  with italic notes from `src/data/menu-notes.ts` (tested), arrows,
+  hairlines, Contact added as the last row, the cream booking button, the
+  Google rating (passed from Header.astro via `googleRatingFrom`), phone and
+  email. All text cream on Walnut for contrast; Oat only for marks.
+
 ## 2026-10-01 — Hand-lettered hero accent
 
 - Hero accents (home "completely yours", FAQ "Know", any page hero with a
@@ -27,6 +46,18 @@
   house frame, lazy-set on approach; CSP `frame-src` swaps
   `www.openstreetmap.org` for `www.google.com`. The sketch map stays on the
   home page.
+
+## 2026-10-01 — Clocks, guarantee heading, home Google map, header price off, footer button
+
+- Services travel fees: the tape measure became stopwatch clocks with each
+  tier's drive-time window shaded (`src/lib/drive-time.ts`, tested).
+- Guarantee band: "The guarantee" is the big heading; the promise is a lede.
+- Home "Based in Plainfield": the hand-drawn sketch map is replaced by the
+  Contact Google map (`ServiceAreaMap.astro`, new `caption` prop);
+  `AreaSketchMap.astro`, `src/lib/area-map.ts` and its test deleted.
+- Header and phone menu booking buttons no longer show the price; the header
+  no longer reads the chrome facts.
+- Footer: a cream "Book a consultation" tag under the tagline.
 
 ## 2026-09-30 — The design pass (branch `claude/great-mendel-v4xvi0`)
 

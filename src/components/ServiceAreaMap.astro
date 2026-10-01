@@ -2,8 +2,11 @@
 // Safe to edit by hand
 // The service-area map on /contact: a real Google map (2026-10-01).
 //
+// Used on /contact and, since 2026-10-01, the home "Based in Plainfield" band
+// (ServiceAreaCue.astro), which had the hand-drawn sketch map.
+//
 // History: an OpenStreetMap iframe until 2026-09-30, then briefly the
-// hand-drawn sketch (AreaSketchMap.astro, still on the home page), then this,
+// hand-drawn sketch (AreaSketchMap.astro, deleted 2026-10-01), then this,
 // at Nathan's pick ("option 1"): Google's plain keyless embed, centred on her
 // home base, so visitors can pan, zoom and get directions in the map they
 // already know. No API key, no account, no billing.
@@ -37,10 +40,16 @@
 interface Props {
   /** Business info -> Service areas; the first is home base. */
   towns?: string[] | null;
+  /**
+   * Print the "Based in ..., serving Greater Indianapolis." line under the
+   * map. Off on the home band, whose heading already says it; the "Open in
+   * Google Maps" link stays either way.
+   */
+  caption?: boolean;
   class?: string;
 }
 
-const { towns, class: className } = Astro.props as Props;
+const { towns, caption = true, class: className } = Astro.props as Props;
 const home = (towns ?? []).filter(Boolean)[0] ?? 'Plainfield';
 const QUERY = `${home}, Indiana`;
 const ZOOM = 10;
@@ -70,7 +79,7 @@ const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(QUERY)}`
     </p>
   </div>
   <p class="samap__cap">
-    <span>Based in {home}, serving Greater Indianapolis.</span>
+    {caption && <span>Based in {home}, serving Greater Indianapolis.</span>}
     <a href={mapLink} target="_blank" rel="noopener noreferrer" class="r-link">
       Open in Google Maps
     </a>

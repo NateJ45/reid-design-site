@@ -1,12 +1,14 @@
-/* Phone menu: the fan deck. Foundation, edit with care.
-   Styles for src/components/MobileNav.tsx (2026-09-30, the swatch book
-   chrome; DESIGN.md "Chrome"). Plain CSS on purpose: the dialog renders in a
-   portal on <body>, outside any Astro scope, and the deck geometry is
-   bespoke.
+/* Phone menu: the contents page. Foundation, edit with care.
+   Styles for src/components/MobileNav.tsx (2026-10-01, Nathan's pick "2" of
+   docs/design/prototypes/menu-d-magazine.html; it replaced the 2026-09-30
+   paint-chip fan deck). DESIGN.md "Chrome". Plain CSS on purpose: the dialog
+   renders in a portal on <body>, outside any Astro scope.
 
-   Contrast (DESIGN.md): the overlay is ink with cream text (14.2:1). Chips
-   carry ink names on chips 1 to 4 and cream on 6 and 7; Warm Bronze (chip 5)
-   is never a face. The names are display size (2rem+) either way. */
+   Contrast (DESIGN.md): the page is Walnut (chip 6) and EVERY word on it is
+   cream (4.9:1, AA at any size). The prototype set the italic notes in Oat,
+   but Oat on Walnut is 3.75:1, which only passes at display size, so Oat is
+   kept for marks that carry no meaning on their own: the arrows, the star,
+   the sprig. The booking button is ink on cream (14.2:1). */
 
 /* ---- The trigger: the ink "Menu" price tag in the header ---- */
 .mnav-trigger {
@@ -28,18 +30,17 @@
 }
 
 /* ---- The overlay. .mnav-overlay only exists for Radix (scroll lock);
-   the ink .mnav panel covers the whole screen on its own. ---- */
+   the Walnut .mnav panel covers the whole screen on its own. ---- */
 .mnav-overlay {
   position: fixed;
   inset: 0;
   z-index: 59;
-  background: var(--color-ink);
+  background: var(--color-chip-6);
 }
 .mnav {
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --gut: clamp(1rem, 4vw, 3.5rem);
-  --step: 4.6rem; /* how much of each chip shows above the next */
-  --chip-h: 8rem;
+  --gut: 1.25rem;
+  --rule: rgb(245 237 227 / 0.22);
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -48,7 +49,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--color-ink);
+  background: var(--color-chip-6);
   color: var(--color-cream);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
@@ -56,12 +57,15 @@
   outline: none;
 }
 
+/* ---- Top: her cream logo left, a plain Close with a cross right ---- */
 .mnav__top {
+  position: relative;
+  z-index: 1;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem var(--gut) 0;
+  padding: 0.75rem var(--gut) 0;
 }
 .mnav__logo {
   display: block;
@@ -70,126 +74,184 @@
 }
 .mnav__logo img {
   display: block;
-  height: 6.75rem; /* 108px: her mark, large */
+  height: 4.25rem;
   width: auto;
 }
-.mnav__logo:focus-visible {
+.mnav__logo:focus-visible,
+.mnav__close:focus-visible {
   outline: 2px solid var(--color-cream);
   outline-offset: 4px;
 }
-/* The olive sprig (2026-09-30): faint cream ink, drawn in on every open, in
-   the gap between her logo and the Close tag. Behind everything, never in the
-   way of a tap. */
+.mnav__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--color-cream);
+  font: 500 0.95rem/1 var(--font-body);
+  cursor: pointer;
+}
+.mnav__close svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+/* The olive sprig: faint cream, drawn in on every open, hanging in from the
+   top edge between the logo and Close. Behind everything, never in the way
+   of a tap. */
 .mnav__doodle {
   --dd-ink: var(--color-cream);
-  --dd-delay: 0.25s;
+  --dd-delay: 0.2s;
   position: absolute;
-  top: 3.6rem;
-  right: calc(var(--gut) + 0.5rem);
-  width: 9rem;
-  rotate: 12deg;
-  /* Background ambience, like the section doodles: faint behind the deck. */
-  opacity: 0.32;
+  top: -2.6rem;
+  right: 5.5rem;
+  width: 9.5rem;
+  transform: rotate(180deg) scaleX(-1);
+  opacity: 0.22;
   pointer-events: none;
   z-index: 0;
 }
 .mnav__doodle .dd-wash {
   fill-opacity: 0.35;
 }
-.mnav__top {
+
+/* ---- The kicker: a short rule and the studio line ---- */
+.mnav__kicker {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1rem var(--gut) 0.5rem;
+  font: 500 0.82rem/1 var(--font-body);
+  color: var(--color-cream);
 }
-.mnav__close {
-  margin-top: 0.35rem;
-  min-height: 2.75rem;
-  padding: 0 1.1rem 0 1.95rem;
-  font-size: 0.9rem;
+.mnav__kicker::before {
+  content: '';
+  width: 1.6rem;
+  height: 1px;
+  background: currentColor;
 }
 
-/* ---- The deck: full-width chips, stacked square into one paint strip
-   (fanned a degree apart until the 2026-09-30 quiet pass). Each <li> is only as tall as the
-   strip of its chip that shows; the chip itself is taller and runs on under
-   the next one (later chips paint on top, DOM order). The last <li> is the
-   whole chip. The name sits in the visible strip, so the next chip can never
-   cover it. ---- */
-.mnav__deck {
+/* ---- The contents: big names, an italic note, an arrow, hairlines ---- */
+.mnav__list {
   position: relative;
   z-index: 1;
   flex: 1 0 auto;
-  margin: 1.4rem var(--gut) 0;
+  padding: 0 var(--gut);
 }
-.mnav__deck ul {
+.mnav__list ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.mnav__chip {
-  position: relative;
-  height: var(--step);
-}
-.mnav__chip:last-child {
-  height: var(--chip-h);
-}
-.mnav__chip > a {
-  position: absolute;
-  inset: 0 0 auto;
-  display: block;
-  height: var(--chip-h);
-  padding: 0.85rem 3rem 0 1.15rem;
-  background: var(--tone);
-  color: var(--color-ink);
-  border-radius: 6px;
-  font: 300 clamp(2rem, 1.6rem + 2vw, 2.6rem) / 1.05 var(--font-display);
-  letter-spacing: -0.025em;
-  text-decoration: none;
-  /* A hairline where each chip meets the one above, not a cast shadow: the
-     deck reads as one calm strip. */
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.14),
-    0 -1px 0 rgb(0 0 0 / 0.22);
-}
-.mnav__chip[data-on='cream'] > a {
+.mnav__row a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0 0.75rem;
+  border-bottom: 1px solid var(--rule);
   color: var(--color-cream);
+  text-decoration: none;
 }
-/* The punched hole, top right: shows the ink ground through. */
-.mnav__chip > a::after {
+.mnav__row:first-child a {
+  border-top: 1px solid var(--rule);
+}
+.mnav__name {
+  display: block;
+  font: 300 clamp(2.1rem, 1.6rem + 2.4vw, 2.6rem) / 1 var(--font-display);
+  letter-spacing: -0.035em;
+  transition: transform 0.5s var(--ease);
+}
+.mnav__note {
+  display: block;
+  margin-top: 0.35rem;
+  font: italic 300 1rem/1.25 var(--font-display);
+}
+.mnav__arrow {
+  font: 300 1.4rem/1 var(--font-display);
+  color: var(--color-chip-2);
+  transition: transform 0.5s var(--ease);
+}
+.mnav__row a:focus-visible {
+  outline: 2px solid var(--color-cream);
+  outline-offset: 2px;
+}
+/* The page you are on: the name in italic, and a small dot before its note
+   (not colour alone). */
+.mnav__row a[aria-current='page'] .mnav__name {
+  font-style: italic;
+}
+.mnav__row a[aria-current='page'] .mnav__note::before {
   content: '';
-  position: absolute;
-  right: 1.15rem;
-  top: 1.1rem;
-  width: 0.65rem;
-  height: 0.65rem;
+  display: inline-block;
+  width: 0.38rem;
+  height: 0.38rem;
+  margin-right: 0.5rem;
   border-radius: 50%;
-  background: var(--color-ink);
-}
-.mnav__chip > a:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -6px;
-}
-
-/* The page you are on: its hole is filled and ringed, and the name gets a
-   hairline underline (not colour alone). */
-.mnav__chip > a[aria-current='page'] {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
-.mnav__chip > a[aria-current='page']::after {
   background: currentColor;
-  box-shadow: 0 0 0 3px var(--color-ink);
+  vertical-align: 0.18em;
+}
+@media (hover: hover) {
+  .mnav__row a:hover .mnav__name {
+    transform: translateX(5px);
+  }
+  .mnav__row a:hover .mnav__arrow {
+    transform: translateX(6px);
+  }
+}
+.mnav__row a:active .mnav__arrow {
+  transform: translateX(6px);
 }
 
-/* ---- Foot: the booking tag, then phone and email ---- */
+/* ---- Foot: the cream booking button, the rating, phone and email ---- */
 .mnav__foot {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 0.9rem;
-  padding: 1.5rem var(--gut) 1.25rem;
+  padding: 1.1rem var(--gut) 1.4rem;
 }
 .mnav__book {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   min-height: 3.4rem;
-  font-size: 1rem;
+  padding: 0 1.25rem;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font: 500 1rem/1 var(--font-body);
+  text-decoration: none;
+}
+.mnav__book-arrow {
+  font: 300 1.3rem/1 var(--font-display);
+  transition: transform 0.4s var(--ease);
+}
+.mnav__book:hover .mnav__book-arrow,
+.mnav__book:active .mnav__book-arrow {
+  transform: translateX(4px);
+}
+.mnav__book:focus-visible {
+  outline: 2px solid var(--color-cream);
+  outline-offset: 3px;
+}
+.mnav__rate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font: 500 0.88rem/1.2 var(--font-body);
+  color: var(--color-cream);
+}
+.mnav__star {
+  color: var(--color-chip-2);
 }
 .mnav__meta {
   display: flex;
@@ -197,7 +259,7 @@
   justify-content: space-between;
   gap: 0 1.25rem;
   margin: 0;
-  font: 400 0.95rem/1.3 var(--font-body);
+  font: 400 0.92rem/1.3 var(--font-body);
 }
 .mnav__meta a {
   display: inline-flex;
@@ -205,7 +267,7 @@
   min-height: 2.75rem;
   color: var(--color-cream);
   text-decoration: underline;
-  text-decoration-color: rgb(245 237 227 / 0.35);
+  text-decoration-color: rgb(245 237 227 / 0.45);
   text-underline-offset: 4px;
 }
 .mnav__meta a:hover {
@@ -216,19 +278,21 @@
   outline-offset: 2px;
 }
 
-/* ---- Motion: the deck deals in (straight up, landing square), the ground fades up. Nothing moves under
-   reduced motion; everything is simply there. ---- */
+/* ---- Motion: the ground fades up, the rows rise in one after another, the
+   foot follows. Nothing moves under reduced motion; everything is simply
+   there. ---- */
 @media (prefers-reduced-motion: no-preference) {
   .mnav {
     animation: mnav-fade 280ms ease-out both;
   }
-  .mnav__chip > a {
-    animation: mnav-deal 900ms var(--ease) both;
-    animation-delay: calc(80ms + var(--n) * 70ms);
+  .mnav__row {
+    animation: mnav-rise 800ms var(--ease) both;
+    animation-delay: calc(60ms + var(--n) * 60ms);
   }
+  .mnav__kicker,
   .mnav__foot {
-    animation: mnav-fade 500ms ease-out both;
-    animation-delay: 300ms;
+    animation: mnav-fade 600ms ease-out both;
+    animation-delay: 380ms;
   }
 }
 @keyframes mnav-fade {
@@ -236,9 +300,10 @@
     opacity: 0;
   }
 }
-@keyframes mnav-deal {
+@keyframes mnav-rise {
   from {
-    transform: translateY(120%);
+    opacity: 0;
+    transform: translateY(16px);
   }
 }
 

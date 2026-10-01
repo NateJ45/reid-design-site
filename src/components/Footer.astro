@@ -10,8 +10,9 @@
 //
 // Top to bottom, on ink:
 //   1. The frame. Her logo breaks its top rule; the tagline (Site settings ->
-//      Tagline) sits under it, its last two words in Sandbar italic, then a
-//      small rule-dot-rule ornament.
+//      Tagline) sits under it, its last two words in Sandbar italic, then the
+//      cream "Book a consultation" tag (same label/link as the header button,
+//      2026-10-01) and a small rule-dot-rule ornament.
 //   2. Three columns inside the frame:
 //      - "The studio": a page index. Each line is the page, a dotted leader,
 //        and a REAL fact on the right ("from $225", "19 answers"), all
@@ -168,6 +169,14 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
           {tagLead}
           {tagLead && ' '}<em>{tagAccent}</em>
         </p>
+        {
+          /* The booking button (2026-10-01): the same label and link as the
+            header's button (Site settings -> Header button), as a cream tag
+            on the ink, so the last thing on every page is a way to book. */
+        }
+        <a href={chrome.headerCta.href} class="r-pricetag r-pricetag--cream ftr__cta">
+          <span>{chrome.headerCta.label}</span>
+        </a>
         <span class="ftr__orn" aria-hidden="true"></span>
       </div>
 
@@ -359,6 +368,11 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
   .ftr__tagline em {
     font-style: italic;
     color: var(--color-chip-3);
+  }
+  .ftr__cta {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    min-height: 3rem;
+    font-size: 1rem;
   }
   /* A short rule, a dot, a short rule. */
   .ftr__orn {

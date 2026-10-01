@@ -23,12 +23,27 @@ const [page, siteSettings] = await Promise.all([getHomePage(), getSiteSettings()
 // Staci explicitly turns something off in Studio.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
+// The header sits on the Walnut hero in cream (Header.astro "On hero") only
+// when the hero really is the first section. Same rule HomeSectionRenderer
+// uses: no saved layout means the built-in order, which starts with the hero.
+const homeRows = (page?.pageBuilder ?? []).filter((s: { _type?: string }) => s && s._type);
+const first = homeRows[0] as { _type?: string; section?: string } | undefined;
+const headerOverHero =
+  homeRows.length === 0 || (first?._type === 'homeSectionMarker' && first.section === 'hero');
+
 const title = page?.seoTitle ?? site.name;
 const description =
   page?.seoDescription ?? 'Plainfield interior design for homes that feel genuinely yours.';
 ---
 
-<BaseLayout {title} {description} {siteSettings} seoImage={page?.seoImage} card={{ kind: 'home' }}>
+<BaseLayout
+  {title}
+  {description}
+  {siteSettings}
+  seoImage={page?.seoImage}
+  card={{ kind: 'home' }}
+  {headerOverHero}
+>
   <HomeSectionRenderer
     sections={page?.pageBuilder}
     page={page}
