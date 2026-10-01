@@ -2,6 +2,13 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Hand-lettered hero accent
+
+- Hero accents (home "completely yours", FAQ "Know", any page hero with a
+  scriptAccent) are set in Waterfall to echo Staci's Instagram handwriting.
+  `@font-face` + `--font-hand` in globals.css, `.r-hand` in reid.css, the
+  class on HomeHero and Hero h1s. Font + OFL in `src/assets/fonts/`.
+
 ## 2026-10-01 — Contact: free first step, toned Google map
 
 - Contact now says plainly that the first email or call is free and the

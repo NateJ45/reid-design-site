@@ -131,6 +131,28 @@
     font-style: italic;
     color: var(--accent-color, var(--color-chip-6));
   }
+  /* ---- Hand-lettered accent (2026-10-01). Put .r-hand on a page-opening
+     hero headline and its accent phrase is set in Waterfall, the signature
+     script echoing Staci's Instagram graphics. ONE per page, heroes only:
+     section headings and the closing band keep the Zodiak italic, so the
+     hand stays special. The script reads small for its size (low x-height,
+     hairline), so it is set larger than the serif around it, and its tall
+     loops get room in the word-rise clip box. font-synthesis: none stops the
+     browser slanting it (the accent asks for italic; Waterfall has no italic
+     face) and keeps the Zodiak italic fallback while it loads. ---- */
+  .r-hand .r-accent {
+    font-family: var(--font-hand);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: 1.38em;
+    line-height: 0.68;
+    letter-spacing: 0;
+  }
+  .r-hand.r-rise .r-w.r-accent,
+  .r-hand .r-rise .r-w.r-accent {
+    padding: 0.32em 0.12em 0.3em 0.06em;
+    margin: -0.32em -0.08em -0.3em -0.02em;
+  }
   .r-lede {
     font-size: var(--text-lede);
     line-height: 1.5;

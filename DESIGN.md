@@ -80,7 +80,18 @@ figures printed on the tape measure (part of the drawing, aria-hidden).
   `--text-h2` clamp(2.4rem → 5rem), `--text-h3`, `--text-lede`. Headings are
   weight 300 with -0.025 to -0.035em tracking; scale carries emphasis, not weight.
 - **Accent phrase.** Staci's `scriptAccent` fields now set the phrase in Zodiak
-  italic (`font-script` utility, `.r-accent` class). No script font anywhere.
+  italic (`font-script` utility, `.r-accent` class).
+- **Hand-lettered hero accent** (2026-10-01, Nathan). The ONE accent in a
+  page-opening hero headline (`.r-hand` on the HomeHero and Hero h1s) is set
+  in **Waterfall**, a hairline signature script echoing the handwriting Staci
+  puts on her Instagram graphics (her own face is probably a Canva Pro font
+  that cannot go on the web; Waterfall was the closest of ~30 free faces set
+  side by side with her phrases). Set ~1.4x the serif, upright, in the
+  accent colour. Everywhere else (section headings, the closing band) the
+  accent stays Zodiak italic, so the hand appears once per page. This is
+  deliberately not the generic "serif + Pinyon Script" template look the
+  2026-09-29 audit rejected: it is her own social voice. SIL OFL, so the file
+  is committed in `src/assets/fonts/` with its licence.
 - **No tracked small-caps eyebrows** above sections. Where a small line is
   needed it is sentence case, 500 weight, sometimes led by a short rule.
 

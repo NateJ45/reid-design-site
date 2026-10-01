@@ -92,6 +92,24 @@
   font-display: swap;
 }
 
+/* Waterfall: the hand-lettered accent (2026-10-01). Nathan asked for the
+   hero accents to echo the signature script Staci uses on her Instagram
+   graphics (probably a Canva Pro face, which cannot be licensed for the
+   web); Waterfall was the closest free match out of ~30 Google script faces
+   set side by side with her phrases: hairline, even stroke, tall loops, wide
+   spacing, joined lowercase. SIL Open Font License 1.1, so unlike the
+   Fontshare faces it MAY live in the repo: src/assets/fonts/, with its
+   licence beside it (Waterfall-OFL.txt). Vite fingerprints it into /_astro/.
+   Latin subset (Google's), ~36 KB, only fetched by a page that uses it.
+   Used ONLY by `.r-hand` headings (the page-opening hero accent). */
+@font-face {
+  font-family: 'Waterfall';
+  src: url('../assets/fonts/Waterfall-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* ---------- Metric-matched fallback faces (2026-09-29, rebuild) -------------
@@ -211,6 +229,9 @@
      it is Zodiak italic (see the font-script utility). Staci's existing
      scriptAccent words keep working and change look site-wide. */
   --font-script: 'Zodiak', 'Zodiak Fallback', Georgia, serif;
+  /* The hand-lettered hero accent (Waterfall, see its @font-face). Falls
+     back to the Zodiak italic every other accent uses. */
+  --font-hand: 'Waterfall', 'Zodiak', 'Zodiak Fallback', Georgia, serif;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;

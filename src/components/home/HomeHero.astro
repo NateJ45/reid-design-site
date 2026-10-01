@@ -83,7 +83,13 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
 <section class="home-hero" aria-labelledby={headingId}>
   <div class="home-hero__copy">
     {eyebrow && <p class="home-hero__eyebrow">{eyebrow}</p>}
-    <RiseWords as="h1" id={headingId} text={headline} accent={accent} class="home-hero__h1" />
+    <RiseWords
+      as="h1"
+      id={headingId}
+      text={headline}
+      accent={accent}
+      class="home-hero__h1 r-hand"
+    />
     <div class="home-hero__foot">
       {subhead && <p class="home-hero__sub">{subhead}</p>}
       <div class="home-hero__ctas">
