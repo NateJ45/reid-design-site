@@ -82,7 +82,21 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
 
 <section class="home-hero" aria-labelledby={headingId}>
   <div class="home-hero__copy">
-    {eyebrow && <p class="home-hero__eyebrow">{eyebrow}</p>}
+    {
+      /* The top line: the eyebrow on the left, the Google rating tag hung
+        at the right (moved up from under the buttons, 2026-10-01: the top
+        corner was empty and the tag was crowding the foot). */
+    }
+    <div class="home-hero__top">
+      {eyebrow && <p class="home-hero__eyebrow">{eyebrow}</p>}
+      {
+        googleRatingFrom(ratingSettings) && (
+          <div class="home-hero__rating">
+            <RatingTag settings={ratingSettings} />
+          </div>
+        )
+      }
+    </div>
     <RiseWords
       as="h1"
       id={headingId}
@@ -121,13 +135,6 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
           )
         }
       </div>
-      {
-        googleRatingFrom(ratingSettings) && (
-          <div class="home-hero__rating">
-            <RatingTag settings={ratingSettings} />
-          </div>
-        )
-      }
     </div>
   </div>
 
@@ -175,11 +182,21 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     padding-left: max(var(--gut), calc((100vw - 85rem) / 2 + var(--gut)));
   }
 
+  /* Eyebrow and rating share the top line; margin-bottom auto pushes the
+     headline down to the foot of the hero, as the eyebrow alone used to. */
+  .home-hero__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin: 0 0 auto;
+  }
   .home-hero__eyebrow {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin: 0 0 auto;
+    margin: 0;
     font: 500 0.95rem/1.35 var(--font-body);
     color: var(--color-cream);
     max-width: 40ch;
@@ -228,11 +245,9 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
   .home-hero__secondary {
     color: var(--color-cream);
   }
-  /* The Google rating tag takes its own row under the buttons, hung a touch
-     off the copy's left edge like a tag tied to the deck. */
+  /* The Google rating tag, top right of the copy, opposite the eyebrow. */
   .home-hero__rating {
-    flex-basis: 100%;
-    margin-top: 0.25rem;
+    flex: none;
   }
 
   .home-hero__photo {
@@ -324,7 +339,7 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
       padding-top: 0.5rem;
       margin-top: -1.5rem;
     }
-    .home-hero__eyebrow {
+    .home-hero__top {
       margin-bottom: 0.5rem;
     }
   }

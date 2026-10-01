@@ -147,7 +147,8 @@ no decorative numbering.
     is revealed left to right in about 1.5s. Once per session via
     sessionStorage; never under reduced motion.
     Scrolled, the row condenses into a floating paper strip with a shadow in
-    ink (on the home page too); the logo shrinks to 52px inside it. The sticky
+    ink (on the home page too); the logo shrinks and fades and "REID DESIGN"
+    is drawn in left to right in its place (2026-10-01). The sticky
     box never changes height, so nothing reflows. No availability pill, no
     search icon (search lives in the footer). The Google rating sits beside
     the tag from 1200px up.

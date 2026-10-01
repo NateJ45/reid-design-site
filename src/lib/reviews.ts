@@ -221,3 +221,19 @@ export function orderReviews(
   const hasGoogle = [lead, ...more].some((t) => t && isRatedGoogleReview(t));
   return { lead, more, hasGoogle };
 }
+
+/**
+ * A reviewer's name for display (2026-10-01). Google gives the name exactly
+ * as the reviewer typed it on their account, so "amy paul" arrives all
+ * lowercase. Only an ALL-lowercase name is capitalised word by word; any
+ * name with a capital in it ("McKenzie", "de la Cruz Ortiz") is left
+ * exactly as its owner wrote it.
+ */
+export function displayName(name: string | null | undefined): string {
+  const raw = name ?? '';
+  if (!/\p{Ll}/u.test(raw) || /\p{Lu}/u.test(raw)) return raw;
+  return raw.replace(
+    /(^|[\s\-'’.])(\p{Ll})/gu,
+    (_, sep: string, ch: string) => sep + ch.toUpperCase(),
+  );
+}

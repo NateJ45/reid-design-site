@@ -10,7 +10,7 @@
 // "3 weeks ago" stays true between rebuilds.
 //
 // Colours inherit (the caller sets `color`); the name takes --gcite-strong.
-import { relativeDate, type ReviewLike } from '@/lib/reviews';
+import { displayName, relativeDate, type ReviewLike } from '@/lib/reviews';
 import { splitStega } from '@/lib/preview-stega';
 
 interface Props {
@@ -21,11 +21,11 @@ interface Props {
 
 const { review, href } = Astro.props as Props;
 const age = relativeDate(review.date);
-const plainName = splitStega(review.attribution ?? '').cleaned;
+const plainName = displayName(splitStega(review.attribution ?? '').cleaned);
 ---
 
 <figcaption class="gcite">
-  <span class="gcite__who">{review.attribution}</span>
+  <span class="gcite__who">{displayName(review.attribution)}</span>
   {
     (age || href) && (
       <span class="gcite__meta">

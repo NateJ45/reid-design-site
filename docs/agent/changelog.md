@@ -9,6 +9,14 @@
 - Home hero: the photo's Walnut edge fade sits above the header shade, so
   the photo no longer meets the Walnut in a hard vertical seam near the
   header.
+- Header strip: scrolled, the full logo (unreadable at strip height)
+  shrinks away and "REID DESIGN" is drawn in left to right; reversed at
+  the top.
+- Home hero: the Google rating tag moved up to the top line, opposite the
+  eyebrow. Home reviews also link to her Facebook reviews tab.
+- Reviewer names typed all in lowercase on Google ("amy paul") are shown
+  capitalised (displayName in src/lib/reviews.ts); any name with a capital
+  is left as written.
 - Travel-fee clocks are real 60-minute faces, one per hour of driving,
   shaded up to the top of each window (the two-hour dial misread: "within
   30" looked like 15). "45 to 75" is a full face and one to :15.
