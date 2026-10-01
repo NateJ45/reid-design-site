@@ -9,6 +9,9 @@
 - Home hero: the photo's Walnut edge fade sits above the header shade, so
   the photo no longer meets the Walnut in a hard vertical seam near the
   header.
+- Travel-fee clocks are real 60-minute faces (the two-hour dial misread:
+  "within 30" looked like 15); windows past the hour wrap over the top and
+  show "+1 hr".
 - View transitions: the header and footer no longer double print during a
   page change (the old snapshot is hidden); the page content fades out with
   a slight lift and the new page rises in.

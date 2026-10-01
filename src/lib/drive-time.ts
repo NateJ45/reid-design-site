@@ -48,60 +48,58 @@ export function parseDriveWindow(label: string | null | undefined): DriveWindow 
 }
 
 /**
- * The dial's full turn, in minutes: two hours unless a tier runs longer, then
- * rounded up to the next whole hour. Every clock on the page shares it, so
- * the wedges compare at a glance.
+ * The dial is a real clock face: one turn is 60 minutes (2026-10-01; it was
+ * a two-hour dial, so "within 30 minutes" drew as a quarter turn and read as
+ * 15 to anyone who knows a clock). A window that runs past the hour wraps
+ * round the face like a minute hand would, and the clock carries a small
+ * "+1 hr" so 1:15 never reads as 0:15.
  */
-export function dialMinutes(windows: (DriveWindow | null)[]): number {
-  let max = 120;
-  for (const w of windows) {
-    if (!w) continue;
-    max = Math.max(max, w.to ?? w.from);
-  }
-  return Math.ceil(max / 60) * 60;
-}
+export const DIAL_MINUTES = 60;
 
 /** A point on the dial: minutes clockwise from 12 o'clock. */
-function point(cx: number, cy: number, r: number, minutes: number, full: number) {
-  const a = (minutes / full) * 2 * Math.PI - Math.PI / 2;
+function point(cx: number, cy: number, r: number, minutes: number) {
+  const a = (minutes / DIAL_MINUTES) * 2 * Math.PI - Math.PI / 2;
   return { x: +(cx + r * Math.cos(a)).toFixed(2), y: +(cy + r * Math.sin(a)).toFixed(2) };
 }
 
+/** Where an open-ended window ("over 2 hours") is drawn to: one full hour on. */
+function endOf(w: DriveWindow): number {
+  return w.to ?? w.from + DIAL_MINUTES;
+}
+
 /**
- * The SVG path of a window's wedge on a dial centred at (cx, cy), radius r.
- * Open-ended windows run to the end of the dial. Returns '' for no window.
+ * The SVG path of a window's wedge on a dial centred at (cx, cy), radius r,
+ * from the window's start to its end as a minute hand would sweep it
+ * (45 to 75 runs from :45 over the top to :15). A window an hour or longer
+ * fills the face. Returns '' for no window.
  */
-export function wedgePath(
-  w: DriveWindow | null,
-  full: number,
-  cx: number,
-  cy: number,
-  r: number,
-): string {
+export function wedgePath(w: DriveWindow | null, cx: number, cy: number, r: number): string {
   if (!w) return '';
-  const from = Math.max(0, Math.min(w.from, full));
-  const to = Math.max(from, Math.min(w.to ?? full, full));
-  if (to - from <= 0) return '';
-  // A full turn cannot be one arc; draw it as two halves.
-  if (to - from >= full) {
-    const top = point(cx, cy, r, 0, full);
-    const bottom = point(cx, cy, r, full / 2, full);
+  const span = Math.max(0, endOf(w) - w.from);
+  if (span <= 0) return '';
+  if (span >= DIAL_MINUTES) {
+    const top = point(cx, cy, r, 0);
+    const bottom = point(cx, cy, r, DIAL_MINUTES / 2);
     return `M${cx} ${cy}L${top.x} ${top.y}A${r} ${r} 0 1 1 ${bottom.x} ${bottom.y}A${r} ${r} 0 1 1 ${top.x} ${top.y}Z`;
   }
-  const a = point(cx, cy, r, from, full);
-  const b = point(cx, cy, r, to, full);
-  const large = to - from > full / 2 ? 1 : 0;
+  const a = point(cx, cy, r, w.from % DIAL_MINUTES);
+  const b = point(cx, cy, r, (w.from + span) % DIAL_MINUTES);
+  const large = span > DIAL_MINUTES / 2 ? 1 : 0;
   return `M${cx} ${cy}L${a.x} ${a.y}A${r} ${r} 0 ${large} 1 ${b.x} ${b.y}Z`;
 }
 
-/** Where the hand points: the end of the window (or its start if open-ended). */
+/** Where the hand points: the end of the window, on the clock face. */
 export function handPoint(
   w: DriveWindow | null,
-  full: number,
   cx: number,
   cy: number,
   r: number,
 ): { x: number; y: number } | null {
   if (!w) return null;
-  return point(cx, cy, r, Math.min(w.to ?? w.from, full), full);
+  return point(cx, cy, r, endOf(w) % DIAL_MINUTES);
+}
+
+/** Does the window run past the first hour? Then the clock says "+1 hr". */
+export function pastTheHour(w: DriveWindow | null): boolean {
+  return !!w && endOf(w) > DIAL_MINUTES;
 }

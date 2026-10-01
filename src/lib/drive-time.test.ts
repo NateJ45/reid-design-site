@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dialMinutes, handPoint, parseDriveWindow, wedgePath } from './drive-time';
+import { handPoint, parseDriveWindow, pastTheHour, wedgePath } from './drive-time';
 
 describe('drive-time windows', () => {
   it("reads Staci's tier labels", () => {
@@ -21,22 +21,33 @@ describe('drive-time windows', () => {
     expect(parseDriveWindow(undefined)).toBeNull();
   });
 
-  it('sizes the dial to two hours, or the next whole hour past the longest tier', () => {
-    expect(dialMinutes([{ from: 0, to: 30 }, null])).toBe(120);
-    expect(dialMinutes([{ from: 75, to: 150 }])).toBe(180);
-    expect(dialMinutes([{ from: 150, to: null }])).toBe(180);
+  it('reads like a clock: 30 minutes is half the face, 12 to 6', () => {
+    expect(wedgePath({ from: 0, to: 30 }, 50, 50, 40)).toBe('M50 50L50 10A40 40 0 0 1 50 90Z');
+    expect(wedgePath(null, 50, 50, 40)).toBe('');
   });
 
-  it('draws a wedge from 12 o clock for a "within" tier, and nothing without a window', () => {
-    // 0 to 30 of 120 is a quarter turn: 12 o'clock to 3 o'clock.
-    expect(wedgePath({ from: 0, to: 30 }, 120, 50, 50, 40)).toBe('M50 50L50 10A40 40 0 0 1 90 50Z');
-    expect(wedgePath(null, 120, 50, 50, 40)).toBe('');
-    // Over half a turn uses the large-arc flag.
-    expect(wedgePath({ from: 0, to: 90 }, 120, 50, 50, 40)).toContain('A40 40 0 1 1');
+  it('wraps past the hour like a minute hand: 45 to 75 runs :45 over the top to :15', () => {
+    expect(wedgePath({ from: 45, to: 75 }, 50, 50, 40)).toBe('M50 50L10 50A40 40 0 0 1 90 50Z');
+    expect(handPoint({ from: 45, to: 75 }, 50, 50, 40)).toEqual({ x: 90, y: 50 });
   });
 
-  it('points the hand at the end of the window', () => {
-    expect(handPoint({ from: 45, to: 60 }, 120, 50, 50, 40)).toEqual({ x: 50, y: 90 });
-    expect(handPoint(null, 120, 50, 50, 40)).toBeNull();
+  it('points the hand at the end of the window, 12 for the top of an hour', () => {
+    expect(handPoint({ from: 0, to: 30 }, 50, 50, 40)).toEqual({ x: 50, y: 90 });
+    expect(handPoint({ from: 75, to: 120 }, 50, 50, 40)).toEqual({ x: 50, y: 10 });
+    expect(handPoint(null, 50, 50, 40)).toBeNull();
+  });
+
+  it('flags windows that run past the hour', () => {
+    expect(pastTheHour({ from: 0, to: 30 })).toBe(false);
+    expect(pastTheHour({ from: 0, to: 60 })).toBe(false);
+    expect(pastTheHour({ from: 45, to: 75 })).toBe(true);
+    expect(pastTheHour({ from: 120, to: null })).toBe(true);
+    expect(pastTheHour(null)).toBe(false);
+  });
+
+  it('fills the face for an hour or longer', () => {
+    expect(wedgePath({ from: 60, to: 120 }, 50, 50, 40)).toContain(
+      'A40 40 0 1 1 50 90A40 40 0 1 1 50 10Z',
+    );
   });
 });

@@ -304,9 +304,12 @@ prices are the loudest thing on it.
   in fine line (paper face outlined in Walnut, Warm Bronze ticks, quarter
   hours in Walnut) with its drive-time window shaded in Sandbar and an
   Espresso hand at the window's end, beside its label and fee. The window is
-  read from the tier label (`src/lib/drive-time.ts`, tested); all clocks
-  share one dial (two hours unless a tier runs longer). The wedges sweep in
-  on scroll. One clock per row on phones.
+  read from the tier label (`src/lib/drive-time.ts`, tested). Each is a
+  real 60-minute face (a two-hour dial until 2026-10-01 drew "within 30" as
+  a quarter turn, which reads as 15): the wedge runs from the start minute
+  to the end minute as a minute hand would, wrapping over the top past the
+  hour, and a window ending past the hour shows "+1 hr" under the pin. The
+  wedges sweep in on scroll. One clock per row on phones.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on paper (Oat
   until the quiet pass): "The guarantee" as the big Zodiak heading with an
   italic accent, Staci's promise under it as a General Sans lede (the

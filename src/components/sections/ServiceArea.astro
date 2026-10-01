@@ -8,16 +8,25 @@
 // measure until then, which said distance when the fees are about time).
 // Each tier is a small stopwatch in her line style with its drive-time
 // window shaded, read from the tier's own label by src/lib/drive-time.ts
-// ("45 to 75 minutes" -> 45 to 75). Every clock shares one dial (two hours
-// unless a tier runs longer), so the wedges compare at a glance. A label with
-// no number still gets a clock, just with no wedge.
+// ("45 to 75 minutes" -> 45 to 75). Each is a real 60-minute clock face
+// (2026-10-01; a two-hour dial drew "within 30" as a quarter turn, which
+// reads as 15): the wedge runs from the start minute to the end minute the
+// way a minute hand would, wrapping over the top past the hour, and a
+// window that ends past the hour carries a small "+1 hr" under the pin. A
+// label with no number still gets a clock, just with no wedge.
 //
 // Data unchanged: servicesPage.serviceAreaSection (headline, description) and
 // businessInfo.travelFees. `cities` (businessInfo.serviceAreas, first = home
 // base) is optional; with none, the towns line is skipped.
 // Self-suppresses with no headline and no travel fees.
 
-import { dialMinutes, handPoint, parseDriveWindow, wedgePath } from '@/lib/drive-time';
+import {
+  DIAL_MINUTES,
+  handPoint,
+  parseDriveWindow,
+  pastTheHour,
+  wedgePath,
+} from '@/lib/drive-time';
 
 interface Props {
   areaSec?: any;
@@ -30,17 +39,16 @@ const show = areaSec?.headline || travelFees.length > 0;
 const cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
 const [home, ...rest] = cityList;
 
-// The clocks: one window per tier, one shared dial.
+// The clocks: one window per tier, each on a 60-minute face.
 const windows = travelFees.map((t: any) => parseDriveWindow(t?.distanceLabel));
-const full = dialMinutes(windows);
 // Dial geometry (viewBox 0 0 100 112): the face centred at (50, 62), the
 // crown and button above it like a stopwatch.
 const CX = 50;
 const CY = 62;
 const R = 38;
-const ticks = Array.from({ length: full / 5 }, (_, i) => {
+const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
   const m = i * 5;
-  const a = (m / full) * 2 * Math.PI - Math.PI / 2;
+  const a = (m / DIAL_MINUTES) * 2 * Math.PI - Math.PI / 2;
   const major = m % 15 === 0;
   const r1 = R - (major ? 7 : 3.5);
   return {
@@ -82,8 +90,9 @@ const ticks = Array.from({ length: full / 5 }, (_, i) => {
             <ul class="sa__tiers" role="list" style={`--n:${travelFees.length}`}>
               {travelFees.map((tier: any, i: number) => {
                 const w = windows[i] ?? null;
-                const wedge = wedgePath(w, full, CX, CY, R - 1);
-                const hand = handPoint(w, full, CX, CY, R - 11);
+                const wedge = wedgePath(w, CX, CY, R - 1);
+                const hand = handPoint(w, CX, CY, R - 11);
+                const overHour = pastTheHour(w);
                 return (
                   <li class="sa__tier">
                     <svg
@@ -109,6 +118,11 @@ const ticks = Array.from({ length: full / 5 }, (_, i) => {
                       ))}
                       {hand && <line class="sa__hand" x1={CX} y1={CY} x2={hand.x} y2={hand.y} />}
                       <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
+                      {overHour && (
+                        <text class="sa__lap" x={CX} y={CY + 21} text-anchor="middle">
+                          +1 hr
+                        </text>
+                      )}
                     </svg>
                     <div class="sa__words">
                       <p class="sa__when">{tier.distanceLabel}</p>
@@ -230,6 +244,12 @@ const ticks = Array.from({ length: full / 5 }, (_, i) => {
     stroke: var(--color-chip-7);
     stroke-width: 1.6;
     stroke-linecap: round;
+  }
+  /* "+1 hr" under the pin when the window runs past the hour. */
+  .sa__lap {
+    font: 600 8.5px var(--font-body);
+    letter-spacing: 0.02em;
+    fill: var(--color-chip-7);
   }
   .sa__pin {
     fill: var(--color-chip-7);
