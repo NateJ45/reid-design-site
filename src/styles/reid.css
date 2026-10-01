@@ -131,6 +131,28 @@
     font-style: italic;
     color: var(--accent-color, var(--color-chip-6));
   }
+  /* ---- Hand-lettered accent (2026-10-01). Put .r-hand on a page-opening
+     hero headline and its accent phrase is set in Waterfall, the signature
+     script echoing Staci's Instagram graphics. ONE per page, heroes only:
+     section headings and the closing band keep the Zodiak italic, so the
+     hand stays special. The script reads small for its size (low x-height,
+     hairline), so it is set larger than the serif around it, and its tall
+     loops get room in the word-rise clip box. font-synthesis: none stops the
+     browser slanting it (the accent asks for italic; Waterfall has no italic
+     face) and keeps the Zodiak italic fallback while it loads. ---- */
+  .r-hand .r-accent {
+    font-family: var(--font-hand);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: 1.38em;
+    line-height: 0.68;
+    letter-spacing: 0;
+  }
+  .r-hand.r-rise .r-w.r-accent,
+  .r-hand .r-rise .r-w.r-accent {
+    padding: 0.32em 0.12em 0.3em 0.06em;
+    margin: -0.32em -0.08em -0.3em -0.02em;
+  }
   .r-lede {
     font-size: var(--text-lede);
     line-height: 1.5;
@@ -242,6 +264,100 @@
     .r-pricetag:hover {
       transform: rotate(-2deg);
     }
+  }
+
+  /* ---- Room backdrop (2026-09-30 design pass): one of Staci's rooms faded
+     behind a card, drawn by RoomBackdrop.astro. The host card gets
+     .r-backdrop-host (a stacking context that clips the photo to the card).
+     The photo is MULTIPLIED into the card colour, so it can only darken:
+     pale cards show a soft photograph, deep cards show it as shadow in the
+     paint, and text contrast never drops below AA (see RoomBackdrop.astro).
+     The mask fades it out toward the card's top and bottom edges, where the
+     name and price sit, and keeps it strongest in the quiet middle. ---- */
+  .r-backdrop-host {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .r-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    opacity: var(--bd-opacity, 0.2);
+    mix-blend-mode: multiply;
+    /* Warm the photo toward the paint strip so it never fights the chip. */
+    filter: grayscale(0.55) sepia(0.3) contrast(0.95);
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.25) 0%,
+      #000 32%,
+      #000 62%,
+      rgb(0 0 0 / 0.3) 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.25) 0%,
+      #000 32%,
+      #000 62%,
+      rgb(0 0 0 / 0.3) 100%
+    );
+  }
+  /* On a deep chip multiply shows the photo only as shadow, so it needs
+     more strength to read at all (and can only deepen the ground further). */
+  .r-backdrop[data-tone='deep'] {
+    --bd-opacity: 0.8;
+  }
+
+  /* ---- Photo frame (2026-09-30 design pass): a photo is never just set down
+     on a band. It sits in a paper mat with a Warm Bronze keyline between the
+     mat and the picture, and a soft shadow, the way a print is framed and
+     hung. Put .r-frame on the wrapper and the picture inside it; an optional
+     .r-frame__cap under the picture carries a short caption. ---- */
+  .r-frame {
+    --frame-pad: clamp(0.55rem, 0.35rem + 0.8vw, 0.95rem);
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: var(--frame-pad);
+    background: var(--color-paper);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 1px 2px rgb(35 30 27 / 0.06),
+      0 34px 60px -38px rgb(35 30 27 / 0.55);
+  }
+  /* The keyline: a hairline in the mat, a few pixels off the picture. */
+  .r-frame::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--frame-pad) * 0.45);
+    border: 1px solid rgb(156 118 97 / 0.45);
+    pointer-events: none;
+  }
+  .r-frame > img,
+  .r-frame > picture,
+  .r-frame > picture > img {
+    display: block;
+    width: 100%;
+  }
+  .r-frame__cap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: calc(var(--frame-pad) * 0.9) 0.15rem 0.1rem;
+    font: 500 0.8rem/1.35 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .r-frame__cap::before {
+    content: '';
+    flex: none;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-chip-5);
   }
 
   /* ---- Word rise (RiseWords.astro). Each word is clipped by its own box and

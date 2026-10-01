@@ -119,7 +119,7 @@ if (mode === 'rerender') {
       route,
       ...content,
       photos: p.image?.src ? [p.image] : [],
-      doodle: 'willow',
+      doodle: 'eucalyptus',
       fallback: null,
       warnings,
     };

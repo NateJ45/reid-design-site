@@ -61,7 +61,8 @@
 #   frame-src   calendly.com               click-to-load scheduler (CalendlyInline.tsx)
 #               www.youtube.com, www.youtube-nocookie.com, player.vimeo.com
 #                                          VideoEmbed section
-#               www.openstreetmap.org      ServiceAreaMap.astro
+#               www.google.com             ServiceAreaMap.astro (the Google map embed on /contact;
+#                                          www.openstreetmap.org until 2026-10-01)
 #   img-src     https:                     Sanity CDN photos, GA's pixel. (It was broad for the
 #                                          shop's affiliate images from arbitrary retailers; the
 #                                          shop went 2026-09-30, so this could now be narrowed.
@@ -101,7 +102,7 @@
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.sanity.io https://*.sanity.io; img-src 'self' data: blob: https:; media-src 'self' https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com; connect-src 'self' https://api.web3forms.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://cloudflareinsights.com https://ba403vjc.api.sanity.io https://ba403vjc.apicdn.sanity.io; frame-src 'self' https://calendly.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.openstreetmap.org; form-action 'self' https://api.web3forms.com; worker-src 'self'; manifest-src 'self'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://www.sanity.io https://*.sanity.io; img-src 'self' data: blob: https:; media-src 'self' https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com; connect-src 'self' https://api.web3forms.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://www.google.com https://cloudflareinsights.com https://ba403vjc.api.sanity.io https://ba403vjc.apicdn.sanity.io; frame-src 'self' https://calendly.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.google.com; form-action 'self' https://api.web3forms.com; worker-src 'self'; manifest-src 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin

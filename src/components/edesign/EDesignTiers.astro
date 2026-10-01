@@ -13,6 +13,7 @@
 // button goes to /contact?type=e-design. Renders nothing with no tiers.
 import SectionHeading from '@/components/SectionHeading.astro';
 import { chipPrice, toneFor } from '@/components/services/tones';
+import RoomBackdrop from '@/components/RoomBackdrop.astro';
 
 interface Tier {
   name?: string;
@@ -41,7 +42,13 @@ const n = list.length;
             const price = chipPrice(tier.price);
             return (
               <li class="edt__tier" style={`--tone:${tone.bg}`} data-on={tone.on}>
-                <div class="edt__face">
+                <div class="edt__face r-backdrop-host">
+                  <RoomBackdrop
+                    index={i}
+                    start={5}
+                    ratio={1.1}
+                    tone={tone.on === 'cream' ? 'deep' : 'pale'}
+                  />
                   <h3 class="edt__name">{tier.name}</h3>
                   {tier.price && (
                     <p class="edt__price">

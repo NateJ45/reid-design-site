@@ -8,8 +8,13 @@
 //     back to the home hero portrait). No photo in Sanity = no figure.
 //   - The availability line (contactPage.availabilityNote, else
 //     siteSettings.availabilityStatus).
-//   - The consultation price on a sample tag, read from the service whose
-//     name or slug says "consult". No match = no tag, never a made-up price.
+//   - "How it starts" (2026-10-01, Nathan: make it clear the first email or
+//     call is free and the $225 consultation comes after): two ruled lines,
+//     "Your first email or call ... Free", then the consultation and its
+//     price, read from the service whose name or slug says "consult". No
+//     match = no price line, never a made-up price. (It used to be one price
+//     tag captioned "Most projects start here", which read as if getting in
+//     touch cost $225.)
 //   - Email (mailto + copy), phone (tel:), and a jump to the "book a call"
 //     band when a scheduling link exists.
 //
@@ -65,7 +70,7 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
   <div class="cx__staci">
     {
       photo?.asset && (
-        <figure class="cx__photo">
+        <figure class="cx__photo r-frame">
           <SanityImage
             source={photo}
             width={640}
@@ -92,21 +97,37 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     )
   }
 
-  {
-    price && (
-      <p class="r-tag cx__price">
-        <small>{consultName || 'In-home consultation'}</small>
-        <strong>
-          {price.amount}
-          {price.unit}
-          {price.run}
-        </strong>
-        <span class="cx__price-note">
-          Most projects start here. <a href="/services">See what’s included</a>
-        </span>
-      </p>
-    )
-  }
+  <div class="cx__start">
+    <p class="cx__start-h" id="cx-start-h">How it starts</p>
+    <ol class="cx__steps" aria-labelledby="cx-start-h">
+      <li>
+        <span class="cx__step">Your first email or call</span>
+        <em aria-hidden="true"></em>
+        <b class="cx__free">Free</b>
+      </li>
+      {
+        price && (
+          <li>
+            <span class="cx__step">{consultName || 'In-home consultation'}</span>
+            <em aria-hidden="true" />
+            <b>
+              {price.amount}
+              {price.unit}
+              {price.run}
+            </b>
+          </li>
+        )
+      }
+    </ol>
+    <p class="cx__price-note">
+      {
+        price
+          ? 'The consultation comes after, once we both know it’s a good fit. '
+          : 'No charge to get in touch, and no commitment. '
+      }
+      <a href="/services">See what’s included</a>
+    </p>
+  </div>
 
   {/* ---- Google reviews insertion (2026-09-30) ---- */}
   {
@@ -150,7 +171,7 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
             <dt>Talk first</dt>
             <dd>
               <a class="r-link" href="#book-a-call">
-                Book a discovery call
+                Book a free call
               </a>
             </dd>
           </div>
@@ -169,11 +190,10 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     display: grid;
     gap: 1rem;
   }
+  /* Framed (.r-frame, 2026-09-30 design pass): paper mat, bronze keyline. */
   .cx__photo {
     position: relative;
     margin: 0;
-    overflow: clip;
-    background: var(--color-chip-1);
   }
   .cx__photo :global(.cx__img) {
     display: block;
@@ -235,19 +255,53 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
   }
 
   /* The price on a sample tag (the .r-tag primitive), square to the page. */
-  .cx__price {
-    justify-self: start;
-    margin: 0;
-    padding-right: 1.5rem;
+  /* "How it starts": two ruled lines, step, dotted leader, price. The free
+     first step is in Espresso italic so "Free" is the first thing read. */
+  .cx__start-h {
+    margin: 0 0 0.4rem;
+    font: 500 0.85rem/1.3 var(--font-body);
+    color: var(--color-ink-2);
   }
-  .cx__price strong {
-    font-size: 2.1rem;
-    line-height: 1.05;
+  .cx__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cx__steps li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .cx__steps li:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .cx__step {
+    font: 300 1.2rem/1.2 var(--font-display);
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+  .cx__steps em {
+    flex: 1;
+    min-width: 1rem;
+    border-bottom: 1px dotted var(--color-chip-4);
+    transform: translateY(-0.3em);
+  }
+  .cx__steps b {
+    flex: none;
+    font: 300 1.6rem/1 var(--font-display);
     letter-spacing: -0.02em;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .cx__steps .cx__free {
+    font-style: italic;
+    color: var(--color-chip-7);
   }
   .cx__price-note {
     display: block;
-    margin-top: 0.3rem;
+    margin: 0.6rem 0 0;
     font: 400 0.85rem/1.4 var(--font-body);
     color: var(--color-ink-2);
   }
@@ -303,6 +357,9 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
     .cx__staci {
       grid-template-columns: 5.5rem minmax(0, 1fr);
       align-items: center;
+    }
+    .cx__photo {
+      --frame-pad: 0.35rem;
     }
     .cx__photo :global(.cx__img) {
       aspect-ratio: 1;

@@ -2,33 +2,37 @@
 // Foundation, edit with care
 // Site footer: the back cover of the swatch book (rebuilt 2026-09-30 from the
 // approved prototype docs/design/prototypes/chrome-a-swatch-book.html;
-// DESIGN.md "Chrome").
+// DESIGN.md "Chrome"), refined the same day in the design pass: Nathan wanted
+// it "truly classy and refined", so the craft props (paper contact tags,
+// multicoloured swatches) gave way to stationery: a fine double-rule frame on
+// the ink, Staci's logo centred on its top rule like a seal, her tagline
+// centred under it, then three quiet columns.
 //
-// Top to bottom, on ink. (The seven-tone paint strip that used to run across
-// the top was removed 2026-09-30: Nathan found the decorative swatches
-// repetitive; chips now appear only where they carry content.)
-//   1. Three columns:
-//      - "The studio": a page index. Each line is a tone swatch, the page, a
-//        dotted leader, and a REAL fact on the right ("from $225",
-//        "19 answers"), all derived from content by src/lib/chrome-facts.ts.
-//        A fact that cannot be derived is left out, never typed.
-//      - "Get in touch": email, phone and socials as paper sample tags.
+// Top to bottom, on ink:
+//   1. The frame. Her logo breaks its top rule; the tagline (Site settings ->
+//      Tagline) sits under it, its last two words in Sandbar italic, then a
+//      small rule-dot-rule ornament.
+//   2. Three columns inside the frame:
+//      - "The studio": a page index. Each line is the page, a dotted leader,
+//        and a REAL fact on the right ("from $225", "19 answers"), all
+//        derived from content by src/lib/chrome-facts.ts. A fact that cannot
+//        be derived is left out, never typed.
+//      - "Get in touch": email, phone and socials as label + value rows.
 //      - "Based in <city>": the service towns, from Business info.
-//   2. Staci's logo, large, beside the site tagline (Site settings).
-//   3. The base row: copyright, Privacy (or Staci's small-print links),
-//      Search, and the site credit.
+//   3. The base row under the frame: copyright, Privacy (or Staci's
+//      small-print links), Search, and the site credit.
 //
 // Site settings still steer it (src/lib/siteSettings.ts): "Footer link
 // columns" replace the page index with Staci's own columns, "Footer small-print
 // links" replace Privacy, and "Show socials in the footer" hides the social
-// tags. Custom pages flagged "Add to footer" join the index.
+// rows. Custom pages flagged "Add to footer" join the index.
 //
-// No .dark subtree any more: every colour here is set explicitly for the ink
-// ground (cream 14.2:1, cream at 75% 8:1+, Oat headings 10:1+).
+// No .dark subtree: every colour here is set explicitly for the ink ground
+// (cream 14.2:1, cream at 75% 8:1+, Oat labels 10:1+, Sandbar 7:1+).
 
 import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
-import logoDarkAsset from '@/assets/logo-dark.png';
+import lockupMaskAsset from '@/assets/logo-lockup-mask.png';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { telHref } from '@/lib/phone';
 import { resolveChrome, type RawFooterColumn } from '@/lib/siteSettings';
@@ -36,9 +40,12 @@ import { isExternalHref, type RawNavLink } from '@/lib/nav-href';
 import { getChromeFacts } from '@/lib/queries';
 import { resolveChromeFacts } from '@/lib/chrome-facts';
 
-// Her logo, large, in cream: shown up to 240px tall (about 227px wide).
-const logo1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 228 });
-const logo2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 456 });
+// Her logo, centred on the frame's top rule, up to ~150px wide. It is the
+// CLEAN line-only lockup (src/assets/logo-lockup-mask.png: white ink on
+// transparent, cut from the same source as the share-card masks in
+// scripts/og-assets/) used as a CSS mask and painted cream, because the
+// everyday logo's grey watercolour wash reads as a muddy smudge on ink.
+const logoMask = await getImage({ src: lockupMaskAsset, format: 'webp', width: 456 });
 
 interface Props {
   siteSettings?: {
@@ -122,10 +129,7 @@ const siteCredit = siteSettings?.footerCredit;
 const siteCreditUrl = siteSettings?.footerCreditUrl;
 
 // ---- The page index ------------------------------------------------------
-// Tone swatches walk the ramp, palest first (chips 1, 2, 3, 4, 6, 7). Facts
-// come from chrome-facts; null means the line simply has no fact.
-const SWATCHES = [1, 2, 3, 4, 6, 7];
-const swatch = (i: number) => `var(--color-chip-${SWATCHES[i % SWATCHES.length]})`;
+// Facts come from chrome-facts; null means the line simply has no fact.
 
 interface IndexLine {
   label: string;
@@ -153,143 +157,136 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
 ---
 
 <footer class="ftr">
-  <div class="r-wrap ftr__grid">
-    {
-      columns.map((col, ci) => (
-        <nav class="ftr__col" aria-labelledby={`ftr-col-${ci}`}>
-          <h2 class="ftr__h" id={`ftr-col-${ci}`}>
-            {col.title}
-          </h2>
-          <ul class="ftr__idx" role="list">
-            {col.lines.map((line, i) => (
-              <li>
-                <a
-                  href={line.href}
-                  target={isExternalHref(line.href) ? '_blank' : undefined}
-                  rel={isExternalHref(line.href) ? 'noopener noreferrer' : undefined}
-                >
-                  <i style={`--tone:${swatch(i)}`} aria-hidden="true" />
-                  <span class="ftr__page">{line.label}</span>
-                  <em aria-hidden="true" />
-                  {line.fact && <span class="ftr__fact">{line.fact}</span>}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ))
-    }
+  <div class="r-wrap">
+    <div class="ftr__frame">
+      <div class="ftr__crest">
+        <a href="/" class="ftr__logo" aria-label={`${brandName} home`}>
+          <span class="ftr__logo-mark" style={`--mark: url(${logoMask.src})`} aria-hidden="true"
+          ></span>
+        </a>
+        <p class="ftr__tagline">
+          {tagLead}
+          {tagLead && ' '}<em>{tagAccent}</em>
+        </p>
+        <span class="ftr__orn" aria-hidden="true"></span>
+      </div>
 
-    <div class="ftr__col">
-      <h2 class="ftr__h">Get in touch</h2>
-      <ul class="ftr__tags" role="list">
+      <div class="ftr__grid">
         {
-          email && (
-            <li>
-              <a class="ftr__tag" href={`mailto:${email}`}>
-                <small>Email</small>
-                <b>{email}</b>
-              </a>
-            </li>
-          )
+          columns.map((col, ci) => (
+            <nav class="ftr__col" aria-labelledby={`ftr-col-${ci}`}>
+              <h2 class="ftr__h" id={`ftr-col-${ci}`}>
+                {col.title}
+              </h2>
+              <ul class="ftr__idx" role="list">
+                {col.lines.map((line) => (
+                  <li>
+                    <a
+                      href={line.href}
+                      target={isExternalHref(line.href) ? '_blank' : undefined}
+                      rel={isExternalHref(line.href) ? 'noopener noreferrer' : undefined}
+                    >
+                      <span class="ftr__page">{line.label}</span>
+                      <em aria-hidden="true" />
+                      {line.fact && <span class="ftr__fact">{line.fact}</span>}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))
         }
-        {
-          phone && (
-            <li>
-              <a class="ftr__tag" href={telHref(phone)}>
-                <small>Call or text</small>
-                <b>{phone}</b>
-              </a>
-            </li>
-          )
-        }
-        {
-          ig && (
-            <li>
-              <a class="ftr__tag" href={ig} target="_blank" rel="noopener noreferrer">
-                <small>Instagram</small>
-                <b>{igHandle}</b>
-              </a>
-            </li>
-          )
-        }
-        {
-          fb && (
-            <li>
-              <a class="ftr__tag" href={fb} target="_blank" rel="noopener noreferrer">
-                <small>Facebook</small>
-                <b>{brandName}</b>
-              </a>
-            </li>
-          )
-        }
-      </ul>
+
+        <div class="ftr__col">
+          <h2 class="ftr__h">Get in touch</h2>
+          <ul class="ftr__contact" role="list">
+            {
+              email && (
+                <li>
+                  <small>Email</small>
+                  <a href={`mailto:${email}`}>{email}</a>
+                </li>
+              )
+            }
+            {
+              phone && (
+                <li>
+                  <small>Call or text</small>
+                  <a href={telHref(phone)}>{phone}</a>
+                </li>
+              )
+            }
+            {
+              ig && (
+                <li>
+                  <small>Instagram</small>
+                  <a href={ig} target="_blank" rel="noopener noreferrer">
+                    {igHandle}
+                  </a>
+                </li>
+              )
+            }
+            {
+              fb && (
+                <li>
+                  <small>Facebook</small>
+                  <a href={fb} target="_blank" rel="noopener noreferrer">
+                    {brandName}
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+        </div>
+
+        <div class="ftr__col">
+          <h2 class="ftr__h">Based in {city}</h2>
+          <p class="ftr__area">
+            Serving {townsLine} and the towns between.
+            {
+              visible.eDesign && (
+                <>
+                  {' '}
+                  Farther out, <a href="/e-design">E-Design</a> works anywhere.
+                </>
+              )
+            }
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="ftr__col">
-      <h2 class="ftr__h">Based in {city}</h2>
-      <p class="ftr__area">
-        Serving {townsLine} and the towns between.
+    <div class="ftr__base">
+      <p>© {currentYear} {brandName} · {city}, {state}</p>
+      <p class="ftr__small">
         {
-          visible.eDesign && (
-            <>
-              {' '}
-              Farther out, <a href="/e-design">E-Design</a> works anywhere.
-            </>
+          chrome.legalNav ? (
+            chrome.legalNav.map((link) => (
+              <a
+                href={link.href}
+                target={isExternalHref(link.href) ? '_blank' : undefined}
+                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            ))
+          ) : (
+            <a href="/privacy">Privacy</a>
           )
+        }
+        <a href="/search">Search</a>
+        {
+          siteCredit &&
+            (siteCreditUrl ? (
+              <a href={siteCreditUrl} target="_blank" rel="noopener noreferrer">
+                {siteCredit}
+              </a>
+            ) : (
+              <span>{siteCredit}</span>
+            ))
         }
       </p>
     </div>
-  </div>
-
-  <div class="r-wrap ftr__mark">
-    <a href="/" class="ftr__logo" aria-label={`${brandName} home`}>
-      <img
-        src={logo1x.src}
-        srcset={`${logo1x.src} 1x, ${logo2x.src} 2x`}
-        alt={brandName}
-        width={228}
-        height={241}
-        loading="lazy"
-        decoding="async"
-      />
-    </a>
-    <p class="ftr__tagline">
-      {tagLead}
-      {tagLead && ' '}<em>{tagAccent}</em>
-    </p>
-  </div>
-
-  <div class="r-wrap ftr__base">
-    <p>© {currentYear} {brandName} · {city}, {state}</p>
-    <p class="ftr__small">
-      {
-        chrome.legalNav ? (
-          chrome.legalNav.map((link) => (
-            <a
-              href={link.href}
-              target={isExternalHref(link.href) ? '_blank' : undefined}
-              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-            >
-              {link.label}
-            </a>
-          ))
-        ) : (
-          <a href="/privacy">Privacy</a>
-        )
-      }
-      <a href="/search">Search</a>
-      {
-        siteCredit &&
-          (siteCreditUrl ? (
-            <a href={siteCreditUrl} target="_blank" rel="noopener noreferrer">
-              {siteCredit}
-            </a>
-          ) : (
-            <span>{siteCredit}</span>
-          ))
-      }
-    </p>
   </div>
 </footer>
 
@@ -297,32 +294,107 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
   .ftr {
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --muted: rgb(245 237 227 / 0.75);
-    --hair: rgb(245 237 227 / 0.14);
+    --hair: rgb(245 237 227 / 0.12);
+    /* The frame's rule: Sandbar, quiet on the ink. */
+    --rule: rgb(205 176 154 / 0.38);
     position: relative;
     margin-top: -1px;
+    padding-top: clamp(5.5rem, 10vw, 7.5rem);
     background: var(--color-ink);
     color: var(--color-cream);
   }
+
+  /* ---- The frame: a double rule, like the border of a letterpress card. ---- */
+  .ftr__frame {
+    position: relative;
+    padding: 0 clamp(1.25rem, 4vw, 4rem) clamp(2.75rem, 5vw, 4rem);
+    border: 1px solid var(--rule);
+  }
+  .ftr__frame::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgb(205 176 154 / 0.16);
+    pointer-events: none;
+  }
+
+  /* ---- The crest: logo on the top rule, tagline, ornament. ---- */
+  .ftr__crest {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+  .ftr__logo {
+    --logo-w: clamp(7.5rem, 11vw, 9.5rem);
+    display: block;
+    /* Sits ON the top rule, centred on it (the lockup is 456:473, so half its
+       height is 0.52 of its width); the ink behind it breaks both lines. */
+    margin-top: calc(var(--logo-w) * -0.52);
+    padding-inline: 1.5rem;
+    background: var(--color-ink);
+    border-radius: 2px;
+  }
+  .ftr__logo-mark {
+    display: block;
+    width: var(--logo-w);
+    aspect-ratio: 456 / 473;
+    background: var(--color-cream);
+    -webkit-mask: var(--mark) center / contain no-repeat;
+    mask: var(--mark) center / contain no-repeat;
+  }
+  .ftr__logo:focus-visible {
+    outline: 2px solid var(--color-cream);
+    outline-offset: 4px;
+  }
+  .ftr__tagline {
+    margin: clamp(1.5rem, 3vw, 2.25rem) 0 0;
+    max-width: 22ch;
+    font: 300 clamp(1.7rem, 1rem + 2.1vw, 3rem) / 1.08 var(--font-display);
+    letter-spacing: -0.025em;
+    color: var(--color-cream);
+    text-wrap: balance;
+  }
+  .ftr__tagline em {
+    font-style: italic;
+    color: var(--color-chip-3);
+  }
+  /* A short rule, a dot, a short rule. */
+  .ftr__orn {
+    display: block;
+    width: 7.5rem;
+    height: 7px;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+    background:
+      radial-gradient(circle, var(--color-chip-3) 0 2.5px, transparent 3px) center / 7px 7px
+        no-repeat,
+      linear-gradient(var(--rule), var(--rule)) left center / calc(50% - 0.9rem) 1px no-repeat,
+      linear-gradient(var(--rule), var(--rule)) right center / calc(50% - 0.9rem) 1px no-repeat;
+  }
+
   /* ---- Columns ---- */
   .ftr__grid {
+    position: relative;
+    z-index: 1;
     display: grid;
-    gap: 3rem;
-    padding-block: clamp(3.25rem, 7vw, 4.75rem) clamp(2.5rem, 5vw, 3.5rem);
+    gap: 2.75rem;
+    margin-top: clamp(2.5rem, 5vw, 3.75rem);
   }
   @media (min-width: 900px) {
     .ftr__grid {
-      grid-template-columns: 1.3fr 1fr 0.9fr;
-      gap: clamp(2.5rem, 4vw, 4rem);
+      grid-template-columns: 1.25fr 1fr 0.9fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
     }
   }
   .ftr__h {
     margin: 0 0 1.1rem;
-    font: 300 1.35rem/1.1 var(--font-display);
-    letter-spacing: -0.01em;
+    font: 500 0.82rem/1.2 var(--font-body);
+    letter-spacing: 0.02em;
     color: var(--color-chip-2);
   }
 
-  /* The page index: swatch, page, dotted leader, fact. */
+  /* The page index: page, dotted leader, fact. */
   .ftr__idx {
     list-style: none;
     margin: 0;
@@ -332,112 +404,67 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     display: flex;
     align-items: baseline;
     gap: 0.75rem;
-    padding: 0.7rem 0;
-    border-top: 1px solid var(--hair);
+    padding: 0.55rem 0;
     color: var(--color-cream);
     text-decoration: none;
-    transition:
-      padding 450ms var(--ease),
-      color 300ms;
-  }
-  .ftr__idx li:last-child a {
-    border-bottom: 1px solid var(--hair);
-  }
-  .ftr__idx i {
-    flex: none;
-    align-self: center;
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: 2px;
-    background: var(--tone);
+    transition: color 300ms;
   }
   .ftr__page {
-    font: 300 clamp(1.35rem, 1.1rem + 0.6vw, 1.6rem) / 1.1 var(--font-display);
-    letter-spacing: -0.015em;
+    font: 300 clamp(1.25rem, 1.05rem + 0.5vw, 1.45rem) / 1.15 var(--font-display);
+    letter-spacing: -0.012em;
+    background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+    transition: background-size 450ms var(--ease);
   }
   .ftr__idx em {
     flex: 1;
     min-width: 1rem;
-    border-bottom: 1px dotted rgb(245 237 227 / 0.3);
+    border-bottom: 1px dotted rgb(245 237 227 / 0.25);
     transform: translateY(-0.3em);
   }
   .ftr__fact {
     flex: none;
-    font: 400 0.95rem/1 var(--font-body);
-    color: var(--muted);
+    font: 300 italic 1rem/1 var(--font-display);
+    color: var(--color-chip-3);
     white-space: nowrap;
   }
   .ftr__idx a:hover {
     color: var(--color-chip-2);
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .ftr__idx a:hover {
-      padding-left: 0.6rem;
-    }
+  .ftr__idx a:hover .ftr__page {
+    background-size: 100% 1px;
   }
   .ftr__idx a:focus-visible {
     outline: 2px solid var(--color-cream);
     outline-offset: 2px;
   }
 
-  /* Contact details as paper sample tags, square to the page. */
-  .ftr__tags {
+  /* Contact: a small Oat label over each value. */
+  .ftr__contact {
     list-style: none;
     display: grid;
-    justify-items: start;
-    gap: 0.9rem;
+    gap: 1.1rem;
     margin: 0;
     padding: 0;
   }
-  .ftr__tags li {
-    max-width: 100%;
-  }
-  .ftr__tag {
-    position: relative;
-    isolation: isolate;
+  .ftr__contact small {
     display: block;
-    max-width: 100%;
-    padding: 0.7rem 1.15rem 0.8rem 2.15rem;
-    color: var(--color-ink);
-    text-decoration: none;
-    transition: transform 450ms var(--ease);
+    margin-bottom: 0.2rem;
+    font: 500 0.75rem/1.3 var(--font-body);
+    color: var(--muted);
   }
-  /* The tag shape on ::before so the focus outline is not clipped away. */
-  .ftr__tag::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--color-paper);
-    clip-path: polygon(1rem 0, 100% 0, 100% 100%, 1rem 100%, 0 50%);
-  }
-  .ftr__tag::after {
-    content: '';
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    translate: 0 -50%;
-    box-shadow: inset 0 0 0 1.5px var(--color-chip-5);
-  }
-  .ftr__tag small {
-    display: block;
-    font: 500 0.72rem/1.3 var(--font-body);
-    color: var(--color-ink-2);
-  }
-  .ftr__tag b {
-    display: block;
-    font: 400 1.05rem/1.25 var(--font-display);
+  .ftr__contact a {
+    font: 300 1.2rem/1.3 var(--font-display);
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
     overflow-wrap: anywhere;
+    transition: text-decoration-color 300ms;
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .ftr__tag:hover {
-      transform: translateX(4px);
-    }
+  .ftr__contact a:hover {
+    text-decoration-color: var(--color-chip-3);
   }
-  .ftr__tag:focus-visible {
+  .ftr__contact a:focus-visible {
     outline: 2px solid var(--color-cream);
     outline-offset: 3px;
   }
@@ -446,7 +473,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     margin: 0;
     max-width: 34ch;
     font-size: 0.98rem;
-    line-height: 1.7;
+    line-height: 1.75;
     color: var(--muted);
   }
   .ftr__area a {
@@ -463,54 +490,13 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     outline-offset: 2px;
   }
 
-  /* ---- Her logo beside the tagline ---- */
-  .ftr__mark {
-    display: flex;
-    align-items: center;
-    gap: clamp(1.5rem, 4vw, 4rem);
-    padding-block: 0.5rem clamp(2.5rem, 5vw, 3.5rem);
-  }
-  .ftr__logo {
-    flex: none;
-    display: block;
-    border-radius: 2px;
-  }
-  .ftr__logo img {
-    display: block;
-    width: clamp(9.5rem, 16vw, 14.25rem);
-    height: auto;
-  }
-  .ftr__logo:focus-visible {
-    outline: 2px solid var(--color-cream);
-    outline-offset: 4px;
-  }
-  .ftr__tagline {
-    margin: 0;
-    max-width: 18ch;
-    font: 300 clamp(1.9rem, 1rem + 2.6vw, 3.6rem) / 1.05 var(--font-display);
-    letter-spacing: -0.03em;
-    color: var(--color-cream);
-    text-wrap: balance;
-  }
-  .ftr__tagline em {
-    font-style: italic;
-    color: var(--color-chip-3);
-  }
-  @media (max-width: 699px) {
-    .ftr__mark {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-
-  /* ---- Base row ---- */
+  /* ---- Base row, under the frame ---- */
   .ftr__base {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.5rem 1.5rem;
-    padding-block: 1.1rem 1.4rem;
-    border-top: 1px solid var(--hair);
+    padding-block: 1.4rem 1.6rem;
     font-size: 0.85rem;
     color: var(--muted);
   }

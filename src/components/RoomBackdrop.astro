@@ -1,0 +1,54 @@
+---
+// Foundation, edit with care
+// One of Staci's rooms, faded behind a card (2026-09-30 design pass).
+//
+// Drop it as the FIRST child of any card that has `position: relative` and
+// `isolation: isolate` (the `.r-backdrop-host` class in reid.css sets both,
+// plus overflow clip). It fills the card, sits behind the words, and is
+// multiplied into the card's own colour at low opacity, so on a pale chip it
+// reads as a soft photograph and on a dark chip as shadows in the paint.
+// Multiply only ever DARKENS, which is why it is safe for contrast: cream
+// text on a dark chip only gets more contrast, and ink on a pale chip keeps
+// well above AA at these opacities (worst case, chip 4 at ~4.8:1).
+//
+// Decorative: alt="" and lazy. If the photo ever fails to load it removes
+// itself (the inline onerror; CSP allows inline handlers on the public site),
+// so a card never shows a broken-image icon: it is just its paint colour.
+// Which room is which card lives in src/data/room-backdrops.ts (safe to edit).
+import { roomFor, roomUrl } from '@/data/room-backdrops';
+
+interface Props {
+  /** Card index within its band. */
+  index: number;
+  /** Where in the room list this band starts, so bands differ. */
+  start?: number;
+  /** Shape of the crop, width / height. Matches the card roughly. */
+  ratio?: number;
+  /** 'pale' for ink-on-light cards, 'deep' for cream-on-dark ones. */
+  tone?: 'pale' | 'deep';
+  /** Extra class, e.g. to pin the photo to one part of a card. */
+  class?: string;
+}
+
+const { index, start = 0, ratio = 0.8, tone = 'pale', class: cls } = Astro.props as Props;
+const room = roomFor(index, start);
+// Two renditions: a phone-sized card and a desktop card at 2x.
+const w1 = 420;
+const w2 = 760;
+const h = (w: number) => Math.round(w / ratio);
+---
+
+<img
+  class:list={['r-backdrop', cls]}
+  data-tone={tone}
+  src={roomUrl(room, w1, h(w1))}
+  srcset={`${roomUrl(room, w1, h(w1))} ${w1}w, ${roomUrl(room, w2, h(w2))} ${w2}w`}
+  sizes="(min-width: 1024px) 24rem, 80vw"
+  alt=""
+  loading="lazy"
+  decoding="async"
+  onerror="this.remove()"
+  width={w1}
+  height={h(w1)}
+  style={`object-position: ${room.focus.x * 100}% ${room.focus.y * 100}%`}
+/>

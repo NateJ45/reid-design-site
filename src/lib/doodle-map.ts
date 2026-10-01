@@ -17,14 +17,7 @@
 // =============================================================================
 
 /** Every doodle the generator writes. Keep in step with scripts/doodles.config.mjs. */
-export const DOODLE_NAMES = [
-  'olive-sprig',
-  'eucalyptus',
-  'willow',
-  'berry-sprig',
-  'leafy-stem',
-  'twig',
-] as const;
+export const DOODLE_NAMES = ['olive-sprig', 'eucalyptus', 'berry-sprig', 'leafy-stem'] as const;
 
 export type DoodleName = (typeof DOODLE_NAMES)[number];
 
@@ -37,22 +30,15 @@ export const PAGE_DOODLES: Record<string, DoodleName> = {
   '': 'olive-sprig',
   about: 'olive-sprig',
   services: 'eucalyptus',
-  process: 'willow',
+  process: 'eucalyptus',
   'e-design': 'leafy-stem',
   contact: 'berry-sprig',
-  faq: 'twig',
-  portfolio: 'willow',
+  faq: 'leafy-stem',
+  portfolio: 'berry-sprig',
 };
 
 /** The order the rest of the set follows. */
-const ROTATION: DoodleName[] = [
-  'willow',
-  'berry-sprig',
-  'eucalyptus',
-  'olive-sprig',
-  'twig',
-  'leafy-stem',
-];
+const ROTATION: DoodleName[] = ['berry-sprig', 'eucalyptus', 'olive-sprig', 'leafy-stem'];
 
 /**
  * Most botanicals one page carries. Two keeps them a signature, not a

@@ -115,18 +115,24 @@ const [home, ...rest] = cityList;
   .sa__fees {
     margin-top: clamp(3.5rem, 7vw, 5.5rem);
   }
+  /* The tape, drawn in line like the home process tape (2026-09-30 design
+     pass): a paper blade outlined in Walnut, fine ticks in Warm Bronze, half
+     and inch marks in Walnut, a printed hairline along the bottom edge. */
   .sa__tape {
-    height: 2.6rem;
-    border-radius: 2px 0.5rem 0.5rem 2px;
+    height: 2.4rem;
+    border: 1px solid var(--color-chip-6);
+    border-radius: 1px 3px 3px 1px;
     background:
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 0.75rem
-        0.7rem repeat-x,
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 3.75rem
-        1.2rem repeat-x,
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1.5px, transparent 1.5px 100%) 0 0 /
-        7.5rem 1.7rem repeat-x,
-      var(--color-chip-2);
-    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.06);
+      linear-gradient(var(--color-chip-5), var(--color-chip-5)) 0 calc(100% - 4px) / 100% 1px
+        no-repeat,
+      repeating-linear-gradient(90deg, var(--color-chip-5) 0 1px, transparent 1px 100%) 0 0 /
+        0.75rem 0.5rem repeat-x,
+      repeating-linear-gradient(90deg, var(--color-chip-6) 0 1px, transparent 1px 100%) 0 0 /
+        3.75rem 0.9rem repeat-x,
+      repeating-linear-gradient(90deg, var(--color-chip-6) 0 1.25px, transparent 1.25px 100%) 0 0 /
+        7.5rem 1.3rem repeat-x,
+      var(--color-paper);
+    box-shadow: 0 14px 22px -18px rgb(35 30 27 / 0.35);
   }
   .sa__tiers {
     display: grid;
@@ -144,19 +150,21 @@ const [home, ...rest] = cityList;
     position: absolute;
     left: 0;
     top: 0;
-    width: 1.5px;
+    width: 1px;
     height: 2.1rem;
-    background: var(--color-chip-5);
+    background: var(--color-chip-6);
   }
+  /* An outlined ring at the foot of the drop, as on the home tape. */
   .sa__tier::after {
     content: '';
     position: absolute;
-    left: -4px;
+    left: -5px;
     top: 2rem;
-    width: 9px;
-    height: 9px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    background: var(--color-chip-5);
+    border: 1px solid var(--color-chip-6);
+    background: var(--color-paper);
   }
   .sa__tier dt {
     font: 500 0.95rem/1.3 var(--font-body);
@@ -216,14 +224,15 @@ const [home, ...rest] = cityList;
       left: 0;
       top: 0;
       bottom: 0;
-      width: 1.9rem;
-      border-radius: 2px 2px 0.5rem 0.5rem;
+      width: 1.75rem;
+      border: 1px solid var(--color-chip-6);
+      border-radius: 1px 1px 3px 3px;
       background:
-        repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 /
-          0.75rem 0.75rem repeat-y,
-        repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 /
-          1.25rem 3.75rem repeat-y,
-        var(--color-chip-2);
+        repeating-linear-gradient(180deg, var(--color-chip-5) 0 1px, transparent 1px 100%) 0 0 /
+          0.5rem 0.75rem repeat-y,
+        repeating-linear-gradient(180deg, var(--color-chip-6) 0 1px, transparent 1px 100%) 0 0 /
+          0.9rem 3.75rem repeat-y,
+        var(--color-paper);
     }
     .sa__tier {
       padding: 0 0 0 0.75rem;
@@ -232,11 +241,11 @@ const [home, ...rest] = cityList;
       left: -1.75rem;
       top: 0.55rem;
       width: 1.75rem;
-      height: 1.5px;
+      height: 1px;
     }
     .sa__tier::after {
-      left: -0.2rem;
-      top: 0.3rem;
+      left: -0.3rem;
+      top: calc(0.55rem - 5px);
     }
   }
 </style>

@@ -3,8 +3,8 @@
 // "Where Staci works" on the contact page (added 2026-09-30, phase 2 of the
 // art-direction rebuild). The towns from Business info -> Service areas set
 // large on the left (home base first, in Espresso italic, the same grammar as
-// the home page's ServiceAreaCue), and the OpenStreetMap embed on the right in
-// a plain frame. ServiceAreaMap.astro is used as is (another pass owns it).
+// the home page's ServiceAreaCue), and on the right a real Google map in the
+// house photo frame (ServiceAreaMap; Nathan's pick 2026-10-01).
 //
 // No towns in Sanity: the list is skipped and the map carries the section.
 import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
@@ -40,7 +40,7 @@ const [home, ...rest] = list;
       <p class="carea__note">Outside these towns? Ask anyway.</p>
     </div>
     <div class="carea__map">
-      <ServiceAreaMap height={380} />
+      <ServiceAreaMap towns={list} />
     </div>
   </div>
 </section>
@@ -80,12 +80,9 @@ const [home, ...rest] = list;
     max-width: 40ch;
     color: var(--color-ink-2);
   }
+  /* The map brings its own frame (.r-frame in ServiceAreaMap). */
   .carea__map {
     min-width: 0;
-    padding: 0.6rem;
-    background: var(--color-paper);
-    border: 1px solid var(--color-rule);
-    border-radius: 0.5rem;
   }
   @media (min-width: 1024px) {
     .carea__grid {

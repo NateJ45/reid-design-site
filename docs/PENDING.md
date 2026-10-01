@@ -14,6 +14,32 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-30 design pass (`claude/great-mendel-v4xvi0`)
+
+- **Look at the room backdrops with real content.** The anonymous build in
+  the session could not read services or process steps, so the Services
+  service chips, the Process "At a glance" chips and the home process cards
+  were only seen with stand-in text. After the deploy check them on a phone:
+  if a room fights a chip's words, swap it in `src/data/room-backdrops.ts`
+  or lower `--bd-opacity` for that band. Contrast was reasoned (multiply only
+  darkens), not machine-checked on those three bands.
+- **Check the sketch map's towns.** It draws every Business info town it
+  knows (`TOWNS` in `src/lib/area-map.ts`). If Staci adds a town it does not
+  know (Avon, Brownsburg, Greenwood and a few others are already there), it
+  is simply missing from the map until someone adds its coordinates.
+- **Privacy policy and the Google map.** Contact embeds a Google map, which
+  can set Google cookies once it loads. Nathan chose (2026-10-01) to keep it
+  loading on approach and add a line to Staci's policy rather than make it
+  tap-to-load. Waiting on that Studio edit (Pages -> Privacy, under "What I
+  do not do"): "The map on my contact page is from Google Maps. When it
+  loads, Google may set its own cookies, which are covered by Google's
+  privacy policy." Close this item once it is published.
+- **Check the Google map after the deploy.** The session could not load
+  Google inside its sandboxed browser, so the live embed in the frame was
+  not seen. Open /contact on a phone and a laptop: it should show Plainfield
+  with Indianapolis and the north suburbs in view (`ZOOM` in
+  `ServiceAreaMap.astro` if not).
+
 ### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
 
 - **Show Staci the calmer version** once it is deployed, and ask which of the

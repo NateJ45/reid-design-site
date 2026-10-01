@@ -84,7 +84,7 @@ const subheadParts = parseSubhead(subhead);
   <div class="r-wrap phero__grid">
     <div class="phero__copy">
       {eyebrow && <p class="phero__eyebrow">{eyebrow}</p>}
-      <RiseWords as="h1" id={headingId} text={headline} accent={scriptAccent} class="phero__h1" />
+      <RiseWords as="h1" id={headingId} text={headline} accent={scriptAccent} class="phero__h1 r-hand" />
       {
         subhead && (
           <p class="phero__sub r-lede">
@@ -105,17 +105,19 @@ const subheadParts = parseSubhead(subhead);
     </div>
     {
       image && (
-        <figure class="phero__photo">
-          <SanityImage
-            source={image}
-            width={900}
-            height={1125}
-            sizes="(min-width: 1024px) 38vw, 100vw"
-            loading="eager"
-            fetchpriority="high"
-            quality={70}
-            class="phero__img"
-          />
+        <figure class="phero__photo r-frame">
+          <div class="phero__clip">
+            <SanityImage
+              source={image}
+              width={900}
+              height={1125}
+              sizes="(min-width: 1024px) 38vw, 100vw"
+              loading="eager"
+              fetchpriority="high"
+              quality={70}
+              class="phero__img"
+            />
+          </div>
         </figure>
       )
     }
@@ -186,12 +188,18 @@ const subheadParts = parseSubhead(subhead);
     gap: 1rem 1.75rem;
     margin-top: 2.25rem;
   }
+  /* The photo hangs in the house frame (.r-frame: paper mat, bronze
+     keyline, soft shadow; 2026-09-30 design pass). The inner clip keeps the
+     settle zoom inside the mat. */
   .phero__photo {
     position: relative;
     margin: 0;
+  }
+  .phero__clip {
     overflow: clip;
   }
   .phero__photo :global(.phero__img) {
+    display: block;
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
@@ -211,19 +219,17 @@ const subheadParts = parseSubhead(subhead);
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
       gap: clamp(2rem, 5vw, 5rem);
     }
-    .phero__photo {
-      max-height: 34rem;
-    }
     .phero__photo :global(.phero__img) {
       max-height: 34rem;
     }
   }
+  /* Phone and tablet: the SAME 4:5 shape the CDN cut around Staci's
+     hotspot. It used to switch to 5:4 here, which re-cropped the 4:5 picture
+     from its centre and kept barely a third of it (Nathan, 2026-09-30:
+     "some barely show anything of value"). Capped so it never towers. */
   @media (max-width: 1023px) {
     .phero__photo {
-      max-width: 32rem;
-    }
-    .phero__photo :global(.phero__img) {
-      aspect-ratio: 5 / 4;
+      max-width: min(100%, 24rem);
     }
   }
 </style>

@@ -2,6 +2,53 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Hand-lettered hero accent
+
+- Hero accents (home "completely yours", FAQ "Know", any page hero with a
+  scriptAccent) are set in Waterfall to echo Staci's Instagram handwriting.
+  `@font-face` + `--font-hand` in globals.css, `.r-hand` in reid.css, the
+  class on HomeHero and Hero h1s. Font + OFL in `src/assets/fonts/`.
+
+## 2026-10-01 — Contact: free first step, toned Google map
+
+- Contact now says plainly that the first email or call is free and the
+  $225 consultation comes after: ContactAside's price tag ("Most projects
+  start here") became "How it starts" (Free, then the consultation price),
+  the call band and the aside's call link say the call is free.
+- The Google map is toned to a warm print (CSS filter, full colour while in
+  use), set behind a bronze keyline and inner shade, and wears a "The
+  studio, Plainfield, Indiana" sample tag. Google's attribution is untouched.
+
+## 2026-10-01 — Google map on Contact
+
+- Nathan chose Google's plain keyless embed for the Contact map (over a
+  styled static image or a styled live map, both of which need a Google
+  Cloud key and billing). `ServiceAreaMap.astro` is the iframe again, in the
+  house frame, lazy-set on approach; CSP `frame-src` swaps
+  `www.openstreetmap.org` for `www.google.com`. The sketch map stays on the
+  home page.
+
+## 2026-09-30 — The design pass (branch `claude/great-mendel-v4xvi0`)
+
+- Nathan's notes: cards needed depth, the tape measure should be more refined
+  and outlined in her colours, the "Based in" band wanted a sketch map, the
+  OpenStreetMap embed was ugly, the footer and the boxed header logo were not
+  classy, the guarantee stamp's middle icon was unreadable, a botanical
+  looked broken, photos sat loose on their bands, and some phone crops kept
+  almost nothing. All of it is in DESIGN.md "The 2026-09-30 design pass".
+- New: `RoomBackdrop.astro` + `src/data/room-backdrops.ts`, `.r-backdrop` and
+  `.r-frame` in `reid.css`, `AreaSketchMap.astro` + `src/lib/area-map.ts`
+  (+ test), `src/assets/logo-mark.png` and `logo-lockup-mask.png` (clean
+  masks cut from the share-card masks in `scripts/og-assets/`).
+- Changed: Header (no plate), Footer (framed stationery), TapeProcess,
+  ProcessSteps and ServiceArea tapes, PaintChips, ServiceCard, ProcessStep,
+  EDesignTiers, ServiceAreaCue, ServiceAreaMap (no iframe, no script),
+  SatisfactionGuarantee (her monogram), Hero / HomeStaci / AboutStory /
+  ContactAside / ImageText / ProjectDetail (framed), SanityImage (hotspot
+  object-position when not CDN-cropped).
+- Removed: the willow and twin-twig botanicals (`npm run doodles` no longer
+  writes them; `doodle-map.ts` rotation is four drawings).
+
 ## 2026-09-30 — Lenis removed
 
 - Nathan asked whether smooth scroll helps visitors; the answer was no (it

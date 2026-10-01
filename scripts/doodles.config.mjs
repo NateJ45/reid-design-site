@@ -104,21 +104,6 @@ function eucalyptus() {
   return { ink: [stem, ...leaves.flatMap((l) => [l.outline, l.rib])] };
 }
 
-// ---- Willow stem: a long arc with long, drooping pointed leaves -----------------
-function willow() {
-  const stem = curve(8, 196, 18, 96, 92, 30, 194, 52);
-  const leaves = leavesAlong(stem, {
-    count: 11,
-    spread: 26,
-    len: 42,
-    width: 4.2,
-    from: 0.12,
-    to: 0.97,
-    taper: 0.35,
-  });
-  return { ink: [stem, ...leaves.map((l) => l.outline)] };
-}
-
 // ---- Berry sprig: side twigs ending in little clusters, a few small leaves ------
 function berrySprig() {
   const stem = curve(14, 194, 30, 124, 110, 118, 150, 26);
@@ -163,31 +148,16 @@ function leafyStem() {
   };
 }
 
-// ---- Twin twigs: two fine crossing stems with buds ------------------------------
-function twig() {
-  const a = curve(10, 196, 64, 170, 110, 130, 160, 70);
-  const b = curve(26, 196, 30, 130, 94, 96, 90, 16);
-  const ink = [a, b];
-  leavesAlong(a, { count: 5, spread: 40, len: 20, width: 4.5, from: 0.25, to: 0.9 }).forEach((l) =>
-    ink.push(l.outline),
-  );
-  leavesAlong(b, { count: 5, spread: 36, len: 18, width: 4, from: 0.3, to: 0.92 }).forEach((l) =>
-    ink.push(l.outline),
-  );
-  const tipA = at(a, 1);
-  const tipB = at(b, 1);
-  ink.push(ellipse(tipA.x + 3, tipA.y - 3, 3, 3), ellipse(tipB.x + 1, tipB.y - 4, 3, 3));
-  return { ink };
-}
+// Willow and twin twigs were retired 2026-09-30: their leaves are single thin
+// arcs, and at the ambient opacity, clipped by a section edge, they read as
+// loose dashes rather than a branch (Nathan: "this branch icon looks weird").
 
 /** name -> drawing. Keep in step with DOODLE_NAMES in src/lib/doodle-map.ts. */
 export const DOODLES = {
   'olive-sprig': oliveSprig,
   eucalyptus,
-  willow,
   'berry-sprig': berrySprig,
   'leafy-stem': leafyStem,
-  twig,
 };
 
 /** The hand: her lines are fine and steady, so only a whisper of wobble. */
