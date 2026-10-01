@@ -56,6 +56,12 @@ interface Props {
    * Staci's portrait is picked at build time from src/data/card-portraits.mjs.
    */
   card?: CardInput & { image?: any };
+  /**
+   * The page opens on a dark hero the header can sit on, in cream, until the
+   * page scrolls (Header.astro "On hero"). Only the home page passes it, and
+   * only when its Walnut hero is the first section.
+   */
+  headerOverHero?: boolean;
   /** Raw Sanity image object for a per-page social share override (seoImage on the page singleton). Resolved through the Sanity image pipeline to a 1200x630 OG URL. Lower priority than ogImage, higher than the siteSettings default. */
   seoImage?: any;
   /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
@@ -84,6 +90,7 @@ const {
   noindex = false,
   ogType = 'website',
   ogArticle,
+  headerOverHero = false,
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, site.url).toString();
@@ -341,7 +348,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 
     <Announcements announcements={announcements} currentPath={Astro.url.pathname} />
 
-    <Header siteSettings={siteSettings} navPages={navPages} />
+    <Header siteSettings={siteSettings} navPages={navPages} overHero={headerOverHero} />
 
     {/* data-pagefind-body: site search (Pagefind) indexes ONLY the text inside this
         element, so the header, footer, announcement bar and menus never show up in

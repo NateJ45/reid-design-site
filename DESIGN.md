@@ -123,18 +123,34 @@ no decorative numbering.
 
 - **Header** (`Header.astro`, server-rendered). No bar at rest. Her logo sits
   straight on the page at the left of the row, 84px tall on desktop and 58px
-  below 1024px, with nothing behind it and never overlapping the section
-  below (the paper plate it used to hang from was dropped in the 2026-09-30
-  design pass: Nathan found the box unclassy). Nav on the right: hover,
-  keyboard focus or the current page raises a paint chip behind the label
-  (Oat and Sandbar alternating; Linen reads as nothing on the linen page).
-  Then the ink tag button "Book a consultation" (Site settings -> Header
-  button). No price on it since 2026-10-01 (Nathan): the price lives on
-  Services and Contact, and the header no longer reads the chrome facts.
-  Scrolled, the row condenses into a floating
-  paper strip with a shadow; the logo shrinks to 52px inside it. The sticky box never changes height, so nothing reflows. No
-  availability pill, no search icon (search lives in the footer). A rating
-  slot is reserved beside the tag.
+  below 1024px, with nothing behind it (the paper plate was dropped in the
+  2026-09-30 design pass). Pages on the right, then the tag button "Book a
+  consultation" (Site settings -> Header button; no price since 2026-10-01).
+  Three touches from `docs/design/prototypes/header-e-on-hero.html`
+  (2026-10-01, Nathan: "do all 4"):
+  - **On the hero (home only).** When the Walnut hero is the home page's
+    first section (`index.astro` decides, passing `headerOverHero` through
+    BaseLayout), the header sits ON it: cream logo (the menu's cream art),
+    cream links and rating (Sandbar stars), the cream booking tag and cream
+    Menu tag. The hero slides up under the header (negative margin) and
+    HomeHero shades the top of the photo, deeper on phones, plus a whisper
+    of text shadow, so cream reads over the bright window. Off when Staci
+    uploads her own logo (it cannot be recoloured). Every other page keeps
+    the ink-on-linen row.
+  - **Her hand.** Hover, keyboard focus, the current page or an open group
+    draws a fine pen stroke under the label (an SVG path, `pathLength=1`,
+    the same hairline as the hero's Waterfall script). It replaced the
+    paint chip that rose behind the label. Appears without drawing under
+    reduced motion.
+  - **Ink in.** On the first page of a visit an inline script (right after
+    the logo, so it lands before first paint) adds `.hdr--ink` and the logo
+    is revealed left to right in about 1.5s. Once per session via
+    sessionStorage; never under reduced motion.
+    Scrolled, the row condenses into a floating paper strip with a shadow in
+    ink (on the home page too); the logo shrinks to 52px inside it. The sticky
+    box never changes height, so nothing reflows. No availability pill, no
+    search icon (search lives in the footer). The Google rating sits beside
+    the tag from 1200px up.
 - **Phone menu** (`MobileNav.tsx`), "the contents page" (2026-10-01, Nathan's
   pick "2" of `docs/design/prototypes/menu-d-magazine.html`; it replaced the
   paint-chip fan deck). The trigger is still the ink "Menu" tag. Open: a

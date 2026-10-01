@@ -12,6 +12,21 @@
 //              (tones from the ramp, chips 1 to 3, ink text on every one).
 //              Then the ink tag button: "Book a consultation" (no price on
 //              it since 2026-10-01; the price lives on Services and Contact).
+//   On hero    (2026-10-01, the home page only: Nathan's pick of
+//              docs/design/prototypes/header-e-on-hero.html) at the top of
+//              the page there is no bar at all. The header sits straight on
+//              the Walnut home hero in cream: her cream logo, cream links, a
+//              cream booking tag. The hero slides up under it (negative
+//              margin), and HomeHero shades the top of the photo so the
+//              cream reads. Scrolled, it becomes the paper strip below.
+//              Off when Staci uploads her own logo (it cannot be recoloured)
+//              or when the hero is not the first home section.
+//   Her hand   a fine pen stroke draws itself under a link on hover/focus and
+//              stays drawn under the page you are on (replaced the paint
+//              chip that rose behind the label).
+//   Ink in     on the first page of a visit the logo is revealed left to
+//              right, like a pen going over it (~1.5s). Once per session
+//              (sessionStorage), never under reduced motion.
 //   Scrolled   the same row condenses into a floating paper strip with a
 //              shadow; the logo shrinks to 52px inside it. BaseLayout's
 //              scroll listener sets data-scrolled.
@@ -95,6 +110,11 @@ interface Props {
     } | null;
   } | null;
   navPages?: NavPage[];
+  /**
+   * Sit on the page's opening hero in cream, with no bar, until the page
+   * scrolls (the home page passes this when its Walnut hero comes first).
+   */
+  overHero?: boolean;
 }
 
 interface NavPage {
@@ -106,7 +126,7 @@ interface NavPage {
   addToFooter?: boolean;
 }
 
-const { siteSettings, navPages } = Astro.props as Props;
+const { siteSettings, navPages, overHero = false } = Astro.props as Props;
 
 // Normalize section visibility from siteSettings. Unset => visible.
 const visible: SectionVisibility = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -126,6 +146,12 @@ const ctaHref = chrome.headerCta.href;
 
 // An editor-supplied logo replaces the built-in one.
 const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
+// On the hero the logo is drawn in cream; an uploaded logo cannot be
+// recoloured, so it keeps today's bar instead.
+const onHero = overHero && !customLogo;
+// The cream logo for the hero (same art as the phone menu's), same box size.
+const heroLogo1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 122 });
+const heroLogo2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 244 });
 
 // Subset of siteSettings the phone menu needs. A plain object so the island
 // doesn't serialize the whole Sanity document graph into its props.
@@ -223,6 +249,11 @@ const NAV_ITEMS = chrome.navItems ?? BUILT_IN_NAV_ITEMS;
 const TONES = [2, 3];
 const toneOf = (i: number) => `var(--color-chip-${TONES[i % TONES.length]})`;
 
+// Her hand (2026-10-01): the fine pen stroke drawn under a link, the same
+// hairline as the hero's script. One path, pathLength=1, so CSS draws it.
+const PEN =
+  '<svg class="hdr__pen" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 6.5C20 4.8 45 4.2 68 5.2S92 6.4 98 3.2" /></svg>';
+
 const pathname = Astro.url.pathname;
 function isActive(href: string) {
   if (href === '/') return pathname === '/';
@@ -233,7 +264,7 @@ function isGroupActive(items: { href: string }[]) {
 }
 ---
 
-<header class="site-header hdr">
+<header class="site-header hdr" data-over-hero={onHero || undefined}>
   <div class="hdr__bar">
     <a href="/" class="hdr__logo" aria-label={`${brandName} home`}>
       {
@@ -249,19 +280,50 @@ function isGroupActive(items: { href: string }[]) {
         ) : (
           /* 122x129 matches the source's 378:400, so the box is reserved
              before the file arrives (no CLS). Light only since 2026-09-29. */
-          <img
-            src={logo1x.src}
-            srcset={logoSrcset}
-            alt={brandName}
-            width={122}
-            height={129}
-            class="hdr__logo-img"
-            loading="eager"
-            decoding="async"
-          />
+          <>
+            <img
+              src={logo1x.src}
+              srcset={logoSrcset}
+              alt={brandName}
+              width={122}
+              height={129}
+              class="hdr__logo-img hdr__logo-img--ink"
+              loading="eager"
+              decoding="async"
+            />
+            {/* The cream logo, shown only while the header sits on the
+                hero (it is the same art the phone menu uses). Decorative:
+                the ink logo above carries the alt text. */}
+            {onHero && (
+              <img
+                src={heroLogo1x.src}
+                srcset={`${heroLogo1x.src} 1x, ${heroLogo2x.src} 2x`}
+                alt=""
+                width={122}
+                height={129}
+                class="hdr__logo-img hdr__logo-img--cream"
+                loading="eager"
+                decoding="async"
+              />
+            )}
+          </>
         )
       }
     </a>
+    {
+      /* The logo inks in on the first page of a visit. Inline and right
+         after the logo, so the class lands before the first paint (no flash
+         of a finished logo). Once per session; sessionStorage can throw in a
+         private window, which just means no animation. */
+    }
+    <script is:inline>
+      try {
+        if (!sessionStorage.getItem('rd-inked')) {
+          sessionStorage.setItem('rd-inked', '1');
+          document.currentScript?.closest('.hdr')?.classList.add('hdr--ink');
+        }
+      } catch {}
+    </script>
 
     <nav class="site-nav hdr__nav" aria-label="Primary">
       {
@@ -273,7 +335,10 @@ function isGroupActive(items: { href: string }[]) {
               style={`--tone:${toneOf(i)}`}
               aria-current={isActive(item.href) ? 'page' : undefined}
             >
-              <span class="hdr__label">{item.label}</span>
+              <span class="hdr__label">
+                {item.label}
+                <Fragment set:html={PEN} />
+              </span>
             </a>
           ) : (
             <details class="site-nav__group hdr__group" style={`--tone:${toneOf(i)}`}>
@@ -284,6 +349,7 @@ function isGroupActive(items: { href: string }[]) {
                 <span class="hdr__label">
                   {item.label}
                   <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+                  <Fragment set:html={PEN} />
                 </span>
               </summary>
               <div class="site-nav__menu hdr__menu">
@@ -369,7 +435,8 @@ function isGroupActive(items: { href: string }[]) {
       margin 600ms var(--ease),
       padding 600ms var(--ease),
       background-color 400ms,
-      box-shadow 600ms var(--ease);
+      box-shadow 600ms var(--ease),
+      color 300ms;
   }
   .hdr__bar > * {
     pointer-events: auto;
@@ -425,25 +492,40 @@ function isGroupActive(items: { href: string }[]) {
     cursor: pointer;
   }
   .hdr__label {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
   }
-  .hdr__link::before {
-    content: '';
+  /* ---- Her hand (2026-10-01): a fine pen stroke under the word, drawn on
+     hover or keyboard focus, drawn already under the page you are on and
+     under an open group. pathLength=1 makes it one unit long, so the dash
+     rules draw it from the left. It replaced the paint chip that rose
+     behind the label. Under reduced motion it simply appears. ---- */
+  .hdr__label :global(.hdr__pen) {
     position: absolute;
-    inset: auto 0.1rem 0 0.1rem;
-    z-index: -1;
-    height: 0;
-    background: var(--tone, var(--color-chip-1));
-    border-radius: 2px 2px 0 0;
-    transition: height 500ms var(--ease);
+    left: -6%;
+    bottom: -0.55rem;
+    width: 112%;
+    height: 0.7rem;
+    overflow: visible;
+    pointer-events: none;
   }
-  .hdr__link:hover::before,
-  .hdr__link:focus-visible::before,
-  .hdr__link[aria-current='page']::before,
-  .hdr__group[open] > .hdr__link::before {
-    height: 100%;
+  .hdr__label :global(.hdr__pen path) {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1 1.05;
+    stroke-dashoffset: 1.02;
+    transition: stroke-dashoffset 600ms cubic-bezier(0.45, 0.05, 0.3, 1);
+  }
+  .hdr__link:hover :global(.hdr__pen path),
+  .hdr__link:focus-visible :global(.hdr__pen path),
+  .hdr__link[aria-current='page'] :global(.hdr__pen path),
+  .hdr__group[open] > .hdr__link :global(.hdr__pen path) {
+    stroke-dashoffset: 0;
   }
   .hdr__link:focus-visible {
     outline: 2px solid var(--color-ink);
@@ -538,7 +620,7 @@ function isGroupActive(items: { href: string }[]) {
   .hdr[data-scrolled] .hdr__logo-img {
     height: var(--logo-h-scrolled);
   }
-  /* In the strip the chips run its full height, like tabs cut into it. */
+  /* In the strip the labels sit on its middle line. */
   .hdr[data-scrolled] .hdr__nav {
     height: 3.9rem;
   }
@@ -584,10 +666,87 @@ function isGroupActive(items: { href: string }[]) {
     .hdr__logo,
     .hdr__logo-img,
     .hdr__logo :global(.hdr__logo-img),
-    .hdr__link::before {
+    .hdr__label :global(.hdr__pen path) {
       transition: none;
     }
   }
+  /* ---- On the hero (2026-10-01, home only; see the header comment) ----
+     The header box keeps its height, and the hero slides up beneath it by
+     the same amount, so the first screen is one picture. Everything on the
+     bar turns cream until the page scrolls; the scrolled strip is unchanged.
+     Contrast: cream on Walnut is 4.9:1, and HomeHero shades the top of the
+     photo where the links and the tag sit over it. */
+  .hdr[data-over-hero] {
+    margin-bottom: calc(-1 * var(--hdr-h));
+  }
+  .hdr__logo-img--cream {
+    position: absolute;
+    inset: 0 auto auto 0;
+    opacity: 0;
+    transition:
+      height 600ms var(--ease),
+      opacity 300ms;
+  }
+  .hdr__logo-img--ink {
+    transition:
+      height 600ms var(--ease),
+      opacity 300ms;
+  }
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__logo-img--cream {
+    opacity: 1;
+  }
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__logo-img--ink {
+    opacity: 0;
+  }
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__bar {
+    color: var(--color-cream);
+  }
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__link {
+    color: var(--color-cream);
+    /* A whisper of shadow so cream holds on any part of her photo. */
+    text-shadow: 0 1px 10px rgb(35 30 27 / 0.45);
+  }
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__logo-img--cream {
+    filter: drop-shadow(0 1px 6px rgb(35 30 27 / 0.5));
+  }
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__logo:focus-visible,
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__link:focus-visible {
+    outline-color: var(--color-cream);
+  }
+  /* The rating's stars: Sandbar fills on the Walnut (Warm Bronze would
+     vanish into it), as on the ink reviews band. */
+  .hdr[data-over-hero]:not([data-scrolled]) :global(.hdr__rating) {
+    --star-on: var(--color-chip-3);
+    --star-off: rgb(245 237 227 / 0.3);
+  }
+  /* The booking tag and the phone's Menu tag: cream with ink words. */
+  .hdr[data-over-hero]:not([data-scrolled]) .hdr__cta,
+  .hdr[data-over-hero]:not([data-scrolled]) :global(.mnav-trigger) {
+    --tag-bg: var(--color-cream);
+    --tag-bg-hover: var(--color-paper);
+    --tag-fg: var(--color-ink);
+    --tag-ring: var(--color-cream);
+  }
+  .hdr__link {
+    transition: color 300ms;
+  }
+
+  /* ---- Ink in: the logo revealed left to right on the first page of a
+     visit (the inline script adds .hdr--ink). ---- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hdr--ink .hdr__logo {
+      animation: hdr-ink 1.3s cubic-bezier(0.45, 0.05, 0.3, 1) 0.25s both;
+    }
+  }
+  @keyframes hdr-ink {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
   /* Google rating in the header: wide screens only (see the slot comment). */
   .hdr :global(.hdr__rating) {
     display: none;

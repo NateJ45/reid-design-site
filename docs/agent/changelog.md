@@ -2,6 +2,15 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Header: on the hero, her pen stroke, the logo inks in
+
+- From the header research and `docs/design/prototypes/header-e-on-hero.html`
+  (Nathan: "do all 4"). Home only: the header sits on the Walnut hero in
+  cream until the page scrolls (`headerOverHero` from `index.astro` through
+  BaseLayout; HomeHero shades the photo top and clears the overlap on
+  desktop). Everywhere: a pen-stroke underline replaces the rising paint
+  chip, and the logo inks in on the first page of a visit (sessionStorage).
+
 ## 2026-10-01 — Phone menu: the Walnut contents page
 
 - Two prototype rounds (`docs/design/prototypes/menu-d-magazine.html`):
