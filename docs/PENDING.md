@@ -14,6 +14,18 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open — needs a human (Nathan)
 
+### From 2026-10-01: one brand line, "completely yours"
+
+- **Two Studio edits.** The code fallbacks now all say "completely yours"
+  (the hero's script phrase), but two live Sanity fields still say
+  "genuinely yours": Site settings -> Tagline ("Plainfield interior design
+  for homes that feel genuinely yours.", shown in the footer and used as the
+  site description) and Home -> Meet Staci headline ("A Space That's
+  Genuinely Yours"). Suggested: the tagline becomes "...completely yours.",
+  and the Meet Staci heading becomes something that is not the tagline again
+  (it sits right under the hero), e.g. "Hi, I'm Staci." Close this item
+  once both are published.
+
 ### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
 
 - **Show Staci the calmer version** once it is deployed, and ask which of the
