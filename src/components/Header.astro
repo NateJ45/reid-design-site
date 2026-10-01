@@ -16,7 +16,7 @@
 //              shadow; the logo shrinks to 52px inside it. BaseLayout's
 //              scroll listener sets data-scrolled.
 //   Phone      logo left (58px), the ink "Menu" price tag right,
-//              which opens MobileNav's full-screen fan deck.
+//              which opens MobileNav's full-screen Walnut contents page.
 //
 // The availability pill and the search icon that used to sit here were
 // removed with this rebuild (search is linked from the footer; the /search
@@ -38,6 +38,7 @@ import { site } from '@/data/site';
 import MobileNav from './MobileNav';
 import SanityImage from './SanityImage.astro';
 import RatingTag from '@/components/reviews/RatingTag.astro';
+import { formatRating, googleRatingFrom, reviewCountLabel } from '@/lib/reviews';
 import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
@@ -142,14 +143,25 @@ const mobileCtaIsDefault =
   chrome.headerCta.show &&
   chrome.headerCta.href === DEFAULT_CTA_HREF &&
   chrome.headerCta.label === (siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL);
+// The Google rating line at the foot of the phone menu (2026-10-01), from the
+// same Site settings fields as RatingTag; nothing when they are unset.
+const ratingSummary = googleRatingFrom(siteSettings);
 const mobileChrome = {
   ...(mobileCtaIsDefault ? {} : { cta: chrome.headerCta }),
   ...(chrome.showEmail ? {} : { showEmail: false }),
+  ...(ratingSummary
+    ? {
+        rating: {
+          value: formatRating(ratingSummary.rating),
+          label: reviewCountLabel(ratingSummary.count),
+        },
+      }
+    : {}),
 };
 
 // ---- The menu ---------------------------------------------------------------
 // Flat items render as plain links; dropdown items as native <details> groups
-// (desktop) and as chips in the phone menu's deck.
+// (desktop) and as rows in the phone menu's contents page.
 //
 // Built-in menu (2026-09-30, the swatch book): the logo is home, so there is
 // no "Home" item, and the core pages are flat, in the prototype's order:

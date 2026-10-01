@@ -135,15 +135,24 @@ no decorative numbering.
   paper strip with a shadow; the logo shrinks to 52px inside it. The sticky box never changes height, so nothing reflows. No
   availability pill, no search icon (search lives in the footer). A rating
   slot is reserved beside the tag.
-- **Phone menu** (`MobileNav.tsx`). The trigger is an ink "Menu" price tag. Open:
-  full-screen ink, her cream logo 108px top left, "Close" as a cream price tag,
-  the menu as a deck of full-width paint chips on the ramp (never Warm
-  Bronze), stacked square with a hairline between them (fanned until the
-  quiet pass), names only and set big, and never covered by the next chip
-  (each chip shows a fixed strip above the next). The deck deals in from
-  below, landing square, under `prefers-reduced-motion: no-preference` only. Foot:
-  the cream booking tag (no price since 2026-10-01), then phone and email. Radix
-  Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
+- **Phone menu** (`MobileNav.tsx`), "the contents page" (2026-10-01, Nathan's
+  pick "2" of `docs/design/prototypes/menu-d-magazine.html`; it replaced the
+  paint-chip fan deck). The trigger is still the ink "Menu" tag. Open: a
+  full-screen Walnut page, cream type throughout (4.9:1; Oat is used only for
+  the arrows, the star and the sprig, since Oat text on Walnut is 3.75:1).
+  Her cream logo top left, a plain "Close" with a cross top right, a short
+  kicker ("Reid Design, Plainfield") after a rule, then the pages set large
+  in Zodiak like a magazine's contents page: each name with a one-line
+  italic note (`src/data/menu-notes.ts`, safe to edit, tested: short, no
+  em-dashes, no counts that go stale) and an arrow, hairlines between rows.
+  Contact closes the list when the nav does not already link it. The page
+  you are on is italic with a dot before its note. No photos (tried in round
+  one; Nathan: they did not work). Foot: the cream "Book a consultation"
+  button, the Google rating as one star and the number (never five stars
+  for a 4.6), phone and email. One faint cream olive sprig hangs in from the
+  top and draws in on open; rows rise in one after another under
+  `prefers-reduced-motion: no-preference` only. Radix Dialog: aria-modal,
+  focus trap, Escape, focus return, scroll lock.
 - **Footer** (`Footer.astro`), on ink, as letterpress stationery (2026-09-30
   design pass; Nathan wanted it "truly classy and refined"). A fine double
   rule in Sandbar frames it. Her clean line logo (the wash-free lockup mask,

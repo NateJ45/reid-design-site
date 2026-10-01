@@ -2,6 +2,16 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Phone menu: the Walnut contents page
+
+- Two prototype rounds (`docs/design/prototypes/menu-d-magazine.html`):
+  Nathan kept the live header, dropped the room photos and picked the Walnut
+  version. `MobileNav.tsx` + `mobile-nav.css` rebuilt: large Zodiak names
+  with italic notes from `src/data/menu-notes.ts` (tested), arrows,
+  hairlines, Contact added as the last row, the cream booking button, the
+  Google rating (passed from Header.astro via `googleRatingFrom`), phone and
+  email. All text cream on Walnut for contrast; Oat only for marks.
+
 ## 2026-10-01 — Hand-lettered hero accent
 
 - Hero accents (home "completely yours", FAQ "Know", any page hero with a
