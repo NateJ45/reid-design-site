@@ -27,13 +27,13 @@ items to "Recently closed" with a date, and prune that section when it grows.
   knows (`TOWNS` in `src/lib/area-map.ts`). If Staci adds a town it does not
   know (Avon, Brownsburg, Greenwood and a few others are already there), it
   is simply missing from the map until someone adds its coordinates.
-- **Privacy policy and the Google map.** Contact now embeds a Google map,
-  which loads as a visitor scrolls near it and can set Google cookies.
-  Staci's policy (Sanity, Privacy page) does not mention embedded services.
-  Suggested line for her to add under "What I do not do" or a new short
-  section: "The map on the contact page is from Google Maps. When it loads,
-  Google may set its own cookies; see Google's privacy policy." Or ask for
-  the map to load only on a tap (like the Calendly scheduler).
+- **Privacy policy and the Google map.** Contact embeds a Google map, which
+  can set Google cookies once it loads. Nathan chose (2026-10-01) to keep it
+  loading on approach and add a line to Staci's policy rather than make it
+  tap-to-load. Waiting on that Studio edit (Pages -> Privacy, under "What I
+  do not do"): "The map on my contact page is from Google Maps. When it
+  loads, Google may set its own cookies, which are covered by Google's
+  privacy policy." Close this item once it is published.
 - **Check the Google map after the deploy.** The session could not load
   Google inside its sandboxed browser, so the live embed in the frame was
   not seen. Open /contact on a phone and a laptop: it should show Plainfield
