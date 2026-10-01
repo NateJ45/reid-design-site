@@ -208,34 +208,28 @@ const eDesignPage = {
     'One round of revisions',
   ],
 
+  // One package, priced the way Staci prices it (her 2.0 spec, migration-docs/
+  // 05-reid-design-2.0-changes.md, and the Services page both say "starting at
+  // $695"). The old $425 "Single Room" and $250 "Refresh Board" tiers were
+  // placeholder numbers from the first seed and are not offers she makes.
   tiers: [
     {
       _key: 'edt1',
-      name: 'Single Room E-Design',
-      price: '$425',
-      priceNumeric: 425,
+      name: 'E-Design',
+      price: 'Starting at $695',
+      priceNumeric: 695,
       features: [
-        'Mood board',
-        'Furniture layout',
-        'Paint direction',
+        'Custom mood board',
+        'Furniture layout (2D)',
+        'Color palette and finish selections',
+        'Styling recommendations',
         'Shopping list with clickable links',
         'One round of revisions',
+        'Two weeks of email follow-up while you shop',
       ],
-      bestFor: 'One room, start to finish, on your schedule.',
+      bestFor:
+        'Out-of-area clients, hands-on homeowners, or anyone who wants a clear plan without the in-home install.',
       ctaLabel: 'Start my E-Design',
-    },
-    {
-      _key: 'edt2',
-      name: 'Refresh Board',
-      price: '$250',
-      priceNumeric: 250,
-      features: [
-        'Mood board with 6 to 8 product picks',
-        'Shopping list with clickable links',
-        'Paint direction',
-      ],
-      bestFor: 'A mood board and shopping list to point you in the right direction.',
-      ctaLabel: 'Start my Refresh Board',
     },
   ],
 
@@ -307,7 +301,7 @@ async function main() {
     `Project: ${PUBLIC_SANITY_PROJECT_ID}, Dataset: ${PUBLIC_SANITY_DATASET || 'production'}\n`,
   );
 
-  // 1. Patch existing singletons (never createOrReplace — that wipes fields)
+  // 1. Patch existing singletons (never createOrReplace, that wipes fields)
   await patchSiteSettings();
   await patchContactPage();
   await patchTestimonials();

@@ -55,7 +55,7 @@ const folderTags = [
 for (const tag of folderTags) {
   const matches = assets
     .filter((a) => Array.isArray(a.tags) && a.tags.includes(tag))
-    // Heroes work better landscape — sort wider-first
+    // Heroes work better landscape, sort wider-first
     .sort((a, b) => (b.width ?? 0) / (b.height ?? 1) - (a.width ?? 0) / (a.height ?? 1));
 
   console.log(`\n=== ${tag} (${matches.length}) ===`);

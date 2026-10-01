@@ -33,7 +33,7 @@ import BackToTop from '@/components/BackToTop';
 import Analytics from '@/components/Analytics.astro';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
-// Starwind UI CSS — accordion keyframes + @theme inline for new semantic tokens.
+// Starwind UI CSS, accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
 // the cascade over starwind.css's fallback :root defaults.
 import '@/styles/starwind.css';
@@ -66,7 +66,7 @@ interface Props {
   seoImage?: any;
   /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
   schemas?: string[];
-  /** Sanity siteSettings document — drives footer, header, and the LocalBusiness schema. */
+  /** Sanity siteSettings document, drives footer, header, and the LocalBusiness schema. */
   siteSettings?: any;
   /** When true, emit <meta name="robots" content="noindex, follow">. Used by the 404 page so it never gets indexed. Defaults to false (the page is indexable). */
   noindex?: boolean;
@@ -166,22 +166,30 @@ const resolvedOg = explicitOg ?? cardSpec?.out ?? fallbackOg;
 const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
 
 // Build the document title. If the editor-supplied seoTitle already contains
-// the brand anywhere (e.g. "Reid Design LLC — Plainfield Interior Design" or
-// "About Staci · Reid Design"), use it verbatim. Otherwise append " — Reid
+// the brand anywhere (e.g. "Reid Design LLC | Plainfield Interior Design" or
+// "About Staci | Reid Design"), use it verbatim. Otherwise append " | Reid
 // Design LLC" so the tab + search-result line carries the brand. Strips a
-// trailing " — Reid Design LLC" once before evaluating so any legacy
-// pre-baked suffix is handled. The looser brand check (matches "Reid Design"
-// not just "Reid Design LLC") catches the most common editor abbreviation
-// without producing duplicates.
-const brandSuffix = ` — ${site.name}`;
+// trailing " | Reid Design LLC" once before evaluating so any pre-baked
+// suffix is handled. The OLD house suffix was an em-dash (retired 2026-10-01,
+// no em-dashes anywhere); it is still recognised, written as an escape so this
+// file holds none itself, because titles saved in Sanity before that day end
+// with it. The looser brand check (matches "Reid Design" not just "Reid Design
+// LLC") catches the most common editor abbreviation without producing
+// duplicates.
+const brandSuffix = ` | ${site.name}`;
+const legacyBrandSuffix = ` \u2014 ${site.name}`;
 const cleanTitle = title.endsWith(brandSuffix)
   ? title.slice(0, -brandSuffix.length)
-  : title;
+  : title.endsWith(legacyBrandSuffix)
+    ? title.slice(0, -legacyBrandSuffix.length)
+    : title;
 const brandRoot = 'Reid Design'; // base brand match for de-duplication
 const hasBrandInline = cleanTitle.toLowerCase().includes(brandRoot.toLowerCase());
-const fullTitle = cleanTitle === site.name || hasBrandInline
-  ? cleanTitle
-  : `${cleanTitle} — ${site.name}`;
+const joinedTitle =
+  cleanTitle === site.name || hasBrandInline ? cleanTitle : `${cleanTitle} | ${site.name}`;
+// Belt and braces: a title saved with an em-dash in the middle (not just as the
+// brand suffix) never reaches the browser tab or a search result.
+const fullTitle = joinedTitle.replace(/\s*\u2014\s*/g, ' | ');
 
 // Alt text for the social-share image. Prefer the per-page seoImage's alt, then
 // the site default's alt, falling back to the page title. Describes the visible
@@ -265,7 +273,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     {cardSpec && (
       <script is:inline type="application/json" id={CARD_SPEC_ID} set:html={serializeSpec(cardSpec)} />
     )}
-    {/* article:* meta — only emitted when a page passes ogType 'article' (none today) */}
+    {/* article:* meta, only emitted when a page passes ogType 'article' (none today) */}
     {ogType === 'article' && ogArticle?.publishedAt && (
       <meta property="article:published_time" content={ogArticle.publishedAt} />
     )}
@@ -284,7 +292,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
       <script type="application/ld+json" set:html={json} />
     ))}
 
-    {/* Anti-FOUC theme bootstrap — must run inline before first paint.
+    {/* Anti-FOUC theme bootstrap, must run inline before first paint.
         Also re-applies the theme + theme-aware images (header logo) after
         every Astro View Transitions navigation: the transition swap
         replaces <html>'s className with the new page's (empty), so without
@@ -307,7 +315,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
             document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
           } catch (_) { /* localStorage unavailable, default light */ }
 
-          // Theme-aware images (header logo) — swap src/srcset to match the
+          // Theme-aware images (header logo), swap src/srcset to match the
           // active theme. Single-img approach means only one variant is ever
           // fetched per page load, so Lighthouse doesn't flag the inactive
           // variant as "image larger than displayed."

@@ -4,7 +4,7 @@
 // to /search (Pagefind). The box is a plain GET form, so it works with no JS.
 //
 // Layout: two-column on desktop (text + photograph), stacked on mobile. The
-// photo grounds the page as Reid Design — using a styled vignette from the
+// photo grounds the page as Reid Design, using a styled vignette from the
 // media library (Staci's dogs on the studio sofa) reads as "smart friend, not
 // 404 chrome." Asset is referenced by _ref so it pipes through the same
 // SanityImage CDN/transform pipeline as every other photo on the site.
@@ -15,7 +15,7 @@ import SanityImage from '@/components/SanityImage.astro';
 
 const [notFoundPage, siteSettings] = await Promise.all([getNotFoundPage(), getSiteSettings()]);
 
-// Fallback photo — Studio dogs on the sofa, in case the singleton hasn't been
+// Fallback photo: Studio dogs on the sofa, in case the singleton hasn't been
 // populated. Sanity singleton always wins if its image field is set.
 const fallbackPhoto = {
   asset: { _ref: 'image-ce9be41407b946b7453724575c3cfd7aec2f7c4c-3024x4032-jpg' },

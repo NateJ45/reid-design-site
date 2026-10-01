@@ -6,10 +6,10 @@
 
 Reid Design has two image sources, each with its own pipeline:
 
-1. **Local assets** — files committed to the repo. Optimized by Astro's `<Image>` / `getImage()` at build time (Sharp under the hood). Output is content-hashed WebP/AVIF in `/_astro/`.
-2. **Sanity-hosted images** — uploaded by editors. Optimized on the fly by Sanity's CDN (`cdn.sanity.io`) at request time. The `<SanityImage />` wrapper builds the URL with the right transform params and srcset.
+1. **Local assets** files committed to the repo. Optimized by Astro's `<Image>` / `getImage()` at build time (Sharp under the hood). Output is content-hashed WebP/AVIF in `/_astro/`.
+2. **Sanity-hosted images** uploaded by editors. Optimized on the fly by Sanity's CDN (`cdn.sanity.io`) at request time. The `<SanityImage />` wrapper builds the URL with the right transform params and srcset.
 
-The two pipelines never mix. Don't reach for Astro `<Image>` on a Sanity URL — `image.domains` in `astro.config.mjs` is intentionally NOT configured, because Sanity's CDN is already excellent and we don't want to pay the build-time hit of pulling every remote image through Sharp.
+The two pipelines never mix. Don't reach for Astro `<Image>` on a Sanity URL, `image.domains` in `astro.config.mjs` is intentionally NOT configured, because Sanity's CDN is already excellent and we don't want to pay the build-time hit of pulling every remote image through Sharp.
 
 ### Local assets (`src/assets/`)
 
@@ -26,14 +26,14 @@ Files live in `src/assets/` (NOT `public/`). The `src/assets/` location is what 
 
 **Props:**
 
-- `width` (required) — maximum width the image will ever render at. Caps the srcset ladder. Don't request larger than the slot displays at — that's wasted bytes.
-- `height` (optional) — only set when you need a specific aspect-ratio crop. Otherwise the wrapper derives height from the asset's intrinsic dimensions via `parseSanityAssetDimensions()` and writes both width + height to the `<img>` (kills CLS).
-- `sizes` (recommended) — the `sizes` attribute. If omitted, defaults to `(max-width: {width}px) 100vw, {width}px`. Pass an accurate value for layouts where the image doesn't fill the viewport on mobile (e.g., a 2-column layout would want `(min-width: 768px) 45vw, 100vw`).
-- `quality` (default 75) — drop to 65 for big hero photos where every byte matters more than micro-detail.
-- `format` (default `'auto'`) — Sanity serves AVIF on supporting browsers (~25% smaller than WebP), WebP elsewhere, JPEG as final fallback. Force `'webp'` only if you have a reason to bypass AVIF.
-- `loading` (default `'lazy'`) — set to `'eager'` for above-the-fold hero images.
-- `fetchpriority` — pass `"high"` on the page's LCP image so the browser fetches it ahead of other resources. Hero.astro does this on the eager background image.
-- `defer` (default `false`, 2026-09-29) — render with NO `src`/`srcset`, the URLs parked in `data-src` / `data-srcset`, for a picture that sits in the viewport from first paint but is not shown for seconds (the home hero's second and later slides). `loading="lazy"` cannot hold those back, because they are inside the viewport. The CALLER must move the URLs across later; `HeroBackground.astro` is the reference (800ms after `load`).
+- `width` (required), maximum width the image will ever render at. Caps the srcset ladder. Don't request larger than the slot displays at, that's wasted bytes.
+- `height` (optional), only set when you need a specific aspect-ratio crop. Otherwise the wrapper derives height from the asset's intrinsic dimensions via `parseSanityAssetDimensions()` and writes both width + height to the `<img>` (kills CLS).
+- `sizes` (recommended), the `sizes` attribute. If omitted, defaults to `(max-width: {width}px) 100vw, {width}px`. Pass an accurate value for layouts where the image doesn't fill the viewport on mobile (e.g., a 2-column layout would want `(min-width: 768px) 45vw, 100vw`).
+- `quality` (default 75), drop to 65 for big hero photos where every byte matters more than micro-detail.
+- `format` (default `'auto'`): Sanity serves AVIF on supporting browsers (~25% smaller than WebP), WebP elsewhere, JPEG as final fallback. Force `'webp'` only if you have a reason to bypass AVIF.
+- `loading` (default `'lazy'`), set to `'eager'` for above-the-fold hero images.
+- `fetchpriority`, pass `"high"` on the page's LCP image so the browser fetches it ahead of other resources. Hero.astro does this on the eager background image.
+- `defer` (default `false`, 2026-09-29), render with NO `src`/`srcset`, the URLs parked in `data-src` / `data-srcset`, for a picture that sits in the viewport from first paint but is not shown for seconds (the home hero's second and later slides). `loading="lazy"` cannot hold those back, because they are inside the viewport. The CALLER must move the URLs across later; `HeroBackground.astro` is the reference (800ms after `load`).
 
 **Responsive srcset ladder** (hardcoded in SanityImage.astro):
 
@@ -41,7 +41,7 @@ Files live in `src/assets/` (NOT `public/`). The `src/assets/` location is what 
 [400, 600, 700, 800, 900, 1200, 1600, 2400]
 ```
 
-Each entry is a width. The wrapper filters this down to entries ≤ requested `width` and always includes the explicit `width` as the largest. The mobile-retina gap (DPR 1.875 needs ~713 effective px) is what motivated the 700 entry — without it, mobile would round up to 800 unnecessarily.
+Each entry is a width. The wrapper filters this down to entries ≤ requested `width` and always includes the explicit `width` as the largest. The mobile-retina gap (DPR 1.875 needs ~713 effective px) is what motivated the 700 entry, without it, mobile would round up to 800 unnecessarily.
 
 **Hotspot and crop.** Enable `hotspot: true` on every Sanity image field. Staci can then click to set the focal point, and the URL builder passes that hotspot to Sanity so crops at smaller sizes keep the right part of the image in frame. Faces, key visual elements, anything that matters when the image gets cropped down.
 

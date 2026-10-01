@@ -1,7 +1,7 @@
 // Wire Reid Design photos to specific Sanity docs by patching each doc with an
 // `_sanityAsset` directive. When `sanity dataset import` runs the resulting
 // NDJSON, the CLI uploads each local file and resolves the directive into a
-// proper asset reference — all via CLI auth (no write token needed).
+// proper asset reference, all via CLI auth (no write token needed).
 //
 // What gets wired:
 //   homePage.heroImage         → 01-Home-Hero/open-concept-kitchen-island.jpg
@@ -14,7 +14,7 @@
 //
 // Strategy: fetch each doc fresh from Sanity, replace the image field, write
 // NDJSON, hand off to `sanity dataset import` for the actual upload + reference.
-// The script does NOT run the import itself — spawnSync hangs in my Node shell.
+// The script does NOT run the import itself, spawnSync hangs in my Node shell.
 // It prints the exact CLI command to copy-paste.
 
 import { createClient } from '@sanity/client';
@@ -68,7 +68,7 @@ const wirings = [
     patches: {
       heroImage: imageField(
         resolve(photosRoot, '01-Home-Hero', 'reid-design-open-concept-kitchen-island.jpg'),
-        'A bright open-concept kitchen designed by Reid Design — white cabinetry, oak floors, large island with brass pendant lights.',
+        'A bright open-concept kitchen designed by Reid Design, white cabinetry, oak floors, large island with brass pendant lights.',
       ),
       meetStaciPhoto: imageField(
         resolve(photosRoot, '01-Home-Hero', 'staci-perkins-at-home-with-dogs-sofa.jpg'),
@@ -90,7 +90,7 @@ const wirings = [
     patches: {
       heroImage: imageField(
         resolve(photosRoot, '04-Portfolio-Grid', 'reid-design-living-room-grey-sectional-blue.jpg'),
-        'Plainfield family room with a low-profile grey sectional, blue accent pillows, and layered textures — a recent Reid Design project.',
+        'Plainfield family room with a low-profile grey sectional, blue accent pillows, and layered textures, a recent Reid Design project.',
       ),
     },
   },
@@ -99,7 +99,7 @@ const wirings = [
     patches: {
       heroImage: imageField(
         resolve(photosRoot, '04-Portfolio-Grid', 'reid-design-kitchen-island-brass-pendants.jpg'),
-        'A Fishers, Indiana kitchen styled by Reid Design — large island, brass pendant lights, warm white cabinetry.',
+        'A Fishers, Indiana kitchen styled by Reid Design, large island, brass pendant lights, warm white cabinetry.',
       ),
     },
   },
@@ -117,7 +117,7 @@ const wirings = [
     patches: {
       coverImage: imageField(
         resolve(photosRoot, '08-Blog-Social', 'reid-design-cozy-living-room-warm-lighting.jpg'),
-        'Cozy living room in warm afternoon light — sofa, layered pillows, soft lamp glow.',
+        'Cozy living room in warm afternoon light, sofa, layered pillows, soft lamp glow.',
       ),
     },
   },
@@ -152,5 +152,5 @@ if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 const lines = patched.map((d) => JSON.stringify(d));
 writeFileSync(outPath, lines.join('\n') + '\n', 'utf-8');
 console.log(`\nWrote ${patched.length} patched docs to ${outPath}`);
-console.log('\nNext step — upload + import (paste this):');
+console.log('\nNext step, upload + import (paste this):');
 console.log(`  cd studio && npx sanity dataset import "${outPath}" production --replace`);

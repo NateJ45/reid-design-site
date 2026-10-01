@@ -2,7 +2,7 @@
 // Safe to edit by hand
 // Grid testimonial card. Sits below the featured pull-quote on the homepage.
 // Compact quote + attribution + date/source.
-// Optional photo + location render when present — both add real trust currency
+// Optional photo + location render when present, both add real trust currency
 // for a local studio. Cards without them keep the same visual rhythm.
 
 import SanityImage from '@/components/SanityImage.astro';
@@ -47,11 +47,11 @@ function formatDate(d?: string): string {
 
 const dateLabel = formatDate(testimonial.date);
 const sourceLabel = testimonial.source && testimonial.source !== 'Other' ? testimonial.source : '';
-// Location + date + source — location leads when present (local trust signal).
+// Location + date + source, location leads when present (local trust signal).
 const attributionMeta = [testimonial.location, dateLabel, sourceLabel].filter(Boolean).join(' · ');
 const hasPhoto = !!testimonial.photo?.asset;
 
-// sourceType badge label map — only the platform-specific values get a label.
+// sourceType badge label map, only the platform-specific values get a label.
 // 'direct' and 'other' and missing values silently produce nothing.
 const SOURCE_LABELS: Record<string, string> = {
   google: 'Google',
@@ -68,7 +68,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
   class="card-lift flex h-full flex-col overflow-hidden rounded-md border border-border-soft bg-card text-card-foreground shadow-[0_4px_18px_-14px_rgba(61,61,61,0.18)]"
 >
   {
-    /* Brand accent stripe — matches ServiceCard / ProjectCard.
+    /* Brand accent stripe, matches ServiceCard / ProjectCard.
       Padding moved from <figure> to an inner div so the stripe can sit flush
       to the rounded corners (figure has overflow-hidden). */
   }
@@ -123,7 +123,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
     </figcaption>
 
     {
-      /* Related-project link — only rendered when the testimonial's
+      /* Related-project link, only rendered when the testimonial's
       relatedProject reference is set. Lets the visitor jump from the social
       proof into the actual case study. */
     }
@@ -139,7 +139,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
     }
 
     {
-      /* Source platform badge — shows which review platform the quote came from.
+      /* Source platform badge, shows which review platform the quote came from.
       Omitted when sourceType is absent, 'direct', or 'other'. */
     }
     {

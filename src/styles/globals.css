@@ -1,4 +1,4 @@
-/* Reid Design — global stylesheet. Foundation, edit with care.
+/* Reid Design, global stylesheet. Foundation, edit with care.
    Brand tokens declared here (Tailwind 4 @theme block) and mapped
    onto shadcn's semantic tokens (:root / .dark) so brand identity
    carries everywhere the design system is referenced. */
@@ -186,14 +186,14 @@
 @theme {
   /* Brand palette */
   --color-primary: #9c7661; /* Warm Bronze */
-  --color-primary-dark: #7a5d4c; /* Bronze Dark — for body anchor text */
+  --color-primary-dark: #7a5d4c; /* Bronze Dark, for body anchor text */
   --color-accent: #231e1b; /* Ink (was Charcoal #3d3d3d until the 2026-09-29 rebuild) */
-  --color-accent-dark: #231e1b; /* Ink — dark surfaces */
-  --color-secondary: #b8a99a; /* Warm Taupe — borders, eyebrows */
-  --color-tertiary: #a8b5a0; /* Soft Sage — sparingly */
+  --color-accent-dark: #231e1b; /* Ink, dark surfaces */
+  --color-secondary: #b8a99a; /* Warm Taupe, borders, eyebrows */
+  --color-tertiary: #a8b5a0; /* Soft Sage, sparingly */
 
-  --color-bg: #f7f3ee; /* Linen — primary surface */
-  --color-bg-soft: #f1e7dc; /* Chip 1 — alternating surface */
+  --color-bg: #f7f3ee; /* Linen, primary surface */
+  --color-bg-soft: #f1e7dc; /* Chip 1, alternating surface */
 
   /* Rebuild palette (2026-09-29). Still Warm Bronze, now as a PAINT STRIP:
      seven tones from palest to deepest, the house colour at chip 5. Paint
@@ -215,7 +215,7 @@
   --color-paper: #fffdfa; /* Paper: chip labels, sample tags, prints */
   --color-rule: #e2d8cc; /* Hairlines on linen */
 
-  --color-border-soft: #e8e4e0; /* Light Gray — faint dividers */
+  --color-border-soft: #e8e4e0; /* Light Gray, faint dividers */
 
   --color-white-pure: #ffffff;
 
@@ -245,7 +245,7 @@
   --text-lede: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
 
   /* Typographic micro-rules. Codified so usage stays consistent across
-     components — drift from ad-hoc arbitrary values (tracking-[0.22em],
+     components, drift from ad-hoc arbitrary values (tracking-[0.22em],
      leading-[1.05]) into shared tokens. */
   --leading-headline-tight: 1.05; /* Hero H1 and any oversized display type */
   --tracking-eyebrow: 0.18em; /* Uppercase eyebrow labels above headings */
@@ -258,7 +258,7 @@
      tokens `--spacing-xl` would silently break `max-w-xl` / `max-w-2xl`
      site-wide (they'd inherit the fluid clamp instead of the container
      width). Section utilities are now `py-section-lg`, `mt-section-md`,
-     etc. — Tailwind containers stay safe. */
+     etc. Tailwind containers stay safe. */
   --spacing-xs: clamp(0.25rem, 0.5vw, 0.5rem);
   --spacing-s: clamp(0.5rem, 1vw, 1rem);
   --spacing-m: clamp(1rem, 2vw, 1.5rem);
@@ -311,15 +311,15 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  /* IMPORTANT: bg-accent must be theme-aware (shadcn convention — soft hover
+  /* IMPORTANT: bg-accent must be theme-aware (shadcn convention, soft hover
        surface, Cream in light / darker warm in dark). The @theme block above
        declares --color-accent as static Charcoal for legacy brand-palette
        reasons, but every component that uses bg-accent (ThemeToggle hover,
        MobileNav hover, dropdown-menu focus, secondary outlined buttons) needs
-       it to flip with theme — otherwise the hover surface in light mode is
+       it to flip with theme, otherwise the hover surface in light mode is
        Charcoal-on-Charcoal-icon and the icon disappears. This mapping wins
        because @theme inline is declared after @theme. Side effect: text-accent
-       is now theme-aware too (Cream in light, darker in dark) — fine because
+       is now theme-aware too (Cream in light, darker in dark), fine because
        no component uses bare text-accent (use text-foreground for body text). */
   --color-accent: var(--accent);
   /* Dark-mode-aware brand link/anchor color: Bronze Dark in light mode,
@@ -447,13 +447,13 @@
   --sidebar-border: #e8e4e0;
   --sidebar-ring: #9c7661;
 
-  /* Starwind UI extra semantic tokens — not in shadcn's default set.
+  /* Starwind UI extra semantic tokens, not in shadcn's default set.
        Values harmonized to the Reid warm bronze/cream palette.
        --primary-accent/-secondary-accent are lightness-shifted from --primary/#9C7661.
        Info/success/warning/error use standard semantic hues tinted warm so they
        sit comfortably beside Warm Bronze without clashing. --outline matches --ring. */
-  --primary-accent: #7a5d4c; /* Bronze Dark — hover/active shade of --primary */
-  --secondary-accent: #3d3d3d; /* Charcoal — active/pressed secondary */
+  --primary-accent: #7a5d4c; /* Bronze Dark, hover/active shade of --primary */
+  --secondary-accent: #3d3d3d; /* Charcoal, active/pressed secondary */
   --info: #93c5fd; /* soft blue, neutral enough beside warm bronze */
   --info-foreground: #1e3a5f; /* deep blue for text on info surfaces */
   --success: #86efac; /* soft green */
@@ -510,9 +510,9 @@
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: #b89274;
 
-  /* Starwind UI extra semantic tokens — dark mode variants. */
-  --primary-accent: #b89274; /* lifted Bronze — hover/active shade on dark surfaces */
-  --secondary-accent: #f5f0eb; /* Cream — active/pressed secondary on dark surfaces */
+  /* Starwind UI extra semantic tokens, dark mode variants. */
+  --primary-accent: #b89274; /* lifted Bronze, hover/active shade on dark surfaces */
+  --secondary-accent: #f5f0eb; /* Cream, active/pressed secondary on dark surfaces */
   --info: #93c5fd; /* same soft blue reads well on dark warm surfaces */
   --info-foreground: #1e3a5f;
   --success: #86efac;
@@ -595,7 +595,7 @@
    prefers-reduced-motion via the global reset further down. */
 
 /* Scroll-triggered reveal. Pair with the IntersectionObserver in
-   BaseLayout.astro — elements with [data-reveal] start hidden and gain
+   BaseLayout.astro, elements with [data-reveal] start hidden and gain
    .is-visible when they enter the viewport. Optional [data-reveal-delay]
    takes ms via inline style on the element itself. */
 [data-reveal] {
@@ -686,7 +686,7 @@
 }
 
 /* Warm-textured surface. An opt-in utility for sections that need a hint of
-   dimensional warmth on top of bg-muted — a very low-intensity bronze radial
+   dimensional warmth on top of bg-muted, a very low-intensity bronze radial
    glow at the top of the section that fades to the muted base. Adds depth
    without becoming a pattern (which would clash with the photography).
    Pairs with the global body::before paper-grain rather than replacing it.
@@ -707,7 +707,7 @@
 }
 
 /* Tactile press on primary CTAs. Tap/click depresses ~1px so the press
-   registers physically — common Apple-Material trick. */
+   registers physically, common Apple-Material trick. */
 .press-tactile {
   transition-property: background-color, color, border-color, outline-color, transform, box-shadow;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -765,12 +765,12 @@
   }
 }
 
-/* Hero entry animation — staggered fade-up on page load for the eyebrow /
+/* Hero entry animation, staggered fade-up on page load for the eyebrow /
    headline / subhead / CTAs inside an image-variant hero. Used by the
    `.hero-entry-stagger` wrapper class on Hero.astro's content column. Each
    direct child fades up with a small delay so the hero reads like a
    considered editorial composition rather than a hard cut-in.
-   Reduced-motion users get the final state instantly — no animation, no
+   Reduced-motion users get the final state instantly, no animation, no
    stagger, content visible at full opacity. */
 @keyframes hero-fade-up {
   from {
@@ -943,7 +943,7 @@
   transition-delay: 0s !important;
 }
 
-/* ---- Image curtain reveal — a Soft Linen panel scales away from the top
+/* ---- Image curtain reveal, a Soft Linen panel scales away from the top
    edge to reveal the image. Triggered by IntersectionObserver in BaseLayout.
    The color matches --background so the reveal feels like materialization,
    not a sliding panel. ---- */
@@ -963,7 +963,7 @@
   transform: scaleY(0);
 }
 
-/* ---- Process connector lines — a 2px bronze thread that draws downward
+/* ---- Process connector lines, a 2px bronze thread that draws downward
    from each step number badge. Resting state is Light Gray; the ::after
    fill animates to Warm Bronze when the step is in view.
    Added inside ProcessStep.astro's existing left-column flex container. ---- */
@@ -1115,11 +1115,11 @@ body::before {
     transform: none !important;
     translate: none !important;
   }
-  /* Curtain: skip the reveal entirely — image always visible */
+  /* Curtain: skip the reveal entirely, image always visible */
   .img-curtain {
     display: none !important;
   }
-  /* Connector: skip the draw animation — Gray track always visible */
+  /* Connector: skip the draw animation: Gray track always visible */
   .step-connector::after {
     transform: scaleY(1) !important;
     transition: none !important;
@@ -1161,7 +1161,7 @@ body::before {
     display: none !important;
   }
 
-  /* Sticky CTA chip, BackToTop button, custom cursor — all fixed elements. */
+  /* Sticky CTA chip, BackToTop button, custom cursor, all fixed elements. */
   [class*='fixed'] {
     display: none !important;
   }
@@ -1177,7 +1177,7 @@ body::before {
     color: #666;
     text-decoration: none;
   }
-  /* Don't print appended URLs on internal anchors or mailto/tel — too noisy. */
+  /* Don't print appended URLs on internal anchors or mailto/tel, too noisy. */
   a[href^='/']::after,
   a[href^='#']::after,
   a[href^='mailto:']::after,
@@ -1197,7 +1197,7 @@ body::before {
     page-break-inside: avoid;
   }
 
-  /* Images — preserve aspect ratio, cap height so they fit on a printed page. */
+  /* Images, preserve aspect ratio, cap height so they fit on a printed page. */
   img {
     max-width: 100%;
     max-height: 8in;

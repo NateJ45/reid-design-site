@@ -1,6 +1,6 @@
 // Patches briefLine + designCall on each placeholder project so the
 // Project Meta Band has all three columns to render. Voice is Staci's
-// "smart friend who happens to be a designer" — plain English, specific,
+// "smart friend who happens to be a designer", plain English, specific,
 // not transformational-sales-copy.
 //
 // Run with: node scripts/patch-project-meta-band.mjs

@@ -68,7 +68,7 @@ jobs:
 
       # THE CONFIG FLAG IS LOAD-BEARING. This is a hybrid static+SSR build, and
       # a plain `wrangler deploy` reads the SOURCE wrangler.jsonc, which knows
-      # nothing about the adapter's generated asset manifest — every sub-route
+      # nothing about the adapter's generated asset manifest, every sub-route
       # 404s. Deploy the adapter's own config, exactly as `npm run deploy`
       # does, and override only the Worker name so production is never touched.
       - name: Deploy to the staging Worker

@@ -1,4 +1,4 @@
-# Reid Design LLC — Migration Project: Strategy & Audit
+# Reid Design LLC: Migration Project: Strategy & Audit
 
 **Project:** Squarespace → Astro + Sanity (Cloudflare Pages)
 **Client:** Staci Perkins, Reid Design LLC
@@ -10,7 +10,7 @@
 
 ### Update log: shipped since initial strategy
 
-**May 2026 — Conversion and confidence build (main branch)**
+**May 2026: Conversion and confidence build (main branch)**
 
 All "what's missing" audit items from Phase 2 are now largely addressed. Specifically:
 
@@ -36,7 +36,7 @@ This is a brand and content refresh that happens to include a platform change. T
 
 ---
 
-# Phase 1 — Locked Strategy
+# Phase 1: Locked Strategy
 
 ## Positioning
 
@@ -112,7 +112,7 @@ More case studies (the migration should make adding new projects fast enough tha
 
 ---
 
-# Phase 2 — Site Audit
+# Phase 2: Site Audit
 
 ## Site inventory snapshot
 
@@ -147,10 +147,10 @@ Six pages live in the homepage navigation: Home, Process, Services, FAQ, Contact
 | Section | Verdict | Notes for new site |
 |---|---|---|
 | Page hero | Keep | Carry over verbatim. |
-| Step 01 — In-Home Consultation | Keep | Carry over. Wire to matching service card. |
-| Step 02 — Design Plan Created | Keep | Carry over. |
-| Step 03 — Shopping + Selections | Keep | Carry over. Preserve the tier-conditional logic in schema. |
-| Step 04 — Styling + Final Reveal | Keep | Carry over. |
+| Step 01: In-Home Consultation | Keep | Carry over. Wire to matching service card. |
+| Step 02: Design Plan Created | Keep | Carry over. |
+| Step 03: Shopping + Selections | Keep | Carry over. Preserve the tier-conditional logic in schema. |
+| Step 04: Styling + Final Reveal | Keep | Carry over. |
 | Common Questions (8 FAQs) | Keep with light dedupe | Decide rule: FAQ page covers everything, Process page covers only process-specific. |
 | Final CTA | Keep | Carry over. |
 
@@ -212,7 +212,7 @@ Six pages live in the homepage navigation: Home, Process, Services, FAQ, Contact
 
 ---
 
-# Phase 2 — Synthesis
+# Phase 2: Synthesis
 
 ## A. Content to extract from the live Squarespace site
 
@@ -268,7 +268,7 @@ Plus: Reid Design logo (homepage + footer variants), favicon.
 
 Schema design priority: editing comfort for Staci. Short field names, helpful descriptions, sensible defaults, no fields she shouldn't touch.
 
-## E. Squarespace live bugs — deferred
+## E. Squarespace live bugs, deferred
 
 Per Nathan's call, not fixing on the live site since migration is incoming. Documented for the record:
 

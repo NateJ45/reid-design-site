@@ -111,7 +111,7 @@ for (const doc of docs) {
     const after = TITLE_TO_VALUE[before];
     if (!after) {
       console.warn(
-        `  ! ${doc._id}${path} has unrecognized linkType=${JSON.stringify(before)} — left alone`,
+        `  ! ${doc._id}${path} has unrecognized linkType=${JSON.stringify(before)}, left alone`,
       );
       return;
     }
@@ -132,7 +132,7 @@ console.log(
 );
 
 if (changed === 0) {
-  console.log('Nothing to write — all CTAs already valid.');
+  console.log('Nothing to write, all CTAs already valid.');
   process.exit(0);
 }
 

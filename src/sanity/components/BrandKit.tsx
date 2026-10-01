@@ -1,7 +1,7 @@
-// BrandKit.tsx — Panel 3 of the Start Here handbook.
+// BrandKit.tsx: Panel 3 of the Start Here handbook.
 // Staci's quick-reference card for colors and fonts, built for copying into Canva.
 // Renders color swatches inline using a small Box with a backgroundColor style.
-// Static content — no data fetching.
+// Static content, no data fetching.
 // Safe to edit by hand.
 
 import React from 'react';
@@ -111,7 +111,7 @@ const fonts: FontEntry[] = [
   {
     name: 'Pinyon Script',
     role: 'One accent word per heading (use sparingly)',
-    note: 'The handwritten script font used for a single accent word in some headings. One word only — overuse makes it look fussy. Great for a signature-style flourish in Canva social graphics.',
+    note: 'The handwritten script font used for a single accent word in some headings. One word only: overuse makes it look fussy. Great for a signature-style flourish in Canva social graphics.',
   },
 ];
 

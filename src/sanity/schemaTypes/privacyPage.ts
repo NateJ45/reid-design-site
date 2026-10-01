@@ -10,7 +10,7 @@ export const privacyPage = defineType({
   name: 'privacyPage',
   title: 'Privacy Policy Page',
   type: 'document',
-  // Configuration, not prose Staci writes — exclude from Canvas.
+  // Configuration, not prose Staci writes, exclude from Canvas.
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },

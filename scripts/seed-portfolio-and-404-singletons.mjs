@@ -1,6 +1,6 @@
 // One-off: create + populate the portfolioPage and notFoundPage singletons
 // with the values that were previously hardcoded in the Astro page files.
-// Safe to re-run — uses createOrReplace for the seed doc and `setIfMissing`
+// Safe to re-run, uses createOrReplace for the seed doc and `setIfMissing`
 // only on first creation.
 //
 // Run: node scripts/seed-portfolio-and-404-singletons.mjs

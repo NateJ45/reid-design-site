@@ -5,7 +5,7 @@
 //
 // This script reads the existing PNGs, resizes to height 400 (2x headroom
 // over even the most aggressive retina), and writes them back. Drops file
-// size from ~347 KB to ~10–15 KB each — a clear LCP win.
+// size from ~347 KB to ~10–15 KB each, a clear LCP win.
 //
 // Run after generate-logo-variants.mjs whenever the source logo changes.
 //
@@ -47,5 +47,5 @@ console.log('Shrinking logo PNGs to height ' + TARGET_HEIGHT + 'px:');
 await shrinkLogo('logo-light.png');
 await shrinkLogo('logo-dark.png');
 console.log(
-  '\nDone. Header img tags can keep their current width/height attributes — browser scales the smaller source up to the original aspect ratio at the same render size.',
+  '\nDone. Header img tags can keep their current width/height attributes, browser scales the smaller source up to the original aspect ratio at the same render size.',
 );

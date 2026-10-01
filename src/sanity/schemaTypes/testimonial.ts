@@ -1,4 +1,4 @@
-// Client testimonials. Used across the site — featured pull-quote on the
+// Client testimonials. Used across the site, featured pull-quote on the
 // homepage, smaller cards in the grid, optional sidebar quotes elsewhere.
 //
 // GOOGLE REVIEWS (added 2026-09-30). A Google review is a testimonial with
@@ -44,7 +44,7 @@ export const testimonial = defineType({
     { path: 'location', weight: 3 },
     { path: 'quote', weight: 2 },
   ],
-  // Verbatim client quotes — AI must NOT touch or "improve" these.
+  // Verbatim client quotes: AI must NOT touch or "improve" these.
   options: { canvasApp: { exclude: true } },
   fields: [
     defineField({

@@ -52,7 +52,7 @@ const sourceLabel = testimonial.source && testimonial.source !== 'Other' ? testi
 const attributionMeta = [testimonial.location, dateLabel, sourceLabel].filter(Boolean).join(' · ');
 const hasPhoto = !!testimonial.photo?.asset;
 
-// sourceType badge — same mapping as TestimonialCard.
+// sourceType badge, same mapping as TestimonialCard.
 const SOURCE_LABELS: Record<string, string> = {
   google: 'Google',
   houzz: 'Houzz',
@@ -63,7 +63,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
 
 <figure class="relative mx-auto max-w-3xl text-center">
   {
-    /* Opening quote — large editorial display mark in Warm Bronze. Negative
+    /* Opening quote, large editorial display mark in Warm Bronze. Negative
       bottom margin lets the quote text rise into the visual space the mark
       defines, like an editorial pull quote on a magazine spread. */
   }
@@ -78,7 +78,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
   >
     {testimonial.quote}
   </blockquote>
-  {/* Closing quote mark — quieter, off-axis. Read as a deliberate flourish. */}
+  {/* Closing quote mark, quieter, off-axis. Read as a deliberate flourish. */}
   <span
     aria-hidden="true"
     class="mt-s block font-display text-[clamp(2.5rem,5vw,4rem)] leading-none text-primary/25 select-none"
@@ -119,7 +119,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
         )
       }
 
-      {/* Source platform badge — same logic as TestimonialCard. */}
+      {/* Source platform badge, same logic as TestimonialCard. */}
       {
         sourceBadge && (
           <p class="mt-m inline-flex items-center rounded-full border border-border-soft bg-muted px-s py-0.5 text-xs text-foreground/75">

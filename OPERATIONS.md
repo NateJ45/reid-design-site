@@ -1,4 +1,4 @@
-# Reid Design — Operations Playbook
+# Reid Design: Operations Playbook
 
 Tactical reference for common tasks. CLAUDE.md is the architecture / design reference; this file is the "how do I actually do X" guide.
 
@@ -37,7 +37,7 @@ until curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%
 echo "deploy live"
 ```
 
-Use `until ! grep -q '...'` (with the bang) when waiting for something to be **removed** from the HTML — `until grep -qv` doesn't do what it looks like.
+Use `until ! grep -q '...'` (with the bang) when waiting for something to be **removed** from the HTML, `until grep -qv` doesn't do what it looks like.
 
 ### Manual deploy
 
@@ -129,7 +129,7 @@ Sanity Studio includes a built-in Comments feature (the speech-bubble icon that 
 2. Click the speech-bubble icon that appears.
 3. Type a question or note and click Submit.
 
-Nathan sees the comment the next time he opens the Studio. Comments stay attached to the specific field until resolved, so they don't get lost in a text thread. Good uses: "Not sure what to put here," "Is this the right photo?", "This copy feels off — can you rewrite?" Comments do not affect published content in any way.
+Nathan sees the comment the next time he opens the Studio. Comments stay attached to the specific field until resolved, so they don't get lost in a text thread. Good uses: "Not sure what to put here," "Is this the right photo?", "This copy feels off, can you rewrite?" Comments do not affect published content in any way.
 
 ### Studio deploy
 
@@ -140,7 +140,7 @@ npm run studio:deploy
 # = npm --prefix studio run deploy
 ```
 
-Run this after any change in `studio/schemaTypes/`, `studio/structure.ts`, or `studio/sanity.config.ts` — otherwise Staci's Studio at `reid-design.sanity.studio` doesn't see the new schema fields.
+Run this after any change in `studio/schemaTypes/`, `studio/structure.ts`, or `studio/sanity.config.ts`, otherwise Staci's Studio at `reid-design.sanity.studio` doesn't see the new schema fields.
 
 **Always** run `npm run typegen` after schema changes so `src/lib/sanity.types.ts` is fresh, then commit.
 
@@ -186,8 +186,8 @@ All four scripts are idempotent. `seed-conversion-content.mjs` and `seed-script-
 
 **Important: the seeded content is placeholder.** The DNS cutover has happened, so anything below that was not replaced is live. Replace:
 
-- E-Design pricing tiers and what's-included lists — placeholder numbers
-- Testimonials tagged `sourceType: 'google'` in the seed — verify these are real reviews from Google
+- E-Design pricing tiers and what's-included lists (fixed 2026-10-01: one "Starting at $695" package; applied by `scripts/patch-2026-10-01-midmarket.mjs`)
+- Testimonials tagged `sourceType: 'google'` in the seed, verify these are real reviews from Google
 - About personal section (`seed-about-personal.mjs`): placeholder text. Staci should fill in her real "Currently," rapid fire answers, local spots, and beyond-design paragraph in Studio
 - Start Here guide and business notes (`seed-studio-guide.mjs`): seeded from the original hardcoded content. Staci or Nathan can update them in Studio at any time without a code change
 
@@ -250,8 +250,8 @@ Written as the pre-cutover gate. **DNS has since been cut over** (reiddesignllc.
 
 **Replace placeholder content (seeded during build):**
 
-- [ ] **Delete the three sample projects** (`project.plainfieldFamilyRoom`, `project.fishersKitchenStyling`, `project.zionsvilleMasterBedroom`) from Studio, or replace them with real case studies. Seeded by `scripts/seed-placeholder-content.mjs`, they ship with no photos and read like real Plainfield-area work, so they become the live portfolio by default if left in. They are now prefixed `[SAMPLE: delete before launch]` in the seeder, and after the schema guardrails deploy they also fail validation (no photos, blank brief/call), which makes them easy to spot.
-- [ ] Fill `eDesignPage` pricing tiers with Staci's actual numbers and what's-included copy
+- [x] (2026-10-01: `node scripts/seed-room-story-placeholder.mjs --apply` does this and leaves one draft room story to fill in) **Delete the three sample projects** (`project.plainfieldFamilyRoom`, `project.fishersKitchenStyling`, `project.zionsvilleMasterBedroom`) from Studio, or replace them with real case studies. Seeded by `scripts/seed-placeholder-content.mjs`, they ship with no photos and read like real Plainfield-area work, so they become the live portfolio by default if left in. They are now prefixed `[SAMPLE: delete before launch]` in the seeder, and after the schema guardrails deploy they also fail validation (no photos, blank brief/call), which makes them easy to spot.
+- [x] (2026-10-01) Fill `eDesignPage` pricing tiers with Staci's actual numbers and what's-included copy
 - [ ] Verify Google-tagged testimonials are pulled from Staci's real Google Business reviews
 - [ ] **About personal section**: Staci fills in her real content via Studio (currently list, rapid fire answers, local spots, beyond-design paragraph, candid photo). Section self-hides if left empty, so this is not a blocker, but it's a nice human touch early.
 - [ ] **Start Here guide + business notes**: review the seeded `studioGuide` and `studioNotes` content in Studio and update any copy that no longer matches the real site or Staci's current workflow. Nathan edits these directly in Studio. No code change needed.
@@ -309,13 +309,13 @@ Then `node scripts/your-script.mjs`.
 
 **Idempotency.** Always make patch scripts re-runnable. Use `setIfMissing` (only fills empty fields) or check the current value before writing. Existing examples to copy:
 
-- `scripts/patch-hero-accents-and-sticky-cta.mjs` — backfills new Sanity-editable fields on existing docs without overwriting customized values.
-- `scripts/patch-project-introstory-headings.mjs` — walks every project, inserts h2 blocks, skips any that already have headings.
-- `scripts/seed-portfolio-and-404-singletons.mjs` — `createOrReplace` if doc doesn't exist, `setIfMissing` if it does.
-- `scripts/inspect-homepage-copy.mjs` — read-only audit that prints which `homePage` copy fields are populated vs. empty (i.e. which render live Sanity content vs. fall back to the code defaults in `index.astro`). Run this _first_ before changing home page copy, so you know whether an edit needs a Sanity patch or just a code fallback change.
-- `scripts/patch-homepage-conversion-copy.mjs` — the home page copy enrichment pass. Mixes `set()` (overwrite genuinely-thin existing fields like the Services + Final CTA subheads) with `setIfMissing()` (seed new/empty fields like the Process + Testimonials subheads and the Featured Work copy). Dry-run by default; `--apply` to write. A good template for "rewrite some live copy, seed the rest" jobs.
+- `scripts/patch-hero-accents-and-sticky-cta.mjs`, backfills new Sanity-editable fields on existing docs without overwriting customized values.
+- `scripts/patch-project-introstory-headings.mjs`, walks every project, inserts h2 blocks, skips any that already have headings.
+- `scripts/seed-portfolio-and-404-singletons.mjs`, `createOrReplace` if doc doesn't exist, `setIfMissing` if it does.
+- `scripts/inspect-homepage-copy.mjs`, read-only audit that prints which `homePage` copy fields are populated vs. empty (i.e. which render live Sanity content vs. fall back to the code defaults in `index.astro`). Run this _first_ before changing home page copy, so you know whether an edit needs a Sanity patch or just a code fallback change.
+- `scripts/patch-homepage-conversion-copy.mjs`, the home page copy enrichment pass. Mixes `set()` (overwrite genuinely-thin existing fields like the Services + Final CTA subheads) with `setIfMissing()` (seed new/empty fields like the Process + Testimonials subheads and the Featured Work copy). Dry-run by default; `--apply` to write. A good template for "rewrite some live copy, seed the rest" jobs.
 
-**Key gotcha when editing existing page copy:** most `homePage` fields already have Sanity content, so changing a code fallback in `index.astro` does NOT change the live site — the Sanity value wins. To change displayed copy on a populated field you must patch Sanity (see the script above). Only genuinely-empty fields render their code fallback. `inspect-homepage-copy.mjs` tells you which is which.
+**Key gotcha when editing existing page copy:** most `homePage` fields already have Sanity content, so changing a code fallback in `index.astro` does NOT change the live site, the Sanity value wins. To change displayed copy on a populated field you must patch Sanity (see the script above). Only genuinely-empty fields render their code fallback. `inspect-homepage-copy.mjs` tells you which is which.
 
 **Contact form dropdown options:** `scripts/patch-contact-form-options.mjs` force-sets `formProjectTypeOptions` and `formSourceOptions` on every run (not set-if-missing). This is intentional: a stale Sanity value for either silently overrides the correct in-code default. Re-run the script any time those two lists change in `ContactForm.tsx`. The other three dropdowns (location, budget, timeline) still use set-if-missing because Staci may customize them.
 
@@ -350,14 +350,14 @@ Note: the MCP lighthouse_audit only returns Accessibility / BP / SEO / Agentic. 
 
 ### Common diagnostic findings (most are unscored)
 
-| Lighthouse flag                              | What it's actually saying                                     | Fix                                                                                                            |
-| -------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| "Reduce unused JavaScript"                   | React + Astro runtime has unreachable error-handling branches | Unavoidable without Preact swap. Accept.                                                                       |
-| "Improve image delivery — Est savings X KiB" | Loaded files are slightly bigger than display needs           | Tighten srcset breakpoints if X > 100 KiB. Otherwise theoretical.                                              |
-| "Avoid long main-thread tasks (78 ms found)" | Radix Sheet hydration on `MobileNav`                          | Fires after LCP/FCP. Real-user INP is fine. Accept.                                                            |
-| "Render-blocking SanityImage.css (18 KiB)"   | The whole Tailwind output is chunked under that name          | Extracting critical CSS is high effort for marginal LCP benefit at our current scores. Skip.                   |
-| "Uses third-party cookies (sanitySession)"   | Sanity CDN sets a session cookie                              | `crossorigin="anonymous"` BREAKS Sanity images. Skip.                                                          |
-| "No CSP"                                     | Astro 6's `security.csp` would satisfy this                   | DON'T enable — ClientRouter's runtime inline scripts get blocked. See CLAUDE.md → Stack → Astro config don'ts. |
+| Lighthouse flag                              | What it's actually saying                                     | Fix                                                                                                           |
+| -------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| "Reduce unused JavaScript"                   | React + Astro runtime has unreachable error-handling branches | Unavoidable without Preact swap. Accept.                                                                      |
+| "Improve image delivery: Est savings X KiB"  | Loaded files are slightly bigger than display needs           | Tighten srcset breakpoints if X > 100 KiB. Otherwise theoretical.                                             |
+| "Avoid long main-thread tasks (78 ms found)" | Radix Sheet hydration on `MobileNav`                          | Fires after LCP/FCP. Real-user INP is fine. Accept.                                                           |
+| "Render-blocking SanityImage.css (18 KiB)"   | The whole Tailwind output is chunked under that name          | Extracting critical CSS is high effort for marginal LCP benefit at our current scores. Skip.                  |
+| "Uses third-party cookies (sanitySession)"   | Sanity CDN sets a session cookie                              | `crossorigin="anonymous"` BREAKS Sanity images. Skip.                                                         |
+| "No CSP"                                     | Astro 6's `security.csp` would satisfy this                   | DON'T enable: ClientRouter's runtime inline scripts get blocked. See CLAUDE.md → Stack → Astro config don'ts. |
 
 ---
 
@@ -377,7 +377,7 @@ node scripts/optimize-logo-files.mjs
 
 The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage()` pipeline can emit content-hashed WebPs. Header.astro reads these via `getImage()` (the light logo at 1x/2x for the hanging sign, the cream one at 1x/2x for the phone menu) and Footer.astro does the same for its large cream logo.
 
-**Don't move them back to `public/`** — Astro can't touch `public/` files and you'd lose the WebP conversion + content-hashing.
+**Don't move them back to `public/`** Astro can't touch `public/` files and you'd lose the WebP conversion + content-hashing.
 
 ---
 
@@ -385,7 +385,7 @@ The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage(
 
 ### Add a new field to a page singleton
 
-1. Edit `studio/schemaTypes/<page>.ts` — add `defineField(...)`.
+1. Edit `studio/schemaTypes/<page>.ts`, add `defineField(...)`.
 2. `npm run typegen` (runs schema-extract + sanity typegen).
 3. Add the field to the GROQ projection in `src/lib/queries.ts` → `get<Page>()`.
 4. Use the field in the corresponding Astro page (`src/pages/<page>.astro`) with a sensible fallback.
@@ -397,7 +397,7 @@ See commits `bd74083` (`Header polish + make hero accents…`) and `7b0f2b7` (Sa
 
 ### Add an "Extra sections" zone to another page
 
-If a page singleton should let Staci append library blocks (a banner, gallery, CTA, etc.) to the bottom, it takes five small steps — the pattern used on faq/contact/privacy/portfolio:
+If a page singleton should let Staci append library blocks (a banner, gallery, CTA, etc.) to the bottom, it takes five small steps, the pattern used on faq/contact/privacy/portfolio:
 
 1. In `studio/schemaTypes/<page>.ts`: `import { additionalSectionsField } from './sections';`, add `{ name: 'extra', title: 'Extra sections' }` to `groups`, and add `additionalSectionsField,` as the last entry in `fields`.
 2. In `src/lib/queries.ts` → `get<Page>()`: add `${sectionsProjection('additionalSections')},` to the projection (it resolves images + cta blocks per block type).
@@ -405,7 +405,7 @@ If a page singleton should let Staci append library blocks (a banner, gallery, C
 4. `npm run typegen` then `npm run build` to verify.
 5. `npm run studio:deploy` (schema changed) + commit + push.
 
-No backfill script is needed — `additionalSections` is optional and defaults to empty. For a brand-new standalone page, point Staci at the `page` doc type (the page builder) instead; this zone is only for extending an existing standard page.
+No backfill script is needed, `additionalSections` is optional and defaults to empty. For a brand-new standalone page, point Staci at the `page` doc type (the page builder) instead; this zone is only for extending an existing standard page.
 
 ### Strip leftover Canvas annotations
 
@@ -418,7 +418,7 @@ node scripts/strip-editor-annotations.mjs --apply   # actually patch
 
 The script scans every doc for `[NEW …]`, `[per audit …]`, `[TODO …]`, `[DRAFT …]`, `[WIP …]`, `[v2 …]`, `[softer framing]`, `[audit: …]`, `[note: …]`. Re-run after large Canvas batches.
 
-For full-field annotations (where the entire field IS the bracketed placeholder), don't blindly strip — that leaves the field empty. Replace with a brand-voice placeholder instead: see `scripts/patch-editor-annotation-cleanups.mjs` for the pattern.
+For full-field annotations (where the entire field IS the bracketed placeholder), don't blindly strip, that leaves the field empty. Replace with a brand-voice placeholder instead: see `scripts/patch-editor-annotation-cleanups.mjs` for the pattern.
 
 ---
 
@@ -468,12 +468,12 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ## When something feels wrong
 
-1. **Check the deployed workers URL first**, not localhost — the bug might already be fixed and just hasn't been redeployed.
-2. **Open Chrome DevTools and check Console + Network** — most of the "weird" bugs in this codebase have been either CSP violations, CORS issues, or theme/View Transitions interaction. All show up loudly in DevTools.
+1. **Check the deployed workers URL first**, not localhost, the bug might already be fixed and just hasn't been redeployed.
+2. **Open Chrome DevTools and check Console + Network** most of the "weird" bugs in this codebase have been either CSP violations, CORS issues, or theme/View Transitions interaction. All show up loudly in DevTools.
 3. **Read CLAUDE.md → relevant section** before changing anything. The non-obvious fixes are documented; reverting them tends to re-break the same bugs.
-4. **Run `npm run build` locally** — Astro's build output catches a lot (missing imports, schema mismatches, image-pipeline errors).
-5. **Diff against the last known-good commit** — `git log --oneline -20` then `git diff <hash>..HEAD -- src/path`.
+4. **Run `npm run build` locally** Astro's build output catches a lot (missing imports, schema mismatches, image-pipeline errors).
+5. **Diff against the last known-good commit** `git log --oneline -20` then `git diff <hash>..HEAD -- src/path`.
 
 ---
 
-_Last updated: Sept 30, 2026: removed the eight never-launched sections (journal, shop, quiz, calculator, guides, press, gift certificates, resources) and the newsletter; see CLAUDE.md. Earlier history follows. May 29, 2026 — added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas._
+_Last updated: Sept 30, 2026: removed the eight never-launched sections (journal, shop, quiz, calculator, guides, press, gift certificates, resources) and the newsletter; see CLAUDE.md. Earlier history follows. May 29, 2026, added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas._

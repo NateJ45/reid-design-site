@@ -12,7 +12,7 @@ Target: WCAG 2.1 AA. **The site is light only since 2026-09-29** (dark tokens ar
 
 **Heading hierarchy.** One `<h1>` per page (usually inside the hero). Don't skip levels. Section headings are `<h2>`; subsections inside them are `<h3>`. Heading text describes the content, not its position ("How we work", not "Section 5").
 
-This applies to editor-authored Portable Text too, so the block-style options a schema offers must match the page's outline. On a project detail page the H1 is the project title and the sibling sections ("Before and after", "Gallery") are H2, so `project.introStory` offers **Heading 2** as its top in-story style (and Heading 3 below it) — offering only H3 would skip H1→H3. `privacyPage.body` similarly offers h2/h3 (the policy title is the H1). The `PortableText` renderer maps h2/h3/h4 to real `<h2>`/`<h3>`/`<h4>` and `portable-text-headings.ts` extracts the same levels for the case-study TOC, so adding a heading style is safe end to end. When a grid of cards (portfolio) would otherwise jump H1→H3 (each card is an H3), insert a visually-hidden `<h2 class="sr-only">` to carry the level.
+This applies to editor-authored Portable Text too, so the block-style options a schema offers must match the page's outline. On a project detail page the H1 is the project title and the sibling sections ("Before and after", "Gallery") are H2, so `project.introStory` offers **Heading 2** as its top in-story style (and Heading 3 below it), offering only H3 would skip H1→H3. `privacyPage.body` similarly offers h2/h3 (the policy title is the H1). The `PortableText` renderer maps h2/h3/h4 to real `<h2>`/`<h3>`/`<h4>` and `portable-text-headings.ts` extracts the same levels for the case-study TOC, so adding a heading style is safe end to end. When a grid of cards (portfolio) would otherwise jump H1→H3 (each card is an H3), insert a visually-hidden `<h2 class="sr-only">` to carry the level.
 
 **Forms.** Every input gets an associated `<label for="...">`. Use native input types (`email`, `tel`, `url`) and `autocomplete` hints so browsers and password managers help. Required fields get `required`. Error containers get `role="alert"`.
 
@@ -32,11 +32,11 @@ This applies to editor-authored Portable Text too, so the block-style options a 
 **Color tokens by responsibility** (definitions and contrast math in `globals.css`):
 
 - `--primary` (Warm Bronze): focus rings, large decorative fills, accents on dark grounds. **No text at body size on Warm Bronze** (ink 4.06:1, cream 3.5:1, both fail AA); the home hero ground is Walnut and the paint-chip faces skip chip 5. Primary CTAs are now ink pills (`.r-btn--ink`), not bronze buttons.
-- `--primary-dark` (Bronze Dark): hover state on bronze CTAs only — use `--link` for theme-aware always-on text.
+- `--primary-dark` (Bronze Dark): hover state on bronze CTAs only, use `--link` for theme-aware always-on text.
 - `--link`: bronze link colour (Bronze Dark `#7A5D4C` in light; the dormant dark block lifts it). Use for inline links, anchor-style body text, ServiceCard prices, ProcessStep numerals, any always-on bronze-tinted text.
-- `--accent` (theme-aware via shadcn mapping): hover surfaces only — NOT body text. Light-mode value is a soft warm surface (`#E9DCCD` after the 2026-09-29 rebuild), kept distinct from `--muted` so `hover:bg-accent` is visible (when `--accent` matched `--muted`, hovers were invisible; the header eyebrow strip where this was first noticed no longer exists).
+- `--accent` (theme-aware via shadcn mapping): hover surfaces only: NOT body text. Light-mode value is a soft warm surface (`#E9DCCD` after the 2026-09-29 rebuild), kept distinct from `--muted` so `hover:bg-accent` is visible (when `--accent` matched `--muted`, hovers were invisible; the header eyebrow strip where this was first noticed no longer exists).
 - `--foreground` (Ink `#231E1B`; was Charcoal `#3D3D3D` before 2026-09-29): headings and body text. Secondary text on linen uses `--color-ink-2` (`#5A4E46`, 7.4:1).
-- `--secondary` (Warm Taupe): borders, dividers, decorative ornaments. **NOT eyebrow labels** — those use `text-foreground/65` (see Eyebrow contrast lesson above).
+- `--secondary` (Warm Taupe): borders, dividers, decorative ornaments. **NOT eyebrow labels** those use `text-foreground/65` (see Eyebrow contrast lesson above).
 
 **Motion.** `globals.css` disables animations and transitions globally under `prefers-reduced-motion: reduce` (animations at `0.01ms` so `animationend` still fires; transitions at `0s` duration AND `0s` delay, since 2026-09-30, because WebKit never finishes a 0.01ms transition and strands the property at its old value; nothing may rely on `transitionend` under reduce; starter PORTS.md card 61; held by `tests/reduced-motion.spec.ts`). The before/after slider falls back to a tap-to-toggle behavior. View Transitions become instant cross-fades. New animations inherit this; no per-component handling needed.
 
@@ -79,7 +79,7 @@ The site uses motion for hero entrances, View Transitions, and component micro-i
 
 - **Durations:** 150–300ms for state changes (hover, focus), 400–600ms for content reveals, never longer than 800ms for a single animation. Long animations feel laggy.
 - **Easing:** `ease-out` for entrances, `ease-in` for exits. Avoid spring physics for primary content at large scales (disorienting).
-- **What to animate:** opacity, transform (translate/scale). NOT layout properties (width, height, top) — expensive and janky.
+- **What to animate:** opacity, transform (translate/scale). NOT layout properties (width, height, top), expensive and janky.
 - **Reduced motion:** the global stylesheet kills animations and transitions under `prefers-reduced-motion: reduce`. New components inherit this; verify by toggling the OS setting and reloading.
 - **Don't animate to grab attention.** If users need to look at something, the design should pull the eye structurally, not by wiggling.
 

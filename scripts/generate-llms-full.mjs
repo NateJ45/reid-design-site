@@ -1,4 +1,4 @@
-// Generates public/llms-full.txt — the expanded companion to llms.txt. It
+// Generates public/llms-full.txt, the expanded companion to llms.txt. It
 // inlines the substantive site content (services and prices, the process,
 // FAQs, service area and contact, plus the current portfolio) pulled live
 // from Sanity (the journal and guides sections went on 2026-09-30), so a language model can answer questions
@@ -81,10 +81,10 @@ const [settings, services, steps, faqs, projects] = await Promise.all([
 const lines = [];
 const p = (s = '') => lines.push(s);
 
-p('# Reid Design LLC — Full Site Content');
+p('# Reid Design LLC: Full Site Content');
 p('');
 p(
-  '> Reid Design LLC is a residential interior design studio in Plainfield, Indiana, run by Staci Perkins. It serves homeowners in Plainfield, Indianapolis, and the surrounding suburbs (Carmel, Fishers, Westfield, Zionsville, Noblesville) with warm, livable, mid-market design. Services run from a $150 in-home consultation up to full room design, styling, shopping and sourcing, and online E-Design. Pricing is shown openly on the site.',
+  '> Reid Design LLC is a residential interior design studio in Plainfield, Indiana, run by Staci Perkins. It serves homeowners in Plainfield, Indianapolis, and the surrounding suburbs (Carmel, Fishers, Westfield, Zionsville, Noblesville) with warm, livable, mid-market design. Services run from a $225 in-home consultation up to full room design, styling, shopping and sourcing, and online E-Design. Pricing is shown openly on the site.',
 );
 p('');
 p(
@@ -97,7 +97,7 @@ if (Array.isArray(services) && services.length) {
   p('');
   for (const s of services) {
     if (!s?.name) continue;
-    p(`### ${s.name}${s.price ? ` — ${s.price}` : ''}`);
+    p(`### ${s.name}${s.price ? `, ${s.price}` : ''}`);
     if (s.shortDescription) p(s.shortDescription);
     if (s.bestFor) p(`Best for: ${s.bestFor}`);
     if (Array.isArray(s.features) && s.features.length) {
@@ -167,7 +167,7 @@ const out =
     .trimEnd() + '\n';
 writeFileSync(resolve(root, 'public/llms-full.txt'), out, 'utf-8');
 console.log(
-  `[ok] wrote public/llms-full.txt — ${out.length} bytes (` +
+  `[ok] wrote public/llms-full.txt, ${out.length} bytes (` +
     `${services?.length ?? 0} services, ${steps?.length ?? 0} steps, ${faqs?.length ?? 0} faqs, ` +
     `${projects?.length ?? 0} projects)`,
 );

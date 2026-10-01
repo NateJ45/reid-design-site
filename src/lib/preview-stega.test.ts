@@ -6,8 +6,8 @@ import { reattachStega, sourceKey, splitStega, stegaSource } from './preview-ste
 // The fixtures below are REAL runs, produced by the real pipeline: @sanity/client's
 // `createEditUrl` (baseUrl '/studio') wrapped by @vercel/stega's
 // `vercelStegaCombine`, exactly as `getPreviewClient` in src/lib/cms-preview.ts
-// emits them. They are re-spelled as base-4 digits — one digit per invisible
-// character — so that the fixture survives a copy-paste, shows up in a diff, and
+// emits them. They are re-spelled as base-4 digits, one digit per invisible
+// character, so that the fixture survives a copy-paste, shows up in a diff, and
 // cannot be silently corrupted by an editor that trims zero-width characters.
 // Regenerate by encoding a value with those two libraries and mapping the run's
 // characters through DIGITS below.
@@ -61,7 +61,7 @@ test('leaves a string that carries no stega alone', () => {
   assert.deepEqual(splitStega(''), { cleaned: '', encoded: '' });
 });
 
-test('split then reattach is a round trip — this is what keeps click-to-edit', () => {
+test('split then reattach is a round trip, this is what keeps click-to-edit', () => {
   const original = `Our story${SECTION_RUN}`;
   const { cleaned, encoded } = splitStega(original);
   assert.equal(reattachStega(cleaned, encoded), original);

@@ -4,6 +4,22 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
 
+// A "+ New room story" starts with [bracketed] writing prompts (src/sanity/
+// templates.ts). These checks stop a project publishing while one is still in
+// a field, so template text can never reach the live portfolio by accident.
+const BRACKET_MESSAGE = 'Replace the [bracketed] prompt with your own words before publishing.';
+const noBracketPrompt = (value: unknown) =>
+  typeof value === 'string' && /^\s*\[/.test(value) ? BRACKET_MESSAGE : true;
+const noBracketStory = (blocks: unknown) => {
+  if (!Array.isArray(blocks)) return true;
+  const open = blocks.some((b) => {
+    if (!b || b._type !== 'block' || !Array.isArray(b.children)) return false;
+    const text = b.children.map((c: { text?: string }) => c?.text ?? '').join('');
+    return /^\s*\[/.test(text);
+  });
+  return open ? BRACKET_MESSAGE : true;
+};
+
 export const project = defineType({
   name: 'project',
   title: 'Project',
@@ -27,7 +43,7 @@ export const project = defineType({
             'Case study title. Place-named, NOT client-named. Examples: "The Plainfield Bungalow", "Cedar Lane Living Room", "Fishers Ranch Refresh". Voice: warm, specific. The place gives the project identity without naming the homeowner.',
         },
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().custom(noBracketPrompt),
     }),
     defineField({
       name: 'slug',
@@ -77,7 +93,7 @@ export const project = defineType({
       title: 'Location',
       type: 'string',
       description: 'Example: "Fishers, IN".',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().custom(noBracketPrompt),
     }),
     defineField({
       name: 'roomType',
@@ -123,6 +139,24 @@ export const project = defineType({
       type: 'number',
       initialValue: () => new Date().getFullYear(),
       validation: (Rule) => Rule.required().integer().min(2024).max(2099),
+    }),
+    // Added 2026-10-01 (mid-market room story). The "sample tag" line a visitor
+    // reads first: where, what kind of house, what was done, what it cost.
+    defineField({
+      name: 'houseDescription',
+      title: 'The house (optional)',
+      type: 'string',
+      description:
+        'Era and kind of home. Shows on the project page next to the town. Example: "1990s colonial" or "1970s ranch".',
+      validation: (Rule) => Rule.max(60).custom(noBracketPrompt),
+    }),
+    defineField({
+      name: 'scopeLine',
+      title: 'What we did and what it cost (optional)',
+      type: 'string',
+      description:
+        'One line, using your real prices from the Services page. Example: "Full room design, from $995". Leave it blank if the client would rather not have their price shown.',
+      validation: (Rule) => Rule.max(80).custom(noBracketPrompt),
     }),
     defineField({
       name: 'heroImage',
@@ -241,7 +275,7 @@ export const project = defineType({
             'One-sentence summary on the portfolio grid card, max 200 chars. Voice: smart friend, not brochure. Hint at the design problem and the move. Banned: transformative, curated, elevated, tailored, sanctuary.',
         },
       },
-      validation: (Rule) => Rule.required().min(60).max(200),
+      validation: (Rule) => Rule.required().min(60).max(200).custom(noBracketPrompt),
     }),
     // Project metadata band fields. Two one-sentence lines that read as
     // "the issue / the response" above the long intro story.
@@ -257,7 +291,7 @@ export const project = defineType({
             'One sentence stating the design problem the homeowner brought in. Voice: smart friend describing a situation. Plain English. Examples: "Beautiful reno but the family room felt unfinished." / "Open-concept kitchen with great bones but everything floated."',
         },
       },
-      validation: (Rule) => Rule.required().max(160),
+      validation: (Rule) => Rule.required().max(160).custom(noBracketPrompt),
     }),
     defineField({
       name: 'designCall',
@@ -271,7 +305,7 @@ export const project = defineType({
             'One sentence stating the design decision in response to the brief. First-person Staci voice OK. The "show the thinking, not the credentials" rule made visible. Examples: "Edit, don\'t add. Source one vintage piece. Anchor the seating." / "Move the sofa off the wall. Re-light from a single warm source."',
         },
       },
-      validation: (Rule) => Rule.required().max(160),
+      validation: (Rule) => Rule.required().max(160).custom(noBracketPrompt),
     }),
     defineField({
       name: 'introStory',
@@ -368,7 +402,7 @@ export const project = defineType({
           ],
         }),
       ],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().custom(noBracketStory),
     }),
     defineField({
       name: 'servicesUsed',
@@ -393,7 +427,7 @@ export const project = defineType({
       title: 'Featured (pin to home page)',
       type: 'boolean',
       description:
-        'If checked, this project is pinned to the homepage Featured Work section regardless of publish date. Use sparingly — the section shows the most recent 4 projects by default.',
+        'If checked, this project is pinned to the homepage Featured Work section regardless of publish date. Use sparingly, the section shows the most recent 4 projects by default.',
       initialValue: false,
     }),
     defineField({
@@ -402,6 +436,52 @@ export const project = defineType({
       type: 'string',
       description:
         'Short label for the floating sticky CTA chip that appears once a visitor scrolls 50% of this project page. Example: "Want a room like this?". Leave blank to use the project default or hide the chip.',
+    }),
+    // Added 2026-10-01. Every room story shows a real family's home, so the
+    // answer to "did they agree?" lives on the project itself. Photos consent
+    // blocks publishing; the other two only warn.
+    defineField({
+      name: 'consent',
+      title: 'Client OK to share',
+      type: 'object',
+      description:
+        'Tick each one once the client has said yes (a text or email counts, a line in the contract is better). You cannot publish until the photos box is ticked.',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: 'photos',
+          title: 'Photos of their home',
+          type: 'boolean',
+          initialValue: false,
+          validation: (Rule) =>
+            Rule.custom((value) =>
+              value === true
+                ? true
+                : 'Tick this once the client has agreed to photos of their home being shared.',
+            ),
+        }),
+        defineField({
+          name: 'price',
+          title: 'Showing what the project cost',
+          type: 'boolean',
+          initialValue: false,
+          validation: (Rule) =>
+            Rule.custom((value, context) => {
+              const scope = (context.document as { scopeLine?: string } | undefined)?.scopeLine;
+              return scope && value !== true
+                ? {
+                    message: 'A price is in the scope line but the client has not OKed showing it.',
+                  }
+                : true;
+            }).warning(),
+        }),
+        defineField({
+          name: 'review',
+          title: 'Quoting their words (testimonial)',
+          type: 'boolean',
+          initialValue: false,
+        }),
+      ],
     }),
     defineField({
       name: 'publishedAt',

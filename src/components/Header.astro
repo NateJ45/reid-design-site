@@ -826,7 +826,7 @@ function isGroupActive(items: { href: string }[]) {
     Re-binds on astro:page-load so it survives View Transitions navigations. */
 }
 <script>
-  // Query groups fresh each call — the nav DOM is replaced on every View
+  // Query groups fresh each call, the nav DOM is replaced on every View
   // Transitions navigation, so a captured list would go stale.
   function currentGroups() {
     return Array.from(document.querySelectorAll<HTMLDetailsElement>('.site-nav__group'));

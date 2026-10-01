@@ -4,7 +4,7 @@
 // current as of 2026; prices are approximate and worth re-checking over time.
 //
 // Run: node scripts/seed-studio-playbook.mjs
-// (Do NOT run during an active editing session — createOrReplace is safe but it
+// (Do NOT run during an active editing session, createOrReplace is safe but it
 // overwrites any in-progress edits in this document.)
 
 import { createClient } from '@sanity/client';

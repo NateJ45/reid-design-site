@@ -1,4 +1,4 @@
-# Reid Design LLC — Content Extraction Plan
+# Reid Design LLC: Content Extraction Plan
 
 **Purpose:** Pull all "keep" content from the live Squarespace site into structured files matching the Sanity schemas. Files are ready to either import via Sanity CLI or use as reference for manual entry in the Studio.
 **Output:** This document plus 12 content files in `/content/` and an image checklist.
@@ -60,7 +60,7 @@ Projects (case studies) come later, post-launch, written from scratch as Staci c
 - 3 new FAQs (good fit, experience, what to prepare before consultation)
 - Contact form pre-submit expectation note
 
-These are noted in the relevant files with `[NEW — see strategy doc]` markers. Some are placeholders waiting for Staci's input, others have draft copy ready.
+These are noted in the relevant files with `[NEW, see strategy doc]` markers. Some are placeholders waiting for Staci's input, others have draft copy ready.
 
 ---
 

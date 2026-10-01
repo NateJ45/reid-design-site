@@ -1,4 +1,4 @@
-# PENDING — the open-loops registry
+# PENDING, the open-loops registry
 
 Created 2026-08-27 during the starter sync session (PORTS.md card 15; pattern
 from the WCP and presacademy repos).
@@ -12,7 +12,70 @@ tactical playbook in `OPERATIONS.md`.
 Each item says what it is, why it is open, and what unblocks it. Move finished
 items to "Recently closed" with a date, and prune that section when it grows.
 
-## Open — needs a human (Nathan)
+## Open, needs a human (Nathan)
+
+### From 2026-10-01: mid-market pass (`ccr-a5ebbe27-eingtv`), run these in order
+
+Staci's decision: Reid Design is a mid-market studio (polished and trustworthy,
+never discount, never showroom; PRODUCT.md "Positioning"). The code is in the
+branch; the words live in Sanity, so they need three scripts run from a machine
+that has `SANITY_API_WRITE_TOKEN` in `.env` (sanity.io/manage > API > Tokens,
+Editor role; never commit it). Every script is a dry run until `--apply`.
+
+1. `node scripts/patch-2026-10-01-midmarket.mjs` then again with `--apply`.
+   Rewrites the generic copy (home hero, services band, reviews and closing
+   headlines, About hero, Services/Process/Contact subheads and titles) and
+   puts the real E-Design package on the E-Design page: one tier, "Starting at
+   $695", with Staci's own include list (it replaces the placeholder $425 and
+   $250 tiers). Each change only lands if the field still holds the text it was
+   written against; it patches an unpublished draft too, so publishing an old
+   draft cannot undo it. After it runs, the footer's "E-Design from $250"
+   becomes "from $695" by itself.
+2. `node scripts/seed-room-story-placeholder.mjs` then with `--apply`. Deletes
+   the three seeded sample projects and creates ONE draft room story
+   (Projects > "First room story") with the writing prompts. A draft never
+   builds into the public site.
+3. `node scripts/strip-em-dashes.mjs` then with `--apply`. Rewrites every
+   em-dash in the dataset (the Shopping & sourcing and Builder & realtor
+   service cards, anything pasted in later). Run it AFTER step 1.
+4. `npm run llms:full` (needs a read token) to regenerate `public/llms-full.txt`.
+   It was edited by hand on 2026-10-01 to fix stale prices ($150, $650, $75) and
+   to drop the three sample projects.
+5. Push or publish anything so the site rebuilds, then look at Home, Services,
+   E-Design and About on a phone.
+
+- **Starter em-dashes (Nathan).** Ten PORTABLE files (`docs/RESTORE-DRILL.md`,
+  `scripts/lib/loadEnv.mjs`, `scripts/propose-drift.mjs`, and seven
+  `src/lib/preview-*.ts`) still hold em-dashes in comments. The CI sync-check
+  needs them byte-equal to `ncs-astro-sanity-starter`, so they can only change
+  there: run `node scripts/sweep-em-dashes.mjs` in the starter, add a PORTS.md
+  card, then pull the copies back here.
+
+What only Staci can do:
+
+- **Fill in the room story** she just finished. Open Projects > First room
+  story, work top to bottom (the writing prompts say what to put in each
+  box), add 8 to 12 photos, tick "Client OK to share" for the photos, click
+  Generate on the address, pick the room type and style, and publish. The
+  Publish button stays blocked while a [bracketed] prompt or a required photo
+  is missing. Then turn the portfolio on: Site settings > Section visibility >
+  Portfolio. Until then `/portfolio` still redirects home.
+- **About > Off the clock.** The step-1 script removes the lists the seeder
+  invented (oat latte, 70s soul, brass lamps, Mass Ave). The paragraph about
+  growing up in central Georgia stays; it was edited by a person. Ask her for
+  three true answers and add them back in Studio if she wants them.
+- **Confirm E-Design step 2**, "a short video call", came from the first seed
+  and is not in her own spec. Same for the Services duplicate: the "Builder &
+  realtor partnerships" card still repeats the dedicated section below it
+  (Archive that service document).
+- **Service and FAQ documents were not readable from the session** (they are
+  private in the dataset), so their wording is untouched apart from the
+  em-dash script. A read-through for generic or stale lines is still worth ten
+  minutes.
+- **Travel fees have a gap**: "Within 30 minutes: None", then "45 to 75
+  minutes". Decide the 30 to 45 minute fee in Site settings > Travel fees.
+- **Phone number**: the site shows a 931 (Tennessee) number. Decide before more
+  listings go up (see docs/design/2026-09-30-design-debate.md).
 
 ### From 2026-10-01: builder and realtor partnerships show twice on Services
 
@@ -334,21 +397,18 @@ one still open. Kept here in full because they document WHY each is needed.
   `public/_headers` (they are kept only for that transition, and the file says
   so).
 
-## Open — code and content work queued
+## Open, code and content work queued
 
 ### Art-direction rebuild, follow-ups (phases 1 and 2 both live)
 
 Phase 2 (all seven interior pages, the page-builder blocks and the portfolio
 templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
 
-- **Content fixes for Staci**, which the rebuild makes more visible:
-  E-Design shows "from $695" on Services but $425 / $250 packages on its own
-  page; `servicesPage.heroScriptAccent` is "reveal", which is not in the
-  headline; the service-area copy says "30 miles" while the travel fees are in
-  minutes; em-dashes remain in the "Shopping & sourcing" and "Builder &
-  realtor partnerships" descriptions and in the Contact `seoTitle`; interior
-  hero photos are wide phone shots (Contact shows her children), best swapped
-  for close-ups or her brand shoot.
+- **Content fixes for Staci**: the E-Design price, the "reveal" accent, the
+  "30 miles" wording and the em-dashes are fixed by the 2026-10-01 scripts
+  above once they are applied. Still open: interior hero photos are wide phone
+  shots (Contact shows her children), best swapped for close-ups or her brand
+  shoot.
 - **Google reviews sync (Nathan):** apply for Google Business Profile API access
   (Google Cloud project + access request form); Staci signs in once. Until then
   Staci adds each new review in Studio, Content > Google reviews. Field map and
@@ -513,14 +573,14 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
 
 ## Recently closed
 
-- **2026-10-01 — design pass follow-ups closed.** Nathan checked the live
+- **2026-10-01, design pass follow-ups closed.** Nathan checked the live
   site: the room-photo cards look good, the Google map on Contact looks
   good, and the Google-cookie line is in Staci's privacy policy. The sketch
   map's towns item went with the sketch map (deleted; the home band now uses
   the Google map).
-- **2026-09-30 — window light removed.** Nathan looked at it and did not like
+- **2026-09-30, window light removed.** Nathan looked at it and did not like
   it, so the WebGL layer was deleted rather than tuned.
-- **2026-09-29 — parity baselines recaptured (branch `claude/reid-followups`).**
+- **2026-09-29, parity baselines recaptured (branch `claude/reid-followups`).**
   Stale since 2026-08-28. Against a production-like build of this branch the
   old set scored 10/20, and the measured diffs were: the favicon, manifest and
   Sanity-preconnect links on 9 pages, the empty `{}` FAQ and services JSON-LD
@@ -532,7 +592,7 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   variable set**, or the 10 real content pages (not the redirect stubs or the Studio) differ by exactly the GA snippet.
   Detail in `docs/TESTING.md`, "The parity harness".
 
-- **2026-09-29 — "Copy share link" 404 on a project, journal post or guide
+- **2026-09-29, "Copy share link" 404 on a project, journal post or guide
   (branch `claude/reid-followups`).** The preview route now draws
   `/preview/portfolio/<slug>`, `/preview/journal/<slug>` and
   `/preview/guides/<slug>` through the same body component the live page uses
@@ -542,14 +602,14 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   Under `npm run preview`: all six detail previews 200, `data-draft="1"` with
   the fingerprint cookie; production answered "No document found" for the same
   paths before. Detail in `docs/agent/sanity.md`.
-- **2026-09-29 — Studio deep links 404 (same branch).** `public/_redirects`
+- **2026-09-29: Studio deep links 404 (same branch).** `public/_redirects`
   proxies `/studio/* /studio/ 200`, and `src/sanity/lib/studio-deep-link.ts`
   moves the path into the hash before the Studio starts. Under `npm run
 preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
   200 with the Studio CSP; chromium lands on `/studio/#/media` etc. with no
   console errors beyond localhost CORS.
 
-- **2026-09-29 — three "Older" needs-a-human items were already done; the
+- **2026-09-29, three "Older" needs-a-human items were already done; the
   registry had not caught up.** Verified that day, read-only:
   - `SANITY_AUTH_TOKEN` exists. `.github/workflows/sanity-backup.yml` has
     succeeded on its nightly schedule every night checked (2026-09-25 through
@@ -561,7 +621,7 @@ preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
     Cloudflare with this Worker's own headers (`Server: cloudflare`, our
     `frame-ancestors` CSP). The canonical URLs, sitemap and JSON-LD `@id` in
     `src/data/site.ts` are true statements now.
-- **2026-09-29 — tier-1 correctness pass (branch `claude/tier1-correctness`).**
+- **2026-09-29, tier-1 correctness pass (branch `claude/tier1-correctness`).**
   PORTS.md cards 52, 55, 56 and 57 ported: `MobileNav` at `client:idle`; build
   reads always on the Sanity CDN; one `sanityFetch` read path that throws in a
   production build and retries twice; every static route's page-level
@@ -572,7 +632,7 @@ preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
   `@source not` for `scripts/.parity` and `docs/`. Detail in
   `docs/agent/changelog.md`.
 
-- **2026-08-28 — Astro 6.3.8 → 7.2.9, `@astrojs/cloudflare` 13.5.5 → 14.2.4,
+- **2026-08-28: Astro 6.3.8 → 7.2.9, `@astrojs/cloudflare` 13.5.5 → 14.2.4,
   wrangler `~4.110.0`.** `scripts/with-workerd.mjs` is no longer an unwired
   safety net: `npm run build` runs through it. Also landed with the upgrade:
   `session: false` (the adapter was declaring a `SESSION` KV binding with no
@@ -584,13 +644,13 @@ preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
   static build died on "Could not find the prerender entry point in the build
   output. This is likely a bug in Astro", which was a silently downgraded vite,
   not a bug in Astro.
-- **2026-08-28 — the nested `studio/` package is gone.** Folded into the root on
+- **2026-08-28, the nested `studio/` package is gone.** Folded into the root on
   the Sanity 6.9.1 pin set, Studio embedded at `/studio` via `@sanity/astro`.
   One node_modules, one `@sanity/ui`, one `styled-components` (verified on disk
   and in the bundle). `sanity-plugin-iframe-pane` was dropped with it: it
   depends on `@sanity/ui` by caret, which would float off the pinned 3.5.4, and
   the Presentation tool replaces what it did. PORTS.md card 10.
-- **2026-08-28 — live preview + in-canvas section controls.** Verified end to
+- **2026-08-28, live preview + in-canvas section controls.** Verified end to
   end locally against `wrangler dev`: 401 on a bad preview secret, 302 and a
   perspective cookie on a real one minted through
   `@sanity/preview-url-secret/create-secret`, `/preview/live` 403 without the
@@ -600,12 +660,12 @@ preview`: `/studio/media`, `/studio/structure/pages`, `/studio/presentation`
   `servicesPage.pageBuilder` 6/6, `faqPage.additionalSections` 0/0). PORTS.md
   cards 10, 11 and 17.
 
-- **2026-08-27 — the Playwright suite is finally in CI.** `tests/`,
+- **2026-08-27, the Playwright suite is finally in CI.** `tests/`,
   `playwright.config.ts` and `@axe-core/playwright` had been in the repo for
   months while `ci.yml` never ran any of them, so the pipeline reported green by
   omission. Verified 140/140 passing locally, then wired as a real gate (no
   `continue-on-error`) with an html report artifact. PORTS.md card 8.
-- **2026-08-27 — stale committed Sanity types can no longer ship green.**
+- **2026-08-27, stale committed Sanity types can no longer ship green.**
   `npm run build` does not chain typegen, so `src/lib/sanity.types.ts` is
   committed by hand. CI now regenerates it and fails on a diff. Verified
   byte-stable across two runs first. PORTS.md card 5.

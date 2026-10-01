@@ -1,5 +1,5 @@
 // =============================================================================
-// timing — the preview's own stopwatch, off unless you ask for it (2026-08-28)
+// timing, the preview's own stopwatch, off unless you ask for it (2026-08-28)
 // =============================================================================
 // "It feels slow" is not a number, and the preview refresh loop crosses four
 // processes (Studio, Sanity, the Worker, this frame), so the only honest way to
@@ -22,7 +22,7 @@
 //                  detail says what actually happened to the page:
 //                    unchanged (skipped)   the render matched what is on screen
 //                                          (or the previous render) and nothing
-//                                          was touched at all — the cheapest and,
+//                                          was touched at all, the cheapest and,
 //                                          for a plain text edit, the expected
 //                                          outcome of the rate-limited follow-up;
 //                    main morphed          the tree was updated in place, keeping
@@ -36,7 +36,7 @@
 // and it is the difference between tuning this loop again and guessing at it.
 // =============================================================================
 
-/** Whether the timing flag is set. Never throws — storage can be blocked. */
+/** Whether the timing flag is set. Never throws, storage can be blocked. */
 export function timingEnabled(): boolean {
   try {
     return window.localStorage.getItem('previewTiming') === '1';

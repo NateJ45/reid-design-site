@@ -1,4 +1,4 @@
-// studioGuide singleton — drives the "How the website works" Start Here panel.
+// studioGuide singleton, drives the "How the website works" Start Here panel.
 // Plain text + simple arrays (no Portable Text) so editing stays dead-simple
 // and the Studio needs no extra renderer dependency.
 import { defineType, defineField, defineArrayMember } from 'sanity';

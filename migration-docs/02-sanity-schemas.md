@@ -1,4 +1,4 @@
-# Reid Design LLC — Sanity Schema Spec
+# Reid Design LLC: Sanity Schema Spec
 
 **Sanity Studio version:** v5
 **Schema language:** TypeScript with `defineType` / `defineField` / `defineArrayMember` from `'sanity'`
@@ -242,7 +242,7 @@ These are the document types that represent each page. Each is a singleton (only
 
 | Field | Type | Description |
 |---|---|---|
-| `seoTitle` | string | Browser tab title and search result title. Default: "Reid Design LLC — Plainfield Interior Design." |
+| `seoTitle` | string | Browser tab title and search result title. Default: "Reid Design LLC: Plainfield Interior Design." |
 | `seoDescription` | text | Search result description. ~155 characters. |
 | `heroEyebrow` | string | Small label above headline. Default: "Plainfield Interior Design · Serving Greater Indianapolis." |
 | `heroHeadline` | string | Main hero headline. Default: "Warm, Livable Spaces That Feel Like Home." |
@@ -405,12 +405,12 @@ These are the document types that represent each page. Each is a singleton (only
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `label` | string | yes | "Button text" |
-| `linkType` | string with options | yes | "Internal page or external URL" — options: "Internal page", "External URL", "Email", "Phone" |
+| `linkType` | string with options | yes | "Internal page or external URL", options: "Internal page", "External URL", "Email", "Phone" |
 | `internalLink` | reference to any page singleton | conditional | "Page to link to" (shown only if linkType is Internal page) |
 | `externalUrl` | url | conditional | "Full URL" (shown only if linkType is External URL) |
 | `emailAddress` | string | conditional | "Email address" (shown only if linkType is Email) |
 | `phoneNumber` | string | conditional | "Phone number" (shown only if linkType is Phone) |
-| `openInNewTab` | boolean | no | "Open in a new tab" — default false |
+| `openInNewTab` | boolean | no | "Open in a new tab", default false |
 
 ---
 
@@ -446,8 +446,8 @@ Reid Design Studio
 - `media` plugin (better media library)
 
 **Studio plugins to consider:**
-- `presentationTool` (split-screen preview pane) — only if we wire up live preview in the Astro project
-- `documentInternationalizationTool` — not needed, US-only site
+- `presentationTool` (split-screen preview pane), only if we wire up live preview in the Astro project
+- `documentInternationalizationTool`, not needed, US-only site
 
 **Singleton enforcement:**
 For each singleton (`siteSettings` and the six page singletons), exclude them from the standard "+" menu and the document creation menu so editors can't accidentally create duplicates. Standard pattern in Sanity v5.
@@ -459,7 +459,7 @@ For each singleton (`siteSettings` and the six page singletons), exclude them fr
 In the Astro build project, run `sanity typegen generate` to generate TypeScript types from the schemas. This produces a file (typically `sanity.types.ts`) that the Astro queries can import for full type safety on query results.
 
 Setup checklist for the build project:
-- Install `@sanity/codegen` (or use the `sanity` CLI if it includes typegen — version-dependent)
+- Install `@sanity/codegen` (or use the `sanity` CLI if it includes typegen, version-dependent)
 - Configure `sanity-typegen.json` with paths to the schema files
 - Add `npm run typegen` script
 - Wire typegen into the build pipeline (or pre-commit hook)

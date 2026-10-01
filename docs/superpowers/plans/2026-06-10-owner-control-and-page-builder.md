@@ -33,19 +33,19 @@ This project does not use component unit tests. Each task's "test" is one or mor
 ## File structure
 
 **New schema files (`studio/schemaTypes/`):**
-- `businessInfo.ts` — Content-side singleton: service areas, travel tiers, availability, geo.
-- `page.ts` — author-it-yourself page: title, slug, pageBuilder, SEO, nav placement.
-- `sections/heroSection.ts`, `richTextSection.ts`, `imageTextSection.ts`, `featureImageSection.ts`, `gallerySection.ts`, `quoteSection.ts`, `statSection.ts`, `stepsSection.ts`, `ctaBandSection.ts`, `spacerSection.ts`, `videoSection.ts`, `faqSection.ts` — content blocks.
-- `sections/servicesSection.ts`, `featuredProjectsSection.ts`, `featuredJournalSection.ts`, `testimonialsSection.ts`, `pressStripSection.ts`, `serviceAreaCueSection.ts` — smart embeds.
-- `sections/personalSection.ts`, `philosophySection.ts`, `processPreviewSection.ts` — retrofit-fidelity blocks.
-- `sections/index.ts` — exports the full section-type array + a shared `SECTION_TYPES` list reused by `page.pageBuilder` and every retrofitted singleton.
+- `businessInfo.ts`: Content-side singleton: service areas, travel tiers, availability, geo.
+- `page.ts`, author-it-yourself page: title, slug, pageBuilder, SEO, nav placement.
+- `sections/heroSection.ts`, `richTextSection.ts`, `imageTextSection.ts`, `featureImageSection.ts`, `gallerySection.ts`, `quoteSection.ts`, `statSection.ts`, `stepsSection.ts`, `ctaBandSection.ts`, `spacerSection.ts`, `videoSection.ts`, `faqSection.ts`, content blocks.
+- `sections/servicesSection.ts`, `featuredProjectsSection.ts`, `featuredJournalSection.ts`, `testimonialsSection.ts`, `pressStripSection.ts`, `serviceAreaCueSection.ts`, smart embeds.
+- `sections/personalSection.ts`, `philosophySection.ts`, `processPreviewSection.ts`, retrofit-fidelity blocks.
+- `sections/index.ts`, exports the full section-type array + a shared `SECTION_TYPES` list reused by `page.pageBuilder` and every retrofitted singleton.
 
 **New components (`src/components/`):**
-- `SectionRenderer.astro` — maps section `_type` → component, owns surface cadence + dividers.
-- `sections/ImageText.astro`, `GalleryGrid.astro`, `StepsCards.astro`, `VideoEmbed.astro`, `RichTextSection.astro` — new block renderers (others reuse existing components).
+- `SectionRenderer.astro`, maps section `_type` → component, owns surface cadence + dividers.
+- `sections/ImageText.astro`, `GalleryGrid.astro`, `StepsCards.astro`, `VideoEmbed.astro`, `RichTextSection.astro`, new block renderers (others reuse existing components).
 
 **New routes:**
-- `src/pages/[...slug].astro` — custom-page catch-all.
+- `src/pages/[...slug].astro`, custom-page catch-all.
 
 **New scripts (`scripts/`):**
 - `migrate-business-info.mjs`, `upload-headshots.mjs`, `place-headshots.mjs`, `backfill-dehardcode.mjs`, and one `migrate-<page>-to-pagebuilder.mjs` per retrofitted page.
@@ -431,14 +431,14 @@ const rows = sections
 
 Repeat the Task 5.4 pattern for each page. Each is its own task and commit. The migration maps the page's current sections to blocks 1:1; the page file switches to `SectionRenderer`; old fields go `hidden`; verify pixel-identical; `studio:deploy`.
 
-- [ ] **Task 6.1: Home** — blocks: hero, imageText (Meet Staci), featuredProjects, testimonials, processPreview, services, featuredJournal, pressStrip, serviceAreaCue, ctaBand. Preserve current order exactly in the migration. Verify the surface cadence matches today. Commit.
-- [ ] **Task 6.2: Services** — hero, services, builder/realtor (imageText or richText), serviceAreaCue, ctaBand. Commit.
-- [ ] **Task 6.3: Process** — hero, processPreview/steps, faqSection, ctaBand. Commit.
-- [ ] **Task 6.4: E-Design** — hero, richText (intro), stepsSection (how it works), richText (whatsIncluded), a pricing block (reuse servicesSection styling or a dedicated tiers block), faqSection, ctaBand. Commit.
-- [ ] **Task 6.5: Gift Certificates** — hero, richText, stepsSection (options), ctaBand. Commit.
-- [ ] **Task 6.6: Resources** — hero, card grid block, ctaBand. Commit.
-- [ ] **Task 6.7: Press** — hero, pressStrip, press list, ctaBand. Commit.
-- [ ] **Task 6.8: Flexible zones on app pages** — add `additionalSections` (`of: SECTION_TYPES`) to `portfolioPage, journalPage, contactPage, faqPage, styleQuiz, budgetCalculator, shopPage, leadMagnet index, privacyPage, notFoundPage`; render `<SectionRenderer sections={page.additionalSections} .../>` above each page's Final CTA. `npm run typegen && npm run studio:deploy && npm run build`. Verify each renders nothing when empty. Commit.
+- [ ] **Task 6.1: Home** blocks: hero, imageText (Meet Staci), featuredProjects, testimonials, processPreview, services, featuredJournal, pressStrip, serviceAreaCue, ctaBand. Preserve current order exactly in the migration. Verify the surface cadence matches today. Commit.
+- [ ] **Task 6.2: Services** hero, services, builder/realtor (imageText or richText), serviceAreaCue, ctaBand. Commit.
+- [ ] **Task 6.3: Process** hero, processPreview/steps, faqSection, ctaBand. Commit.
+- [ ] **Task 6.4: E-Design** hero, richText (intro), stepsSection (how it works), richText (whatsIncluded), a pricing block (reuse servicesSection styling or a dedicated tiers block), faqSection, ctaBand. Commit.
+- [ ] **Task 6.5: Gift Certificates** hero, richText, stepsSection (options), ctaBand. Commit.
+- [ ] **Task 6.6: Resources** hero, card grid block, ctaBand. Commit.
+- [ ] **Task 6.7: Press** hero, pressStrip, press list, ctaBand. Commit.
+- [ ] **Task 6.8: Flexible zones on app pages** add `additionalSections` (`of: SECTION_TYPES`) to `portfolioPage, journalPage, contactPage, faqPage, styleQuiz, budgetCalculator, shopPage, leadMagnet index, privacyPage, notFoundPage`; render `<SectionRenderer sections={page.additionalSections} .../>` above each page's Final CTA. `npm run typegen && npm run studio:deploy && npm run build`. Verify each renders nothing when empty. Commit.
 
 Each task: run migration, re-run for idempotency, `npm run typegen && npm run studio:deploy && npm run build`, pixel-verify both themes/viewports, then commit `feat: retrofit <page> onto the page builder`.
 

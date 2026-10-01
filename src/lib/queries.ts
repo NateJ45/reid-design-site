@@ -563,7 +563,7 @@ export async function getPrivacyPage(c: SanityClient = client) {
 
 // ---- Projects with before/after pairs ------------------------------------
 
-// Projects that have at least one beforeAfter pair — for /portfolio/before-after.
+// Projects that have at least one beforeAfter pair, for /portfolio/before-after.
 export async function getProjectsWithBeforeAfter() {
   return sanityFetch(
     `*[_type == "project" && count(beforeAfters) > 0]

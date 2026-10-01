@@ -1,5 +1,5 @@
 // Safe to edit by hand
-// Custom cursor for portfolio cards. Desktop only — bails out on touch input
+// Custom cursor for portfolio cards. Desktop only, bails out on touch input
 // and prefers-reduced-motion. A small ink "View project" tag (the site's one
 // button identity since 2026-10-01: the notched ink tag of .r-btn--ink, drawn
 // by .r-tagshape; cream text, sentence case) follows the pointer when

@@ -11,6 +11,11 @@
 // Data: eDesignPage.tiers[] (name, price, features, bestFor, ctaLabel). The
 // price is split stega-safely by chipPrice (src/lib/split-copy.ts). Every
 // button goes to /contact?type=e-design. Renders nothing with no tiers.
+//
+// One tier is the normal case (2026-10-01): E-Design is a single package,
+// "Starting at $695", so a lone chip gets a plain "What it costs" heading and
+// a readable width instead of stretching across the whole row. Two or more
+// tiers keep the "Pick your package" row.
 import SectionHeading from '@/components/SectionHeading.astro';
 import { chipPrice, toneFor } from '@/components/services/tones';
 import RoomBackdrop from '@/components/RoomBackdrop.astro';
@@ -29,14 +34,21 @@ interface Props {
 const { tiers, href = '/contact?type=e-design' } = Astro.props as Props;
 const list = tiers ?? [];
 const n = list.length;
+const single = n === 1;
 ---
 
 {
   n > 0 && (
     <section class="edt" aria-labelledby="edesign-tiers-heading">
       <div class="r-wrap">
-        <SectionHeading headline="Pick your package" headingId="edesign-tiers-heading" />
-        <ul class="edt__list" style={`--cols:${Math.min(n, 3)}`}>
+        <SectionHeading
+          headline={single ? 'What it costs' : 'Pick your package'}
+          headingId="edesign-tiers-heading"
+        />
+        <ul
+          class:list={['edt__list', single && 'edt__list--single']}
+          style={`--cols:${Math.min(n, 3)}`}
+        >
           {list.map((tier, i) => {
             const tone = toneFor(i, n);
             const price = chipPrice(tier.price);
@@ -114,6 +126,10 @@ const n = list.length;
     transition:
       transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* One package: a readable width, left on the page's own edge. */
+  .edt__list--single {
+    max-width: 38rem;
   }
   /* Out of line: every other chip hangs lower, like cards pulled from a deck. */
   .edt__tier:nth-child(even) {

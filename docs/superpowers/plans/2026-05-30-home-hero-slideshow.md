@@ -322,9 +322,9 @@ const first = slides[0];
       />
     )}
 
-    {/* Uniform overlay — minimum readability across the whole image. */}
+    {/* Uniform overlay, minimum readability across the whole image. */}
     <div class="absolute inset-0 bg-accent-dark/25" aria-hidden="true"></div>
-    {/* Bottom-weighted gradient — extra darkening behind the text area. */}
+    {/* Bottom-weighted gradient, extra darkening behind the text area. */}
     <div
       class="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-accent-dark/45 to-transparent"
       aria-hidden="true"
@@ -476,7 +476,7 @@ const hasImage = effectiveImages.length > 0;
 Find:
 
 ```astro
-    {/* Background image — eager loaded; two layered overlays handle readability.
+    {/* Background image, eager loaded; two layered overlays handle readability.
         fetchpriority="high" tells the browser this is the LCP image so it
         races to the front of the network queue ahead of other resources. */}
     <SanityImage
@@ -488,9 +488,9 @@ Find:
       quality={70}
       class="absolute inset-0 w-full h-full object-cover"
     />
-    {/* Uniform overlay — guarantees minimum readability across the whole image. */}
+    {/* Uniform overlay, guarantees minimum readability across the whole image. */}
     <div class="absolute inset-0 bg-accent-dark/25" aria-hidden="true"></div>
-    {/* Bottom-weighted gradient — adds extra darkening behind the text area at the bottom. */}
+    {/* Bottom-weighted gradient, adds extra darkening behind the text area at the bottom. */}
     <div
       class="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-accent-dark/45 to-transparent"
       aria-hidden="true"
@@ -500,7 +500,7 @@ Find:
 Replace with:
 
 ```astro
-    {/* Background — single static image or a cross-fading slideshow (2+ images),
+    {/* Background, single static image or a cross-fading slideshow (2+ images),
         plus the readability overlays. See HeroBackground.astro. */}
     <HeroBackground images={effectiveImages} />
 ```
@@ -623,14 +623,14 @@ In `docs/agent/components.md`, in the "Hero + page-top" list, update the `Hero.a
 Find:
 
 ```markdown
-- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap. Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
+- `Hero.astro`, image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap. Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
 ```
 
 Replace with:
 
 ```markdown
-- `Hero.astro` — image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap, and `backgroundImages?: SanityImageObject[]` for the home hero slideshow (falls back to the single `backgroundImage` for every other page). Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
-- `HeroBackground.astro` — the hero background layer. Renders a single static `SanityImage` (today's behavior) for 0-1 images, or a cross-fading Ken Burns slideshow for 2+ (see Polish layer → Home hero slideshow). Owns the two readability overlays. Used only by `Hero.astro`.
+- `Hero.astro`, image variant (full-bleed photo + gradient overlay) OR text variant (delegates to SectionHeading). Accepts `rotatingWords?: string[]` for a once-per-session H1 first-word swap, and `backgroundImages?: SanityImageObject[]` for the home hero slideshow (falls back to the single `backgroundImage` for every other page). Image variant passes `onDark` to its CTAs automatically. On the homepage (`size="tall"`) it fills the viewport below the sticky header and shows a soft pulsing scroll cue (see Polish layer).
+- `HeroBackground.astro`, the hero background layer. Renders a single static `SanityImage` (today's behavior) for 0-1 images, or a cross-fading Ken Burns slideshow for 2+ (see Polish layer → Home hero slideshow). Owns the two readability overlays. Used only by `Hero.astro`.
 ```
 
 - [ ] **Step 3: Add a `sanity.md` note**

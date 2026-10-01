@@ -1,5 +1,5 @@
 // =============================================================================
-// useInstantText — typed words appear on the page, not a second and a half later
+// useInstantText, typed words appear on the page, not a second and a half later
 // (2026-08-28)
 // =============================================================================
 // THE OLD LOOP, end to end: type in the Studio → Studio autosave commits →
@@ -14,7 +14,7 @@
 // `visibility: "transaction"` and relays every mutation over the comlink
 // (`presentation/snapshot-event`), where a mendoza patch is applied to the
 // in-memory document. So the frame learns about an edit as soon as the
-// transaction lands — before the query index has caught up, which is what the
+// transaction lands, before the query index has caught up, which is what the
 // server refetch has to wait for.
 //
 // So: watch the actor, diff the document against the last one we saw, and for
@@ -24,7 +24,7 @@
 //
 // AND A SECOND, SHORTER PATH (2026-08-28). The swap above costs about 4ms; the
 // wait that was left is all upstream of it, because the actor's feed is still a
-// LISTEN — the edit is autosaved, committed and made visible before the frame
+// LISTEN, the edit is autosaved, committed and made visible before the frame
 // hears a word. The Studio has the answer a whole round trip earlier, in the
 // local document store its form writes optimistic patches into, so the Studio
 // side now posts that draft straight across (same origin, `postMessage`) as the
@@ -52,7 +52,7 @@
 //
 // WHAT IT DOES NOT DO, on purpose: portable text and the rich twins, anything
 // whose rendering transforms the value (an accented heading, a truncated card
-// blurb, a joined list), and anything that changes the SHAPE of the page — a new
+// blurb, a joined list), and anything that changes the SHAPE of the page, a new
 // section, a reorder, a toggled block. All of those are left to the soft
 // refresh, which renders them correctly a moment later. A missed instant update
 // is invisible. A wrong one would be the preview lying about the page.
@@ -66,13 +66,13 @@
 //   refresh scheduler's change sequence (the `onDocument` callback the overlay
 //   passes in), so a render that started before it is discarded on arrival
 //   rather than morphed in. Before that bump the sequence moved only on the SSE
-//   change events — Sanity's transaction visibility, a second behind the
-//   keystroke — so a render begun mid-burst looked current when it landed and
+//   change events: Sanity's transaction visibility, a second behind the
+//   keystroke, so a render begun mid-burst looked current when it landed and
 //   wrote a HALF-TYPED sentence over the finished one. That was the editor's
 //   "half my text disappears, then a second later it comes back".
 //
 //   SECOND, IF ONE LANDS ANYWAY. Every swap this makes is remembered, and after
-//   each refresh the pending ones are re-applied to the fresh DOM — and dropped
+//   each refresh the pending ones are re-applied to the fresh DOM, and dropped
 //   as soon as the server's own HTML says the same thing. The re-apply matches
 //   any value the field has passed through this session, not only the one the
 //   burst started from, precisely because an intermediate is what a mid-burst
@@ -115,7 +115,7 @@ interface ActorEvent {
 
 /**
  * The four events the dataset-mutator actor emits. `mutation` is the one that
- * matters — it is a Studio edit arriving over the comlink — but a local
+ * matters, it is a Studio edit arriving over the comlink, but a local
  * optimistic write from the in-canvas controls arrives as `rebased.local`, a
  * re-fetched snapshot as `rebased.remote`, and the first load as `sync`. All
  * four mean "the document may read differently now"; the diff decides whether
@@ -136,7 +136,7 @@ export function useInstantText(pageId: string, onDocument?: () => void): void {
     notify.current = onDocument;
   });
 
-  /** The document as it read at the last swap — the diff's left-hand side. */
+  /** The document as it read at the last swap, the diff's left-hand side. */
   const lastSeen = useRef<Record<string, unknown> | null>(null);
   /** Text nodes by source key, rebuilt after each refresh. */
   const index = useRef<Map<string, Text[]> | null>(null);
@@ -179,7 +179,7 @@ export function useInstantText(pageId: string, onDocument?: () => void): void {
    * and keeps the FIRST `previous`, so re-recording the same swap updates one
    * entry instead of stacking two. What is NOT a no-op is an OLDER snapshot
    * arriving after a newer one, which would read as a change back to the old
-   * words — hence `acceptsSource` on the actor path below.
+   * words, hence `acceptsSource` on the actor path below.
    */
   const applyDocument = useCallback(
     (next: Record<string, unknown>, source: DraftSource) => {
@@ -191,12 +191,12 @@ export function useInstantText(pageId: string, onDocument?: () => void): void {
       if (!previous) return;
 
       // THE NEWEST DOCUMENT WE KNOW OF IS NOW THIS ONE, and that is a fact the
-      // refresh scheduler has to hear about — before the diff, because it is
+      // refresh scheduler has to hear about, before the diff, because it is
       // true whether or not a plain string changed. Its staleness stamp used to
       // be bumped only by the SSE change events, which run at Sanity's
       // transaction visibility, roughly a second behind the keystroke. Any
       // render started before this document therefore looked CURRENT when it
-      // landed, and was morphed in carrying the server's older words — a PARTIAL
+      // landed, and was morphed in carrying the server's older words, a PARTIAL
       // version of the sentence the editor had already typed. That is the "half
       // my text disappears, then comes back" report. The bump makes staleness a
       // property of the newest KNOWN document rather than of the slowest
@@ -251,7 +251,7 @@ export function useInstantText(pageId: string, onDocument?: () => void): void {
   // The Studio's local edit state, posted straight across as the editor types.
   // Untrusted input: the origin must match, and the payload must be exactly the
   // agreed envelope. `document: null` means "this page has no draft", which is
-  // silence rather than an edit — it deliberately does not start the window that
+  // silence rather than an edit, it deliberately does not start the window that
   // holds the actor back.
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
@@ -272,7 +272,7 @@ export function useInstantText(pageId: string, onDocument?: () => void): void {
     const draftId = `drafts.${pageId}`;
     const subscriptions = ACTOR_EVENTS.map((type) =>
       actor.on(type, (event: ActorEvent) => {
-        // The actor carries every document the page mentions — settings,
+        // The actor carries every document the page mentions, settings,
         // courses, faculty. Only this page's own document is diffed; a change to
         // a shared document reaches the page through the soft refresh, because
         // its stega names ITS id, not this one.
@@ -311,7 +311,7 @@ export function useInstantText(pageId: string, onDocument?: () => void): void {
           // up with is still left alone.
           if (applyKnownChange(node, swap.seen, swap.next)) reapplied = true;
         }
-        // Nothing on the page matches either value any more — the field is gone,
+        // Nothing on the page matches either value any more, the field is gone,
         // moved, or rendered differently. Stop carrying it.
         if (!reapplied && bucket.length === 0) pending.current.delete(swap.key);
       }

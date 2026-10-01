@@ -7,15 +7,15 @@
 //   - phone: builds a tel: link
 //
 // Two visual variants + a tone modifier:
-//   - "primary" — Bronze CTA pill (per CLAUDE.md: bg-primary-dark + text-white, NOT bg-primary,
+//   - "primary": Bronze CTA pill (per CLAUDE.md: bg-primary-dark + text-white, NOT bg-primary,
 //     to clear WCAG AA on small label text; hover state goes to Charcoal Dark)
-//   - "secondary" — outlined link with bronze border + text-link, theme-aware in both modes
-//   - `onDark` toggle — for CTAs sitting over a dark surface (hero image overlay,
+//   - "secondary", outlined link with bronze border + text-link, theme-aware in both modes
+//   - `onDark` toggle, for CTAs sitting over a dark surface (hero image overlay,
 //     Charcoal Dark Final CTA panel). Swaps the secondary variant from bronze
 //     text-on-light to cream text-on-transparent so it's actually legible
 //     against the dark background. Passing a `class` override to recolor used
 //     to work, but Tailwind v4 generates utilities alphabetically and
-//     `text-link` > `text-bg` in the cascade — the bronze always won. Use
+//     `text-link` > `text-bg` in the cascade, the bronze always won. Use
 //     onDark={true} from now on instead of overriding via className.
 //
 // Both variants share generous padding, uppercase tracking, and a 44×44 minimum tap target.

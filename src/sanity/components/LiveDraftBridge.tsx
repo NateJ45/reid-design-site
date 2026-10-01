@@ -3,7 +3,7 @@ import { useEditState } from 'sanity';
 import { LIVE_DRAFT_MESSAGE } from '../../lib/preview-live-draft';
 
 // =============================================================================
-// LiveDraftBridge — the Studio's local edits, posted to the preview as they type
+// LiveDraftBridge, the Studio's local edits, posted to the preview as they type
 // (2026-08-28)
 // =============================================================================
 // THE GAP THIS CLOSES. The preview already swaps changed plain strings into the
@@ -11,7 +11,7 @@ import { LIVE_DRAFT_MESSAGE } from '../../lib/preview-live-draft';
 // frame only LEARNS about an edit through the optimistic actor, whose feed is
 // the Studio's `client.listen`: the edit has to be autosaved, committed and made
 // visible as a transaction first. That round trip is the 1–2 seconds an editor
-// still watches, and it is not a bug anyone can tune away — it is what "the
+// still watches, and it is not a bug anyone can tune away, it is what "the
 // server knows about it now" costs.
 //
 // The Studio knows a whole round trip earlier. `useEditState` reads the LOCAL
@@ -64,7 +64,7 @@ interface Props {
  * Deliberately not "find THE preview iframe": Presentation's DOM is the host's,
  * not ours, and a selector tied to its internals would break silently on an
  * upgrade. Every same-origin frame gets the message and only a frame running the
- * preview island has a listener for it — and that listener re-checks the origin
+ * preview island has a listener for it, and that listener re-checks the origin
  * and the shape before it believes a word of it.
  */
 function postToFrames(snapshot: unknown): void {

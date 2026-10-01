@@ -253,7 +253,7 @@ Find:
   class="bg-accent-dark text-bg"
   aria-labelledby={headingId}
 >
-  {/* Bronze accent stripe — same 2px brand signature used at the top of the
+  {/* Bronze accent stripe, same 2px brand signature used at the top of the
       site header, mobile menu, footer, and every marketing card. Softens the
       transition from the previous (usually light) section into this dark
       panel and ties the close-of-page back into the brand vocabulary. */}

@@ -6,7 +6,7 @@
 // Token-based reads (current default):
 //   This project's dataset is configured such that anonymous queries are filtered
 //   down to a subset of document types (a Sanity-side restriction we couldn't
-//   surface in Manage UI — only the page singletons came through anon, every
+//   surface in Manage UI, only the page singletons came through anon, every
 //   collection returned empty). Passing SANITY_API_READ_TOKEN bypasses the
 //   filter and reads the full dataset.
 //
@@ -40,7 +40,7 @@ const readToken = import.meta.env.SANITY_API_READ_TOKEN as string | undefined;
 // Warnings below are scoped to server-only (build + SSR pass) so they don't
 // leak into the browser console. The Sanity client module gets imported by
 // React components (PortableText, ProjectGallery, etc) for the `urlFor`
-// helper, which means the module evaluates client-side too — without this
+// helper, which means the module evaluates client-side too, without this
 // guard, every browser session would see the readToken warning, even though
 // the token is irrelevant in the browser (it's a server-only env var).
 if (import.meta.env.SSR) {
@@ -54,7 +54,7 @@ if (import.meta.env.SSR) {
   }
 
   if (!readToken) {
-    // Soft warning — pages still render via fallback copy when the token is missing,
+    // Soft warning, pages still render via fallback copy when the token is missing,
     // but collections (services, testimonials, etc.) won't populate.
     console.warn(
       '[sanity] SANITY_API_READ_TOKEN is not set. Build-time reads will use the anonymous API; collection content (services, testimonials, processSteps, faqs, projects) may render empty. Set it in .env locally and in Cloudflare → Workers → Variables (as Secret) for production builds.',
@@ -151,7 +151,7 @@ export function urlFor(source: SanityImageSource) {
  * `image-e05a4e2...-5712x4284-jpg`), so the dimensions can be extracted
  * with a single regex without an extra Sanity query.
  *
- * Returns null when the ref is missing or doesn't match — callers should
+ * Returns null when the ref is missing or doesn't match, callers should
  * fall back to letting the browser size the image naturally (with a layout
  * shift) rather than fabricating dimensions.
  *

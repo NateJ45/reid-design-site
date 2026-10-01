@@ -1824,6 +1824,8 @@ export type Project = {
     | 'midCentury'
     | 'other';
   year?: number;
+  houseDescription?: string;
+  scopeLine?: string;
   heroImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -1916,6 +1918,11 @@ export type Project = {
   displayOrder?: number;
   featured?: boolean;
   stickyCtaLabel?: string;
+  consent?: {
+    photos?: boolean;
+    price?: boolean;
+    review?: boolean;
+  };
   publishedAt?: string;
   orderRank?: string;
 };

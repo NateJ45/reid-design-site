@@ -19,29 +19,29 @@
 ## File Structure
 
 **Create:**
-- `src/components/AboutPersonal.astro` — renders the new About "personal" section; each module self-hides when empty.
-- `studio/schemaTypes/studioGuide.ts` — singleton: editable Start Here guide content.
-- `studio/schemaTypes/studioNotes.ts` — singleton: editable business/ideal-client/voice notes.
-- `scripts/seed-studio-guide.mjs` — seeds `studioGuide` + `studioNotes` from current hardcoded content.
-- `scripts/seed-about-personal.mjs` — seeds placeholder content into `aboutPage.personal`.
+- `src/components/AboutPersonal.astro`, renders the new About "personal" section; each module self-hides when empty.
+- `studio/schemaTypes/studioGuide.ts`, singleton: editable Start Here guide content.
+- `studio/schemaTypes/studioNotes.ts`, singleton: editable business/ideal-client/voice notes.
+- `scripts/seed-studio-guide.mjs`, seeds `studioGuide` + `studioNotes` from current hardcoded content.
+- `scripts/seed-about-personal.mjs`, seeds placeholder content into `aboutPage.personal`.
 
 **Modify:**
-- `src/components/ContactForm.tsx` — add two `SOURCE_OPTIONS`.
-- `scripts/patch-contact-form-options.mjs` — sync project types + refreshed sources to Sanity.
-- `src/pages/about.astro` — number cards by position; render `AboutPersonal`.
-- `studio/schemaTypes/philosophyPoint.ts` — `displayOrder` optional + reworded.
-- `studio/schemaTypes/aboutPage.ts` — new `personal` group + fields.
-- `src/lib/queries.ts` — project the new About fields.
-- `studio/schemaTypes/index.ts` — register the two new singletons.
-- `studio/components/StudioGuide.tsx` — fetch + render `studioGuide`.
-- `studio/components/BusinessOverview.tsx` — fetch + render `studioNotes` for the static sections.
-- `studio/structure.ts` — Start Here items become editable docs with views; add singletons to sets.
-- `studio/sanity.config.ts` — add the two singletons to `SINGLETON_TYPES`.
-- `CLAUDE.md`, `OPERATIONS.md` — document the changes.
+- `src/components/ContactForm.tsx`, add two `SOURCE_OPTIONS`.
+- `scripts/patch-contact-form-options.mjs`, sync project types + refreshed sources to Sanity.
+- `src/pages/about.astro`, number cards by position; render `AboutPersonal`.
+- `studio/schemaTypes/philosophyPoint.ts`, `displayOrder` optional + reworded.
+- `studio/schemaTypes/aboutPage.ts`, new `personal` group + fields.
+- `src/lib/queries.ts`, project the new About fields.
+- `studio/schemaTypes/index.ts`, register the two new singletons.
+- `studio/components/StudioGuide.tsx`, fetch + render `studioGuide`.
+- `studio/components/BusinessOverview.tsx`, fetch + render `studioNotes` for the static sections.
+- `studio/structure.ts`: Start Here items become editable docs with views; add singletons to sets.
+- `studio/sanity.config.ts`, add the two singletons to `SINGLETON_TYPES`.
+- `CLAUDE.md`, `OPERATIONS.md`, document the changes.
 
 ---
 
-## Workstream A — Contact form dropdowns
+## Workstream A: Contact form dropdowns
 
 ### Task 1: Add the two new lead-source options in code
 
@@ -119,7 +119,7 @@ async function run() {
 
   const existing = await client.getDocument(contactDoc._id);
 
-  // These two must always reflect current offerings/funnel — force-set them.
+  // These two must always reflect current offerings/funnel, force-set them.
   const patch = {
     formProjectTypeOptions,
     formSourceOptions,
@@ -156,7 +156,7 @@ git commit -m "Sync contact project-type + lead-source options into Sanity"
 
 ---
 
-## Workstream B — About card numbering
+## Workstream B: About card numbering
 
 ### Task 3: Number philosophy cards by position
 
@@ -227,7 +227,7 @@ git commit -m "Make philosophyPoint displayOrder optional; clarify it's a backup
 
 ---
 
-## Workstream C — About page "personal" section
+## Workstream C: About page "personal" section
 
 ### Task 5: Add the `personal` field group + fields to `aboutPage`
 
@@ -669,7 +669,7 @@ git commit -m "Seed placeholder About personal-section content"
 
 ---
 
-## Workstream D — Editable Start Here guide
+## Workstream D: Editable Start Here guide
 
 ### Task 10: Create the `studioGuide` + `studioNotes` singletons
 
@@ -680,7 +680,7 @@ git commit -m "Seed placeholder About personal-section content"
 - [ ] **Step 1: Write `studioGuide.ts`**
 
 ```ts
-// studioGuide singleton — drives the "How the website works" Start Here panel.
+// studioGuide singleton, drives the "How the website works" Start Here panel.
 // Plain text + simple arrays (no Portable Text) so editing stays dead-simple
 // and the Studio needs no extra renderer dependency.
 import { defineType, defineField, defineArrayMember } from 'sanity';
@@ -770,7 +770,7 @@ export const studioGuide = defineType({
 - [ ] **Step 2: Write `studioNotes.ts`**
 
 ```ts
-// studioNotes singleton — drives the static notes in the "Your business at a
+// studioNotes singleton, drives the static notes in the "Your business at a
 // glance" Start Here panel (the live services/settings come straight from those
 // documents and are not duplicated here). Plain text, excluded from Canvas.
 import { defineType, defineField, defineArrayMember } from 'sanity';
@@ -972,7 +972,7 @@ git commit -m "Seed studioGuide + studioNotes from current panel content"
 - [ ] **Step 1: Replace the component**
 
 ```tsx
-// StudioGuide.tsx — Panel 1 of the Start Here handbook.
+// StudioGuide.tsx: Panel 1 of the Start Here handbook.
 // Renders the editable `studioGuide` singleton (fetched via useClient). The
 // rendered view is read-only and pretty; editing happens in the sibling "Edit"
 // form tab wired in structure.ts. Safe to edit by hand (layout only).
@@ -1188,7 +1188,7 @@ git commit -m "Render BusinessOverview static notes from the studioNotes singlet
 
 ---
 
-## Workstream E — Verify, deploy, document
+## Workstream E: Verify, deploy, document
 
 ### Task 15: Full build + visual verification
 
@@ -1200,8 +1200,8 @@ Expected: clean static build, no type errors.
 - [ ] **Step 2: Visual verification with Playwright MCP**
 
 Start the dev server (`npm run dev`) and check, at ~375px and ~1280px, in BOTH light and dark:
-- `/about` — the new personal section renders, cards read 01/02/03, modules look right, both themes pass contrast.
-- `/contact` — the lead-source dropdown shows the two new options; project-type dropdown shows the full current list.
+- `/about`, the new personal section renders, cards read 01/02/03, modules look right, both themes pass contrast.
+- `/contact`, the lead-source dropdown shows the two new options; project-type dropdown shows the full current list.
 
 Fix any layout/contrast issues and re-screenshot before moving on.
 

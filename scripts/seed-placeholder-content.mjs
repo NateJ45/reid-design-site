@@ -3,8 +3,8 @@
 // Why this exists:
 //   The initial migration import (Step 8e) populated the seven page singletons
 //   (homePage, aboutPage, processPage, servicesPage, faqPage, contactPage, siteSettings)
-//   but every collection — service, testimonial, processStep, philosophyPoint, faqItem,
-//   project — ended up empty in the production dataset. The singletons reference
+//   but every collection, service, testimonial, processStep, philosophyPoint, faqItem,
+//   project, ended up empty in the production dataset. The singletons reference
 //   collection docs that don't exist, so the homepage testimonial grid, the philosophy
 //   block on About, the process steps on Process, and the FAQ accordion all render
 //   empty even though the surrounding sections are wired correctly.
@@ -14,7 +14,7 @@
 //      (the high-quality extracted content from Staci's Squarespace site).
 //   2. Appends an E-Design service (the virtual-design tier mentioned as deferred
 //      in CLAUDE.md) so the Services page shows a full tier ladder.
-//   3. Appends three placeholder Project documents — no heroImage attached yet
+//   3. Appends three placeholder Project documents, no heroImage attached yet
 //      (Sanity Studio flags this as a validation warning; the frontend's
 //      ProjectCard renders an empty image slot gracefully so the LAYOUT previews
 //      without real photos). Staci replaces these with real case studies later.
@@ -22,7 +22,7 @@
 //      the configured production dataset. Uses CLI auth (the user must already
 //      be logged in via `npx sanity login`).
 //
-// Singletons are NOT touched — running this won't disturb existing
+// Singletons are NOT touched, running this won't disturb existing
 // homePage/aboutPage/etc content. Collections use createOrReplace semantics
 // via the --replace flag so re-running is safe and idempotent.
 //
@@ -39,7 +39,7 @@ const contentDir = resolve(root, 'migration-docs/content');
 const outDir = resolve(root, 'tmp');
 const outPath = resolve(outDir, 'placeholder-seed.ndjson');
 
-// Collection JSON files only — singletons are intentionally excluded.
+// Collection JSON files only, singletons are intentionally excluded.
 const COLLECTION_FILES = [
   'philosophy-points.json',
   'testimonials.json',
@@ -142,15 +142,15 @@ const placeholderProjects = [
     roomType: 'livingRoom',
     year: 2026,
     briefSummary:
-      'A young family wanted a living room that handled chaos beautifully — durable fabrics, warm neutrals, and a layout that finally fit five people.',
+      'A young family wanted a living room that handled chaos beautifully, durable fabrics, warm neutrals, and a layout that finally fit five people.',
     introStory: [
       pt(
         'pfr-1',
-        "The family had outgrown the room's previous arrangement — a single sectional that made the space feel both crowded and weirdly empty depending on which kid was where. They wanted a layout that worked for movie nights, board games, and the kind of evening where everyone ends up in there by accident.",
+        "The family had outgrown the room's previous arrangement, a single sectional that made the space feel both crowded and weirdly empty depending on which kid was where. They wanted a layout that worked for movie nights, board games, and the kind of evening where everyone ends up in there by accident.",
       ),
       pt(
         'pfr-2',
-        'We started with a layout shift: pulling the new sofa off the longest wall, anchoring it with a swivel chair pair, and adding a tucked-in reading nook by the window. The palette stayed warm and forgiving — performance linen on the sofa, washable wool rug, ceramic and brass accents — so everything would still feel intentional after a juice spill or three.',
+        'We started with a layout shift: pulling the new sofa off the longest wall, anchoring it with a swivel chair pair, and adding a tucked-in reading nook by the window. The palette stayed warm and forgiving, performance linen on the sofa, washable wool rug, ceramic and brass accents, so everything would still feel intentional after a juice spill or three.',
       ),
       pt(
         'pfr-3',
@@ -169,11 +169,11 @@ const placeholderProjects = [
     roomType: 'kitchen',
     year: 2026,
     briefSummary:
-      'A recent kitchen reno was beautiful but felt unfinished. Styling brought it home in a single afternoon visit — no construction required.',
+      'A recent kitchen reno was beautiful but felt unfinished. Styling brought it home in a single afternoon visit, no construction required.',
     introStory: [
       pt(
         'fk-1',
-        "The homeowners had just wrapped a six-month kitchen renovation and the bones were stunning — paneled refrigerator, warm white oak, soapstone counters — but the room read flat in photos and somehow lonelier than the dated kitchen it replaced. They didn't want more cabinetry; they wanted the room to feel lived in.",
+        "The homeowners had just wrapped a six-month kitchen renovation and the bones were stunning, paneled refrigerator, warm white oak, soapstone counters, but the room read flat in photos and somehow lonelier than the dated kitchen it replaced. They didn't want more cabinetry; they wanted the room to feel lived in.",
       ),
       pt(
         'fk-2',
@@ -196,11 +196,11 @@ const placeholderProjects = [
     roomType: 'bedroom',
     year: 2025,
     briefSummary:
-      'A primary bedroom that finally felt like a retreat — moody walls, layered textiles, and exactly the right amount of empty space.',
+      'A primary bedroom that finally felt like a retreat, moody walls, layered textiles, and exactly the right amount of empty space.',
     introStory: [
       pt(
         'zb-1',
-        "Two professionals with demanding jobs wanted their bedroom to feel like the opposite of their inboxes. We talked through what 'restful' actually meant for them — not the Pinterest version, the real one: low light, quiet color, surfaces that didn't need styling to look right.",
+        "Two professionals with demanding jobs wanted their bedroom to feel like the opposite of their inboxes. We talked through what 'restful' actually meant for them, not the Pinterest version, the real one: low light, quiet color, surfaces that didn't need styling to look right.",
       ),
       pt(
         'zb-2',
@@ -250,7 +250,7 @@ console.log(`\nWrote ${total} documents to ${outPath}`);
 // via Sanity CLI auth (the user's existing `npx sanity login` session). It does
 // NOT include any of the page singletons, so re-running it cannot overwrite
 // edited page copy. It WILL overwrite any prior placeholder collection content
-// with the IDs we use here — that's intentional for a placeholder seeder.
+// with the IDs we use here, that's intentional for a placeholder seeder.
 
 console.log('\nRunning sanity dataset import...\n');
 const result = spawnSync(

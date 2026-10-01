@@ -1,10 +1,10 @@
-// Reid Design 2.0 — the September 1 pricing + positioning update.
+// Reid Design 2.0, the September 1 pricing + positioning update.
 //
 // Source: Staci's "ReidDesign Website Changes" PDF (analyzed in
-// migration-docs/05-reid-design-2.0-changes.md). Read that first — it explains
+// migration-docs/05-reid-design-2.0-changes.md). Read that first, it explains
 // what's being changed and, more importantly, what's still undecided.
 //
-// SAFETY MODEL — read this before running:
+// SAFETY MODEL, read this before running:
 //
 //   1. Dry run by default. Nothing is written unless you pass --apply.
 //   2. Writes to DRAFTS ONLY (`drafts.<id>`). The published documents the live
@@ -45,7 +45,7 @@ import { randomUUID } from 'node:crypto';
 const SIGNATURE_ROOM_PRICE = 1795;
 
 // Three names were proposed: "Signature Room Experience", "Signature Design
-// Experience", "Signature Room Design + Styling". Using the third — it keeps
+// Experience", "Signature Room Design + Styling". Using the third, it keeps
 // the words people actually search for ("room design", "styling").
 //
 // Note the sentence case: every existing service is "Full room design",
@@ -78,7 +78,7 @@ const BADGE_TEXT = 'Most popular';
 // ORDERING GOTCHA: the site sorts by `orderRank asc, displayOrder asc` (see
 // queries.ts). orderRank is the plugin-managed drag-to-reorder key and it wins,
 // so editing displayOrder alone changes nothing on the page. The live order is
-// already consultation, e-design, full room, styling, shopping, partnerships —
+// already consultation, e-design, full room, styling, shopping, partnerships
 // which matches the price ladder. So displayOrder is being corrected to agree
 // with what's actually rendering, and the new tier gets an explicit orderRank
 // that lexically sorts between styling ("0|10001k:") and shopping ("0|10002g:").
@@ -119,7 +119,7 @@ const DISCARD = process.argv.includes('--discard');
 const PUBLISH = process.argv.includes('--publish');
 
 // perspective: 'raw' is required. The client defaults to 'published', which
-// silently filters drafts out of every query — so the "is there already a
+// silently filters drafts out of every query, so the "is there already a
 // draft?" check would always miss, and the publish step would find nothing to
 // promote. Both failure modes are silent, not errors.
 const client = createClient({
@@ -153,7 +153,7 @@ const patches = [
   // --- Services: prices, names, copy -------------------------------------
 
   {
-    label: 'In-home consultation — $150 to $225',
+    label: 'In-home consultation \u2014 $150 to $225',
     id: 'service.inHomeConsultation',
     set: {
       price: money(225),
@@ -165,7 +165,7 @@ const patches = [
   },
 
   {
-    label: 'E-Design — $450 to $695',
+    label: 'E-Design \u2014 $450 to $695',
     id: 'service.eDesign',
     set: {
       price: `starting at ${money(695)}`,
@@ -175,7 +175,7 @@ const patches = [
   },
 
   {
-    label: 'Full room design — $650 to $995',
+    label: 'Full room design \u2014 $650 to $995',
     id: 'service.fullRoomDesign',
     set: {
       price: `starting at ${money(995)}`,
@@ -191,7 +191,7 @@ const patches = [
     // so existing anchor links (/services#full-room-design-plus-styling) and
     // any links Staci has shared don't 404. Sanity won't touch the slug on its
     // own; changing it later is a deliberate call with a redirect.
-    label: `Full room design + styling — renamed to "${SIGNATURE_ROOM_NAME}", $850 to ${money(SIGNATURE_ROOM_PRICE)}`,
+    label: `Full room design + styling \u2014 renamed to "${SIGNATURE_ROOM_NAME}", $850 to ${money(SIGNATURE_ROOM_PRICE)}`,
     id: 'service.fullRoomDesignPlusStyling',
     set: {
       name: SIGNATURE_ROOM_NAME,
@@ -205,7 +205,7 @@ const patches = [
   },
 
   {
-    label: 'Shopping & sourcing — $75/hr to $100/hr',
+    label: 'Shopping & sourcing \u2014 $75/hr to $100/hr',
     id: 'service.shoppingAndSourcing',
     set: {
       price: `${money(100)} per hour`,
@@ -217,7 +217,7 @@ const patches = [
   ...(REORDER_INTO_PRICE_LADDER
     ? [
         {
-          label: 'Builder & realtor partnerships — moved to the end of the ladder',
+          label: 'Builder & realtor partnerships \u2014 moved to the end of the ladder',
           id: 'service.builderRealtorPartnerships',
           set: { displayOrder: 7 },
         },
@@ -227,7 +227,7 @@ const patches = [
   // --- The new top tier ---------------------------------------------------
 
   {
-    label: 'Signature home refresh — NEW whole-home tier',
+    label: 'Signature home refresh \u2014 NEW whole-home tier',
     id: 'service.signatureHomeRefresh',
     create: true,
     set: {
@@ -281,7 +281,7 @@ const patches = [
   {
     // The hero literally says "$150" and the list headline says "Four ways",
     // which was already wrong at six services and is now wrong at seven.
-    label: 'servicesPage — hero and list copy that named the old price',
+    label: 'servicesPage \u2014 hero and list copy that named the old price',
     id: 'servicesPage',
     set: {
       heroHeadline: 'From a first walkthrough to a finished, styled home',
@@ -299,7 +299,7 @@ const patches = [
   },
 
   {
-    label: 'homePage — new headline and subhead',
+    label: 'homePage \u2014 new headline and subhead',
     id: 'homePage',
     set: {
       heroHeadline: 'Creating homes that feel collected, cozy, and completely yours',
@@ -310,7 +310,7 @@ const patches = [
       // emotional hook; the title tag still has to do the local-search work.
       seoTitle: 'Interior Design in Plainfield & Indianapolis | Reid Design',
       // This one named "$150" too, and it feeds the meta description, the OG
-      // description, and the Twitter card — so a stale price here was showing
+      // description, and the Twitter card, so a stale price here was showing
       // up in every link preview of the homepage, not just in search results.
       // No price named now, so it can't go stale again.
       seoDescription:
@@ -321,7 +321,7 @@ const patches = [
   ...(REWRITE_ABOUT_STORY
     ? [
         {
-          label: 'aboutPage — story rewritten to lead with why',
+          label: 'aboutPage \u2014 story rewritten to lead with why',
           id: 'aboutPage',
           set: {
             storyContent: [
@@ -340,7 +340,7 @@ const patches = [
 ];
 
 // ---------------------------------------------------------------------------
-// Validation — house rules from CLAUDE.md, enforced before anything is written
+// Validation, house rules from CLAUDE.md, enforced before anything is written
 // ---------------------------------------------------------------------------
 
 const BANNED = [
@@ -370,8 +370,8 @@ for (const { id, set } of patches) {
   const strings = [];
   collectStrings(set, id, strings);
   for (const [path, text] of strings) {
-    if (text.includes('—'))
-      problems.push(`${path}: em-dash in site copy — "${text.slice(0, 60)}…"`);
+    if (text.includes('\u2014'))
+      problems.push(`${path}: em-dash in site copy \u2014 "${text.slice(0, 60)}…"`);
     for (const word of BANNED) {
       if (text.toLowerCase().includes(word)) problems.push(`${path}: banned phrase "${word}"`);
     }
@@ -430,7 +430,7 @@ if (!REWRITE_ABOUT_STORY) {
     .map((b) => (b.children ?? []).map((c) => c.text).join(''))
     .filter(Boolean);
   if (asText.length) {
-    console.log('  [About story, current — rewrite is OFF, compare before enabling]');
+    console.log('  [About story, current \u2014 rewrite is OFF, compare before enabling]');
     for (const p of asText) console.log(`    ${p.slice(0, 150)}${p.length > 150 ? '…' : ''}`);
     console.log('');
   }
@@ -448,11 +448,13 @@ for (const { label, id, set, create } of patches) {
     null;
 
   if (!base && !create) {
-    console.log(`    [${id}] SKIPPED — document not found, and this patch isn't a create\n`);
+    console.log(`    [${id}] SKIPPED \u2014 document not found, and this patch isn't a create\n`);
     continue;
   }
   if (base && create && !base._id.startsWith('drafts.')) {
-    console.log(`    [${id}] SKIPPED — already exists as a published doc, refusing to overwrite\n`);
+    console.log(
+      `    [${id}] SKIPPED \u2014 already exists as a published doc, refusing to overwrite\n`,
+    );
     continue;
   }
 
@@ -487,7 +489,7 @@ for (const { label, id, set, create } of patches) {
     continue;
   }
 
-  // Strip system fields — createOrReplace rejects _rev and recomputes the rest.
+  // Strip system fields, createOrReplace rejects _rev and recomputes the rest.
   const { _rev, _createdAt, _updatedAt, ...rest } = base ?? {};
   const doc = { ...rest, ...set, _id: draftId(id), _type: set._type ?? base._type };
 
@@ -496,7 +498,7 @@ for (const { label, id, set, create } of patches) {
     console.log(`    [${id}] draft written\n`);
     written += 1;
   } catch (e) {
-    console.log(`    [${id}] FAILED — ${e.message}\n`);
+    console.log(`    [${id}] FAILED \u2014 ${e.message}\n`);
   }
 }
 
@@ -519,7 +521,7 @@ if (APPLY && PUBLISH) {
       console.log(`  published  ${id}`);
       published += 1;
     } catch (e) {
-      console.log(`  FAILED     ${id} — ${e.message}`);
+      console.log(`  FAILED     ${id} \u2014 ${e.message}`);
     }
   }
   console.log(`\n[done] ${published} document(s) published and live in Sanity.`);

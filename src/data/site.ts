@@ -1,6 +1,6 @@
 // Safe to edit by hand
 // Static identity values that don't change between deploys.
-// Anything Staci edits goes through Sanity instead — see studio/ and src/lib/queries.ts.
+// Anything Staci edits goes through Sanity instead, see studio/ and src/lib/queries.ts.
 
 export const site = {
   name: 'Reid Design LLC',

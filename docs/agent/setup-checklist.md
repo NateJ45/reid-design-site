@@ -43,9 +43,9 @@ Things to configure before or during the public launch. Everything below should 
 
 Removed 2026-09-30 (never launched): the newsletter, shop, guides, gift certificate, style quiz and budget calculator setup items are gone with those features.
 
-- [ ] **Web3Forms autoresponder** enabled on the access key in the Web3Forms dashboard (the contact form now sends `autoresponse: true` — without the dashboard toggle, no confirmation email goes out).
+- [ ] **Web3Forms autoresponder** enabled on the access key in the Web3Forms dashboard (the contact form now sends `autoresponse: true`, without the dashboard toggle, no confirmation email goes out).
 - [ ] **Google Business URL** set on `siteSettings.googleBusinessUrl` (powers the "Read more on Google" link) + a short `siteSettings.reviewsNote`.
-- [ ] **E-Design pricing** filled on `eDesignPage` (tiers, what's-included, how-it-works) — until then `/e-design` shows a coming-soon state.
+- [ ] **E-Design pricing** filled on `eDesignPage` (tiers, what's-included, how-it-works), until then `/e-design` shows a coming-soon state.
 - [ ] **Privacy policy** reviewed: either fill `privacyPage.body` or confirm the static fallback copy is accurate.
 - [ ] Run `npm run studio:deploy` after the schema additions so Studio shows the new document types.
 

@@ -4,7 +4,7 @@
 // copies the address to the clipboard for visitors who'd rather paste.
 //
 // Component name kept as CopyEmailButton for now so all import sites stay
-// stable — the behavior shifted, not the API. Used in Footer + Contact page.
+// stable, the behavior shifted, not the API. Used in Footer + Contact page.
 // Requires sonner <Toaster /> in BaseLayout for the copy confirmation toast.
 
 import { useState } from 'react';
@@ -46,7 +46,7 @@ export default function CopyEmailButton({ email, label, variant = 'link' }: Prop
 
   if (variant === 'button') {
     // Full bordered button. Click opens the mail draft. No copy affordance
-    // here — the button itself is the call to action.
+    // here, the button itself is the call to action.
     return (
       <a
         href={`mailto:${email}`}

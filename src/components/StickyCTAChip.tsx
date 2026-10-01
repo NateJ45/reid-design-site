@@ -1,7 +1,7 @@
 // Safe to edit by hand
 // Contextual CTA chip that appears at 50% scroll on long pages. Bottom-right,
 // above the BackToTop button. Hides on scroll-up so it never blocks reading.
-// Honors prefers-reduced-motion. Dismissible via the X — dismissal persists
+// Honors prefers-reduced-motion. Dismissible via the X, dismissal persists
 // for the session via sessionStorage so a single page-view doesn't re-prompt.
 //
 // Opt-in: only mount on long pages (portfolio detail, services)
@@ -34,7 +34,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
         return;
       }
     } catch {
-      /* sessionStorage unavailable — fall through */
+      /* sessionStorage unavailable, fall through */
     }
 
     // Simple show/hide: visible whenever scroll progress is past the
@@ -43,7 +43,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
     //
     // The earlier "hide on scroll-down, reveal on scroll-up" behavior was
     // ported from the sticky-header pattern, but it doesn't translate to a
-    // small bottom-right chip — the chip isn't blocking reading the way a
+    // small bottom-right chip, the chip isn't blocking reading the way a
     // full-width header is, and any scroll-direction toggle produced a
     // distracting flicker every time the visitor paused-then-resumed
     // scrolling. Once revealed, the chip just stays put until dismissed
@@ -90,7 +90,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
 
   return (
     <div
-      // A11y note: keep pointer-events on ONE state path only — never include
+      // A11y note: keep pointer-events on ONE state path only, never include
       // both `pointer-events-none` and `pointer-events-auto` in the same
       // className string. Tailwind v4 sorts utilities alphabetically so
       // `pointer-events-none` wins the cascade and the chip becomes visible
@@ -102,7 +102,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
       // Positioning:
       //   - Always sit at bottom-[5.5rem] so it clears the BackToTop button
       //     (which lives at bottom-6 right-6, so its top edge is ~68px from
-      //     the bottom — bottom-[5.5rem] = 88px gives ~20px breathing room).
+      //     the bottom, bottom-[5.5rem] = 88px gives ~20px breathing room).
       //   - Mobile: center horizontally via left-1/2 + -translate-x-1/2 so
       //     the chip becomes a "look at this" centered element instead of
       //     colliding with the BackToTop button in the bottom-right corner.

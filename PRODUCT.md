@@ -12,12 +12,25 @@ brand
 
 Homeowners in Plainfield, Indianapolis and the northern suburbs (Carmel, Fishers,
 Westfield, Zionsville, Noblesville) whose home feels off and who don't know where
-to start. They have budget for design help but are not shopping at the white-glove
-tier. They arrive from Instagram, Facebook or a referral, mostly on a phone,
+to start. They are mid-market, by Staci's decision (2026-10-01): a real budget for a room
+or a whole home (her work runs from a $225 visit to $2,500+ home refreshes, with
+the furniture on top), and they are not shopping at the white-glove tier. They arrive from Instagram, Facebook or a referral, mostly on a phone,
 often in the evening on the couch in the very room that is bothering them.
 
 The job: decide whether Staci is someone they would trust in their house, and
 whether they can afford her, then book the $225 in-home consultation or message her.
+
+## Positioning
+
+**Mid-market: polished and trustworthy, never discount, never showroom.** A buyer
+at this level is deciding whether to hand a designer a few thousand dollars of
+furniture decisions, so the site has to answer "can I trust her with this?"
+before it answers anything else. That means: prices posted and consistent on
+every page (a mismatch between two pages reads as carelessness), a defined
+deliverable for every service, real proof (reviews that name a room or a town,
+finished room stories with the tier and price shown), and nothing that reads as
+template or placeholder. Copy states facts Staci can stand behind and never
+invents personal detail. Decided 2026-10-01.
 
 ## Product Purpose
 
@@ -45,6 +58,10 @@ Voice rules are in `CLAUDE.md` (Communication style, Reid Design site voice).
   cream-linen-serif AI default it belongs to.
 - White-glove luxury studios (Kelly Wearstler, Studio McGee's media-house scale):
   wrong price point, and it makes this audience feel priced out.
+- The opposite failure too: anything that looks hobbyist, discount or
+  half-finished. Mid-market means well made, not cheap. Placeholder copy, a
+  second price for the same service, or an unfilled template section all cost
+  trust faster than a plain photo does.
 - Full-bleed editorial photography as the whole idea (Heidi Caillier, Sarah
   Sherman Samuel). Right for them, wrong for a studio whose photos are phone shots.
 - Identical card grids, hero-metric stat bands, generic stock "cozy living room".

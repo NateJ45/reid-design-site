@@ -126,7 +126,7 @@ function renderSpans(spans: Span[] | undefined, markDefs: MarkDef[] | undefined)
         } else if (mark === 'em') {
           result = `<em class="${CLS.em}">${result}</em>`;
         } else {
-          // Reference mark — look up in markDefs
+          // Reference mark, look up in markDefs
           const def = defsMap.get(mark);
           if (def?._type === 'link') {
             const href = escapeHtml(def.href ?? '#');
