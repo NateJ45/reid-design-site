@@ -330,7 +330,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                     .title('Google reviews')
                     .items([
                       S.listItem()
-                        .title('Star rating and review count')
+                        .title('Star rating')
                         .icon(StarIcon)
                         .child(
                           S.document()

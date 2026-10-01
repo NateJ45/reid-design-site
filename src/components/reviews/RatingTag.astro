@@ -4,7 +4,7 @@
 // RatingTag: the Google star rating as a printed card (added 2026-09-30)
 // =============================================================================
 // "5.0" in Zodiak, five drawn stars (partial fill for decimals), and
-// "6 Google reviews", on a flat paper card with a fine double rule, like a
+// "on Google", on a flat paper card with a fine double rule, like a
 // printed label. Links to the Google Business Profile in a new tab.
 //
 // Not a tag since 2026-10-01: the notched tag is the site's ONE button
@@ -12,11 +12,12 @@
 // "book now" button. The card is flat (no shadow, no hole) so it reads as
 // a credential, not something to press.
 //
-// Data: siteSettings.googleRating + googleReviewCount + googleBusinessUrl,
+// Data: siteSettings.googleRating + googleBusinessUrl (no review count since
+// 2026-10-01: it was typed by hand and went stale; see googleRatingFrom),
 // through googleRatingFrom() in src/lib/reviews.ts. Pass `settings` (the
-// getSiteSettings() result). **Renders nothing at all** when the rating or the
-// count is missing, so every placement collapses with no gap until Staci fills
-// both in (Site Settings, Reviews tab).
+// getSiteSettings() result). **Renders nothing at all** when the rating is
+// missing, so every placement collapses with no gap until Staci fills it in
+// (Site Settings, Reviews tab).
 //
 // Variants:
 //   inline   the default: home hero (under the buttons), Contact, Services
@@ -27,7 +28,7 @@
 //
 // Accessible name, built from visible text plus visually hidden words so the
 // visible words appear in it in order (WCAG 2.5.3):
-//   "Rated 5.0 out of 5 from 6 Google reviews, opens Google in a new tab"
+//   "Rated 5.0 out of 5 on Google, opens Google in a new tab"
 // Without a profile link it is plain text, not a link, and drops the
 // "opens Google" part.
 //
@@ -38,7 +39,7 @@ import Stars from './Stars.astro';
 import {
   formatRating,
   googleRatingFrom,
-  reviewCountLabel,
+  RATING_SOURCE,
   type GoogleRatingSettings,
 } from '@/lib/reviews';
 
@@ -64,14 +65,11 @@ const linkAttrs = summary?.profileUrl
         <span class="rt__num">
           <span class="sr-only">Rated </span>
           {formatRating(summary.rating)}
-          <span class="sr-only"> out of 5 from {summary.count}</span>
+          <span class="sr-only">{' out of 5 on '}</span>
         </span>
         <span class="rt__src">
           Google
-          <span class="sr-only">
-            {summary.count === 1 ? ' review' : ' reviews'}
-            {summary.profileUrl && ', opens Google in a new tab'}
-          </span>
+          {summary.profileUrl && <span class="sr-only">, opens Google in a new tab</span>}
         </span>
       </Tag>
     ) : (
@@ -80,13 +78,12 @@ const linkAttrs = summary?.profileUrl
           <span class="rt__num">
             <span class="sr-only">Rated </span>
             {formatRating(summary.rating)}
-            <span class="sr-only"> out of 5</span>
+            <span class="sr-only">{' out of 5 '}</span>
           </span>
           <span class="rt__body">
             <Stars rating={summary.rating} class="rt__stars" />
             <span class="rt__count">
-              <span class="sr-only">from </span>
-              {reviewCountLabel(summary.count)}
+              {RATING_SOURCE}
               {summary.profileUrl && <span class="sr-only">, opens Google in a new tab</span>}
               {summary.profileUrl && (
                 <span class="rt__arrow" aria-hidden="true">

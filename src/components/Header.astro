@@ -57,7 +57,7 @@ import { site } from '@/data/site';
 import MobileNav from './MobileNav';
 import SanityImage from './SanityImage.astro';
 import RatingTag from '@/components/reviews/RatingTag.astro';
-import { formatRating, googleRatingFrom, reviewCountLabel } from '@/lib/reviews';
+import { formatRating, googleRatingFrom, RATING_SOURCE } from '@/lib/reviews';
 import { ChevronDown } from 'lucide-react';
 import logoLightAsset from '@/assets/logo-light.png';
 import logoDarkAsset from '@/assets/logo-dark.png';
@@ -186,7 +186,7 @@ const mobileChrome = {
     ? {
         rating: {
           value: formatRating(ratingSummary.rating),
-          label: reviewCountLabel(ratingSummary.count),
+          label: RATING_SOURCE,
         },
       }
     : {}),

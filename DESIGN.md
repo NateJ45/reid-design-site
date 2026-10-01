@@ -476,7 +476,8 @@ The rating is a **printed card** (`reviews/RatingTag.astro`; a sample tag
 until 2026-10-01, when the tag became the site's one BUTTON shape and a badge
 in the same shape read as "book now"): flat paper, a fine Sandbar double
 rule 3px in, no shadow and no hole, with the rating in Zodiak Light, a
-hairline, five drawn stars and "6 Google reviews" in General Sans 500. It sits square (since
+hairline, five drawn stars and "on Google" in General Sans 500 (no review count since
+2026-10-01: it was typed by hand and went stale; the link goes to the live one). It sits square (since
 the quiet pass; `--rt-tilt` is the hook). The word "Google" is text, never the logo.
 
 - Stars are fills: Warm Bronze on the paper tag, Sandbar on the ink band,

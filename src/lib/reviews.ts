@@ -12,7 +12,7 @@
 //   - starFills(rating)           five 0..1 fills for the drawn stars (4.7 ->
 //                                 1, 1, 1, 1, 0.7)
 //   - formatRating(rating)        "4.9", "5.0"
-//   - reviewCountLabel(count)     "27 Google reviews", "1 Google review"
+//   - RATING_SOURCE               "on Google": the words beside the rating (no count)
 //   - relativeDate(date, now)     "3 weeks ago", Google's own wording
 //   - isGoogleReview(t)           a testimonial marked as from Google
 //   - isRatedGoogleReview(t)      ...that also has its stars: the only kind the
@@ -41,8 +41,6 @@ export interface GoogleRatingSettings {
 export interface GoogleRatingSummary {
   /** Rounded to one decimal, clamped to 1..5. */
   rating: number;
-  /** Whole number, at least 1. */
-  count: number;
   /** The Google Business Profile link, when set. */
   profileUrl: string | null;
   /** The "write a review" link (g.page/r/.../review), when set. */
@@ -58,20 +56,21 @@ function httpUrl(v: unknown): string | null {
 
 /**
  * The summary every rating placement needs, or null. Null (render nothing)
- * when either number is missing, not a number, a rating outside 1..5, or a
- * count below 1: a "0.0 from 0 reviews" tag would be worse than no tag.
+ * when the rating is missing, not a number, or outside 1..5.
+ *
+ * No review COUNT since 2026-10-01: googleReviewCount is typed by hand and
+ * nothing updates it as reviews come in, so a printed "6 Google reviews"
+ * would go stale. The site says "on Google" instead and links there, where
+ * the live count is. (The field stays in the schema, hidden, never deleted.)
  */
 export function googleRatingFrom(
   settings: GoogleRatingSettings | null | undefined,
 ): GoogleRatingSummary | null {
   const r = Number(settings?.googleRating);
-  const c = Number(settings?.googleReviewCount);
-  if (settings?.googleRating == null || settings?.googleReviewCount == null) return null;
-  if (!Number.isFinite(r) || !Number.isFinite(c)) return null;
-  if (r < 1 || r > 5 || c < 1) return null;
+  if (settings?.googleRating == null) return null;
+  if (!Number.isFinite(r) || r < 1 || r > 5) return null;
   return {
     rating: Math.round(r * 10) / 10,
-    count: Math.floor(c),
     profileUrl: httpUrl(settings?.googleBusinessUrl),
     writeReviewUrl: httpUrl(settings?.googleWriteReviewUrl),
   };
@@ -92,10 +91,9 @@ export function formatRating(rating: number): string {
   return (Math.round(rating * 10) / 10).toFixed(1);
 }
 
-/** "27 Google reviews" / "1 Google review". */
-export function reviewCountLabel(count: number): string {
-  return `${count} Google review${count === 1 ? '' : 's'}`;
-}
+/** The words beside the rating everywhere it appears. No count (see
+ * googleRatingFrom): the link takes people to the live one on Google. */
+export const RATING_SOURCE = 'on Google';
 
 /**
  * How full each of the five stars is, 0 to 1. 4.7 gives [1, 1, 1, 1, 0.7].

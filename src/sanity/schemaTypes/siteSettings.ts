@@ -516,7 +516,7 @@ export const siteSettings = defineType({
       type: 'number',
       group: 'reviews',
       description:
-        'Copy the number shown next to the stars on your Google profile, for example 4.9 or 5.0. One decimal. The rating shows on the home page, Services and Contact once this AND the review count are filled in.',
+        'Copy the number shown next to the stars on your Google profile, for example 4.9 or 5.0. One decimal. The rating shows on the home page, Services, About and Contact as "5.0 on Google" once this is filled in. Update it if your Google rating ever changes.',
       validation: (Rule) => Rule.min(1).max(5).precision(1),
     }),
     defineField({
@@ -525,7 +525,10 @@ export const siteSettings = defineType({
       type: 'number',
       group: 'reviews',
       description:
-        'Copy the number in brackets next to your rating on Google, for example 27. Update it when new reviews come in, along with the date below.',
+        'No longer shown on the website (2026-10-01): a typed number goes out of date as new reviews come in, so the site says "on Google" and links there instead. Kept, hidden, so nothing stored is lost.',
+      // Hidden + read-only, never deleted (CLAUDE.md: never remove a field).
+      hidden: true,
+      readOnly: true,
       validation: (Rule) => Rule.integer().min(0),
     }),
     defineField({

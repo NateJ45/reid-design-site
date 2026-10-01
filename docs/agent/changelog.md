@@ -4,6 +4,10 @@
 
 ## 2026-10-01 — No section doodles, no hero seam, calmer page changes
 
+- The Google rating no longer shows a review count (it was typed by hand and
+  nothing updated it): it reads "5.0 on Google" and links to the live
+  profile. `googleRatingFrom` needs only the rating; `googleReviewCount` is
+  hidden + read-only in the schema, never deleted.
 - Tag refinements: the Google rating is a flat printed card (a badge in
   the button shape read as "book now"); one content button per screen (the
   footer's booking becomes a link under a closing band; the 404 search is a

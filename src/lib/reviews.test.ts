@@ -8,7 +8,7 @@ import {
   isRatedGoogleReview,
   orderReviews,
   relativeDate,
-  reviewCountLabel,
+  RATING_SOURCE,
   reviewStars,
   starFills,
   type ReviewLike,
@@ -28,23 +28,25 @@ describe('googleRatingFrom', () => {
   it('returns the rounded summary', () => {
     expect(googleRatingFrom(base)).toEqual({
       rating: 4.9,
-      count: 27,
       profileUrl: 'https://maps.google.com/?cid=4965899650606392676',
       writeReviewUrl: null,
     });
   });
 
-  it('is null when the rating or the count is missing', () => {
+  it('needs only the rating (the count is never shown)', () => {
+    expect(googleRatingFrom({ googleRating: 5 })?.rating).toBe(5);
+    expect(googleRatingFrom({ googleRating: 5, googleReviewCount: 0 })?.rating).toBe(5);
+  });
+
+  it('is null when the rating is missing or invalid', () => {
     expect(googleRatingFrom(null)).toBeNull();
     expect(googleRatingFrom({})).toBeNull();
-    expect(googleRatingFrom({ googleRating: 5 })).toBeNull();
     expect(googleRatingFrom({ googleReviewCount: 3 })).toBeNull();
   });
 
   it('is null for out-of-range values', () => {
     expect(googleRatingFrom({ googleRating: 0, googleReviewCount: 3 })).toBeNull();
     expect(googleRatingFrom({ googleRating: 5.2, googleReviewCount: 3 })).toBeNull();
-    expect(googleRatingFrom({ googleRating: 5, googleReviewCount: 0 })).toBeNull();
     expect(googleRatingFrom({ googleRating: Number.NaN, googleReviewCount: 3 })).toBeNull();
   });
 
@@ -69,15 +71,14 @@ describe('googleWriteReviewUrl', () => {
   });
 });
 
-describe('formatRating and reviewCountLabel', () => {
+describe('formatRating and RATING_SOURCE', () => {
   it('always prints one decimal', () => {
     expect(formatRating(5)).toBe('5.0');
     expect(formatRating(4.86)).toBe('4.9');
     expect(formatRating(4.04)).toBe('4.0');
   });
   it('pluralises the count', () => {
-    expect(reviewCountLabel(1)).toBe('1 Google review');
-    expect(reviewCountLabel(27)).toBe('27 Google reviews');
+    expect(RATING_SOURCE).toBe('on Google');
   });
 });
 
