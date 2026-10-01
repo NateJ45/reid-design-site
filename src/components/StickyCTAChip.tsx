@@ -127,10 +127,11 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
              labels. Past that, truncate kicks in as a safety net.
           Left padding reduced from pl-l to pl-m so more room goes to the
           label text instead of the bronze gutter. */}
-      {/* Rebuilt 2026-09-30 (phase 2): the ink pill of the rebuild buttons
-          (.r-btn--ink), sentence case in General Sans 500. Cream on ink is
-          14.2:1. The old uppercase-tracked bronze pill is gone site-wide. */}
-      <div className="relative flex max-w-[min(92vw,28rem)] items-center gap-1 rounded-full bg-ink py-1.5 pr-1.5 pl-5 text-cream shadow-[0_18px_34px_-16px_rgb(35_30_27/0.7)]">
+      {/* The site's one button identity (2026-10-01): the ink TAG of
+          .r-btn, drawn behind the chip by .r-tagshape because the chip
+          holds a link and a dismiss button. The shadow is a drop-shadow
+          filter so it follows the notched shape. Cream on ink is 14.2:1. */}
+      <div className="r-tagshape relative flex max-w-[min(92vw,28rem)] items-center gap-1 py-1.5 pr-1.5 pl-9 text-cream drop-shadow-[0_14px_18px_rgb(35_30_27/0.45)]">
         <a
           href={href}
           tabIndex={visible ? 0 : -1}

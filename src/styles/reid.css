@@ -23,32 +23,40 @@
     padding-inline: clamp(1rem, 4vw, 3.5rem);
   }
 
-  /* ---- Buttons. Pills; ink is the default, cream sits on bronze or ink,
-     bronze is for linen when ink would be too heavy. 44px+ tall for touch. ---- */
+  /* ---- Buttons: ONE identity, the tag (2026-10-01, Nathan's pick of
+     "the tag everywhere" over "the pill everywhere"). Every button on the
+     site is the same notched tag with a punched hole as the header,
+     footer and phone menu booking tags (.r-pricetag below shares the
+     drawing). Secondary actions are the underline link (.r-link), never a
+     second button shape.
+
+     Ink is the default; cream sits on bronze or ink; bronze is for linen
+     when ink would be too heavy. 46px tall for touch. Hover tilts the tag
+     a touch (pointer screens only) and nudges the arrow. ---- */
   .r-btn {
+    --tag-bg: var(--color-ink);
+    --tag-bg-hover: var(--color-chip-7);
+    --tag-fg: var(--color-cream);
+    --tag-ring: var(--color-ink);
+    position: relative;
+    isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.65em;
-    min-height: 2.9rem;
-    padding: 0.95em 1.55em;
-    border-radius: 999px;
+    min-height: 2.875rem;
+    /* Extra room on the left for the notch and the hole. */
+    padding: 0.95em 1.4em 0.95em 2.35em;
+    border: 0;
+    background: none;
+    color: var(--tag-fg);
     font: 500 0.95rem/1.1 var(--font-body);
     text-decoration: none;
     text-align: center;
-    transition-property: background-color, color, transform, box-shadow;
-    transition-duration: 450ms;
-    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .r-btn:hover {
-    transform: translateY(-2px);
-  }
-  .r-btn:active {
-    transform: translateY(0);
-    transition-duration: 80ms;
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .r-btn:focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--tag-ring);
     outline-offset: 3px;
   }
   .r-btn .r-arrow {
@@ -58,29 +66,26 @@
     transform: translateX(4px);
   }
   .r-btn--ink {
-    background: var(--color-ink);
-    color: var(--color-cream);
-  }
-  .r-btn--ink:hover {
-    background: var(--color-chip-7);
-    box-shadow: 0 12px 26px -14px rgb(35 30 27 / 0.7);
+    /* The defaults above. */
+    --tag-bg: var(--color-ink);
   }
   .r-btn--cream {
-    background: var(--color-cream);
-    color: var(--color-ink);
-  }
-  .r-btn--cream:hover {
-    background: var(--color-paper);
-  }
-  .r-btn--cream:focus-visible {
-    outline-color: var(--color-cream);
+    --tag-bg: var(--color-cream);
+    --tag-bg-hover: var(--color-paper);
+    --tag-fg: var(--color-ink);
+    --tag-ring: var(--color-cream);
   }
   .r-btn--bronze {
-    background: var(--color-chip-6);
-    color: var(--color-cream);
+    --tag-bg: var(--color-chip-6);
+    --tag-bg-hover: var(--color-chip-7);
   }
-  .r-btn--bronze:hover {
-    background: var(--color-chip-7);
+  /* The tag drawn behind a container that is not itself one button (the
+     floating "Ready to talk it through?" chip holds a link AND a dismiss
+     button). Set --tag-bg; pad the left for the notch. */
+  .r-tagshape {
+    --tag-bg: var(--color-ink);
+    position: relative;
+    isolation: isolate;
   }
 
   /* ---- Underline link: the line draws away on hover and back on leave. ---- */
@@ -227,7 +232,9 @@
     cursor: pointer;
     transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .r-pricetag::before {
+  .r-pricetag::before,
+  .r-btn::before,
+  .r-tagshape::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -238,7 +245,8 @@
     mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
     transition: background-color 400ms;
   }
-  .r-pricetag:hover::before {
+  .r-pricetag:hover::before,
+  .r-btn:hover::before {
     background: var(--tag-bg-hover);
   }
   .r-pricetag:focus-visible {
@@ -261,7 +269,8 @@
   /* The hover tilt only where a real pointer hovers: on touch screens a tap
      can leave :hover stuck, which left the tag sitting crooked. */
   @media (prefers-reduced-motion: no-preference) and (hover: hover) {
-    .r-pricetag:hover {
+    .r-pricetag:hover,
+    .r-btn:hover {
       transform: rotate(-2deg);
     }
   }

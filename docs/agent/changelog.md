@@ -4,6 +4,11 @@
 
 ## 2026-10-01 — No section doodles, no hero seam, calmer page changes
 
+- One button identity: every button is the notched tag (`.r-btn` now draws
+  the `.r-pricetag` shape). The 404 and search pages' old uppercase
+  rounded buttons, the announcement popup CTA and the floating chip were
+  moved onto it; secondary actions are underline links.
+
 - Travel-fee clocks animate: the hands sweep from 12 and fill each hour face
   in turn, stopping at the minute mark, once the clocks are seen (the
   unused `wedgePath`/`handPoint` helpers went with the old wedges).
