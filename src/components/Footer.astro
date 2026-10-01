@@ -120,7 +120,11 @@ const townsLine = towns.length > 0 ? towns.join(', ') : serviceRegion;
 
 // The tagline beside the logo (Site settings -> Tagline). Its last two words
 // take the Sandbar italic, the site's accent grammar.
-const tagline = siteSettings?.tagline?.trim() || 'Homes that feel collected, cozy, and yours.';
+// The one brand line is "completely yours" (the hero's script phrase; Nathan,
+// 2026-10-01): keep this fallback and Site settings -> Tagline saying the same.
+const tagline =
+  siteSettings?.tagline?.trim() ||
+  'Plainfield interior design for homes that feel completely yours.';
 const tagWords = tagline.split(/\s+/);
 const tagLead = tagWords.slice(0, -2).join(' ');
 const tagAccent = tagWords.slice(-2).join(' ');
