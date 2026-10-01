@@ -18,8 +18,13 @@
 // worded at build and refreshed in the browser by the script at the bottom)
 // and "Read on Google". Non-Google testimonials render exactly as before.
 // Ordering rules: orderReviews() in src/lib/reviews.ts (unit tested).
+//
+// The closing line links to Google AND, when Site settings has a Facebook
+// URL, to her Facebook reviews tab (2026-10-01; same helper as About's Kind
+// words, facebookReviewsUrl in src/lib/kind-words.ts).
 import { splitScriptAccent } from '@/lib/scriptAccent';
 import { splitStega } from '@/lib/preview-stega';
+import { facebookReviewsUrl } from '@/lib/kind-words';
 import RatingTag from '@/components/reviews/RatingTag.astro';
 import Stars from '@/components/reviews/Stars.astro';
 import GoogleCite from '@/components/reviews/GoogleCite.astro';
@@ -43,6 +48,8 @@ interface Props {
   gridQuotes?: Testimonial[];
   reviewsNote?: string | null;
   googleBusinessUrl?: string | null;
+  /** Site settings -> Facebook URL; linked as her Facebook reviews tab. */
+  facebookUrl?: string | null;
   /** Google reviews collected by the home query, newest first. */
   googleReviews?: Testimonial[];
   /** siteSettings, for the rating stamp. */
@@ -57,6 +64,7 @@ const {
   attribution,
   reviewsNote,
   googleBusinessUrl,
+  facebookUrl,
   googleReviews = [],
   ratingSettings,
 } = Astro.props as Props;
@@ -78,6 +86,7 @@ const http = (u?: string | null) => {
   const c = splitStega(u ?? '').cleaned.trim();
   return /^https?:\/\//i.test(c) ? c : null;
 };
+const fbReviews = facebookReviewsUrl(facebookUrl);
 const googleHref = (t?: Testimonial | null) => http(t?.reviewUrl) ?? http(googleBusinessUrl);
 
 // "April 2026" from "2026-04-01". Built by hand so it never shifts a day in
@@ -189,6 +198,15 @@ const trim = (input = '') => {
         googleBusinessUrl && (
           <a class="r-link" href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
             Read more reviews on Google
+            <span class="sr-only">, opens in a new tab</span>
+          </a>
+        )
+      }
+      {
+        fbReviews && (
+          <a class="r-link" href={fbReviews} target="_blank" rel="noopener noreferrer">
+            Read more reviews on Facebook
+            <span class="sr-only">, opens in a new tab</span>
           </a>
         )
       }

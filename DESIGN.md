@@ -147,7 +147,8 @@ no decorative numbering.
     is revealed left to right in about 1.5s. Once per session via
     sessionStorage; never under reduced motion.
     Scrolled, the row condenses into a floating paper strip with a shadow in
-    ink (on the home page too); the logo shrinks to 52px inside it. The sticky
+    ink (on the home page too); the logo shrinks and fades and "REID DESIGN"
+    is drawn in left to right in its place (2026-10-01). The sticky
     box never changes height, so nothing reflows. No availability pill, no
     search icon (search lives in the footer). The Google rating sits beside
     the tag from 1200px up.
@@ -304,9 +305,14 @@ prices are the loudest thing on it.
   in fine line (paper face outlined in Walnut, Warm Bronze ticks, quarter
   hours in Walnut) with its drive-time window shaded in Sandbar and an
   Espresso hand at the window's end, beside its label and fee. The window is
-  read from the tier label (`src/lib/drive-time.ts`, tested); all clocks
-  share one dial (two hours unless a tier runs longer). The wedges sweep in
-  on scroll. One clock per row on phones.
+  read from the tier label (`src/lib/drive-time.ts`, tested). Each clock
+  is a real 60-minute face and each face is one HOUR of driving, shaded from
+  12 up to the top of the window (Nathan's idea, 2026-10-01; a two-hour dial
+  before that drew "within 30" as a quarter turn, which reads as 15):
+  "within 30" is one face half shaded, "45 to 75" a full face and one to
+  :15, "75 to 120" two full faces; at most three. The hand sits on the last
+  face only. All faces are one size; on phones every row reserves room for
+  the most faces so the words line up. The wedges sweep in on scroll.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on paper (Oat
   until the quiet pass): "The guarantee" as the big Zodiak heading with an
   italic accent, Staci's promise under it as a General Sans lede (the
@@ -500,22 +506,12 @@ botanical line drawings in the margins, a marker under the word that matters,
 afternoon light moving across the room. All decorative, all off (or finished
 and still) under reduced motion, none carrying meaning on its own.
 
-- **Botanical ambience** (`src/scripts/ambient-doodles.ts`, `src/styles/doodle.css`).
-  Fine-line botanicals in the style of Staci's own Instagram drawings (the four
-  posts Nathan shared 2026-09-30): olive sprig, eucalyptus, berry sprig and a
-  sage stem with soft washes. (Willow and twin twigs were retired the same
-  day: their single-line leaves read as loose dashes at ambient opacity.) Single weight, a whisper of hand
-  wobble, Warm Bronze at about 40% (her muted gold), cream at 20% on the ink
-  and Walnut bands. At most two per page (`MAX_DOODLES` in
-  `src/lib/doodle-map.ts`): one grows in from a corner of the first content
-  section and one from the last,
-  clipped at the section's edge the way her branches enter the frame of a post;
-  corners alternate so neighbours never match. Behind everything, drawn in as
-  the section scrolls up. Not on the page hero or the closing band (it has the
-  logo's sprig). Authored as geometry in `scripts/doodles.config.mjs`;
-  `npm run doodles` writes the committed `src/assets/doodles/*.svg`; which one
-  goes where is `src/lib/doodle-map.ts`. Fetched per section as it nears the
-  screen, so pages carry none of them in their HTML.
+- **Botanical ambience: removed 2026-10-01.** The faint botanicals that grew
+  in from a corner of a page's sections (`src/scripts/ambient-doodles.ts`)
+  are gone (Nathan: they still looked bad, half-drawn as they scrolled in).
+  The drawings themselves stay (`scripts/doodles.config.mjs`,
+  `src/assets/doodles/`) for the phone menu's sprig and the share cards;
+  `src/lib/doodle-map.ts` now only picks each card's botanical.
 - **Phone menu sprig.** The olive sprig in faint cream beside her logo, drawn
   in each time the menu opens, behind the chip deck.
 - **Designer markup.** The italic accent phrase in the closing band's

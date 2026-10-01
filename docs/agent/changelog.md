@@ -2,6 +2,28 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — No section doodles, no hero seam, calmer page changes
+
+- The ambient section botanicals are removed (`src/scripts/ambient-doodles.ts`
+  deleted; the drawings stay for the phone menu and share cards).
+- Home hero: the photo's Walnut edge fade sits above the header shade, so
+  the photo no longer meets the Walnut in a hard vertical seam near the
+  header.
+- Header strip: scrolled, the full logo (unreadable at strip height)
+  shrinks away and "REID DESIGN" is drawn in left to right; reversed at
+  the top.
+- Home hero: the Google rating tag moved up to the top line, opposite the
+  eyebrow. Home reviews also link to her Facebook reviews tab.
+- Reviewer names typed all in lowercase on Google ("amy paul") are shown
+  capitalised (displayName in src/lib/reviews.ts); any name with a capital
+  is left as written.
+- Travel-fee clocks are real 60-minute faces, one per hour of driving,
+  shaded up to the top of each window (the two-hour dial misread: "within
+  30" looked like 15). "45 to 75" is a full face and one to :15.
+- View transitions: the header and footer no longer double print during a
+  page change (the old snapshot is hidden); the page content fades out with
+  a slight lift and the new page rises in.
+
 ## 2026-10-01 — Header: on the hero, her pen stroke, the logo inks in
 
 - From the header research and `docs/design/prototypes/header-e-on-hero.html`

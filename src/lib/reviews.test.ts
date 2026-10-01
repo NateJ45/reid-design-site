@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  displayName,
   formatRating,
   googleRatingFrom,
   googleWriteReviewUrl,
@@ -226,5 +227,21 @@ describe('orderReviews', () => {
 
   it('returns nothing for no data', () => {
     expect(orderReviews(null, [], [])).toEqual({ lead: null, more: [], hasGoogle: false });
+  });
+});
+
+describe('displayName', () => {
+  it('capitalises a name typed all in lowercase', () => {
+    expect(displayName('amy paul')).toBe('Amy Paul');
+    expect(displayName("mary-kate o'neil")).toBe("Mary-Kate O'Neil");
+  });
+  it('leaves any name with a capital exactly as written', () => {
+    expect(displayName('Janet Brittingham')).toBe('Janet Brittingham');
+    expect(displayName('maria de la Cruz')).toBe('maria de la Cruz');
+    expect(displayName('JT')).toBe('JT');
+  });
+  it('copes with nothing', () => {
+    expect(displayName(null)).toBe('');
+    expect(displayName('')).toBe('');
   });
 });

@@ -10,7 +10,7 @@
 // Every drawing is plain geometry in a 200 x 200 box (x right, y down) with
 // its STEM BASE AT THE BOTTOM LEFT, growing up and to the right. The site
 // mirrors or turns it so the stem always enters from the corner of the section
-// it sits in (src/styles/doodle.css, .dd-amb--*).
+// it sits in (the phone menu, the share cards).
 //
 // `npm run doodles` gives the lines a light hand (scripts/lib/doodle-kit.mjs)
 // and writes src/assets/doodles/<name>.svg. Commit the SVGs.

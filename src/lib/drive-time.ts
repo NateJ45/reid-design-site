@@ -48,60 +48,59 @@ export function parseDriveWindow(label: string | null | undefined): DriveWindow 
 }
 
 /**
- * The dial's full turn, in minutes: two hours unless a tier runs longer, then
- * rounded up to the next whole hour. Every clock on the page shares it, so
- * the wedges compare at a glance.
+ * Each clock is a real 60-minute face, and each face is one hour of driving
+ * (2026-10-01, Nathan's idea). A tier's drive time is drawn up to the TOP of
+ * its window, from 12 o'clock: "within 30" is one face shaded halfway,
+ * "45 to 75" is one full face and a second shaded to :15, "75 to 120" is two
+ * full faces. The label beside the clocks carries the whole range.
+ * (Before: one two-hour dial, where "within 30" drew as a quarter turn and
+ * read as 15.)
  */
-export function dialMinutes(windows: (DriveWindow | null)[]): number {
-  let max = 120;
-  for (const w of windows) {
-    if (!w) continue;
-    max = Math.max(max, w.to ?? w.from);
-  }
-  return Math.ceil(max / 60) * 60;
-}
+export const DIAL_MINUTES = 60;
+
+/** At most this many faces, so a long "over 3 hours" tier stays tidy. */
+export const MAX_FACES = 3;
 
 /** A point on the dial: minutes clockwise from 12 o'clock. */
-function point(cx: number, cy: number, r: number, minutes: number, full: number) {
-  const a = (minutes / full) * 2 * Math.PI - Math.PI / 2;
+function point(cx: number, cy: number, r: number, minutes: number) {
+  const a = (minutes / DIAL_MINUTES) * 2 * Math.PI - Math.PI / 2;
   return { x: +(cx + r * Math.cos(a)).toFixed(2), y: +(cy + r * Math.sin(a)).toFixed(2) };
 }
 
 /**
- * The SVG path of a window's wedge on a dial centred at (cx, cy), radius r.
- * Open-ended windows run to the end of the dial. Returns '' for no window.
+ * The minutes shown on each face: full hours first, then what is left.
+ * 30 -> [30], 75 -> [60, 15], 120 -> [60, 60]. An open-ended window ("over
+ * 2 hours") is drawn to its start. No window or no minutes: [].
  */
-export function wedgePath(
-  w: DriveWindow | null,
-  full: number,
-  cx: number,
-  cy: number,
-  r: number,
-): string {
-  if (!w) return '';
-  const from = Math.max(0, Math.min(w.from, full));
-  const to = Math.max(from, Math.min(w.to ?? full, full));
-  if (to - from <= 0) return '';
-  // A full turn cannot be one arc; draw it as two halves.
-  if (to - from >= full) {
-    const top = point(cx, cy, r, 0, full);
-    const bottom = point(cx, cy, r, full / 2, full);
+export function faceMinutes(w: DriveWindow | null): number[] {
+  if (!w) return [];
+  const end = Math.max(0, w.to ?? w.from);
+  if (end === 0) return [];
+  const faces: number[] = [];
+  for (let left = end; left > 0 && faces.length < MAX_FACES; left -= DIAL_MINUTES) {
+    faces.push(Math.min(DIAL_MINUTES, left));
+  }
+  return faces;
+}
+
+/**
+ * The shaded wedge for one face: from 12 o'clock round to `minutes`. A full
+ * hour fills the face. Returns '' for nothing to shade.
+ */
+export function wedgePath(minutes: number, cx: number, cy: number, r: number): string {
+  if (!(minutes > 0)) return '';
+  if (minutes >= DIAL_MINUTES) {
+    const top = point(cx, cy, r, 0);
+    const bottom = point(cx, cy, r, DIAL_MINUTES / 2);
     return `M${cx} ${cy}L${top.x} ${top.y}A${r} ${r} 0 1 1 ${bottom.x} ${bottom.y}A${r} ${r} 0 1 1 ${top.x} ${top.y}Z`;
   }
-  const a = point(cx, cy, r, from, full);
-  const b = point(cx, cy, r, to, full);
-  const large = to - from > full / 2 ? 1 : 0;
+  const a = point(cx, cy, r, 0);
+  const b = point(cx, cy, r, minutes);
+  const large = minutes > DIAL_MINUTES / 2 ? 1 : 0;
   return `M${cx} ${cy}L${a.x} ${a.y}A${r} ${r} 0 ${large} 1 ${b.x} ${b.y}Z`;
 }
 
-/** Where the hand points: the end of the window (or its start if open-ended). */
-export function handPoint(
-  w: DriveWindow | null,
-  full: number,
-  cx: number,
-  cy: number,
-  r: number,
-): { x: number; y: number } | null {
-  if (!w) return null;
-  return point(cx, cy, r, Math.min(w.to ?? w.from, full), full);
+/** Where a face's hand points: its minutes (12 for a full hour). */
+export function handPoint(minutes: number, cx: number, cy: number, r: number) {
+  return point(cx, cy, r, minutes % DIAL_MINUTES);
 }
