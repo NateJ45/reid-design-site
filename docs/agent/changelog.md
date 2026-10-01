@@ -2,6 +2,15 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Google map on Contact
+
+- Nathan chose Google's plain keyless embed for the Contact map (over a
+  styled static image or a styled live map, both of which need a Google
+  Cloud key and billing). `ServiceAreaMap.astro` is the iframe again, in the
+  house frame, lazy-set on approach; CSP `frame-src` swaps
+  `www.openstreetmap.org` for `www.google.com`. The sketch map stays on the
+  home page.
+
 ## 2026-09-30 — The design pass (branch `claude/great-mendel-v4xvi0`)
 
 - Nathan's notes: cards needed depth, the tape measure should be more refined

@@ -269,9 +269,10 @@ prices are the loudest thing on it.
   ink footer.
 - `StickyCTAChip.tsx`: now the ink pill, sentence case (also on project
   pages).
-- `ServiceAreaMap.astro` (Contact): the sketch map in the house photo frame,
-  with a caption and "Open in Google Maps" (the OpenStreetMap iframe it used
-  to be was retired 2026-09-30).
+- `ServiceAreaMap.astro` (Contact): a real Google map (the plain keyless
+  embed, Nathan's pick 2026-10-01) centred on home base, in the house photo
+  frame, loaded only as it nears the screen, with a caption and "Open in
+  Google Maps". Stock Google colours: recolouring needs Google's paid APIs.
 - E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
   Zodiak lede beside "What is E-Design?"; how it works as paint-chip swatch
   pins on one thread that draws on scroll (vertical on phones; no numerals);
@@ -578,7 +579,8 @@ phone crops kept almost nothing of the picture.
   the White River and Fall Creek, Geist and Eagle Creek hatched, the Mile
   Square, a north arrow and a five-mile bar. Every Business info town the
   map knows gets a dot and a Zodiak italic name; home base is ringed and
-  marked "the studio". `ambient` on the home band, `framed` on Contact. On
+  marked "the studio". `ambient` on the home band (a `framed` variant
+  exists; Contact used it for a day before the Google embed). On
   phones the names are set larger and the road ovals, compass and scale drop.
 - **Photo frames** (`.r-frame` in `reid.css`): a photo is hung, never set
   down. Paper mat, a Warm Bronze keyline in the mat, a soft shadow. On the

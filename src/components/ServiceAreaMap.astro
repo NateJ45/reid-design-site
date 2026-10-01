@@ -1,18 +1,25 @@
 ---
 // Safe to edit by hand
-// The service-area map on /contact (2026-09-30 design pass).
+// The service-area map on /contact: a real Google map (2026-10-01).
 //
-// Until this pass it was an OpenStreetMap iframe, warmed with a CSS filter.
-// Nathan found it ugly (standard map tiles, a green pin, zoom buttons and an
-// attribution bar fighting the page), so it is now Staci's area drawn as a
-// fine-line sketch map in the house colours (AreaSketchMap.astro), set in the
-// house photo frame with a caption and a link out to a real map for anyone
-// who wants directions. No iframe, no third-party request, no script, and
-// none of the old embed's ~294KB of map JavaScript.
+// History: an OpenStreetMap iframe until 2026-09-30, then briefly the
+// hand-drawn sketch (AreaSketchMap.astro, still on the home page), then this,
+// at Nathan's pick ("option 1"): Google's plain keyless embed, centred on her
+// home base, so visitors can pan, zoom and get directions in the map they
+// already know. No API key, no account, no billing. It cannot be recoloured
+// (that needs Google's paid styling APIs), so it sits in the house photo
+// frame (.r-frame: paper mat, bronze keyline) to belong to the page.
 //
-// The towns come in from ContactArea (Business info -> Service areas).
-import AreaSketchMap from '@/components/AreaSketchMap.astro';
-
+// Loaded on approach: the iframe ships with NO src and the small script
+// below sets it when the map comes within ~400px of the screen. Google's
+// embed pulls in several hundred KB of script, and the old OpenStreetMap
+// embed loading eagerly pushed Contact's LCP to 4.6s (Lighthouse CI). Without
+// JavaScript the frame stays empty and "Open in Google Maps" still works.
+//
+// CSP: public/_headers allows https://www.google.com in frame-src for this.
+//
+// To change what it centres on or how far out it starts: QUERY and ZOOM
+// below (ZOOM 10 shows Plainfield to Noblesville; 11 is closer in).
 interface Props {
   /** Business info -> Service areas; the first is home base. */
   towns?: string[] | null;
@@ -20,14 +27,29 @@ interface Props {
 }
 
 const { towns, class: className } = Astro.props as Props;
-const list = (towns ?? []).filter(Boolean);
-const home = list[0] ?? 'Plainfield';
-// A real map for directions, opened in a new tab.
-const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(`${home}, Indiana`)}`;
+const home = (towns ?? []).filter(Boolean)[0] ?? 'Plainfield';
+const QUERY = `${home}, Indiana`;
+const ZOOM = 10;
+// Google's embed URL in the form Google itself redirects to. The shorter
+// `google.com/maps?q=...&output=embed` answers with a 301 that carries
+// X-Frame-Options: SAMEORIGIN, which a browser can refuse inside an iframe;
+// this one answers 200 and is made to be framed. `!1s` is the search text
+// (spaces as +), `!6i` the zoom.
+const pbQuery = encodeURIComponent(QUERY).replace(/%20/g, '+');
+const src = `https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1s${pbQuery}!6i${ZOOM}`;
+// A full Google Maps page for directions, opened in a new tab.
+const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(QUERY)}`;
 ---
 
 <div class:list={['samap', className]}>
-  <AreaSketchMap towns={list} home={home} variant="framed" idPrefix="contact-area" />
+  <div class="samap__frame r-frame">
+    <iframe
+      data-samap-src={src}
+      title={`Google map of the area Reid Design serves, centred on ${home}, Indiana`}
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen></iframe>
+  </div>
   <p class="samap__cap">
     <span>Based in {home}, serving Greater Indianapolis.</span>
     <a href={mapLink} target="_blank" rel="noopener noreferrer" class="r-link">
@@ -36,7 +58,46 @@ const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(`${home}
   </p>
 </div>
 
+<script>
+  // Set each map's src only when it nears the viewport (see the header).
+  function armMaps() {
+    const frames = document.querySelectorAll<HTMLIFrameElement>('iframe[data-samap-src]');
+    if (!frames.length) return;
+    const load = (f: HTMLIFrameElement) => {
+      if (!f.src && f.dataset.samapSrc) f.src = f.dataset.samapSrc;
+    };
+    if (!('IntersectionObserver' in window)) return frames.forEach(load);
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            load(e.target as HTMLIFrameElement);
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+    frames.forEach((f) => io.observe(f));
+  }
+  armMaps();
+  document.addEventListener('astro:page-load', armMaps);
+</script>
+
 <style>
+  .samap__frame iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 0;
+    /* Linen while the map loads, so the frame never shows a white hole. */
+    background: var(--color-chip-1);
+  }
+  @media (max-width: 639px) {
+    .samap__frame iframe {
+      aspect-ratio: 1;
+    }
+  }
   .samap__cap {
     display: flex;
     flex-wrap: wrap;

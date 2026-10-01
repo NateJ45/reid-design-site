@@ -27,9 +27,18 @@ items to "Recently closed" with a date, and prune that section when it grows.
   knows (`TOWNS` in `src/lib/area-map.ts`). If Staci adds a town it does not
   know (Avon, Brownsburg, Greenwood and a few others are already there), it
   is simply missing from the map until someone adds its coordinates.
-- **CSP leftover:** `frame-src https://www.openstreetmap.org` in
-  `public/_headers` is no longer used by anything (the map is drawn now). It
-  is harmless; drop it in the next headers change.
+- **Privacy policy and the Google map.** Contact now embeds a Google map,
+  which loads as a visitor scrolls near it and can set Google cookies.
+  Staci's policy (Sanity, Privacy page) does not mention embedded services.
+  Suggested line for her to add under "What I do not do" or a new short
+  section: "The map on the contact page is from Google Maps. When it loads,
+  Google may set its own cookies; see Google's privacy policy." Or ask for
+  the map to load only on a tap (like the Calendly scheduler).
+- **Check the Google map after the deploy.** The session could not load
+  Google inside its sandboxed browser, so the live embed in the frame was
+  not seen. Open /contact on a phone and a laptop: it should show Plainfield
+  with Indianapolis and the north suburbs in view (`ZOOM` in
+  `ServiceAreaMap.astro` if not).
 
 ### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
 
