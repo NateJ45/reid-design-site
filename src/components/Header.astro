@@ -10,7 +10,8 @@
 //              Nav on the right: hover, keyboard focus or the current
 //              page raise a paint chip behind the label
 //              (tones from the ramp, chips 1 to 3, ink text on every one).
-//              Then the ink price tag: "Book a consult | $225".
+//              Then the ink tag button: "Book a consultation" (no price on
+//              it since 2026-10-01; the price lives on Services and Contact).
 //   Scrolled   the same row condenses into a floating paper strip with a
 //              shadow; the logo shrinks to 52px inside it. BaseLayout's
 //              scroll listener sets data-scrolled.
@@ -48,8 +49,6 @@ import {
   type RawNavItem,
 } from '@/lib/siteSettings';
 import type { RawNavLink } from '@/lib/nav-href';
-import { getChromeFacts } from '@/lib/queries';
-import { resolveChromeFacts } from '@/lib/chrome-facts';
 
 // Logo renditions. The source is 378x400. The header shows it 84px tall at
 // rest (about 80px wide), so 122w/244w cover 1x/2x with room to spare; the scrolled strip and
@@ -117,26 +116,11 @@ const brandName = siteSettings?.siteName ?? siteSettings?.title ?? site.name;
 // Site settings document resolves to exactly the built-ins below.
 const chrome = resolveChrome(siteSettings);
 
-// The consultation price for the price tag, read from the Services content
-// (src/lib/chrome-facts.ts, the same rule the Contact page uses). Failure
-// handling as in Footer.astro: a failed read fails a static build, and only a
-// live /preview request degrades to "no price".
-const facts = resolveChromeFacts(
-  await getChromeFacts().catch((err: unknown) => {
-    if (Astro.isPrerendered) throw err;
-    return null;
-  }),
-);
-// The price only rides on the tag while the button books the consultation
-// (it points at Contact). If Staci sends the button somewhere else, it is
-// just her label.
-const ctaPrice = chrome.headerCta.href === DEFAULT_CTA_HREF ? facts.consultPrice : null;
-// With a price on the tag the built-in wording shortens to fit beside it;
-// a label Staci typed herself is always used as written.
-const ctaLabel =
-  ctaPrice && chrome.headerCta.label === DEFAULT_CTA_LABEL
-    ? 'Book a consult'
-    : chrome.headerCta.label;
+// The header button carries its label only. The consultation price used to
+// ride on the tag ("Book a consult | $225"); Nathan took it off on 2026-10-01,
+// so the header no longer reads the chrome facts at all. Staci's own label
+// (Site settings) is used as written.
+const ctaLabel = chrome.headerCta.label;
 const ctaHref = chrome.headerCta.href;
 
 // An editor-supplied logo replaces the built-in one.
@@ -161,7 +145,6 @@ const mobileCtaIsDefault =
 const mobileChrome = {
   ...(mobileCtaIsDefault ? {} : { cta: chrome.headerCta }),
   ...(chrome.showEmail ? {} : { showEmail: false }),
-  ...(ctaPrice ? { price: ctaPrice } : {}),
 };
 
 // ---- The menu ---------------------------------------------------------------
@@ -323,7 +306,6 @@ function isGroupActive(items: { href: string }[]) {
       chrome.headerCta.show && (
         <a href={ctaHref} class="r-pricetag hdr__cta">
           <span>{ctaLabel}</span>
-          {ctaPrice && <span class="r-pricetag__price">{ctaPrice}</span>}
         </a>
       )
     }

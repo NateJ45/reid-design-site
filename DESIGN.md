@@ -128,9 +128,10 @@ no decorative numbering.
   design pass: Nathan found the box unclassy). Nav on the right: hover,
   keyboard focus or the current page raises a paint chip behind the label
   (Oat and Sandbar alternating; Linen reads as nothing on the linen page).
-  Then the ink price tag "Book a consult | $225". The price is read from the
-  consultation service (`src/lib/chrome-facts.ts`) and only shows while the
-  button books the consultation. Scrolled, the row condenses into a floating
+  Then the ink tag button "Book a consultation" (Site settings -> Header
+  button). No price on it since 2026-10-01 (Nathan): the price lives on
+  Services and Contact, and the header no longer reads the chrome facts.
+  Scrolled, the row condenses into a floating
   paper strip with a shadow; the logo shrinks to 52px inside it. The sticky box never changes height, so nothing reflows. No
   availability pill, no search icon (search lives in the footer). A rating
   slot is reserved beside the tag.
@@ -141,14 +142,15 @@ no decorative numbering.
   quiet pass), names only and set big, and never covered by the next chip
   (each chip shows a fixed strip above the next). The deck deals in from
   below, landing square, under `prefers-reduced-motion: no-preference` only. Foot:
-  the cream booking price tag with the price, then phone and email. Radix
+  the cream booking tag (no price since 2026-10-01), then phone and email. Radix
   Dialog: aria-modal, focus trap, Escape, focus return, scroll lock.
 - **Footer** (`Footer.astro`), on ink, as letterpress stationery (2026-09-30
   design pass; Nathan wanted it "truly classy and refined"). A fine double
   rule in Sandbar frames it. Her clean line logo (the wash-free lockup mask,
   painted cream) sits centred ON the top rule like a seal, the site tagline
-  centred under it (last two words in Sandbar italic), then a rule-dot-rule
-  ornament. Three quiet columns inside the frame: the page index (page,
+  centred under it (last two words in Sandbar italic), then the cream
+  "Book a consultation" tag (2026-10-01; the header button's label and link)
+  and a rule-dot-rule ornament. Three quiet columns inside the frame: the page index (page,
   dotted leader, a real fact in Sandbar italic: "from $225", "19 answers",
   derived from content, omitted when not derivable), "Get in touch" as small
   label + Zodiak value rows (the paper contact tags and the tone swatches
@@ -177,8 +179,10 @@ no decorative numbering.
   Google reviews come first, newest first, each with Sandbar stars, the
   reviewer's name, its age and "Read on Google" (see "Google reviews").
 - `ServiceAreaCue.astro`: heading and towns on the left (home base first in
-  Espresso italic), the hand-drawn sketch map of Greater Indianapolis on the
-  right, faded off the right edge (see "The sketch map").
+  Espresso italic), and on the right the same framed, toned Google map as
+  Contact (`ServiceAreaMap.astro`, caption off). It replaced the hand-drawn
+  sketch map on 2026-10-01 (Nathan: not up to standard; the sketch and
+  `src/lib/area-map.ts` were deleted).
 - `FinalCta.astro` (every page): "the planning page" (2026-09-30, Nathan's
   pick from the closing-band mockups). Walnut close drawn as a page from
   Staci's notebook: faint ruled lines behind (the red margin rule, binder
@@ -270,10 +274,18 @@ prices are the loudest thing on it.
   different ground: ink with faint floor-plan grid linework drifting on
   scroll; the audiences as spec-sheet rows (Oat italic label, cream text).
 - `sections/ServiceArea.astro`: the home ServiceAreaCue's towns line, then the
-  travel fees hanging off a tape measure (priced by drive time, so each tier
-  is a mark further along). Vertical ruler on phones.
+  travel fees as CLOCKS (2026-10-01; a tape measure until then, which said
+  distance when the fees are priced by time). Each tier is a small stopwatch
+  in fine line (paper face outlined in Walnut, Warm Bronze ticks, quarter
+  hours in Walnut) with its drive-time window shaded in Sandbar and an
+  Espresso hand at the window's end, beside its label and fee. The window is
+  read from the tier label (`src/lib/drive-time.ts`, tested); all clocks
+  share one dial (two hours unless a tier runs longer). The wedges sweep in
+  on scroll. One clock per row on phones.
 - `sections/SatisfactionGuarantee.astro`: one typographic moment on paper (Oat
-  until the quiet pass), with a round studio stamp whose lettered ring turns
+  until the quiet pass): "The guarantee" as the big Zodiak heading with an
+  italic accent, Staci's promise under it as a General Sans lede (the
+  heading was a small eyebrow over a huge paragraph until 2026-10-01), with a round studio stamp whose lettered ring turns
   as the band scrolls past. Its middle is Staci's RD monogram (the clean
   mask, `src/assets/logo-mark.png`, painted Espresso), held upright; it was a
   small sprig until 2026-09-30. On Services the page then closes: linen, paper, Walnut close,
@@ -580,21 +592,12 @@ phone crops kept almost nothing of the picture.
   all-text Process chip), deep cards show it as shadow (0.8). Multiply only
   darkens, so cream text gains contrast and ink on chip 4 stays above AA.
   A photo that fails to load removes itself.
-- **The tape measure** (home process, the Process rail, the Services travel
-  fees) is drawn in line: a paper blade outlined in Walnut, fine ticks in
+- **The tape measure** (home process and the Process rail; the Services travel
+  fees became clocks on 2026-10-01) is drawn in line: a paper blade outlined in Walnut, fine ticks in
   Warm Bronze, half and inch marks in Walnut, a printed hairline along the
   edge, figures in Zodiak italic Espresso, an outlined hook; the case is an
   outlined paper housing with a bronze ring and hub. Drops end in outlined
   rings, not filled dots. No ink blocks, no Oat fill.
-- **The sketch map** (`AreaSketchMap.astro`, geography in `src/lib/area-map.ts`,
-  tested): Greater Indianapolis in fine line, real coordinates. I-465 and
-  the interstates as double-line roads with small route ovals, US-31 dashed,
-  the White River and Fall Creek, Geist and Eagle Creek hatched, the Mile
-  Square, a north arrow and a five-mile bar. Every Business info town the
-  map knows gets a dot and a Zodiak italic name; home base is ringed and
-  marked "the studio". `ambient` on the home band (a `framed` variant
-  exists; Contact used it for a day before the Google embed). On
-  phones the names are set larger and the road ovals, compass and scale drop.
 - **Photo frames** (`.r-frame` in `reid.css`): a photo is hung, never set
   down. Paper mat, a Warm Bronze keyline in the mat, a soft shadow. On the
   interior hero, Meet Staci, About story (still on its Oat mat), the Contact

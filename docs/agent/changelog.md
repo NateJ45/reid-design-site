@@ -28,6 +28,18 @@
   `www.openstreetmap.org` for `www.google.com`. The sketch map stays on the
   home page.
 
+## 2026-10-01 — Clocks, guarantee heading, home Google map, header price off, footer button
+
+- Services travel fees: the tape measure became stopwatch clocks with each
+  tier's drive-time window shaded (`src/lib/drive-time.ts`, tested).
+- Guarantee band: "The guarantee" is the big heading; the promise is a lede.
+- Home "Based in Plainfield": the hand-drawn sketch map is replaced by the
+  Contact Google map (`ServiceAreaMap.astro`, new `caption` prop);
+  `AreaSketchMap.astro`, `src/lib/area-map.ts` and its test deleted.
+- Header and phone menu booking buttons no longer show the price; the header
+  no longer reads the chrome facts.
+- Footer: a cream "Book a consultation" tag under the tagline.
+
 ## 2026-09-30 — The design pass (branch `claude/great-mendel-v4xvi0`)
 
 - Nathan's notes: cards needed depth, the tape measure should be more refined

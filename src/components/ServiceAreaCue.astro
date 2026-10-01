@@ -1,18 +1,17 @@
 ---
 // Safe to edit by hand
-// Home service-area band (rebuilt 2026-09-29; the sketch map added in the
-// 2026-09-30 design pass). A short heading and the towns on the left, home
-// base first in Espresso italic, and Staci's own note (homePage.serviceAreaCue)
-// under them. On the right, Greater Indianapolis drawn as a fine-line sketch
-// map (AreaSketchMap.astro) with every town she serves marked and Plainfield
-// ringed as the studio. The map is decorative here (the towns are in the
-// text), so it fades out at its edges and bleeds off the right of the page.
-// Towns come from Business info -> Service areas.
+// Home service-area band (rebuilt 2026-09-29). A short heading and the towns
+// on the left, home base first in Espresso italic, and Staci's own note
+// (homePage.serviceAreaCue) under them. On the right, the same framed, toned
+// Google map as Contact (ServiceAreaMap.astro), centred on her home base and
+// loaded only as it nears the screen. It replaced a hand-drawn sketch map on
+// 2026-10-01 (Nathan: not up to standard). Towns come from Business info ->
+// Service areas.
 //
-// Phone: heading and towns first, the map under them at full width.
+// Phone: heading and towns first, the map under them.
 //
 // Only the home page uses this component.
-import AreaSketchMap from '@/components/AreaSketchMap.astro';
+import ServiceAreaMap from '@/components/ServiceAreaMap.astro';
 
 interface Props {
   /** Staci's note under the towns (homePage.serviceAreaCue). Optional. */
@@ -52,7 +51,7 @@ const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subu
       <p class="area__note">{note}</p>
     </div>
     <div class="area__map">
-      <AreaSketchMap towns={cityList} home={home} variant="ambient" idPrefix="home-area" />
+      <ServiceAreaMap towns={cityList} caption={false} />
     </div>
   </div>
 </section>
@@ -100,40 +99,16 @@ const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subu
     max-width: 44ch;
     color: var(--color-ink-2);
   }
-  /* The map: wide, faded at its edges, running off the right of the page. */
+  /* The map: the right-hand seven columns, framed like a print. */
   .area__map {
-    grid-column: 6 / 13;
-    margin-right: calc(clamp(1rem, 4vw, 3.5rem) * -1);
-    /* Fade only the far right (where it bleeds off the page) and a thin
-       strip top and bottom, so Plainfield, lower left, stays crisp. */
-    -webkit-mask-image:
-      linear-gradient(90deg, #000 90%, transparent 100%),
-      linear-gradient(180deg, transparent 0, #000 5%, #000 94%, transparent 100%);
-    -webkit-mask-composite: source-in;
-    mask-image:
-      linear-gradient(90deg, #000 90%, transparent 100%),
-      linear-gradient(180deg, transparent 0, #000 5%, #000 94%, transparent 100%);
-    mask-composite: intersect;
-  }
-  .area__map :global(.asm) {
-    width: min(100%, 44rem);
-    margin-inline: auto;
+    grid-column: 7 / 13;
   }
   @media (max-width: 1023px) {
     .area__grid {
       display: block;
     }
     .area__map {
-      margin: 1.5rem calc(clamp(1rem, 4vw, 3.5rem) * -1) 0;
-      /* Full width here, so no right-hand fade: only the top and bottom. */
-      -webkit-mask-image: linear-gradient(
-        180deg,
-        transparent 0,
-        #000 5%,
-        #000 94%,
-        transparent 100%
-      );
-      mask-image: linear-gradient(180deg, transparent 0, #000 5%, #000 94%, transparent 100%);
+      margin-top: 2rem;
     }
   }
 </style>
