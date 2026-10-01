@@ -6,9 +6,23 @@
 // hand-drawn sketch (AreaSketchMap.astro, still on the home page), then this,
 // at Nathan's pick ("option 1"): Google's plain keyless embed, centred on her
 // home base, so visitors can pan, zoom and get directions in the map they
-// already know. No API key, no account, no billing. It cannot be recoloured
-// (that needs Google's paid styling APIs), so it sits in the house photo
-// frame (.r-frame: paper mat, bronze keyline) to belong to the page.
+// already know. No API key, no account, no billing.
+//
+// Making it belong to the page (2026-10-01, Nathan: "nicer on brand and like
+// it's framed"). Google's map lives in its own sealed page, so nothing INSIDE
+// it can be restyled; everything here works on the frame around it:
+//   - Toned: a CSS filter turns the whole map into a warm sepia print that
+//     matches the bronze palette. It eases back to full colour while someone
+//     is using it (a real pointer hovering, or keyboard focus inside), so
+//     roads and labels are clear when it matters.
+//   - Set into the mat: the house photo frame (.r-frame), plus a bronze
+//     keyline and a soft inner shade laid OVER the map's edge, so it reads as
+//     a print behind glass, not a pasted-in widget.
+//   - A sample tag ("The studio, Plainfield, Indiana") hung on the top-right
+//     corner, the same tag the photos wear. Decorative (the caption below
+//     says the same), and it lets clicks through to the map.
+// Google's logo, terms and info card are left exactly as Google draws them:
+// their embed terms require the attribution to stay visible.
 //
 // Loaded on approach: the iframe ships with NO src and the small script
 // below sets it when the map comes within ~400px of the screen. Google's
@@ -43,12 +57,17 @@ const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(QUERY)}`
 
 <div class:list={['samap', className]}>
   <div class="samap__frame r-frame">
-    <iframe
-      data-samap-src={src}
-      title={`Google map of the area Reid Design serves, centred on ${home}, Indiana`}
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      allowfullscreen></iframe>
+    <div class="samap__glass">
+      <iframe
+        data-samap-src={src}
+        title={`Google map of the area Reid Design serves, centred on ${home}, Indiana`}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <p class="r-tag samap__tag" aria-hidden="true">
+      <small>The studio</small>
+      <strong>{home}, Indiana</strong>
+    </p>
   </div>
   <p class="samap__cap">
     <span>Based in {home}, serving Greater Indianapolis.</span>
@@ -85,17 +104,65 @@ const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(QUERY)}`
 </script>
 
 <style>
-  .samap__frame iframe {
+  .samap__frame {
+    position: relative;
+  }
+  /* The "glass": clips the map to the picture area and carries the keyline
+     and inner shade laid over its edge. */
+  .samap__glass {
+    position: relative;
+    overflow: hidden;
+    /* Linen while the map loads, so the frame never shows a white hole. */
+    background: var(--color-chip-1);
+  }
+  .samap__glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 0 1px rgb(156 118 97 / 0.55),
+      inset 0 0 2.5rem rgb(95 70 57 / 0.14);
+  }
+  .samap__glass iframe {
     display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
     border: 0;
-    /* Linen while the map loads, so the frame never shows a white hole. */
-    background: var(--color-chip-1);
+    /* The warm print: drain Google's colours, then tint toward the bronze
+       strip. Filters only change how the frame is painted; the map inside
+       still works and still reads as Google's. */
+    filter: grayscale(1) sepia(0.3) hue-rotate(-14deg) saturate(0.75) contrast(0.9) brightness(1.02);
+  }
+  /* Full colour while in use: a real pointer over it, or focus inside it. */
+  @media (hover: hover) {
+    .samap__frame:hover .samap__glass iframe {
+      filter: none;
+    }
+  }
+  .samap__frame:focus-within .samap__glass iframe {
+    filter: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .samap__glass iframe {
+      transition: filter 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+  /* The tag hangs off the top-right corner, square to the page. */
+  .samap__tag {
+    position: absolute;
+    top: 1.5rem;
+    right: -0.75rem;
+    z-index: 1;
+    pointer-events: none;
   }
   @media (max-width: 639px) {
-    .samap__frame iframe {
+    .samap__glass iframe {
       aspect-ratio: 1;
+    }
+    .samap__tag {
+      top: 1rem;
+      right: 0.75rem;
     }
   }
   .samap__cap {

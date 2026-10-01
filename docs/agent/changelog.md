@@ -2,6 +2,16 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-01 — Contact: free first step, toned Google map
+
+- Contact now says plainly that the first email or call is free and the
+  $225 consultation comes after: ContactAside's price tag ("Most projects
+  start here") became "How it starts" (Free, then the consultation price),
+  the call band and the aside's call link say the call is free.
+- The Google map is toned to a warm print (CSS filter, full colour while in
+  use), set behind a bronze keyline and inner shade, and wears a "The
+  studio, Plainfield, Indiana" sample tag. Google's attribution is untouched.
+
 ## 2026-10-01 — Google map on Contact
 
 - Nathan chose Google's plain keyless embed for the Contact map (over a

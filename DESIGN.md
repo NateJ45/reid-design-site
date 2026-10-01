@@ -320,8 +320,10 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
 
 - **Contact is writing a note to Staci.** Hero (framed photo), then "A note to
   Staci": the form on the left, and on the right (sticky on desktop, above the
-  form on phones) her portrait, the availability line, the consultation price
-  on a sample tag, and email / phone / book-a-call rows. Rhythm: linen hero,
+  form on phones) her portrait, the availability line, "How it starts" (two
+  ruled lines: "Your first email or call ... Free", then the consultation and
+  its price, so nobody reads the $225 as the cost of getting in touch;
+  2026-10-01), and email / phone / book-a-free-call rows. Rhythm: linen hero,
   linen note, ink call band, paper roadmap, linen service area, ink footer.
 - **Form language** (`src/components/contact/contact-form.css`): three
   fieldsets (About you, Your space, Timing and budget), each legend led by a
