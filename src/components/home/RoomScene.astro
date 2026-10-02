@@ -1,0 +1,175 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomScene: ONE concept room's picture stack (split out of RoomStage.astro on
+// 2026-09-30 for the room tabs; whole frames, manifest v3, the same day).
+// RoomStage renders the first room's scene in place and every other room's
+// inside a <template>, so their pictures download only when a tab is chosen;
+// the script swaps this whole `.room__frames` box.
+// =============================================================================
+// THE STACK, inside one positioned box with the frame's aspect ratio, bottom
+// to top:
+//   1. one <picture> per FRAME, in build order: frame 0 is the empty room,
+//      every later frame the COMPLETE room after one more piece. They are all
+//      the same size and stacked exactly, so a later frame covers the ones
+//      under it. The LAST (the finished room) is live markup with its alt
+//      text and `data-on`: with no script it is the picture. Every other frame
+//      is alt="" and carries its srcsets in data attributes only (data-avif,
+//      data-webp, data-src), so it downloads NOTHING until the script arms it
+//      (in build order, when the section is about a screen away).
+//   2. the WebGL canvas (src/scripts/room-painter.ts), which draws the frame
+//      showing, its walls painted, and each new piece's reveal. Rendered once,
+//      in the first room (`canvas`); the script MOVES it into whichever room
+//      is showing, so the painter keeps one GL context for the life of the
+//      page. When it is running the stack under it is only a backstop.
+//
+// Each frame's <img> also carries what the painter needs: data-wall (its wall
+// mask), data-change (where it differs from the frame before), data-box (that
+// change's box, as fractions), data-motion (index into ROOM_MOTIONS) and
+// data-stage (its caption). The room's own data rides on the box so it swaps
+// with it: data-median, data-base-alt, data-ends (the frame each caption
+// shows) and --ar.
+//
+// SWITCHING FRAMES without WebGL: the script sets `data-on` on every frame up
+// to the one to show (the ones under it are hidden by it anyway) and clears it
+// above, so going forward fades the new frame in over the old one, and going
+// back fades the frames above away: a 400ms whole-frame crossfade with no dip
+// to the background, only under no-preference.
+// =============================================================================
+import type { RoomView } from './room-view';
+
+interface Props {
+  room: RoomView;
+  /** Render the painter's canvas (the first room only). */
+  canvas?: boolean;
+}
+
+const { room, canvas = false } = Astro.props as Props;
+const { width, height, frames } = room;
+const last = frames.length - 1;
+const SIZES = '(min-width: 1024px) 50vw, 100vw';
+---
+
+<div
+  class="room__frames"
+  data-room-frames={room.slug}
+  data-base-alt={room.baseAlt}
+  data-median={room.median.join(',')}
+  data-ends={room.ends.join(',')}
+  style={`--ar:${width} / ${height}`}
+>
+  {
+    frames.map((f, i) => {
+      const common = {
+        width,
+        height,
+        decoding: 'async' as const,
+        'data-wall': f.wall,
+        'data-change': f.change ?? undefined,
+        'data-box': f.box?.join(','),
+        'data-motion': f.motion,
+        'data-stage': f.stage,
+      };
+      return i === last ? (
+        <picture class="room__frame room__frame--final" data-frame={i} data-on="">
+          <source type="image/avif" srcset={f.avifSrcset} sizes={SIZES} />
+          <source type="image/webp" srcset={f.webpSrcset} sizes={SIZES} />
+          <img src={f.src} alt={room.finalAlt} loading="lazy" data-room-final {...common} />
+        </picture>
+      ) : (
+        <picture class="room__frame" data-frame={i}>
+          <img
+            alt=""
+            data-avif={f.avifSrcset}
+            data-webp={f.webpSrcset}
+            data-src={f.src}
+            {...common}
+          />
+        </picture>
+      );
+    })
+  }
+  {canvas && <canvas class="room__canvas" aria-hidden="true" hidden />}
+</div>
+
+<style>
+  .room__frames {
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    /* Keep the stack's z-indexes (final underlay, frames, canvas) private, so the
+       "Concept room" tag beside it always paints above all of them. */
+    isolation: isolate;
+    aspect-ratio: var(--ar);
+    width: 100%;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-chip-2);
+    box-shadow: 0 18px 40px -24px rgb(35 30 27 / 0.45);
+  }
+  .room__frame,
+  .room__frame img,
+  .room__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .room__frame img {
+    display: block;
+    object-fit: cover;
+  }
+  .room__frame {
+    opacity: 0;
+  }
+  .room__frame[data-on] {
+    opacity: 1;
+  }
+  /* The finished room is a permanent underlay (under every other frame): a frame the build
+     switches to before its photo has decoded then shows the finished room instead of an
+     empty box (seen on a phone, 2026-09-30). Every frame is a full opaque photo, so a
+     decoded frame on top hides it completely. */
+  .room__frame--final {
+    opacity: 1;
+    z-index: 0;
+  }
+  .room__frame:not(.room__frame--final) {
+    z-index: 1;
+  }
+  .room__canvas {
+    z-index: 2;
+  }
+  .room__canvas[hidden] {
+    display: none !important;
+  }
+  /* While a newly chosen room's textures load: keep the canvas's size (so
+     the painter can measure it) but show the plain photo. */
+  .room__canvas[data-loading] {
+    visibility: hidden;
+  }
+
+  @media (max-width: 1023px) {
+    /* Keep the pinned room short enough to leave the captions some screen
+       (the tabs, when there are any, take --room-tabs of it). */
+    .room__frames {
+      width: min(
+        100%,
+        calc((100svh - var(--room-pin, 4.5rem) - 17rem - var(--room-tabs, 0rem)) * var(--ar))
+      );
+      margin-inline: auto;
+    }
+  }
+  @media (min-width: 1024px) {
+    /* Sized by the screen's height too, so the room, its tabs and its chips fit. */
+    .room__frames {
+      width: min(100%, calc((100svh - 16rem - var(--room-tabs, 0rem)) * var(--ar)));
+    }
+  }
+
+  /* The no-WebGL crossfade (whole frames). Off while the painter draws: the
+     canvas covers the stack, so a fade under it would be wasted work. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.room[data-enhanced]:not([data-painted])) .room__frame {
+      transition: opacity 400ms var(--ease);
+    }
+  }
+</style>

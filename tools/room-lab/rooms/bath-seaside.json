@@ -1,0 +1,180 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "remodel, freestanding tub, new vanity, tile wall, towels, rug, decor, clutter, shower curtain, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a dated but working bathroom with a builder vanity and tired walls, before any styling."
+  },
+  "baseVariants": [
+    {
+      "id": "pink",
+      "prompt": "A realistic photograph of an ordinary, dated but complete small bathroom in a 2000s Midwest American suburban house, not luxury. A builder oak vanity with a cultured marble top and a plain chrome faucet, a plain frameless mirror above it with a chrome vanity light bar, a white toilet, a white tub and shower combination with a plain white surround and no shower curtain, a frosted window, a light tile floor, thin builder baseboards. Bright soft daylight. Clean: no towels, no rugs, no decor, nothing on the walls. One large plain painted wall is clearly visible. Eye-level camera from the doorway. No people, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dated 1990s pinkish beige that looks a little dingy."
+    },
+    {
+      "id": "mint",
+      "prompt": "A realistic photograph of an ordinary, dated but complete small bathroom in a 2000s Midwest American suburban house, not luxury. A builder oak vanity with a cultured marble top and a plain chrome faucet, a plain frameless mirror above it with a chrome vanity light bar, a white toilet, a white tub and shower combination with a plain white surround and no shower curtain, a frosted window, a light tile floor, thin builder baseboards. Bright soft daylight. Clean: no towels, no rugs, no decor, nothing on the walls. One large plain painted wall is clearly visible. Eye-level camera from the doorway. No people, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded, dated seafoam mint that looks a little flat."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "bones",
+      "caption": "Beadboard on the lower walls first: practical in a bathroom, and it says cottage straight away."
+    },
+    {
+      "id": "fixtures",
+      "caption": "The vanity stays. A round rattan mirror, sconces instead of the light bar, and a nickel faucet."
+    },
+    {
+      "id": "soft",
+      "caption": "A striped shower curtain, fresh towels and a woven mat."
+    },
+    {
+      "id": "finish",
+      "caption": "A small print, a basket and a plant, and it feels like a different room."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the same bathroom, restyled with beadboard, a rattan mirror, nickel sconces, a striped shower curtain, towels and a bath mat."
+  },
+  "pieces": [
+    {
+      "id": "beadboard",
+      "stage": "bones",
+      "motion": "sweep",
+      "change": "add white painted beadboard wainscoting with a slim cap rail on the lower third of the plain walls and taller white baseboards, leaving the upper walls painted and clear. Keep the vanity, toilet and tub exactly as they are. This is carpentry only: the paint colour, walls, floor, windows and light stay exactly as they are.",
+      "seeds": [
+        510,
+        1510,
+        2510
+      ],
+      "maxDrift": 10,
+      "workflow": "edit-reflatent-full",
+      "negative": "wallpaper, mural, pattern on walls, stencil, new wall colour, repainted walls, paneling pattern, rug, carpet, furniture, decor, art, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "mirror",
+      "stage": "fixtures",
+      "motion": "drop",
+      "change": "replace the plain frameless mirror above the vanity with one round mirror in a natural rattan frame. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        520,
+        1520,
+        2520
+      ],
+      "labels": [
+        "mirror"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, cgi, render, distorted reflection"
+    },
+    {
+      "id": "sconces",
+      "stage": "fixtures",
+      "motion": "pop",
+      "change": "replace the chrome vanity light bar with two brushed nickel wall sconces with seeded glass shades, one on each side of the mirror, switched off. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        530,
+        1530,
+        2530
+      ],
+      "labels": [
+        "sconce",
+        "light",
+        "lamp"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "faucet",
+      "stage": "fixtures",
+      "motion": "pop",
+      "change": "replace the plain chrome vanity faucet with a brushed nickel bridge faucet. Keep the vanity and top exactly as they are. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        540,
+        1540,
+        2540
+      ],
+      "labels": [
+        "sink"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    },
+    {
+      "id": "curtain",
+      "stage": "soft",
+      "motion": "drop",
+      "change": "replace the plain white shower curtain with a white and soft blue striped cotton shower curtain on the same rod, pulled partly open. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        550,
+        1550,
+        2550
+      ],
+      "labels": [
+        "curtain",
+        "shower"
+      ]
+    },
+    {
+      "id": "towels",
+      "stage": "soft",
+      "motion": "slide-right",
+      "change": "hang two white towels with a soft blue stripe on a brushed nickel towel bar on the wall near the tub. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        560,
+        1560,
+        2560
+      ],
+      "labels": [
+        "towel"
+      ],
+      "workflow": "edit-reflatent-full"
+    },
+    {
+      "id": "mat",
+      "stage": "soft",
+      "motion": "unroll",
+      "change": "add a woven cotton bath mat in warm sand on the floor in front of the tub. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        570,
+        1570,
+        2570
+      ],
+      "labels": [
+        "rug"
+      ]
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "hang one small framed coastal print on the plain wall, and place a woven seagrass basket on the floor by the vanity and a small potted green plant on the vanity. Style: light seaside cottage; white, sand, driftwood and soft sea blue, rattan, brushed nickel, seeded glass, striped cotton. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        580,
+        1580,
+        2580
+      ],
+      "labels": [
+        "basket",
+        "plant",
+        "pot",
+        "vase",
+        "painting"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    }
+  ]
+}

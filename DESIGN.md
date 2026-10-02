@@ -213,6 +213,8 @@ no decorative numbering.
   that pulls out on scroll, each marked by its time estimate in Zodiak italic,
   a room faded behind each card; a vertical ruler on phones. The tape is drawn
   in line (see "The tape measure").
+- `home/RoomStory.astro` + `home/RoomStage.astro` (2026-09-30): the concept
+  room. See "The concept room" below.
 - `home/HomeWords.astro`: the ink band, one big italic quote, three loose ones.
   Since 2026-09-30 the Google rating hangs in its heading as a stamp, and rated
   Google reviews come first, newest first, each with Sandbar stars, the
@@ -234,8 +236,8 @@ no decorative numbering.
   details." On phones the plan sits faint in the top corner. Replaced the
   logo's sprig.
 
-Home rhythm: Walnut hero, linen, ink, linen, paper, (Linen chip Instagram),
-linen, Walnut, ink footer.
+Home rhythm: Walnut hero, linen, ink, linen, (Linen chip concept room), paper,
+(Linen chip Instagram), linen, Walnut, ink footer.
 
 ## About (phase 2)
 
@@ -516,6 +518,110 @@ feed is connected.
 - 2 across on phones and 3 on tablets (six posts, so the grid ends square),
   4 across from 1024px (eight). Every print opens the post in a new tab and is
   named from its caption (hashtags dropped); the picture itself is `alt=""`.
+
+## The concept room (2026-09-30)
+
+`home/RoomStory.astro` (loads and checks) and `home/RoomStage.astro` (draws),
+on Home right after "How it works" (the `roomStory` marker). An AI-generated
+living room that starts EMPTY; as the visitor scrolls past short captions the
+room fills up piece by piece (trim, then the rug and sofa, tables and a lamp,
+curtains and a chair, art, styling). **Whole frames, no cut-outs** (Nathan,
+2026-09-30): every step of the build is ONE COMPLETE AI photo of the room, and
+the new piece APPEARS IN PLACE with a soft reveal limited to the region that
+changed, plus a small settle. The first version cut each piece out as an RGBA
+layer over one base photo, and the cut-outs proved unreliable (curtain rods
+vanished, shadows were clipped, table legs smeared); a complete photo carries
+its own shadows, reflections and light, and because two neighbouring frames are
+identical outside the change, nothing outside it can pop. All from
+`src/assets/room/<slug>/` (manifest v3: frames, a wall mask per frame, a change
+mask and box per piece, made by tools/room-lab); the component renders nothing
+until they exist.
+
+- **Several rooms, one tab each** (2026-09-30): living room (Transitional),
+  family room (Modern farmhouse), dining room (Art deco), kitchen (Modern),
+  bathroom (Seaside), bedroom (Japandi), in the order `src/assets/room/rooms.json`
+  lists them. Each room has its own frames, stages and captions; the
+  paint chips are the same for all, and the chosen chip stays on across a
+  switch. A real ARIA tablist sits above the room (inside the sticky stage,
+  so it stays in reach mid-build): each tab is the room type with its style
+  as a smaller second line, **no numbering**. Tabs sit on the Linen ground as
+  plain labels led by a small punched-hole ring; the chosen tab is a pulled
+  paper sample tag (the `.r-tag` notched shape, tilted -1.5deg, lifted 2px, a
+  soft drop shadow, a Warm Bronze ring as a mark, never text on Bronze).
+  Hover shows a faint paper tag; focus is the house 2px ink outline. On a
+  phone the row scrolls sideways with scroll-snap, like the chip deck.
+  Manual activation (arrows, Home, End move; Enter, Space or a click
+  chooses), because choosing downloads that room's pictures and may scroll.
+  Choosing a room mid-story scrolls the room's top back to just under the
+  header (smoothly; instantly under reduced motion) so its build starts
+  afresh. The tabs are `hidden` without a script (the first room shows,
+  finished, with all its captions), and with only one room there is no
+  tablist at all.
+
+- **Ground:** Linen chip (chip 1), NOT a second ink band (Nathan,
+  2026-09-30): HomeWords stays the home page's one dark moment. TapeProcess
+  (linen) sits before it and PaintChips (paper) after, so it reads apart from
+  both.
+- **Honesty:** it is a CONCEPT room and must never read as Staci's portfolio.
+  A `.r-tag` sample tag on the picture reads "Concept room"; every frame's alt
+  opens "Concept image:" (`parseRoomManifest` refuses anything else); no town
+  or project names; no numbering (no "01", no "Stage 1", no counters). Each
+  stage's caption is led by a short Warm Bronze rule, not a numeral.
+- **Layout:** heading (RiseWords, italic accent) with the intro lede on the
+  right, the tape head's grid. Desktop: the room sticky on the left (7 of 12
+  columns, sized by screen height too so the chips fit), captions scrolling
+  past on the right, each about 80% of a screen tall. Phone: the room pins
+  under the header strip and the captions scroll beneath it; the chip deck is
+  one sideways scroll-snap row.
+- **Default render** (no script): the FINISHED room (the last frame) with its
+  tag, and every caption; no other frame downloads (their sources wait in
+  data attributes). The deck is in the markup but hidden. Only the finished
+  frame is described (its alt opens "Concept image:"); every other frame is
+  `alt=""`, and a visually hidden live region narrates the build (the empty
+  room's description before the first caption, then each stage's caption).
+- **The paint deck:** a `fieldset` with the visible legend "Try a paint colour
+  on the walls", then paper chips (`button aria-pressed`, swatch plus visible
+  name, the house 2px ink focus outline). "As it is" first (its swatch is the
+  room's own wall colour), then the seven ramp tones, then Sage, Lake and
+  Clay. **Sage, Lake and Clay are wall-paint swatches only, never UI
+  colours** (Lake `#8b9ea3` and Clay `#b5785f` are PROPOSED, pending Nathan's
+  approval on the contact sheet). Warm Bronze appears as a swatch with its
+  name beside it, never text on it. The deck only appears once the WebGL
+  painter has drawn; the colour carries through every stage.
+- **Motion (the reveal and the settle):** one WebGL canvas draws the frame
+  showing and, while a piece arrives, the next frame over it, revealed ONLY
+  inside that piece's change mask by a soft, noisy, feathered front shaped by
+  its manifest `motion`: `sweep` (soft wipe along the box's long axis, trim,
+  mouldings) and `unroll` (the same with a tighter edge, the rug), `drop`
+  (falls from the top of its box, curtains, art), `rise` (comes up from the
+  bottom), `slide-left`/`slide-right` (comes in from its side), `pop` (grows
+  from the box centre, styling). The shader also settles the piece into place:
+  slides move about 2.5% of the frame across, drop and rise about 2% down or
+  up, pop scales 97% to 100% round the box centre. 750ms each,
+  `cubic-bezier(0.23, 1, 0.32, 1)`. Driven by an IntersectionObserver on the
+  captions (no scroll listener, so Lenis and native scroll behave the same):
+  when caption k becomes current the room plays every piece up to stage k's
+  last, one after another, pieces of the same stage overlapping (each starts
+  45% into the one before); stage k's caption is current once it passes the
+  reading line (mid screen on a laptop, 70% down on a phone). Scrolling back
+  jumps straight to the right frame with a quick 200ms crossfade, never a
+  reverse animation. A piece never starts before its frame and masks have
+  decoded (the room holds on what it shows). Idle, nothing runs. Reduced
+  motion: every change is an instant frame swap, and a chip change is instant.
+- **Paint over whole frames:** a chip rolls its colour onto the walls from the
+  left with a noisy front (~900ms) over whatever frames are showing; each
+  frame is painted with ITS OWN wall mask, and one wall median for the whole
+  room keeps the paint identical frame to frame (linear light maths,
+  `src/scripts/room-painter.ts`), so a new piece arrives already standing in
+  the chosen colour. The chip survives every frame and every room tab.
+- **No WebGL** (none, a failed shader, a lost context): the frames are a
+  stack of `<img>`s that switch by a 400ms whole-frame opacity crossfade (the
+  new frame fades in over the old; going back, the frames above fade away; no
+  fade under reduced motion), and the chips stay hidden.
+- **WebGL on the home page** (Nathan, 2026-09-30) reverses the design
+  debate's "CSS/SVG only, no WebGL" and "no more craft devices" rulings for
+  this one section (addendum in `docs/design/2026-09-30-design-debate.md`).
+  Budget and loading rules are in `docs/agent/performance.md`.
 
 ## The hand layer (2026-09-30)
 

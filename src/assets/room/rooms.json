@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "rooms": [
+    {
+      "slug": "living-transitional",
+      "label": "Living room",
+      "type": "living",
+      "style": "Transitional",
+      "manifest": "living-transitional/manifest.json"
+    }
+  ]
+}

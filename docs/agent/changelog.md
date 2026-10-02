@@ -22,6 +22,39 @@
   sentences the rule mangles.
 - `scripts/.parity/` baselines refreshed for the new copy and Astro 7.3.5.
 
+## 2026-09-30: Concept room: whole frames with a reveal (manifest v3, branch `claude/concept-room-frames`)
+
+Delegated agent (Opus), for review by the main session. Nathan's decision: the per-piece cut-out layers (v2) proved unreliable (curtain rods vanishing, shadows clipped, table legs smeared), so every step of the build is now ONE COMPLETE AI photo and the new piece appears in place. Built against synthetic sharp-drawn fixtures (three rooms, one room, zero rooms); the real v3 publish comes from tools/room-lab.
+
+- **Contract:** `parseRoomManifest` accepts v3 only: one room-wide `wallMedianLinear`, `base.alt` / `final.alt`, stages, and `frames` (frame 0 the empty room with no change; every later frame the complete room after one piece, with `id`, `stage`, `wall`, `change`, `box`, `motion`; stages never go backwards; frames JPG/WebP, masks PNG). `stageFrames()` gives the frame each caption shows. `layerTimings` and v2 are gone.
+- **Site:** `RoomScene.astro` is a stack of whole frames (the finished frame is the no-script picture; the others carry their srcsets in data attributes and download nothing until armed, in build order, a screen ahead). `RoomStage.astro`'s script drives the build from an IntersectionObserver on the captions (no scroll listener), keeps the `<img>` stack in step (a 400ms whole-frame crossfade without WebGL, none under reduced motion) and hands the painter its target frame. The scroll-driven CSS keyframes, the per-piece `<img>`s, shades, lights and `data-build` fallback are removed; `timeline-scope` and the captions' view timelines with them. Masks are imported `?url&no-inline` so a small one never becomes a `data:` URL in the HTML.
+- **Painter:** one canvas draws frame A and up to two arriving frames; each is painted with its own wall mask (the same linear-light maths and chip roll); an arriving frame shows only inside its change mask behind a motion-shaped noisy front, displaced by a settle offset that eases to zero (slide 2.5%, drop/rise 2%, pop 97% to 100%), 750ms `cubic-bezier(0.23,1,0.32,1)`; same-stage pieces start 45% into the one before; back is a 200ms crossfade; reduced motion swaps instantly. Three texture sets for life, `setRoom()` in the same context. 3.5 KB gzipped.
+- **Tests:** unit tests rewritten for v3 (76 in the file); `tests/room-story.spec.ts` rewritten: honesty, the no-script finished frame with no other frame requested, chip pixels, stage advance changing pixels inside the change boxes and not outside, back to identical pixels, the no-WebGL stack, reduced motion, and the tab tests.
+- **Docs:** DESIGN.md (whole frames and why), CLAUDE.md foundation line, performance.md, TESTING.md, sanity.md, page-architecture.md, editor-vs-hardcoded.md. Not touched: `tools/room-lab/README.md` still describes the v2 publish (the main session owns the v3 publish).
+
+## 2026-09-30: Concept room: optional per-layer `light` (screen)
+
+- Manifest v2 layers take an optional `light` RGB PNG (same box, black = no change) drawn with `mix-blend-mode: screen` between the piece's shade and image, so a lamp's glow brightens whatever paint is on the wall; same timing, reduced-motion, no-JS and `data-build` behaviour as the shade. Validator, `roomFiles`, RoomStory/RoomScene/room-view, unit tests and a spec check updated.
+
+## 2026-09-30: Concept room tabs: six rooms, one deck (branch `claude/concept-room-tabs`)
+
+Delegated agent (Opus), for review by the main session. Built against synthetic sharp-drawn fixtures (three rooms plus a broken listing); the real rooms come from tools/room-lab.
+
+- **Contract:** `src/assets/room/rooms.json` v1 (`parseRoomIndex`: strict, `[a-z0-9-]+` unique slugs, `<folder>/manifest.json` paths) lists the rooms in tab order; each room keeps the manifest v2 in its own folder. `RoomStory.astro` loads every listed room with one set of globs over `src/assets/room/**`, drops an invalid or incomplete room with a build warning naming it, renders nothing with no valid room and no tabs with one.
+- **Site:** `RoomStage.astro` now draws the section, an ARIA tablist (manual activation, roving tabindex, arrows/Home/End, pulled-sample-tag styling, sideways scroll-snap on phones, hidden without a script), the first room in place and every other room in a `<template>`. The per-room parts moved into `RoomScene.astro` and `RoomCaptions.astro` (+ `room-view.ts` types). A switch swaps the frames and captions, moves the canvas, re-arms the build and its IntersectionObserver fallback, updates the live region ("Showing the kitchen, modern style.") and scrolls the room's top back under the header when the story had scrolled past it (Lenis or native smooth; instant under reduced motion).
+- **Painter:** `setBase()` swaps a room's base, mask and wall median into the same context and textures, keeping the chip; resolves null when superseded, so fast switching never shows a stale room. `resize()` skips a hidden canvas.
+- **Tests:** `parseRoomIndex` unit tests; `tests/room-story.spec.ts` gained tab keyboard navigation, the swap, the mid-build switch, the chip surviving a switch (canvas pixels), one GL context across ten switches, reduced motion, no tabs without JS, and the one-room no-tablist case.
+- **Docs:** DESIGN.md (tabs), CLAUDE.md foundation line, editor-vs-hardcoded.md, performance.md (per-room lazy cost), TESTING.md, sanity.md, page-architecture.md.
+
+## 2026-09-30: The concept room, site half (branch `claude/concept-room-site`)
+
+Delegated agent (Opus), for review by the main session. Built against the manifest contract with synthetic fixtures; the real room comes from the tools/room-lab session. Mid-task direction change from Nathan: whole-frame stages (manifest v1, WebGL brush-stroke reveal) replaced by furniture layers that fade and move into place (manifest v2, scroll-driven CSS); WebGL now paints only the base wall.
+
+- **Schema:** Home `roomStory` marker (after "How it works") and the Concept room tab (`roomStoryShow`, `roomStoryHeadline`, `roomStoryScriptAccent`, `roomStoryIntro`); typegen. Auto-placed by `placeMarker()` (rule 13).
+- **Site:** `home/RoomStory.astro` (loads, checks, renders nothing without a valid manifest) + `home/RoomStage.astro` (base photo, wall canvas, layer and shade stack; finished room by default; per-caption view timelines drive the motion of each piece, scripted fallback, `aria-current="step"` and a live region), `src/lib/room-story.ts` (v2 parser, `layerTimings`, + tests), `src/scripts/room-painter.ts` (WebGL1 base-wall painter, chip roll, reduced motion instant, no-WebGL fallback).
+- **Tests:** `tests/room-story.spec.ts` (skips until the manifest exists), a Home case in `auto-marker.test.ts`.
+- **Docs:** DESIGN.md "The concept room" and the WebGL reversal (addendum in the design debate), sanity.md, page-architecture.md, performance.md, editor-vs-hardcoded.md, TESTING.md.
+
 ## 2026-10-01: Mid-market pass, real E-Design price, room story, no em-dashes anywhere
 
 - **Positioning.** Staci chose mid-market. PRODUCT.md has a new "Positioning"

@@ -19,6 +19,7 @@ export const homePage = defineType({
     { name: 'meetStaci', title: 'Meet Staci' },
     { name: 'featuredWork', title: 'Featured Work' },
     { name: 'process', title: 'Process preview' },
+    { name: 'roomStory', title: 'Concept room' },
     { name: 'testimonials', title: 'Testimonials' },
     { name: 'services', title: 'Services grid' },
     { name: 'final', title: 'Service area + final CTA' },
@@ -323,6 +324,48 @@ export const homePage = defineType({
       title: 'Link to full Process page',
       type: 'ctaBlock',
       group: 'process',
+    }),
+
+    // ── Concept room (2026-09-30) ─────────────────────────────────────────
+    // A labelled sample room that fills up stage by stage as the visitor
+    // scrolls, with paint chips that repaint its walls
+    // (src/components/home/RoomStory.astro). These fields only set its words;
+    // the pictures, captions and alt text come from src/assets/room/manifest.json
+    // (made by tools/room-lab), not from Sanity. Placement: the "Concept room"
+    // marker in Layout & order; a layout saved before the marker existed gets
+    // it just after "How it works". Off: untick "Show on the home page" below.
+    defineField({
+      name: 'roomStoryShow',
+      title: 'Show on the home page',
+      type: 'boolean',
+      group: 'roomStory',
+      initialValue: true,
+      description:
+        'The concept room: a sample room that fills up as visitors scroll, with paint chips that try colours on its walls. It shows by itself just after "How it works"; drag the "Concept room" section in Layout & order to move it. Untick to hide it.',
+    }),
+    defineField({
+      name: 'roomStoryHeadline',
+      title: 'Heading',
+      type: 'string',
+      group: 'roomStory',
+      description: 'Optional. Leave blank for "Watch a room come together".',
+    }),
+    defineField({
+      name: 'roomStoryScriptAccent',
+      title: 'Heading accent (optional)',
+      type: 'string',
+      group: 'roomStory',
+      description:
+        'Optional. A word or short phrase from the heading to set in italic. Must match the heading exactly.',
+    }),
+    defineField({
+      name: 'roomStoryIntro',
+      title: 'Short intro',
+      type: 'text',
+      rows: 2,
+      group: 'roomStory',
+      description:
+        'Optional. One or two short sentences. Leave blank for the built-in line explaining that this is a concept room and that the chips try paint colours on the walls.',
     }),
 
     // Testimonials

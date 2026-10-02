@@ -1,0 +1,96 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomCaptions: ONE concept room's caption list (split out of RoomStage.astro
+// on 2026-09-30 for the room tabs; the first room's list is rendered in place,
+// the others inside <template>s, and the script swaps the whole <ol>).
+// =============================================================================
+// The RoomStage script watches each caption <li> with an IntersectionObserver
+// (no scroll listener, so it works with Lenis and with native scroll): the
+// caption past the reading line is the current stage, and the room plays every
+// piece up to that stage's last.
+// Each caption is led by a short Warm Bronze rule: a mark, never a numeral.
+// =============================================================================
+interface Props {
+  stages: string[];
+}
+
+const { stages } = Astro.props as Props;
+---
+
+<ol class="room__captions" id="room-captions">
+  {
+    stages.map((caption) => (
+      <li class="room__step" data-room-step>
+        <p>{caption}</p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .room__captions {
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .room__step {
+    display: flex;
+    align-items: flex-start;
+    min-height: 55svh;
+  }
+  .room__step:last-child {
+    min-height: 35svh;
+  }
+  .room__step p {
+    margin: 0;
+    max-width: 22ch;
+    font: 300 clamp(1.35rem, 2.2vw, 2rem) / 1.25 var(--font-display);
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+  }
+  .room__step p::before {
+    content: '';
+    display: block;
+    width: 2.25rem;
+    height: 2px;
+    margin-bottom: 0.75rem;
+    background: var(--color-chip-5);
+  }
+  /* With the script, the stage in view leads and the rest step back. */
+  :global(.room[data-enhanced]) .room__step p {
+    color: var(--color-ink-2);
+  }
+  :global(.room[data-enhanced]) .room__step p::before {
+    background: var(--color-rule);
+  }
+  :global(.room[data-enhanced]) .room__step[aria-current='step'] p {
+    color: var(--color-ink);
+  }
+  :global(.room[data-enhanced]) .room__step[aria-current='step'] p::before {
+    background: var(--color-chip-5);
+  }
+
+  @media (min-width: 1024px) {
+    .room__captions {
+      grid-column: 9 / 13;
+    }
+    .room__step {
+      align-items: center;
+      min-height: 80svh;
+    }
+    .room__step:last-child {
+      min-height: 70svh;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.room[data-enhanced]) .room__step p,
+    :global(.room[data-enhanced]) .room__step p::before {
+      transition:
+        color 250ms var(--ease),
+        background-color 250ms var(--ease);
+    }
+  }
+</style>

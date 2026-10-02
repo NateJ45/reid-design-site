@@ -13,10 +13,11 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 3. Featured Work (auto-populated, hero project + companion panel; visual proof, the hook)
 4. Kind Words (1 featured testimonial + 6 grid testimonials; social proof, early)
 5. How It Works (4-step process preview, CTA to Process)
-6. How Reid Design Can Help (4 services with prices, CTA to Contact)
-7. Service area cue line (Plainfield-first)
-8. Final CTA (full-bleed)
-9. Footer
+6. The concept room (2026-09-30: a labelled, AI-generated sample room that fills up piece by piece as you scroll (whole AI frames, each new piece revealed in place), with a WebGL paint deck for the walls; the `roomStory` marker, auto-placed here; several rooms behind tabs above the room since the same day; renders nothing until `src/assets/room/rooms.json` lists a room whose files exist)
+7. How Reid Design Can Help (4 services with prices, CTA to Contact)
+8. Service area cue line (Plainfield-first)
+9. Final CTA (full-bleed)
+10. Footer
 
 (The Featured Journal and press-strip sections that sat between Services and the service-area cue were removed on 2026-09-30 with the journal and press. Their marker values, `featuredJournal` and `press`, stay in the `homeSectionMarker` option list titled "(retired, renders nothing)", because Sanity turns an `options.list` into a hard `valid()` rule and the rows already stored on the home page would otherwise fail validation and block publishing. `HomeSectionRenderer` draws nothing for them and `HOME_DEFAULT_ORDER` leaves them out. The About page's `press` marker is handled the same way.)
 

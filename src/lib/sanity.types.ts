@@ -590,6 +590,7 @@ export type HomeSectionMarker = {
     | 'featuredWork'
     | 'testimonials'
     | 'processPreview'
+    | 'roomStory'
     | 'services'
     | 'featuredJournal'
     | 'press'
@@ -1734,6 +1735,10 @@ export type HomePage = {
   processPreviewHeadline?: string;
   processPreviewSubhead?: string;
   processPreviewCta?: CtaBlock;
+  roomStoryShow?: boolean;
+  roomStoryHeadline?: string;
+  roomStoryScriptAccent?: string;
+  roomStoryIntro?: string;
   featuredTestimonial?: TestimonialReference;
   testimonialsEyebrow?: string;
   testimonialsHeadline?: string;

@@ -16,6 +16,12 @@
 // do not have it, so placeMarker() puts it just before the service-area line;
 // siteSettings.instagramFeedOnHome === false removes it. It renders nothing
 // until the build has a feed (INSTAGRAM_TOKEN), so this changes no HTML today.
+//
+// Concept room (2026-09-30): the same pattern (CLAUDE.md rule 13). A stored
+// layout without the `roomStory` row gets it just after "How it works" (i.e.
+// before whichever section follows it in DEFAULT_ORDER);
+// homePage.roomStoryShow === false removes it. RoomStory renders nothing until
+// src/assets/room/ holds a valid manifest and its frames.
 import HomeHero from '@/components/home/HomeHero.astro';
 import HomeStaci from '@/components/home/HomeStaci.astro';
 import HomeWords from '@/components/home/HomeWords.astro';
@@ -26,6 +32,7 @@ import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import InstagramFeed from '@/components/InstagramFeed.astro';
+import RoomStory from '@/components/home/RoomStory.astro';
 import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 import { placeMarker } from '@/lib/auto-marker';
 
@@ -62,6 +69,7 @@ const DEFAULT_ORDER = [
   'featuredWork',
   'testimonials',
   'processPreview',
+  'roomStory',
   'services',
   'instagram',
   'serviceAreaCue',
@@ -69,7 +77,15 @@ const DEFAULT_ORDER = [
 ].map((section) => ({ _type: 'homeSectionMarker', section }));
 
 const list = (sections ?? []).filter((s) => s && s._type);
-const rows = placeMarker(list.length > 0 ? list : DEFAULT_ORDER, {
+const withRoom = placeMarker(list.length > 0 ? list : DEFAULT_ORDER, {
+  markerType: 'homeSectionMarker',
+  value: 'roomStory',
+  show: page?.roomStoryShow,
+  // Everything that follows "How it works" in DEFAULT_ORDER, so the room lands
+  // right after it (or at the end if none of these is in the stored layout).
+  before: ['services', 'instagram', 'serviceAreaCue', 'finalCta'],
+});
+const rows = placeMarker(withRoom, {
   markerType: 'homeSectionMarker',
   value: 'instagram',
   show: siteSettings?.instagramFeedOnHome,
@@ -136,6 +152,12 @@ const rows = placeMarker(list.length > 0 ? list : DEFAULT_ORDER, {
             subhead={page?.processPreviewSubhead}
             steps={page?.processSteps ?? []}
             cta={page?.processPreviewCta}
+          />
+        ) : s.section === 'roomStory' ? (
+          <RoomStory
+            headline={page?.roomStoryHeadline}
+            scriptAccent={page?.roomStoryScriptAccent}
+            intro={page?.roomStoryIntro}
           />
         ) : s.section === 'services' ? (
           <PaintChips

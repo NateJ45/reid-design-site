@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 4321
+    },
+    {
+      "name": "reid-design-dist",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "dist/client", "-p", "4322", "-s", "-c-1"],
+      "port": 4322
     }
   ]
 }

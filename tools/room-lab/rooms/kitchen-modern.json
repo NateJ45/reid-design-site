@@ -1,0 +1,171 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "remodel, new cabinets, white cabinets, island, stools, backsplash tile, pendant lights, decor, clutter, rug, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a dated but working kitchen with honey oak cabinets and tired walls, before any styling."
+  },
+  "baseVariants": [
+    {
+      "id": "yellow",
+      "prompt": "A realistic photograph of an ordinary, dated but complete kitchen in a 2000s Midwest American suburban house, not luxury. Honey oak cabinets with round brass knobs, beige laminate countertops, a plain white refrigerator, a white range, a stainless sink with a plain chrome faucet under a bright window, a plain frosted dome ceiling light. Bright, open and airy, lots of soft daylight, light floor. Clean and uncluttered: nothing on the counters, nothing on the walls, no rug. One large plain section of painted wall is clearly visible. Eye-level camera standing in a corner. No people, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dated, tired butter yellow that looks a little greasy."
+    },
+    {
+      "id": "sage",
+      "prompt": "A realistic photograph of an ordinary, dated but complete kitchen in a 2000s Midwest American suburban house, not luxury. Honey oak cabinets with round brass knobs, beige laminate countertops, a plain white refrigerator, a white range, a stainless sink with a plain chrome faucet under a bright window, a plain frosted dome ceiling light. Bright, open and airy, lots of soft daylight, light floor. Clean and uncluttered: nothing on the counters, nothing on the walls, no rug. One large plain section of painted wall is clearly visible. Eye-level camera standing in a corner. No people, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a faded 1990s sage green that looks a little flat."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "hardware",
+      "caption": "The cabinets stay. New black pulls and a new faucet change how the whole kitchen reads."
+    },
+    {
+      "id": "light",
+      "caption": "Swap the dated dome light for one good pendant."
+    },
+    {
+      "id": "soft",
+      "caption": "A washable runner by the sink and a linen shade in the window."
+    },
+    {
+      "id": "personal",
+      "caption": "One piece of art on the empty wall."
+    },
+    {
+      "id": "finish",
+      "caption": "A board, a bowl of lemons and a pot of basil, like someone cooks here."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the same kitchen, restyled with black hardware, a new faucet and light, a runner, a roman shade, art and counter styling."
+  },
+  "pieces": [
+    {
+      "id": "hardware",
+      "stage": "hardware",
+      "motion": "pop",
+      "change": "replace every round brass cabinet knob with a slim matte black bar pull, on every door and drawer. Keep the honey oak cabinets exactly as they are. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        410,
+        1410,
+        2410
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    },
+    {
+      "id": "faucet",
+      "stage": "hardware",
+      "motion": "pop",
+      "change": "replace the plain chrome faucet with a matte black gooseneck kitchen faucet. Keep the sink and countertop exactly as they are. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        420,
+        1420,
+        2420
+      ],
+      "labels": [
+        "sink"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    },
+    {
+      "id": "pendant",
+      "stage": "light",
+      "motion": "drop",
+      "change": "replace the frosted dome ceiling light with one simple globe pendant light in smoked glass on a thin black rod, switched off. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        430,
+        1430,
+        2430
+      ],
+      "labels": [
+        "light",
+        "lamp",
+        "chandelier"
+      ],
+      "maxDrift": 12,
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "runner",
+      "stage": "soft",
+      "motion": "unroll",
+      "change": "add a flat-woven runner rug in cream and charcoal stripes on the floor in front of the sink and cabinets. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        440,
+        1440,
+        2440
+      ],
+      "labels": [
+        "rug"
+      ]
+    },
+    {
+      "id": "shade",
+      "stage": "soft",
+      "motion": "drop",
+      "change": "hang a simple cream linen roman shade inside the window frame, raised most of the way so the window stays bright. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        450,
+        1450,
+        2450
+      ],
+      "labels": [
+        "curtain",
+        "blind"
+      ]
+    },
+    {
+      "id": "art",
+      "stage": "personal",
+      "motion": "drop",
+      "change": "hang one framed botanical print in a thin black frame on the large plain wall, with plenty of bare wall around it. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        460,
+        1460,
+        2460
+      ],
+      "labels": [
+        "painting"
+      ]
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "keep every wall its existing butter yellow colour and keep the cabinets, window, shade and lighting exactly as they are; only place a wooden cutting board, a white bowl of fresh lemons and a small potted basil plant on the countertop. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        470,
+        1470,
+        2470
+      ],
+      "labels": [
+        "plant",
+        "pot",
+        "vase",
+        "basket",
+        "food",
+        "plate",
+        "tray",
+        "box",
+        "bottle"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "fake fruit, cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated, repainted walls, white walls, grey walls, new wall colour"
+    }
+  ]
+}

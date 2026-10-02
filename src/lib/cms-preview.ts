@@ -165,6 +165,8 @@ const NON_STEGA_FIELDS = new Set([
   'finalCtaScriptAccent',
   'testimonialsScriptAccent',
   'servicesGridScriptAccent',
+  // Home concept room heading accent (2026-09-30), same reason.
+  'roomStoryScriptAccent',
 ]);
 
 export function getPreviewClient(draftMode: boolean): SanityClient {

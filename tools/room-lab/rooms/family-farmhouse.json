@@ -1,0 +1,227 @@
+{
+  "width": 1472,
+  "height": 1104,
+  "base": {
+    "negative": "furniture, sofa, chair, table, rug, lamp, curtains, pendant light, ceiling fan, people, text, watermark, logo, brand name, artwork on walls, plants, clutter, loft, exposed brick, luxury, fisheye, wide angle distortion, cartoon, illustration, 3d render, oversaturated, HDR, dark, moody",
+    "seeds": [
+      1101,
+      2202,
+      3303,
+      4404,
+      5505,
+      6606,
+      7707,
+      8808
+    ],
+    "alt": "Concept image: a bright, empty family room with a vaulted ceiling, dated walls and a bare floor, before any design work."
+  },
+  "baseVariants": [
+    {
+      "id": "khaki",
+      "prompt": "A realistic photograph of an EMPTY family room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. A tall vaulted ceiling. Plain thin builder baseboards, no crown moulding, no wall panelling. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a tired, dated khaki olive, a flat greenish beige that looks a little drab."
+    },
+    {
+      "id": "mauve",
+      "prompt": "A realistic photograph of an EMPTY family room in an ordinary 1990s to 2010s Midwest American suburban house, not a loft and not luxury. Bright, open and airy: big windows, lots of soft daylight, light floors. A tall vaulted ceiling. Plain thin builder baseboards, no crown moulding, no wall panelling. Eye-level camera standing in a corner. One large, plain, completely clear main wall is fully visible and unobstructed. Nothing hangs on the walls. No people, no plants, no text, no logos. Natural colour, gentle shadows, 4:3 photograph. The walls are painted a dated dusty mauve grey that looks a little dingy."
+    }
+  ],
+  "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
+  "stages": [
+    {
+      "id": "shell",
+      "caption": "First the bones: wide, plain trim around the windows and taller baseboards, the kind a farmhouse room is built on."
+    },
+    {
+      "id": "anchor",
+      "caption": "A washed vintage rug and a deep sectional that the whole family can pile onto."
+    },
+    {
+      "id": "function",
+      "caption": "A sturdy wood table for feet and board games, a console for the TV, and a lantern to light the middle of the room."
+    },
+    {
+      "id": "comfort",
+      "caption": "A leather chair that gets softer every year."
+    },
+    {
+      "id": "personal",
+      "caption": "A big photograph on the wall and a tree in the corner, so the room has something to look at."
+    },
+    {
+      "id": "finish",
+      "caption": "Then the easy layers: plaid pillows, a dough bowl, a few dried stems."
+    }
+  ],
+  "final": {
+    "alt": "Concept image: the finished family room in a modern farmhouse style, with a sectional, a reclaimed wood table, a leather chair, a lantern and styling."
+  },
+  "pieces": [
+    {
+      "id": "trim",
+      "stage": "shell",
+      "motion": "sweep",
+      "change": "add wide, flat white farmhouse-style casing around the windows and tall flat white baseboards along every wall. Add no furniture and no rug; the floor stays bare. This is carpentry only: the paint colour, walls, floor, windows and light stay exactly as they are.",
+      "seeds": [
+        210,
+        1210,
+        2210
+      ],
+      "maxDrift": 10,
+      "workflow": "edit-reflatent-full",
+      "negative": "wallpaper, mural, pattern on walls, stencil, new wall colour, repainted walls, paneling pattern, rug, carpet, furniture, decor, art, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "rug",
+      "stage": "anchor",
+      "motion": "unroll",
+      "change": "add one large vintage-style wool area rug with a softly faded, worn traditional medallion pattern in muted slate blue, cream and rust, with a real woven texture, lying flat in the middle of the floor. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        220,
+        1220,
+        2220
+      ],
+      "labels": [
+        "rug"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "pixelated, geometric blocks, bright saturated colours, digital pattern, cartoon, illustration, cgi, render, flat"
+    },
+    {
+      "id": "sofa",
+      "stage": "anchor",
+      "motion": "slide-left",
+      "change": "add one deep L-shaped sectional sofa in plain oatmeal performance fabric with loose, slightly rumpled cushions, set on the rug with its long side against the large plain wall, leaving the upper wall clear. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        230,
+        1230,
+        2230
+      ],
+      "labels": [
+        "sofa",
+        "cushion",
+        "pillow"
+      ]
+    },
+    {
+      "id": "coffee-table",
+      "stage": "function",
+      "motion": "rise",
+      "change": "add a chunky rectangular coffee table with a weathered reclaimed pine top and a black iron base, on the rug in front of the sectional. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        240,
+        1240,
+        2240
+      ],
+      "labels": [
+        "coffee table",
+        "table"
+      ]
+    },
+    {
+      "id": "console",
+      "stage": "function",
+      "motion": "rise",
+      "change": "add a long low media console in white-painted wood with black iron handles against the wall opposite the sectional, below the window line. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        250,
+        1250,
+        2250
+      ],
+      "labels": [
+        "cabinet",
+        "shelf",
+        "table"
+      ]
+    },
+    {
+      "id": "lantern",
+      "stage": "function",
+      "motion": "drop",
+      "change": "hang one large black iron lantern pendant light from the ceiling above the middle of the room, switched off. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        260,
+        1260,
+        2260
+      ],
+      "labels": [
+        "chandelier",
+        "light",
+        "lamp"
+      ],
+      "maxDrift": 12,
+      "workflow": "edit-reflatent-full",
+      "negative": "lamp turned on, glowing bulbs, light glow, light spill, cartoon, illustration, cgi, render"
+    },
+    {
+      "id": "chair",
+      "stage": "comfort",
+      "motion": "slide-right",
+      "change": "add one cognac leather sling armchair with a black iron frame on the rug near the windows, angled toward the sectional. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        270,
+        1270,
+        2270
+      ],
+      "labels": [
+        "armchair",
+        "chair",
+        "swivel chair"
+      ]
+    },
+    {
+      "id": "art",
+      "stage": "personal",
+      "motion": "drop",
+      "change": "hang one large black-and-white photograph of an open field in a thin natural oak frame with a white mat, centred on the large plain wall above the sectional, leaving plenty of bare wall around it. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        280,
+        1280,
+        2280
+      ],
+      "labels": [
+        "painting"
+      ]
+    },
+    {
+      "id": "plant",
+      "stage": "personal",
+      "motion": "pop",
+      "change": "place a real potted fiddle-leaf fig tree about five feet tall in a woven seagrass basket in the corner beside the sectional; natural glossy leaves in daylight. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        290,
+        1290,
+        2290
+      ],
+      "labels": [
+        "plant",
+        "pot",
+        "basket",
+        "flower"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    },
+    {
+      "id": "styling",
+      "stage": "finish",
+      "motion": "pop",
+      "change": "add two plaid wool pillows in faded blue and cream to the sectional, and a wooden dough bowl holding a few stems of dried wheat on the coffee table. Style: relaxed modern farmhouse; warm white, oatmeal and faded blue, weathered oak and pine, black iron, cognac leather. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "seeds": [
+        300,
+        1300,
+        2300
+      ],
+      "labels": [
+        "vase",
+        "pot",
+        "basket",
+        "pillow",
+        "cushion",
+        "plant",
+        "blanket"
+      ],
+      "workflow": "edit-reflatent-full",
+      "negative": "cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+    }
+  ]
+}

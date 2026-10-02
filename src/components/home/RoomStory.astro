@@ -1,0 +1,182 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomStory: the home page's CONCEPT ROOMS (added 2026-09-30)
+// =============================================================================
+// Labelled, AI-generated sample rooms. Each starts EMPTY and fills up piece by
+// piece as the visitor scrolls past short captions: every step of the build is
+// ONE COMPLETE PHOTO of the room, and the new piece appears in place with a
+// soft reveal (WebGL), while a deck of paint chips repaints the walls of
+// whichever photo is showing. Tabs above the room switch between rooms
+// (living room, family room, dining room, kitchen, bathroom, bedroom, each in
+// one style); every room shares the same chips. It is openly a concept: a
+// "Concept room" sample tag sits on the picture and every alt text opens
+// "Concept image:". It must never read as Staci's portfolio (no town or
+// project names, no numbering).
+//
+// This file only LOADS and CHECKS the rooms; RoomStage.astro draws them (and
+// carries the script), so when nothing valid is there the page gets no markup
+// and no script at all.
+//
+//   src/assets/room/rooms.json            -> parseRoomIndex() (tab order, labels)
+//   src/assets/room/<slug>/manifest.json  -> parseRoomManifest() (v3, whole frames;
+//                                            file names relative to its folder)
+//   frame-N.jpg (every frame)             -> getImage(): avif + webp at 640/960/1440
+//   wall-N.png, change-N.png              -> ?url (fetched by the painter only)
+//
+// A listed room whose manifest is invalid or whose files are missing is
+// DROPPED with a build-time warning naming it; the others still render. No
+// rooms.json, an invalid one, or no valid room: nothing. One valid room: no
+// tabs at all (the single-room section as it was before the tabs).
+//
+// The files are made by tools/room-lab (room:publish). Captions and alt text
+// live in each manifest, NOT in Sanity; Sanity only holds the heading, its
+// italic phrase, the intro and the Show switch (homePage.roomStory*). Placed
+// by the `roomStory` Home marker (CLAUDE.md rule 13).
+// =============================================================================
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import RoomStage from './RoomStage.astro';
+import type { RoomView, StageFrame } from './room-view';
+import {
+  ROOM_MOTIONS,
+  parseRoomIndex,
+  parseRoomManifest,
+  roomAnnouncement,
+  roomFiles,
+  roomFolder,
+  stageFrames,
+  type RoomIndexEntry,
+} from '@/lib/room-story';
+
+interface Props {
+  headline?: string | null;
+  scriptAccent?: string | null;
+  intro?: string | null;
+}
+
+const { headline, scriptAccent, intro } = Astro.props as Props;
+
+// Globs, not imports: a missing folder is an empty object, never a build error.
+const indexes = import.meta.glob<{ default: unknown }>('../../assets/room/rooms.json', {
+  eager: true,
+});
+const manifests = import.meta.glob<{ default: unknown }>('../../assets/room/*/manifest.json', {
+  eager: true,
+});
+// Frames go through the image pipeline; the masks are served as they are,
+// ALWAYS as files: `no-inline` stops Vite turning a small mask (a vase's change
+// mask can be under its 4 KB limit) into a data: URL baked into the HTML of
+// every room, template rooms included.
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/room/*/*.{jpg,jpeg,webp}',
+  { eager: true },
+);
+const pngUrls = import.meta.glob<string>('../../assets/room/*/*.png', {
+  eager: true,
+  query: '?url&no-inline',
+  import: 'default',
+});
+
+const rawIndex = Object.values(indexes)[0]?.default;
+const index = rawIndex === undefined ? null : parseRoomIndex(rawIndex);
+if (rawIndex !== undefined && !index) {
+  console.warn('[room-story] src/assets/room/rooms.json is invalid; the concept room is skipped.');
+}
+
+// The room is about half an 85rem page on a laptop, full width on a phone.
+const WIDTHS = [640, 960, 1440];
+const SIZES = '(min-width: 1024px) 50vw, 100vw';
+
+/** Load one listed room, or null (with a build-time warning) when it is not all there. */
+async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
+  const folder = roomFolder(entry);
+  const at = (name: string) => `../../assets/room/${folder}/${name}`;
+  const drop = (why: string) => {
+    console.warn(`[room-story] dropped room "${entry.slug}": ${why}`);
+    return null;
+  };
+  const raw = manifests[at('manifest.json')]?.default;
+  if (raw === undefined) return drop(`no ${folder}/manifest.json`);
+  const manifest = parseRoomManifest(raw);
+  if (!manifest) return drop(`${folder}/manifest.json is not a valid v3 manifest`);
+  const missing = roomFiles(manifest).filter((f) =>
+    f.toLowerCase().endsWith('.png') ? !pngUrls[at(f)] : !images[at(f)],
+  );
+  if (missing.length) return drop(`missing ${[...new Set(missing)].join(', ')}`);
+
+  const { width: W, height: H } = manifest;
+  const photo = async (file: string) => {
+    const src = images[at(file)].default;
+    const [avif, webp, fallback] = await Promise.all([
+      getImage({ src, format: 'avif', widths: WIDTHS, sizes: SIZES }),
+      getImage({ src, format: 'webp', widths: WIDTHS, sizes: SIZES }),
+      getImage({ src, format: 'webp', width: 960 }),
+    ]);
+    return {
+      avifSrcset: avif.srcSet.attribute,
+      webpSrcset: webp.srcSet.attribute,
+      src: fallback.src,
+    };
+  };
+  const stageIndex = new Map(manifest.stages.map((s, i) => [s.id, i]));
+  const round = (v: number) => Math.round(v * 1e5) / 1e5;
+
+  const frames: StageFrame[] = [
+    {
+      ...(await photo(manifest.empty.image)),
+      wall: pngUrls[at(manifest.empty.wall)],
+      change: null,
+      box: null,
+      motion: -1,
+      stage: -1,
+    },
+    ...(await Promise.all(
+      manifest.pieces.map(async (p) => {
+        const [x, y, w, h] = p.box;
+        return {
+          ...(await photo(p.image)),
+          wall: pngUrls[at(p.wall)],
+          change: pngUrls[at(p.change)],
+          box: [round(x / W), round(y / H), round(w / W), round(h / H)] as StageFrame['box'],
+          motion: ROOM_MOTIONS.indexOf(p.motion),
+          stage: stageIndex.get(p.stage) ?? 0,
+        };
+      }),
+    )),
+  ];
+
+  return {
+    slug: entry.slug,
+    label: entry.label,
+    style: entry.style,
+    announce: roomAnnouncement(entry),
+    width: W,
+    height: H,
+    median: manifest.wallMedianLinear,
+    baseAlt: manifest.base.alt,
+    finalAlt: manifest.final.alt,
+    stages: manifest.stages.map((s) => s.caption),
+    ends: stageFrames(manifest),
+    frames,
+  };
+}
+
+const rooms = index
+  ? (await Promise.all(index.rooms.map(loadRoom))).filter((r): r is RoomView => r !== null)
+  : [];
+---
+
+{
+  rooms.length > 0 && (
+    <RoomStage
+      rooms={rooms}
+      headline={headline || 'Watch a room come together'}
+      scriptAccent={headline ? scriptAccent : (scriptAccent ?? 'come together')}
+      intro={
+        intro ||
+        'This is a concept room, not a client’s home. It fills up the way a project does, one piece at a time, and the paint chips try a colour on its walls.'
+      }
+    />
+  )
+}

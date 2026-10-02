@@ -327,14 +327,16 @@ export const SECTION_ACCENT_FIELD = 'scriptAccent';
 /**
  * Document-level pairs: the heading field, and the accent beside it.
  *
- * `heroHeadline` is on all fourteen page singletons; the other three are the
+ * `heroHeadline` is on all fourteen page singletons; the other four are the
  * home page's own sections, which are fixed fields rather than array items.
+ * (`roomStoryHeadline` added 2026-09-30 with the concept room.)
  */
 export const DOC_ACCENT_PAIRS: Readonly<Record<string, string>> = {
   heroHeadline: 'heroScriptAccent',
   finalCtaHeadline: 'finalCtaScriptAccent',
   testimonialsHeadline: 'testimonialsScriptAccent',
   servicesGridHeadline: 'servicesGridScriptAccent',
+  roomStoryHeadline: 'roomStoryScriptAccent',
 };
 
 /** What the word picker edits, once the document has said what this is. */
