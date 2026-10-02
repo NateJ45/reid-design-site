@@ -84,9 +84,10 @@ if (rawIndex !== undefined && !index) {
   console.warn('[room-story] src/assets/room/rooms.json is invalid; the concept room is skipped.');
 }
 
-// The room is about half an 85rem page on a laptop, full width on a phone.
+// The room is up to three quarters of a laptop screen (as wide as its height
+// allows, 2026-10-02 scrub), full width on a phone.
 const WIDTHS = [640, 960, 1440];
-const SIZES = '(min-width: 1024px) 50vw, 100vw';
+const SIZES = '(min-width: 1024px) 75vw, 100vw';
 
 /** Load one listed room, or null (with a build-time warning) when it is not all there. */
 async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
