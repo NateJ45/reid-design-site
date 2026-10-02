@@ -25,10 +25,27 @@ import { EM, deDash } from './lib/em-dash.mjs';
 // Keys whose strings are structural, not words.
 const STRUCTURAL = new Set(['_id', '_type', '_ref', '_key', '_rev', 'current', 'url', 'href']);
 
+// Hand-written replacements, applied BEFORE the automatic rule, for sentences the
+// rule turns into a pile of commas (2026-10-02, agreed with Nathan). Each is a
+// [from, to] pair on a phrase, so it still works if the rest of the text changes.
+const D = String.fromCharCode(8212); // the em-dash, built so this file holds none
+const PHRASE_FIXES = [
+  [
+    `Full Room Design ${D} concept, layout, furniture and decor selections, paint ${D} but`,
+    'Full Room Design (concept, layout, furniture and decor selections, paint), but',
+  ],
+];
+
+/** Real client reviews are quoted verbatim, so the rule never rewrites them. */
+const isVerbatim = (doc, path) => doc._type === 'testimonial' && path === 'quote';
+
 /** Collect { path, from, to } for every string that holds an em-dash. */
 function findChanges(node, path = '', out = []) {
   if (typeof node === 'string') {
-    if (node.includes(EM)) out.push({ path, from: node, to: deDash(node) });
+    if (node.includes(EM)) {
+      const fixed = PHRASE_FIXES.reduce((s, [a, b]) => s.replaceAll(a, b), node);
+      out.push({ path, from: node, to: deDash(fixed) });
+    }
   } else if (Array.isArray(node)) {
     node.forEach((item, i) => {
       // Sanity addresses array members by _key when they have one.
@@ -51,14 +68,14 @@ async function main() {
 
   // Everything except Sanity's own system documents and uploaded files.
   const docs = await c.fetch(
-    `*[!(_type match "sanity.*") && !(_id in path("_.**")) && !(_type match "system.*")]`,
+    `*[!(_type match "sanity.*") && _type != "testimonial" && !(_id in path("_.**")) && !(_type match "system.*")]`,
   );
   console.log(`Read ${docs.length} documents.\n`);
 
   let total = 0;
   let patched = 0;
   for (const doc of docs) {
-    const changes = findChanges(doc);
+    const changes = findChanges(doc).filter((ch) => !isVerbatim(doc, ch.path));
     if (changes.length === 0) continue;
     total += changes.length;
     console.log(`${doc._type}  ${doc._id}`);
