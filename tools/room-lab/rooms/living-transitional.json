@@ -28,28 +28,16 @@
   "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
   "stages": [
     {
-      "id": "shell",
-      "caption": "Before any furniture, the room gets its bones: crown moulding, taller baseboards and a wider window frame."
-    },
-    {
-      "id": "anchor",
-      "caption": "Then the anchors: a rug that sets the scale, and a sofa that fits the room without hiding the big wall."
-    },
-    {
-      "id": "function",
-      "caption": "Tables and a lamp come next, so there is a place to set a mug and a soft light for the evenings."
+      "id": "bones",
+      "caption": "Start with the bones: crown moulding, a rug that sets the scale, and a sofa that fits without hiding the big wall."
     },
     {
       "id": "comfort",
-      "caption": "A chair to angle toward the conversation, and curtains that finish the windows."
-    },
-    {
-      "id": "personal",
-      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture."
+      "caption": "Then what makes it easy to live in: a table for the mug, a lamp for the evenings, a chair angled toward the conversation, and curtains that finish the windows."
     },
     {
       "id": "finish",
-      "caption": "Then the small things that make it feel lived in: olive branches, books and a soft throw."
+      "caption": "Last, what makes it yours: art hung low on the big wall, olive branches, books and a soft throw."
     }
   ],
   "final": {
@@ -58,7 +46,7 @@
   "pieces": [
     {
       "id": "trim",
-      "stage": "shell",
+      "stage": "bones",
       "motion": "sweep",
       "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around both windows. Add no furniture and no rug; the floor stays bare. Keep the walls, windows, floor and light exactly the same.",
       "seeds": [
@@ -70,7 +58,7 @@
     },
     {
       "id": "rug",
-      "stage": "anchor",
+      "stage": "bones",
       "motion": "unroll",
       "change": "add one large 9 by 12 foot natural wool area rug in a soft oat colour with a subtle low texture, lying flat on the floor in the middle of the room and reaching close to the large plain wall on the right. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
@@ -84,7 +72,7 @@
     },
     {
       "id": "sofa",
-      "stage": "anchor",
+      "stage": "bones",
       "motion": "slide-left",
       "change": "add one relaxed three-seat sofa upholstered in a smooth, solid, matte oat brushed-cotton fabric with a soft even surface (like a well-worn cotton slipcover), gentle natural creases, slightly rumpled seat cushions, rolled arms and short walnut legs. Centred against the large plain wall on the right with its front legs on the rug; the wall above it stays bare. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
@@ -101,7 +89,7 @@
     },
     {
       "id": "coffee-table",
-      "stage": "function",
+      "stage": "comfort",
       "motion": "rise",
       "change": "add a low rectangular coffee table in solid oiled walnut with simple straight legs, plain wood only (no metal inlays, no brass corners), standing on the rug in front of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
@@ -116,7 +104,7 @@
     },
     {
       "id": "side-table-lamp",
-      "stage": "function",
+      "stage": "comfort",
       "motion": "rise",
       "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched OFF: the shade is plain unlit cream linen in daylight, with no glow. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
@@ -164,7 +152,7 @@
     },
     {
       "id": "art",
-      "stage": "personal",
+      "stage": "finish",
       "motion": "drop",
       "change": "hang one medium framed landscape print with a thin black frame and a white mat on the large plain wall, centred above the sofa, leaving plenty of bare wall around it. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
