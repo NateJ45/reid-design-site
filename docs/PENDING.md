@@ -45,8 +45,9 @@ What only Staci can do:
   box), add 8 to 12 photos, tick "Client OK to share" for the photos, click
   Generate on the address, pick the room type and style, and publish. The
   Publish button stays blocked while a [bracketed] prompt or a required photo
-  is missing. Then turn the portfolio on: Site settings > Section visibility >
-  Portfolio. Until then `/portfolio` still redirects home.
+  is missing. The Portfolio switch is already ON (2026-10-02, Nathan's call): until
+  her first room story is published, `/portfolio` shows its deliberate empty
+  state and the nav carries a Portfolio link.
 - **About > Off the clock.** The step-1 script removes the lists the seeder
   invented (oat latte, 70s soul, brass lamps, Mass Ave). The paragraph about
   growing up in central Georgia stays; it was edited by a person. Ask her for
@@ -396,7 +397,7 @@ as tests; hyper-realistic, check at 1:1 before showing; kitchen and bath are STY
 rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5785f approved.
 
 **2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
-`../reid-concept-room`, NOT pushed):** built by a delegated agent for the main session to
+`../reid-concept-room`, PR #83 on top of the merged #81):** built by a delegated agent for the main session to
 review. The build now follows scroll position both ways in a 300svh pinned track: the room
 full width on a laptop with a paper caption card over its lower-left corner and the chips
 in a one-row dock under it; on a phone the card sits below the room and everything fits one
@@ -629,6 +630,12 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-10-02, Portfolio switched ON** (Site settings > Section visibility, set by
+  script at Nathan's request; live about 2 minutes later via the publish webhook).
+  There is no published project yet, so `/portfolio` shows its empty state until
+  Staci publishes the First room story. Live check the same day: new FAQ and
+  service wording present, old text gone, Home accessibility 100.
 
 - 2026-10-02: mid-market content scripts applied; Studio guide re-seeded (no
   review count); duplicate Builder & realtor service card archived. Notes:
