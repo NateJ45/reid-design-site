@@ -87,9 +87,10 @@ if (mode === 'rerender') {
 } else if (mode === 'preview') {
   const outDir = resolve(outArg ?? resolve(root, 'tmp/og-preview'));
   mkdirSync(outDir, { recursive: true });
-  const { cleanCardTitle, cleanKicker, ogCardPath } = await import(
+  const { cardContent, ogCardPath } = await import(
     pathToFileURL(resolve(root, 'src/lib/og-card.ts')).href
   );
+  const { site } = await import(pathToFileURL(resolve(root, 'src/data/site.ts')).href);
   const env = loadEnv(root);
   const token = env.SANITY_API_READ_TOKEN || env.SANITY_API_WRITE_TOKEN;
   const client = createClient({
@@ -102,38 +103,27 @@ if (mode === 'rerender') {
   });
   const img = `{ "src": asset->url, hotspot }`;
   const data = await client.fetch(`{
-    "projects": *[_type == "project" && defined(slug.current)]{ "slug": slug.current, title, metaTitle, location,
-      "image": heroImage${img}, "image2": gallery[0]${img} }
+    "projects": *[_type == "project" && defined(slug.current)]{ "slug": slug.current, title,
+      "image": heroImage${img} }
   }`);
-  // Mirrors what src/pages/portfolio/[slug].astro passes to BaseLayout. (Journal
-  // posts and guides had cards here too until they were removed, 2026-09-30.)
-  const spec = (route, headline, seo, kicker, image, image2) => {
-    const t = cleanCardTitle([headline, seo]);
-    const k = cleanKicker(kicker);
+  // Mirrors what src/pages/portfolio/[slug].astro passes to BaseLayout.
+  const specs = data.projects.map((p) => {
+    const route = `/portfolio/${p.slug}`;
+    const { warnings, ...content } = cardContent(
+      { kind: 'project', title: p.title },
+      { owner: site.owner },
+    );
     return {
-      v: 1,
+      v: 2,
       out: ogCardPath(route),
       route,
-      title: t.title,
-      kicker: k.kicker,
-      photos: [image, image2].filter((p) => p?.src),
-      circle: Boolean(image2?.src),
+      ...content,
+      photos: p.image?.src ? [p.image] : [],
+      doodle: 'eucalyptus',
       fallback: null,
-      warnings: [...t.warnings, ...k.warnings],
+      warnings,
     };
-  };
-  const specs = [
-    ...data.projects.map((p) =>
-      spec(
-        `/portfolio/${p.slug}`,
-        p.title,
-        p.metaTitle,
-        ['Portfolio', p.location].filter(Boolean).join(' · '),
-        p.image,
-        p.image2,
-      ),
-    ),
-  ];
+  });
   // renderSpecs writes to <clientDir>/og/<name>.png; point it at outDir/..
   // by making every spec's `out` land directly in outDir.
   for (const s of specs) s.out = `/${s.out.replace(/^\/og\//, '')}`;

@@ -1,62 +1,90 @@
 ---
 // Safe to edit by hand
-// OpenStreetMap iframe centered on Plainfield, IN with the broader service area visible.
-// No API key, no JS, no tracker. The iframe is keyboard-focusable; aria-label
-// describes what the visitor is looking at for screen readers.
+// The service-area map on /contact: a real Google map (2026-10-01).
 //
-// Restyled 2026-09-30 (phase 2 of the art-direction rebuild): square corners
-// in a hairline frame, the tiles warmed toward the linen palette with a CSS
-// filter (colour returns on hover or focus, when someone is actually reading
-// the map), and a quiet caption line with the "larger map" link under it.
-// Props unchanged. Used on /contact.
+// Used on /contact and, since 2026-10-01, the home "Based in Plainfield" band
+// (ServiceAreaCue.astro), which had the hand-drawn sketch map.
 //
-// Loaded on approach (2026-09-30): the iframe ships with NO src and a script
-// sets it when the map comes within ~400px of the viewport. loading="lazy" was
-// not enough: Chrome's lazy-iframe threshold is generous, so the embed's
-// ~294KB of map JavaScript loaded at ~240ms on every /contact and /services
-// visit, competing with the hero photo (Lighthouse CI, LCP 4.6s on /contact).
-// Without JS the frame stays empty and the "View larger map" link still works.
+// History: an OpenStreetMap iframe until 2026-09-30, then briefly the
+// hand-drawn sketch (AreaSketchMap.astro, deleted 2026-10-01), then this,
+// at Nathan's pick ("option 1"): Google's plain keyless embed, centred on her
+// home base, so visitors can pan, zoom and get directions in the map they
+// already know. No API key, no account, no billing.
 //
-// To recenter or rezoom, get a new bbox from openstreetmap.org/export.
-
+// Making it belong to the page (2026-10-01, Nathan: "nicer on brand and like
+// it's framed"). Google's map lives in its own sealed page, so nothing INSIDE
+// it can be restyled; everything here works on the frame around it:
+//   - Toned: a CSS filter turns the whole map into a warm sepia print that
+//     matches the bronze palette. It eases back to full colour while someone
+//     is using it (a real pointer hovering, or keyboard focus inside), so
+//     roads and labels are clear when it matters.
+//   - Set into the mat: the house photo frame (.r-frame), plus a bronze
+//     keyline and a soft inner shade laid OVER the map's edge, so it reads as
+//     a print behind glass, not a pasted-in widget.
+//   - A sample tag ("The studio, Plainfield, Indiana") hung on the top-right
+//     corner, the same tag the photos wear. Decorative (the caption below
+//     says the same), and it lets clicks through to the map.
+// Google's logo, terms and info card are left exactly as Google draws them:
+// their embed terms require the attribution to stay visible.
+//
+// Loaded on approach: the iframe ships with NO src and the small script
+// below sets it when the map comes within ~400px of the screen. Google's
+// embed pulls in several hundred KB of script, and the old OpenStreetMap
+// embed loading eagerly pushed Contact's LCP to 4.6s (Lighthouse CI). Without
+// JavaScript the frame stays empty and "Open in Google Maps" still works.
+//
+// CSP: public/_headers allows https://www.google.com in frame-src for this.
+//
+// To change what it centres on or how far out it starts: QUERY and ZOOM
+// below (ZOOM 10 shows Plainfield to Noblesville; 11 is closer in).
 interface Props {
-  /** Override the visible bbox if Staci's coverage area shifts. Format: minLon,minLat,maxLon,maxLat */
-  bbox?: string;
-  /** Marker position. Defaults to Plainfield, IN. */
-  markerLat?: number;
-  markerLon?: number;
-  /** Iframe height in pixels (width is always 100%). */
-  height?: number;
+  /** Business info -> Service areas; the first is home base. */
+  towns?: string[] | null;
+  /**
+   * Print the "Based in ..., serving Greater Indianapolis." line under the
+   * map. Off on the home band, whose heading already says it; the "Open in
+   * Google Maps" link stays either way.
+   */
+  caption?: boolean;
   class?: string;
 }
 
-const {
-  bbox = '-86.85,39.55,-85.95,39.95', // Roughly Plainfield → Noblesville → Greenfield
-  markerLat = 39.7042,
-  markerLon = -86.3994,
-  height = 360,
-  class: className,
-} = Astro.props as Props;
-
-const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${markerLat},${markerLon}`;
-const link = `https://www.openstreetmap.org/?mlat=${markerLat}&mlon=${markerLon}#map=10/${markerLat}/${markerLon}`;
+const { towns, caption = true, class: className } = Astro.props as Props;
+const home = (towns ?? []).filter(Boolean)[0] ?? 'Plainfield';
+const QUERY = `${home}, Indiana`;
+const ZOOM = 10;
+// Google's embed URL in the form Google itself redirects to. The shorter
+// `google.com/maps?q=...&output=embed` answers with a 301 that carries
+// X-Frame-Options: SAMEORIGIN, which a browser can refuse inside an iframe;
+// this one answers 200 and is made to be framed. `!1s` is the search text
+// (spaces as +), `!6i` the zoom.
+const pbQuery = encodeURIComponent(QUERY).replace(/%20/g, '+');
+const src = `https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1s${pbQuery}!6i${ZOOM}`;
+// A full Google Maps page for directions, opened in a new tab.
+const mapLink = `https://www.google.com/maps/place/${encodeURIComponent(QUERY)}`;
 ---
 
-<figure class:list={['samap', className]}>
-  <div class="samap__frame">
-    <iframe
-      data-samap-src={src}
-      width="100%"
-      height={height}
-      title="Map showing Reid Design's service area centered on Plainfield, Indiana"
-      aria-label="Map showing Reid Design's service area centered on Plainfield, Indiana, extending through Indianapolis and the northern suburbs"
-      loading="lazy"></iframe>
+<div class:list={['samap', className]}>
+  <div class="samap__frame r-frame">
+    <div class="samap__glass">
+      <iframe
+        data-samap-src={src}
+        title={`Google map of the area Reid Design serves, centred on ${home}, Indiana`}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <p class="r-tag samap__tag" aria-hidden="true">
+      <small>The studio</small>
+      <strong>{home}, Indiana</strong>
+    </p>
   </div>
-  <figcaption class="samap__cap">
-    <span>Based in Plainfield, serving Greater Indianapolis.</span>
-    <a href={link} target="_blank" rel="noopener noreferrer" class="r-link">View larger map</a>
-  </figcaption>
-</figure>
+  <p class="samap__cap">
+    {caption && <span>Based in {home}, serving Greater Indianapolis.</span>}
+    <a href={mapLink} target="_blank" rel="noopener noreferrer" class="r-link">
+      Open in Google Maps
+    </a>
+  </p>
+</div>
 
 <script>
   // Set each map's src only when it nears the viewport (see the header).
@@ -85,32 +113,73 @@ const link = `https://www.openstreetmap.org/?mlat=${markerLat}&mlon=${markerLon}
 </script>
 
 <style>
-  .samap {
-    margin: 0;
-  }
   .samap__frame {
-    padding: 0.5rem;
-    background: var(--color-paper);
+    position: relative;
+  }
+  /* The "glass": clips the map to the picture area and carries the keyline
+     and inner shade laid over its edge. */
+  .samap__glass {
+    position: relative;
+    overflow: hidden;
+    /* Linen while the map loads, so the frame never shows a white hole. */
+    background: var(--color-chip-1);
+  }
+  .samap__glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
     box-shadow:
-      0 0 0 1px var(--color-rule),
-      0 24px 36px -30px rgb(35 30 27 / 0.6);
+      inset 0 0 0 1px rgb(156 118 97 / 0.55),
+      inset 0 0 2.5rem rgb(95 70 57 / 0.14);
   }
-  .samap__frame iframe {
+  .samap__glass iframe {
     display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
     border: 0;
-    filter: sepia(0.35) saturate(0.7) contrast(0.95);
-    transition: filter 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    /* The warm print: drain Google's colours, then tint toward the bronze
+       strip. Filters only change how the frame is painted; the map inside
+       still works and still reads as Google's. */
+    filter: grayscale(1) sepia(0.3) hue-rotate(-14deg) saturate(0.75) contrast(0.9) brightness(1.02);
   }
-  .samap__frame:hover iframe,
-  .samap__frame:focus-within iframe {
+  /* Full colour while in use: a real pointer over it, or focus inside it. */
+  @media (hover: hover) {
+    .samap__frame:hover .samap__glass iframe {
+      filter: none;
+    }
+  }
+  .samap__frame:focus-within .samap__glass iframe {
     filter: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .samap__glass iframe {
+      transition: filter 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+  /* The tag hangs off the top-right corner, square to the page. */
+  .samap__tag {
+    position: absolute;
+    top: 1.5rem;
+    right: -0.75rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+  @media (max-width: 639px) {
+    .samap__glass iframe {
+      aspect-ratio: 1;
+    }
+    .samap__tag {
+      top: 1rem;
+      right: 0.75rem;
+    }
   }
   .samap__cap {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.35rem 1rem;
-    margin-top: 0.85rem;
+    margin: 1rem 0 0;
     font-size: 0.85rem;
     line-height: 1.4;
     color: var(--color-ink-2);

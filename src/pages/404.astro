@@ -4,7 +4,7 @@
 // to /search (Pagefind). The box is a plain GET form, so it works with no JS.
 //
 // Layout: two-column on desktop (text + photograph), stacked on mobile. The
-// photo grounds the page as Reid Design — using a styled vignette from the
+// photo grounds the page as Reid Design, using a styled vignette from the
 // media library (Staci's dogs on the studio sofa) reads as "smart friend, not
 // 404 chrome." Asset is referenced by _ref so it pipes through the same
 // SanityImage CDN/transform pipeline as every other photo on the site.
@@ -15,7 +15,7 @@ import SanityImage from '@/components/SanityImage.astro';
 
 const [notFoundPage, siteSettings] = await Promise.all([getNotFoundPage(), getSiteSettings()]);
 
-// Fallback photo — Studio dogs on the sofa, in case the singleton hasn't been
+// Fallback photo: Studio dogs on the sofa, in case the singleton hasn't been
 // populated. Sanity singleton always wins if its image field is set.
 const fallbackPhoto = {
   asset: { _ref: 'image-ce9be41407b946b7453724575c3cfd7aec2f7c4c-3024x4032-jpg' },
@@ -68,23 +68,18 @@ const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
         {body}
       </p>
 
-      <div class="mt-l flex flex-wrap justify-center gap-m md:justify-start">
-        <a
-          href={primaryHref}
-          class="press-tactile inline-flex items-center rounded-sm bg-primary-dark px-l py-s text-xs font-semibold tracking-eyebrow text-white uppercase hover:bg-accent-dark"
-        >
+      {
+        /* One tag button, then underline links (the site's one button
+          identity, 2026-10-01; reid.css "Buttons"). */
+      }
+      <div class="mt-l flex flex-wrap items-center justify-center gap-x-l gap-y-m md:justify-start">
+        <a href={primaryHref} class="r-btn r-btn--ink">
           {primaryLabel}
         </a>
-        <a
-          href={secondaryHref}
-          class="press-tactile inline-flex items-center rounded-sm border border-primary px-l py-s text-xs font-semibold tracking-eyebrow text-link uppercase hover:bg-accent"
-        >
+        <a href={secondaryHref} class="r-link">
           {secondaryLabel}
         </a>
-        <a
-          href={tertiaryHref}
-          class="press-tactile inline-flex items-center rounded-sm border border-border-soft px-l py-s text-xs font-semibold tracking-eyebrow text-foreground/85 uppercase hover:border-primary hover:text-primary-dark"
-        >
+        <a href={tertiaryHref} class="r-link">
           {tertiaryLabel}
         </a>
       </div>
@@ -105,9 +100,13 @@ const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
           placeholder="Or search the site"
           class="min-w-0 flex-1 rounded-sm border border-border-soft bg-card px-m py-2.5 text-base text-foreground placeholder:text-foreground/60 focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         />
+        {
+          /* An underline link, not a second button: "Back home" above is
+            this screen's one tag (DESIGN.md "Primitives"). */
+        }
         <button
           type="submit"
-          class="press-tactile inline-flex items-center rounded-sm bg-primary-dark px-l py-2.5 text-xs font-semibold tracking-eyebrow text-white uppercase hover:bg-accent-dark"
+          class="r-link shrink-0 cursor-pointer self-center border-0 bg-transparent px-0 text-foreground"
         >
           Search
         </button>

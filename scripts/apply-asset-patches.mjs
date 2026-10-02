@@ -11,7 +11,7 @@
 // context uses the Sanity CLI's bundled user session (Nathan's Administrator
 // account), which has full project membership and can patch anything.
 //
-// Batched via client.transaction() — 172 patches go up as one request.
+// Batched via client.transaction(), 172 patches go up as one request.
 
 import { getCliClient } from 'sanity/cli';
 import { readFileSync } from 'node:fs';

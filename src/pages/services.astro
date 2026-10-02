@@ -49,7 +49,7 @@ const schemas = [
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'services' }}
 >
   <ServicesSectionRenderer
     sections={page?.pageBuilder}
@@ -59,7 +59,7 @@ const schemas = [
   />
 
   {
-    /* Sticky contextual CTA — appears past 50% scroll on this long page.
+    /* Sticky contextual CTA, appears past 50% scroll on this long page.
       Label is Sanity-editable on servicesPage; clearing the field hides it. */
   }
   {

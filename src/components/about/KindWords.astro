@@ -34,6 +34,7 @@ import Stars from '@/components/reviews/Stars.astro';
 import { splitScriptAccent } from '@/lib/scriptAccent';
 import { splitStega } from '@/lib/preview-stega';
 import type { GoogleRatingSettings, ReviewLike } from '@/lib/reviews';
+import { displayName } from '@/lib/reviews';
 import {
   facebookReviewsUrl,
   httpUrl,
@@ -121,7 +122,7 @@ const plain = (v?: string | null) => splitStega(v ?? '').cleaned.trim();
                     <p>{t.quote}</p>
                   </blockquote>
                   <figcaption>
-                    <span class="kw__who">{t.attribution}</span>
+                    <span class="kw__who">{displayName(t.attribution)}</span>
                     {(when || src.text) && (
                       <span class="kw__meta">
                         {when && <time datetime={plain(t.date)}>{when}</time>}
@@ -142,7 +143,7 @@ const plain = (v?: string | null) => splitStega(v ?? '').cleaned.trim();
                               >
                                 {src.text}
                                 <span class="sr-only">
-                                  : {plain(t.attribution)}’s review, opens in a new tab
+                                  : {displayName(plain(t.attribution))}’s review, opens in a new tab
                                 </span>
                               </a>
                             ) : (

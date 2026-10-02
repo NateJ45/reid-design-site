@@ -16,7 +16,7 @@
 //   // Or spread the whole object via PrimeReactProvider:
 //   <PrimeReactProvider value={{ unstyled: true, pt }}>
 //
-// TOKEN reference — all classes use the repo's :root semantic tokens so
+// TOKEN reference, all classes use the repo's :root semantic tokens so
 // apply-brand.mjs rewrites propagate automatically:
 //   bg-primary     = --primary (brand action color)
 //   text-primary-foreground = --primary-foreground (text on primary bg)
@@ -29,7 +29,7 @@
 
 export const pt = {
   // ------------------------------------------------------------------
-  // InputText — single-line text input
+  // InputText, single-line text input
   // ------------------------------------------------------------------
   inputtext: {
     root: {
@@ -45,7 +45,7 @@ export const pt = {
   },
 
   // ------------------------------------------------------------------
-  // Button — primary and secondary variants as a starting point
+  // Button, primary and secondary variants as a starting point
   // ------------------------------------------------------------------
   button: {
     root: ({ props }: { props: { severity?: string } }) => ({
@@ -66,7 +66,7 @@ export const pt = {
   },
 
   // ------------------------------------------------------------------
-  // Dialog — modal dialog with overlay
+  // Dialog, modal dialog with overlay
   // ------------------------------------------------------------------
   dialog: {
     mask: {

@@ -1,0 +1,144 @@
+/* Foundation, edit with care
+   =============================================================================
+   Doodles and designer markup (2026-09-30)
+   =============================================================================
+   Two hand-drawn layers that make the site feel worked on by a person:
+
+   1. DOODLES: fine-line botanicals in the style of Staci's own Instagram
+      drawings (olive, eucalyptus, berries). Only the phone menu's sprig and
+      the share cards use them now: the faint ones that grew into page
+      sections were removed on 2026-10-01 (Nathan: they still looked bad). Every doodle has the same shape (scripts/generate-doodles.mjs):
+        <g class="dd-wash">  watercolour fills, set a little off the line
+        <g class="dd-ink">   pen strokes, pathLength="1", style="--i:N"
+      pathLength="1" makes every stroke one unit long, so one pair of dash
+      rules draws any of them in; --i staggers them in drawing order.
+
+   2. MARKUP: the italic accent phrase in the closing band's heading (the
+      planning page, FinalCta) gets a hand-drawn underline in Sandbar, pulled
+      across as the heading scrolls into view, like a designer marking up a
+      plan. Once per page: until the 2026-09-30 quiet pass every h2/h3 accent
+      had one, which buried the Zodiak italic that already does the job.
+      Sandbar is a mark behind the words, never text.
+
+   Motion rules (DESIGN.md "Motion"): decorative, inside prefers-reduced-
+   motion: no-preference, and the resting default is the FINISHED drawing.
+   ============================================================================= */
+
+/* ---- Doodles --------------------------------------------------------------- */
+.dd {
+  display: block;
+  color: var(--dd-ink, var(--color-chip-7));
+  pointer-events: none;
+  user-select: none;
+}
+.dd svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+@keyframes dd-draw {
+  0% {
+    stroke-dashoffset: 1.02;
+    /* Hidden for the first moment so a round cap never leaves a dot. */
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+@keyframes dd-wash {
+  from {
+    opacity: 0;
+    translate: -3px -2px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Time-based: draw="load", and .dd--play (added by script when a header card
+     or the phone menu opens). */
+  .dd--load .dd-ink path,
+  .dd--play .dd-ink path {
+    stroke-dasharray: 1 1.1;
+    animation: dd-draw 0.7s cubic-bezier(0.45, 0.05, 0.3, 1) both;
+    animation-delay: calc(var(--dd-delay, 0s) + var(--i, 0) * 0.07s);
+  }
+  .dd--load .dd-wash,
+  .dd--play .dd-wash {
+    animation: dd-wash 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--dd-delay, 0s) + 0.45s);
+  }
+
+  /* Scroll-driven: the pen goes down as the doodle crosses the screen. */
+  @supports (animation-timeline: view()) {
+    .dd--scroll {
+      view-timeline-name: --dd;
+    }
+    .dd--scroll .dd-ink path {
+      stroke-dasharray: 1 1.1;
+      animation: dd-draw linear both;
+      animation-timeline: --dd;
+      /* Each stroke takes its own slice of the entry, in drawing order. */
+      animation-range: entry calc(10% + var(--i, 0) * 3%) cover calc(38% + var(--i, 0) * 1.5%);
+    }
+    .dd--scroll .dd-wash {
+      animation: dd-wash linear both;
+      animation-timeline: --dd;
+      animation-range: cover 30% cover 50%;
+    }
+  }
+}
+
+/* ---- Designer markup: the hand-drawn underline ----------------------------------
+   On the accent phrase of the closing band's heading only (.final__h, drawn
+   by FinalCta on every page), so each page has exactly one. Everywhere else
+   the Zodiak italic carries the accent alone. inline-block keeps the phrase
+   and its mark together; max-width lets a long phrase wrap inside itself
+   rather than overflow a phone. */
+.final__h .r-accent:not(.r-w) {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+.final__h .r-accent:not(.r-w)::after {
+  content: '';
+  position: absolute;
+  left: -0.04em;
+  right: -0.06em;
+  bottom: -0.1em;
+  height: 0.3em;
+  background: var(--mark-color, var(--color-chip-3));
+  /* The stroke itself: a marker swoosh, heavier in the middle, lifting at the
+     end. A mask, so the colour comes from --mark-color. */
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 15 C 50 10, 110 9, 170 10.5 S 262 13, 296 7' fill='none' stroke='%23000' stroke-width='5.5' stroke-linecap='round'/%3E%3Cpath d='M18 18 C 80 14.5, 160 13.5, 238 15' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' opacity='.6'/%3E%3C/svg%3E")
+    0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+  z-index: -1;
+}
+/* The words sit on top of their mark, like ink over a highlighter. */
+.final__h:has(.r-accent:not(.r-w)) {
+  isolation: isolate;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .final__h .r-accent:not(.r-w)::after {
+      animation: mark-pull linear both;
+      animation-timeline: view();
+      animation-range: entry 60% cover 40%;
+    }
+  }
+}
+@keyframes mark-pull {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}

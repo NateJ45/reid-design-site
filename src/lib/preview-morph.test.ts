@@ -175,7 +175,7 @@ test('inserts into a keyless run by repurposing the tail and appending one node'
   // sections: positional matching cannot tell "a paragraph was inserted" from
   // "every paragraph was rewritten", so it does the latter and appends. The
   // result is correct, the cost is bounded by the length of the tail, and no
-  // image is re-fetched by it — an <img> that ends up matched against a
+  // image is re-fetched by it, an <img> that ends up matched against a
   // different <img> with the same src is still left alone.
   const first = el('P', {}, [text('one')]);
   const last = el('P', {}, [text('three')]);
@@ -344,7 +344,7 @@ test('an untouched subtree beside a changed one is left entirely alone', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Bail-outs — every one of these must leave the caller free to replaceWith
+// Bail-outs, every one of these must leave the caller free to replaceWith
 // ---------------------------------------------------------------------------
 
 test('bails when the trees are deeper than the cap', () => {

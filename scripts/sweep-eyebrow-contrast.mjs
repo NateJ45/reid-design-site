@@ -1,7 +1,7 @@
 // One-off sweep: swap text-secondary → text-foreground/65 in eyebrow-typography
 // contexts so eyebrow labels clear WCAG AA contrast (4.5:1) on Cream and
 // Linen surfaces. Warm Taupe is too light for body-size text; foreground at
-// 65% lands at ~4.77:1 in light and ~6.5:1 in dark — passes both modes.
+// 65% lands at ~4.77:1 in light and ~6.5:1 in dark, passes both modes.
 //
 // Only matches strings that combine an uppercase-tracking utility with
 // text-secondary, so decorative uses of text-secondary (borders, dividers,

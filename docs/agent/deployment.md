@@ -28,7 +28,7 @@ As of early 2026, Cloudflare merged Pages into Workers. Pages is in maintenance 
 
 ### Sanity → live site rebuild model (READ THIS BEFORE CHANGING CONTENT EXPECTATIONS)
 
-The site is `output: 'static'` — every page is **pre-rendered to HTML at build time, not fetched at runtime**. Practical implication: when Staci edits a field in Sanity and clicks Publish, **the change does NOT appear on the live site until the site rebuilds**. The Sanity dataset updates instantly, but the live HTML is whatever was generated at the last build.
+The site is `output: 'static'`, every page is **pre-rendered to HTML at build time, not fetched at runtime**. Practical implication: when Staci edits a field in Sanity and clicks Publish, **the change does NOT appear on the live site until the site rebuilds**. The Sanity dataset updates instantly, but the live HTML is whatever was generated at the last build.
 
 There are three ways the site rebuilds:
 
@@ -38,7 +38,7 @@ There are three ways the site rebuilds:
 
 Without a webhook, every Sanity edit waits until the next code push. That's not a sustainable editor experience for Staci.
 
-**Status:** the webhook IS set up and live as of May 27, 2026. Cloudflare coalesces back-to-back triggers into a single build when they arrive during an in-progress build, so bulk asset uploads don't actually produce dozens of builds — typically 2-3.
+**Status:** the webhook IS set up and live as of May 27, 2026. Cloudflare coalesces back-to-back triggers into a single build when they arrive during an in-progress build, so bulk asset uploads don't actually produce dozens of builds, typically 2-3.
 
 **Recommended GROQ filter (deny-list):** apply this at manage.sanity.io → API → Webhooks → "Rebuild live site". It skips draft saves and internal Sanity asset-management events, and covers new content types automatically:
 
@@ -62,30 +62,30 @@ The old allow-list approach (listing every `_type` that should trigger a rebuild
 
 - Every publish triggers a full ~45 second build. Reasonable for a marketing site. If Staci batch-edits 20 testimonials, save the publish click until the end to consolidate one build instead of 20.
 - There's always a 1-3 minute delay between publish and live render. Acceptable for an interior design portfolio; would NOT be for breaking news.
-- Cloudflare's free tier covers 500 builds/month — well clear of expected publish cadence.
+- Cloudflare's free tier covers 500 builds/month, well clear of expected publish cadence.
 - If we ever want near-instant updates, the alternative is moving to Incremental Static Regeneration or runtime-fetching from Sanity for specific pages. Both are larger architecture changes; the webhook is the right answer for now.
 
 ### Environment variables
 
 Set in Cloudflare → **Workers & Pages → Reid Design → Settings → Variables** (Build section):
 
-- `PUBLIC_SANITY_PROJECT_ID` — Sanity project ID from manage.sanity.io.
-- `PUBLIC_SANITY_DATASET` — `production`.
-- `PUBLIC_SANITY_API_VERSION` — pinned ISO date like `2026-05-01`. Bump deliberately.
-- `SANITY_API_READ_TOKEN` — only if any page needs to read draft content (typically not, since published content is publicly readable). Mark as Secret.
-- `PUBLIC_WEB3FORMS_KEY` — contact form access key from [web3forms.com](https://web3forms.com/). Without it the contact form falls back to a no-op action and shows an inline notice.
-- `PUBLIC_CF_ANALYTICS_TOKEN` — Cloudflare Web Analytics token. Without it the analytics beacon doesn't render.
-- `PUBLIC_GA_ID` — GA4 stream id (`G-YSVYFME1FT`). Production Workers Builds only; see "Privacy and analytics" below. Even when set, it fires only on the host of `site` in astro.config (apex and www). Renamed from `PUBLIC_GA_MEASUREMENT_ID` on 2026-09-28 (the old name no longer does anything).
-- `PUBLIC_CALENDLY_URL` — Staci's public Calendly URL.
-- `INSTAGRAM_TOKEN` (added 2026-09-30) — the long-lived Instagram token for the feed (see "Instagram feed" below). Mark it Secret, on the PRODUCTION (main) trigger. Optional: without it every Instagram placement renders nothing. Read only by `scripts/fetch-instagram.mjs` in `prebuild` (Node), never through Vite, so it is not inlined into any bundle.
+- `PUBLIC_SANITY_PROJECT_ID`: Sanity project ID from manage.sanity.io.
+- `PUBLIC_SANITY_DATASET`, `production`.
+- `PUBLIC_SANITY_API_VERSION`, pinned ISO date like `2026-05-01`. Bump deliberately.
+- `SANITY_API_READ_TOKEN`, only if any page needs to read draft content (typically not, since published content is publicly readable). Mark as Secret.
+- `PUBLIC_WEB3FORMS_KEY`, contact form access key from [web3forms.com](https://web3forms.com/). Without it the contact form falls back to a no-op action and shows an inline notice.
+- `PUBLIC_CF_ANALYTICS_TOKEN`: Cloudflare Web Analytics token. Without it the analytics beacon doesn't render.
+- `PUBLIC_GA_ID`: GA4 stream id (`G-YSVYFME1FT`). Production Workers Builds only; see "Privacy and analytics" below. Even when set, it fires only on the host of `site` in astro.config (apex and www). Renamed from `PUBLIC_GA_MEASUREMENT_ID` on 2026-09-28 (the old name no longer does anything).
+- `PUBLIC_CALENDLY_URL`: Staci's public Calendly URL.
+- `INSTAGRAM_TOKEN` (added 2026-09-30), the long-lived Instagram token for the feed (see "Instagram feed" below). Mark it Secret, on the PRODUCTION (main) trigger. Optional: without it every Instagram placement renders nothing. Read only by `scripts/fetch-instagram.mjs` in `prebuild` (Node), never through Vite, so it is not inlined into any bundle.
 - Removed 2026-09-30 (never launched): `PUBLIC_NEWSLETTER_FORM_ACTION` and `NEWSLETTER_API_KEY` are no longer read by anything (the newsletter was removed). Delete them from the Workers settings if they are still set.
 
 All documented in `.env.example`; copy to `.env` and fill in real values for local dev.
 
 **Worker runtime secrets** (not build variables; set with `npx wrangler secret put <NAME>`, `.dev.vars` locally, template in `.dev.vars.example`):
 
-- `SANITY_TOKEN` — the preview stack (see above).
-- `CF_ANALYTICS_TOKEN` (added 2026-09-29) — a read-only Cloudflare API token, exactly one permission (Zone > Analytics > Read, zone reiddesignllc.com), for the Studio "Site stats" panel. Optional: without it `/api/stats` answers 503 and the panel says it is not set up yet. `CF_ZONE_ID` optionally overrides the zone id constant in `src/pages/api/stats.ts`.
+- `SANITY_TOKEN`, the preview stack (see above).
+- `CF_ANALYTICS_TOKEN` (added 2026-09-29), a read-only Cloudflare API token, exactly one permission (Zone > Analytics > Read, zone reiddesignllc.com), for the Studio "Site stats" panel. Optional: without it `/api/stats` answers 503 and the panel says it is not set up yet. `CF_ZONE_ID` optionally overrides the zone id constant in `src/pages/api/stats.ts`.
 
 **Site search (2026-09-29).** `npm run build` ends with `postbuild` = `pagefind --site dist/client`. The index is built against `dist/client` because adapter 14 splits the output, and it lands in `dist/client/pagefind/`, which the Workers `assets` binding serves like any other static file (nothing extra in `wrangler.jsonc`). The Workers Build runs `npm run build`, so it indexes on every deploy; the Linux Pagefind binary is in the lockfile (all seven platforms are). **If a full Content-Security-Policy is ever added** (see below), `script-src` needs `'wasm-unsafe-eval'` or `/search` will load and then fail to start Pagefind's WebAssembly; today only `frame-ancestors` is set, so nothing blocks it.
 
@@ -141,12 +141,12 @@ Build variables are **per trigger**: a branch-preview trigger without `INSTAGRAM
 
 ### Privacy and analytics
 
-The only cookies the site sets are GA4's `_ga` / `_ga_<id>` analytics cookies (on the production host only). No consent banner is mounted — `ConsentNotice.tsx` was removed: there is no newsletter or other vendor-script capture, there is no ad tracking, and the audience is a US local business's, where analytics cookies do not need prior consent (EU/UK visitors would; `setsAnalyticsCookies` in `analytics-config.ts` is the boolean to branch on if a banner is ever added, PORTS.md card 54). Google's Analytics terms DO require the privacy-policy disclosure, which `/privacy` derives. The current, accurate posture:
+The only cookies the site sets are GA4's `_ga` / `_ga_<id>` analytics cookies (on the production host only). No consent banner is mounted, `ConsentNotice.tsx` was removed: there is no newsletter or other vendor-script capture, there is no ad tracking, and the audience is a US local business's, where analytics cookies do not need prior consent (EU/UK visitors would; `setsAnalyticsCookies` in `analytics-config.ts` is the boolean to branch on if a banner is ever added, PORTS.md card 54). Google's Analytics terms DO require the privacy-policy disclosure, which `/privacy` derives. The current, accurate posture:
 
 - **Cloudflare Web Analytics** would be cookieless, but is NOT configured today (no `PUBLIC_CF_ANALYTICS_TOKEN` on the Workers Build, so `Analytics.astro` renders no beacon). If a token is ever added, `/privacy` picks it up automatically.
 - **Google Analytics 4** (property 542115376, stream `G-YSVYFME1FT`) renders from `src/components/Analytics.astro` (PORTABLE, the starter's card 54 + 58 component, ported 2026-09-28) when `PUBLIC_GA_ID` is set at build time. The library loads at idle after the load event (outside LCP) and the script element is built at runtime (Zaraz-proof). It is set ONLY as a build variable on the Cloudflare Workers Builds production deploy, never in `ci.yml`, `lighthouse.yml` or `deploy-staging.yml`. The component also checks `location.hostname` at runtime and does nothing off `reiddesignllc.com` / `www.reiddesignllc.com` (derived from `site`), because a developer's local `.env` carrying the id let Playwright runs file 470 fake localhost sessions into the property (2026-07-28, 2026-08-27). `tests/smoke.spec.ts` holds that guard. Pages of switched-off sections are redirect stubs, not BaseLayout pages, so they carry no tag by design. **GA4 sets `_ga` / `_ga_<id>` cookies**, so the site is no longer zero-cookie: `/privacy` discloses them in a section derived from `src/lib/analytics-config.ts` (never edit that wording into Sanity; it would go stale the moment the config changes).
-- **No Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker — don't bolt it on.
+- **No Facebook/Meta Pixel, no LinkedIn Insight Tag.** No ad-tracking or retargeting pixels. If you ever add one, design a full consent management platform in BEFORE adding the tracker, don't bolt it on.
 - **Sanity client** reads public published content, no auth cookies.
 - **Web3Forms** contact-form submissions go server-side via `fetch`; no cookies set. The contact form also triggers a Web3Forms autoresponder (visitor confirmation email) when that's enabled on the access key.
 
-**`/privacy` page:** a real privacy policy ships, driven by the `privacyPage` singleton with a plain-voice static fallback (covers what's collected, what doesn't happen, data requests). Linked from the footer on every page. This is the privacy surface for the site — no consent banner needed alongside it.
+**`/privacy` page:** a real privacy policy ships, driven by the `privacyPage` singleton with a plain-voice static fallback (covers what's collected, what doesn't happen, data requests). Linked from the footer on every page. This is the privacy surface for the site, no consent banner needed alongside it.

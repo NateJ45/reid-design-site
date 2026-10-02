@@ -114,7 +114,7 @@ test('works on a node with no stega at all, when the text still matches', () => 
 // --- applyKnownChange: correcting a node that shows ANY past value -----------
 // The re-apply after a soft refresh. A render that started mid-burst arrives
 // holding an INTERMEDIATE value, which `applyTextChange` (exact match on the
-// value the burst started from) could not correct — the half-typed sentence sat
+// value the burst started from) could not correct, the half-typed sentence sat
 // on the page until the next render.
 
 test('corrects a node showing an intermediate value the field passed through', () => {
@@ -134,7 +134,7 @@ test('still corrects a node showing the original value', () => {
   assert.equal(splitStega(original.data).cleaned, 'Our stories');
 });
 
-test('leaves a node showing the current value alone — the server caught up', () => {
+test('leaves a node showing the current value alone, the server caught up', () => {
   const landed = node('Our stories', SECTION_RUN);
   assert.equal(applyKnownChange(landed, ['Our story', 'Our stories'], 'Our stories'), false);
   assert.equal(splitStega(landed.data).cleaned, 'Our stories');

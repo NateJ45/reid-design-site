@@ -1,16 +1,16 @@
-# Design Polish Batch 2 — JS/Animated Flourishes + Sanity Schema
+# Design Polish Batch 2: JS/Animated Flourishes + Sanity Schema
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement 4 design flourishes that require IntersectionObserver or Sanity schema changes: Image Curtain Reveal, Process Connector Lines, Stat Counters, and Page Transition Polish.
 
-**Architecture:** CSS utilities + IntersectionObserver extensions added to BaseLayout's existing `initPolish()` function. Curtain divs injected into specific server-rendered image wrappers. Connector divs added inside ProcessStep.astro's existing flex column. Two new components (StatsRow.astro + StatsCounter.tsx) for the count-up animation. One Sanity schema addition (stats array field on aboutPage). Astro View Transitions is already wired — page transitions are a CSS-only addition.
+**Architecture:** CSS utilities + IntersectionObserver extensions added to BaseLayout's existing `initPolish()` function. Curtain divs injected into specific server-rendered image wrappers. Connector divs added inside ProcessStep.astro's existing flex column. Two new components (StatsRow.astro + StatsCounter.tsx) for the count-up animation. One Sanity schema addition (stats array field on aboutPage). Astro View Transitions is already wired, page transitions are a CSS-only addition.
 
 **Tech Stack:** Astro 6, Tailwind v4, TypeScript, React 19, Sanity v5, `view-transition-name` CSS API, `requestAnimationFrame` for count-up
 
 **Reference spec:** `docs/superpowers/specs/2026-05-29-design-polish-flourishes-design.md` (Flourishes 4, 5, 6, 7)
 
-**IMPORTANT after Task 7:** Run `npm run typegen` then `npm run studio:deploy` — schema changes go live in the hosted Studio only after deploy. Never skip studio:deploy.
+**IMPORTANT after Task 7:** Run `npm run typegen` then `npm run studio:deploy`, schema changes go live in the hosted Studio only after deploy. Never skip studio:deploy.
 
 ---
 
@@ -40,10 +40,10 @@
 
 - [ ] **Step 1: Insert Batch 2 CSS block**
 
-After the stagger grid CSS added in Batch 1 (or at the same insertion point — after `.hero-entry-stagger` reduced-motion reset, before `/* Reading-room paper grain */`), add:
+After the stagger grid CSS added in Batch 1 (or at the same insertion point, after `.hero-entry-stagger` reduced-motion reset, before `/* Reading-room paper grain */`), add:
 
 ```css
-/* ---- Image curtain reveal — a Soft Linen panel scales away from the top
+/* ---- Image curtain reveal, a Soft Linen panel scales away from the top
    edge to reveal the image. Triggered by IntersectionObserver in BaseLayout.
    The color matches --background so the reveal feels like materialization,
    not a sliding panel. ---- */
@@ -61,7 +61,7 @@ After the stagger grid CSS added in Batch 1 (or at the same insertion point — 
   transform: scaleY(0);
 }
 
-/* ---- Process connector lines — a 2px bronze thread that draws downward
+/* ---- Process connector lines, a 2px bronze thread that draws downward
    from each step number badge. Resting state is Light Gray; the ::after
    fill animates to Warm Bronze when the step is in view.
    Added inside ProcessStep.astro's existing left-column flex container. ---- */
@@ -87,10 +87,10 @@ After the stagger grid CSS added in Batch 1 (or at the same insertion point — 
   transform: scaleY(1);
 }
 
-/* ---- View transitions — cross-fade for <main> content on every navigation.
+/* ---- View transitions, cross-fade for <main> content on every navigation.
    Header and footer are named and pinned with animation: none so they stay
    put during the swap. Astro's ClientRouter is already wired in BaseLayout.
-   Astro respects prefers-reduced-motion automatically — no extra rule needed. ---- */
+   Astro respects prefers-reduced-motion automatically, no extra rule needed. ---- */
 main#main           { view-transition-name: main-content; }
 .site-header        { view-transition-name: site-header; }
 footer              { view-transition-name: site-footer; }
@@ -119,9 +119,9 @@ footer              { view-transition-name: site-footer; }
 Inside the existing `@media (prefers-reduced-motion: reduce)` block (around line 544), add after the stagger grid rule from Batch 1:
 
 ```css
-  /* Curtain: skip the reveal entirely — image always visible */
+  /* Curtain: skip the reveal entirely, image always visible */
   .img-curtain { display: none !important; }
-  /* Connector: skip the draw animation — Gray track always visible */
+  /* Connector: skip the draw animation: Gray track always visible */
   .step-connector::after { transform: scaleY(1) !important; transition: none !important; }
 ```
 
@@ -337,7 +337,7 @@ git commit -m "feat: add image curtain reveal to featured work hero card on home
 
 ---
 
-### Task 5: Update ProcessStep.astro — isLast prop and connector div
+### Task 5: Update ProcessStep.astro, isLast prop and connector div
 
 **Files:**
 - Modify: `src/components/ProcessStep.astro`
@@ -630,7 +630,7 @@ Create `src/components/StatsRow.astro` with this content:
 ---
 // Safe to edit by hand
 // Layout shell for the stat counters section on the About page.
-// Renders nothing when stats is empty — About page is unchanged until Staci
+// Renders nothing when stats is empty: About page is unchanged until Staci
 // fills in the Stats tab in Studio.
 
 import StatsCounter from './StatsCounter';
@@ -664,7 +664,7 @@ Create `src/components/StatsCounter.tsx` with this content:
 ```tsx
 // Foundation, edit with care
 // Count-up animation for studio stats on the About page.
-// Uses requestAnimationFrame with easeOutQuart easing — no extra dependencies.
+// Uses requestAnimationFrame with easeOutQuart easing, no extra dependencies.
 // Each number counts from 0 to its target value over 1.8 seconds when the
 // section scrolls into view. Respects prefers-reduced-motion: renders final
 // values immediately when the user prefers reduced motion.
@@ -837,7 +837,7 @@ Replace with:
 
 - [ ] **Step 4: Visual check**
 
-Open `http://localhost:4321/about`. If stats have been seeded in Sanity, you'll see the count-up section. If not, the section suppresses and the page looks unchanged — which is the correct empty-state behavior.
+Open `http://localhost:4321/about`. If stats have been seeded in Sanity, you'll see the count-up section. If not, the section suppresses and the page looks unchanged, which is the correct empty-state behavior.
 
 To test the stats display without entering real data in Studio, temporarily add a stats array to the page's fallback values in about.astro, verify it renders correctly, then remove it before committing.
 
@@ -855,7 +855,7 @@ Expected: no type errors.
 
 ```
 git add src/pages/about.astro
-git commit -m "feat: add StatsRow section to About page — suppresses until Staci fills in Studio"
+git commit -m "feat: add StatsRow section to About page, suppresses until Staci fills in Studio"
 ```
 
 ---
@@ -871,12 +871,12 @@ npm run build
 Expected: build completes without errors. Check output for any TypeScript or Astro compilation warnings.
 
 Verify visually in both light and dark mode on mobile and desktop:
-- `http://localhost:4321/` — home hero + services stagger + FeaturedWork curtain + process preview connectors
-- `http://localhost:4321/portfolio` — project card hover treatment + stagger grid
-- `http://localhost:4321/portfolio/[any-slug]` — hero curtain reveal
-- `http://localhost:4321/journal/[any-slug]` — drop cap + blockquote treatment
-- `http://localhost:4321/process` — connector lines between steps
-- `http://localhost:4321/about` — philosophy stagger + stats section (if populated)
+- `http://localhost:4321/`, home hero + services stagger + FeaturedWork curtain + process preview connectors
+- `http://localhost:4321/portfolio`, project card hover treatment + stagger grid
+- `http://localhost:4321/portfolio/[any-slug]`, hero curtain reveal
+- `http://localhost:4321/journal/[any-slug]`, drop cap + blockquote treatment
+- `http://localhost:4321/process`, connector lines between steps
+- `http://localhost:4321/about`, philosophy stagger + stats section (if populated)
 - Navigate between any two pages and verify the cross-fade transition plays at ~300ms total
 
 Test with prefers-reduced-motion enabled: no animations, no curtain flash, connectors draw instantly (Gray track always visible), stats show final numbers immediately.

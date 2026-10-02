@@ -8,7 +8,7 @@ Reid Design's audience arrives on mobile, often on Indiana suburban networks (ce
 
 ### Core Web Vitals targets
 
-- **LCP (Largest Contentful Paint)** < 1.0s on the home hero, < 1.5s site-wide. The hero image is usually LCP — size it for mobile (750px wide, quality ~65) and let it grow on larger viewports.
+- **LCP (Largest Contentful Paint)** < 1.0s on the home hero, < 1.5s site-wide. The hero image is usually LCP, size it for mobile (750px wide, quality ~65) and let it grow on larger viewports.
 - **CLS (Cumulative Layout Shift)** < 0.05. Reserve space for images with explicit width/height (or aspect-ratio CSS). Don't lazy-load above-the-fold images. Web fonts use `font-display: swap` to avoid invisible-text shifts.
 - **INP (Interaction to Next Paint)** < 200ms. Keep React island hydration light. Favor `client:visible` and `client:idle` over `client:load` for anything below the fold.
 
@@ -21,7 +21,7 @@ Reid Design's audience arrives on mobile, often on Indiana suburban networks (ce
 | Total CSS (compressed)                          | < 30KB  |
 | Hero image (any viewport)                       | < 200KB |
 
-If a new dependency pushes a budget, that's a discussion before merging. Some are worth it (Lenis adds smooth scroll, motion is the interaction language); some aren't (a 60KB icon library when three lucide-react icons would cover it).
+If a new dependency pushes a budget, that's a discussion before merging. Some are worth it (motion is the interaction language); some aren't (a 60KB icon library when three lucide-react icons would cover it).
 
 ### Image weight by slot
 
@@ -34,7 +34,7 @@ If a new dependency pushes a budget, that's a discussion before merging. Some ar
 | Testimonial avatar         | 120×120            | `urlFor(...).width(120).height(120).fit('crop')`                               | Static thumbnail                                  |
 | OG share card              | 1200×630           | n/a, drawn every build into `dist/client/og/` (`src/integrations/og-cards.ts`) | Fallback `public/og-default.png` via `npm run og` |
 
-Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than the slot renders at.** Format defaults to `auto` (AVIF / WebP / JPEG fallback), quality to 75 — drop to 65 for big hero photos.
+Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than the slot renders at.** Format defaults to `auto` (AVIF / WebP / JPEG fallback), quality to 75, drop to 65 for big hero photos.
 
 ### Font loading
 
@@ -43,12 +43,12 @@ Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than
 - **No font preload was a measured decision on the OLD fonts (2026-09-29, before the rebuild).** A preload is possible (a `?url` import of the woff2 returns the hashed URL). On Lighthouse mobile the 23KB font competed with the stylesheet and the hero photo, and LCP (then always the hero PHOTO, never text) rose about 250-300ms on `/`, `/about` and `/services`, so the preload was taken out. The reasoning is in a comment in BaseLayout's `<head>`. That measurement predates Zodiak / General Sans and the new home hero; it was not re-run for the rebuild. Revisit if a page's LCP element becomes text.
 - **`<link rel="preconnect" href="https://cdn.sanity.io">`** (no `crossorigin`: images are no-cors, and a crossorigin preconnect opens a socket the images cannot use).
 
-### Hero slideshow and Lenis (2026-09-29)
+### Hero slideshow (2026-09-29)
 
 > The slideshow bullet describes `Hero.astro` / `HeroBackground.astro`. The rebuilt home page uses `HomeHero.astro` (a single `heroPortrait` image) instead; the slideshow lever now applies only where `Hero.astro` is still used.
 
 - **Only the first hero slide loads before the page does.** With 2+ hero images, `HeroBackground.astro` renders every slide after the first with `SanityImage`'s `defer` prop: no `src`, URLs parked in `data-src` / `data-srcset`, moved across 800ms after the load event. `loading="lazy"` never held them back, because every slide is stacked inside the viewport; on the mobile Lighthouse run all six extra slides (about 225KB) downloaded next to the LCP photo and the fonts. The slideshow timer also refuses to fade to a slide whose image has not arrived, and reduced-motion visitors never fetch the extra slides at all.
-- **Lenis runs on wheel devices only** (`pointer: fine` and 1024px+, from presacademy). Touch scrolling is already inertial. The navigation scroll reset still works on phones: without Lenis there is no momentum to cancel, and Astro's ClientRouter restores top-on-click and position-on-Back itself. `tests/scroll-reset.spec.ts` pins both devices.
+- **No Lenis (removed 2026-09-30).** It had been limited to wheel devices since 2026-09-29; now no device loads it, which also drops its ~10KB idle chunk.
 
 ### The concept room (2026-09-30)
 
@@ -70,21 +70,20 @@ Measured on the deployed Cloudflare URL (`reid-design-site.nathanjnixon86.worker
 | Page (mobile, Moto G4 1.875 DPR) | A11y | BP  | SEO | Agentic | LCP     | CLS  |
 | -------------------------------- | ---- | --- | --- | ------- | ------- | ---- |
 | `/`                              | 100  | 100 | 100 | 100     | ~180 ms | 0.00 |
-| `/services`                      | 100  | 100 | 100 | 100     | —       | 0.04 |
+| `/services`                      | 100  | 100 | 100 | 100     | n/a     | 0.04 |
 | `/portfolio/[slug]`              | 100  | 100 | 100 | 100     | ~142 ms | 0.02 |
 
 Desktop scores match (also 100s across the board). Remaining `ImageDelivery` "Est savings" numbers in the Lighthouse diagnostics tab are unscored and theoretical (would require infinitely-granular srcset breakpoints).
 
-**Levers that got us here — preserve unless you have a stronger reason than "I want to simplify":**
+**Levers that got us here, preserve unless you have a stronger reason than "I want to simplify":**
 
 - All site islands hydrate at `client:idle` or `client:visible`, `MobileNav` included since 2026-09-29 (PORTS.md card 52: the old "Radix Sheet portal requires `client:only`" rule was never true on the pinned set). Only the preview-only `VisualEditingOverlay` is `client:only="react"`.
-- Lenis init wrapped in `requestIdleCallback`, and skipped entirely on touch / narrow screens
 - Non-first hero slides deferred until after the load event (`SanityImage defer`)
 - Metric-matched fallback faces for both families (and, as measured on the old fonts, no font preload)
 - Logo PNGs moved from `public/` to `src/assets/` so Astro emits WebPs
 - Single-img logo via the `data-theme-logo` pattern (one fetch per page load instead of two)
 - SanityImage emits real width-descriptor srcset with 8 breakpoints (400–2400)
-- AVIF as default format (`'auto'`) — Sanity picks AVIF on supporting browsers
+- AVIF as default format (`'auto'`): Sanity picks AVIF on supporting browsers
 - `fetchpriority="high"` on hero LCP image
 - Portrait inline images capped to `max-w-[600px]` (smaller files at the smaller cap)
 - Cloudflare adapter `imageService: 'compile'` (build-time Sharp, no runtime image binding)
@@ -98,7 +97,7 @@ Desktop scores match (also 100s across the board). Remaining `ImageDelivery` "Es
 | `MobileNav`            | `client:idle`    | A closed Radix Dialog server-renders only its trigger, so the "Menu" price tag ships in the HTML and React loads behind `requestIdleCallback` (card 52, 2026-09-29)                                                                                          |
 | `ContactForm`          | `client:visible` | Below the fold on most pages                                                                                                                                                                                                                                 |
 | `BackToTop`            | `client:idle`    | Doesn't appear until the visitor scrolls 600px, so the JS doesn't need to race first paint                                                                                                                                                                   |
-| `Toaster` (Sonner)     | `client:idle`    | Region only — toast calls fire from elsewhere, plenty of time for the region to mount                                                                                                                                                                        |
+| `Toaster` (Sonner)     | `client:idle`    | Region only, toast calls fire from elsewhere, plenty of time for the region to mount                                                                                                                                                                         |
 | `ProjectGallery`       | `client:visible` | Always below fold                                                                                                                                                                                                                                            |
 | `BeforeAfterSlider`    | `client:visible` | Always below fold                                                                                                                                                                                                                                            |
 | `FaqAccordion`         | `client:visible` | Interactive but not critical-path                                                                                                                                                                                                                            |
@@ -110,7 +109,7 @@ Desktop scores match (also 100s across the board). Remaining `ImageDelivery` "Es
 | `CopyEmailButton`      | `client:visible` | Used in footer + contact + email failsafe                                                                                                                                                                                                                    |
 | `PortableText`         | `client:visible` | Defers the 94 KB Sanity client bundle (via the `urlFor` import) until the visitor scrolls the body into view. The HTML is still server-rendered, so reading starts immediately.                                                                              |
 
-Default to `client:visible` or `client:idle` for anything not immediately above the fold. Astro ships less JS up front. `client:load` is reserved for islands that genuinely must be live before first interaction — and even then, ask twice whether `client:idle` is acceptable.
+Default to `client:visible` or `client:idle` for anything not immediately above the fold. Astro ships less JS up front. `client:load` is reserved for islands that genuinely must be live before first interaction, and even then, ask twice whether `client:idle` is acceptable.
 
 ### Verifying
 

@@ -25,17 +25,32 @@ interface Props {
   designStyle?: string;
   location?: string;
   year?: number | string;
+  /** "1990s colonial" (optional, added 2026-10-01). */
+  houseDescription?: string;
+  /** "Full room design, from $995" (optional, added 2026-10-01). */
+  scopeLine?: string;
   /** Pre-formatted, e.g. "4 min read". */
   readTime?: string;
 }
 
-const { roomType, briefLine, designCall, designStyle, location, year, readTime } =
-  Astro.props as Props;
+const {
+  roomType,
+  briefLine,
+  designCall,
+  designStyle,
+  location,
+  year,
+  houseDescription,
+  scopeLine,
+  readTime,
+} = Astro.props as Props;
 
 const facts = [
   { label: 'Room', value: humanizeEnum(roomType) },
   { label: 'Style', value: humanizeEnum(designStyle) },
   { label: 'Where', value: location },
+  { label: 'House', value: houseDescription },
+  { label: 'Scope', value: scopeLine },
   { label: 'Year', value: year ? String(year) : '' },
   { label: 'Reading', value: readTime },
 ].filter((f): f is { label: string; value: string } => Boolean(f.value));

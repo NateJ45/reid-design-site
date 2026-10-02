@@ -121,10 +121,10 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
   S.list()
     .title('Reid Design')
     .items([
-      // Start Here — three-panel handbook for Staci. First item so it is always visible.
+      // Start Here, three-panel handbook for Staci. First item so it is always visible.
       // Panel 1: how the Studio works and step-by-step how-tos (static).
       // Panel 2: live business overview (services + site settings fetched from Sanity).
-      // Panel 3: brand kit — colors + fonts for Canva (static).
+      // Panel 3: brand kit, colors + fonts for Canva (static).
       S.listItem()
         .title('Start Here')
         .icon(InfoOutlineIcon)
@@ -177,7 +177,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Site Settings — pinned singleton (no preview; not a page)
+      // Site Settings, pinned singleton (no preview; not a page)
       singletonWithPreview(S, 'siteSettings', 'Site Settings', CogIcon),
 
       // Announcements: the top-of-site bar and popup Staci posts herself.
@@ -187,7 +187,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Pages — every page singleton lives here, grouped with dividers so the
+      // Pages, every page singleton lives here, grouped with dividers so the
       // list stays scannable: core pages, offerings, other.
       S.listItem()
         .title('Pages')
@@ -218,7 +218,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
               S.divider(),
 
-              // Custom pages — Staci builds these herself from the section
+              // Custom pages: Staci builds these herself from the section
               // library. Multi-instance (not a singleton), so it is a normal
               // document list she can add to.
               S.documentTypeListItem('page')
@@ -241,7 +241,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Content — the business data and reusable building blocks Staci edits.
+      // Content, the business data and reusable building blocks Staci edits.
       // Leads with Business info (areas / travel / availability) and a single
       // Pricing & rates group, so the things she changes that populate many
       // pages are findable in one spot. Orderable types keep drag-and-drop.
@@ -252,13 +252,13 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
           S.list()
             .title('Content')
             .items([
-              // Business info — service areas, travel fees, availability, geo.
+              // Business info, service areas, travel fees, availability, geo.
               // Moved here from Site Settings so Settings is identity + infra only.
               singletonWithPreview(S, 'businessInfo', 'Business info', PinIcon),
 
               S.divider(),
 
-              // Pricing & rates — every place a price lives, in one spot. Services
+              // Pricing & rates, every place a price lives, in one spot. Services
               // is the core list; the E-Design page keeps its own pricing shape
               // but is linked here too so Staci never hunts for a number.
               S.listItem()
@@ -288,12 +288,12 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 icon: ImagesIcon,
                 S,
                 context,
-                // The "Project story" starting layout (src/sanity/templates.ts).
+                // The "Room story" starting layout (src/sanity/templates.ts).
                 // The orderable list's own "Create new" makes a blank project,
                 // so the prompted one is offered beside it in the same menu.
                 menuItems: [
                   S.menuItem()
-                    .title('New project story (with writing prompts)')
+                    .title('New room story (with writing prompts)')
                     .icon(ImagesIcon)
                     .intent({
                       type: 'create',
@@ -330,7 +330,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                     .title('Google reviews')
                     .items([
                       S.listItem()
-                        .title('Star rating and review count')
+                        .title('Star rating')
                         .icon(StarIcon)
                         .child(
                           S.document()
@@ -362,7 +362,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Trash — anything removed with "Move to Trash". Sorted newest first so the
+      // Trash, anything removed with "Move to Trash". Sorted newest first so the
       // thing you just deleted by accident is the first row you see.
       S.listItem()
         .title('Trash')

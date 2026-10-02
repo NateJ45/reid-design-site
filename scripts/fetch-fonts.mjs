@@ -35,6 +35,12 @@
 //
 // Files already present with the right hash are not downloaded again, so dev
 // restarts are free after the first run.
+//
+// SHARE-CARD COPIES (2026-09-30): the build draws every page's share card
+// with satori, which cannot read WOFF2. So the lock's `ogFiles` lists .woff
+// copies of the faces the cards use (the SAME Fontshare files, same URL with
+// .woff), fetched into scripts/.og-fonts/ (gitignored, never deployed: the
+// cards are rendered to PNG at build time, the fonts never leave the build).
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -43,6 +49,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'public', 'fonts');
+const ogDir = join(root, 'scripts', '.og-fonts');
+// The share-card faces (see the header). Keys of lock.files, as woff2.
+const OG_FACES = ['Zodiak-300.woff2', 'GeneralSans-500.woff2'];
 const lockPath = join(root, 'scripts', 'fonts.lock.json');
 const update = process.argv.includes('--update');
 
@@ -85,6 +94,7 @@ async function main() {
 
   // ---- Normal run: the lock is the source of truth. ----
   if (!update) {
+    await fetchOgFiles(lock);
     const entries = Object.entries(lock.files ?? {});
     if (entries.length === 0) {
       throw new Error('[fonts] scripts/fonts.lock.json lists no files. Run with --update.');
@@ -166,6 +176,7 @@ async function main() {
           license:
             'ITF Free Font License 2.0 (Fontshare). Licensee: Reid Design LLC, for reiddesignllc.com only.',
           files,
+          ogFiles: await ogLockFrom(files),
         },
         null,
         2,
@@ -175,6 +186,39 @@ async function main() {
   } else {
     console.log(`[fonts] ${Object.keys(files).length} files verified`);
   }
+}
+
+/** Normal run: fetch and verify the share-card .woff copies into scripts/.og-fonts/. */
+async function fetchOgFiles(lock) {
+  const entries = Object.entries(lock.ogFiles ?? {});
+  if (entries.length === 0) return;
+  mkdirSync(ogDir, { recursive: true });
+  for (const [name, meta] of entries) {
+    const dest = join(ogDir, name);
+    if (existsSync(dest) && sha256(readFileSync(dest)) === meta.sha256) continue;
+    const buf = await get(meta.source, 'buffer');
+    const hash = sha256(buf);
+    if (hash !== meta.sha256) {
+      throw new Error(
+        `[fonts] share-card ${name} hashed ${hash.slice(0, 12)}, locked ${meta.sha256.slice(0, 12)}. Run with --update.`,
+      );
+    }
+    writeFileSync(dest, buf);
+    console.log(`[fonts] share-card ${name} ${(buf.length / 1024).toFixed(1)} KB`);
+  }
+}
+
+/** --update: the .woff twin of each share-card face, hashed for the lock. */
+async function ogLockFrom(files) {
+  const out = {};
+  for (const woff2 of OG_FACES) {
+    const src = files[woff2]?.source;
+    if (!src) continue;
+    const source = src.replace(/\.woff2$/, '.woff');
+    const buf = await get(source, 'buffer');
+    out[woff2.replace(/\.woff2$/, '.woff')] = { sha256: sha256(buf), bytes: buf.length, source };
+  }
+  return out;
 }
 
 main().catch((err) => {

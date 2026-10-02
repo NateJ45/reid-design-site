@@ -14,7 +14,7 @@ export const processStep = defineType({
     { path: 'title', weight: 5 },
     { path: 'shortDescription', weight: 2 },
   ],
-  // Locked structural content (numbered steps with tier notes) — not Canvas territory.
+  // Locked structural content (numbered steps with tier notes), not Canvas territory.
   options: { canvasApp: { exclude: true } },
   fields: [
     defineField({

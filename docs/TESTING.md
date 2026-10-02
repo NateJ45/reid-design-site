@@ -1,4 +1,4 @@
-# TESTING — which suite covers what
+# TESTING, which suite covers what
 
 Created 2026-08-27 during the starter sync session (PORTS.md card 15). The point
 of this file is that nobody writes a fifth suite that duplicates the third: read
@@ -41,20 +41,20 @@ else needs touching. Dynamic `[slug]` routes and `/404` are excluded.
 
 That file splits the list in three, and the split is load-bearing:
 
-- `routes` — pages that render real content. Everything scans these.
-- `hiddenRoutes` — pages whose section is switched off in
+- `routes`, pages that render real content. Everything scans these.
+- `hiddenRoutes`, pages whose section is switched off in
   `siteSettings.sectionVisibility`, so the page calls `Astro.redirect('/')` and
   a static build bakes a meta-refresh stub in its place. Those stubs fail five
   axe rules for real, so they are smoke-only rather than deleted, and the list
   shrinks to nothing the day the sections are turned on. Since 2026-09-30 it
   is just `/portfolio` and `/portfolio/before-after`. See `docs/PENDING.md`.
-- `retiredRoutes` — the eight sections REMOVED on 2026-09-30 (journal, shop,
+- `retiredRoutes`, the eight sections REMOVED on 2026-09-30 (journal, shop,
   gift certificates, quiz, calculator, resources, guides, press). No page may
   be built at any of them: the static test server does not read
   `public/_redirects`, so each must answer 404 there. The production 301s are
   pinned separately, by `src/lib/retired-redirects.test.ts`.
 
-- **`tests/smoke.spec.ts`** — every content route answers 200 with "Reid
+- **`tests/smoke.spec.ts`** every content route answers 200 with "Reid
   Design" in its `<title>` (proof of a real rendered page, not an error body);
   every hidden route answers 200 with the stub's "Redirecting to: /" title (or
   the home title, once the refresh has fired); every retired route answers 404
@@ -63,11 +63,11 @@ That file splits the list in three, and the split is load-bearing:
   and bites on a local run whose `.env` carries `PUBLIC_GA_ID` (formerly `PUBLIC_GA_MEASUREMENT_ID`),
   which is how 470 fake sessions reached the live property. Proven 2026-09-28:
   it fails against the pre-guard layout with the id built in.
-- **`tests/a11y.spec.ts`** — axe-core's **default** rule set on every content
+- **`tests/a11y.spec.ts`** axe-core's **default** rule set on every content
   route, zero violations. Deliberately not narrowed with `.withTags([...])`:
   filtering to `wcag2a` alone quietly drops the AA rules, which is a mistake
   this family has made before.
-- **`tests/a11y-dark.spec.ts`** — since 2026-09-29 a **light-only guard**, not a dark sweep. The site is light
+- **`tests/a11y-dark.spec.ts`** since 2026-09-29 a **light-only guard**, not a dark sweep. The site is light
   only, so the file seeds `localStorage['reid-design-theme']` = `'dark'` through
   `addInitScript` (before BaseLayout's inline bootstrap runs) and asserts the
   stored preference does NOT engage dark mode (`<html>` never gets `.dark`).
@@ -77,9 +77,9 @@ That file splits the list in three, and the split is load-bearing:
   exists: axe has no focus-indicator rule and only audits the resting DOM, and
   that blind spot once shipped invisible keyboard focus on WCP with Lighthouse
   at 100. The ring's contrast is pinned by the theme-token test below.
-- **`tests/scroll-reset.spec.ts`** (2026-09-29) — CLAUDE.md rule 5 on both engines. A link clicked from 1400px down the home page must open `/about` at the top, and Back must restore the position, once on a 1280px mouse viewport (asserts `window.lenis` exists, so Lenis is the engine under test) and once on a 390px touch phone (asserts Lenis never started, so the ClientRouter is). Chromium only: it sets its own viewport and touch flags.
-- **`tests/room-story.spec.ts`** (2026-09-30; whole frames, manifest v3, the same day) — the home page's concept room. The "Concept room" tag, "Concept image:" on the finished frame (and the empty room's `data-base-alt`), `alt=""` on every other frame, no digits in any caption; with no script the finished frame shows, every other frame is off with no `src`, and no other frame is even requested; clicking the Sage chip changes the canvas pixels (read with `toDataURL`; the painter keeps `preserveDrawingBuffer`); **a stage advance changes the canvas inside the new pieces' change boxes and not outside them** (pixels read back in the page: mean difference over 8 inside, under 1.5 more than 3% away from every box, which leaves room for AVIF/WebP noise between two separate photos and nothing else); scrolling back returns to the very same pixels; with `getContext('webgl')` stubbed to null the `<img>` stack shows exactly the frame each caption asks for (every frame above it off) and the chips and canvas stay hidden; under reduced motion the stack swaps with a `0s` transition, and with WebGL a stage and a chip land at once. "Settled" means two canvas reads 300ms apart agree. **Room tabs** (2026-09-30, need two or more rooms): the tablist is a real ARIA tablist (`aria-selected`, roving `tabindex`, `aria-controls`, the panel's `role="tabpanel"` and `aria-labelledby`, no digits in any tab); ArrowRight/ArrowLeft wrap, Home and End jump, moving focus does not choose (manual activation) and Enter does; choosing a room changes the base picture's `src` and the captions, announces "Showing the ..., ... style." and keeps one `.room__frames`, one caption list and one canvas in the document, and going back restores both; a switch mid-build scrolls the room's top back under the header (waiting for Lenis to stop) and the new room builds from the start; a Sage chip survives a switch to a room with a different wall (a canvas pixel read before and after "As it is", and the painted pixel is greenest); ten switches create exactly ONE WebGL context (an init script counts `getContext`); under reduced motion (no WebGL) a switch shows the new room's frame for the caption reached. Without a script there is no tab at all, and with exactly one room there is no tablist or template (that case needs a one-room build). Chromium only. **It skips the whole file while `src/assets/room/rooms.json` lists no room whose manifest exists**, so CI stays green until the real rooms are committed; once they are, it runs everywhere.
-- **`tests/reflow.spec.ts`** — WCAG 1.4.10 at 320, 768, 1024 and 1440 px on
+- **`tests/scroll-reset.spec.ts`** (2026-09-29, native-only since 2026-09-30): CLAUDE.md rule 5. A link clicked from 1400px down the home page must open `/about` at the top, and Back must restore the position, on a 1280px mouse viewport and a 390px touch phone. Both assert `window.lenis` is absent, so a smooth-scroll library cannot come back unnoticed.
+- **`tests/room-story.spec.ts`** (2026-09-30; whole frames, manifest v3, the same day), the home page's concept room. The "Concept room" tag, "Concept image:" on the finished frame (and the empty room's `data-base-alt`), `alt=""` on every other frame, no digits in any caption; with no script the finished frame shows, every other frame is off with no `src`, and no other frame is even requested; clicking the Sage chip changes the canvas pixels (read with `toDataURL`; the painter keeps `preserveDrawingBuffer`); **a stage advance changes the canvas inside the new pieces' change boxes and not outside them** (pixels read back in the page: mean difference over 8 inside, under 1.5 more than 3% away from every box, which leaves room for AVIF/WebP noise between two separate photos and nothing else); scrolling back returns to the very same pixels; with `getContext('webgl')` stubbed to null the `<img>` stack shows exactly the frame each caption asks for (every frame above it off) and the chips and canvas stay hidden; under reduced motion the stack swaps with a `0s` transition, and with WebGL a stage and a chip land at once. "Settled" means two canvas reads 300ms apart agree. **Room tabs** (2026-09-30, need two or more rooms): the tablist is a real ARIA tablist (`aria-selected`, roving `tabindex`, `aria-controls`, the panel's `role="tabpanel"` and `aria-labelledby`, no digits in any tab); ArrowRight/ArrowLeft wrap, Home and End jump, moving focus does not choose (manual activation) and Enter does; choosing a room changes the base picture's `src` and the captions, announces "Showing the ..., ... style." and keeps one `.room__frames`, one caption list and one canvas in the document, and going back restores both; a switch mid-build scrolls the room's top back under the header (waiting for Lenis to stop) and the new room builds from the start; a Sage chip survives a switch to a room with a different wall (a canvas pixel read before and after "As it is", and the painted pixel is greenest); ten switches create exactly ONE WebGL context (an init script counts `getContext`); under reduced motion (no WebGL) a switch shows the new room's frame for the caption reached. Without a script there is no tab at all, and with exactly one room there is no tablist or template (that case needs a one-room build). Chromium only. **It skips the whole file while `src/assets/room/rooms.json` lists no room whose manifest exists**, so CI stays green until the real rooms are committed; once they are, it runs everywhere.
+- **`tests/reflow.spec.ts`** WCAG 1.4.10 at 320, 768, 1024 and 1440 px on
   every route: `documentElement.scrollWidth` must not exceed `clientWidth`. It
   starts at 320 because the success criterion does; a single 375px screenshot
   does not discharge it.

@@ -71,7 +71,7 @@ describe('the registry', () => {
     for (const type of COACHED_SECTION_TYPES) {
       const info = sectionCoach({ _type: type });
       expect(info, type).not.toBeNull();
-      expect(`${info?.name} ${info?.hint}`).not.toContain('—');
+      expect(`${info?.name} ${info?.hint}`).not.toContain('\u2014');
     }
   });
 

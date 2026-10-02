@@ -55,6 +55,8 @@ playwright-report/
 # brand web fonts: fetched at build time by scripts/fetch-fonts.mjs, never
 # committed (ITF Free Font License forbids redistribution via a public repo)
 public/fonts/
+# the same fonts as .woff for the share-card renderer (satori cannot read woff2)
+scripts/.og-fonts/
 
 # Instagram feed (2026-09-30): written on every predev/prebuild by
 # scripts/fetch-instagram.mjs. The pictures are Staci's posts, re-encoded;

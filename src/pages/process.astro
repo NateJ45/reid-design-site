@@ -34,7 +34,7 @@ const schemas = [
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'process' }}
 >
   <ProcessSectionRenderer sections={page?.pageBuilder} page={page} />
 </BaseLayout>

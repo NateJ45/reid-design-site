@@ -1,7 +1,7 @@
 // Safe to edit by hand
 // Contextual CTA chip that appears at 50% scroll on long pages. Bottom-right,
 // above the BackToTop button. Hides on scroll-up so it never blocks reading.
-// Honors prefers-reduced-motion. Dismissible via the X — dismissal persists
+// Honors prefers-reduced-motion. Dismissible via the X, dismissal persists
 // for the session via sessionStorage so a single page-view doesn't re-prompt.
 //
 // Opt-in: only mount on long pages (portfolio detail, services)
@@ -34,7 +34,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
         return;
       }
     } catch {
-      /* sessionStorage unavailable — fall through */
+      /* sessionStorage unavailable, fall through */
     }
 
     // Simple show/hide: visible whenever scroll progress is past the
@@ -43,7 +43,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
     //
     // The earlier "hide on scroll-down, reveal on scroll-up" behavior was
     // ported from the sticky-header pattern, but it doesn't translate to a
-    // small bottom-right chip — the chip isn't blocking reading the way a
+    // small bottom-right chip, the chip isn't blocking reading the way a
     // full-width header is, and any scroll-direction toggle produced a
     // distracting flicker every time the visitor paused-then-resumed
     // scrolling. Once revealed, the chip just stays put until dismissed
@@ -90,7 +90,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
 
   return (
     <div
-      // A11y note: keep pointer-events on ONE state path only — never include
+      // A11y note: keep pointer-events on ONE state path only, never include
       // both `pointer-events-none` and `pointer-events-auto` in the same
       // className string. Tailwind v4 sorts utilities alphabetically so
       // `pointer-events-none` wins the cascade and the chip becomes visible
@@ -102,7 +102,7 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
       // Positioning:
       //   - Always sit at bottom-[5.5rem] so it clears the BackToTop button
       //     (which lives at bottom-6 right-6, so its top edge is ~68px from
-      //     the bottom — bottom-[5.5rem] = 88px gives ~20px breathing room).
+      //     the bottom, bottom-[5.5rem] = 88px gives ~20px breathing room).
       //   - Mobile: center horizontally via left-1/2 + -translate-x-1/2 so
       //     the chip becomes a "look at this" centered element instead of
       //     colliding with the BackToTop button in the bottom-right corner.
@@ -127,10 +127,11 @@ export default function StickyCTAChip({ label, href = '/contact', threshold = 0.
              labels. Past that, truncate kicks in as a safety net.
           Left padding reduced from pl-l to pl-m so more room goes to the
           label text instead of the bronze gutter. */}
-      {/* Rebuilt 2026-09-30 (phase 2): the ink pill of the rebuild buttons
-          (.r-btn--ink), sentence case in General Sans 500. Cream on ink is
-          14.2:1. The old uppercase-tracked bronze pill is gone site-wide. */}
-      <div className="relative flex max-w-[min(92vw,28rem)] items-center gap-1 rounded-full bg-ink py-1.5 pr-1.5 pl-5 text-cream shadow-[0_18px_34px_-16px_rgb(35_30_27/0.7)]">
+      {/* The site's one button identity (2026-10-01): the ink TAG of
+          .r-btn, drawn behind the chip by .r-tagshape because the chip
+          holds a link and a dismiss button. The shadow is a drop-shadow
+          filter so it follows the notched shape. Cream on ink is 14.2:1. */}
+      <div className="r-tagshape relative flex max-w-[min(92vw,28rem)] items-center gap-1 py-1.5 pr-1.5 pl-9 text-cream drop-shadow-[0_14px_18px_rgb(35_30_27/0.45)]">
         <a
           href={href}
           tabIndex={visible ? 0 : -1}

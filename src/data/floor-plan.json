@@ -1,0 +1,32 @@
+{
+  "_note": "The living-room plan drawn by src/components/closing/FloorPlan.astro (the closing band) and by the E-Design share card (scripts/lib/og-render.mjs). Geometry only, in a 560 x 390 box at 32px per foot. Edit here and both follow.",
+  "viewBox": [560, 390],
+  "strokes": [
+    "M40 40 H210 M350 40 H520 V350 H140 M70 350 H40 V40",
+    "M48 48 H210 M350 48 H512 V342 H140 M70 342 H48 V48",
+    "M210 40 V48 M350 40 V48 M210 44 H350 M210 41 H350 M210 47 H350",
+    "M70 342 V272",
+    "M70 272 A70 70 0 0 1 140 342",
+    "M178 296 H394 V336 H178 Z M178 306 H394 M250 306 V336 M322 306 V336",
+    "M440 170 h44 v52 h-44 Z M440 178 h36 v36 h-36",
+    "M411 307 L429 325 M429 307 L411 325",
+    "M40 20 H520 M40 14 V26 M520 14 V26",
+    "M540 40 V350 M534 40 H546 M534 350 H546",
+    "M286 240 V296 M280 240 H292 M280 296 H292",
+    "M470 330 C 500 320, 500 300, 468 290 M468 290 l6 -4 M468 290 l7 3",
+    "M280 62 C 262 76, 240 84, 214 86 M214 86 l7 -5 M214 86 l7 4"
+  ],
+  "circles": [
+    {
+      "cx": 286,
+      "cy": 200,
+      "r": 40
+    },
+    {
+      "cx": 420,
+      "cy": 316,
+      "r": 13
+    }
+  ],
+  "rug": "M150 120 H420 V286 H150 Z"
+}

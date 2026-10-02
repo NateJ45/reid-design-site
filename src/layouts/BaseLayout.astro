@@ -8,24 +8,24 @@
 //   - Analytics (GA4 + Cloudflare beacon, both conditional) via Analytics.astro
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
-//   - Lenis smooth scroll init (prefers-reduced-motion-aware)
 //   - BackToTop React island
 
 import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getNavPages, getAnnouncements } from '@/lib/queries';
+import { getNavPages, getAnnouncements, getChromeFacts } from '@/lib/queries';
 import {
   CARD_SPEC_ID,
-  cleanCardTitle,
-  cleanKicker,
+  cardContent,
   ogCardPath,
   serializeSpec,
-  stateName,
+  type CardInput,
   type CardPhoto,
   type CardSpec,
 } from '@/lib/og-card';
+import { resolveChromeFacts } from '@/lib/chrome-facts';
+import { doodlesForPage } from '@/lib/doodle-map';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Announcements from '@/components/Announcements.astro';
@@ -33,7 +33,7 @@ import BackToTop from '@/components/BackToTop';
 import Analytics from '@/components/Analytics.astro';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
-// Starwind UI CSS — accordion keyframes + @theme inline for new semantic tokens.
+// Starwind UI CSS, accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
 // the cascade over starwind.css's fallback :root defaults.
 import '@/styles/starwind.css';
@@ -44,20 +44,29 @@ interface Props {
   /** Explicit share image URL. Wins over everything, including the generated card. Leave it unset to get the page's generated card at /og/&lt;route&gt;.png. */
   ogImage?: string;
   /**
-   * What the generated share card says and shows (design D). All optional:
-   * `headline` (the page's hero headline; preferred over the SEO title),
-   * `kicker` (the small caps line; defaults to "Interior design · <city>, <state>"),
-   * `image` (the arch photo) and `image2` (the small circle photo), both raw
-   * Sanity image objects. With no image the card builder picks one of Staci's
-   * finished-project photos. `circle: true` asks for the small circle photo
-   * even without `image2` (the builder fills it from the same pool).
+   * What the generated share card says and shows (design F "the cover",
+   * 2026-09-30; src/lib/og-card.ts decides the rest). All optional:
+   * `kind` (which page this is: decides the big label, the fact, the object,
+   * the colour, and whether the photo is Staci or a room; unset = a custom
+   * page), `label` (overrides the big line; custom pages pass their nav label),
+   * `headline` (a custom page's last-resort label), `title` (a project's title),
+   * `line` (a short line of the page's own copy), `list` + `listHeading` (a
+   * checklist, e.g. the FAQ's topics), `role` (the small line on Staci's name
+   * tag), `image` (the page's own photo, used when the card shows a room).
+   * Staci's portrait is picked at build time from src/data/card-portraits.mjs.
    */
-  card?: { headline?: string | null; kicker?: string | null; image?: any; image2?: any; circle?: boolean };
+  card?: CardInput & { image?: any };
+  /**
+   * The page opens on a dark hero the header can sit on, in cream, until the
+   * page scrolls (Header.astro "On hero"). Only the home page passes it, and
+   * only when its Walnut hero is the first section.
+   */
+  headerOverHero?: boolean;
   /** Raw Sanity image object for a per-page social share override (seoImage on the page singleton). Resolved through the Sanity image pipeline to a 1200x630 OG URL. Lower priority than ogImage, higher than the siteSettings default. */
   seoImage?: any;
   /** Pre-serialized JSON-LD strings injected into <head>. LocalBusiness is auto-injected from siteSettings on every page; pass per-page schemas (Service, FAQPage, BreadcrumbList, CreativeWork) here. */
   schemas?: string[];
-  /** Sanity siteSettings document — drives footer, header, and the LocalBusiness schema. */
+  /** Sanity siteSettings document, drives footer, header, and the LocalBusiness schema. */
   siteSettings?: any;
   /** When true, emit <meta name="robots" content="noindex, follow">. Used by the 404 page so it never gets indexed. Defaults to false (the page is indexable). */
   noindex?: boolean;
@@ -81,6 +90,7 @@ const {
   noindex = false,
   ogType = 'website',
   ogArticle,
+  headerOverHero = false,
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, site.url).toString();
@@ -112,7 +122,7 @@ function cardPhoto(img: any): CardPhoto | null {
   try { return { src: urlFor(img).url(), hotspot: img.hotspot ?? null }; } catch { return null; }
 }
 
-// SHARE CARD (2026-09-29, design D). Priority:
+// SHARE CARD (2026-09-29; design F "the cover" since 2026-09-30). Priority:
 //   1. `ogImage` prop: a page that deliberately supplies its own share image.
 //   2. `seoImage`: the per-page override Staci sets in that page's SEO tab.
 //   3. The generated card at /og/<route>.png, drawn after the build by
@@ -130,41 +140,56 @@ const wantsCard = !explicitOg && !noindex;
 
 let cardSpec: CardSpec | null = null;
 if (wantsCard) {
-  const t = cleanCardTitle([card?.headline, title]);
-  const defaultKicker = `Interior design · ${siteSettings?.city || 'Plainfield'}, ${stateName(siteSettings?.state)}`;
-  const k = cleanKicker(card?.kicker || defaultKicker);
+  // The same facts the header price tag and the footer index print (memoized:
+  // one Sanity read per build). A failed read throws in a production build,
+  // like every other static read (CLAUDE.md rule 9).
+  const facts = resolveChromeFacts(await getChromeFacts());
+  const { warnings, ...content } = cardContent(card ?? {}, {
+    facts,
+    city: siteSettings?.city,
+    serviceRegion: siteSettings?.serviceRegion,
+    owner: site.owner,
+    seoTitle: title,
+  });
   cardSpec = {
-    v: 1,
+    v: 2,
     out: ogCardPath(Astro.url.pathname),
     route: Astro.url.pathname,
-    title: t.title,
-    kicker: k.kicker,
-    photos: [cardPhoto(card?.image), cardPhoto(card?.image2)].filter((p): p is CardPhoto => !!p),
-    circle: Boolean(card?.circle || card?.image2),
+    ...content,
+    photos: [cardPhoto(card?.image)].filter((p): p is CardPhoto => !!p),
+    doodle: doodlesForPage(Astro.url.pathname, 1)[0] ?? 'olive-sprig',
     fallback: globalOg,
-    warnings: [...t.warnings, ...k.warnings],
+    warnings,
   };
 }
 const resolvedOg = explicitOg ?? cardSpec?.out ?? fallbackOg;
 const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
 
 // Build the document title. If the editor-supplied seoTitle already contains
-// the brand anywhere (e.g. "Reid Design LLC — Plainfield Interior Design" or
-// "About Staci · Reid Design"), use it verbatim. Otherwise append " — Reid
+// the brand anywhere (e.g. "Reid Design LLC | Plainfield Interior Design" or
+// "About Staci | Reid Design"), use it verbatim. Otherwise append " | Reid
 // Design LLC" so the tab + search-result line carries the brand. Strips a
-// trailing " — Reid Design LLC" once before evaluating so any legacy
-// pre-baked suffix is handled. The looser brand check (matches "Reid Design"
-// not just "Reid Design LLC") catches the most common editor abbreviation
-// without producing duplicates.
-const brandSuffix = ` — ${site.name}`;
+// trailing " | Reid Design LLC" once before evaluating so any pre-baked
+// suffix is handled. The OLD house suffix was an em-dash (retired 2026-10-01,
+// no em-dashes anywhere); it is still recognised, written as an escape so this
+// file holds none itself, because titles saved in Sanity before that day end
+// with it. The looser brand check (matches "Reid Design" not just "Reid Design
+// LLC") catches the most common editor abbreviation without producing
+// duplicates.
+const brandSuffix = ` | ${site.name}`;
+const legacyBrandSuffix = ` \u2014 ${site.name}`;
 const cleanTitle = title.endsWith(brandSuffix)
   ? title.slice(0, -brandSuffix.length)
-  : title;
+  : title.endsWith(legacyBrandSuffix)
+    ? title.slice(0, -legacyBrandSuffix.length)
+    : title;
 const brandRoot = 'Reid Design'; // base brand match for de-duplication
 const hasBrandInline = cleanTitle.toLowerCase().includes(brandRoot.toLowerCase());
-const fullTitle = cleanTitle === site.name || hasBrandInline
-  ? cleanTitle
-  : `${cleanTitle} — ${site.name}`;
+const joinedTitle =
+  cleanTitle === site.name || hasBrandInline ? cleanTitle : `${cleanTitle} | ${site.name}`;
+// Belt and braces: a title saved with an em-dash in the middle (not just as the
+// brand suffix) never reaches the browser tab or a search result.
+const fullTitle = joinedTitle.replace(/\s*\u2014\s*/g, ' | ');
 
 // Alt text for the social-share image. Prefer the per-page seoImage's alt, then
 // the site default's alt, falling back to the page title. Describes the visible
@@ -248,7 +273,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     {cardSpec && (
       <script is:inline type="application/json" id={CARD_SPEC_ID} set:html={serializeSpec(cardSpec)} />
     )}
-    {/* article:* meta — only emitted when a page passes ogType 'article' (none today) */}
+    {/* article:* meta, only emitted when a page passes ogType 'article' (none today) */}
     {ogType === 'article' && ogArticle?.publishedAt && (
       <meta property="article:published_time" content={ogArticle.publishedAt} />
     )}
@@ -267,7 +292,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
       <script type="application/ld+json" set:html={json} />
     ))}
 
-    {/* Anti-FOUC theme bootstrap — must run inline before first paint.
+    {/* Anti-FOUC theme bootstrap, must run inline before first paint.
         Also re-applies the theme + theme-aware images (header logo) after
         every Astro View Transitions navigation: the transition swap
         replaces <html>'s className with the new page's (empty), so without
@@ -290,7 +315,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
             document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
           } catch (_) { /* localStorage unavailable, default light */ }
 
-          // Theme-aware images (header logo) — swap src/srcset to match the
+          // Theme-aware images (header logo), swap src/srcset to match the
           // active theme. Single-img approach means only one variant is ever
           // fetched per page load, so Lighthouse doesn't flag the inactive
           // variant as "image larger than displayed."
@@ -331,7 +356,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 
     <Announcements announcements={announcements} currentPath={Astro.url.pathname} />
 
-    <Header siteSettings={siteSettings} navPages={navPages} />
+    <Header siteSettings={siteSettings} navPages={navPages} overHero={headerOverHero} />
 
     {/* data-pagefind-body: site search (Pagefind) indexes ONLY the text inside this
         element, so the header, footer, announcement bar and menus never show up in
@@ -356,78 +381,11 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     {/* Sonner toast region. Used by CopyEmailButton and ContactForm. Position bottom-right by default. */}
     <Toaster client:idle position="bottom-right" />
 
-    {/* Lenis smooth scroll. The reduced-motion guard in globals.css already
-        kills smooth-scroll behavior; we also bail out here so we don't pay
-        for the Lenis runtime when the user prefers reduced motion.
-
-        Wrapped in requestIdleCallback so the ~10KB Lenis chunk isn't
-        fetched until the browser is genuinely idle — keeps it out of the
-        critical-path race with hero LCP. setTimeout fallback for browsers
-        without rIC support. */}
-    <script>
-      function startLenis() {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        // Wheel devices only: a fine pointer at desktop widths (2026-09-29,
-        // from presacademy). Touch scrolling is already inertial, so on a
-        // phone Lenis only spends main-thread time fighting the browser's own
-        // physics, and phones are most of this site's visitors.
-        //
-        // The navigation scroll reset below (CLAUDE.md rule 5) is still
-        // correct without Lenis: it exists ONLY to cancel Lenis's in-flight
-        // momentum. With no Lenis, Astro's ClientRouter does the plain job
-        // itself (top of page on a link click, restored position on
-        // back/forward). tests/scroll-reset.spec.ts pins both paths: a phone
-        // (no Lenis) and a desktop mouse (Lenis).
-        const wheelDevice =
-          window.matchMedia('(pointer: fine)').matches &&
-          window.matchMedia('(min-width: 1024px)').matches;
-        if (!wheelDevice) return;
-        import('lenis').then(({ default: Lenis }) => {
-          // wheelMultiplier > 1 makes each wheel/trackpad notch cover more
-          // distance (default 1), so scrolling feels faster. lerp is separate:
-          // it controls how fast the smoothed position catches the target
-          // (higher = snappier and settles sooner, lower = more glide).
-          const lenis = new Lenis({ smoothWheel: true, lerp: 0.1, wheelMultiplier: 1.4 });
-          // Expose the instance so in-page controls (e.g. the homepage hero
-          // scroll cue) can trigger a smooth programmatic scroll through Lenis
-          // instead of fighting it with a native scrollTo.
-          (window as unknown as { lenis?: typeof lenis }).lenis = lenis;
-          function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
-          requestAnimationFrame(raf);
-
-          // Astro View Transitions reuse this single Lenis instance across
-          // navigations. If a link is clicked mid-scroll, Lenis is still
-          // smoothing toward the PREVIOUS page's scroll target and, while it is
-          // smoothing, it ignores the router's scroll-to-top reset. The new
-          // (often shorter) page then inherits that stale target, clamped to
-          // its own maximum, so it opens at the bottom.
-          //
-          // Fix: on a forward navigation (a link/button click, navigationType
-          // "push" or "replace") snap Lenis to the top instantly, which kills
-          // the in-flight momentum and cancels any active scrollTo animation.
-          // On history traversal (browser back/forward, navigationType
-          // "traverse") leave the scroll position alone so the browser's scroll
-          // restoration still works. navigationType is only carried on the
-          // before-swap event, so capture it there and read it in after-swap.
-          // resize() re-reads the new page's scroll height either way.
-          let lastNavType = 'push';
-          document.addEventListener('astro:before-swap', (e) => {
-            lastNavType = (e as any).navigationType;
-          });
-          document.addEventListener('astro:after-swap', () => {
-            if (lastNavType !== 'traverse') {
-              lenis.scrollTo(0, { immediate: true, force: true });
-            }
-            lenis.resize();
-          });
-        });
-      }
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(startLenis, { timeout: 2000 });
-      } else {
-        setTimeout(startLenis, 1500);
-      }
-    </script>
+    {/* No smooth-scroll library (Lenis was removed 2026-09-30: it replaced the
+        visitor's own wheel and trackpad feel for no real gain, and none of the
+        scroll animations need it). Scrolling is the browser's own. Astro's
+        ClientRouter opens a clicked page at the top and restores the position
+        on Back; tests/scroll-reset.spec.ts pins both (CLAUDE.md rule 5). */}
 
     {/* Polish layer: scroll-triggered reveal observer + sticky-header
         hide-on-scroll-down behavior. Both honor prefers-reduced-motion.
@@ -531,7 +489,7 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 
         // ---- Sticky header: condense on scroll ---------------------------
         // The header (.site-header, position: sticky) rests as a bare row with
-        // the hanging logo, and condenses into a floating paper strip once the
+        // her logo, and condenses into a floating paper strip once the
         // page moves (the swatch book chrome, 2026-09-30). This only toggles a
         // data-scrolled attribute; Header.astro's CSS does the rest inside a
         // fixed-height box, so nothing reflows. It used to hide the header on
@@ -570,5 +528,6 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
       initPolish();
       document.addEventListener('astro:page-load', initPolish);
     </script>
+
   </body>
 </html>

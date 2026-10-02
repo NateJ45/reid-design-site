@@ -14,7 +14,7 @@ export const businessInfo = defineType({
   name: 'businessInfo',
   title: 'Business info',
   type: 'document',
-  // Business facts, not prose — keep out of Canvas's AI-assisted writing UI.
+  // Business facts, not prose, keep out of Canvas's AI-assisted writing UI.
   options: { canvasApp: { exclude: true } },
   fields: [
     // Home-base location. One source of truth for the city/state shown in the

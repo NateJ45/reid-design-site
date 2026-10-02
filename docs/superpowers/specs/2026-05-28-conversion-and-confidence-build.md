@@ -1,4 +1,4 @@
-# Reid Design — Conversion & Confidence Build-Out
+# Reid Design: Conversion & Confidence Build-Out
 
 **Date:** 2026-05-28
 **Author:** Nathan Nixon (with Claude)

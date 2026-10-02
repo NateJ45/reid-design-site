@@ -90,7 +90,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
     </div>
     {
       hero && (
-        <figure class:list={['pd-hero__photo', heroWide && 'pd-hero__photo--wide']}>
+        <figure class:list={['pd-hero__photo', 'r-frame', heroWide && 'pd-hero__photo--wide']}>
           <div class="pd-hero__frame">
             <SanityImage
               source={hero}
@@ -118,6 +118,8 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
   designStyle={project.designStyle}
   location={project.location}
   year={project.year}
+  houseDescription={project.houseDescription}
+  scopeLine={project.scopeLine}
   readTime={readMinutes > 0 ? formatReadingTime(readMinutes) : undefined}
 />
 
@@ -256,7 +258,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
 }
 
 {
-  /* Sticky contextual CTA — appears past 50% scroll, hides on scroll-up.
+  /* Sticky contextual CTA, appears past 50% scroll, hides on scroll-up.
       Label is Sanity-editable per-project (project.stickyCtaLabel); clearing
       the field hides the chip for that project. */
 }
@@ -330,7 +332,6 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
     left: 1rem;
     bottom: 1.25rem;
     max-width: calc(100% - 2rem);
-    rotate: -2deg;
     font: 500 0.92rem/1.3 var(--font-body);
   }
   @media (prefers-reduced-motion: no-preference) {

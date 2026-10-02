@@ -23,32 +23,45 @@
     padding-inline: clamp(1rem, 4vw, 3.5rem);
   }
 
-  /* ---- Buttons. Pills; ink is the default, cream sits on bronze or ink,
-     bronze is for linen when ink would be too heavy. 44px+ tall for touch. ---- */
+  /* ---- Buttons: ONE identity, the tag (2026-10-01, Nathan's pick of
+     "the tag everywhere" over "the pill everywhere"). Every button on the
+     site is the same notched tag with a punched hole as the header,
+     footer and phone menu booking tags (.r-pricetag below shares the
+     drawing). Secondary actions are the underline link (.r-link), never a
+     second button shape.
+
+     Ink is the default; cream sits on bronze or ink; bronze is for linen
+     when ink would be too heavy. 46px tall for touch. Hover deepens the
+     tag and nudges the arrow; only the BOOKING tags (.r-pricetag) tilt, so
+     the main call to action keeps that bit of personality to itself.
+
+     One content button per screen: where two actions sit together, the
+     lesser one is an .r-link. The header's booking tag is the chrome, not
+     counted. ---- */
   .r-btn {
+    --tag-bg: var(--color-ink);
+    --tag-bg-hover: var(--color-chip-7);
+    --tag-fg: var(--color-cream);
+    --tag-ring: var(--color-ink);
+    position: relative;
+    isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.65em;
-    min-height: 2.9rem;
-    padding: 0.95em 1.55em;
-    border-radius: 999px;
+    min-height: 2.875rem;
+    /* Extra room on the left for the notch and the hole. */
+    padding: 0.95em 1.4em 0.95em 2.35em;
+    border: 0;
+    background: none;
+    color: var(--tag-fg);
     font: 500 0.95rem/1.1 var(--font-body);
     text-decoration: none;
     text-align: center;
-    transition-property: background-color, color, transform, box-shadow;
-    transition-duration: 450ms;
-    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .r-btn:hover {
-    transform: translateY(-2px);
-  }
-  .r-btn:active {
-    transform: translateY(0);
-    transition-duration: 80ms;
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .r-btn:focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--tag-ring);
     outline-offset: 3px;
   }
   .r-btn .r-arrow {
@@ -58,29 +71,26 @@
     transform: translateX(4px);
   }
   .r-btn--ink {
-    background: var(--color-ink);
-    color: var(--color-cream);
-  }
-  .r-btn--ink:hover {
-    background: var(--color-chip-7);
-    box-shadow: 0 12px 26px -14px rgb(35 30 27 / 0.7);
+    /* The defaults above. */
+    --tag-bg: var(--color-ink);
   }
   .r-btn--cream {
-    background: var(--color-cream);
-    color: var(--color-ink);
-  }
-  .r-btn--cream:hover {
-    background: var(--color-paper);
-  }
-  .r-btn--cream:focus-visible {
-    outline-color: var(--color-cream);
+    --tag-bg: var(--color-cream);
+    --tag-bg-hover: var(--color-paper);
+    --tag-fg: var(--color-ink);
+    --tag-ring: var(--color-cream);
   }
   .r-btn--bronze {
-    background: var(--color-chip-6);
-    color: var(--color-cream);
+    --tag-bg: var(--color-chip-6);
+    --tag-bg-hover: var(--color-chip-7);
   }
-  .r-btn--bronze:hover {
-    background: var(--color-chip-7);
+  /* The tag drawn behind a container that is not itself one button (the
+     floating "Ready to talk it through?" chip holds a link AND a dismiss
+     button). Set --tag-bg; pad the left for the notch. */
+  .r-tagshape {
+    --tag-bg: var(--color-ink);
+    position: relative;
+    isolation: isolate;
   }
 
   /* ---- Underline link: the line draws away on hover and back on leave. ---- */
@@ -130,6 +140,28 @@
   .r-accent {
     font-style: italic;
     color: var(--accent-color, var(--color-chip-6));
+  }
+  /* ---- Hand-lettered accent (2026-10-01). Put .r-hand on a page-opening
+     hero headline and its accent phrase is set in Waterfall, the signature
+     script echoing Staci's Instagram graphics. ONE per page, heroes only:
+     section headings and the closing band keep the Zodiak italic, so the
+     hand stays special. The script reads small for its size (low x-height,
+     hairline), so it is set larger than the serif around it, and its tall
+     loops get room in the word-rise clip box. font-synthesis: none stops the
+     browser slanting it (the accent asks for italic; Waterfall has no italic
+     face) and keeps the Zodiak italic fallback while it loads. ---- */
+  .r-hand .r-accent {
+    font-family: var(--font-hand);
+    font-weight: 400;
+    font-synthesis: none;
+    font-size: 1.38em;
+    line-height: 0.68;
+    letter-spacing: 0;
+  }
+  .r-hand.r-rise .r-w.r-accent,
+  .r-hand .r-rise .r-w.r-accent {
+    padding: 0.32em 0.12em 0.3em 0.06em;
+    margin: -0.32em -0.08em -0.3em -0.02em;
   }
   .r-lede {
     font-size: var(--text-lede);
@@ -205,7 +237,9 @@
     cursor: pointer;
     transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .r-pricetag::before {
+  .r-pricetag::before,
+  .r-btn::before,
+  .r-tagshape::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -216,7 +250,8 @@
     mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
     transition: background-color 400ms;
   }
-  .r-pricetag:hover::before {
+  .r-pricetag:hover::before,
+  .r-btn:hover::before {
     background: var(--tag-bg-hover);
   }
   .r-pricetag:focus-visible {
@@ -236,10 +271,106 @@
     --tag-fg: var(--color-ink);
     --tag-ring: var(--color-cream);
   }
-  @media (prefers-reduced-motion: no-preference) {
+  /* The hover tilt only where a real pointer hovers: on touch screens a tap
+     can leave :hover stuck, which left the tag sitting crooked. */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) {
     .r-pricetag:hover {
       transform: rotate(-2deg);
     }
+  }
+
+  /* ---- Room backdrop (2026-09-30 design pass): one of Staci's rooms faded
+     behind a card, drawn by RoomBackdrop.astro. The host card gets
+     .r-backdrop-host (a stacking context that clips the photo to the card).
+     The photo is MULTIPLIED into the card colour, so it can only darken:
+     pale cards show a soft photograph, deep cards show it as shadow in the
+     paint, and text contrast never drops below AA (see RoomBackdrop.astro).
+     The mask fades it out toward the card's top and bottom edges, where the
+     name and price sit, and keeps it strongest in the quiet middle. ---- */
+  .r-backdrop-host {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .r-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    opacity: var(--bd-opacity, 0.2);
+    mix-blend-mode: multiply;
+    /* Warm the photo toward the paint strip so it never fights the chip. */
+    filter: grayscale(0.55) sepia(0.3) contrast(0.95);
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.25) 0%,
+      #000 32%,
+      #000 62%,
+      rgb(0 0 0 / 0.3) 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.25) 0%,
+      #000 32%,
+      #000 62%,
+      rgb(0 0 0 / 0.3) 100%
+    );
+  }
+  /* On a deep chip multiply shows the photo only as shadow, so it needs
+     more strength to read at all (and can only deepen the ground further). */
+  .r-backdrop[data-tone='deep'] {
+    --bd-opacity: 0.8;
+  }
+
+  /* ---- Photo frame (2026-09-30 design pass): a photo is never just set down
+     on a band. It sits in a paper mat with a Warm Bronze keyline between the
+     mat and the picture, and a soft shadow, the way a print is framed and
+     hung. Put .r-frame on the wrapper and the picture inside it; an optional
+     .r-frame__cap under the picture carries a short caption. ---- */
+  .r-frame {
+    --frame-pad: clamp(0.55rem, 0.35rem + 0.8vw, 0.95rem);
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: var(--frame-pad);
+    background: var(--color-paper);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 1px 2px rgb(35 30 27 / 0.06),
+      0 34px 60px -38px rgb(35 30 27 / 0.55);
+  }
+  /* The keyline: a hairline in the mat, a few pixels off the picture. */
+  .r-frame::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--frame-pad) * 0.45);
+    border: 1px solid rgb(156 118 97 / 0.45);
+    pointer-events: none;
+  }
+  .r-frame > img,
+  .r-frame > picture,
+  .r-frame > picture > img {
+    display: block;
+    width: 100%;
+  }
+  .r-frame__cap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: calc(var(--frame-pad) * 0.9) 0.15rem 0.1rem;
+    font: 500 0.8rem/1.35 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .r-frame__cap::before {
+    content: '';
+    flex: none;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-chip-5);
   }
 
   /* ---- Word rise (RiseWords.astro). Each word is clipped by its own box and

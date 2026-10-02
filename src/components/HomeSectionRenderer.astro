@@ -100,7 +100,7 @@ const rows = placeMarker(withRoom, {
         s.section === 'hero' ? (
           <HomeHero
             eyebrow={page?.heroEyebrow}
-            headline={page?.heroHeadline ?? 'Interior design for homes that feel genuinely yours.'}
+            headline={page?.heroHeadline ?? 'Interior design for homes that feel completely yours.'}
             accent={page?.heroScriptAccent}
             subhead={page?.heroSubhead}
             portrait={page?.heroPortrait}
@@ -143,6 +143,7 @@ const rows = placeMarker(withRoom, {
             googleReviews={page?.googleReviews ?? []}
             reviewsNote={siteSettings?.reviewsNote}
             googleBusinessUrl={siteSettings?.googleBusinessUrl}
+            facebookUrl={siteSettings?.socialFacebook}
             ratingSettings={siteSettings}
           />
         ) : s.section === 'processPreview' ? (

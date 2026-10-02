@@ -1,4 +1,4 @@
-// StudioPlaybook.tsx — Panel 4 of the Start Here handbook ("Grow your studio").
+// StudioPlaybook.tsx: Panel 4 of the Start Here handbook ("Grow your studio").
 // Renders the editable `studioPlaybook` singleton (fetched via useClient). Four
 // professional-development guides shown as tabs; the active guide renders its
 // summary and a flow of sections. Default sections render plain; toned sections

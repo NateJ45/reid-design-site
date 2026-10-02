@@ -1,10 +1,13 @@
 // Safe to edit by hand
 // Static identity values that don't change between deploys.
-// Anything Staci edits goes through Sanity instead — see studio/ and src/lib/queries.ts.
+// Anything Staci edits goes through Sanity instead, see studio/ and src/lib/queries.ts.
 
 export const site = {
   name: 'Reid Design LLC',
   studio: 'Reid Design LLC',
+  // The designer. Printed on the name tag every share card pins to her photo
+  // (src/lib/og-card.ts, 2026-09-30).
+  owner: 'Staci Perkins',
   domain: 'reiddesignllc.com',
   url: 'https://reiddesignllc.com',
   lang: 'en',

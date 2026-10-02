@@ -1,17 +1,23 @@
 // Foundation, edit with care
-// Phone menu: the fan deck (rebuilt 2026-09-30 with the swatch book chrome;
-// DESIGN.md "Chrome", prototype docs/design/prototypes/chrome-a-swatch-book.html).
+// Phone menu: the contents page (2026-10-01, Nathan's pick "2" of the round
+// two prototypes, docs/design/prototypes/menu-d-magazine.html; it replaced
+// the paint-chip fan deck of 2026-09-30). DESIGN.md "Chrome".
 //
-//   Trigger   the ink "Menu" price tag in the header (below 1024px).
-//   Open      a full-screen ink overlay. Staci's logo large (cream, 108px) top
-//             left; "Close" as a cream price tag top right; the menu as a
-//             fanned deck of paint chips, full-width cards on the ramp, each
-//             tilted a hair, names only, set big and never covered by the next
-//             chip; at the foot the booking price tag ("Book the in-home
-//             consult | $225") and phone / email.
-//   Motion    the chips deal in from below, staggered, ONLY under
-//             prefers-reduced-motion: no-preference. Without it they are
-//             simply there.
+//   Trigger   the ink "Menu" tag in the header (below 1024px), unchanged.
+//   Open      a full-screen Walnut page with cream type. Her cream logo top
+//             left, a plain "Close" with a cross top right, then a short
+//             kicker line and the pages set very large in Zodiak like a
+//             magazine's contents page: each name with a one-line italic
+//             note under it (src/data/menu-notes.ts, safe to edit) and an
+//             arrow, hairlines between rows. The page you are on is italic
+//             with a small dot. Contact is added as the last row when the
+//             nav does not already link it. At the foot: the cream booking
+//             button (no price), the Google rating when Staci has set it,
+//             then phone and email. One faint olive sprig grows in from the
+//             top as it opens.
+//   Motion    rows rise in one after another, the sprig draws in, ONLY
+//             under prefers-reduced-motion: no-preference. Without it
+//             everything is simply there.
 //
 // Accessibility comes from Radix Dialog (the same primitive the old shadcn
 // Sheet wrapped): aria-modal, a focus trap, Escape closes, focus returns to
@@ -27,13 +33,19 @@
 // Styles live in ./mobile-nav/mobile-nav.css (plain CSS, the .mnav-* classes):
 // the deck geometry is bespoke and reads better as CSS than as utilities.
 //
-// Data: nav items, contact details and the consultation price all come from
-// Header.astro (Sanity siteSettings + services via src/lib/chrome-facts.ts).
+// Data: nav items, contact details and the rating come from Header.astro
+// (Sanity siteSettings); the one-line notes from src/data/menu-notes.ts.
 
 import { useEffect, useState, type CSSProperties } from 'react';
+import { CONTACT_ROW, menuNoteFor, normalizePath } from '@/data/menu-notes';
 import { Dialog } from 'radix-ui';
 import { telHref } from '@/lib/phone';
 import './mobile-nav/mobile-nav.css';
+// The olive sprig doodle (2026-09-30): drawn in faint cream from the top of
+// the page each time the menu opens. Bundled into this island's JS (not the page HTML), and
+// it is our own generated SVG (scripts/doodles.config.mjs), so it is safe to
+// inline. Decorative: aria-hidden.
+import oliveSprig from '@/assets/doodles/olive-sprig.svg?raw';
 
 // ---- Types ------------------------------------------------------------------
 
@@ -73,30 +85,15 @@ interface Props {
    * Omitted = the built-in "book the consultation" button to Contact.
    */
   cta?: HeaderCta;
-  /** The consultation price ("$225") for the booking tag, when known. */
-  price?: string;
+  /** The Google rating line ("5.0", "on Google"), when Staci has set it. */
+  rating?: { value: string; label: string } | null;
   /** Site settings switch: show the email at the foot. Default yes. */
   showEmail?: boolean;
-  /** The cream logo for the ink overlay, pre-rendered by Header.astro's getImage(). */
+  /** The cream logo for the Walnut page, pre-rendered by Header.astro's getImage(). */
   logoUrl?: string;
   logoSrcset?: string;
-  /** The page being shown (Header.astro's pathname), to mark its chip. */
+  /** The page being shown (Header.astro's pathname), to mark its row. */
   currentPath?: string;
-}
-
-// Chip tones down the deck, palest first, skipping Warm Bronze (chip 5): no
-// text colour passes AA at small sizes on it. Ink text on 1 to 4, cream on 6
-// and 7 (DESIGN.md contrast table).
-const DECK_TONES = [1, 2, 3, 4, 6, 7];
-
-function toneFor(i: number, n: number): { tone: number; on: 'ink' | 'cream' } {
-  // Spread a short deck over the ramp so four items still reach the deep end.
-  const idx =
-    n <= 1
-      ? 0
-      : Math.min(DECK_TONES.length - 1, Math.round((i * (DECK_TONES.length - 1)) / (n - 1)));
-  const tone = n <= DECK_TONES.length ? (DECK_TONES[idx] ?? 1) : (DECK_TONES[i % 6] ?? 1);
-  return { tone, on: tone >= 6 ? 'cream' : 'ink' };
 }
 
 // ---- Component --------------------------------------------------------------
@@ -105,7 +102,7 @@ export default function MobileNav({
   links,
   siteSettings,
   cta,
-  price,
+  rating,
   showEmail = true,
   logoUrl,
   logoSrcset,
@@ -117,18 +114,18 @@ export default function MobileNav({
   const phone = siteSettings?.phone;
   const showCta = cta?.show !== false;
   const ctaHref = cta?.href ?? '/contact';
-  // With the built-in button and a known price, the booking tag says what it
-  // books. A label Staci set herself is used as written.
-  const ctaLabel =
-    cta?.label ??
-    (price ? 'Book a consult' : (siteSettings?.primaryCtaLabel ?? 'Book a consultation'));
-  const ctaPrice = price && ctaHref === '/contact' ? price : undefined;
+  // A label Staci set herself is used as written (no price since 2026-10-01).
+  const ctaLabel = cta?.label ?? siteSettings?.primaryCtaLabel ?? 'Book a consultation';
 
-  // The deck is flat: a group's links become chips of their own (the group's
-  // name was only ever a heading, never a page).
-  const chips = links.flatMap((item) =>
+  // The contents are flat: a group's links become rows of their own (the
+  // group's name was only ever a heading, never a page). Contact closes the
+  // list unless the nav already links it.
+  const flat = links.flatMap((item) =>
     item.kind === 'flat' ? [{ label: item.label, href: item.href }] : item.items,
   );
+  const rows = flat.some((r) => normalizePath(r.href) === CONTACT_ROW.href)
+    ? flat
+    : [...flat, { label: CONTACT_ROW.label, href: CONTACT_ROW.href }];
 
   const close = () => setOpen(false);
 
@@ -170,6 +167,12 @@ export default function MobileNav({
         <Dialog.Content className="mnav" aria-modal="true" aria-describedby={undefined}>
           <Dialog.Title className="sr-only">Menu</Dialog.Title>
 
+          <span
+            className="dd dd--play mnav__doodle"
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{ __html: oliveSprig }}
+          />
+
           <div className="mnav__top">
             <a href="/" onClick={close} className="mnav__logo" aria-label="Reid Design home">
               {logoUrl ? (
@@ -186,34 +189,41 @@ export default function MobileNav({
               )}
             </a>
             <Dialog.Close asChild>
-              <button type="button" className="r-pricetag r-pricetag--cream mnav__close">
+              <button type="button" className="mnav__close">
                 Close
+                <svg viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+                  <path d="M1 1l12 12M13 1L1 13" />
+                </svg>
               </button>
             </Dialog.Close>
           </div>
 
-          <nav className="mnav__deck" aria-label="Primary mobile">
+          <p className="mnav__kicker" aria-hidden="true">
+            Reid Design, Plainfield
+          </p>
+
+          <nav className="mnav__list" aria-label="Primary mobile">
             <ul role="list">
-              {chips.map((c, i) => {
-                const t = toneFor(i, chips.length);
+              {rows.map((r, i) => {
+                const note = menuNoteFor(r.href);
                 return (
                   <li
-                    key={`${c.href}-${i}`}
-                    className="mnav__chip"
-                    data-on={t.on}
-                    style={
-                      {
-                        '--n': i,
-                        '--tone': `var(--color-chip-${t.tone})`,
-                      } as CSSProperties
-                    }
+                    key={`${r.href}-${i}`}
+                    className="mnav__row"
+                    style={{ '--n': i } as CSSProperties}
                   >
                     <a
-                      href={c.href}
+                      href={r.href}
                       onClick={close}
-                      aria-current={isCurrent(c.href) ? 'page' : undefined}
+                      aria-current={isCurrent(r.href) ? 'page' : undefined}
                     >
-                      {c.label}
+                      <span>
+                        <span className="mnav__name">{r.label}</span>
+                        {note && <span className="mnav__note">{note}</span>}
+                      </span>
+                      <span className="mnav__arrow" aria-hidden="true">
+                        →
+                      </span>
                     </a>
                   </li>
                 );
@@ -223,10 +233,26 @@ export default function MobileNav({
 
           <div className="mnav__foot">
             {showCta && (
-              <a href={ctaHref} onClick={close} className="r-pricetag r-pricetag--cream mnav__book">
+              <a href={ctaHref} onClick={close} className="mnav__book">
                 <span>{ctaLabel}</span>
-                {ctaPrice && <span className="r-pricetag__price">{ctaPrice}</span>}
+                <span className="mnav__book-arrow" aria-hidden="true">
+                  →
+                </span>
               </a>
+            )}
+            {rating && (
+              <p className="mnav__rate">
+                {/* One star and the number, so a 4.6 never shows five full stars. */}
+                <span className="mnav__star" aria-hidden="true">
+                  ★
+                </span>
+                <span>
+                  {/* "5.0 on Google": no review count (it was typed by hand
+                      and went stale; see googleRatingFrom). */}
+                  {rating.value}
+                  <span className="sr-only"> out of 5</span> {rating.label}
+                </span>
+              </p>
             )}
             {(phone || email) && (
               <p className="mnav__meta">

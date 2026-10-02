@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC = resolve(__dirname, '..', 'src');
 
 // Spacing-utility prefixes that read from the --spacing-* namespace.
-// max-w / min-w / w / max-h etc. are intentionally excluded — they read
+// max-w / min-w / w / max-h etc. are intentionally excluded, they read
 // from --container-* (or --spacing-* via a different resolution that we
 // want to keep). Only the pure margin/padding/gap/inset family is renamed.
 const PREFIXES = [

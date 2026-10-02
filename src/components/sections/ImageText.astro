@@ -63,6 +63,7 @@ const note: string | undefined = image?.alt || undefined;
     <figure
       class:list={[
         'imt__media',
+        'r-frame',
         landscape ? 'imt__media--wide' : 'imt__media--tall',
         imageFirst ? 'md:order-1' : 'md:order-2',
       ]}
@@ -133,6 +134,9 @@ const note: string | undefined = image?.alt || undefined;
     margin: 0;
     max-width: 34rem;
   }
+  /* The figure hangs in the house frame (.r-frame: paper mat, bronze
+     keyline, soft shadow; 2026-09-30 design pass); this inner box clips the
+     photo's settle zoom to the picture, inside the mat. */
   .imt__frame {
     overflow: clip;
   }
@@ -172,7 +176,6 @@ const note: string | undefined = image?.alt || undefined;
     right: 1rem;
     bottom: 1.25rem;
     max-width: min(17rem, calc(100% - 2rem));
-    rotate: -2.5deg;
   }
   .imt__tag strong {
     font-size: 0.98rem;
@@ -228,7 +231,6 @@ const note: string | undefined = image?.alt || undefined;
     .imt__media[class~='md:order-2'] .imt__tag {
       right: auto;
       left: -1.5rem;
-      rotate: 2.5deg;
     }
   }
 

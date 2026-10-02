@@ -1,7 +1,7 @@
-// studioPlaybook singleton — drives the "Grow your studio" Start Here panel.
+// studioPlaybook singleton, drives the "Grow your studio" Start Here panel.
 // Four professional-development guides (photograph your work, build your
 // toolkit, offer e-design, get set up with trade sourcing). Each guide is a
-// title + summary + a list of plain-text sections. No Portable Text — same
+// title + summary + a list of plain-text sections. No Portable Text, same
 // deliberate simplicity as studioGuide, so editing stays dead-simple and the
 // Studio needs no extra renderer dependency.
 import { defineType, defineField, defineArrayMember } from 'sanity';

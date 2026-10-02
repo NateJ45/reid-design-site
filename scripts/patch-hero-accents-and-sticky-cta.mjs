@@ -4,12 +4,12 @@
 // them in Studio without touching code.
 //
 // Patches applied:
-//   homePage       — heroRotatingWords: ["Lived-in", "Considered", "Quiet"]
-//   servicesPage   — heroScriptAccent: "reveal", stickyCtaLabel: "Ready to talk it through?"
-//   faqPage        — heroScriptAccent: "Know"
-//   journalPage    — heroScriptAccent: "studio", stickyCtaLabel: "Have a room in mind?"
-//   project (all)  — stickyCtaLabel: "Want a room like this?" (where not already set)
-//   homePage / aboutPage / processPage / contactPage — heroScriptAccent stays empty
+//   homePage, heroRotatingWords: ["Lived-in", "Considered", "Quiet"]
+//   servicesPage, heroScriptAccent: "reveal", stickyCtaLabel: "Ready to talk it through?"
+//   faqPage, heroScriptAccent: "Know"
+//   journalPage, heroScriptAccent: "studio", stickyCtaLabel: "Have a room in mind?"
+//   project (all), stickyCtaLabel: "Want a room like this?" (where not already set)
+//   homePage / aboutPage / processPage / contactPage, heroScriptAccent stays empty
 //     (no script accent was previously hardcoded on those pages)
 //
 // Run: node scripts/patch-hero-accents-and-sticky-cta.mjs

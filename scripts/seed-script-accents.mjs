@@ -68,10 +68,10 @@ console.log('  finalCtaHeadline:', JSON.stringify(page.finalCtaHeadline));
 //
 // Chosen accents (editorial judgment, matching CLAUDE.md guidance on "one
 // flourish per heading, use sparingly"):
-//   - Services grid: "Can Help" — the end of "How Reid Design Can Help". The
+//   - Services grid: "Can Help", the end of "How Reid Design Can Help". The
 //     original brief explicitly called this out as the example from the old site.
-//   - Testimonials: "real homes" — the human/warm anchor in "Words from real homes".
-//   - Final CTA: "Love" — the emotional verb in "Ready to Love Your Space?"
+//   - Testimonials: "real homes", the human/warm anchor in "Words from real homes".
+//   - Final CTA: "Love", the emotional verb in "Ready to Love Your Space?"
 
 const candidates = [
   {

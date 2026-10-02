@@ -69,7 +69,7 @@ describe('starting templates', () => {
 
   it('read as placeholders in the house style: bracketed, and no em-dashes', () => {
     const text = JSON.stringify(STARTING_TEMPLATES.map(valueOf));
-    expect(text).not.toContain('—');
+    expect(text).not.toContain('\u2014');
     expect(valueOf(STARTING_TEMPLATES[0]).title).toMatch(/^\[.*\]$/);
     for (const banned of ['transformative', 'curated', 'elevated', 'tailored', 'seamless']) {
       expect(text.toLowerCase()).not.toContain(banned);

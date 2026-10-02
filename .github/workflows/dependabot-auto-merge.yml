@@ -1,5 +1,5 @@
 # =============================================================================
-# Dependabot auto-merge — merge on green, and only on green
+# Dependabot auto-merge, merge on green, and only on green
 # =============================================================================
 # Runs when CI (and the Lighthouse workflow, where it is separate) finishes on a
 # dependabot/* branch, and squash-merges the PR if EVERY check run on that

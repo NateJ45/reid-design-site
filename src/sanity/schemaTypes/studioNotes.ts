@@ -1,4 +1,4 @@
-// studioNotes singleton — drives the static notes in the "Your business at a
+// studioNotes singleton, drives the static notes in the "Your business at a
 // glance" Start Here panel (the live services/settings come straight from those
 // documents and are not duplicated here). Plain text, excluded from Canvas.
 import { defineType, defineField, defineArrayMember } from 'sanity';

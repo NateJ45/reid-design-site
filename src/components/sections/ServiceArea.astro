@@ -4,14 +4,31 @@
 // art-direction rebuild; see DESIGN.md "Services and E-Design").
 //
 // Reads like the home ServiceAreaCue (towns set large, home base first in
-// Espresso italic), then the travel fees hang off a TAPE MEASURE: travel is
-// priced by drive time, so each tier is a mark further along the tape. Same
-// tape as home/TapeProcess.astro, pulled out on scroll (CSS only).
+// Espresso italic), then the travel fees as CLOCKS (2026-10-01; a tape
+// measure until then, which said distance when the fees are about time).
+// Each tier is a small stopwatch in her line style with its drive-time
+// window shaded, read from the tier's own label by src/lib/drive-time.ts
+// ("45 to 75 minutes" -> 45 to 75). Each clock is a real 60-minute face and
+// each face is one hour of driving, shaded from 12 up to the top of the
+// window (2026-10-01, Nathan's idea): "within 30" is one face half shaded,
+// "45 to 75" a full face and one to :15, "75 to 120" two full faces. The
+// label beside them carries the whole range. A label with no number still
+// gets a blank face.
+//
+// MOTION (2026-10-01, Nathan's idea): when the clocks scroll into view, each
+// hand sweeps round from 12 and the face fills behind it, one hour face
+// after another, stopping at the minute mark (about 1.6s an hour). The fill
+// is a circle whose fat stroke is dashed to the minutes (pathLength 60), so
+// the same `--m` drives the resting picture and the animation. The small
+// script at the bottom only holds the clocks at 12 until they are seen;
+// without it, or under reduced motion, they simply rest at their minutes.
 //
 // Data unchanged: servicesPage.serviceAreaSection (headline, description) and
 // businessInfo.travelFees. `cities` (businessInfo.serviceAreas, first = home
 // base) is optional; with none, the towns line is skipped.
 // Self-suppresses with no headline and no travel fees.
+
+import { DIAL_MINUTES, faceMinutes, parseDriveWindow } from '@/lib/drive-time';
 
 interface Props {
   areaSec?: any;
@@ -23,6 +40,31 @@ const { areaSec, travelFees = [], cities } = Astro.props as Props;
 const show = areaSec?.headline || travelFees.length > 0;
 const cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
 const [home, ...rest] = cityList;
+
+// The clocks: one window per tier, drawn as hour faces (faceMinutes). Every
+// row reserves room for the most faces any tier has, so the words line up.
+const windows = travelFees.map((t: any) => parseDriveWindow(t?.distanceLabel));
+const maxFaces = Math.max(1, ...windows.map((w) => faceMinutes(w).length));
+// Dial geometry (viewBox 0 0 100 112): the face centred at (50, 62), the
+// crown and button above it like a stopwatch.
+const CX = 50;
+const CY = 62;
+const R = 38;
+// Seconds the animation spends on a full hour face.
+const HOUR_S = 1.6;
+const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
+  const m = i * 5;
+  const a = (m / DIAL_MINUTES) * 2 * Math.PI - Math.PI / 2;
+  const major = m % 15 === 0;
+  const r1 = R - (major ? 7 : 3.5);
+  return {
+    major,
+    x1: +(CX + r1 * Math.cos(a)).toFixed(2),
+    y1: +(CY + r1 * Math.sin(a)).toFixed(2),
+    x2: +(CX + (R - 1) * Math.cos(a)).toFixed(2),
+    y2: +(CY + (R - 1) * Math.sin(a)).toFixed(2),
+  };
+});
 ---
 
 {
@@ -51,15 +93,81 @@ const [home, ...rest] = cityList;
 
         {travelFees.length > 0 && (
           <div class="sa__fees">
-            <div class="sa__tape" aria-hidden="true" />
-            <dl class="sa__tiers" style={`--n:${travelFees.length}`}>
-              {travelFees.map((tier: any) => (
-                <div class="sa__tier">
-                  <dt>{tier.distanceLabel}</dt>
-                  <dd>{tier.fee}</dd>
-                </div>
-              ))}
-            </dl>
+            <ul
+              class="sa__tiers"
+              role="list"
+              style={`--n:${travelFees.length}; --faces:${maxFaces}`}
+            >
+              {travelFees.map((tier: any, i: number) => {
+                // One face per hour of driving, up to the top of the window
+                // (30 -> [30], 75 -> [60, 15]). No number in the label: one
+                // blank face, so the row still lines up.
+                const faces = faceMinutes(windows[i] ?? null);
+                const shown = faces.length > 0 ? faces : [0];
+                return (
+                  <li class="sa__tier">
+                    <div class="sa__clocks" data-faces={shown.length}>
+                      {shown.map((minutes, f) => {
+                        // The hand rests only on the last face: the full
+                        // hours before it sweep round, then hand over.
+                        const last = f === shown.length - 1;
+                        // Timing: each face starts when the one before it
+                        // finishes; a face takes its share of an hour.
+                        const delay = f * HOUR_S + i * 0.15;
+                        const dur = Math.max(0.35, (minutes / DIAL_MINUTES) * HOUR_S);
+                        return (
+                          <svg
+                            class:list={['sa__clock', { 'is-full': !last }]}
+                            viewBox="0 0 100 112"
+                            aria-hidden="true"
+                            focusable="false"
+                            style={`--m:${minutes}; --delay:${delay}s; --dur:${dur}s`}
+                          >
+                            {/* Crown and side button: the stopwatch silhouette. */}
+                            <rect class="sa__crown" x="44" y="6" width="12" height="7" rx="1.5" />
+                            <path class="sa__line" d="M50 13v11" />
+                            <path class="sa__line" d="M77 30l5-5" />
+                            <circle class="sa__face" cx={CX} cy={CY} r={R} />
+                            {minutes > 0 && (
+                              /* The shaded minutes: a circle at half the
+                                 radius with a stroke as wide as the radius,
+                                 dashed to --m of 60, starting at 12. */
+                              <circle
+                                class="sa__fill"
+                                cx={CX}
+                                cy={CY}
+                                r={(R - 1) / 2}
+                                stroke-width={R - 1}
+                                pathLength={DIAL_MINUTES}
+                                transform={`rotate(-90 ${CX} ${CY})`}
+                              />
+                            )}
+                            {ticks.map((t) => (
+                              <line
+                                class:list={['sa__tick', t.major && 'sa__tick--major']}
+                                x1={t.x1}
+                                y1={t.y1}
+                                x2={t.x2}
+                                y2={t.y2}
+                              />
+                            ))}
+                            {minutes > 0 && (
+                              /* Drawn at 12, turned to the minutes by CSS. */
+                              <line class="sa__hand" x1={CX} y1={CY} x2={CX} y2={CY - (R - 11)} />
+                            )}
+                            <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
+                          </svg>
+                        );
+                      })}
+                    </div>
+                    <div class="sa__words">
+                      <p class="sa__when">{tier.distanceLabel}</p>
+                      <p class="sa__fee">{tier.fee}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
             <p class="sa__caption">Travel fee by drive time from {home || 'Plainfield'}</p>
           </div>
         )}
@@ -111,89 +219,159 @@ const [home, ...rest] = cityList;
     line-height: 1.6;
   }
 
-  /* ---- Travel fees on the tape ---- */
+  /* ---- Travel fees as clocks ---- */
   .sa__fees {
     margin-top: clamp(3.5rem, 7vw, 5.5rem);
-  }
-  .sa__tape {
-    height: 2.6rem;
-    border-radius: 2px 0.5rem 0.5rem 2px;
-    background:
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 0.75rem
-        0.7rem repeat-x,
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 / 3.75rem
-        1.2rem repeat-x,
-      repeating-linear-gradient(90deg, var(--color-ink) 0 1.5px, transparent 1.5px 100%) 0 0 /
-        7.5rem 1.7rem repeat-x,
-      var(--color-chip-2);
-    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.06);
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--color-rule);
   }
   .sa__tiers {
     display: grid;
     grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .sa__tier {
-    position: relative;
-    padding-top: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
   }
-  /* The drop from the tape and its pin, as on the home process tape. */
-  .sa__tier::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 1.5px;
-    height: 2.1rem;
-    background: var(--color-chip-5);
+  /* The stopwatch, in her fine line: a paper face outlined in Walnut, Warm
+     Bronze ticks (quarter hours longer, in Walnut), the window shaded in
+     Sandbar, and an Espresso hand to the end of the window. */
+  .sa__tiers {
+    --clock-w: clamp(4.4rem, 3.2rem + 2.6vw, 6.25rem);
   }
-  .sa__tier::after {
-    content: '';
-    position: absolute;
-    left: -4px;
-    top: 2rem;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--color-chip-5);
+  .sa__clock {
+    flex: none;
+    /* One size for every face, so a two-hour tier reads as two of the same
+       clock, not a smaller one. */
+    width: var(--clock-w);
+    height: auto;
+    overflow: visible;
   }
-  .sa__tier dt {
+  .sa__face {
+    fill: var(--color-paper);
+    stroke: var(--color-chip-6);
+    stroke-width: 1.25;
+  }
+  .sa__crown {
+    fill: var(--color-paper);
+    stroke: var(--color-chip-6);
+    stroke-width: 1.25;
+  }
+  .sa__line {
+    fill: none;
+    stroke: var(--color-chip-6);
+    stroke-width: 1.25;
+    stroke-linecap: round;
+  }
+  .sa__fill {
+    fill: none;
+    stroke: var(--color-chip-3);
+    stroke-opacity: 0.55;
+    stroke-dasharray: var(--m) 60;
+  }
+  .sa__tick {
+    stroke: var(--color-chip-5);
+    stroke-width: 0.8;
+    stroke-linecap: round;
+  }
+  .sa__tick--major {
+    stroke: var(--color-chip-6);
+    stroke-width: 1.2;
+  }
+  .sa__hand {
+    stroke: var(--color-chip-7);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transform-box: view-box;
+    transform-origin: 50px 62px;
+    rotate: calc(var(--m) * 6deg);
+  }
+  /* A full hour face rests filled, with no hand. */
+  .sa__clock.is-full .sa__hand {
+    opacity: 0;
+  }
+  /* The hour faces for one tier, side by side. */
+  .sa__clocks {
+    display: flex;
+    flex: none;
+    gap: 0.3rem;
+  }
+  /* Phones and tablets stack the tiers: reserve room for the most faces any
+     tier has, so every row's words start on the same line. (Side by side on
+     desktop, the reserve would only leave a gap.) */
+  @media (max-width: 1023px) {
+    .sa__clocks {
+      width: calc(var(--faces, 1) * var(--clock-w) + (var(--faces, 1) - 1) * 0.3rem);
+    }
+  }
+  .sa__pin {
+    fill: var(--color-chip-7);
+  }
+  .sa__when {
+    margin: 0;
     font: 500 0.95rem/1.3 var(--font-body);
     color: var(--color-chip-7);
   }
-  .sa__tier dd {
-    margin: 0.5rem 0 0;
+  .sa__fee {
+    margin: 0.4rem 0 0;
     font: 300 clamp(2rem, 1.4rem + 1.8vw, 3.2rem) / 1 var(--font-display);
     letter-spacing: -0.03em;
     color: var(--color-ink);
   }
   .sa__caption {
-    margin: 2rem 0 0;
+    margin: 2.25rem 0 0;
     font-size: 0.9rem;
     color: var(--color-ink-2);
   }
 
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .sa__tape {
-        animation: sa-pull linear both;
-        animation-timeline: view();
-        animation-range: entry 10% cover 40%;
-      }
+  /* Motion: the hands sweep and the faces fill (see the header comment).
+     Gated on [data-sweep], which the script sets only when motion is
+     allowed; until the clocks are seen ([data-on]) they wait at 12. */
+  @media (prefers-reduced-motion: no-preference) {
+    .sa__tiers[data-sweep] .sa__fill {
+      animation: sa-fill var(--dur) linear var(--delay) both;
+    }
+    .sa__tiers[data-sweep] .sa__hand {
+      animation: sa-hand var(--dur) linear var(--delay) both;
+    }
+    /* A full face's hand shows only while it sweeps, then hands over. */
+    .sa__tiers[data-sweep] .sa__clock.is-full .sa__hand {
+      animation-name: sa-hand-pass;
+    }
+    .sa__tiers[data-sweep]:not([data-on]) :is(.sa__fill, .sa__hand) {
+      animation-play-state: paused;
     }
   }
-  @keyframes sa-pull {
+  @keyframes sa-fill {
     from {
-      clip-path: inset(0 82% 0 0);
+      stroke-dasharray: 0 60;
+    }
+  }
+  @keyframes sa-hand {
+    from {
+      rotate: 0deg;
+    }
+  }
+  @keyframes sa-hand-pass {
+    from {
+      rotate: 0deg;
+      opacity: 1;
+    }
+    99% {
+      opacity: 1;
     }
     to {
-      clip-path: inset(0 0 0 0);
+      rotate: 360deg;
+      opacity: 0;
     }
   }
 
-  /* Phone and tablet: stacked, and the tape turns vertical down the left of
-     the tiers, like the home process ruler. */
+  /* Phone and tablet: stacked, one clock per row beside its words. */
   @media (max-width: 1023px) {
     .sa__grid {
       display: block;
@@ -201,42 +379,32 @@ const [home, ...rest] = cityList;
     .sa__side {
       margin-top: 1.5rem;
     }
-    .sa__tape {
-      display: none;
-    }
     .sa__tiers {
-      position: relative;
       grid-template-columns: minmax(0, 1fr);
-      gap: 2rem;
-      padding-left: 3.6rem;
-    }
-    .sa__tiers::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 1.9rem;
-      border-radius: 2px 2px 0.5rem 0.5rem;
-      background:
-        repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 /
-          0.75rem 0.75rem repeat-y,
-        repeating-linear-gradient(180deg, var(--color-ink) 0 1px, transparent 1px 100%) 0 0 /
-          1.25rem 3.75rem repeat-y,
-        var(--color-chip-2);
-    }
-    .sa__tier {
-      padding: 0 0 0 0.75rem;
-    }
-    .sa__tier::before {
-      left: -1.75rem;
-      top: 0.55rem;
-      width: 1.75rem;
-      height: 1.5px;
-    }
-    .sa__tier::after {
-      left: -0.2rem;
-      top: 0.3rem;
+      gap: 1.75rem;
     }
   }
 </style>
+
+<script>
+  // Start the clocks when they scroll into view (see the header comment).
+  // Runs on every page load, including view-transition navigations. Under
+  // reduced motion it does nothing and the clocks rest at their minutes.
+  function startClocks() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.querySelectorAll<HTMLElement>('.sa__tiers:not([data-sweep])').forEach((list) => {
+      list.dataset.sweep = '';
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            list.dataset.on = '';
+            io.disconnect();
+          }
+        },
+        { threshold: 0.35 },
+      );
+      io.observe(list);
+    });
+  }
+  document.addEventListener('astro:page-load', startClocks);
+</script>

@@ -19,7 +19,7 @@
 // from the section-visibility toggles plus Staci's custom `page` documents, and
 // the footer's built-in columns include a live "Latest projects" list pulled
 // from Sanity, so both are structural and stay in their components. What this
-// module returns is "the editor's menu, or null" — and null means "render what
+// module returns is "the editor's menu, or null", and null means "render what
 // you always rendered".
 
 import { navHref, resolveNavLinks, type RawNavLink, type ResolvedNavLink } from '@/lib/nav-href';
@@ -97,7 +97,7 @@ function clean(value?: string | null): string | undefined {
 /**
  * A toggle that is ON until someone turns it off. Sanity `initialValue` only
  * fills NEW documents, so the live singleton has no value for these fields at
- * all — undefined has to mean "yes" in code, or the header would quietly lose
+ * all, undefined has to mean "yes" in code, or the header would quietly lose
  * its email and socials the moment the field was added.
  */
 function onUnlessOff(value?: boolean | null): boolean {

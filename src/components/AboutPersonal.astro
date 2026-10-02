@@ -12,7 +12,7 @@
 //     on a ruled note card pinned over its corner.
 //   - Rapid fire: paint-chip swatches, one per question, the question printed
 //     on the colour face (chips 2, 3, 4 in ink, chip 6 in cream; never chip 5)
-//     and her answer on the paper label below. Each hangs at its own angle.
+//     and her answer on the paper label below. Each sits square.
 //   - Currently: a magazine sidebar, heavy rule on top, label and answer rows.
 //   - Favorite local spots: a little street map on graph paper, the spots as
 //     pins along a dashed route.
@@ -80,8 +80,6 @@ const hasAnything = hasMain || hasSide || rapid.length > 0;
 // Paint-chip faces for the rapid-fire swatches. Warm Bronze (5) is skipped:
 // no text passes AA on it at this size. Chip 6 takes cream text (4.9:1).
 const CHIP_TONES = [2, 3, 6, 4];
-// Hand-hung angles, repeated if Staci adds more than four.
-const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
 ---
 
 {
@@ -104,7 +102,7 @@ const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
               {(hasPhoto || hasBeyondText) && (
                 <div class:list={['board__beyond', hasPhoto && 'board__beyond--photo']}>
                   {hasPhoto && (
-                    <figure class="board__print board__piece" style="--r:-1.6deg">
+                    <figure class="board__print board__piece">
                       <span class="board__tape" aria-hidden="true" />
                       <SanityImage
                         source={candidPhoto}
@@ -117,7 +115,7 @@ const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
                     </figure>
                   )}
                   {hasBeyondText && (
-                    <div class="board__note board__piece" style="--r:1.4deg">
+                    <div class="board__note board__piece">
                       <span class="board__pin" aria-hidden="true" />
                       <h3 class="board__note-h">Beyond design</h3>
                       <p class="board__note-p">{beyondDesign}</p>
@@ -145,7 +143,7 @@ const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
               )}
 
               {spots.length > 0 && (
-                <div class="board__map board__piece" style="--r:1deg">
+                <div class="board__map board__piece">
                   <div class="board__map-head">
                     <h3 class="board__side-h">Favorite local spots</h3>
                     <svg class="board__compass" viewBox="0 0 24 32" aria-hidden="true">
@@ -179,7 +177,7 @@ const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
                 return (
                   <li
                     class:list={['board__chip board__piece', tone >= 6 && 'board__chip--deep']}
-                    style={`--r:${ANGLES[i % ANGLES.length]}deg; --face: var(--color-chip-${tone})`}
+                    style={`--face: var(--color-chip-${tone})`}
                   >
                     <p class="board__face">{row.prompt}</p>
                     <p class="board__answer">{row.answer}</p>
@@ -218,7 +216,8 @@ const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
     }
   }
 
-  /* Every pinned piece hangs at its own angle (--r) and settles on scroll. */
+  /* Every pinned piece sits square (2026-09-30 quiet pass; --r stays as a
+     hook) and settles on scroll. */
   .board__piece {
     rotate: var(--r, 0deg);
   }
@@ -340,7 +339,6 @@ const ANGLES = [-2.2, 1.6, -0.8, 2.4, -1.4, 1];
     }
   }
   .board__chip:hover {
-    rotate: 0deg;
     translate: 0 -4px;
   }
   .board__face {

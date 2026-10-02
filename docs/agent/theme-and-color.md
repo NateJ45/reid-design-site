@@ -142,16 +142,16 @@ The rebuild primitives in `src/styles/reid.css` and the paint-strip tokens (`--c
 
 ### Eyebrow contrast lesson (post-audit)
 
-Warm Taupe `#B8A99A` at 12px on Cream / Soft Linen lands at **2.02:1** — fails WCAG AA. The original sweep migrated `text-secondary` → `text-foreground/65`, which still failed AA in light mode (~3.57:1 on Soft Linen).
+Warm Taupe `#B8A99A` at 12px on Cream / Soft Linen lands at **2.02:1** fails WCAG AA. The original sweep migrated `text-secondary` → `text-foreground/65`, which still failed AA in light mode (~3.57:1 on Soft Linen).
 
 A second sweep bumped the opacity tier:
 
-- `text-foreground/65` → `text-foreground/80` (52 occurrences across 25 files) — gets to **~5.4:1 on Soft Linen, passes AA**.
-- `text-foreground/70` → `text-foreground/85` (7 occurrences) — for small italic body text, **~6.1:1, passes AAA**.
+- `text-foreground/65` → `text-foreground/80` (52 occurrences across 25 files), gets to **~5.4:1 on Soft Linen, passes AA**.
+- `text-foreground/70` → `text-foreground/85` (7 occurrences), for small italic body text, **~6.1:1, passes AAA**.
 
 (Those ratios were measured before 2026-09-29, against the old Charcoal foreground and old Linen; they have not been re-measured against Ink `#231E1B` on Linen `#F7F3EE`. Secondary text on the rebuilt surfaces uses `--color-ink-2`.)
 
-The brand `--secondary` token still exists and is fine for **borders, dividers, larger decorative ornaments** — just not for body-size text.
+The brand `--secondary` token still exists and is fine for **borders, dividers, larger decorative ornaments** just not for body-size text.
 
 If you add a new eyebrow label, the pattern is:
 
@@ -192,4 +192,4 @@ Solutions:
 2. **Drop the conflicting base class.** If you control the base component, remove the class that's interfering.
 3. **Use `!important`** as last resort (`!text-bg`). Rare in this codebase.
 
-If a class isn't taking effect, inspect the computed CSS — usually the issue is another utility further down the alphabet beating it.
+If a class isn't taking effect, inspect the computed CSS, usually the issue is another utility further down the alphabet beating it.

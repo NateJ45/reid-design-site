@@ -2,7 +2,7 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
-## 2026-09-30 — Concept room: whole frames with a reveal (manifest v3, branch `claude/concept-room-frames`)
+## 2026-09-30: Concept room: whole frames with a reveal (manifest v3, branch `claude/concept-room-frames`)
 
 Delegated agent (Opus), for review by the main session. Nathan's decision: the per-piece cut-out layers (v2) proved unreliable (curtain rods vanishing, shadows clipped, table legs smeared), so every step of the build is now ONE COMPLETE AI photo and the new piece appears in place. Built against synthetic sharp-drawn fixtures (three rooms, one room, zero rooms); the real v3 publish comes from tools/room-lab.
 
@@ -12,11 +12,11 @@ Delegated agent (Opus), for review by the main session. Nathan's decision: the p
 - **Tests:** unit tests rewritten for v3 (76 in the file); `tests/room-story.spec.ts` rewritten: honesty, the no-script finished frame with no other frame requested, chip pixels, stage advance changing pixels inside the change boxes and not outside, back to identical pixels, the no-WebGL stack, reduced motion, and the tab tests.
 - **Docs:** DESIGN.md (whole frames and why), CLAUDE.md foundation line, performance.md, TESTING.md, sanity.md, page-architecture.md, editor-vs-hardcoded.md. Not touched: `tools/room-lab/README.md` still describes the v2 publish (the main session owns the v3 publish).
 
-## 2026-09-30 — Concept room: optional per-layer `light` (screen)
+## 2026-09-30: Concept room: optional per-layer `light` (screen)
 
 - Manifest v2 layers take an optional `light` RGB PNG (same box, black = no change) drawn with `mix-blend-mode: screen` between the piece's shade and image, so a lamp's glow brightens whatever paint is on the wall; same timing, reduced-motion, no-JS and `data-build` behaviour as the shade. Validator, `roomFiles`, RoomStory/RoomScene/room-view, unit tests and a spec check updated.
 
-## 2026-09-30 — Concept room tabs: six rooms, one deck (branch `claude/concept-room-tabs`)
+## 2026-09-30: Concept room tabs: six rooms, one deck (branch `claude/concept-room-tabs`)
 
 Delegated agent (Opus), for review by the main session. Built against synthetic sharp-drawn fixtures (three rooms plus a broken listing); the real rooms come from tools/room-lab.
 
@@ -26,7 +26,7 @@ Delegated agent (Opus), for review by the main session. Built against synthetic 
 - **Tests:** `parseRoomIndex` unit tests; `tests/room-story.spec.ts` gained tab keyboard navigation, the swap, the mid-build switch, the chip surviving a switch (canvas pixels), one GL context across ten switches, reduced motion, no tabs without JS, and the one-room no-tablist case.
 - **Docs:** DESIGN.md (tabs), CLAUDE.md foundation line, editor-vs-hardcoded.md, performance.md (per-room lazy cost), TESTING.md, sanity.md, page-architecture.md.
 
-## 2026-09-30 — The concept room, site half (branch `claude/concept-room-site`)
+## 2026-09-30: The concept room, site half (branch `claude/concept-room-site`)
 
 Delegated agent (Opus), for review by the main session. Built against the manifest contract with synthetic fixtures; the real room comes from the tools/room-lab session. Mid-task direction change from Nathan: whole-frame stages (manifest v1, WebGL brush-stroke reveal) replaced by furniture layers that fade and move into place (manifest v2, scroll-driven CSS); WebGL now paints only the base wall.
 
@@ -35,7 +35,251 @@ Delegated agent (Opus), for review by the main session. Built against the manife
 - **Tests:** `tests/room-story.spec.ts` (skips until the manifest exists), a Home case in `auto-marker.test.ts`.
 - **Docs:** DESIGN.md "The concept room" and the WebGL reversal (addendum in the design debate), sanity.md, page-architecture.md, performance.md, editor-vs-hardcoded.md, TESTING.md.
 
-## 2026-09-30 — Kind words on About, Instagram feed (branch `claude/kind-words-instagram`)
+## 2026-10-01: Mid-market pass, real E-Design price, room story, no em-dashes anywhere
+
+- **Positioning.** Staci chose mid-market. PRODUCT.md has a new "Positioning"
+  section and CLAUDE.md's audience line says so: polished and trustworthy,
+  never discount, never showroom; one price per service everywhere.
+- **E-Design** is one package, "Starting at $695", with her own include list
+  (migration-docs/05). `EDesignTiers.astro` handles a single tier (heading
+  "What it costs", readable width); the seeder no longer writes the $425 /
+  $250 placeholders. The live page changes through
+  `scripts/patch-2026-10-01-midmarket.mjs`.
+- **Room story.** `project` gained `houseDescription`, `scopeLine` and a
+  `consent` object (photos blocks publishing; price and quote only warn), all
+  shown on the spec sheet (House, Scope rows). Fields that still start with a
+  [bracketed] prompt cannot be published. The "+ New" project template is now
+  the room story (what was not working, the first decision, how it came
+  together). `scripts/seed-room-story-placeholder.mjs` deletes the three
+  seeded samples and creates one draft. Types regenerated.
+- **Copy.** Generic or placeholder lines rewritten with only facts already on
+  the site; the schema default "People Hire People." and a few code fallbacks
+  follow. The seeded "Off the Clock" lists are removed only while they still
+  match the seed word for word. "completely yours" stays as the one brand line.
+- **No em-dashes anywhere.** `scripts/sweep-em-dashes.mjs` rewrote 158 repo
+  files (comments, docs, scripts, copy) with one rule
+  (`scripts/lib/em-dash.mjs`, tested in `src/lib/em-dash.test.ts`);
+  `--check` lists what is left. Code that works on the character (card-title
+  cleaners, test assertions, the legacy title suffix in BaseLayout) uses the
+  escape `\u2014`. The site title suffix is now " | Reid Design LLC"; old
+  em-dash suffixes saved in Sanity are still recognised. `scripts/.parity/`
+  baselines are skipped, and so are the 10 files marked PORTABLE (they must stay
+  byte-equal to the starter or the CI sync-check fails; their em-dashes go when the
+  starter is cleaned and the copies pulled back) (generated; refresh with the next parity update).
+  `scripts/strip-em-dashes.mjs` does the same for the dataset.
+- `public/llms.txt` and `llms-full.txt` had stale prices ($150, $450, $650,
+  $850, $75) and listed the sample projects; corrected by hand.
+
+## 2026-10-01: No section doodles, no hero seam, calmer page changes
+
+- The Google rating no longer shows a review count (it was typed by hand and
+  nothing updated it): it reads "5.0 on Google" and links to the live
+  profile. `googleRatingFrom` needs only the rating; `googleReviewCount` is
+  hidden + read-only in the schema, never deleted.
+- Tag refinements: the Google rating is a flat printed card (a badge in
+  the button shape read as "book now"); one content button per screen (the
+  footer's booking becomes a link under a closing band; the 404 search is a
+  link); only the booking tags tilt on hover.
+- One button identity: every button is the notched tag (`.r-btn` now draws
+  the `.r-pricetag` shape). The 404 and search pages' old uppercase
+  rounded buttons, the announcement popup CTA and the floating chip were
+  moved onto it; secondary actions are underline links.
+
+- Travel-fee clocks animate: the hands sweep from 12 and fill each hour face
+  in turn, stopping at the minute mark, once the clocks are seen (the
+  unused `wedgePath`/`handPoint` helpers went with the old wedges).
+- Home hero (phones): the eyebrow is no longer clipped by the photo's fade.
+
+- The ambient section botanicals are removed (`src/scripts/ambient-doodles.ts`
+  deleted; the drawings stay for the phone menu and share cards).
+- Home hero: the photo's Walnut edge fade sits above the header shade, so
+  the photo no longer meets the Walnut in a hard vertical seam near the
+  header.
+- Header strip: scrolled, the full logo (unreadable at strip height)
+  shrinks away and "REID DESIGN" is drawn in left to right; reversed at
+  the top.
+- Home hero: the Google rating tag moved up to the top line, opposite the
+  eyebrow. Home reviews also link to her Facebook reviews tab.
+- Reviewer names typed all in lowercase on Google ("amy paul") are shown
+  capitalised (displayName in src/lib/reviews.ts); any name with a capital
+  is left as written.
+- Travel-fee clocks are real 60-minute faces, one per hour of driving,
+  shaded up to the top of each window (the two-hour dial misread: "within
+  30" looked like 15). "45 to 75" is a full face and one to :15.
+- View transitions: the header and footer no longer double print during a
+  page change (the old snapshot is hidden); the page content fades out with
+  a slight lift and the new page rises in.
+
+## 2026-10-01: Header: on the hero, her pen stroke, the logo inks in
+
+- From the header research and `docs/design/prototypes/header-e-on-hero.html`
+  (Nathan: "do all 4"). Home only: the header sits on the Walnut hero in
+  cream until the page scrolls (`headerOverHero` from `index.astro` through
+  BaseLayout; HomeHero shades the photo top and clears the overlap on
+  desktop). Everywhere: a pen-stroke underline replaces the rising paint
+  chip, and the logo inks in on the first page of a visit (sessionStorage).
+
+## 2026-10-01: Phone menu: the Walnut contents page
+
+- Two prototype rounds (`docs/design/prototypes/menu-d-magazine.html`):
+  Nathan kept the live header, dropped the room photos and picked the Walnut
+  version. `MobileNav.tsx` + `mobile-nav.css` rebuilt: large Zodiak names
+  with italic notes from `src/data/menu-notes.ts` (tested), arrows,
+  hairlines, Contact added as the last row, the cream booking button, the
+  Google rating (passed from Header.astro via `googleRatingFrom`), phone and
+  email. All text cream on Walnut for contrast; Oat only for marks.
+
+## 2026-10-01: Hand-lettered hero accent
+
+- Hero accents (home "completely yours", FAQ "Know", any page hero with a
+  scriptAccent) are set in Waterfall to echo Staci's Instagram handwriting.
+  `@font-face` + `--font-hand` in globals.css, `.r-hand` in reid.css, the
+  class on HomeHero and Hero h1s. Font + OFL in `src/assets/fonts/`.
+
+## 2026-10-01: Contact: free first step, toned Google map
+
+- Contact now says plainly that the first email or call is free and the
+  $225 consultation comes after: ContactAside's price tag ("Most projects
+  start here") became "How it starts" (Free, then the consultation price),
+  the call band and the aside's call link say the call is free.
+- The Google map is toned to a warm print (CSS filter, full colour while in
+  use), set behind a bronze keyline and inner shade, and wears a "The
+  studio, Plainfield, Indiana" sample tag. Google's attribution is untouched.
+
+## 2026-10-01: Google map on Contact
+
+- Nathan chose Google's plain keyless embed for the Contact map (over a
+  styled static image or a styled live map, both of which need a Google
+  Cloud key and billing). `ServiceAreaMap.astro` is the iframe again, in the
+  house frame, lazy-set on approach; CSP `frame-src` swaps
+  `www.openstreetmap.org` for `www.google.com`. The sketch map stays on the
+  home page.
+
+## 2026-10-01: Clocks, guarantee heading, home Google map, header price off, footer button
+
+- Services travel fees: the tape measure became stopwatch clocks with each
+  tier's drive-time window shaded (`src/lib/drive-time.ts`, tested).
+- Guarantee band: "The guarantee" is the big heading; the promise is a lede.
+- Home "Based in Plainfield": the hand-drawn sketch map is replaced by the
+  Contact Google map (`ServiceAreaMap.astro`, new `caption` prop);
+  `AreaSketchMap.astro`, `src/lib/area-map.ts` and its test deleted.
+- Header and phone menu booking buttons no longer show the price; the header
+  no longer reads the chrome facts.
+- Footer: a cream "Book a consultation" tag under the tagline.
+
+## 2026-09-30: The design pass (branch `claude/great-mendel-v4xvi0`)
+
+- Nathan's notes: cards needed depth, the tape measure should be more refined
+  and outlined in her colours, the "Based in" band wanted a sketch map, the
+  OpenStreetMap embed was ugly, the footer and the boxed header logo were not
+  classy, the guarantee stamp's middle icon was unreadable, a botanical
+  looked broken, photos sat loose on their bands, and some phone crops kept
+  almost nothing. All of it is in DESIGN.md "The 2026-09-30 design pass".
+- New: `RoomBackdrop.astro` + `src/data/room-backdrops.ts`, `.r-backdrop` and
+  `.r-frame` in `reid.css`, `AreaSketchMap.astro` + `src/lib/area-map.ts`
+  (+ test), `src/assets/logo-mark.png` and `logo-lockup-mask.png` (clean
+  masks cut from the share-card masks in `scripts/og-assets/`).
+- Changed: Header (no plate), Footer (framed stationery), TapeProcess,
+  ProcessSteps and ServiceArea tapes, PaintChips, ServiceCard, ProcessStep,
+  EDesignTiers, ServiceAreaCue, ServiceAreaMap (no iframe, no script),
+  SatisfactionGuarantee (her monogram), Hero / HomeStaci / AboutStory /
+  ContactAside / ImageText / ProjectDetail (framed), SanityImage (hotspot
+  object-position when not CDN-cropped).
+- Removed: the willow and twin-twig botanicals (`npm run doodles` no longer
+  writes them; `doodle-map.ts` rotation is four drawings).
+
+## 2026-09-30: Lenis removed
+
+- Nathan asked whether smooth scroll helps visitors; the answer was no (it
+  replaced their own wheel/trackpad feel, and the scroll animations are CSS
+  scroll-driven), so the Lenis init in BaseLayout, the `lenis` dependency
+  and the `window.lenis` path in `CaseStudyTOC.tsx` are gone. CLAUDE.md rule
+  5 now covers native scrolling; `tests/scroll-reset.spec.ts` checks the
+  ClientRouter on a mouse and a phone and that `window.lenis` stays absent.
+
+## 2026-09-30: Window light removed
+
+- Nathan did not like the WebGL leaf shadows and window sun on the home hero
+  and the closing band. `src/scripts/window-light.ts`, its BaseLayout init,
+  the `data-window-light` attributes and the `.wl-canvas` styles are gone.
+
+## 2026-09-30: The quiet pass (branch `claude/great-mendel-v4xvi0`)
+
+- Staci said the site felt less "fancy, clean" than the old Squarespace one.
+  Research on how established designers present their work pointed the same
+  way (restraint reads as polished), so the craft vocabulary was edited down,
+  not replaced. DESIGN.md "The quiet pass" has the rules.
+- Resting tilts removed from every sample tag, the rating tag, the footer
+  contact tags, the Instagram prints, the About board and the E-Design tags
+  (the guarantee stamp keeps its turn).
+- Phone menu: the fanned deck is now a square stack with hairlines instead of
+  cast shadows, and deals in straight. The `.r-pricetag` hover tilt is gated
+  on `(hover: hover)` so a tap cannot leave Close/Menu stuck crooked.
+- Ambient botanicals capped at two per page (`MAX_DOODLES` / `doodleSlots()`
+  in `src/lib/doodle-map.ts`, tested). Also fixed: a second init on the same
+  page used to skip decorated sections and so decorate new ones.
+- The Sandbar marker swoosh only on the closing heading (`.final__h`).
+- Closing band: coffee ring, binder holes and margin rule removed.
+- Services guarantee band: Oat to paper.
+
+## 2026-09-30: Share cards: a room print in the margin
+
+- Nathan asked for more of Staci's rooms on the cards; a mood board of several
+  photos was ruled out (the debate showed multi-photo cards turn to mush at
+  text-bubble size), so each card with an empty margin (Home, About, Services,
+  Contact, custom pages) carries ONE taped print of a different finished room.
+  Rooms are hand-picked in `src/data/card-rooms.mjs` (safe to edit); the
+  renderer sizes the print to the space beside the words.
+
+## 2026-09-30: Share cards design F, "the cover" (branch `ccr-1d8c83a7-uw3ifl`, second PR)
+
+- Nathan: the design E cards "feel boring and you don't immediately know whose
+  website it is and what the page will be about". Audited at true size (feed,
+  iMessage bubble, the 96px square crop), then a design debate: three designer
+  agents, two critics, two rounds (record in `docs/agent/seo.md`). Winner: the
+  magazine cover, with the worktable's checklist and floor plan folded in.
+- Every card: Staci's branding-shoot portrait with her name tag
+  (`src/data/card-portraits.mjs`, safe to edit), her real logo in the masthead
+  inside the square-crop zone, the page's own nav name as the big line, one
+  fact from `getChromeFacts()`, at most one object (Contact price tag, Process
+  tape, E-Design floor plan, FAQ/fallback checklist), one ground per page.
+- `cardContent()` in `src/lib/og-card.ts` (spec v2) replaces the title +
+  kicker spec; pages pass `card={{ kind }}`. The floor plan geometry moved to
+  `src/data/floor-plan.json`, shared with the closing band (markup unchanged,
+  checked byte for byte). The Chromium A/B backend was removed: satori is the
+  only renderer. `public/og-default.png` redrawn (Staci + her checklist).
+- `site.owner` ("Staci Perkins") added to `src/data/site.ts` for the name tag.
+
+## 2026-09-30: The hand layer, window light, share cards design E (branch `ccr-1d8c83a7-uw3ifl`)
+
+- **Botanical ambience:** six fine-line botanicals in the style of Staci's own
+  Instagram drawings (`scripts/doodles.config.mjs` geometry,
+  `scripts/lib/doodle-kit.mjs` hand, `npm run doodles`, committed
+  `src/assets/doodles/`), one growing faintly in from a corner of every content
+  section (`src/scripts/ambient-doodles.ts`), plus the phone menu. A first pass
+  of object doodles (mug, armchair, lamps) as foreground accents and header
+  hover cards was replaced the same day at Nathan's call.
+- **Designer markup:** a Sandbar marker swoosh under the italic accent phrase of
+  h2/h3 headings, pulled across on scroll.
+- **Window light:** WebGL leaf shadows and window sun (`src/scripts/window-light.ts`)
+  on the home hero (sun on the photo side only) and the closing band (shade only).
+- **Swatches carry content:** the decorative paint-chip repeats are gone (the
+  home hero fan deck, the footer's seven-tone strip, the share-card fan) at
+  Nathan's call; chips stay on the services and in the phone menu.
+- **The planning page:** the closing band on every page (`FinalCta.astro`)
+  became a notebook page with a self-drawing floor plan
+  (`closing/FloorPlan.astro`) and Staci's Instagram checklist
+  (`src/data/closing-notes.ts`), chosen from a mockup board of five ideas and
+  eight mixes.
+- **Share cards design E, "the hero card":** Walnut, logo plate, Zodiak title,
+  photo. `fetch-fonts.mjs` now also fetches .woff copies for satori
+  into gitignored `scripts/.og-fonts/` (lock `ogFiles`). `public/og-default.png`
+  redrawn.
+- A photo-traced sketch layer and an AI "room fills up" prototype were built and
+  then dropped at Nathan's call; the room moves to a local GPU session
+  (`docs/design/2026-09-30-concept-room-handoff.md`).
+
+## 2026-09-30: Kind words on About, Instagram feed (branch `claude/kind-words-instagram`)
 
 Delegated agent, reviewed by the main session.
 
@@ -61,7 +305,7 @@ Delegated agent, reviewed by the main session.
   page's added Kind words section (the committed baselines under
   `scripts/.parity/` are stale against current main and were not moved).
 
-## 2026-09-30 — release: hidden sections removed, swatch-book chrome, Google reviews
+## 2026-09-30, release: hidden sections removed, swatch-book chrome, Google reviews
 
 Branch `claude/release-chrome-reviews`, one release as Nathan asked. Three
 parallel Opus agents, reviewed and merged by the main session:
@@ -92,7 +336,7 @@ Gates on the merged branch with current main: astro check 0 errors, vitest
 534/534, Playwright 142/142, typegen stable, axe 0 on /, /services, /contact,
 /about at 1440 and 390.
 
-## 2026-09-30 — reduced-motion transitions zeroed (starter PORTS.md card 61)
+## 2026-09-30, reduced-motion transitions zeroed (starter PORTS.md card 61)
 
 The reduced-motion reset in `globals.css` now sets `transition-duration: 0s`
 and `transition-delay: 0s` instead of `0.01ms`. `transition-property`
@@ -102,7 +346,7 @@ Animations keep 0.01ms so `animationend` still fires. Nothing in `src` listens
 for `transitionend` (grepped). New PORTABLE `tests/reduced-motion.spec.ts`,
 added to the `webkit-iphone` project's `testMatch` in `playwright.config.ts`.
 
-## 2026-09-30 — art-direction rebuild, phase 2: every interior page
+## 2026-09-30, art-direction rebuild, phase 2: every interior page
 
 **Live:** PR #58 merged as 3c17ab8 after Nathan reviewed it on staging and
 said go. Production served it about 150s later; the 8 live routes and
@@ -160,15 +404,15 @@ Gates on the merged branch: astro check 0 errors, lint 0 errors, unit
 live pages at 1440 and 390, no overflow at 390, no `data-sanity` in
 `dist/client`.
 
-## 2026-09-30 — art-direction rebuild phase 1 live
+## 2026-09-30, art-direction rebuild phase 1 live
 
 PR #53 (`claude/redesign`) merged to `main` as 7bffc16 at Nathan's request ("get it all on main"), after all three required checks (build, test, lighthouse) passed. The first build run failed only on Prettier over the three frozen prototype pages, which are now in `.prettierignore`. The Cloudflare Workers Build served it on reiddesignllc.com about 105s after the merge: all four paint chips, the process steps and the testimonials render, `/fonts/*.woff2` answers 200, and the 8 live routes plus `/studio/` return 200. The stega preview fix was verified on staging in a signed-in Presentation by the Dependabot-audit session: 0 decode errors, 9 clean word spans, and a headline click opens `heroHeadline`.
 
-## 2026-09-30 — rebuild: stega-safe word splitting in preview
+## 2026-09-30, rebuild: stega-safe word splitting in preview
 
 Reported by the Dependabot-audit session from a signed-in Presentation check: `RiseWords` split the stega-ENCODED hero headline into words, so the invisible click-to-edit run was carved into 349 word spans, the overlay logged ~744 "Failed to decode stega" errors, and clicking the headline no longer opened its field (preview only; the live build has no stega). The accent phrase is encoded too, so it never matched in preview. Same trap in `PaintChips` (price regex) and `HomeWords` (quote shortening). Fix: `src/lib/split-copy.ts` (`splitHeadlineWords`, `splitPrice`) works on the clean text and returns the run, which the component renders once, whole, outside the animated spans; `HomeWords` does the same inline. 4 new unit tests (459/459). Live output unchanged: no invisible characters and no `data-sanity` in `dist/client`, Playwright 156/156.
 
-## 2026-09-29 — art-direction rebuild, phase 1: home, chrome, type, palette
+## 2026-09-29, art-direction rebuild, phase 1: home, chrome, type, palette
 
 Branch `claude/redesign`. Nathan judged the site generic next to FBCM and
 Stone Steps and asked for portfolio-award quality. Audit, photo inventory and
@@ -215,23 +459,23 @@ Playwright chromium 117/117 and webkit-iphone 39/39 (axe included); no
 **Found, not fixed here.** `npm run dev` crashes in Vite's dependency optimizer
 on clean main (own session). Parity baselines will need recapturing after merge.
 
-## 2026-09-29 — Windows dev alias fix moved to the canonical starter module (PORTS.md card 60)
+## 2026-09-29: Windows dev alias fix moved to the canonical starter module (PORTS.md card 60)
 
 The inline `fixSanityDedupeAliasOnWindows()` in `astro.config.mjs` is replaced by the starter's PORTABLE `src/lib/sanity-dedupe-alias.ts` (`fixSanityDedupeAlias()`, byte-identical, drift-gated by `sync-check`). Behaviour is the same; the module is now shared by every studio repo and adds a testable `repairSanityDedupeAlias()`. The starter's node:test spec does not run under vitest, so `src/lib/sanity-dedupe-alias.test.ts` is a Reid-local vitest translation with no PORTABLE marker. Detail in `docs/agent/stack-and-config.md`.
 
-## 2026-09-29 — `main` protected by a ruleset; auto-merge allowed
+## 2026-09-29, `main` protected by a ruleset; auto-merge allowed
 
 GitHub ruleset "main: PR + green CI" (id 24221660), matching the starter's: pull request required, `build` + `test` + `lighthouse` required, no bypass actors, no deletion or force-push (the starter requires only `build` + `test`). "Allow auto-merge" is now on, so `gh pr merge --auto` works (it could not before: with no required checks GitHub had nothing to wait on and refused with "Pull request is in unstable status"). Nothing pushes to `main` from a workflow, and the Dependabot auto-merge already waits for every check, so neither breaks. OPERATIONS.md and deployment.md now describe the PR flow instead of `git push origin main`.
 
-## 2026-09-29 — `npm run dev` crash on Windows fixed
+## 2026-09-29, `npm run dev` crash on Windows fixed
 
 `astro dev` exited within a minute with `Error during dependency optimization: Build failed with 364 errors: [MISSING_EXPORT] "DocumentStatus" is not exported by "node_modules/sanity/package.json"`. The leading guess (the workerd environment's optimizer crawling `/studio`) was wrong. The real cause is @sanity/astro's dev-only `sanity:module-dedupe` Vite plugin (3.4.2, still in 3.5.1): it aliases `sanity` and `styled-components` to their package folders using `.replace(/\/package\.json$/, '')`, which does nothing to a Windows backslash path, so the alias pointed at the package.json file. `npm run build` never loads the plugin. Fix: `fixSanityDedupeAliasOnWindows()` in `astro.config.mjs`, a `post` config hook that strips the stray `\package.json` from those alias entries. The upstream off switch (`SANITY_ASTRO_DISABLE_MODULE_DEDUPE`) was tried first and rejected: the Studio then failed to hydrate on `react-compiler-runtime`. Evidence: with the fix, dev served `/`, `/about/` and `/studio/` for 5+ minutes on a clean `npm ci` (one styled-components, one sanity, one React module in the browser); `dist/client` is byte-identical to origin/main's build (550 files) and still has one styled-components chunk. Detail in `docs/agent/stack-and-config.md`. The same regex ships in every studio project on @sanity/astro; tracked in the vault gotcha `sanity-astro-dev-alias-breaks-on-windows`.
 
-## 2026-09-29 — Wayfair Professional link replaced
+## 2026-09-29: Wayfair Professional link replaced
 
 The old `wayfair.com/professional/` link in "Grow your studio" (trade sourcing) was dead. Nathan found the current page; it is now `https://www.wayfair.com/v/business_account/application/pico` (ad-tracking parameters stripped, checked in a browser: "Wayfair Professional - Join Today!"). Patched in Sanity (`studioPlaybook`, one field, revision-pinned) and in `scripts/seed-studio-playbook.mjs` so a reseed keeps it.
 
-## 2026-09-29 — Dependabot #32 audited and kept; the locked set is now ignored
+## 2026-09-29: Dependabot #32 audited and kept; the locked set is now ignored
 
 Branch `claude/dependabot-lock-set`, off staging. No package versions changed.
 
@@ -280,7 +524,7 @@ commented with why. The cost is no automatic patch PRs for them, so run
 the adapter's peer range fails loudly in CI. CLAUDE.md and docs/agent/sanity.md
 say so; their version numbers had already been corrected earlier the same day.
 
-## 2026-09-29 — follow-ups: share links on detail pages, Studio deep links, parity baselines
+## 2026-09-29, follow-ups: share links on detail pages, Studio deep links, parity baselines
 
 Branch `claude/reid-followups`, three items from `docs/PENDING.md`.
 
@@ -346,7 +590,7 @@ times. A build WITHOUT the variable scores 11/21, and every diff line is a
 removed line of the GA snippet on the 10 real content pages, nothing added,
 which is the documented reason to compare with the variable set.
 
-## 2026-09-29 — tier-1 correctness: build reads fail loud, preview cookie checked, MobileNav in the HTML
+## 2026-09-29, tier-1 correctness: build reads fail loud, preview cookie checked, MobileNav in the HTML
 
 Four starter cards ported, plus two hygiene fixes and a docs sweep.
 
@@ -399,7 +643,7 @@ wrangler ~4.129.0, react 19.2.8, styled-components 6.5.3). PENDING's
 three were already true), and "still Squarespace / before cutover" wording
 fixed in `deployment.md`, `OPERATIONS.md` and `CLAUDE.md`.
 
-## 2026-09-29 — the Studio editor-experience layer (branch `claude/studio-editor`)
+## 2026-09-29, the Studio editor-experience layer (branch `claude/studio-editor`)
 
 Eight additions aimed at Staci, none of which changes a live page (parity 20/20
 against a pristine-build snapshot). Detail and file map: docs/agent/sanity.md,
@@ -428,7 +672,7 @@ UndoRedo.tsx. The two canonical node:test suites are vitest ports. The publish
 menu helpers are appended by one function, `withEditorActions`
 (`src/sanity/editorActions.ts`), so the resolver keeps only Reid's own rules.
 
-## 2026-09-29 — announcements, site search, Studio traffic panel, weekly link report
+## 2026-09-29, announcements, site search, Studio traffic panel, weekly link report
 
 Four features on branch `claude/site-features`, one workstream of five run in
 parallel.
@@ -463,7 +707,7 @@ links, 1 reported gone (Wayfair trade page, unconfirmed), 3 refusing scripts.
 Also: the parity normalizer gained rule 5 (island uid, Astro 7.3), and `search` and
 `pagefind` became reserved page slugs.
 
-## 2026-09-29 — tier-2 hardening: full CSP, font fallbacks, deferred hero slides, icon set, redirects on rename
+## 2026-09-29, tier-2 hardening: full CSP, font fallbacks, deferred hero slides, icon set, redirects on rename
 
 **Content-Security-Policy.** `public/_headers` now ships a full policy instead of
 `frame-ancestors` alone, as three path-scoped rules: a tight one for the public site,
@@ -512,7 +756,7 @@ from an address a published page lives at now (the rename-and-back loop). Verifi
 the pipeline with a temporary entry: `_redirects` got both slash forms, wrangler
 answered 301 and carried the query string, and the sitemap did not list it.
 
-## 2026-09-29 — share cards redesigned, and drawn by every build
+## 2026-09-29, share cards redesigned, and drawn by every build
 
 The old cards were a plain linen rectangle reading "Reid Design LLC" in a fallback
 system serif (Pango asks fontconfig for Cormorant Garamond by name, and fontconfig
@@ -553,7 +797,7 @@ computed once from Cormorant's measured advance widths (a balance-style search) 
 each renderer wrapping its own way, and satori's kicker uses no-break spaces so its word
 gaps get the same tracking as Chromium's.
 
-## 2026-09-28 — analytics ported to the starter's Analytics.astro; privacy page tells the truth
+## 2026-09-28, analytics ported to the starter's Analytics.astro; privacy page tells the truth
 
 The full starter card-54 port. `src/components/Analytics.astro`,
 `analytics/{GoogleAnalytics,CloudflareBeacon}.astro` and `src/lib/analytics-config.ts`
@@ -577,7 +821,7 @@ and the Sanity paragraph was rewritten (Nathan approved the wording) with
 `lastUpdated` moved to 2026-09-28. The static fallback's stale Cloudflare bullet went
 too. Never put analytics wording into Sanity again: it cannot follow the config.
 
-## 2026-09-28 — canonical drift pulled forward (CI green again)
+## 2026-09-28, canonical drift pulled forward (CI green again)
 
 CI's `sync-check` gate went red on `scripts/sync-check.mjs` and
 `src/lib/preview-navigation.ts` with no change on this side: both copies were
@@ -598,7 +842,7 @@ vitest, build, links) had been SKIPPED, not passed, since the starter moved.
 All were run locally for this change: sync-check 21/21 against both starter
 branches, vitest 264/264, Playwright 144/144, parity 20/20, links clean.
 
-## 2026-09-28 — GA4 localhost guard, hidden sections out of the sitemap
+## 2026-09-28: GA4 localhost guard, hidden sections out of the sitemap
 
 A report that GA4 was "missing" on /portfolio/, /journal/ and seven more pages
 turned out to be the section-visibility redirect stubs: nine flags in
@@ -626,7 +870,7 @@ Parity baselines re-captured: they had drifted since the Astro 7.3.1 bump, so a
 same-sitting baseline from HEAD was taken first to prove the only diff was the
 GA block on the nine BaseLayout pages.
 
-## 2026-08-28 — the modern stack: Astro 7, Sanity 6.4, one package, live preview
+## 2026-08-28, the modern stack: Astro 7, Sanity 6.4, one package, live preview
 
 The upgrade the starter's PORTS.md card 17 rollout plan called for, done in one
 gated session against `ncs-astro-sanity-starter@82579e1` as the reference shape.
@@ -706,4 +950,4 @@ byte-stable across runs, and `wrangler dev` serving every static route, a real
 preview route. What is NOT verified and is queued for Nathan: the signed-in
 Studio desk, which needs `sanity cors add` first.
 
-_Last updated: June 12, 2026 — **Starter-template hardening backfill.** The reusable starter forked from this site went through a 64-finding audit; the fixes that apply here were ported back in one commit (`49a779a`). Perf: `getSiteSettings()` is now memoized in a module-level promise (one Sanity request per build instead of ~20; also collapses the double-calls in `journal/[slug].astro` and `guides/[slug].astro`), and the privacy + contact fallback rich text render through a new build-time `PortableTextStatic.astro` instead of shipping the React Portable Text island. SEO: journal RSS feed at `/journal/rss.xml` (`@astrojs/rss`, respects the showJournal gate; empty until entries are published, matching the index) + `rel=alternate` autodiscovery in BaseLayout; journal posts emit `og:type article` with `article:published_time`/`article:author` via new `ogType`/`ogArticle` BaseLayout props. A11y: the FeaturedWork/FeaturedJournal companion-row anchors got their focus rings back (`focus-visible:ring-2 ring-ring ring-offset-2`; they had `outline-none` with no replacement, a WCAG 2.4.7 miss), headingless GalleryGrid/VideoEmbed sections get fallback `aria-label`s, and the video iframe `allow` policy now includes `fullscreen`. Editor: `ctaBlock.internalLink` can target custom `page` docs (CtaLink resolves them to `/<slug>`); studio redeployed after the schema change. DX: `.github/workflows/ci.yml` runs npm ci + typegen + astro build + studio build on push/PR (public Sanity ids inlined, no secrets), `npm run check` chains the same gate locally, and the duplicated hand-rolled `loadEnv()` in generate-og-pages/generate-llms-full moved to a shared `scripts/lib/loadEnv.mjs` that fixes the inline-comment parse bug. `<html lang>` now reads from `site.ts`. NOT ported on purpose: the starter's generic `businessType` schema field (InteriorDesigner is correct here), robots.txt endpoint (the static file already carries the right domain), and placeholder-geo omission (real Plainfield values are guaranteed). **Vendored UI component stack** (`88095ab`), mirroring the starter wiring: `components.json` style `radix-nova` → `radix-vega` (marketing spacing; affects future `npx shadcn add` only) + the `@fulldev` registry; Starwind UI Astro-native primitives vendored under `src/components/starwind/` (accordion, tabs, dialog, dropdown) with a trimmed `src/styles/starwind.css` imported after globals.css and 11 new semantic tokens (`--primary-accent`, `--secondary-accent`, info/success/warning/error pairs, `--outline`) added to `:root`/`.dark` harmonized to the Warm Bronze palette; the Magic UI components in `ui/` (animated-beam, bento-grid, spotlight) had hardcoded colors swapped for semantic tokens (currently unused on pages, so visually inert; marquee was already clean); PrimeReact 10.9.8 wired as an UNSTYLED escape hatch under `src/components/primereact/` (provider wrapper + Tailwind passthrough baseline; nothing imports it, zero bundle impact). New `docs/agent/component-sources.md` is the sourcing guide for future sessions: approved copy-in sources, the token-remap cheat sheet, the static-vs-island checklist, and the heavyweight verdicts (Mantine/Chakra/Ant rejected for per-island providers + parallel theme systems). New deps: tailwind-variants, @tabler/icons (vanilla SVGs for Starwind), primereact, typescript (dev). Earlier: June 11, 2026 — **Reverted Astro 6.4.6 → 6.3.8 (image build regression).** The 6.4.6 bump (with `@astrojs/cloudflare` 13.7.0, `@astrojs/react` 5.0.7) broke every Cloudflare build from `391876e` onward. Under `imageService: 'compile'`, a local image consumed only through `getImage()` — the theme-swap header/footer logos, which feed `getImage` for webp variants but never render their original PNG — no longer gets its original emitted to `dist/_astro/`, so Astro's build-time optimizer (`loadImage` in `assets/build/generate.js`) throws `ENOENT` opening `dist/_astro/logo-*.png` and the build dies in the "generating optimized images" step. Reproduced on a clean local build (cross-platform: same failure on Linux CI and Windows). Reverting `astro`→6.3.8, `@astrojs/cloudflare`→13.5.5, `@astrojs/react`→5.0.5 (the last-green set from `ea39767`) builds green with all 10 logo webps generated. The "Build verified green" claim on the 6.4.6 note below was a warm `node_modules/.astro` cache false positive — a clean build (what CI runs) fails every time. **Do not re-bump Astro past 6.3.8 until the upstream getImage/compile-service regression is fixed; verify any retry with a cleared `node_modules/.astro` cache.** **Locality centralized + made editable.** The home-base "Plainfield, IN / Greater Indianapolis" strings were duplicated across the footer and the LocalBusiness/serviceList JSON-LD. Added `city` / `state` / `serviceRegion` to the `businessInfo` singleton (one source of truth), coalesced into `getSiteSettings`, and threaded through `Footer.astro` (location line) and `schemas.ts` (`addressLocality`/`addressRegion` on LocalBusiness, `areaServed` on serviceList via a new optional `serviceListSchema(services, areaServed)` param passed from `services.astro`). All consumers use a stable `Plainfield`/`IN`/`Greater Indianapolis` code fallback, so the rendered output + structured data are byte-identical until Staci changes the fields (seeded with the current values via `setIfMissing`; field descriptions warn it must match the Google Business Profile for NAP consistency). Verified in-browser: footer unchanged, JSON-LD `addressLocality`="Plainfield"/`addressRegion`="IN". The only locality reference left static is the print-stylesheet pseudo-element (CSS can't read Sanity). `editor-vs-hardcoded.md` updated to move locality from "intentional hardcoded" to editor-driven. **Astro 6.3.8 → 6.4.6** (minor), plus `@astrojs/cloudflare` 13.5.5 → 13.7.0 and `@astrojs/react` 5.0.5 → 5.0.7; `@astrojs/mdx` left on v5 (its v6 is a major, not needed for the astro minor). Build verified green. Note: an already-running `astro dev` server throws "require is not defined" after the adapter is swapped under it; restart the dev server (the production build is unaffected). Also nudged the footer: in the sparse 3-up row the brand logo now top-aligns with the Studio / Get-in-touch column titles (dropped the `md:self-center` so it inherits the row's `items-start`). **Footer graceful collapse.** When section-visibility toggles leave only two or three footer columns, the even grid stranded them with a big empty gap. `Footer.astro` now switches (at `brandInline = colCount <= 3`) to a balanced "nav | brand | contact" flex row, pulling the brand signature up from its own centered row into the column row so a sparse footer fills the width. Extracted the logo + tagline into `FooterBrand.astro` so it can render in either spot without duplication. 4+ columns keep the grid + centered logo below (unchanged). Verified in-browser at the live all-sections-off config. **Sanity Studio upgraded v5 → v6 (latest).** Bumped `studio/` to `sanity@6.0.0`, `@sanity/vision@6` (was v4), `@sanity/orderable-document-list@2`, `@sanity/icons@3.7.4`, `react`/`react-dom@19.2.7`, `@sanity/eslint-config-studio@6`, and the third-party plugins (media/iframe-pane/unsplash) to their latest patches; all already declared `^6.0.0-0` peer support. Verified before deploying: `sanity build` (studio) green, `npm run typegen` (v6 schema extract + typegen, 82 types) green, `npm run build` (Astro site consuming the regenerated `sanity.types.ts`) green, then `npm run studio:deploy` — which this time reported **no local-vs-runtime version-mismatch warning** (the 5.28-vs-5.31.1 warning is resolved; local + auto-update runtime now both on 6.x). Schemas use the stable `defineType`/`defineField` API and needed no changes. The root project owns only the runtime libs (`@sanity/client`, `@sanity/image-url`); the `studio/` package owns the `sanity` framework dependency and the root `typegen` script delegates to it. Earlier the same day: Follow-up fixes (headshots, footer, SEO). **Full-res headshots:** the original headshot exports were 400-600px; re-shot full-res versions were re-uploaded from `Reid Design Pictures/New Headshots/` via `scripts/upload-headshots.mjs` (Sanity dedupes by hash, so the changed files become new assets) and the three placed references re-pointed via `scripts/place-headshots.mjs` (home Meet Staci = IMG_5680 at 1067x1600, About portrait = IMG_5685 at 4160x6240 full-res, About candid = IMG_5683 at 2048x1365). Old low-res assets were intentionally left in the media library per the standing "keep every uploaded photo" instruction (a cleanup-old-headshots script was written then removed when the auto-mode classifier flagged deletion as out of scope). **Footer empty-column fix:** when every link in a footer column is hidden by section-visibility toggles, the column now drops out entirely (heading included) instead of leaving a dangling title. `Footer.astro` gained per-column `showWork`/`showTools`/`showLatest` flags and a dynamic `lg:grid-cols-{n}` class (literal map so Tailwind keeps the classes) so remaining columns rebalance and Get-in-touch stays right-aligned; the old `LATEST PROJECTS` placeholder div was removed. Verified against the live config (all optional sections off) showing a clean two-column footer. **SEO backfill:** the 8 page singletons left blank (privacy, press, resources, e-design, gift, shop, quiz, calculator) got voice-compliant, location-forward `seoTitle` + `seoDescription` via `scripts/patch-seo-defaults.mjs` (setIfMissing, never overwrites). `scripts/audit-seo.mjs` added as a reusable read-only gap report. Core pages already had SEO; the 3 sample `[SAMPLE]` projects were left blank (deleted before launch). Earlier the same day: Deferred-polish + editor-control closeout (continues the June-10 owner-control build). **Flexible "Extra sections" zone on the non-marker pages:** the five standard pages that are not pageBuilder-marker pages — `faqPage`, `contactPage`, `privacyPage`, `journalPage`, `portfolioPage` — each gained an optional `additionalSections` array (shared `additionalSectionsField` helper + `SECTION_TYPES` from `sections.ts`, under a new "Extra sections" field group), projected via `sectionsProjection('additionalSections')` in `queries.ts`, and rendered by a second `<SectionRenderer idPrefix="…-extra">` placed above the final CTA (faq/journal) or at the page tail (contact/privacy/portfolio). Empty array = no change. Combined with the existing pageBuilder markers on the eight marketing/offering pages and the author-it-yourself `page` type, every page on the site is now extensible from the same block library. **Quiz + calculator SEO de-hardcoded:** `styleQuiz` and `budgetCalculator` singletons gained `seoTitle` + `seoDescription` fields (joining the existing `seoImage`), projected in `getStyleQuiz`/`getBudgetCalculator`; `quiz.astro` + `calculator.astro` now read them with the previous hardcoded strings as fallback. **Shop ItemList JSON-LD:** new `shopItemListSchema()` in `schemas.ts` emits an `ItemList` of `Product`s (name + optional brand/vendor + image + affiliate URL, no Offer/price since these are curated recommendations not a storefront); `shop.astro` flattens every collection's items, resolves Sanity image URLs page-side (mirroring `projectSchema`'s pre-built-URL split), and only emits the list when the page is enabled and has items. **Heading hierarchy:** `project.introStory` Portable Text gained a **Heading 2** style (it previously offered only H3, which skipped a level since the page H1 is the project title and the sibling sections "Before and after"/"Gallery" are H2); the renderer + TOC extractor already handled h2. `journalEntry.body` already offered h2/h3/h4. **Alt-text sweep:** audited every `type: 'image'` field across all 27 schemas; the convention is already correct and consistent — required alt on all genuine content images (galleries, image+text, project/journal photos, page-builder `imageWithAlt`, shop items, press logos, lead magnets, service/archetype/answer images), optional alt only on `seoImage` (social-share) and the home hero slideshow (first slide carries alt for LCP, slides 2+ render decorative/empty by design per `HeroBackground.astro`). No changes needed. **Intentional-hardcoded decisions recorded** in `editor-vs-hardcoded.md`: footer column/link labels (structural scaffolding), the site-wide "Plainfield, IN / Greater Indianapolis" locality (centralize in a planned session rather than make the footer line editable in isolation and desync the LocalBusiness JSON-LD), and the empty-state/coming-soon fallback strings (graceful degradation, replaced by real content). No backfill script was needed — every new field is optional with a code fallback. Build verified green; `studio:deploy` run after the schema additions; merged to main (Cloudflare CI auto-deploys). Earlier the same build (June 10, branch `feat/owner-control-page-builder`): owner-control + page builder build. **Settings/Content reorg:** new `businessInfo` Content-side singleton holds service areas, travel fees, availability, and studio geo (moved off `siteSettings`, now identity + infrastructure only); `getSiteSettings` coalesces them in under the same flat field names so every consumer is unchanged; old `siteSettings` fields kept `hidden` + `readOnly` for rollback; Studio Content tab regrouped to lead with Business info + a single Pricing & rates group; migrated by `scripts/migrate-business-info.mjs`. **Page builder (new):** `studio/schemaTypes/sections.ts` (9 reusable section blocks + `SECTION_TYPES` single source), `page.ts` (the author-it-yourself custom `page` type with a reserved-slug collision guard + menu-placement fields; not a singleton), `src/components/SectionRenderer.astro` (maps block `_type` → component and owns the alternating background cadence; opens on muted after a text hero), new block components under `src/components/sections/` (RichTextSection, ImageText, GalleryGrid, QuoteBlock, VideoEmbed; hero/CTA/stats/spacer reuse existing components), `src/pages/[slug].astro` (one static page per published custom page; reserved-slug filter lives INSIDE getStaticPaths per the Astro isolated-scope gotcha), and nav injection via `getNavPages()` → BaseLayout → Header/Footer; verified end to end with a demo page. **De-hardcode:** `siteSettings.primaryCtaLabel` + `headerTagline` (threaded through Header + MobileNav), `portfolioPage` before/after heading + SEO (was fully hardcoded). **Headshots:** 24 uploaded to the media library (`scripts/upload-headshots.mjs`); real photos placed on home Meet Staci (IMG_5680) + About portrait (IMG_5685) + candid (IMG_5683) via `scripts/place-headshots.mjs`, kept to medium slots since sources are 400-600px. **SEO/a11y:** real `og:image:alt` from the share image's alt; `serviceType` + `areaServed` on Service JSON-LD; phone-format validation; `generate-llms-full.mjs` repointed to businessInfo. **Guide:** Start Here expanded with how-tos for building a page / managing sections / changing photos+videos, a "Meet the section blocks" tip, a publish-troubleshooting tip, and the updated Settings/Content map. **About page retrofitted (marker approach):** `aboutPage` gains a `pageBuilder` layout array of `aboutSectionMarker` blocks (one type with a `section` dropdown, in `aboutSections.ts`) rendered by `src/components/AboutSectionRenderer.astro`. Each marker maps to the existing section component reading the UNCHANGED aboutPage fields, so Staci reorders/hides built-in sections and inserts library blocks between them with zero content migration. `AboutStory.astro` + `AboutPhilosophy.astro` extracted verbatim as surface-faithful components; hero/personal/press/stats/finalCta reuse existing components; inserted general blocks delegate to `SectionRenderer`. Default order matches today's page (`scripts/migrate-about-layout.mjs` persists it; about.astro also falls back to it in code). Verified pixel-identical. **All four core marketing pages now retrofitted the same way** (each with its own `<page>SectionMarker` type, `<Page>SectionRenderer`, and extracted section components, verified by stash-building the original and diffing the section sequence): About (`aboutSections.ts` / `AboutSectionRenderer`), Home (`homeSections.ts` / `HomeSectionRenderer`; MeetStaci, HomeTestimonials, ProcessPreview, HomeServices extracted; conversion order preserved with the bronze divider before the service-area cue), Services (`servicesSections.ts` / `ServicesSectionRenderer`; ServicesList, BuildersRealtors, ServiceArea, SatisfactionGuarantee extracted; sticky CTA + Service JSON-LD kept), Process (`processSections.ts` / `ProcessSectionRenderer`; ProcessSteps, ProcessFaq extracted). `scripts/migrate-page-layouts.mjs` seeds the default order for all four; each page also falls back to its default order in code. **The offering pages are now retrofitted too** (`offeringSections.ts` holds all four markers via a small factory): Resources (`ResourcesSectionRenderer`; ResourcesIntro + ResourcesCards extracted), Press (`PressSectionRenderer`; PressIntro + PressList extracted), E-Design (`EDesignSectionRenderer`; content sections inline, hero/coming-soon/closing-CTA kept in the page), Gift (`GiftSectionRenderer`; same shape). E-Design is the one live offering page and was verified pixel-identical via stash-diff; Resources/Press/Gift are visibility-gated off (they redirect, matching the original) and were verified via clean build + verbatim extraction on the same pattern. The layout migration (`migrate-page-layouts.mjs`) now covers all ten pages and skips docs that do not exist (so an unpublished eDesignPage/giftPage stays in its coming-soon state). Branch history: core-page work on `feat/owner-control-page-builder`, offering-page work on `feat/offering-page-retrofits`, both merged to main and pushed (Cloudflare CI auto-deploys main; local `wrangler deploy` needs CLOUDFLARE_API_TOKEN which isn't in the agent env). **Lighthouse accessibility sweep done** against the deployed workers.dev URL: every live page now scores 100/100/100 (a11y/BP/SEO) in light and dark, mobile. Four a11y fixes shipped: footer tagline contrast (`text-foreground/60` -> `/80`); the mobile availability pill's visual status spans set `aria-hidden` so the link's accessible name comes from its aria-label (WCAG Label-in-Name); decorative step numbers that failed contrast (`text-link/80` on the contact post-inquiry roadmap, `text-tertiary/60` on the E-Design + Gift how-it-works) switched to `text-primary-dark`; privacy fallback footnote `/60` -> `/80`. The gated sections (portfolio, journal, resources, press, shop, gift) redirect to home when off; the 404 returns an HTTP 404 so Lighthouse scores it 0 (expected, its content reuses the fixed Header/Footer). Earlier: May 29, 2026 — Design polish flourishes shipped in two reduced-motion-aware batches (all utilities documented in `polish-layer.md`). **Batch 1 (CSS):** editorial drop cap + bronze blockquote on journal posts (`.prose-drop-cap` / `.prose-blockquote` via `JournalPortableText.tsx`); image zoom + warm bronze tint on card hover (`.img-zoom` / `.img-tint` / `.img-tint-light` on ProjectCard + JournalCard, fires on full-card `group` hover); grid stagger entrance (`[data-stagger-grid]` → `.is-staggered` IntersectionObserver in BaseLayout) on the portfolio, journal, home-services, about-philosophy, and services grids, with a `[data-stagger-grid] > .is-filtered-out` specificity guard so the portfolio filter still collapses cards. **Batch 2 (JS + Sanity schema):** image curtain reveal (`.img-curtain` Soft Linen panel scaling away from the top, `z-10` over hero overlays pinned at `z-[1]`/`z-[2]`/`z-[3]`) on the portfolio detail hero + FeaturedWork home hero; process connector lines (`.step-connector` 2px bronze thread, `ProcessStep` gains an `isLast` prop, grid switched to `items-stretch`) on `/process` + the home preview; About-page studio stat counters (`StatsRow.astro` shell + `client:visible` `StatsCounter.tsx` rAF count-up; new `aboutPage.stats` array schema — number/suffix/label, max 4 — deployed to Studio and projected in `getAboutPage()`; section self-hides until populated); page cross-fade on navigation (`view-transition-name` on main/header/footer, 150/200ms, header+footer pinned). Case-study TOC links (`CaseStudyTOC.tsx`, shared by portfolio + journal) now smooth-scroll through `window.lenis` with a native + reduced-motion fallback and a `pushState` hash update, instead of snapping — Lenis honors the headings' `scroll-mt-24` so no manual offset is needed. Studio redeployed after the `aboutPage.stats` schema change, and the local `sanity` package in `studio/` bumped 5.27.0 → 5.28.0 to match the hosted runtime (clears the version-mismatch warning on `studio:deploy`). Final CTA sections can now carry an optional background photo per page (new `finalCtaBackgroundImage` on all 7 page singletons, projected in `queries.ts`, rendered in `FinalCta.astro` behind a fixed `bg-accent-dark/70` charcoal scrim so the cream headline and bronze button stay readable; empty falls back to the solid charcoal panel; journal uses one shared image across index + posts). Home hero can now be a slideshow: new `homePage.heroImages` array (one image = static hero as before, two or more = a slow cross-fading slideshow with a subtle Ken Burns zoom), rendered by the new `HeroBackground.astro` with slide CSS in `globals.css` and a small inline script (3s hold, 1.5s fade, single window-scoped timer, pauses when the tab is hidden, off under reduced motion); first slide stays the eager LCP image, the rest lazy-load; the legacy single `heroImage` was migrated into `heroImages[0]` and hidden. The no-em-dash rule was scoped to public-facing site copy only; code comments, commit messages, plans, specs, and internal docs are now exempt. Earlier: Footer logo repositioned: removed the standalone brand bar above the nav grid; logo now sits centered below the five-column link grid as a brand signature, with `siteSettings.tagline` displayed in small italic beneath it (`h-20`, theme-aware via existing anti-FOUC data attributes). The five-column grid has its STUDIO eyebrow label restored. `.claude/launch.json` added for the preview server (port 4321). Earlier: Home eyebrows no longer end with periods (Featured Work + Featured Journal matched to the others, fixed in the homePage Sanity doc + the index.astro defaults). Fixed a mid-viewport (~768 to ~900px) horizontal scroll: the footer's five-column grid made the Get-in-touch column too narrow for the email address, so the grid now steps 1 / 2 / 3 / 5 columns as the viewport widens. Footer tagline removed (the brand bar is now just the logo). Footer slimmed to about half its previous height: a compact brand bar replaces the tall stacked brand block, contact moved into a Get-in-touch column, and copyright/privacy/credit moved to a thin bottom bar. Before & After added to the header Resources dropdown (and so the mobile drawer). Home hero fills the viewport below the sticky header on first load (`size="tall"` → `.hero-fill` = `calc(100svh - var(--header-h))`, with `--header-h` measured from the live header by an inline script so there's no layout shift; `svh`-based) plus a soft pulsing bottom-center scroll cue that scrolls past the hero via Lenis, now exposed as `window.lenis` from BaseLayout. Project authoring guardrails in `project.ts`: `gallery` promoted to "Project photos" directly under the hero with a 3-image minimum, before/after moved up beside it, `designStyle` + `briefLine` + `designCall` now required, `briefSummary` min 60, `publishedAt` description corrected (scheduling is Sanity's Schedule publish action, not the field); the three placeholder projects are now prefixed `[SAMPLE: delete before launch]` in `seed-placeholder-content.mjs`. Project pages auto-surface journal posts that reference them via `journalEntry.relatedProject` ("Featured in the journal", reverse GROQ in `getProjectBySlug`; no field on the project, so the link is maintained only on the journal side). Header availability status now shows at every width (compact "Open" on narrow phones, full `siteSettings.availabilityStatus` from md up on the mobile pill + on the desktop eyebrow strip). Studio phone number surfaced site-wide from `siteSettings.phone` (header eyebrow, footer, mobile drawer, contact sidebar + email failsafe; LocalBusiness JSON-LD `telephone`) via new `src/lib/phone.ts` `telHref()` helper + `scripts/patch-site-phone.mjs`. Earlier (same day): About personal section: new `AboutPersonal.astro` component + `aboutPage.personal*` field group (currently list, rapid fire, local spots, beyond design + candid photo); all content self-hides when empty. Editable Start Here guide: `studioGuide` and `studioNotes` singletons now drive StudioGuide.tsx and the static sections of BusinessOverview.tsx; BrandKit.tsx stays hardcoded to stay in sync with globals.css tokens. Philosophy card numbering: visible numbers (01/02/03) now assigned by render position, not displayOrder; displayOrder is optional and backup-only. Contact lead sources: source dropdown now has 11 options (added "Took the style quiz" + "Downloaded a free guide"); patch script force-sets formProjectTypeOptions and formSourceOptions to keep Sanity in sync. New seed scripts: seed-about-personal.mjs + seed-studio-guide.mjs. Earlier: section visibility system added: `siteSettings.sectionVisibility` schema object with ten boolean toggles, `src/lib/sectionVisibility.ts` helper (`value !== false` rule), and off-behavior across nav/footer/homepage/pages documented; Studio defaults changed to All-fields tab (removed `default: true` from all field groups); Studio branding documented (`title: 'Reid Design'`, bronze `buildLegacyTheme`, `StudioLogo` component, `studio/global.d.ts`); SEO `.warning()` validations on seoTitle/seoDescription across all page schemas documented; Vision/GROQ plugin gated to non-production documented; Start Here handbook updated to three panels (StudioGuide / BusinessOverview / BrandKit, replacing the removed single-file StartHere). Earlier: consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep._
+_Last updated: June 12, 2026: **Starter-template hardening backfill.** The reusable starter forked from this site went through a 64-finding audit; the fixes that apply here were ported back in one commit (`49a779a`). Perf: `getSiteSettings()` is now memoized in a module-level promise (one Sanity request per build instead of ~20; also collapses the double-calls in `journal/[slug].astro` and `guides/[slug].astro`), and the privacy + contact fallback rich text render through a new build-time `PortableTextStatic.astro` instead of shipping the React Portable Text island. SEO: journal RSS feed at `/journal/rss.xml` (`@astrojs/rss`, respects the showJournal gate; empty until entries are published, matching the index) + `rel=alternate` autodiscovery in BaseLayout; journal posts emit `og:type article` with `article:published_time`/`article:author` via new `ogType`/`ogArticle` BaseLayout props. A11y: the FeaturedWork/FeaturedJournal companion-row anchors got their focus rings back (`focus-visible:ring-2 ring-ring ring-offset-2`; they had `outline-none` with no replacement, a WCAG 2.4.7 miss), headingless GalleryGrid/VideoEmbed sections get fallback `aria-label`s, and the video iframe `allow` policy now includes `fullscreen`. Editor: `ctaBlock.internalLink` can target custom `page` docs (CtaLink resolves them to `/<slug>`); studio redeployed after the schema change. DX: `.github/workflows/ci.yml` runs npm ci + typegen + astro build + studio build on push/PR (public Sanity ids inlined, no secrets), `npm run check` chains the same gate locally, and the duplicated hand-rolled `loadEnv()` in generate-og-pages/generate-llms-full moved to a shared `scripts/lib/loadEnv.mjs` that fixes the inline-comment parse bug. `<html lang>` now reads from `site.ts`. NOT ported on purpose: the starter's generic `businessType` schema field (InteriorDesigner is correct here), robots.txt endpoint (the static file already carries the right domain), and placeholder-geo omission (real Plainfield values are guaranteed). **Vendored UI component stack** (`88095ab`), mirroring the starter wiring: `components.json` style `radix-nova` → `radix-vega` (marketing spacing; affects future `npx shadcn add` only) + the `@fulldev` registry; Starwind UI Astro-native primitives vendored under `src/components/starwind/` (accordion, tabs, dialog, dropdown) with a trimmed `src/styles/starwind.css` imported after globals.css and 11 new semantic tokens (`--primary-accent`, `--secondary-accent`, info/success/warning/error pairs, `--outline`) added to `:root`/`.dark` harmonized to the Warm Bronze palette; the Magic UI components in `ui/` (animated-beam, bento-grid, spotlight) had hardcoded colors swapped for semantic tokens (currently unused on pages, so visually inert; marquee was already clean); PrimeReact 10.9.8 wired as an UNSTYLED escape hatch under `src/components/primereact/` (provider wrapper + Tailwind passthrough baseline; nothing imports it, zero bundle impact). New `docs/agent/component-sources.md` is the sourcing guide for future sessions: approved copy-in sources, the token-remap cheat sheet, the static-vs-island checklist, and the heavyweight verdicts (Mantine/Chakra/Ant rejected for per-island providers + parallel theme systems). New deps: tailwind-variants, @tabler/icons (vanilla SVGs for Starwind), primereact, typescript (dev). Earlier: June 11, 2026: **Reverted Astro 6.4.6 → 6.3.8 (image build regression).** The 6.4.6 bump (with `@astrojs/cloudflare` 13.7.0, `@astrojs/react` 5.0.7) broke every Cloudflare build from `391876e` onward. Under `imageService: 'compile'`, a local image consumed only through `getImage()`, the theme-swap header/footer logos, which feed `getImage` for webp variants but never render their original PNG, no longer gets its original emitted to `dist/_astro/`, so Astro's build-time optimizer (`loadImage` in `assets/build/generate.js`) throws `ENOENT` opening `dist/_astro/logo-*.png` and the build dies in the "generating optimized images" step. Reproduced on a clean local build (cross-platform: same failure on Linux CI and Windows). Reverting `astro`→6.3.8, `@astrojs/cloudflare`→13.5.5, `@astrojs/react`→5.0.5 (the last-green set from `ea39767`) builds green with all 10 logo webps generated. The "Build verified green" claim on the 6.4.6 note below was a warm `node_modules/.astro` cache false positive, a clean build (what CI runs) fails every time. **Do not re-bump Astro past 6.3.8 until the upstream getImage/compile-service regression is fixed; verify any retry with a cleared `node_modules/.astro` cache.** **Locality centralized + made editable.** The home-base "Plainfield, IN / Greater Indianapolis" strings were duplicated across the footer and the LocalBusiness/serviceList JSON-LD. Added `city` / `state` / `serviceRegion` to the `businessInfo` singleton (one source of truth), coalesced into `getSiteSettings`, and threaded through `Footer.astro` (location line) and `schemas.ts` (`addressLocality`/`addressRegion` on LocalBusiness, `areaServed` on serviceList via a new optional `serviceListSchema(services, areaServed)` param passed from `services.astro`). All consumers use a stable `Plainfield`/`IN`/`Greater Indianapolis` code fallback, so the rendered output + structured data are byte-identical until Staci changes the fields (seeded with the current values via `setIfMissing`; field descriptions warn it must match the Google Business Profile for NAP consistency). Verified in-browser: footer unchanged, JSON-LD `addressLocality`="Plainfield"/`addressRegion`="IN". The only locality reference left static is the print-stylesheet pseudo-element (CSS can't read Sanity). `editor-vs-hardcoded.md` updated to move locality from "intentional hardcoded" to editor-driven. **Astro 6.3.8 → 6.4.6** (minor), plus `@astrojs/cloudflare` 13.5.5 → 13.7.0 and `@astrojs/react` 5.0.5 → 5.0.7; `@astrojs/mdx` left on v5 (its v6 is a major, not needed for the astro minor). Build verified green. Note: an already-running `astro dev` server throws "require is not defined" after the adapter is swapped under it; restart the dev server (the production build is unaffected). Also nudged the footer: in the sparse 3-up row the brand logo now top-aligns with the Studio / Get-in-touch column titles (dropped the `md:self-center` so it inherits the row's `items-start`). **Footer graceful collapse.** When section-visibility toggles leave only two or three footer columns, the even grid stranded them with a big empty gap. `Footer.astro` now switches (at `brandInline = colCount <= 3`) to a balanced "nav | brand | contact" flex row, pulling the brand signature up from its own centered row into the column row so a sparse footer fills the width. Extracted the logo + tagline into `FooterBrand.astro` so it can render in either spot without duplication. 4+ columns keep the grid + centered logo below (unchanged). Verified in-browser at the live all-sections-off config. **Sanity Studio upgraded v5 → v6 (latest).** Bumped `studio/` to `sanity@6.0.0`, `@sanity/vision@6` (was v4), `@sanity/orderable-document-list@2`, `@sanity/icons@3.7.4`, `react`/`react-dom@19.2.7`, `@sanity/eslint-config-studio@6`, and the third-party plugins (media/iframe-pane/unsplash) to their latest patches; all already declared `^6.0.0-0` peer support. Verified before deploying: `sanity build` (studio) green, `npm run typegen` (v6 schema extract + typegen, 82 types) green, `npm run build` (Astro site consuming the regenerated `sanity.types.ts`) green, then `npm run studio:deploy`, which this time reported **no local-vs-runtime version-mismatch warning** (the 5.28-vs-5.31.1 warning is resolved; local + auto-update runtime now both on 6.x). Schemas use the stable `defineType`/`defineField` API and needed no changes. The root project owns only the runtime libs (`@sanity/client`, `@sanity/image-url`); the `studio/` package owns the `sanity` framework dependency and the root `typegen` script delegates to it. Earlier the same day: Follow-up fixes (headshots, footer, SEO). **Full-res headshots:** the original headshot exports were 400-600px; re-shot full-res versions were re-uploaded from `Reid Design Pictures/New Headshots/` via `scripts/upload-headshots.mjs` (Sanity dedupes by hash, so the changed files become new assets) and the three placed references re-pointed via `scripts/place-headshots.mjs` (home Meet Staci = IMG_5680 at 1067x1600, About portrait = IMG_5685 at 4160x6240 full-res, About candid = IMG_5683 at 2048x1365). Old low-res assets were intentionally left in the media library per the standing "keep every uploaded photo" instruction (a cleanup-old-headshots script was written then removed when the auto-mode classifier flagged deletion as out of scope). **Footer empty-column fix:** when every link in a footer column is hidden by section-visibility toggles, the column now drops out entirely (heading included) instead of leaving a dangling title. `Footer.astro` gained per-column `showWork`/`showTools`/`showLatest` flags and a dynamic `lg:grid-cols-{n}` class (literal map so Tailwind keeps the classes) so remaining columns rebalance and Get-in-touch stays right-aligned; the old `LATEST PROJECTS` placeholder div was removed. Verified against the live config (all optional sections off) showing a clean two-column footer. **SEO backfill:** the 8 page singletons left blank (privacy, press, resources, e-design, gift, shop, quiz, calculator) got voice-compliant, location-forward `seoTitle` + `seoDescription` via `scripts/patch-seo-defaults.mjs` (setIfMissing, never overwrites). `scripts/audit-seo.mjs` added as a reusable read-only gap report. Core pages already had SEO; the 3 sample `[SAMPLE]` projects were left blank (deleted before launch). Earlier the same day: Deferred-polish + editor-control closeout (continues the June-10 owner-control build). **Flexible "Extra sections" zone on the non-marker pages:** the five standard pages that are not pageBuilder-marker pages, `faqPage`, `contactPage`, `privacyPage`, `journalPage`, `portfolioPage`, each gained an optional `additionalSections` array (shared `additionalSectionsField` helper + `SECTION_TYPES` from `sections.ts`, under a new "Extra sections" field group), projected via `sectionsProjection('additionalSections')` in `queries.ts`, and rendered by a second `<SectionRenderer idPrefix="…-extra">` placed above the final CTA (faq/journal) or at the page tail (contact/privacy/portfolio). Empty array = no change. Combined with the existing pageBuilder markers on the eight marketing/offering pages and the author-it-yourself `page` type, every page on the site is now extensible from the same block library. **Quiz + calculator SEO de-hardcoded:** `styleQuiz` and `budgetCalculator` singletons gained `seoTitle` + `seoDescription` fields (joining the existing `seoImage`), projected in `getStyleQuiz`/`getBudgetCalculator`; `quiz.astro` + `calculator.astro` now read them with the previous hardcoded strings as fallback. **Shop ItemList JSON-LD:** new `shopItemListSchema()` in `schemas.ts` emits an `ItemList` of `Product`s (name + optional brand/vendor + image + affiliate URL, no Offer/price since these are curated recommendations not a storefront); `shop.astro` flattens every collection's items, resolves Sanity image URLs page-side (mirroring `projectSchema`'s pre-built-URL split), and only emits the list when the page is enabled and has items. **Heading hierarchy:** `project.introStory` Portable Text gained a **Heading 2** style (it previously offered only H3, which skipped a level since the page H1 is the project title and the sibling sections "Before and after"/"Gallery" are H2); the renderer + TOC extractor already handled h2. `journalEntry.body` already offered h2/h3/h4. **Alt-text sweep:** audited every `type: 'image'` field across all 27 schemas; the convention is already correct and consistent, required alt on all genuine content images (galleries, image+text, project/journal photos, page-builder `imageWithAlt`, shop items, press logos, lead magnets, service/archetype/answer images), optional alt only on `seoImage` (social-share) and the home hero slideshow (first slide carries alt for LCP, slides 2+ render decorative/empty by design per `HeroBackground.astro`). No changes needed. **Intentional-hardcoded decisions recorded** in `editor-vs-hardcoded.md`: footer column/link labels (structural scaffolding), the site-wide "Plainfield, IN / Greater Indianapolis" locality (centralize in a planned session rather than make the footer line editable in isolation and desync the LocalBusiness JSON-LD), and the empty-state/coming-soon fallback strings (graceful degradation, replaced by real content). No backfill script was needed, every new field is optional with a code fallback. Build verified green; `studio:deploy` run after the schema additions; merged to main (Cloudflare CI auto-deploys). Earlier the same build (June 10, branch `feat/owner-control-page-builder`): owner-control + page builder build. **Settings/Content reorg:** new `businessInfo` Content-side singleton holds service areas, travel fees, availability, and studio geo (moved off `siteSettings`, now identity + infrastructure only); `getSiteSettings` coalesces them in under the same flat field names so every consumer is unchanged; old `siteSettings` fields kept `hidden` + `readOnly` for rollback; Studio Content tab regrouped to lead with Business info + a single Pricing & rates group; migrated by `scripts/migrate-business-info.mjs`. **Page builder (new):** `studio/schemaTypes/sections.ts` (9 reusable section blocks + `SECTION_TYPES` single source), `page.ts` (the author-it-yourself custom `page` type with a reserved-slug collision guard + menu-placement fields; not a singleton), `src/components/SectionRenderer.astro` (maps block `_type` → component and owns the alternating background cadence; opens on muted after a text hero), new block components under `src/components/sections/` (RichTextSection, ImageText, GalleryGrid, QuoteBlock, VideoEmbed; hero/CTA/stats/spacer reuse existing components), `src/pages/[slug].astro` (one static page per published custom page; reserved-slug filter lives INSIDE getStaticPaths per the Astro isolated-scope gotcha), and nav injection via `getNavPages()` → BaseLayout → Header/Footer; verified end to end with a demo page. **De-hardcode:** `siteSettings.primaryCtaLabel` + `headerTagline` (threaded through Header + MobileNav), `portfolioPage` before/after heading + SEO (was fully hardcoded). **Headshots:** 24 uploaded to the media library (`scripts/upload-headshots.mjs`); real photos placed on home Meet Staci (IMG_5680) + About portrait (IMG_5685) + candid (IMG_5683) via `scripts/place-headshots.mjs`, kept to medium slots since sources are 400-600px. **SEO/a11y:** real `og:image:alt` from the share image's alt; `serviceType` + `areaServed` on Service JSON-LD; phone-format validation; `generate-llms-full.mjs` repointed to businessInfo. **Guide:** Start Here expanded with how-tos for building a page / managing sections / changing photos+videos, a "Meet the section blocks" tip, a publish-troubleshooting tip, and the updated Settings/Content map. **About page retrofitted (marker approach):** `aboutPage` gains a `pageBuilder` layout array of `aboutSectionMarker` blocks (one type with a `section` dropdown, in `aboutSections.ts`) rendered by `src/components/AboutSectionRenderer.astro`. Each marker maps to the existing section component reading the UNCHANGED aboutPage fields, so Staci reorders/hides built-in sections and inserts library blocks between them with zero content migration. `AboutStory.astro` + `AboutPhilosophy.astro` extracted verbatim as surface-faithful components; hero/personal/press/stats/finalCta reuse existing components; inserted general blocks delegate to `SectionRenderer`. Default order matches today's page (`scripts/migrate-about-layout.mjs` persists it; about.astro also falls back to it in code). Verified pixel-identical. **All four core marketing pages now retrofitted the same way** (each with its own `<page>SectionMarker` type, `<Page>SectionRenderer`, and extracted section components, verified by stash-building the original and diffing the section sequence): About (`aboutSections.ts` / `AboutSectionRenderer`), Home (`homeSections.ts` / `HomeSectionRenderer`; MeetStaci, HomeTestimonials, ProcessPreview, HomeServices extracted; conversion order preserved with the bronze divider before the service-area cue), Services (`servicesSections.ts` / `ServicesSectionRenderer`; ServicesList, BuildersRealtors, ServiceArea, SatisfactionGuarantee extracted; sticky CTA + Service JSON-LD kept), Process (`processSections.ts` / `ProcessSectionRenderer`; ProcessSteps, ProcessFaq extracted). `scripts/migrate-page-layouts.mjs` seeds the default order for all four; each page also falls back to its default order in code. **The offering pages are now retrofitted too** (`offeringSections.ts` holds all four markers via a small factory): Resources (`ResourcesSectionRenderer`; ResourcesIntro + ResourcesCards extracted), Press (`PressSectionRenderer`; PressIntro + PressList extracted), E-Design (`EDesignSectionRenderer`; content sections inline, hero/coming-soon/closing-CTA kept in the page), Gift (`GiftSectionRenderer`; same shape). E-Design is the one live offering page and was verified pixel-identical via stash-diff; Resources/Press/Gift are visibility-gated off (they redirect, matching the original) and were verified via clean build + verbatim extraction on the same pattern. The layout migration (`migrate-page-layouts.mjs`) now covers all ten pages and skips docs that do not exist (so an unpublished eDesignPage/giftPage stays in its coming-soon state). Branch history: core-page work on `feat/owner-control-page-builder`, offering-page work on `feat/offering-page-retrofits`, both merged to main and pushed (Cloudflare CI auto-deploys main; local `wrangler deploy` needs CLOUDFLARE_API_TOKEN which isn't in the agent env). **Lighthouse accessibility sweep done** against the deployed workers.dev URL: every live page now scores 100/100/100 (a11y/BP/SEO) in light and dark, mobile. Four a11y fixes shipped: footer tagline contrast (`text-foreground/60` -> `/80`); the mobile availability pill's visual status spans set `aria-hidden` so the link's accessible name comes from its aria-label (WCAG Label-in-Name); decorative step numbers that failed contrast (`text-link/80` on the contact post-inquiry roadmap, `text-tertiary/60` on the E-Design + Gift how-it-works) switched to `text-primary-dark`; privacy fallback footnote `/60` -> `/80`. The gated sections (portfolio, journal, resources, press, shop, gift) redirect to home when off; the 404 returns an HTTP 404 so Lighthouse scores it 0 (expected, its content reuses the fixed Header/Footer). Earlier: May 29, 2026: Design polish flourishes shipped in two reduced-motion-aware batches (all utilities documented in `polish-layer.md`). **Batch 1 (CSS):** editorial drop cap + bronze blockquote on journal posts (`.prose-drop-cap` / `.prose-blockquote` via `JournalPortableText.tsx`); image zoom + warm bronze tint on card hover (`.img-zoom` / `.img-tint` / `.img-tint-light` on ProjectCard + JournalCard, fires on full-card `group` hover); grid stagger entrance (`[data-stagger-grid]` → `.is-staggered` IntersectionObserver in BaseLayout) on the portfolio, journal, home-services, about-philosophy, and services grids, with a `[data-stagger-grid] > .is-filtered-out` specificity guard so the portfolio filter still collapses cards. **Batch 2 (JS + Sanity schema):** image curtain reveal (`.img-curtain` Soft Linen panel scaling away from the top, `z-10` over hero overlays pinned at `z-[1]`/`z-[2]`/`z-[3]`) on the portfolio detail hero + FeaturedWork home hero; process connector lines (`.step-connector` 2px bronze thread, `ProcessStep` gains an `isLast` prop, grid switched to `items-stretch`) on `/process` + the home preview; About-page studio stat counters (`StatsRow.astro` shell + `client:visible` `StatsCounter.tsx` rAF count-up; new `aboutPage.stats` array schema, number/suffix/label, max 4, deployed to Studio and projected in `getAboutPage()`; section self-hides until populated); page cross-fade on navigation (`view-transition-name` on main/header/footer, 150/200ms, header+footer pinned). Case-study TOC links (`CaseStudyTOC.tsx`, shared by portfolio + journal) now smooth-scroll through `window.lenis` with a native + reduced-motion fallback and a `pushState` hash update, instead of snapping: Lenis honors the headings' `scroll-mt-24` so no manual offset is needed. Studio redeployed after the `aboutPage.stats` schema change, and the local `sanity` package in `studio/` bumped 5.27.0 → 5.28.0 to match the hosted runtime (clears the version-mismatch warning on `studio:deploy`). Final CTA sections can now carry an optional background photo per page (new `finalCtaBackgroundImage` on all 7 page singletons, projected in `queries.ts`, rendered in `FinalCta.astro` behind a fixed `bg-accent-dark/70` charcoal scrim so the cream headline and bronze button stay readable; empty falls back to the solid charcoal panel; journal uses one shared image across index + posts). Home hero can now be a slideshow: new `homePage.heroImages` array (one image = static hero as before, two or more = a slow cross-fading slideshow with a subtle Ken Burns zoom), rendered by the new `HeroBackground.astro` with slide CSS in `globals.css` and a small inline script (3s hold, 1.5s fade, single window-scoped timer, pauses when the tab is hidden, off under reduced motion); first slide stays the eager LCP image, the rest lazy-load; the legacy single `heroImage` was migrated into `heroImages[0]` and hidden. The no-em-dash rule was scoped to public-facing site copy only; code comments, commit messages, plans, specs, and internal docs are now exempt. Earlier: Footer logo repositioned: removed the standalone brand bar above the nav grid; logo now sits centered below the five-column link grid as a brand signature, with `siteSettings.tagline` displayed in small italic beneath it (`h-20`, theme-aware via existing anti-FOUC data attributes). The five-column grid has its STUDIO eyebrow label restored. `.claude/launch.json` added for the preview server (port 4321). Earlier: Home eyebrows no longer end with periods (Featured Work + Featured Journal matched to the others, fixed in the homePage Sanity doc + the index.astro defaults). Fixed a mid-viewport (~768 to ~900px) horizontal scroll: the footer's five-column grid made the Get-in-touch column too narrow for the email address, so the grid now steps 1 / 2 / 3 / 5 columns as the viewport widens. Footer tagline removed (the brand bar is now just the logo). Footer slimmed to about half its previous height: a compact brand bar replaces the tall stacked brand block, contact moved into a Get-in-touch column, and copyright/privacy/credit moved to a thin bottom bar. Before & After added to the header Resources dropdown (and so the mobile drawer). Home hero fills the viewport below the sticky header on first load (`size="tall"` → `.hero-fill` = `calc(100svh - var(--header-h))`, with `--header-h` measured from the live header by an inline script so there's no layout shift; `svh`-based) plus a soft pulsing bottom-center scroll cue that scrolls past the hero via Lenis, now exposed as `window.lenis` from BaseLayout. Project authoring guardrails in `project.ts`: `gallery` promoted to "Project photos" directly under the hero with a 3-image minimum, before/after moved up beside it, `designStyle` + `briefLine` + `designCall` now required, `briefSummary` min 60, `publishedAt` description corrected (scheduling is Sanity's Schedule publish action, not the field); the three placeholder projects are now prefixed `[SAMPLE: delete before launch]` in `seed-placeholder-content.mjs`. Project pages auto-surface journal posts that reference them via `journalEntry.relatedProject` ("Featured in the journal", reverse GROQ in `getProjectBySlug`; no field on the project, so the link is maintained only on the journal side). Header availability status now shows at every width (compact "Open" on narrow phones, full `siteSettings.availabilityStatus` from md up on the mobile pill + on the desktop eyebrow strip). Studio phone number surfaced site-wide from `siteSettings.phone` (header eyebrow, footer, mobile drawer, contact sidebar + email failsafe; LocalBusiness JSON-LD `telephone`) via new `src/lib/phone.ts` `telHref()` helper + `scripts/patch-site-phone.mjs`. Earlier (same day): About personal section: new `AboutPersonal.astro` component + `aboutPage.personal*` field group (currently list, rapid fire, local spots, beyond design + candid photo); all content self-hides when empty. Editable Start Here guide: `studioGuide` and `studioNotes` singletons now drive StudioGuide.tsx and the static sections of BusinessOverview.tsx; BrandKit.tsx stays hardcoded to stay in sync with globals.css tokens. Philosophy card numbering: visible numbers (01/02/03) now assigned by render position, not displayOrder; displayOrder is optional and backup-only. Contact lead sources: source dropdown now has 11 options (added "Took the style quiz" + "Downloaded a free guide"); patch script force-sets formProjectTypeOptions and formSourceOptions to keep Sanity in sync. New seed scripts: seed-about-personal.mjs + seed-studio-guide.mjs. Earlier: section visibility system added: `siteSettings.sectionVisibility` schema object with ten boolean toggles, `src/lib/sectionVisibility.ts` helper (`value !== false` rule), and off-behavior across nav/footer/homepage/pages documented; Studio defaults changed to All-fields tab (removed `default: true` from all field groups); Studio branding documented (`title: 'Reid Design'`, bronze `buildLegacyTheme`, `StudioLogo` component, `studio/global.d.ts`); SEO `.warning()` validations on seoTitle/seoDescription across all page schemas documented; Vision/GROQ plugin gated to non-production documented; Start Here handbook updated to three panels (StudioGuide / BusinessOverview / BrandKit, replacing the removed single-file StartHere). Earlier: consent banner removed (`ConsentNotice.tsx` deleted; site is effectively zero-cookie, no banner needed); `public/robots.txt` and `public/llms.txt` added; Pinyon Script accents extended to section headings via `src/lib/scriptAccent.ts` helper + `scriptAccent?` prop on `SectionHeading.astro` and `FinalCta.astro`; new editor fields for section/finalCta accents on home, about, process, services, faq, journal, e-design pages. Earlier: conversion build-out: new pages (`/e-design`, `/shop`, `/gift-certificates`, `/quiz`, `/calculator`, `/resources`, `/guides`, `/guides/[slug]`, `/press`, `/privacy`, `/portfolio/before-after`), grouped dropdown nav SERVER-RENDERED via `<details>` in `Header.astro`, email capture via `subscribeEmail()` → ESP/Web3Forms, `/privacy` page, new Sanity surfaces (styleQuiz, budgetCalculator, leadMagnet, shop, eDesign, gift, press, privacy, resources, post-inquiry roadmap, testimonial sourceType, satisfaction guarantee, Google reviews link). Earlier still: performance polish (Lighthouse 100s), single-img theme-aware logo, SanityImage AVIF ladder, long-read layout with TOC, header breakpoint md→lg, light-mode contrast sweep._

@@ -10,7 +10,7 @@ export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
   type: 'document',
-  // Marketing copy is locked and structural — edit fields directly in Studio, not Canvas.
+  // Marketing copy is locked and structural, edit fields directly in Studio, not Canvas.
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
@@ -245,7 +245,7 @@ export const homePage = defineType({
       rows: 3,
       group: 'featuredWork',
       description:
-        'Conversion-oriented paragraph under the headline. Tell visitors what a click reveals — the brief, the design thinking, the result — so the section sells the case-study depth, not just the photos.',
+        'Conversion-oriented paragraph under the headline. Tell visitors what a click reveals: the brief, the design thinking, the result. That sells the case-study depth, not just the photos.',
       initialValue:
         'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.',
     }),
@@ -282,7 +282,7 @@ export const homePage = defineType({
       hidden: true,
       readOnly: true,
       description:
-        'Conversion-oriented paragraph under the headline. Hint at the kinds of posts Staci writes — project walkthroughs, source roundups, design moves — so the section reads as the thinking behind every consultation, not just a blog.',
+        'Conversion-oriented paragraph under the headline. Hint at the kinds of posts Staci writes (project walkthroughs, source roundups, design moves) so the section reads as the thinking behind every consultation, not just a blog.',
       initialValue:
         'Posts on the design moves that change a room, source roundups behind specific projects, and the occasional honest note about what I would do differently. The thinking that informs every consultation.',
     }),
@@ -315,7 +315,7 @@ export const homePage = defineType({
       rows: 2,
       group: 'process',
       description:
-        'Reassuring line under the headline. Lower the friction of reaching out — emphasize clarity, no pressure, knowing what comes next.',
+        'Reassuring line under the headline. Lower the friction of reaching out: emphasize clarity, no pressure, knowing what comes next.',
       initialValue:
         'No guesswork and no pressure. From our first conversation to the day everything comes together, you will always know exactly where things stand and what happens next.',
     }),
@@ -389,7 +389,7 @@ export const homePage = defineType({
       title: 'Headline',
       type: 'string',
       group: 'testimonials',
-      initialValue: 'Words from real homes.',
+      initialValue: 'What clients say',
     }),
     defineField({
       name: 'testimonialsScriptAccent',
@@ -406,7 +406,7 @@ export const homePage = defineType({
       rows: 2,
       group: 'testimonials',
       description:
-        'Warm line under the headline that frames the testimonials below. Focus on what clients value — how it felt to work together, how the space lives day to day.',
+        'Warm line under the headline that frames the testimonials below. Focus on what clients value: how it felt to work together, how the space lives day to day.',
       initialValue:
         'The part that matters most: how it felt to work together, and how each space holds up to everyday life long after the last pillow is placed.',
     }),
@@ -490,7 +490,7 @@ export const homePage = defineType({
       title: 'Final CTA headline',
       type: 'string',
       group: 'final',
-      initialValue: 'Ready to Love Your Space?',
+      initialValue: "Let's plan your room.",
     }),
     defineField({
       name: 'finalCtaScriptAccent',

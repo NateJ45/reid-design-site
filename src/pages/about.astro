@@ -14,13 +14,14 @@ import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
 import { getAboutPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
+import { roleFromAttribution } from '@/lib/og-card';
 
 const [page, siteSettings] = await Promise.all([getAboutPage(), getSiteSettings()]);
 
 const title = page?.seoTitle ?? 'About Staci · Reid Design';
 const description =
   page?.seoDescription ??
-  'Meet Staci Perkins, founder of Reid Design — a Plainfield-based interior designer working across Greater Indianapolis.';
+  'Meet Staci Perkins, founder of Reid Design, a Plainfield-based interior designer working across Greater Indianapolis.';
 
 const philosophyPoints = page?.philosophyPoints ?? [];
 
@@ -38,7 +39,7 @@ const schemas = [
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'about', role: roleFromAttribution(page?.staciAttribution) }}
 >
   <AboutSectionRenderer
     sections={page?.pageBuilder}

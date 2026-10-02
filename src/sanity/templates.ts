@@ -39,6 +39,15 @@ const para = (key: string, text: string) => ({
   children: [{ _type: 'span', _key: `${key}-s`, marks: [], text }],
 });
 
+/** A heading inside Portable Text (H2 is the top in-story level on a project). */
+const heading = (key: string, text: string) => ({
+  _type: 'block',
+  _key: key,
+  style: 'h2',
+  markDefs: [],
+  children: [{ _type: 'span', _key: `${key}-s`, marks: [], text }],
+});
+
 /** A button that goes to the Contact page. */
 const contactButton = (label: string) => ({
   _type: 'ctaBlock',
@@ -105,7 +114,7 @@ export const STARTING_TEMPLATES: Template[] = [
           body: [
             para(
               'tpl-price-p1',
-              '[Say the price plainly, like "$150 for a 90-minute visit." Then say what happens if they want more help after that.]',
+              '[Say the price plainly, like "$225 for a 60 to 90 minute visit." Then say what happens if they want more help after that.]',
             ),
           ],
         },
@@ -198,9 +207,15 @@ export const STARTING_TEMPLATES: Template[] = [
   },
 
   // ------------------------------------------------------------ project story
+  // Rebuilt 2026-10-01 as the "room story": the one case-study shape the whole
+  // portfolio uses, so every project reads the same way and takes Staci about
+  // twenty minutes to fill in. The order is the order a cautious buyer asks
+  // their questions: what was wrong, what did you decide and why, did it work.
+  // The spec sheet at the top of the page carries the town, the kind of house,
+  // and what was done at what price, so the writing never has to repeat them.
   {
     id: 'project-story',
-    title: 'Project story',
+    title: 'Room story',
     description: 'A finished room: the brief, your design call, and the story in three parts.',
     schemaType: 'project',
     icon: ImagesIcon,
@@ -209,21 +224,35 @@ export const STARTING_TEMPLATES: Template[] = [
     value: () => ({
       title: '[Room and town, like "Fishers kitchen refresh"]',
       location: '[Town, like "Fishers, IN"]',
+      houseDescription: '[Era and kind of home, like "1990s colonial"]',
+      scopeLine:
+        '[What you did and the real price, like "Full room design, from $995". Delete this if the client would rather not show it.]',
       year: new Date().getFullYear(),
       briefSummary:
         '[One sentence for the portfolio card: the problem and your move. Between 60 and 200 characters.]',
       briefLine: '[What the client came in with, in one sentence.]',
       designCall: '[Your design move in response, in one sentence.]',
+      consent: { _type: 'object', photos: false, price: false, review: false },
       introStory: [
         para(
           'tpl-story-p1',
-          '[Start with the client and the room: what it was like, and what they wanted it to do.]',
+          '[Start with the people and the room: who lives there, what the room was like, and what they wanted it to do. Two or three sentences.]',
         ),
+        heading('tpl-story-h1', 'What was not working'),
         para(
           'tpl-story-p2',
-          '[Then the thinking: the first decision you made, and why the other choices followed from it.]',
+          '[Say the real problem in plain words, like "the sofa floated in the middle and nothing was anchored". Add the before photo here.]',
         ),
-        para('tpl-story-p3', '[Then the result: how the room works for them now. Stop there.]'),
+        heading('tpl-story-h2', 'The first decision'),
+        para(
+          'tpl-story-p3',
+          '[The one choice everything else answered to, and why you made it. This is the paragraph a buyer remembers: "North light eats warm greys, so we went olive."]',
+        ),
+        heading('tpl-story-h3', 'How it came together'),
+        para(
+          'tpl-story-p4',
+          '[The big pieces, where they came from, and how the room works for them now. Say what it cost if they are fine with that. Stop there.]',
+        ),
       ],
     }),
   },

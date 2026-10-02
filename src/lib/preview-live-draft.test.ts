@@ -1,5 +1,5 @@
 // =============================================================================
-// preview-live-draft — the Studio→preview local-edit channel's rules
+// preview-live-draft, the Studio→preview local-edit channel's rules
 // =============================================================================
 // Three promises are pinned down here, and all three are safety rather than
 // speed:
@@ -32,7 +32,7 @@ const doc = (extra: Record<string, unknown> = {}) => ({
 });
 
 // ---------------------------------------------------------------------------
-// parseLiveDraft — the rejection funnel
+// parseLiveDraft, the rejection funnel
 // ---------------------------------------------------------------------------
 
 test('accepts a well-formed draft message and hands the document back', () => {
@@ -42,7 +42,7 @@ test('accepts a well-formed draft message and hands the document back', () => {
   assert.equal(parsed.document?.title, 'Hello');
 });
 
-test('accepts an explicit null document — "this page has no draft"', () => {
+test('accepts an explicit null document, "this page has no draft"', () => {
   const parsed = parseLiveDraft({ type: LIVE_DRAFT_MESSAGE, document: null });
   assert.deepEqual(parsed, { type: LIVE_DRAFT_MESSAGE, document: null });
 });
@@ -104,7 +104,7 @@ test('hands back a normalised envelope, dropping anything else on it', () => {
 });
 
 // ---------------------------------------------------------------------------
-// acceptsSource — the local channel leads, the actor follows
+// acceptsSource, the local channel leads, the actor follows
 // ---------------------------------------------------------------------------
 
 const T0 = 1_000_000;
@@ -129,7 +129,7 @@ test('the actor takes over again once the local channel goes quiet', () => {
 });
 
 // ---------------------------------------------------------------------------
-// rememberSwap — one memory, either channel
+// rememberSwap, one memory, either channel
 // ---------------------------------------------------------------------------
 
 const memory = () => new Map<string, PendingSwap>();
@@ -188,7 +188,7 @@ test('honours a caller-supplied cap', () => {
 });
 
 // ---------------------------------------------------------------------------
-// rememberSwap — the per-field value history the re-apply matches against
+// rememberSwap, the per-field value history the re-apply matches against
 // ---------------------------------------------------------------------------
 // A render that STARTED mid-burst carries an intermediate value: not the words
 // the burst began from, not the words on the page now. The history is what lets

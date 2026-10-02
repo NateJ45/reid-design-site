@@ -8,7 +8,7 @@ export const aboutPage = defineType({
   name: 'aboutPage',
   title: 'About Page',
   type: 'document',
-  // Marketing copy is locked and structural — edit fields directly in Studio, not Canvas.
+  // Marketing copy is locked and structural, edit fields directly in Studio, not Canvas.
   options: { canvasApp: { exclude: true } },
   groups: [
     { name: 'seo', title: 'SEO' },
@@ -87,7 +87,7 @@ export const aboutPage = defineType({
       title: 'Hero headline',
       type: 'string',
       group: 'hero',
-      initialValue: 'People Hire People.',
+      initialValue: 'The designer who comes to your home.',
     }),
     defineField({
       name: 'heroSubhead',

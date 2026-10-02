@@ -16,7 +16,7 @@
 
 ---
 
-## Photography — Confirmed in Sanity
+## Photography: Confirmed in Sanity
 
 | Asset | Current Squarespace URL | Target Sanity location | Status | Notes |
 |---|---|---|---|---|
@@ -26,7 +26,7 @@
 
 ---
 
-## Photography — Needed but not yet in Sanity
+## Photography: Needed but not yet in Sanity
 
 These are gaps the audit identified.
 

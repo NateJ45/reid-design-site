@@ -12,11 +12,16 @@
 // "$100 per hour"); the amount is pulled out and printed big, the words
 // around it become the small line. Anything without a $ amount prints as-is.
 //
+// Each chip face carries one of Staci's finished rooms, faded into the paint
+// (RoomBackdrop, 2026-09-30 design pass), so the cards have depth and show
+// her work. Which rooms: src/data/room-backdrops.ts.
+//
 // Phone and tablet: the strip scrolls sideways with snap, one chip centred.
 // Contrast: ink on chips 1-4 >= 7:1, cream on chips 5-7 >= 3.9:1 and cream is
 // only used there at >= 24px (name, price); small cream text sits on 6-7 only.
 import CtaLink from '@/components/CtaLink.astro';
 import RiseWords from '@/components/RiseWords.astro';
+import RoomBackdrop from '@/components/RoomBackdrop.astro';
 import type { CtaBlock } from '@/lib/cta';
 import { splitPrice } from '@/lib/split-copy';
 
@@ -87,7 +92,8 @@ const toneFor = (i: number) =>
             >
               <a class="chip__link" href={href}>
                 {s.badge && <span class="chip__flag">{s.badge}</span>}
-                <div class="chip__face">
+                <div class="chip__face r-backdrop-host">
+                  <RoomBackdrop index={i} ratio={0.8} tone={tone >= 5 ? 'deep' : 'pale'} />
                   <h3 class="chip__name">{s.name}</h3>
                   <p class="chip__price">
                     <small>{label}</small>

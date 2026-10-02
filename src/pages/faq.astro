@@ -63,7 +63,7 @@ const schemas = [
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ headline: page?.heroHeadline, image: page?.heroImage }}
+  card={{ kind: 'faq', list: groups.map((g) => g.category) }}
 >
   {/* ------- 1. Hero --------------------------------------------------------- */}
   <Hero
@@ -295,7 +295,7 @@ const schemas = [
       column-gap: clamp(3rem, 6vw, 6.5rem);
       align-items: start;
     }
-    /* Clears the condensed header strip and its hanging logo. */
+    /* Clears the condensed header strip. */
     .faqp__index {
       position: sticky;
       top: 8.5rem;

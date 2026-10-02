@@ -10,7 +10,9 @@
 //   Zodiak lede, the full description, and the "Quick bullets" (features) on
 //   a paint chip whose tone steps down the strip with the step (chips 1 to 4,
 //   never Warm Bronze, so ink text passes AA on every one). The tier note
-//   sits under the chip.
+//   sits under the chip. The chip carries one of Staci's rooms faded into
+//   its paint (RoomBackdrop, 2026-09-30 design pass), kept light (0.16) here
+//   because the chip is all small text.
 //
 //   "preview": the compact form the retired sections/ProcessPreview.astro
 //   used (title, time, shortDescription). The home page now uses
@@ -27,6 +29,7 @@
 
 import PortableText from '@/components/PortableText';
 import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
+import RoomBackdrop from '@/components/RoomBackdrop.astro';
 // The same block type PortableText.tsx accepts, so the prop passes through
 // without a cast (a looser local shape used to fail astro check here).
 import type { PortableTextBlock } from '@portabletext/types';
@@ -96,7 +99,11 @@ const features = (step.features ?? []).filter(Boolean);
         {(features.length > 0 || step.tierNote) && (
           <aside class="pstep__side" aria-label={`${step.title ?? 'Step'} at a glance`}>
             {features.length > 0 && (
-              <div class="pstep__chip" style={`--chip: var(--color-chip-${tone})`}>
+              <div
+                class="pstep__chip r-backdrop-host"
+                style={`--chip: var(--color-chip-${tone}); --bd-opacity: 0.16`}
+              >
+                <RoomBackdrop index={index} start={4} ratio={1} />
                 <p class="pstep__chip-h">At a glance</p>
                 <ul class="pstep__feats" role="list">
                   {features.map((f) => (

@@ -67,7 +67,7 @@ test('uses index segments for a keyless array', () => {
   ]);
 });
 
-test('steps over portable text entirely — the rich twins are the refresh’s job', () => {
+test('steps over portable text entirely, the rich twins are the refresh’s job', () => {
   const block = (text: string) => [
     {
       _key: 'blk',
@@ -86,7 +86,7 @@ test('ignores values that are not text on the page', () => {
   assert.deepEqual(diffStringFields(doc({ featured: false }), doc({ featured: true })), []);
 });
 
-test('ignores a field that appears or disappears — there is no node to swap', () => {
+test('ignores a field that appears or disappears, there is no node to swap', () => {
   assert.deepEqual(diffStringFields(doc(), doc({ eyebrow: 'New' })), []);
   assert.deepEqual(diffStringFields(doc({ eyebrow: 'Old' }), doc({ eyebrow: null })), []);
 });

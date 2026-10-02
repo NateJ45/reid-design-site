@@ -201,7 +201,7 @@ const CLIENT_SCRIPT = `
       {popupLink && (
         <a
           href={popupLink.href}
-          class="ann-popup-cta"
+          class="r-btn r-btn--ink ann-popup-cta"
           data-ann-popup-close
           {...(popupLink.external ? { target: '_blank', rel: 'noopener' } : {})}
         >
@@ -341,21 +341,9 @@ const CLIENT_SCRIPT = `
     line-height: 1.6;
     color: color-mix(in srgb, var(--foreground) 85%, transparent);
   }
+  /* The CTA is the site's tag button (.r-btn); only its spacing lives here. */
   .ann-popup-cta {
-    display: inline-block;
     margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.125rem;
-    background: #7a5d4c;
-    color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none;
-  }
-  .ann-popup-cta:hover {
-    background: #2a2a2a;
   }
   .ann-popup-close {
     position: absolute;
@@ -375,8 +363,7 @@ const CLIENT_SCRIPT = `
   .ann-popup-close:hover {
     background: var(--accent);
   }
-  .ann-popup-close:focus-visible,
-  .ann-popup-cta:focus-visible {
+  .ann-popup-close:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }

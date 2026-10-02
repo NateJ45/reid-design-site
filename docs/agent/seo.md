@@ -8,10 +8,10 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 
 ### Foundation (BaseLayout, every page)
 
-- `<title>` — unique per page, 50–60 characters, brand name as suffix ("Services — Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
-- `<meta name="description">` — unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
-- `<link rel="canonical">` — absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
-- Open Graph + Twitter meta — set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (2026-09-29, design D "arch window": one of Staci's photos in an arch, the logo, the title in Cormorant Garamond, a small caps line in Source Sans 3; the renderer still uses these old faces even though the site moved to Zodiak + General Sans on 2026-09-29, a known open item). See "Share cards" below.
+- `<title>`, unique per page, 50–60 characters, brand name as suffix ("Services: Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
+- `<meta name="description">`, unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
+- `<link rel="canonical">`, absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
+- Open Graph + Twitter meta, set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (drawn since 2026-09-29; design F "the cover" since 2026-09-30: Staci's branding portrait with her name tag, her real logo in the masthead, the page's own name as the big line, one real fact, at most one object, one ground colour per page; DESIGN.md "Share cards". Replaced design E "the hero card", which replaced design D, the Cormorant arch window). See "Share cards" below.
 
 ### Share cards (og:image)
 
@@ -24,9 +24,11 @@ Priority, highest first:
 
 Sanity images (2 and 4) run through `urlFor().width(1200).height(630).fit('crop')` via `ogUrlFromImage`. BaseLayout also emits `og:locale`, `og:image:alt`, and a single `theme-color` (#F7F3EE, the Linen ground; one value since the site went light only on 2026-09-29).
 
-What a card says: the page's hero headline, else its SEO title, with a "Reid Design" / "Reid Design LLC" suffix or prefix stripped (the logo already says it) and any em-dash replaced by a comma, with a build warning, never a failure (a throw would stop Staci's content deploys). The small caps line: "Interior design · Plainfield, Indiana" from Business info, or "Portfolio · <location>" on project detail pages. The photo: the page's hero image (projects: the hero, plus the first gallery photo in the circle), else one of Staci's finished-project photos, picked per route so a page keeps the same one between builds. The Sanity hotspot sets the crop, so a bad crop is fixed in the Studio, not in code. Any asset named or tagged `midwest-cabinet-connection` is refused.
+What a card says (design F): each page passes `card={{ kind: '<page>' }}` and `cardContent()` in `src/lib/og-card.ts` decides the rest, from content only. The big line is the page's own nav/footer-index name ("About Staci", "Services", "FAQ"; a custom page uses its title with any "Reid Design" suffix stripped; a project uses "Portfolio" with its title under it). The fact is the footer index's own figure from `getChromeFacts()` ("from $225", "4 steps", "from $250", "19 answers"); Contact carries the header price tag instead ("Book a consult $225"). A missing fact simply leaves the card without one. Lines: Home prints "<city> · <serviceRegion>" from Business info, Privacy its hero subhead. Any em-dash is replaced, with a build warning, never a failure (a throw would stop Staci's content deploys). The photo: Staci's branding portrait for that page from `src/data/card-portraits.mjs` (safe to edit; a custom page gets one of its POOL, stable per route; a shot enlarged more than 10% logs a warning), or, on Privacy and projects, the page's own hero image, else a finished-project photo from the pool, picked per route. A photo that will not load costs the card its photo, not the card. Cards with nothing else in the margin (Home, About, Services, Contact, custom pages) also carry a taped print of one of her finished rooms, from `src/data/card-rooms.mjs` (`choosePrint()` in `og-build.mjs`); it shrinks to fit beside long words, is left off with a WARN when it cannot fit, and a room that will not load costs only the print. Any asset named or tagged `midwest-cabinet-connection` is refused.
 
-How it works: BaseLayout (`card` prop, pure logic in `src/lib/og-card.ts`) points og:image at `/og/<route>.png` and writes a card spec into the page. `src/integrations/og-cards.ts` runs at `astro:build:done` (Node, after the workerd prerender), draws every card into `dist/client/og/`, strips the specs back out of the HTML, and then runs the coverage check: the build fails if any og:image under `/og/` has no file. Drawing is `scripts/lib/og-render.mjs` (sharp prepares every image; the backend is chosen by `OG_RENDERER`). `npm run og:cards -- preview` draws the card every project would get, even while its section is switched off. `npm run og` redraws `public/og-default.png`.
+**How design F was chosen (2026-09-30).** Nathan: the E cards "feel boring and you don't immediately know whose website it is and what the page will be about". An audit at true size (feed 500px, iMessage bubble 300px, the 96px square crop WhatsApp and texts use) found the logo about 5px tall in a bubble, Staci nowhere, slogans instead of page names, and a square crop showing a Walnut slab with half a word. Three designer agents each rendered a full set: A "people hire people" (Staci in an arch), B "the designer's worktable" (tag, Polaroid and a page object on a desk), C "the magazine cover". Two critics reviewed at true size (a homeowner on a phone; an art director checking buildability). Round 1 split (B, then C); both finalists revised against the points the critics agreed on; the final round went to C unanimously, with B's checklist and floor plan and A's logo discipline folded in. Nathan added two rules mid-debate: her real logo on every card, and branding-shoot photos only.
+
+How it works: BaseLayout (`card` prop, pure logic in `src/lib/og-card.ts`) points og:image at `/og/<route>.png` and writes a card spec into the page. `src/integrations/og-cards.ts` runs at `astro:build:done` (Node, after the workerd prerender), draws every card into `dist/client/og/`, strips the specs back out of the HTML, and then runs the coverage check: the build fails if any og:image under `/og/` has no file. Drawing is `scripts/lib/og-render.mjs` (sharp draws every image layer and decides every size and line break) and `og-render-satori.mjs` (satori + resvg set the words; the only renderer since design F, the Chromium A/B backend went with design E). `npm run og:cards -- preview` draws the card every project would get, even while its section is switched off. `npm run og` redraws `public/og-default.png`.
 
 - `<html lang="en">`.
 
@@ -71,14 +73,14 @@ Every page receives a relevant structured data block via the `schemas` prop on B
 }
 ```
 
-Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUST match Google Business Profile exactly — Google compares them for NAP (Name/Address/Phone) consistency, and a mismatch tanks local ranking.
+Source the values from `siteSettings`. The `address`, `telephone`, and `geo` MUST match Google Business Profile exactly: Google compares them for NAP (Name/Address/Phone) consistency, and a mismatch tanks local ranking.
 
 **Per-page schemas to add:**
 
-- `/services` — array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id` (`serviceListSchema`).
-- `/faq` — `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer` (`faqPageSchema`).
-- `/portfolio/[slug]` — `CreativeWork` schema for the project (`projectSchema`).
-- Every internal page — `BreadcrumbList` from `/` to the current page (`breadcrumbSchema`).
+- `/services`, array of `Service` schemas, one per active `service` document, each with `provider` referencing the LocalBusiness `@id` (`serviceListSchema`).
+- `/faq`, `FAQPage` schema with each Q/A as `Question` and `acceptedAnswer` (`faqPageSchema`).
+- `/portfolio/[slug]`, `CreativeWork` schema for the project (`projectSchema`).
+- Every internal page, `BreadcrumbList` from `/` to the current page (`breadcrumbSchema`).
 - Removed 2026-09-30 (never launched): the `BlogPosting` (`blogPostingSchema`) and shop `ItemList` (`shopItemListSchema`) schemas went with the journal and shop.
 
 Test every schema with Google's Rich Results Test (https://search.google.com/test/rich-results) before launch. Errors at scale will tank rankings rather than fail loudly.
@@ -112,7 +114,7 @@ Plainfield-first means Plainfield gets named in:
 - The contact page's geographic copy
 - At least one inline link from each major page back to home using "Plainfield interior design" anchor text where it reads naturally
 
-Other cities appear in the service-area list and (optionally) in case-study geo tags. Don't keyword-stuff city names into body copy — Google detects it and Staci's voice rejects it. One mention per page is plenty.
+Other cities appear in the service-area list and (optionally) in case-study geo tags. Don't keyword-stuff city names into body copy: Google detects it and Staci's voice rejects it. One mention per page is plenty.
 
 ### Image SEO
 
@@ -125,7 +127,7 @@ See the [Image guidelines for editors](#image-guidelines-for-editors) section ab
 - Every Sanity page singleton has `seoTitle` and `seoDescription` fields. They MUST be unique across pages.
 - Title: target 50–60 characters. Front-load the keyword (location or service).
 - Description: target 150–160 characters. Speak to the reader, not the search engine. Don't restate the title.
-- If `seoTitle` is empty, BaseLayout falls back to the page's primary headline. Don't rely on the fallback for launch — fill the field.
+- If `seoTitle` is empty, BaseLayout falls back to the page's primary headline. Don't rely on the fallback for launch, fill the field.
 
 ### Sitemap and robots
 
@@ -144,9 +146,9 @@ Allow: /
 Sitemap: https://reiddesignllc.com/sitemap-index.xml
 ```
 
-`public/llms.txt` also ships — an AI/LLM crawler index of the site for tools that follow the emerging llms.txt convention. Keep it updated if major pages are added or removed.
+`public/llms.txt` also ships, an AI/LLM crawler index of the site for tools that follow the emerging llms.txt convention. Keep it updated if major pages are added or removed.
 
-After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify the property via DNS TXT record (preferred — survives redeploys) or HTML file upload.
+After DNS cutover, submit `sitemap-index.xml` to Google Search Console. Verify the property via DNS TXT record (preferred, survives redeploys) or HTML file upload.
 
 ### Pre-launch SEO checklist
 

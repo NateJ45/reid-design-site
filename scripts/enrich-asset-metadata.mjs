@@ -2,7 +2,7 @@
 //   - title          (human-readable name derived from filename)
 //   - altText        (descriptive alt for accessibility + SEO)
 //   - description    (longer caption with context)
-//   - opt.media.tags (references to media.tag docs — the sanity-plugin-media
+//   - opt.media.tags (references to media.tag docs, the sanity-plugin-media
 //                     tag system, browsable + filterable in the Media tool)
 //
 // The tag taxonomy below defines ~50 starter tags grouped into categories
@@ -66,7 +66,7 @@ const writeClient = writeToken
 // Slug is used as the doc _id (media.tag.{slug}) so re-runs are idempotent.
 
 const TAGS = [
-  // Rooms — where the photo was taken
+  // Rooms, where the photo was taken
   { name: 'Living Room', slug: 'room-living-room', category: 'Rooms' },
   { name: 'Family Room', slug: 'room-family-room', category: 'Rooms' },
   { name: 'Bedroom', slug: 'room-bedroom', category: 'Rooms' },
@@ -80,7 +80,7 @@ const TAGS = [
   { name: 'Office', slug: 'room-office', category: 'Rooms' },
   { name: 'Outdoor', slug: 'room-outdoor', category: 'Rooms' },
 
-  // Design elements — distinctive features visible in the photo
+  // Design elements, distinctive features visible in the photo
   { name: 'Fireplace', slug: 'element-fireplace', category: 'Elements' },
   { name: 'Sectional', slug: 'element-sectional', category: 'Elements' },
   { name: 'Sofa', slug: 'element-sofa', category: 'Elements' },
@@ -112,9 +112,9 @@ const TAGS = [
   { name: 'Dark / Moody', slug: 'color-dark', category: 'Colors' },
 
   // Subjects (for people / scene photos)
-  { name: 'Staci — Portrait', slug: 'subject-staci-portrait', category: 'Subjects' },
-  { name: 'Staci — Candid', slug: 'subject-staci-candid', category: 'Subjects' },
-  { name: 'Staci — At Work', slug: 'subject-staci-working', category: 'Subjects' },
+  { name: 'Staci: Portrait', slug: 'subject-staci-portrait', category: 'Subjects' },
+  { name: 'Staci: Candid', slug: 'subject-staci-candid', category: 'Subjects' },
+  { name: 'Staci: At Work', slug: 'subject-staci-working', category: 'Subjects' },
   { name: 'Behind the Scenes', slug: 'subject-behind-scenes', category: 'Subjects' },
 
   // Project stage (before/after series)
@@ -146,7 +146,7 @@ const TAGS = [
 // ---------- 2. Keyword → tag-slug mapping ----------
 //
 // Each filename is scanned for these substrings; matching adds the listed
-// tag slugs. Order doesn't matter — duplicates dedup via Set.
+// tag slugs. Order doesn't matter, duplicates dedup via Set.
 
 const KEYWORD_TO_TAGS = {
   // Compound matches first (more specific wins by adding more tags)
@@ -308,12 +308,12 @@ function detectTagsFromFilename(filename, folderTags) {
 }
 
 function generateTitle(filename) {
-  // "reid-design-bedroom-iron-bed-be-still.jpg" → "Bedroom — iron bed, Be Still"
-  // "staci-perkins-headshot-planning-2026.jpg" → "Staci Perkins — headshot, planning 2026"
+  // "reid-design-bedroom-iron-bed-be-still.jpg" → "Bedroom, iron bed, Be Still"
+  // "staci-perkins-headshot-planning-2026.jpg" → "Staci Perkins, headshot, planning 2026"
   const base = filename.toLowerCase().replace(/\.\w+$/, '');
   if (base.startsWith('staci-perkins-')) {
     const rest = base.slice('staci-perkins-'.length).replace(/-/g, ' ');
-    return `Staci Perkins — ${rest}`.replace(/\s+/g, ' ').trim();
+    return `Staci Perkins, ${rest}`.replace(/\s+/g, ' ').trim();
   }
   if (base.startsWith('reid-design-')) {
     const rest = base.slice('reid-design-'.length);

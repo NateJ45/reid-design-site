@@ -37,7 +37,7 @@ if (!projectId || !token) {
 const client = createClient({ projectId, dataset, apiVersion, useCdn: false, token });
 
 // Mirror of the in-code defaults from ContactForm.tsx. Keep these synced if
-// the in-code list changes — they're separate sources of truth on purpose
+// the in-code list changes, they're separate sources of truth on purpose
 // (Sanity wins; code is the fallback).
 const formLocationOptions = [
   'Plainfield',

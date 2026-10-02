@@ -14,7 +14,7 @@
 //
 // Why these fields and not more: every additional field costs conversion.
 // These four added fields (location, budget, timeline, source) cover what
-// Staci genuinely needs to scope a project and prep for the first call —
+// Staci genuinely needs to scope a project and prep for the first call
 // service-area + travel-fee bucket, ballpark tier, urgency, and a lightweight
 // lead-source signal for marketing decisions later.
 //
@@ -59,7 +59,7 @@ const TYPE_PARAM_MAP: Record<string, string> = {
 };
 
 // Service-area cities, ordered Plainfield-first per brand positioning. "Other"
-// catches anyone outside the standard area — Staci can decide whether to travel.
+// catches anyone outside the standard area: Staci can decide whether to travel.
 const LOCATION_OPTIONS = [
   'Plainfield',
   'Indianapolis',
@@ -74,7 +74,7 @@ const LOCATION_OPTIONS = [
 
 // Budget brackets sized to Reid Design's actual price points: $150 consultation
 // at the low end through whole-home projects at the high end. The "Not sure"
-// option keeps the form approachable — many homeowners genuinely don't know
+// option keeps the form approachable, many homeowners genuinely don't know
 // what room design costs and the question shouldn't gate them out.
 const BUDGET_OPTIONS = [
   'Under $2K (just a consultation or quick advice)',
@@ -209,7 +209,7 @@ export default function ContactForm({
 
   // Restore draft on mount, then apply ?type= URL param if present.
   // URL param wins over saved draft for the projectType field on first load
-  // only — this is the "preselect" behaviour for the CTAs on /e-design
+  // only, this is the "preselect" behaviour for the CTAs on /e-design
   // (?type=e-design). Other draft fields are still restored normally.
   useEffect(() => {
     if (restoredOnce.current) return;
@@ -227,7 +227,7 @@ export default function ContactForm({
         preselectedType = '';
       }
     } catch {
-      /* ignore — SSR / non-browser environment */
+      /* ignore: SSR / non-browser environment */
     }
 
     // Restore saved draft, then override projectType if the URL param matched.
@@ -295,7 +295,7 @@ export default function ContactForm({
       return;
     }
 
-    // Honeypot check — bots tick the hidden checkbox, humans never see it.
+    // Honeypot check, bots tick the hidden checkbox, humans never see it.
     // This was previously a text field named "zip". Browser address-autofill
     // filled it for real visitors (Chrome ignores autocomplete="off" for
     // address fields), which tripped this check and SILENTLY DROPPED genuine

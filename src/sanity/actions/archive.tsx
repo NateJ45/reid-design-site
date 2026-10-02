@@ -1,5 +1,5 @@
 // Foundation, edit with care
-// Archive / Restore / Delete forever — a soft-delete layer over Sanity's native
+// Archive / Restore / Delete forever, a soft-delete layer over Sanity's native
 // delete for content types Staci edits.
 //
 // Why this exists: Sanity's built-in Delete is immediate and permanent, and the
