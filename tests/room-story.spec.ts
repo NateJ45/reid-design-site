@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import sharp from 'sharp';
 import { join } from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
 
@@ -144,6 +145,29 @@ test.describe('Concept room', () => {
     const captions = await room.locator('[data-room-step]').allTextContents();
     expect(captions.length).toBeGreaterThanOrEqual(2);
     for (const c of captions) expect(c, c).not.toMatch(/\d/);
+  });
+
+  test('the "Concept room" tag stays visible once the painter draws', async ({ page }) => {
+    // Regression (2026-10-02): the canvas got a z-index above the tag, so the honesty label
+    // vanished the moment WebGL took over. Hit-testing cannot see it (the canvas has
+    // pointer-events: none), so look at the pixels a visitor sees: the tag is a paper-white
+    // shape, and if the room photo covers it those pixels are not white.
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const room = page.locator('section.room');
+    await room.scrollIntoViewIfNeeded();
+    await expect(room).toHaveAttribute('data-painted', '', { timeout: 15_000 });
+    const tag = room.locator('.r-tag');
+    await tag.scrollIntoViewIfNeeded();
+    const png = await tag.screenshot();
+    const { data, info } = await sharp(png)
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    let paper = 0;
+    for (let i = 0; i < data.length; i += info.channels) {
+      if (data[i] > 235 && data[i + 1] > 232 && data[i + 2] > 225) paper++;
+    }
+    expect(paper / (data.length / info.channels)).toBeGreaterThan(0.5);
   });
 
   test('without a script the finished room shows, and no other frame downloads', async ({

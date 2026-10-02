@@ -96,6 +96,9 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
   .room__frames {
     --ease: cubic-bezier(0.23, 1, 0.32, 1);
     position: relative;
+    /* Keep the stack's z-indexes (final underlay, frames, canvas) private, so the
+       "Concept room" tag beside it always paints above all of them. */
+    isolation: isolate;
     aspect-ratio: var(--ar);
     width: 100%;
     overflow: hidden;

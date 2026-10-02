@@ -220,6 +220,8 @@ const asIsHex = linearToHex(first.median);
     left: -0.4rem;
     bottom: 1rem;
     rotate: -2deg;
+    /* Above the room's canvas: the honesty label must never be covered. */
+    z-index: 3;
   }
   .room__tag strong {
     font-size: 1rem;
