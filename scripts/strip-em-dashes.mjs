@@ -51,7 +51,7 @@ async function main() {
 
   // Everything except Sanity's own system documents and uploaded files.
   const docs = await c.fetch(
-    `*[!(_type match "sanity.*") && !(_id in path("_.**")) && !(_type match "system.*")]`,
+    `*[!(_type match "sanity.*") && _type != "testimonial" && !(_id in path("_.**")) && !(_type match "system.*")]`,
   );
   console.log(`Read ${docs.length} documents.\n`);
 
