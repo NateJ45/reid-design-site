@@ -230,7 +230,8 @@ const GROUPS = [
     doc: 'servicesPage',
     label: 'Services: hero (the accent word was not in the headline)',
     set: {
-      heroScriptAccent: ['reveal', 'styled home'],
+      // 'styled home' re-wrapped the headline at the font swap (CLS 0.27, 2026-10-02); one word does not.
+      heroScriptAccent: ['reveal', 'home'],
       heroSubhead: [
         'Everything I do is priced openly. Pick the tier that fits where you are.',
         'Everything I do is priced openly. Start with the visit, or go straight to the room you want done.',
