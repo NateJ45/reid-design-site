@@ -7,13 +7,6 @@
       "type": "living",
       "style": "Transitional",
       "manifest": "living-transitional/manifest.json"
-    },
-    {
-      "slug": "kitchen-modern",
-      "label": "Kitchen",
-      "type": "kitchen",
-      "style": "Modern",
-      "manifest": "kitchen-modern/manifest.json"
     }
   ]
 }

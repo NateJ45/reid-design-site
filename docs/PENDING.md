@@ -412,6 +412,16 @@ as tests; hyper-realistic, check at 1:1 before showing; kitchen and bath are STY
 (Staci keeps existing cabinets, appliances, toilet, tub; changes hardware, fixtures, paint,
 rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5785f approved.
 
+**2026-10-02 update (Nathan):** the release is the LIVING ROOM ONLY. The kitchen (modern, styling
+only: black pulls, faucet, pendant, runner, roman shade, art, counter styling) is fully built and
+reviewed in `tools/room-lab/work/kitchen-modern/` (frames, spec `rooms/kitchen-modern.json`) but
+held back, so it is not under `src/assets/room/`. To add it later:
+`npm run room:publish -- --room kitchen-modern` (rewrites its folder and rooms.json), check
+`room:preview`, build, commit. Two known small mask flaws: a pink block at the far left edge
+under the cabinet and a sliver of the bottom-right baseboard get painted. The other four rooms
+(family, dining, bath, bedroom) are still held (see below). Work in a git worktree
+(`../reid-concept-room`): another session shares the main checkout and switches its branch.
+
 **Run it (PC with the GPU):**
 
 1. Start ComfyUI: `cd C:\Users\natha\AI\ComfyUI_windows_portable` then
