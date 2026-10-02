@@ -439,7 +439,7 @@ under the cabinet and a sliver of the bottom-right baseboard get painted. The ot
    Kitchen, bath: re-rolled as dated-but-complete rooms (specs rewritten), candidates were
    rendering at handoff; pick from their sheets. Bedroom: 13 of 16 candidates exist, no sheet
    yet; rerun `room:generate -- --room bedroom-japandi base`.
-**HELD (Nathan, 2026-09-30): finish the kitchen only; bath, bedroom, family and dining wait
+   **HELD (Nathan, 2026-09-30): finish the kitchen only; bath, bedroom, family and dining wait
    for another day.** Nothing is queued for them. Their base picks and fixed specs are ready,
    so each is one `stages --base ...` run away (see step 2).
 4. First family/dining builds FAILED review (dining trim painted a mural on the walls;
