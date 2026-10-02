@@ -200,10 +200,46 @@ export async function segment(segmenter, src, { ceiling = false } = {}) {
         const c = chrOf(i);
         // Brighter and less coloured, or (near a sunlit corner, where brightness no longer
         // separates them) far less coloured on its own.
-        if (snapped[i] >= 128 && ((grey[i] > rl * 1.12 && c < rc * 0.75) || (grey[i] > rl * 0.95 && c < rc * 0.5)))
+        if (
+          snapped[i] >= 128 &&
+          ((grey[i] > rl * 1.12 && c < rc * 0.75) ||
+            (grey[i] > rl * 0.95 && c < rc * 0.5) ||
+            // a greyer, darker baseboard in shade (kitchen, 2026-10-02)
+            (grey[i] > rl * 0.85 && c < rc * 0.4))
+        )
           snapped[i] = 0;
       }
     }
+  }
+
+  // Pass 2d: the laminate strip along the back of a counter (a "backsplash" a few inches
+  // tall). SegFormer calls it wall; it is a different material and must not be painted. In a
+  // yellow kitchen it is tan: almost the same colour saturation as the wall, but clearly
+  // DARKER (luma ~0.78 of the wall above it), so judge it by brightness against the wall above
+  // a band over the counter's top edge. Also nothing the counter label covers is wall (the
+  // mask's soft edge had left a pink fringe on the countertop itself).
+  {
+    const counterM = await unionOf(segs, new Set(['countertop', 'counter', 'kitchen island']), W, H);
+    const band = Math.round(H / 10);
+    for (let x = 0; x < W; x++) {
+      let yc = -1;
+      for (let y = Math.round(H * 0.3); y < H; y++) if (counterM[y * W + x] >= 128) { yc = y; break; }
+      if (yc < 0) continue;
+      let rl = 0, rn = 0;
+      for (let y = yc - band - 40; y < yc - band - 10; y++) {
+        if (y < 0) continue;
+        const i = y * W + x;
+        if (snapped[i] < 128) continue;
+        rl += grey[i]; rn++;
+      }
+      if (!rn) continue;
+      rl /= rn;
+      for (let y = Math.max(0, yc - band); y <= Math.min(H - 1, yc + 6); y++) {
+        const i = y * W + x;
+        if (snapped[i] >= 128 && grey[i] < rl * 0.88) snapped[i] = 0;
+      }
+    }
+    for (let i = 0; i < W * H; i++) if (counterM[i] >= 128) snapped[i] = 0;
   }
 
   // Pass 3: drop small regions, final blur.

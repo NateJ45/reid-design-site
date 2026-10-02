@@ -147,7 +147,7 @@
       "id": "styling",
       "stage": "finish",
       "motion": "pop",
-      "change": "place a wooden cutting board, a white bowl of fresh lemons and a small potted basil plant on the countertop. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
+      "change": "keep every wall its existing butter yellow colour and keep the cabinets, window, shade and lighting exactly as they are; only place a wooden cutting board, a white bowl of fresh lemons and a small potted basil plant on the countertop. Style: warm modern; matte black hardware, white oak and walnut accents, smoked glass, cream and charcoal textiles. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         470,
         1470,
@@ -157,10 +157,15 @@
         "plant",
         "pot",
         "vase",
-        "basket"
+        "basket",
+        "food",
+        "plate",
+        "tray",
+        "box",
+        "bottle"
       ],
       "workflow": "edit-reflatent-full",
-      "negative": "fake fruit, cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated"
+      "negative": "fake fruit, cartoon, illustration, vector, graphic, silhouette, plastic, fake, cgi, render, flat, oversaturated, repainted walls, white walls, grey walls, new wall colour"
     }
   ]
 }
