@@ -45,6 +45,11 @@ const words = (rows, ...fields) =>
 const plain = (blocks) =>
   (blocks ?? []).map((b) => (b.children ?? []).map((c) => c.text ?? '').join('')).join('\n');
 
+/** Title seeds exist in two forms: the colon rewrite and the original em-dash
+ *  ("About Staci Perkins — Reid Design LLC") still live in the dataset. Accept both. */
+const titleSeed = (name) => (cur) =>
+  cur === `${name}: Reid Design LLC` || cur === `${name} — Reid Design LLC`;
+
 // ---- the changes ------------------------------------------------------------
 // Each group: { doc, label, set: { path: [from, to] } }.
 //   from: the text this was written against (string), or a function that
@@ -161,7 +166,7 @@ const GROUPS = [
         'Serving Plainfield, Indianapolis, and the surrounding suburbs.',
         'Serving Plainfield, Indianapolis, Carmel, Fishers, Westfield, Zionsville and Noblesville.',
       ],
-      seoTitle: ['About Staci Perkins: Reid Design LLC', 'About Staci Perkins | Reid Design'],
+      seoTitle: [titleSeed('About Staci Perkins'), 'About Staci Perkins | Reid Design'],
       seoDescription: [
         'Meet Staci Perkins, founder of Reid Design LLC. Plainfield-based interior designer creating warm, livable homes across Greater Indianapolis.',
         'Meet Staci Perkins, the Plainfield, Indiana interior designer behind Reid Design. Room design and whole-home refreshes across Greater Indianapolis.',
@@ -225,7 +230,8 @@ const GROUPS = [
     doc: 'servicesPage',
     label: 'Services: hero (the accent word was not in the headline)',
     set: {
-      heroScriptAccent: ['reveal', 'styled home'],
+      // 'styled home' re-wrapped the headline at the font swap (CLS 0.27, 2026-10-02); one word does not.
+      heroScriptAccent: ['reveal', 'home'],
       heroSubhead: [
         'Everything I do is priced openly. Pick the tier that fits where you are.',
         'Everything I do is priced openly. Start with the visit, or go straight to the room you want done.',
@@ -248,7 +254,7 @@ const GROUPS = [
     doc: 'servicesPage',
     label: 'Services: search text',
     set: {
-      seoTitle: ['Services: Reid Design LLC', 'Services and Pricing | Reid Design'],
+      seoTitle: [titleSeed('Services'), 'Services and Pricing | Reid Design'],
       seoDescription: [
         'Interior design services from Reid Design LLC. In-home consultations, full room design, styling, and whole-home refreshes. Plainfield and Greater Indianapolis.',
         'Interior design services and prices from Reid Design in Plainfield, Indiana: $225 in-home consultations, room design from $995, and whole-home refreshes from $2,500.',
@@ -265,10 +271,7 @@ const GROUPS = [
         "Here's exactly what working with Reid Design looks like, no surprises, no stress.",
         'Here is exactly what working with me looks like, step by step. You always know what comes next.',
       ],
-      seoTitle: [
-        'Process: Reid Design LLC',
-        'Design Process: First Call to Final Reveal | Reid Design',
-      ],
+      seoTitle: [titleSeed('Process'), 'Design Process: First Call to Final Reveal | Reid Design'],
       seoDescription: [
         "From first call to final reveal, here's exactly what working with Reid Design looks like. No surprises, no stress.",
         'See how a Reid Design project runs, from the first call and in-home visit to the design plan, the shopping and the final reveal.',
@@ -283,13 +286,13 @@ const GROUPS = [
         "Fill out the form and I'll be in touch within one business day. No commitment, just a conversation about what your space could become.",
         'Tell me about the room and what is not working. I will reply within one business day, and the first conversation costs nothing.',
       ],
-      seoTitle: ['Contact: Reid Design LLC', 'Contact Reid Design | Book a Consultation'],
+      seoTitle: [titleSeed('Contact'), 'Contact Reid Design | Book a Consultation'],
     },
   },
   {
     doc: 'faqPage',
     label: 'FAQ: title',
-    set: { seoTitle: ['FAQ: Reid Design LLC', 'FAQ | Reid Design'] },
+    set: { seoTitle: [titleSeed('FAQ'), 'FAQ | Reid Design'] },
   },
 
   // ============================ E-DESIGN ====================================

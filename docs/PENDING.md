@@ -14,35 +14,12 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
-### From 2026-10-01: mid-market pass (`ccr-a5ebbe27-eingtv`), run these in order
+### From 2026-10-01: mid-market pass, one step left
 
-Staci's decision: Reid Design is a mid-market studio (polished and trustworthy,
-never discount, never showroom; PRODUCT.md "Positioning"). The code is in the
-branch; the words live in Sanity, so they need three scripts run from a machine
-that has `SANITY_API_WRITE_TOKEN` in `.env` (sanity.io/manage > API > Tokens,
-Editor role; never commit it). Every script is a dry run until `--apply`.
-
-1. `node scripts/patch-2026-10-01-midmarket.mjs` then again with `--apply`.
-   Rewrites the generic copy (home hero, services band, reviews and closing
-   headlines, About hero, Services/Process/Contact subheads and titles) and
-   puts the real E-Design package on the E-Design page: one tier, "Starting at
-   $695", with Staci's own include list (it replaces the placeholder $425 and
-   $250 tiers). Each change only lands if the field still holds the text it was
-   written against; it patches an unpublished draft too, so publishing an old
-   draft cannot undo it. After it runs, the footer's "E-Design from $250"
-   becomes "from $695" by itself.
-2. `node scripts/seed-room-story-placeholder.mjs` then with `--apply`. Deletes
-   the three seeded sample projects and creates ONE draft room story
-   (Projects > "First room story") with the writing prompts. A draft never
-   builds into the public site.
-3. `node scripts/strip-em-dashes.mjs` then with `--apply`. Rewrites every
-   em-dash in the dataset (the Shopping & sourcing and Builder & realtor
-   service cards, anything pasted in later). Run it AFTER step 1.
-4. `npm run llms:full` (needs a read token) to regenerate `public/llms-full.txt`.
-   It was edited by hand on 2026-10-01 to fix stale prices ($150, $650, $75) and
-   to drop the three sample projects.
-5. Push or publish anything so the site rebuilds, then look at Home, Services,
-   E-Design and About on a phone.
+Steps 1 to 4 ran 2026-10-02 (copy patch applied, room story draft seeded and
+the three samples deleted, em-dashes stripped, `llms-full.txt` regenerated).
+What remains: confirm Home, Services, E-Design and About on a phone once the
+PR deploys.
 
 - **Starter em-dashes (Nathan).** Ten PORTABLE files (`docs/RESTORE-DRILL.md`,
   `scripts/lib/loadEnv.mjs`, `scripts/propose-drift.mjs`, and seven
@@ -65,9 +42,7 @@ What only Staci can do:
   growing up in central Georgia stays; it was edited by a person. Ask her for
   three true answers and add them back in Studio if she wants them.
 - **Confirm E-Design step 2**, "a short video call", came from the first seed
-  and is not in her own spec. Same for the Services duplicate: the "Builder &
-  realtor partnerships" card still repeats the dedicated section below it
-  (Archive that service document).
+  and is not in her own spec..
 - **Service and FAQ documents were not readable from the session** (they are
   private in the dataset), so their wording is untouched apart from the
   em-dash script. A read-through for generic or stale lines is still worth ten
@@ -76,16 +51,6 @@ What only Staci can do:
   minutes". Decide the 30 to 45 minute fee in Site settings > Travel fees.
 - **Phone number**: the site shows a 931 (Tennessee) number. Decide before more
   listings go up (see docs/design/2026-09-30-design-debate.md).
-
-### From 2026-10-01: builder and realtor partnerships show twice on Services
-
-- **One Studio step.** Services has a seventh service card, "Builder &
-  realtor partnerships" (a `service` document), AND the page's own Builders
-  and realtors section right below it, which says the same thing in more
-  detail. Suggested: Archive that service document (Services desk, open
-  it, Archive), keeping the dedicated section. Its card, its line in the
-  price index and its Service JSON-LD entry go with it on the next build.
-  Close this item once it is archived.
 
 ### From the 2026-09-30 quiet pass (`claude/great-mendel-v4xvi0`)
 
@@ -572,6 +537,13 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- 2026-10-02: mid-market content scripts applied; Studio guide re-seeded (no
+  review count); duplicate Builder & realtor service card archived. Notes:
+  the midmarket patch now accepts the em-dash form of the SEO titles;
+  `strip-em-dashes.mjs` skips `testimonial` documents (a client's review is
+  verbatim, never rewritten). Retired journal entry
+  `plainfieldFamilyRoomWalkthrough` deleted to free the sample projects.
 
 - **2026-10-01, design pass follow-ups closed.** Nathan checked the live
   site: the room-photo cards look good, the Google map on Contact looks
