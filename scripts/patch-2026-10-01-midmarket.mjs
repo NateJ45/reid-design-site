@@ -270,10 +270,7 @@ const GROUPS = [
         "Here's exactly what working with Reid Design looks like, no surprises, no stress.",
         'Here is exactly what working with me looks like, step by step. You always know what comes next.',
       ],
-      seoTitle: [
-        titleSeed('Process'),
-        'Design Process: First Call to Final Reveal | Reid Design',
-      ],
+      seoTitle: [titleSeed('Process'), 'Design Process: First Call to Final Reveal | Reid Design'],
       seoDescription: [
         "From first call to final reveal, here's exactly what working with Reid Design looks like. No surprises, no stress.",
         'See how a Reid Design project runs, from the first call and in-home visit to the design plan, the shopping and the final reveal.',
