@@ -52,7 +52,18 @@ export function client({ write = false } = {}) {
     );
     process.exit(1);
   }
-  return createClient({ projectId, dataset, apiVersion, useCdn: false, token });
+  // 'raw' so unpublished drafts are visible. Since API version 2025-02-19 the
+  // default perspective is 'published', which hid every "drafts." document from
+  // these scripts (found 2026-10-02: the em-dash sweep and the mid-market patch
+  // both claimed to cover drafts and silently did not).
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    useCdn: false,
+    token,
+    perspective: 'raw',
+  });
 }
 
 /** Print the mode up front so nobody wonders whether a run wrote anything. */

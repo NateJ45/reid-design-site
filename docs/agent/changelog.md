@@ -2,6 +2,26 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-02: Mid-market content applied; content scripts now see drafts
+
+- **Home accessibility fix.** `.chips__foot` in `PaintChips.astro` is lifted above the
+  chips so their pre-scroll entry offset can never cover the closing link
+  (Lighthouse target-size, 96 to 100).
+- **FAQ and service consistency** via `scripts/patch-2026-10-02-faq-consistency.mjs`
+  (guarded, dry run by default; 7 patches applied). `llms-full.txt` regenerated.
+- The three content scripts were run against production. The page content, E-Design
+  package and em-dash sweep are live; the draft room story exists for Staci.
+- **`scripts/lib/sanity-script.mjs` now reads with `perspective: 'raw'`.** At API
+  version 2025-02-19 and later the default is `published`, so the sweep and the
+  patch scripts could not see any `drafts.` document even though they said they
+  covered drafts. Any new content script must keep the raw client.
+- `patch-2026-10-01-midmarket.mjs`: title guards accept the original em-dash
+  titles (the repo sweep had rewritten the script's own expected strings, so five
+  groups skipped), and `same()` ignores key order.
+- `strip-em-dashes.mjs`: never rewrites `testimonial.quote`; `PHRASE_FIXES` for
+  sentences the rule mangles.
+- `scripts/.parity/` baselines refreshed for the new copy and Astro 7.3.5.
+
 ## 2026-09-30: Concept room: whole frames with a reveal (manifest v3, branch `claude/concept-room-frames`)
 
 Delegated agent (Opus), for review by the main session. Nathan's decision: the per-piece cut-out layers (v2) proved unreliable (curtain rods vanishing, shadows clipped, table legs smeared), so every step of the build is now ONE COMPLETE AI photo and the new piece appears in place. Built against synthetic sharp-drawn fixtures (three rooms, one room, zero rooms); the real v3 publish comes from tools/room-lab.
