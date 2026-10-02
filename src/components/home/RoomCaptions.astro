@@ -15,8 +15,9 @@
 //     never changes size; only the current beat (aria-current="step", set by
 //     the RoomStage script from the scroll position) shows, and a beat change
 //     cross-fades (no animation under reduced motion). Before the script has
-//     read the scroll, the first caption shows. The card sits over the room's
-//     lower-left corner on a laptop and below the room on a phone.
+//     read the scroll, the first caption shows. The card sits in the margin
+//     left of the room on a wide laptop window, over the room's lower-left
+//     corner (narrow) in a tall one, and below the room on a phone.
 // Each caption is led by a short Warm Bronze rule: a mark, never a numeral.
 // A visually hidden live region in RoomStage reads each new caption aloud;
 // the hidden captions here are `visibility: hidden`, so they are not read.
@@ -111,13 +112,30 @@ const { stages } = Astro.props as Props;
     }
   }
   @media (scripting: enabled) and (min-width: 1024px) {
-    /* Laptop: over the room's lower-left corner, clear of the progress rule. */
+    /* Laptop, tight fit (a tall window leaves the room no side margins): a
+       narrow card over the room's lower-left corner, clear of the progress
+       rule. It is narrow on purpose: the coffee table begins about half way
+       across, and a wide card used to sit on it. */
     .room__captions {
       position: absolute;
       left: 1rem;
       bottom: calc(var(--room-rule, 1.25rem) + 1rem);
-      width: min(24rem, 46%);
+      width: min(14.5rem, 36%);
       margin: 0;
+    }
+  }
+  @media (scripting: enabled) and (min-width: 1100px) and (min-aspect-ratio: 8/5) {
+    /* Laptop, wide window (1280x800, 1366x768, 1440x900, 1920x1080): the room
+       is height-limited, so it leaves side margins of about 260px or more
+       (the card is 13.25rem, which keeps a gap to the screen edge at 1280). The
+       card sits in the LEFT margin beside the room, bottom-aligned with it, so
+       it never covers the furniture. The 8/5 test stands in for "the margin is
+       wide enough"; a taller window falls back to the narrow overlay above. */
+    .room__captions {
+      left: auto;
+      right: calc(100% + 1rem);
+      bottom: calc(var(--room-rule, 1.25rem) + 1rem);
+      width: 13.25rem;
     }
   }
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {

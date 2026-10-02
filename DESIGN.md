@@ -583,8 +583,11 @@ until they exist.
   rule colour, a small tick at the end of each beat, decorative, no numbers),
   the caption card, and the paint dock. **Laptop:** the room centred and as
   wide as the screen's height allows (`min(100%, height left * aspect)`), the
-  caption card overlaid on its lower-left corner, the chips in one row under
-  it. **Phone:** the room full width, then the caption card BELOW it, then the
+  caption card in the margin LEFT of the room (a wide window, 8/5 or wider and
+  1100px or more: 1280x800, 1366x768, 1440x900, 1920x1080), so it never covers
+  the furniture; in a taller window, where the room leaves no margins, a
+  narrow card over its lower-left corner (moved off the coffee table
+  2026-10-03); the chips in one row under it. **Phone:** the room full width, then the caption card BELOW it, then the
   chips as one sideways scroll-snap row (with room at the end to scroll the
   last chip clear of the back-to-top button); all of it inside one 375x667
   screen (tested at 375x667 and 375x812).

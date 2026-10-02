@@ -30,8 +30,9 @@
 //         label, always above the canvas).
 //       * A hairline progress rule under it with a tick at the end of each
 //         beat. Decorative (aria-hidden), no numbers.
-//       * The caption card (RoomCaptions.astro): a small paper card over the
-//         room's lower-left corner on a laptop, BELOW the room on a phone.
+//       * The caption card (RoomCaptions.astro): a small paper card in the
+//         margin left of the room on a wide laptop window (over its lower-left
+//         corner, narrow, in a tall one), BELOW the room on a phone.
 //         It shows the current beat's caption and cross-fades on a beat
 //         change; a visually hidden live region reads each new caption.
 //       * The paint deck, a slim dock under the room, ALWAYS there once the
@@ -59,7 +60,7 @@
 // LAYOUT
 //   - Laptop (1024px+): stage pinned 7rem down (under the condensed header
 //     strip); the room centred, its width min(100%, height left * aspect);
-//     the card overlaid on its lower-left corner; chips in one row under it.
+//     the card in its left margin (see RoomCaptions.astro); chips in one row under it.
 //   - Phone: pinned under the 4.5rem header strip; room full width, then the
 //     card, then the chips as a sideways scroll-snap row; ALL of it inside one
 //     375x667 screen (tests/room-story.spec.ts measures it).
