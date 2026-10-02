@@ -46,9 +46,11 @@ const plain = (blocks) =>
   (blocks ?? []).map((b) => (b.children ?? []).map((c) => c.text ?? '').join('')).join('\n');
 
 /** Title seeds exist in two forms: the colon rewrite and the original em-dash
- *  ("About Staci Perkins — Reid Design LLC") still live in the dataset. Accept both. */
+ *  (an em-dash before the brand name) still live in the dataset. Accept both.
+ *  The dash is built from its code so this file holds none itself. */
 const titleSeed = (name) => (cur) =>
-  cur === `${name}: Reid Design LLC` || cur === `${name} — Reid Design LLC`;
+  cur === `${name}: Reid Design LLC` ||
+  cur === `${name} ${String.fromCharCode(8212)} Reid Design LLC`;
 
 // ---- the changes ------------------------------------------------------------
 // Each group: { doc, label, set: { path: [from, to] } }.
@@ -404,7 +406,19 @@ function read(doc, path) {
   return cur;
 }
 
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// Compare ignoring object key order: Sanity returns keys in its own order, so a
+// plain JSON.stringify compare reported finished E-Design groups as "edited".
+const sortKeys = (v) =>
+  Array.isArray(v)
+    ? v.map(sortKeys)
+    : v && typeof v === 'object'
+      ? Object.fromEntries(
+          Object.keys(v)
+            .sort()
+            .map((k) => [k, sortKeys(v[k])]),
+        )
+      : v;
+const same = (a, b) => JSON.stringify(sortKeys(a)) === JSON.stringify(sortKeys(b));
 
 async function main() {
   announce('patch-2026-10-01-midmarket');

@@ -14,12 +14,22 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
-### From 2026-10-01: mid-market pass, one step left
+### From 2026-10-01: mid-market pass (`ccr-a5ebbe27-eingtv`), content APPLIED 2026-10-02
 
-Steps 1 to 4 ran 2026-10-02 (copy patch applied, room story draft seeded and
-the three samples deleted, em-dashes stripped, `llms-full.txt` regenerated).
-What remains: confirm Home, Services, E-Design and About on a phone once the
-PR deploys.
+Staci's decision: Reid Design is a mid-market studio (polished and trustworthy,
+never discount, never showroom; PRODUCT.md "Positioning"). The three content
+scripts have been run against the dataset (sanity project ba403vjc, production):
+the mid-market copy and the $695 E-Design package, the draft room story, and
+the em-dash sweep. `npm run llms:full` was regenerated from live data. What is
+left is below. Scripts note: the shared client used to read the PUBLISHED
+perspective only, so none of them ever saw drafts; it is `raw` now
+(`scripts/lib/sanity-script.mjs`). The sweep never rewrites a testimonial's
+`quote` (a client's own words stay verbatim, so Sarah Bishop's Google review
+keeps its em-dash on /about), and `PHRASE_FIXES` in `strip-em-dashes.mjs` holds
+hand-written replacements for sentences the automatic rule turns into a comma
+pile.
+
+Still to do: look at Home, Services, E-Design and About on a phone once this deploys.
 
 - **Starter em-dashes (Nathan).** Ten PORTABLE files (`docs/RESTORE-DRILL.md`,
   `scripts/lib/loadEnv.mjs`, `scripts/propose-drift.mjs`, and seven
@@ -42,11 +52,19 @@ What only Staci can do:
   growing up in central Georgia stays; it was edited by a person. Ask her for
   three true answers and add them back in Studio if she wants them.
 - **Confirm E-Design step 2**, "a short video call", came from the first seed
-  and is not in her own spec..
-- **Service and FAQ documents were not readable from the session** (they are
-  private in the dataset), so their wording is untouched apart from the
-  em-dash script. A read-through for generic or stale lines is still worth ten
-  minutes.
+  and is not in her own spec. (The duplicate Builder & realtor service card is
+  gone from the dataset; only the dedicated Services section remains.)
+- **Service and FAQ wording, fixed 2026-10-02, two things for Staci to confirm.**
+  `scripts/patch-2026-10-02-faq-consistency.mjs` made the FAQ agree with the
+  site (30 minutes not miles, out-of-area now points to E-Design from $695 and
+  the travel fee, generic market range removed, E-Design cities removed, the
+  Signature home refresh text says the price). Still hers: (1) the "What's your
+  background as a designer?" answer is a short PROVISIONAL first-person line
+  built from site facts only (one-person studio, Plainfield); she should write
+  the real one in Studio > FAQ. (2) Trade pricing: the hidden-fees FAQ now says
+  "how trade vendor pricing works is explained at the start" and the trade-access
+  FAQ says trade pricing is passed along; confirm that is how she actually
+  works. The dataset needs a rebuild (merge or publish) before the site shows these.
 - **Travel fees have a gap**: "Within 30 minutes: None", then "45 to 75
   minutes". Decide the 30 to 45 minute fee in Site settings > Travel fees.
 - **Phone number**: the site shows a 931 (Tennessee) number. Decide before more
@@ -544,6 +562,22 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   `strip-em-dashes.mjs` skips `testimonial` documents (a client's review is
   verbatim, never rewritten). Retired journal entry
   `plainfieldFamilyRoomWalkthrough` deleted to free the sample projects.
+- **2026-10-02, Home accessibility back to 100.** Lighthouse `target-size` on the
+  services band link ("Message Me to Get Started"): the chips' entry animation
+  parks them 3rem lower than rest, on top of the link, until they scroll into
+  view, so an audit that never scrolls saw it covered. `.chips__foot` now sits
+  above the chips (`position: relative; z-index: 1` in `PaintChips.astro`). Home,
+  Services, E-Design and About all score 100 on mobile and desktop settings.
+  Live was 96 before this. CI never caught it because the token-less CI build
+  has no services band.
+- **2026-10-02, mid-market content applied.** Home/About/Services/Process/Contact/
+  FAQ copy and titles, the single $695 E-Design package, the em-dash sweep of the
+  dataset, the draft "First room story" (the three samples were already gone),
+  and `public/llms-full.txt` from live data. Built and checked at 390 and 1280:
+  no overflow, no em-dash on any page title, Home/Services/E-Design/About read
+  right. Gates: check 0 errors, format clean, 607 unit tests, 142 Playwright
+  (axe included), links, parity 13/13 (baselines refreshed for the new copy).
+  Lighthouse accessibility 100 on Home, Services, E-Design and About.
 
 - **2026-10-01, design pass follow-ups closed.** Nathan checked the live
   site: the room-photo cards look good, the Google map on Contact looks
