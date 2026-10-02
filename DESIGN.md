@@ -519,13 +519,16 @@ feed is connected.
   4 across from 1024px (eight). Every print opens the post in a new tab and is
   named from its caption (hashtags dropped); the picture itself is `alt=""`.
 
-## The concept room (2026-09-30)
+## The concept room (2026-09-30; the scroll scrub, 2026-10-02)
 
 `home/RoomStory.astro` (loads and checks) and `home/RoomStage.astro` (draws),
 on Home right after "How it works" (the `roomStory` marker). An AI-generated
-living room that starts EMPTY; as the visitor scrolls past short captions the
-room fills up piece by piece (trim, then the rug and sofa, tables and a lamp,
-curtains and a chair, art, styling). **Whole frames, no cut-outs** (Nathan,
+living room that starts EMPTY and fills up piece by piece in three beats
+(bones: trim, rug, sofa; comfort: tables and a lamp, a chair, curtains;
+finish: art, olive branches, books and a throw). **The build follows the
+scroll** (Nathan, 2026-10-02): scroll slowly and a piece slides in as you go,
+stop and it stops part-way, scroll back and it slides out; about three screens
+of scroll carry the whole story. **Whole frames, no cut-outs** (Nathan,
 2026-09-30): every step of the build is ONE COMPLETE AI photo of the room, and
 the new piece APPEARS IN PLACE with a soft reveal limited to the region that
 changed, plus a small settle. The first version cut each piece out as an RGBA
@@ -542,7 +545,7 @@ until they exist.
   bathroom (Seaside), bedroom (Japandi), in the order `src/assets/room/rooms.json`
   lists them. Each room has its own frames, stages and captions; the
   paint chips are the same for all, and the chosen chip stays on across a
-  switch. A real ARIA tablist sits above the room (inside the sticky stage,
+  switch. A real ARIA tablist sits above the room (inside the pinned stage,
   so it stays in reach mid-build): each tab is the room type with its style
   as a smaller second line, **no numbering**. Tabs sit on the Linen ground as
   plain labels led by a small punched-hole ring; the chosen tab is a pulled
@@ -552,9 +555,9 @@ until they exist.
   phone the row scrolls sideways with scroll-snap, like the chip deck.
   Manual activation (arrows, Home, End move; Enter, Space or a click
   chooses), because choosing downloads that room's pictures and may scroll.
-  Choosing a room mid-story scrolls the room's top back to just under the
-  header (smoothly; instantly under reduced motion) so its build starts
-  afresh. The tabs are `hidden` without a script (the first room shows,
+  Choosing a room never moves the page: the new room shows at the same share
+  of its own build, so the visitor keeps their place (2026-10-02; the old
+  "scroll back to the top and build afresh" went with the scrub). The tabs are `hidden` without a script (the first room shows,
   finished, with all its captions), and with only one room there is no
   tablist at all.
 
@@ -563,22 +566,44 @@ until they exist.
   (linen) sits before it and PaintChips (paper) after, so it reads apart from
   both.
 - **Honesty:** it is a CONCEPT room and must never read as Staci's portfolio.
-  A `.r-tag` sample tag on the picture reads "Concept room"; every frame's alt
+  A `.r-tag` sample tag on the picture's top-left corner (moved up from the
+  lower left in 2026-10-02 to make room for the caption card) reads "Concept
+  room", always above the canvas (`tests/room-story.spec.ts` checks its
+  pixels); every frame's alt
   opens "Concept image:" (`parseRoomManifest` refuses anything else); no town
   or project names; no numbering (no "01", no "Stage 1", no counters). Each
   stage's caption is led by a short Warm Bronze rule, not a numeral.
-- **Layout:** heading (RiseWords, italic accent) with the intro lede on the
-  right, the tape head's grid. Desktop: the room sticky on the left (7 of 12
-  columns, sized by screen height too so the chips fit), captions scrolling
-  past on the right, each about 80% of a screen tall. Phone: the room pins
-  under the header strip and the captions scroll beneath it; the chip deck is
-  one sideways scroll-snap row.
-- **Default render** (no script): the FINISHED room (the last frame) with its
-  tag, and every caption; no other frame downloads (their sources wait in
+- **Layout (the scrub, 2026-10-02):** heading (RiseWords, italic accent) with
+  the intro lede on the right, the tape head's grid; then a TRACK 300svh tall
+  (`--room-track`, the same number as `SCRUB_TRACK_SVH`) with the stage
+  pinned inside it (`position: sticky`, 7rem down on a laptop under the
+  condensed header strip, 4.5rem on a phone), its height reserved in CSS so
+  nothing shifts when the script starts. In the stage: the tabs (with two or
+  more rooms), the room, a hairline progress rule under it (Walnut fill on the
+  rule colour, a small tick at the end of each beat, decorative, no numbers),
+  the caption card, and the paint dock. **Laptop:** the room centred and as
+  wide as the screen's height allows (`min(100%, height left * aspect)`), the
+  caption card overlaid on its lower-left corner, the chips in one row under
+  it. **Phone:** the room full width, then the caption card BELOW it, then the
+  chips as one sideways scroll-snap row (with room at the end to scroll the
+  last chip clear of the back-to-top button); all of it inside one 375x667
+  screen (tested at 375x667 and 375x812).
+- **The caption card:** a small paper card in the `.r-tag` vocabulary (paper,
+  a pointed top-left corner with a punched-hole ring in Warm Bronze, the soft
+  drop shadow), each caption led by its short Warm Bronze rule, Zodiak Light.
+  It shows the CURRENT beat (the beat of the piece arriving, or of the one
+  that just landed) and cross-fades on a beat change (320ms; none under
+  reduced motion). Every caption sits in one grid cell, so the card is always
+  as tall as the longest and never changes size. A visually hidden live region
+  reads each new caption.
+- **Default render** (no script, or a browser without the `scripting` media
+  feature): no track and no pinning; the FINISHED room (the last frame) with
+  its tag, and every caption as a plain list under it; no other frame downloads (their sources wait in
   data attributes). The deck is in the markup but hidden. Only the finished
   frame is described (its alt opens "Concept image:"); every other frame is
   `alt=""`, and a visually hidden live region narrates the build (the empty
-  room's description before the first caption, then each stage's caption).
+  finished room's description on load, then each beat's caption as it becomes
+  current).
 - **The paint deck:** a `fieldset` with the visible legend "Try a paint colour
   on the walls", then paper chips (`button aria-pressed`, swatch plus visible
   name, the house 2px ink focus outline). "As it is" first (its swatch is the
@@ -586,28 +611,35 @@ until they exist.
   Clay. **Sage, Lake and Clay are wall-paint swatches only, never UI
   colours** (Lake `#8b9ea3` and Clay `#b5785f` are PROPOSED, pending Nathan's
   approval on the contact sheet). Warm Bronze appears as a swatch with its
-  name beside it, never text on it. The deck only appears once the WebGL
-  painter has drawn; the colour carries through every stage.
-- **Motion (the reveal and the settle):** one WebGL canvas draws the frame
-  showing and, while a piece arrives, the next frame over it, revealed ONLY
-  inside that piece's change mask by a soft, noisy, feathered front shaped by
-  its manifest `motion`: `sweep` (soft wipe along the box's long axis, trim,
-  mouldings) and `unroll` (the same with a tighter edge, the rug), `drop`
-  (falls from the top of its box, curtains, art), `rise` (comes up from the
-  bottom), `slide-left`/`slide-right` (comes in from its side), `pop` (grows
-  from the box centre, styling). The shader also settles the piece into place:
-  slides move about 2.5% of the frame across, drop and rise about 2% down or
-  up, pop scales 97% to 100% round the box centre. 750ms each,
-  `cubic-bezier(0.23, 1, 0.32, 1)`. Driven by an IntersectionObserver on the
-  captions (no scroll listener, so Lenis and native scroll behave the same):
-  when caption k becomes current the room plays every piece up to stage k's
-  last, one after another, pieces of the same stage overlapping (each starts
-  45% into the one before); stage k's caption is current once it passes the
-  reading line (mid screen on a laptop, 70% down on a phone). Scrolling back
-  jumps straight to the right frame with a quick 200ms crossfade, never a
-  reverse animation. A piece never starts before its frame and masks have
-  decoded (the room holds on what it shows). Idle, nothing runs. Reduced
-  motion: every change is an instant frame swap, and a chip change is instant.
+  name beside it, never text on it. The deck appears once the WebGL
+  painter has drawn and then stays, at every point of the build (it repaints
+  the empty room too; its space is reserved meanwhile, so nothing moves); the
+  colour carries through every stage.
+- **Motion (the scrub, the reveal and the settle):** how far the visitor is
+  along the track (0..1) becomes a BUILD POSITION from 0 (the empty room) to
+  the last frame (`scrubPosition` in `src/lib/room-story.ts`): the first and
+  last 6% of the track rest on the empty and the finished room, every piece
+  takes the same length of scroll, and the end of each beat but the last rests
+  for 0.6 of a piece so its caption reads. The whole number is the frame
+  showing; the fraction is how far the next piece has come in. One WebGL canvas
+  draws that frame and, over it, the next frame revealed ONLY inside that
+  piece's change mask by a soft, noisy, feathered front shaped by its manifest
+  `motion`: `sweep` (soft wipe along the box's long axis, trim, mouldings) and
+  `unroll` (the same with a tighter edge, the rug), `drop` (falls from the top
+  of its box, curtains, art), `rise` (comes up from the bottom),
+  `slide-left`/`slide-right` (comes in from its side), `pop` (grows from the
+  box centre, styling). The shader also settles the piece into place as it
+  comes: slides move about 2.5% of the frame across, drop and rise about 2%
+  down or up, pop scales 97% to 100% round the box centre, all eased by
+  smoothstep of the fraction. Scrolling back runs the same states backwards;
+  stopping stops it (a mouse wheel's steps are eased over about 90ms, then
+  nothing moves). Native scroll only: a passive scroll listener read once per
+  animation frame, attached only while the track is near the screen; the page
+  is never moved, snapped or hijacked. A frame is drawn only once its photo
+  and masks have decoded; until then the room holds on the nearest one that
+  has. Idle, nothing runs. **Reduced motion:** no in-between states; the build
+  snaps to whole frames (switching half-way through each piece's stretch of
+  scroll), and a chip change is instant.
 - **Paint over whole frames:** a chip rolls its colour onto the walls from the
   left with a noisy front (~900ms) over whatever frames are showing; each
   frame is painted with ITS OWN wall mask, and one wall median for the whole
@@ -615,9 +647,11 @@ until they exist.
   `src/scripts/room-painter.ts`), so a new piece arrives already standing in
   the chosen colour. The chip survives every frame and every room tab.
 - **No WebGL** (none, a failed shader, a lost context): the frames are a
-  stack of `<img>`s that switch by a 400ms whole-frame opacity crossfade (the
-  new frame fades in over the old; going back, the frames above fade away; no
-  fade under reduced motion), and the chips stay hidden.
+  stack of `<img>`s crossfaded by the SAME build position: frames up to the
+  whole number are on, the next one's opacity is the fraction (whole frames
+  only under reduced motion), a frame not yet decoded stays off; the finished
+  frame is the permanent underlay and comes to the top only when it is shown.
+  The chips go away.
 - **WebGL on the home page** (Nathan, 2026-09-30) reverses the design
   debate's "CSS/SVG only, no WebGL" and "no more craft devices" rulings for
   this one section (addendum in `docs/design/2026-09-30-design-debate.md`).

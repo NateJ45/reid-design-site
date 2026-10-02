@@ -11,28 +11,16 @@
   },
   "stages": [
     {
-      "id": "shell",
-      "caption": "Before any furniture, the room gets its bones: crown moulding, taller baseboards and a wider window frame."
-    },
-    {
-      "id": "anchor",
-      "caption": "Then the anchors: a rug that sets the scale, and a sofa that fits the room without hiding the big wall."
-    },
-    {
-      "id": "function",
-      "caption": "Tables and a lamp come next, so there is a place to set a mug and a soft light for the evenings."
+      "id": "bones",
+      "caption": "Start with the bones: crown moulding, a rug that sets the scale, and a sofa that fits without hiding the big wall."
     },
     {
       "id": "comfort",
-      "caption": "A chair to angle toward the conversation, and curtains that finish the windows."
-    },
-    {
-      "id": "personal",
-      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture."
+      "caption": "Then what makes it easy to live in: a table for the mug, a lamp for the evenings, a chair angled toward the conversation, and curtains that finish the windows."
     },
     {
       "id": "finish",
-      "caption": "Then the small things that make it feel lived in: olive branches, books and a soft throw."
+      "caption": "Last, what makes it yours: art hung low on the big wall, olive branches, books and a soft throw."
     }
   ],
   "frames": [
@@ -42,7 +30,7 @@
     },
     {
       "id": "trim",
-      "stage": "shell",
+      "stage": "bones",
       "image": "frame-1.jpg",
       "wall": "wall-1.png",
       "change": "change-1.png",
@@ -51,7 +39,7 @@
     },
     {
       "id": "rug",
-      "stage": "anchor",
+      "stage": "bones",
       "image": "frame-2.jpg",
       "wall": "wall-2.png",
       "change": "change-2.png",
@@ -60,7 +48,7 @@
     },
     {
       "id": "sofa",
-      "stage": "anchor",
+      "stage": "bones",
       "image": "frame-3.jpg",
       "wall": "wall-3.png",
       "change": "change-3.png",
@@ -69,7 +57,7 @@
     },
     {
       "id": "coffee-table",
-      "stage": "function",
+      "stage": "comfort",
       "image": "frame-4.jpg",
       "wall": "wall-4.png",
       "change": "change-4.png",
@@ -78,7 +66,7 @@
     },
     {
       "id": "side-table-lamp",
-      "stage": "function",
+      "stage": "comfort",
       "image": "frame-5.jpg",
       "wall": "wall-5.png",
       "change": "change-5.png",
@@ -105,7 +93,7 @@
     },
     {
       "id": "art",
-      "stage": "personal",
+      "stage": "finish",
       "image": "frame-8.jpg",
       "wall": "wall-8.png",
       "change": "change-8.png",

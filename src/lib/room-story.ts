@@ -3,9 +3,10 @@
 // room-story: the pure half of the home page's concept room (added 2026-09-30)
 // =============================================================================
 // The concept room (src/components/home/RoomStory.astro) is a labelled,
-// AI-generated sample room. It starts EMPTY and fills up piece by piece as the
-// visitor scrolls past short captions, while a deck of paint chips repaints
-// its walls in WebGL (src/scripts/room-painter.ts).
+// AI-generated sample room. It starts EMPTY and fills up piece by piece, the
+// build following the visitor's scroll position both ways (the scrub,
+// 2026-10-02), while a deck of paint chips repaints its walls in WebGL
+// (src/scripts/room-painter.ts).
 //
 // Its pictures are NOT in Sanity. The authoring tools in tools/room-lab/
 // publish them into src/assets/room/<folder>/ with a manifest.json. This
@@ -301,6 +302,100 @@ export function stageFrames(m: RoomManifest): number[] {
     return frame;
   });
 }
+
+// -----------------------------------------------------------------------------
+// The scrub (2026-10-02): scroll position drives the build, both directions
+// -----------------------------------------------------------------------------
+// The section is a tall track with the room pinned inside it. How far the
+// visitor is along that track (0..1, trackProgress) becomes a BUILD POSITION
+// pos in [0, n], n = the last frame (scrubPosition): the integer part is the
+// frame showing, the fraction is how far the next piece has come in. Scroll
+// slowly and a piece slides in as you go; stop and it stops; scroll back and
+// it slides out. Nothing here touches the DOM.
+
+/** Pinned track height, in svh (one constant: the CSS reads the same number). */
+export const SCRUB_TRACK_SVH = 300;
+/** Share of the track at EACH end where the room rests (empty, then finished). */
+export const SCRUB_DWELL = 0.06;
+/** A rest at the end of each beat but the last, in piece-lengths, so its caption reads. */
+export const SCRUB_BEAT_REST = 0.6;
+
+const clamp01 = (v: number) => (v > 0 ? (v < 1 ? v : 1) : 0);
+
+/**
+ * How far along the pinned track the visitor is, 0..1, from plain geometry:
+ * the track's top relative to the screen, its height, the pinned stage's
+ * height and where the stage pins (its CSS `top`). 0 the moment the stage
+ * pins, 1 the moment it lets go. A track no taller than its stage gives 1
+ * once its top passes the pin line, 0 before.
+ */
+export function trackProgress(
+  trackTop: number,
+  trackHeight: number,
+  stageHeight: number,
+  pinTop: number,
+): number {
+  const travel = trackHeight - stageHeight;
+  const past = pinTop - trackTop;
+  if (!(travel > 0)) return past >= 0 ? 1 : 0;
+  return clamp01(past / travel);
+}
+
+/**
+ * Track progress (0..1) to a build position in [0, n]. The first and last
+ * `dwell` of the track hold the empty and the finished room; between them every
+ * piece takes the same length of scroll, and the end of every beat but the last
+ * (`ends`, from stageFrames) holds for `rest` piece-lengths. Monotonic, so
+ * scrolling back always runs the build backwards through the same states.
+ */
+export function scrubPosition(
+  progress: number,
+  n: number,
+  ends: readonly number[] = [],
+  dwell = SCRUB_DWELL,
+  rest = SCRUB_BEAT_REST,
+): number {
+  if (!(n > 0)) return 0;
+  const span = 1 - 2 * dwell;
+  const u = span > 0 ? clamp01((progress - dwell) / span) : clamp01(progress);
+  // Rests sit right after these frames (each beat's last, but not the room's last).
+  const stops = [...new Set(ends)].filter((e) => e > 0 && e < n).sort((a, b) => a - b);
+  let left = u * (n + stops.length * rest);
+  let pos = 0;
+  for (const stop of stops) {
+    const run = stop - pos;
+    if (left <= run) return pos + left;
+    left -= run;
+    pos = stop;
+    if (left <= rest) return pos;
+    left -= rest;
+  }
+  return Math.min(n, pos + left);
+}
+
+/**
+ * The beat (stage index) current at build position `pos`: the stage of the
+ * piece arriving, or of the piece that just landed when pos is a whole
+ * number. Before any piece (pos 0) that is the first beat; at the end, the
+ * last. `ends` is stageFrames() for the room.
+ */
+export function beatAt(pos: number, ends: readonly number[]): number {
+  if (!ends.length) return -1;
+  const piece = Math.max(1, Math.ceil(pos - 1e-6));
+  const k = ends.findIndex((e) => e >= piece);
+  return k < 0 ? ends.length - 1 : k;
+}
+
+/** Where each beat ends along the progress rule, as fractions 0..1 of the build. */
+export function beatTicks(ends: readonly number[], n: number): number[] {
+  return n > 0 ? ends.map((e) => clamp01(e / n)) : [];
+}
+
+/**
+ * Reduced motion: no in-between states. The build snaps to whole frames,
+ * switching at the middle of each piece's stretch of scroll.
+ */
+export const snapPosition = (pos: number): number => Math.round(pos);
 
 // -----------------------------------------------------------------------------
 // The paint deck

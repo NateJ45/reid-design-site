@@ -4,6 +4,10 @@ import {
   CONCEPT_ALT_PREFIX,
   ROOM_CHIPS,
   ROOM_MOTIONS,
+  SCRUB_DWELL,
+  SCRUB_TRACK_SVH,
+  beatAt,
+  beatTicks,
   hexToLinear,
   linearToHex,
   parseRoomIndex,
@@ -11,8 +15,11 @@ import {
   roomAnnouncement,
   roomFiles,
   roomFolder,
+  scrubPosition,
+  snapPosition,
   srgbToLinear,
   stageFrames,
+  trackProgress,
 } from './room-story';
 
 const frame = (n: number, over: Record<string, unknown> = {}) => ({
@@ -205,6 +212,96 @@ describe('stageFrames', () => {
       }),
     )!;
     expect(stageFrames(m)).toEqual([0, 1, 1, 2]);
+  });
+});
+
+describe('the scrub (scroll position drives the build)', () => {
+  // The living room's shape: ten pieces in three beats (bones, comfort, finish).
+  const ends = [3, 7, 10];
+  const n = 10;
+
+  it('trackProgress: 0 when the stage pins, 1 when it lets go, clamped outside', () => {
+    // Track 3000 tall, stage 700 tall, pinned 100 from the top: 2300 of travel.
+    expect(trackProgress(500, 3000, 700, 100)).toBe(0);
+    expect(trackProgress(100, 3000, 700, 100)).toBe(0);
+    expect(trackProgress(100 - 1150, 3000, 700, 100)).toBeCloseTo(0.5);
+    expect(trackProgress(100 - 2300, 3000, 700, 100)).toBe(1);
+    expect(trackProgress(-9000, 3000, 700, 100)).toBe(1);
+    // A track no taller than its stage: a step at the pin line.
+    expect(trackProgress(101, 700, 700, 100)).toBe(0);
+    expect(trackProgress(99, 700, 700, 100)).toBe(1);
+  });
+
+  it('scrubPosition: the ends rest on the empty and the finished room', () => {
+    expect(scrubPosition(0, n, ends)).toBe(0);
+    expect(scrubPosition(SCRUB_DWELL / 2, n, ends)).toBe(0);
+    expect(scrubPosition(1, n, ends)).toBe(n);
+    expect(scrubPosition(1 - SCRUB_DWELL / 2, n, ends)).toBe(n);
+    expect(scrubPosition(-1, n, ends)).toBe(0);
+    expect(scrubPosition(2, n, ends)).toBe(n);
+  });
+
+  it('scrubPosition: monotonic, continuous, and passes through every frame', () => {
+    let last = -1;
+    const seen = new Set<number>();
+    for (let i = 0; i <= 2000; i++) {
+      const pos = scrubPosition(i / 2000, n, ends);
+      expect(pos).toBeGreaterThanOrEqual(last);
+      if (last >= 0) expect(pos - last).toBeLessThan(0.02);
+      last = pos;
+      seen.add(Math.round(pos * 100) / 100);
+    }
+    for (let f = 0; f <= n; f++) expect(seen.has(f)).toBe(true);
+  });
+
+  it('scrubPosition: each beat but the last ends with a rest', () => {
+    // Somewhere in the middle the position sits exactly on frame 3 (and 7)
+    // for a stretch of scroll, while never sitting still on frame 5.
+    const hold = (frame: number) => {
+      let count = 0;
+      for (let i = 0; i <= 1000; i++) if (scrubPosition(i / 1000, n, ends) === frame) count++;
+      return count;
+    };
+    expect(hold(3)).toBeGreaterThan(10);
+    expect(hold(7)).toBeGreaterThan(10);
+    expect(hold(5)).toBeLessThanOrEqual(1);
+    // Without beats there are no rests: plain linear between the dwells.
+    expect(scrubPosition(0.5, n)).toBeCloseTo(5);
+  });
+
+  it('scrubPosition: no frames, no build', () => {
+    expect(scrubPosition(0.5, 0, [])).toBe(0);
+  });
+
+  it('beatAt: the beat of the piece arriving, or of the one that just landed', () => {
+    expect(beatAt(0, ends)).toBe(0);
+    expect(beatAt(0.4, ends)).toBe(0);
+    expect(beatAt(3, ends)).toBe(0);
+    expect(beatAt(3.01, ends)).toBe(1);
+    expect(beatAt(7, ends)).toBe(1);
+    expect(beatAt(7.5, ends)).toBe(2);
+    expect(beatAt(10, ends)).toBe(2);
+    expect(beatAt(99, ends)).toBe(2);
+    // A beat with no pieces of its own is never current.
+    expect(beatAt(0.5, [0, 1, 1, 2])).toBe(1);
+    expect(beatAt(1.5, [0, 1, 1, 2])).toBe(3);
+    expect(beatAt(1, [])).toBe(-1);
+  });
+
+  it('beatTicks: each beat end as a fraction of the build', () => {
+    expect(beatTicks(ends, n)).toEqual([0.3, 0.7, 1]);
+    expect(beatTicks(ends, 0)).toEqual([]);
+  });
+
+  it('snapPosition: whole frames only, switching mid-piece', () => {
+    expect(snapPosition(2.2)).toBe(2);
+    expect(snapPosition(2.6)).toBe(3);
+    expect(snapPosition(10)).toBe(10);
+  });
+
+  it('the track constant matches the CSS', () => {
+    const css = readFileSync('src/components/home/RoomStage.astro', 'utf8');
+    expect(css).toContain(`--room-track: ${SCRUB_TRACK_SVH}svh`);
   });
 });
 
