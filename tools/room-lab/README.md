@@ -79,6 +79,10 @@ A piece with an empty mask fails loudly: redo it. If SegFormer calls a rug "floo
 
 Resizing or blurring a 1-channel raw buffer can come back with THREE channels. Always `.extractChannel(0)` before `.raw()` when you expect one channel, or the mask comes out as horizontal stripes. Every mask path in this kit does it.
 
+## The published wall masks (2026-10-03)
+
+`room:publish` makes each frame's `wall-N.png` itself: SegFormer's wall label with the trim passes, the thin-feature filter against the empty room, then `lib/wallrefine.mjs`, which re-decides the uncertain band along every edge at the frame's own width (unmixing each pixel between the local wall colour and the local non-wall colour), takes back wide shadow strips the empty room had as wall, and fills the speckle. Masks are written at the frame width, not 1024. Check a new room with `room:preview` and by painting the finished frame in a dark chip (Espresso) and a light one (Linen) at 100 percent: look at leaf edges, the top of the sofa, curtain edges and rods, crown and baseboards. Constants (`BAND`, `SIG`, `OPEN` and the shadow thresholds) are at the top of `lib/wallrefine.mjs`.
+
 ## Walls on other generated images
 
 `npm run room:walls -- --in <dir> --out <dir>` runs on any folder of GENERATED images. `--ceiling` adds the ceiling label. Do not point it at real photos (see the rule at the top).

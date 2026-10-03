@@ -7,7 +7,8 @@
 //
 // Writes into src/assets/room/<slug>/:
 //   frame-N.jpg    the room after N pieces (frame-0 is empty), mozjpeg q90, full width
-//   wall-N.png     greyscale 1024 wide: paintable wall IN THAT FRAME (SegFormer, trim removed)
+//   wall-N.png     greyscale, frame width: paintable wall IN THAT FRAME (SegFormer, trim removed,
+//                  edges re-decided at full resolution by lib/wallrefine.mjs)
 //   change-N.png   greyscale 1024 wide, soft: where frame N differs from frame N-1 (N >= 1)
 //   manifest.json  { version: 3, width, height, wallMedianLinear, base, final, stages, frames }
 // One wallMedianLinear for the whole room (the empty room's), so paint looks the same on every
@@ -22,6 +23,7 @@ import sharp from 'sharp';
 import { DEST, ROOMS_DIR, FINAL, loadSpec, loadIndex } from './lib/paths.mjs';
 import { prettyJson } from './lib/json.mjs';
 import { loadSegmenter, segment } from './lib/wallmask.mjs';
+import { refineWall } from './lib/wallrefine.mjs';
 
 const spec = await loadSpec();
 const W = spec.width;
@@ -47,6 +49,14 @@ if (problems.length) {
 }
 
 await mkdir(DEST, { recursive: true });
+// Wall masks are written at the frame's own width (they were 1024 wide before 2026-10-03, which
+// softened every edge); change masks stay 1024 wide (soft by design).
+const greyFull = (buf, dest) =>
+  sharp(buf, { raw: { width: W, height: H, channels: 1 } })
+    .extractChannel(0)
+    .toColourspace('b-w')
+    .png()
+    .toFile(join(DEST, dest));
 const grey1024 = (buf, dest) =>
   sharp(buf, { raw: { width: W, height: H, channels: 1 } })
     .resize({ width: 1024 })
@@ -56,6 +66,7 @@ const grey1024 = (buf, dest) =>
     .toFile(join(DEST, dest));
 
 const segmenter = await loadSegmenter();
+let wall0 = null; // the refined empty-room mask, the prior for every later frame
 const empty = await sharp(join(FINAL, 'frame-0.png')).removeAlpha().raw().toBuffer();
 const frames = [];
 for (let n = 0; n <= N; n++) {
@@ -101,7 +112,13 @@ for (let n = 0; n <= N; n++) {
     const opened = await sharp(eroded, { raw: { width: W, height: H, channels: 1 } }).blur(5).extractChannel(0).raw().toBuffer();
     for (let p = 0; p < W * H; p++) if (odd[p] && opened[p] < 20) wall[p] = 0;
   }
-  await grey1024(wall, `wall-${n}.png`);
+  // Re-decide the uncertain band along every edge at full resolution (lib/wallrefine.mjs): the
+  // coarse mask above is soft and out by up to ~10 px, which painted as halos and patches.
+  // Every later frame also takes back wide shadow strips the empty room had as wall.
+  const rgbNow = n > 0 ? await sharp(src).removeAlpha().raw().toBuffer() : empty;
+  const refined = await refineWall(rgbNow, wall, W, H, n > 0 ? wall0 : null);
+  if (n === 0) wall0 = refined;
+  await greyFull(refined, `wall-${n}.png`);
   if (n === 0) {
     frames.push({ image: 'frame-0.jpg', wall: 'wall-0.png' });
     console.log('frame-0 (empty room)');
