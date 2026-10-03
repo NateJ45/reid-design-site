@@ -27,6 +27,8 @@ gh pr merge --auto --merge
 
 `--auto` is allowed on this repo: GitHub merges the PR by itself once the three checks pass.
 
+2026-10-03: staging abandoned; main is the only branch. A merged PR is the production deploy.
+
 When the merge lands, Cloudflare detects the push to `main`, runs `npm run build` in their CI, and deploys the resulting `dist/` to the Worker. Takes ~1–2 minutes. Watch in the Cloudflare dashboard under Workers → reid-design-site → Deployments.
 
 **Verify a deploy landed:**
@@ -316,7 +318,7 @@ Then `node scripts/your-script.mjs`.
 
 ## Run Lighthouse / performance audits
 
-The site currently scores 100/100/100/100 on every category for mobile + desktop (see CLAUDE.md → Performance budgets). If a regression is suspected:
+The site currently scores 100/100/100/100 on every category for mobile + desktop (see docs/agent/performance.md). If a regression is suspected:
 
 ```bash
 # Build locally to check bundle sizes
@@ -341,14 +343,14 @@ Note: the MCP lighthouse_audit only returns Accessibility / BP / SEO / Agentic. 
 
 ### Common diagnostic findings (most are unscored)
 
-| Lighthouse flag                              | What it's actually saying                                              | Fix                                                                                                                                                               |
-| -------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| "Reduce unused JavaScript"                   | React + Astro runtime has unreachable error-handling branches          | Unavoidable without Preact swap. Accept.                                                                                                                          |
-| "Improve image delivery: Est savings X KiB"  | Loaded files are slightly bigger than display needs                    | Tighten srcset breakpoints if X > 100 KiB. Otherwise theoretical.                                                                                                 |
-| "Avoid long main-thread tasks (78 ms found)" | Radix Sheet hydration on `MobileNav`                                   | Fires after LCP/FCP. Real-user INP is fine. Accept.                                                                                                               |
-| "Render-blocking SanityImage.css (18 KiB)"   | The whole Tailwind output is chunked under that name                   | Extracting critical CSS is high effort for marginal LCP benefit at our current scores. Skip.                                                                      |
-| "Uses third-party cookies (sanitySession)"   | Sanity CDN sets a session cookie                                       | `crossorigin="anonymous"` BREAKS Sanity images. Skip.                                                                                                             |
-| "No CSP"                                     | (Historical) there is now a full CSP in `public/_headers` (2026-09-29) | Don't enable Astro's `security.csp`: ClientRouter's runtime inline scripts get blocked. A new third-party origin needs a grant in `_headers` (CLAUDE.md rule 12). |
+| Lighthouse flag                              | What it's actually saying                                              | Fix                                                                                                                                                                                                                        |
+| -------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Reduce unused JavaScript"                   | React + Astro runtime has unreachable error-handling branches          | Unavoidable without Preact swap. Accept.                                                                                                                                                                                   |
+| "Improve image delivery: Est savings X KiB"  | Loaded files are slightly bigger than display needs                    | Tighten srcset breakpoints if X > 100 KiB. Otherwise theoretical.                                                                                                                                                          |
+| "Avoid long main-thread tasks (78 ms found)" | Radix Sheet hydration on `MobileNav`                                   | Fires after LCP/FCP. Real-user INP is fine. Accept.                                                                                                                                                                        |
+| "Render-blocking SanityImage.css (18 KiB)"   | The whole Tailwind output is chunked under that name                   | Extracting critical CSS is high effort for marginal LCP benefit at our current scores. Skip.                                                                                                                               |
+| "Uses third-party cookies (sanitySession)"   | Sanity CDN sets a session cookie                                       | `crossorigin="anonymous"` BREAKS Sanity images. Skip.                                                                                                                                                                      |
+| "No CSP"                                     | (Historical) there is now a full CSP in `public/_headers` (2026-09-29) | Don't enable Astro's `security.csp`: ClientRouter's runtime inline scripts get blocked. A new third-party origin needs a grant in `_headers` (CLAUDE.md rule 12; full text in .claude/rules/config-headers-and-public.md). |
 
 ---
 
@@ -419,7 +421,7 @@ For full-field annotations (where the entire field IS the bracketed placeholder)
 | (Historical) Theme reverts to light after clicking a nav link                                                          | View Transitions reset html className on swap                                                                                             | The anti-FOUC script in BaseLayout listens for `astro:after-swap` and re-applies. Don't remove that listener. (The site is light only since 2026-09-29, so there is no dark to lose; the listener still matters for the logo src and would matter again if dark returns.) |
 | Footer logo renders broken / empty                                                                                     | Footer is below first paint, head script ran before footer img existed in DOM                                                             | Same anti-FOUC script has a `DOMContentLoaded` listener for exactly this. Don't remove.                                                                                                                                                                                   |
 | Sanity image broken with CORS error                                                                                    | `crossorigin="anonymous"` was added to a `<img>` pointing at `cdn.sanity.io`                                                              | Remove the `crossorigin` attribute. Sanity CDN doesn't send Access-Control-Allow-Origin headers.                                                                                                                                                                          |
-| Inline scripts blocked, theme/polish all break                                                                         | Someone enabled `security.csp` in `astro.config.mjs`                                                                                      | Remove the config block. See CLAUDE.md → Stack → Astro config don'ts.                                                                                                                                                                                                     |
+| Inline scripts blocked, theme/polish all break                                                                         | Someone enabled `security.csp` in `astro.config.mjs`                                                                                      | Remove the config block. See docs/agent/stack-and-config.md (Astro config don'ts).                                                                                                                                                                                        |
 | Logo renders squished (e.g. 42×100 instead of 95×100)                                                                  | width/height attributes on the `<img>` don't match the actual file dimensions                                                             | Make sure `<Image width={X} height={Y}>` (or the data-attribute URL pre-render) uses dimensions matching the source's intrinsic aspect ratio (378:400 for the current Reid Design logo).                                                                                  |
 | `text-link` className override on white BG doesn't work                                                                | Tailwind v4 sorts utilities alphabetically; `text-link` beats `text-bg` later in the cascade                                              | Add a component prop (like `CtaLink`'s `onDark`) instead of trying to override via className.                                                                                                                                                                             |
 | Eyebrow text fails Lighthouse contrast on light mode                                                                   | `text-foreground/65` on Soft Linen = ~3.6:1 (fails AA)                                                                                    | Bump to `text-foreground/80` (~5.4:1, passes). The codebase has been swept; don't add new `/65` instances on muted/background surfaces.                                                                                                                                   |
@@ -437,7 +439,7 @@ For full-field annotations (where the entire field IS the bracketed placeholder)
 
 ```bash
 # Find every <img> in the codebase
-# (Sanity-sourced imgs are flagged in CLAUDE.md → Image handling; local ones use Astro <Image>)
+# (Sanity-sourced imgs are flagged in docs/agent/images.md; local ones use Astro <Image>)
 grep -rn '<img' src/
 
 # Find every client: directive (Astro hydration audit)
@@ -460,7 +462,7 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 1. **Check the deployed workers URL first**, not localhost, the bug might already be fixed and just hasn't been redeployed.
 2. **Open Chrome DevTools and check Console + Network** most of the "weird" bugs in this codebase have been either CSP violations, CORS issues, or theme/View Transitions interaction. All show up loudly in DevTools.
-3. **Read CLAUDE.md → relevant section** before changing anything. The non-obvious fixes are documented; reverting them tends to re-break the same bugs.
+3. **Read CLAUDE.md, then the matching `.claude/rules/*.md` or `docs/agent/*.md`** before changing anything. The non-obvious fixes are documented; reverting them tends to re-break the same bugs.
 4. **Run `npm run build` locally** Astro's build output catches a lot (missing imports, schema mismatches, image-pipeline errors).
 5. **Diff against the last known-good commit** `git log --oneline -20` then `git diff <hash>..HEAD -- src/path`.
 
