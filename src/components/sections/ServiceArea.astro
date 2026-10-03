@@ -108,8 +108,7 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
                   <li class="sa__tier">
                     <div class="sa__clocks" data-faces={shown.length}>
                       {shown.map((minutes, f) => {
-                        // The hand rests only on the last face: the full
-                        // hours before it sweep round, then hand over.
+                        // Every face keeps its hand; a full hour rests at 12.
                         const last = f === shown.length - 1;
                         // Timing: each face starts when the one before it
                         // finishes; a face takes its share of an hour.
@@ -291,10 +290,6 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     transform-origin: 50px 62px;
     rotate: calc(var(--m) * 6deg);
   }
-  /* A full hour face rests filled, with no hand. */
-  .sa__clock.is-full .sa__hand {
-    opacity: 0;
-  }
   /* The hour faces for one tier, side by side. */
   .sa__clocks {
     display: flex;
@@ -339,10 +334,6 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     .sa__tiers[data-sweep] .sa__hand {
       animation: sa-hand var(--dur) linear var(--delay) both;
     }
-    /* A full face's hand shows only while it sweeps, then hands over. */
-    .sa__tiers[data-sweep] .sa__clock.is-full .sa__hand {
-      animation-name: sa-hand-pass;
-    }
     .sa__tiers[data-sweep]:not([data-on]) :is(.sa__fill, .sa__hand) {
       animation-play-state: paused;
     }
@@ -355,19 +346,6 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
   @keyframes sa-hand {
     from {
       rotate: 0deg;
-    }
-  }
-  @keyframes sa-hand-pass {
-    from {
-      rotate: 0deg;
-      opacity: 1;
-    }
-    99% {
-      opacity: 1;
-    }
-    to {
-      rotate: 360deg;
-      opacity: 0;
     }
   }
 

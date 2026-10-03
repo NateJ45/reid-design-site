@@ -1,7 +1,8 @@
 // Foundation, edit with care
 // =============================================================================
 // room-painter: the concept room's WebGL renderer (added 2026-09-30; whole
-// frames, manifest v3, the same day)
+// frames, manifest v3, the same day; scroll scrub, 2026-10-02; the paint
+// deck removed, 2026-10-03)
 // =============================================================================
 // Hand-written WebGL1, no library. Loaded with a dynamic import() by the
 // RoomStage script only when the section is about a screen away, so it costs
@@ -9,90 +10,101 @@
 // the build; see docs/agent/performance.md).
 //
 // WHAT IT DRAWS. Every step of the room's build is one COMPLETE photo (a
-// "frame"). The canvas shows one frame, A, and while pieces arrive, up to two
-// more: B and C, each the complete room with one more piece. The shader paints
-// the walls of EACH frame with that frame's own wall mask, then mixes:
+// "frame"). The page hands the painter a BUILD POSITION, pos in [0, n]
+// (setProgress), worked out from how far the visitor has scrolled along the
+// pinned track (src/lib/room-story.ts, scrubPosition). The canvas shows frame
+// A = floor(pos) and, while the fraction t = pos - A is above zero, frame
+// B = A + 1 coming in over it:
 //
-//   out = mix(mix(painted A, painted B', revealB), painted C', revealC)
-//   reveal = change(uv') * r(t)
+//   out    = mix(A, B', reveal)
+//   reveal = change(uv') * r(e),  e = smoothstep(t)
 //
-// `change` is the frame's greyscale "where I differ from the frame before"
-// mask, so outside it A shows untouched and nothing can pop. r(t) is a soft,
-// noisy front shaped by the piece's motion (sweep/unroll wipe along the box's
-// long axis, drop falls from the top of the box, rise comes up from the
-// bottom, slide comes in from its side, pop grows from the box centre), and
-// B' is B sampled at uv' = uv + offset * (1 - ease(t)): the settle into place
-// (slide ~2.5% of the frame across, drop/rise ~2% down/up, pop 97% to 100%
-// round the box centre). Each piece takes 750ms, eased
-// cubic-bezier(0.23, 1, 0.32, 1). When B lands it BECOMES A (its textures are
-// kept, never re-uploaded) and C becomes B.
+// `change` is B's greyscale "where I differ from the frame before" mask, so
+// outside it A shows untouched and nothing can pop. r(e) is a soft, noisy
+// front shaped by the piece's motion (sweep/unroll wipe along the box's long
+// axis, drop falls from the top of the box, rise comes up from the bottom,
+// slide comes in from its side, pop grows from the box centre), and B' is B
+// sampled at uv' = uv + offset * (1 - e): the settle into place (slide ~2.5%
+// of the frame across, drop/rise ~2% down/up, pop 97% to 100% round the box
+// centre). Scroll on and the piece comes in; stop and it stops part-way;
+// scroll back and it goes out the way it came. At t = 1 B is whole, which is
+// exactly frame A + 1 with t = 0, so crossing a piece boundary never jumps.
 //
-// THE PAINT keeps the photo's own light and shadow. All maths in linear light:
+// THE PAINT (the swatches, 2026-10-03). Only the FINISHED frame has a wall
+// mask (one, redrawn at full resolution and hand-corrected; manifest v5), so
+// paint is drawn only while the last frame shows whole, never mid-piece. The
+// maths keeps the photo's own light and shadow, in linear light:
 //   shade   = luma(px) / luma(median)
 //   tint    = mix(1, (px / luma(px)) / (median / luma(median)), 0.35)
 //   painted = chip * shade * tint
-//   out     = mix(px, painted, wall * paintAmount)
-// `median` is ONE wall median for the whole room (manifest), so the paint is
-// identical from frame to frame. A chip change rolls the new colour on from
-// the left with a noisy front (~900ms), over whatever frames are showing.
+//   out     = mix(px, painted, wall)
+// A swatch change rolls the new colour on from the left with a noisy front
+// (900 ms, time-based); reduced motion swaps it at once. (The old deck, with a
+// mask per frame, was removed earlier the same day for bad edges.)
 //
-// SCHEDULING (go(frame)): going forward queues every frame up to the target
-// and plays them one after another; pieces of the SAME stage overlap, each
-// starting 45% into the one before (two may be in flight: a third lands the
-// oldest, which by then is ~90% done and visually home). Going back lands
-// whatever is in flight and crossfades straight to the target in 200ms, no
-// reverse animation. A piece never starts before its frame, wall and change
-// have decoded; until then the room holds on what it shows. Reduced motion:
-// every change is an instant swap, and so is a chip. The rAF loop runs only
-// while something moves and stops dead when it lands.
+// SMOOTHING. A mouse wheel moves the page in steps, so the position shown
+// eases toward the position asked for (about 90 ms to close most of the gap)
+// and stops dead once it arrives. Reduced motion: no in-between states at all;
+// the position snaps to whole frames (room-story.ts, snapPosition) and lands
+// at once.
+//
+// RENDERING ON DEMAND. Nothing runs while idle: a draw is requested (one
+// requestAnimationFrame, coalesced) when the position changes, a frame
+// decodes or the canvas resizes, and the loop ends as soon as the picture has
+// caught up.
+//
+// NEVER AN EMPTY BOX. A frame is drawn only once its photo and change mask
+// have decoded. Until then the painter holds on the nearest frame below that
+// has (or above, if none below has), with no piece in flight.
 //
 // Textures: the page's own frame <img>s (whatever currentSrc their <picture>
-// chose), so the painter downloads no photo the page does not; the masks are
-// fetched as Image()s, same origin (CSP img-src 'self'), no workers, no blobs.
-// Three texture sets (frame, wall, change) are made once and reused for the
-// life of the painter, and setRoom() swaps rooms in the SAME context, so
-// switching rooms never creates a GL context (tests/room-story.spec.ts counts
-// them). The chip in force carries over.
+// chose), so the painter downloads no photo the page does not; the change
+// masks are fetched as Image()s, same origin (CSP img-src 'self'), no workers,
+// no blobs. FOUR texture sets (photo, change) are made once and reused for the
+// life of the painter, holding the four frames used most recently, so
+// scrolling to and fro across a piece boundary uploads nothing; crossing into
+// a new piece uploads that one frame. setRoom() swaps rooms in the SAME
+// context, so switching rooms never creates a GL context
+// (tests/room-story.spec.ts counts them).
 //
 // Failure: createRoomPainter() returns null when there is no WebGL or a shader
 // fails to compile; `onLost` fires if the context is lost later. Either way
-// RoomStage falls back to crossfading the <img> stack and hides the chips.
+// RoomStage falls back to crossfading the <img> stack.
 // =============================================================================
 
 export interface PainterFrame {
   /** Arms and decodes this frame's <img> (memoised by the caller). */
   load(): Promise<HTMLImageElement>;
-  /** URL of the frame's wall mask. */
-  wall: string;
   /** URL of the frame's change mask, or null (frame 0). */
   change: string | null;
   /** The change's box as fractions [x, y, w, h], or null (frame 0). */
   box: [number, number, number, number] | null;
   /** Index into ROOM_MOTIONS, or -1 (frame 0). */
   motion: number;
-  /** Stage (caption) index, or -1 (frame 0). */
-  stage: number;
 }
 
 export interface PainterRoom {
   frames: PainterFrame[];
-  /** The room's one wall median, linear light. */
-  median: [number, number, number];
+  /** The finished frame's wall mask URL and median (linear), or null: no paint. */
+  wall: { url: string; median: [number, number, number] } | null;
   /** width / height of the frames. */
   aspect: number;
 }
 
 export interface RoomPainter {
-  /** Paint the walls this colour (linear rgb), or null for "As it is". */
-  setChip(linear: [number, number, number] | null): void;
-  /** Show this frame: play forward to it, or crossfade back to it. */
-  go(frame: number): void;
+  /**
+   * Paint the finished room's walls this colour (linear rgb), or null for the
+   * room as it is. Resolves true once the wall mask is in, false if it failed.
+   */
+  setChip(linear: [number, number, number] | null): Promise<boolean>;
+  /** Show build position `pos` in [0, frames - 1]: whole frames plus the next piece's share. */
+  setProgress(pos: number): void;
   /**
    * Switch to another room (the room tabs) in the SAME GL context, showing
-   * `frame` at once. Resolves true once drawn, false if its pictures failed,
-   * or null if a later setRoom() superseded it.
+   * build position `pos` at once. Resolves true once drawn, false if its
+   * pictures failed, or null if a later setRoom() superseded it.
    */
-  setRoom(room: PainterRoom, frame: number): Promise<boolean | null>;
+  setRoom(room: PainterRoom, pos: number): Promise<boolean | null>;
   /** Tear everything down (also frees the GL context). */
   destroy(): void;
 }
@@ -110,19 +122,19 @@ const VERT = `attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x,-p.y)*.5+.5
 
 // Fragment shader. Names are short on purpose (it ships as a string).
 // Motions: 0 sweep, 1 unroll, 2 slide-left, 3 slide-right, 4 rise, 5 drop,
-// 6 pop (ROOM_MOTIONS order), 7 plain crossfade (going back), <0 idle slot.
+// 6 pop (ROOM_MOTIONS order); below 0 = no piece in flight. The photos are
+// mixed as they are (sRGB bytes): the reveal is a soft matte, not lighting.
 const FRAG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
 precision mediump float;
 #endif
 varying vec2 v;
-uniform sampler2D fA,wA,fB,wB,cB,fC,wC,cC;
+uniform sampler2D fA,fB,cB,wA;
 uniform vec3 d,cO,cN;
-uniform float pO,pN,tC,ar;
-uniform vec4 bB,bC;
-uniform vec2 kB,kC;
-float rl;
+uniform float ar,pO,pN,tC,pw;
+uniform vec4 bB;
+uniform vec2 kB;
 float h(vec2 q){return fract(sin(dot(q,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 q){vec2 i=floor(q),g=fract(q);g=g*g*(3.-2.*g);
 return mix(mix(h(i),h(i+vec2(1,0)),g.x),mix(h(i+vec2(0,1)),h(i+1.),g.x),g.y);}
@@ -132,13 +144,9 @@ float lu(vec3 c){return dot(c,vec3(.2126,.7152,.0722));}
 vec3 paint(vec3 px,vec3 ch){
   float l=max(lu(px),1e-4),lm=max(lu(d),1e-4);
   return ch*(l/lm)*mix(vec3(1.),(px/l)/(d/lm),.35);}
-vec3 col(sampler2D f,sampler2D w,vec2 q){
-  vec3 px=lin(texture2D(f,q).rgb);float m=texture2D(w,q).r;
-  return mix(mix(px,paint(px,cO),m*pO),mix(px,paint(px,cN),m*pN),rl);}
 vec3 rev(vec4 b,vec2 k,sampler2D c){
   float e=k.x,m=k.y,u=1.-e,s,g=.07,a=.2;
   if(m<0.)return vec3(v,0.);
-  if(m>6.5)return vec3(v,e);
   vec2 q=v,z=(v-b.xy)/b.zw,o=b.xy+b.zw*.5;
   if(m<1.5){s=b.z*ar>b.w?z.x:z.y;g=m<.5?.12:.05;}
   else if(m<2.5){s=1.-z.x;q.x-=.025*u;}
@@ -149,50 +157,35 @@ vec3 rev(vec4 b,vec2 k,sampler2D c){
   float f=mix(-a*.5-g,1.+a*.5+g,e);
   return vec3(q,(1.-smoothstep(f-g,f+g,s+(n(v*vec2(ar,1.)*16.)-.5)*a))*texture2D(c,q).r);}
 void main(){
-  float fr=tC*1.3-.15;
-  rl=1.-smoothstep(fr-.025,fr+.025,v.x+(n(vec2(v.y*9.,tC*3.))-.5)*.16);
-  vec3 o=col(fA,wA,v),r=rev(bB,kB,cB);
-  if(r.z>0.)o=mix(o,col(fB,wB,r.xy),r.z);
-  r=rev(bC,kC,cC);
-  if(r.z>0.)o=mix(o,col(fC,wC,r.xy),r.z);
-  gl_FragColor=vec4(srgb(o),1.);}`;
+  vec3 o=texture2D(fA,v).rgb,r=rev(bB,kB,cB);
+  if(pw>0.){
+    vec3 px=lin(o);float m=texture2D(wA,v).r,fr=tC*1.3-.15,
+    rl=1.-smoothstep(fr-.025,fr+.025,v.x+(n(vec2(v.y*9.,tC*3.))-.5)*.16);
+    o=srgb(mix(mix(px,paint(px,cO),m*pO),mix(px,paint(px,cN),m*pN),rl));}
+  if(r.z>0.)o=mix(o,texture2D(fB,r.xy).rgb,r.z);
+  gl_FragColor=vec4(o,1.);}`;
 
-/** cubic-bezier(0.23, 1, 0.32, 1) as y(x), solved by bisection. */
-function ease(x: number): number {
-  const bz = (t: number, a: number, b: number) =>
-    3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
-  let lo = 0;
-  let hi = 1;
-  for (let k = 0; k < 20; k++) {
-    const mid = (lo + hi) / 2;
-    if (bz(mid, 0.23, 0.32) < x) lo = mid;
-    else hi = mid;
-  }
-  return bz((lo + hi) / 2, 1, 1);
-}
+/** Gentle in and out: a piece eases off the boundary at both ends of its stretch. */
+const smooth = (x: number) => x * x * (3 - 2 * x);
 
-const PIECE_MS = 750;
-const BACK_MS = 200;
+/** The smoothing's time constant: the shown position closes 63% of the gap in this long. */
+const LAG_MS = 90;
 const CHIP_MS = 900;
-/** A piece of the same stage starts this far into the one before it. */
-const LAP = 0.45;
-const FADE = 7;
-
 type Rgb = [number, number, number];
-/** One frame's textures: photo, wall mask, change mask. */
-type Tex = [WebGLTexture, WebGLTexture, WebGLTexture];
+/** Texture sets kept: the frames used most recently. */
+const SETS = 4;
+
+/** One frame's textures: photo, change mask. */
+type Tex = [WebGLTexture, WebGLTexture];
 interface Assets {
   img: HTMLImageElement;
-  wall: HTMLImageElement;
   change: HTMLImageElement | null;
 }
-/** A frame arriving: its textures, index, start time, length and motion. */
+/** A texture set and the frame it holds (-1 = none), with when it was last used. */
 interface Slot {
   tex: Tex;
   n: number;
-  t0: number;
-  ms: number;
-  m: number;
+  used: number;
 }
 
 const mask = (url: string) =>
@@ -252,28 +245,28 @@ export function createRoomPainter(
   g.vertexAttribPointer(loc, 2, g.FLOAT, false, 0, 0);
 
   const u = (name: string) => g.getUniformLocation(prog, name);
-  // Sampler units, in texture-bind order: A (frame, wall), B (frame, wall,
-  // change), C (frame, wall, change).
-  ['fA', 'wA', 'fB', 'wB', 'cB', 'fC', 'wC', 'cC'].forEach((s, i) => g.uniform1i(u(s), i));
+  // Sampler units, in texture-bind order: A (frame), B (frame, change).
+  // Sampler units: A (frame), B (frame, change), then the finished frame's wall.
+  ['fA', 'fB', 'cB', 'wA'].forEach((s, i) => g.uniform1i(u(s), i));
   const U = {
+    ar: u('ar'),
+    b: u('bB'),
+    k: u('kB'),
     d: u('d'),
     cO: u('cO'),
     cN: u('cN'),
     pO: u('pO'),
     pN: u('pN'),
     tC: u('tC'),
-    ar: u('ar'),
-    b: [u('bB'), u('bC')],
-    k: [u('kB'), u('kC')],
+    pw: u('pw'),
   };
 
   g.pixelStorei(g.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-  // Keep the photo's own bytes: the colour maths is done in the shader.
+  // Keep the photo's own bytes, so the canvas matches the <img> exactly.
   g.pixelStorei(g.UNPACK_COLORSPACE_CONVERSION_WEBGL, g.NONE);
 
-  // Three texture sets for the life of the painter: A's, and one per frame
-  // in flight. Non-power-of-two in WebGL1: clamp, linear, no mipmaps. Each
-  // starts as one black pixel so no sampler ever reads an empty texture.
+  // Non-power-of-two in WebGL1: clamp, linear, no mipmaps. Each starts as one
+  // black pixel so no sampler ever reads an empty texture.
   const texture = () => {
     const t = g.createTexture() as WebGLTexture;
     g.bindTexture(g.TEXTURE_2D, t);
@@ -284,32 +277,21 @@ export function createRoomPainter(
     g.texImage2D(g.TEXTURE_2D, 0, g.RGB, 1, 1, 0, g.RGB, g.UNSIGNED_BYTE, new Uint8Array(3));
     return t;
   };
-  const pool: Tex[] = [0, 1, 2].map(() => [texture(), texture(), texture()]);
+  const sets: Slot[] = Array.from({ length: SETS }, () => ({
+    tex: [texture(), texture()],
+    n: -1,
+    used: 0,
+  }));
   const put = (t: WebGLTexture, format: number, src: TexImageSource) => {
     g.bindTexture(g.TEXTURE_2D, t);
     g.texImage2D(g.TEXTURE_2D, 0, format, format, g.UNSIGNED_BYTE, src);
   };
-  const upload = (tex: Tex, a: Assets) => {
-    put(tex[0], g.RGB, a.img);
-    put(tex[1], g.LUMINANCE, a.wall);
-    if (a.change) put(tex[2], g.LUMINANCE, a.change);
-  };
 
+  const wallTex = texture();
   // ---- state ---------------------------------------------------------------
-  let room = first;
-  let dead = false;
-  let ready = false;
-  let loaded = false; // A holds a frame of `room`
-  let raf = 0;
-  let generation = 0;
-  let cache: Promise<Assets>[] = [];
-  let got: (Assets | undefined)[] = [];
-  let A: { tex: Tex; n: number } = { tex: pool[0], n: 0 };
-  let act: Slot[] = [];
-  let queue: number[] = [];
-  let backTo = -1;
-  let goal = start;
-  // The chip roll.
+  // The paint: the wall mask (per room), and the swatch roll.
+  let wallIn: Promise<boolean> | null = null;
+  let wallOk = false;
   let chipOld: Rgb = [1, 1, 1];
   let chipNew: Rgb = [1, 1, 1];
   let paintOld = 0;
@@ -317,44 +299,96 @@ export function createRoomPainter(
   let chipT = 0;
   let chipStart = 0;
   let busy = false;
+  const settle = () => {
+    busy = false;
+    chipT = 0;
+    chipOld = chipNew;
+    paintOld = paintNew;
+  };
+  let room = first;
+  let dead = false;
+  let ready = false;
+  let raf = 0;
+  let generation = 0;
+  let clock = 0;
+  let cache: Promise<Assets>[] = [];
+  let got: (Assets | undefined)[] = [];
+  /** The position asked for, and the position shown (they meet when idle). */
+  let goal = start;
+  let shown = start;
+  let last = 0;
 
-  /** A frame's photo and masks, decoded; memoised per room. */
+  const top = () => room.frames.length - 1;
+  const fit = (pos: number) => {
+    const p = Math.min(top(), Math.max(0, Number.isFinite(pos) ? pos : 0));
+    return opts.reducedMotion ? Math.round(p) : p;
+  };
+
+  /** A frame's photo and change mask, decoded; memoised per room. */
   const need = (n: number): Promise<Assets> => {
     if (!cache[n]) {
       const f = room.frames[n];
       const mine = generation;
-      cache[n] = Promise.all([f.load(), mask(f.wall), f.change ? mask(f.change) : null]).then(
-        ([img, wall, change]) => {
-          const a = { img, wall, change };
-          if (mine === generation) got[n] = a;
-          return a;
-        },
-      );
+      cache[n] = Promise.all([f.load(), f.change ? mask(f.change) : null]).then(([img, change]) => {
+        const a = { img, change };
+        if (mine === generation) {
+          got[n] = a;
+          kick();
+        }
+        return a;
+      });
       cache[n].catch(() => {});
     }
     return cache[n];
   };
 
-  const draw = (now = performance.now()) => {
-    if (dead || !loaded) return;
+  /** The set holding frame n, uploading it into the least recently used set if needed. */
+  const texOf = (n: number): Tex => {
+    let s = sets.find((x) => x.n === n);
+    if (!s) {
+      s = sets.reduce((a, b) => (b.used < a.used ? b : a));
+      const a = got[n] as Assets;
+      put(s.tex[0], g.RGB, a.img);
+      if (a.change) put(s.tex[1], g.LUMINANCE, a.change);
+      s.n = n;
+    }
+    s.used = ++clock;
+    return s.tex;
+  };
+
+  /** The nearest decoded frame to n: n itself, else below it, else above it. */
+  const nearest = (n: number) => {
+    for (let i = n; i >= 0; i--) if (got[i]) return i;
+    for (let i = n + 1; i <= top(); i++) if (got[i]) return i;
+    return -1;
+  };
+
+  const draw = () => {
+    if (dead) return;
+    const want = Math.floor(shown);
+    const a = nearest(want);
+    if (a < 0) return; // nothing decoded yet: the <img> stack still shows
+    const t = a === want ? shown - want : 0;
+    const b = t > 0 && got[a + 1] ? a + 1 : -1;
     g.viewport(0, 0, canvas.width, canvas.height);
+    const texA = texOf(a);
+    // No piece in flight: B re-binds A's textures and is switched off.
+    const texB = b < 0 ? texA : texOf(b);
+    g.uniform4fv(U.b, (b < 0 ? null : room.frames[b].box) ?? [0, 0, 1, 1]);
+    g.uniform2f(U.k, b < 0 ? 0 : smooth(t), b < 0 ? -1 : room.frames[b].motion);
+    // Paint only on the finished frame, whole, with its mask in.
+    const paint = wallOk && b < 0 && a === top() && (paintOld > 0 || paintNew > 0);
+    g.uniform1f(U.pw, paint ? 1 : 0);
     g.uniform3fv(U.cO, chipOld);
     g.uniform3fv(U.cN, chipNew);
     g.uniform1f(U.pO, paintOld);
     g.uniform1f(U.pN, paintNew);
-    g.uniform1f(U.tC, busy ? ease(chipT) : 0);
-    // Bind A, then each slot (an idle slot re-binds A and is switched off).
-    const bound = [...A.tex.slice(0, 2)];
-    for (let i = 0; i < 2; i++) {
-      const s = act[i];
-      bound.push(...(s ? s.tex : A.tex));
-      const box = s ? (room.frames[s.n].box ?? [0, 0, 1, 1]) : [0, 0, 1, 1];
-      g.uniform4fv(U.b[i], box);
-      g.uniform2f(U.k[i], s ? ease(Math.min(1, (now - s.t0) / s.ms)) : 0, s ? s.m : -1);
-    }
-    bound.forEach((t, i) => {
+    g.uniform1f(U.tC, busy ? smooth(chipT) : 0);
+    g.activeTexture(g.TEXTURE3);
+    g.bindTexture(g.TEXTURE_2D, wallTex);
+    [texA[0], ...texB].forEach((tx, i) => {
       g.activeTexture(g.TEXTURE0 + i);
-      g.bindTexture(g.TEXTURE_2D, t);
+      g.bindTexture(g.TEXTURE_2D, tx);
     });
     g.drawArrays(g.TRIANGLE_STRIP, 0, 4);
     if (!ready) {
@@ -363,80 +397,24 @@ export function createRoomPainter(
     }
   };
 
-  /** The oldest frame in flight lands: it becomes A (textures and all). */
-  const land = () => {
-    const s = act.shift();
-    if (s) A = { tex: s.tex, n: s.n };
-  };
-  const free = () => pool.find((t) => t !== A.tex && !act.some((s) => s.tex === t)) as Tex;
-  /** Put frame n straight into A (reduced motion, a new room). */
-  const setA = (n: number) => {
-    const tex = free();
-    upload(tex, got[n] as Assets);
-    A = { tex, n };
-  };
-  const begin = (n: number, m: number, ms: number, now: number) => {
-    const tex = free();
-    upload(tex, got[n] as Assets);
-    act.push({ tex, n, t0: now, ms, m });
-  };
-  const kick = () => {
-    if (!raf && (act.length || busy)) raf = requestAnimationFrame(tick);
-  };
-  /** Start whatever may start now; wait (holding the picture) for what has not decoded. */
-  const pump = () => {
-    if (dead || !loaded) return;
-    const later = (n: number) => void need(n).then(pump, () => {});
-    const now = performance.now();
-    if (opts.reducedMotion) {
-      const n = backTo >= 0 ? backTo : queue.length ? queue[queue.length - 1] : -1;
-      if (n < 0) return;
-      if (!got[n]) return later(n);
-      backTo = -1;
-      queue = [];
-      setA(n);
-      draw(now);
-      return;
-    }
-    if (backTo >= 0) {
-      if (!got[backTo]) return later(backTo);
-      begin(backTo, FADE, BACK_MS, now);
-      backTo = -1;
-    }
-    while (queue.length) {
-      const n = queue[0];
-      if (!got[n]) {
-        later(n);
-        break;
-      }
-      const last = act[act.length - 1];
-      if (last) {
-        const same = last.m !== FADE && room.frames[n].stage === room.frames[last.n].stage;
-        if (!same || now - last.t0 < LAP * last.ms) break;
-        if (act.length === 2) land();
-      }
-      queue.shift();
-      begin(n, room.frames[n].motion, PIECE_MS, now);
-    }
-    kick();
-  };
-  const settle = () => {
-    busy = false;
-    chipT = 0;
-    chipOld = chipNew;
-    paintOld = paintNew;
-  };
+  function kick() {
+    if (!raf && !dead) raf = requestAnimationFrame(tick);
+  }
   function tick(now: number) {
     raf = 0;
     if (dead) return;
-    while (act.length && now - act[0].t0 >= act[0].ms) land();
+    // Ease the shown position toward the goal (frame-rate independent), then stop.
+    const dt = last ? Math.min(100, now - last) : 16;
+    last = now;
+    const gap = goal - shown;
+    shown = Math.abs(gap) < 0.002 ? goal : shown + gap * (1 - Math.exp(-dt / LAG_MS));
     if (busy) {
       chipT = Math.min(1, (now - chipStart) / CHIP_MS);
       if (chipT >= 1) settle();
     }
-    pump();
-    draw(now);
-    kick();
+    draw();
+    if (shown !== goal || busy) kick();
+    else last = 0;
   }
 
   // ---- sizing --------------------------------------------------------------
@@ -468,25 +446,25 @@ export function createRoomPainter(
   canvas.addEventListener('webglcontextlost', lost);
 
   // ---- rooms -----------------------------------------------------------------
-  const setRoom = (r: PainterRoom, frame: number): Promise<boolean | null> => {
+  const setRoom = (r: PainterRoom, pos: number): Promise<boolean | null> => {
     const mine = ++generation;
     room = r;
     cache = [];
     got = [];
-    act = [];
-    queue = [];
-    backTo = -1;
-    loaded = false;
-    goal = frame;
-    if (busy) settle();
-    g.uniform3fv(U.d, r.median);
+    sets.forEach((s) => (s.n = -1));
+    goal = shown = fit(pos);
+    // A new room starts as it is: no paint, its own wall mask fetched on first use.
+    wallIn = null;
+    wallOk = false;
+    chipOld = chipNew = [1, 1, 1];
+    paintOld = paintNew = 0;
+    settle();
     g.uniform1f(U.ar, r.aspect);
-    return need(frame)
+    const at = Math.floor(shown);
+    return Promise.all([need(at), at < top() ? need(at + 1).catch(() => null) : null])
       .then(() => {
         if (dead) return false;
         if (mine !== generation) return null;
-        setA(frame);
-        loaded = true;
         resize();
         draw();
         // Decode the rest in build order, so a piece is ready when its turn comes.
@@ -494,51 +472,59 @@ export function createRoomPainter(
           (p, _, i) => p.then(() => (mine === generation ? need(i).catch(() => {}) : null)),
           Promise.resolve(),
         );
-        api.go(goal);
         return true;
       })
       .catch(() => (dead || mine === generation ? false : null));
-    /* On failure the <img> stack stays in charge and the chips stay hidden. */
+    /* On failure the <img> stack stays in charge. */
+  };
+
+  /** The finished frame's wall mask, uploaded once per room. */
+  const loadWall = (): Promise<boolean> => {
+    const w = room.wall;
+    if (!w) return Promise.resolve(false);
+    if (!wallIn) {
+      const mine = generation;
+      wallIn = mask(w.url).then(
+        (im) => {
+          if (dead || mine !== generation) return false;
+          put(wallTex, g.LUMINANCE, im);
+          g.uniform3fv(U.d, w.median);
+          wallOk = true;
+          return true;
+        },
+        () => false,
+      );
+    }
+    return wallIn;
   };
 
   const api: RoomPainter = {
     setChip(linear) {
-      if (dead) return;
-      // Finish a roll in progress first, so the new one starts from what shows.
-      if (busy) settle();
-      chipNew = linear ?? chipOld;
-      paintNew = linear ? 1 : 0;
-      if (opts.reducedMotion || !loaded) {
-        settle();
-        draw();
-        return;
-      }
-      busy = true;
-      chipT = 0;
-      chipStart = performance.now();
-      kick();
-    },
-    go(frame) {
-      goal = frame;
-      if (dead || !loaded) return;
-      const top = queue.length ? queue[queue.length - 1] : act.length ? act[act.length - 1].n : A.n;
-      if (frame > top) {
-        // Forward again before a pending crossfade back began: drop it, and
-        // build on from what shows (every reveal is over the frame before it).
-        backTo = -1;
-        for (let n = top + 1; n <= frame; n++) queue.push(n);
-      } else {
-        queue = queue.filter((n) => n <= frame);
-        const shown = act.length ? act[act.length - 1].n : A.n;
-        if (frame < shown || backTo >= 0) {
-          // Back: land what is in flight, then a quick plain crossfade.
-          while (act.length) land();
-          queue = [];
-          backTo = frame === A.n ? -1 : frame;
+      if (dead) return Promise.resolve(false);
+      return loadWall().then((ok) => {
+        if (!ok || dead) return false;
+        // Finish a roll in progress first, so the new one starts from what shows.
+        if (busy) settle();
+        chipNew = linear ?? chipOld;
+        paintNew = linear ? 1 : 0;
+        if (opts.reducedMotion) {
+          settle();
           draw();
+        } else {
+          busy = true;
+          chipT = 0;
+          chipStart = performance.now();
+          kick();
         }
-      }
-      pump();
+        return true;
+      });
+    },
+    setProgress(pos) {
+      if (dead) return;
+      goal = fit(pos);
+      // Reduced motion lands at once; otherwise the shown position eases there.
+      if (opts.reducedMotion) shown = goal;
+      if (shown !== goal || opts.reducedMotion) kick();
     },
     setRoom,
     destroy() {

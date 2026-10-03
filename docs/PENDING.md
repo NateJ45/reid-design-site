@@ -14,6 +14,18 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-03: the annotated concept room (branch `claude/room-annotated`, worktree `../reid-concept-room`)
+
+Built by a delegated agent for the main session to review (brief: `docs/design/2026-10-03-annotated-room.md`).
+
+- [ ] Staci reviews the piece notes, the example brief and the plan labels in `tools/room-lab/rooms/living-transitional.json`; the notes are plain design principles drafted by Claude, not her words. The beat short names ("The bones", "Easy to live in", "Making it yours") are new too and need her eye. Change them in that file, then `npm run room:publish -- --room living-transitional` and commit.
+- [ ] Main session: patch `homePage.roomStoryHeadline` = "Every piece is chosen for a reason.", `roomStoryScriptAccent` = "for a reason", `roomStoryIntro` = "Watch one empty room get built, and see why each piece is there." (the live intro may still mention the paint chips).
+- [ ] Nathan looks at it on a real phone and laptop (the tag hand-over speed is `NOTE_IN` / `CLOSE_LEAD` in `src/lib/room-story.ts`), and Lighthouse on `/` in CI (a11y 100).
+- [ ] Decide whether `tools/room-lab/walls.mjs` (+ `room:walls`) and `layers.mjs` (+ `room:layers`) go: they are v2 leftovers (the cut-out layers and their base wall mask); nothing the site uses reads their output any more, but `layers.mjs` still needs `walls.mjs`, so they were kept as a pair.
+- [ ] Nathan tries the phone scrub on a real phone (900svh track since 2026-10-03, about 578px of swipe per piece; `SCRUB_TRACK_SVH_PHONE` tunes it).
+- [ ] Nathan looks at the paint swatches on the finished room (branch `claude/room-swatches`, 2026-10-03): all four shipped (Sage, Clay, Lake, Espresso). Known and judged acceptable at 2x: a faint pale rim on some olive leaves under the darkest colour (the AI image's own edge halo) and a few pixels of dark shadow right at the curtain edges. A held room gets swatches only once `npm run room:wall` has made and hand-corrected its finished-frame mask.
+- [ ] A held room (the kitchen, the four others) now needs a `note` (and a `pin` checked with `room:preview`) on every piece, plus `label` on each stage and a `brief`, `plan` and `closing` in its spec, before `room:publish` will accept it.
+
 ### From 2026-10-01: mid-market pass (`ccr-a5ebbe27-eingtv`), content APPLIED 2026-10-02
 
 Staci's decision: Reid Design is a mid-market studio (polished and trustworthy,
@@ -396,13 +408,28 @@ as tests; hyper-realistic, check at 1:1 before showing; kitchen and bath are STY
 (Staci keeps existing cabinets, appliances, toilet, tub; changes hardware, fixtures, paint,
 rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5785f approved.
 
+**2026-10-03, About placeholders (waiting on Staci):** the About "Off the Clock" board shows placeholder rows (`_key`s start `ph-`, wording "Placeholder...") in Currently, Rapid fire and Local spots, published at Nathan's request so the whole layout shows. Staci writes her real answers in Studio > About > Off the clock. Never restore the old seed wording (invented, see changelog 2026-10-03).
+
+**2026-10-03, wall masks (SUPERSEDED the same day: the paint deck and every wall mask were removed for the annotated room, see the top of this file):** Nathan reported paint fringes (halos round leaves and the sofa, curtain-edge patches). Fixed by `tools/room-lab/lib/wallrefine.mjs` (see changelog); PR on `claude/room-wall-masks`. Any room published from now on gets it automatically (`room:publish`); the held kitchen and the four other rooms need no extra step. A thin warm edge beside the curtain stays under a dark chip: it is the curtain's own edge.
+
+**2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
+`../reid-concept-room`, PR #83 on top of the merged #81):** built by a delegated agent for the main session to
+review. The build now follows scroll position both ways in a 300svh pinned track: the room
+full width on a laptop with a paper caption card in its left margin and the chips
+in a one-row dock under it; on a phone the card sits below the room and everything fits one
+375x667 screen; reduced motion snaps to whole frames; tabs keep the visitor's place. Open on
+it: (1) Nathan to look at it on a real phone and laptop (the feel of the scroll speed, about
+three screens; `SCRUB_TRACK_SVH`, `SCRUB_DWELL` and `SCRUB_BEAT_REST` in
+`src/lib/room-story.ts` tune it), (2) Lighthouse on `/` in CI (a11y 100, hero stays LCP),
+(3) the room-tab path has only been exercised against a temporary copy of the living room,
+so re-run `tests/room-story.spec.ts` once a second real room is published.
+
 **2026-10-02 update (Nathan):** the release is the LIVING ROOM ONLY. The kitchen (modern, styling
 only: black pulls, faucet, pendant, runner, roman shade, art, counter styling) is fully built and
 reviewed in `tools/room-lab/work/kitchen-modern/` (frames, spec `rooms/kitchen-modern.json`) but
 held back, so it is not under `src/assets/room/`. To add it later:
 `npm run room:publish -- --room kitchen-modern` (rewrites its folder and rooms.json), check
-`room:preview`, build, commit. Two known small mask flaws: a pink block at the far left edge
-under the cabinet and a sliver of the bottom-right baseboard get painted. The other four rooms
+`room:preview`, build, commit. (Its two known wall-mask flaws no longer matter: the paint deck is gone. It needs notes, pins, a brief and a plan in its spec first.) The other four rooms
 (family, dining, bath, bedroom) are still held (see below). Work in a git worktree
 (`../reid-concept-room`): another session shares the main checkout and switches its branch.
 
@@ -416,8 +443,8 @@ under the cabinet and a sliver of the bottom-right baseboard get painted. The ot
    `room:generate -- stages --base tools/room-lab/work/<slug>/base/<pick>.png --workflow edit-reflatent` →
    look at every frame at 1:1; redo a weak piece with `room:candidates -- --piece <id>` then
    `--pick <seed>` (then regenerate later pieces with `stages --only <id>` in order) →
-   `room:grade` → `room:walls` → `room:publish` → `room:preview` (check
-   `preview-sage-full.png` at 1:1: rods/legs unpainted, shadows paint) → `npm run build` and
+   `room:grade` → write each piece's `note` and `pin` in the spec → `room:publish` → `room:preview` (check
+   `preview-pins.jpg` and the `preview-pin-<id>.jpg` crops at 1:1: every pin on its object) → `npm run build` and
    check the page → show Nathan → commit `src/assets/room/`.
 3. Base picks so far: family-farmhouse **khaki-6606**, dining-deco **salmon-2202**, kitchen-modern **yellow-3303**, bath-seaside **pink-6606**, bedroom-japandi **bluegrey-6606**.
    Kitchen, bath: re-rolled as dated-but-complete rooms (specs rewritten), candidates were

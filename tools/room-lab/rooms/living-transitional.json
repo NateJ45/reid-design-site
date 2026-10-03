@@ -28,38 +28,86 @@
   "editInstruction": "Keep EVERYTHING that already exists exactly as it is: the same camera position, lens, framing, walls, wall colour, trim, window, floor, light and furniture. Keep the lighting and exposure identical: do not darken, re-light or add shadows to the walls, floor or ceiling beyond a soft contact shadow directly under the new item. Do not crop, zoom, re-light or restyle. Only make this change: ",
   "stages": [
     {
-      "id": "shell",
-      "caption": "Before any furniture, the room gets its bones: crown moulding, taller baseboards and a wider window frame."
-    },
-    {
-      "id": "anchor",
-      "caption": "Then the anchors: a rug that sets the scale, and a sofa that fits the room without hiding the big wall."
-    },
-    {
-      "id": "function",
-      "caption": "Tables and a lamp come next, so there is a place to set a mug and a soft light for the evenings."
+      "id": "bones",
+      "label": "The bones",
+      "caption": "Start with the bones: crown moulding, a rug that sets the scale, and a sofa that fits without hiding the big wall."
     },
     {
       "id": "comfort",
-      "caption": "A chair to angle toward the conversation, and curtains that finish the windows."
-    },
-    {
-      "id": "personal",
-      "caption": "Art goes up last on the big wall, hung low enough to feel like part of the furniture."
+      "label": "Easy to live in",
+      "caption": "Then what makes it easy to live in: a table for the mug, a lamp for the evenings, a chair angled toward the conversation, and curtains that finish the windows."
     },
     {
       "id": "finish",
-      "caption": "Then the small things that make it feel lived in: olive branches, books and a soft throw."
+      "label": "Making it yours",
+      "caption": "Last, what makes it yours: art hung low on the big wall, olive branches, books and a soft throw."
     }
   ],
   "final": {
     "alt": "Concept image: the finished living room with crown moulding, a rug, sofa, tables, chair, curtains, art and styling."
   },
+  "brief": {
+    "title": "The brief",
+    "tag": "an example",
+    "rows": [
+      {
+        "question": "What’s working",
+        "answer": "The big windows."
+      },
+      {
+        "question": "What isn’t",
+        "answer": "Nowhere to sit, and nothing matches."
+      },
+      {
+        "question": "What I wished it felt like",
+        "answer": "Bright, and easy to be in."
+      }
+    ]
+  },
+  "plan": [
+    {
+      "id": "layout",
+      "label": "Layout plan",
+      "beat": "bones"
+    },
+    {
+      "id": "color",
+      "label": "Color and finish guidance",
+      "beat": "bones"
+    },
+    {
+      "id": "picks",
+      "label": "Furniture and decor picks",
+      "beat": "comfort"
+    },
+    {
+      "id": "sourcing",
+      "label": "Sourcing list with links",
+      "beat": "comfort"
+    },
+    {
+      "id": "styling",
+      "label": "Styling and final reveal",
+      "beat": "finish"
+    }
+  ],
+  "closing": {
+    "line": "You see everything before a single item is purchased."
+  },
   "pieces": [
     {
       "id": "trim",
-      "stage": "shell",
+      "stage": "bones",
       "motion": "sweep",
+      "note": {
+        "check": "whats-missing",
+        "text": "A room without trim looks unfinished. Crown moulding gives the ceiling a clean edge."
+      },
+      "pin": [
+        1080,
+        206
+      ],
+      "side": "right",
       "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around both windows. Add no furniture and no rug; the floor stays bare. Keep the walls, windows, floor and light exactly the same.",
       "seeds": [
         11,
@@ -70,8 +118,17 @@
     },
     {
       "id": "rug",
-      "stage": "anchor",
+      "stage": "bones",
       "motion": "unroll",
+      "note": {
+        "check": "scale",
+        "text": "Big enough that the front feet of the furniture sit on it. A small rug shrinks a room."
+      },
+      "pin": [
+        470,
+        1000
+      ],
+      "side": "right",
       "change": "add one large 9 by 12 foot natural wool area rug in a soft oat colour with a subtle low texture, lying flat on the floor in the middle of the room and reaching close to the large plain wall on the right. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         21,
@@ -84,8 +141,17 @@
     },
     {
       "id": "sofa",
-      "stage": "anchor",
+      "stage": "bones",
       "motion": "slide-left",
+      "note": {
+        "check": "balance",
+        "text": "It fits the wall without hiding it. The big wall gets room to breathe."
+      },
+      "pin": [
+        1180,
+        676
+      ],
+      "side": "left",
       "change": "add one relaxed three-seat sofa upholstered in a smooth, solid, matte oat brushed-cotton fabric with a soft even surface (like a well-worn cotton slipcover), gentle natural creases, slightly rumpled seat cushions, rolled arms and short walnut legs. Centred against the large plain wall on the right with its front legs on the rug; the wall above it stays bare. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         3031,
@@ -101,8 +167,17 @@
     },
     {
       "id": "coffee-table",
-      "stage": "function",
+      "stage": "comfort",
       "motion": "rise",
+      "note": {
+        "check": "scale",
+        "text": "Close enough to reach from the sofa, with space left to walk around it."
+      },
+      "pin": [
+        900,
+        840
+      ],
+      "side": "right",
       "change": "add a low rectangular coffee table in solid oiled walnut with simple straight legs, plain wood only (no metal inlays, no brass corners), standing on the rug in front of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1041,
@@ -116,8 +191,17 @@
     },
     {
       "id": "side-table-lamp",
-      "stage": "function",
+      "stage": "comfort",
       "motion": "rise",
+      "note": {
+        "check": "lighting",
+        "text": "A lamp at seat height. Overhead light flattens a room; a lamp makes it feel lived in."
+      },
+      "pin": [
+        628,
+        545
+      ],
+      "side": "right",
       "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched OFF: the shade is plain unlit cream linen in daylight, with no glow. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1051,
@@ -135,6 +219,15 @@
       "id": "chair",
       "stage": "comfort",
       "motion": "slide-right",
+      "note": {
+        "check": "balance",
+        "text": "Angled toward the sofa: a spot to talk, and the room stops leaning to one side."
+      },
+      "pin": [
+        240,
+        720
+      ],
+      "side": "right",
       "change": "add one mid-century accent chair with a solid walnut frame and a cushioned seat and back in plain cream boucle, on the rug near the windows, angled toward the sofa. Plain wooden arms with no pads. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1061,
@@ -152,6 +245,15 @@
       "id": "curtains",
       "stage": "comfort",
       "motion": "drop",
+      "note": {
+        "check": "texture",
+        "text": "Hung high and wide so the windows read taller, and the light comes in soft."
+      },
+      "pin": [
+        100,
+        330
+      ],
+      "side": "right",
       "change": "hang simple full-length cream linen curtains on thin brass rods at both windows, pulled open to the sides so the windows stay bright. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1071,
@@ -164,8 +266,17 @@
     },
     {
       "id": "art",
-      "stage": "personal",
+      "stage": "finish",
       "motion": "drop",
+      "note": {
+        "check": "balance",
+        "text": "Hung low enough to belong to the sofa instead of floating on the wall."
+      },
+      "pin": [
+        1050,
+        450
+      ],
+      "side": "left",
       "change": "hang one medium framed landscape print with a thin black frame and a white mat on the large plain wall, centred above the sofa, leaving plenty of bare wall around it. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1081,
@@ -180,6 +291,15 @@
       "id": "olive",
       "stage": "finish",
       "motion": "pop",
+      "note": {
+        "check": "texture",
+        "text": "Something living and loose to soften all the straight lines."
+      },
+      "pin": [
+        860,
+        620
+      ],
+      "side": "left",
       "change": "place a sparse, natural arrangement of three freshly cut olive branches in a small matte white ceramic vase at one end of the coffee table. Real olive: long thin woody stems that bend irregularly, small narrow leaves that are dull grey-green on top and pale silvery underneath, leaves pointing in different directions with gaps between them, a little asymmetric and loose, photographed in soft daylight. Not a fern, not a houseplant, not dark green, not symmetrical. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         4091,
@@ -199,6 +319,15 @@
       "id": "books-throw",
       "stage": "finish",
       "motion": "pop",
+      "note": {
+        "check": "texture",
+        "text": "Books and a throw: the layer that makes it look like someone lives here."
+      },
+      "pin": [
+        715,
+        785
+      ],
+      "side": "right",
       "change": "add a short stack of three books on the coffee table and a soft oat knitted throw draped over the arm of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         101,
@@ -211,5 +340,556 @@
         "blanket"
       ]
     }
-  ]
+  ],
+  "wall": {
+    "swatches": [
+      {
+        "name": "Sage",
+        "hex": "#a8b5a0"
+      },
+      {
+        "name": "Clay",
+        "hex": "#b5785f"
+      },
+      {
+        "name": "Lake",
+        "hex": "#8b9ea3"
+      },
+      {
+        "name": "Espresso",
+        "hex": "#5f4639"
+      }
+    ],
+    "fixes": [
+      {
+        "why": "Left curtain, outer edge: the curtain's shadow on the wall was left unpainted (a dark strip). The wall there is far more saturated than the curtain's shaded side (measured: wall 0.62 and up, curtain 0.52 and down).",
+        "op": "sat",
+        "poly": [
+          [
+            22,
+            140
+          ],
+          [
+            53,
+            140
+          ],
+          [
+            51,
+            350
+          ],
+          [
+            48,
+            500
+          ],
+          [
+            45,
+            650
+          ],
+          [
+            42,
+            800
+          ],
+          [
+            39,
+            905
+          ],
+          [
+            18,
+            905
+          ]
+        ],
+        "minSat": 0.56,
+        "max": true
+      },
+      {
+        "why": "Between the windows, left side: speckle along the curtain edge (wall 0.46 and up, curtain under 0.38).",
+        "op": "sat",
+        "poly": [
+          [
+            440,
+            235
+          ],
+          [
+            464,
+            235
+          ],
+          [
+            464,
+            705
+          ],
+          [
+            440,
+            705
+          ]
+        ],
+        "minSat": 0.41,
+        "max": true
+      },
+      {
+        "why": "Between the windows, right side: blocks of unpainted shadow along the middle curtain's edge.",
+        "op": "sat",
+        "poly": [
+          [
+            476,
+            250
+          ],
+          [
+            502,
+            250
+          ],
+          [
+            502,
+            712
+          ],
+          [
+            476,
+            712
+          ]
+        ],
+        "minSat": 0.41,
+        "max": true
+      },
+      {
+        "why": "Right curtain, outer edge: speckle along the curtain's shadow (wall 0.41 and up, curtain under 0.34).",
+        "op": "sat",
+        "poly": [
+          [
+            716,
+            300
+          ],
+          [
+            748,
+            300
+          ],
+          [
+            748,
+            690
+          ],
+          [
+            716,
+            690
+          ]
+        ],
+        "minSat": 0.41,
+        "max": true
+      },
+      {
+        "why": "Sunlit wall behind the olive branches and above the sofa back: pale cream, so the leaf rule decides (bright and redder than green = wall).",
+        "op": "leaves",
+        "poly": [
+          [
+            776,
+            530
+          ],
+          [
+            928,
+            530
+          ],
+          [
+            928,
+            570
+          ],
+          [
+            1300,
+            570
+          ],
+          [
+            1300,
+            652
+          ],
+          [
+            1292,
+            640
+          ],
+          [
+            1278,
+            634
+          ],
+          [
+            1200,
+            633
+          ],
+          [
+            1150,
+            630
+          ],
+          [
+            1100,
+            627
+          ],
+          [
+            1090,
+            630
+          ],
+          [
+            1086,
+            634
+          ],
+          [
+            1078,
+            626
+          ],
+          [
+            1050,
+            622
+          ],
+          [
+            940,
+            621
+          ],
+          [
+            880,
+            616
+          ],
+          [
+            815,
+            613
+          ],
+          [
+            810,
+            617
+          ],
+          [
+            808,
+            640
+          ],
+          [
+            806,
+            672
+          ],
+          [
+            776,
+            668
+          ]
+        ],
+        "minLum": 95,
+        "fullLum": 150
+      },
+      {
+        "why": "Shaded wall between the right curtain and the sofa, behind the leaves: the leaf rule with a lower unmix range (this wall is in the curtain's shadow).",
+        "op": "leaves",
+        "minLum": 130,
+        "poly": [
+          [
+            727,
+            530
+          ],
+          [
+            800,
+            530
+          ],
+          [
+            800,
+            670
+          ],
+          [
+            727,
+            670
+          ]
+        ],
+        "fullLum": 170
+      },
+      {
+        "why": "Round the art: the frame's shadow on the wall (right and below) and a jagged lit edge (left) were unpainted. The leaf rule takes lit and shadowed wall and keeps the olive tip at the bottom-left corner out.",
+        "op": "leaves",
+        "minLum": 150,
+        "max": true,
+        "poly": [
+          [
+            906,
+            347
+          ],
+          [
+            1197,
+            317
+          ],
+          [
+            1198,
+            582
+          ],
+          [
+            908,
+            582
+          ]
+        ]
+      },
+      {
+        "why": "The art itself (frame, mat, canvas), traced at 8x: never wall.",
+        "op": "clear",
+        "feather": 0.7,
+        "poly": [
+          [
+            921,
+            362
+          ],
+          [
+            1181,
+            332
+          ],
+          [
+            1182,
+            567
+          ],
+          [
+            923,
+            565
+          ]
+        ]
+      },
+      {
+        "why": "The throw's shadow on the baseboard by the sofa's right arm was painted.",
+        "op": "clear",
+        "poly": [
+          [
+            1368,
+            826
+          ],
+          [
+            1402,
+            826
+          ],
+          [
+            1402,
+            872
+          ],
+          [
+            1368,
+            872
+          ]
+        ]
+      },
+      {
+        "why": "The sofa and the throw, from the top edge down: never wall (the shaded cushions are wall-coloured, so nothing automatic can be trusted here).",
+        "op": "clear",
+        "feather": 0.8,
+        "poly": [
+          [
+            683,
+            900
+          ],
+          [
+            683,
+            700
+          ],
+          [
+            688,
+            680
+          ],
+          [
+            700,
+            670
+          ],
+          [
+            760,
+            667
+          ],
+          [
+            790,
+            670
+          ],
+          [
+            806,
+            672
+          ],
+          [
+            808,
+            640
+          ],
+          [
+            810,
+            617
+          ],
+          [
+            815,
+            613
+          ],
+          [
+            880,
+            616
+          ],
+          [
+            940,
+            621
+          ],
+          [
+            1050,
+            622
+          ],
+          [
+            1078,
+            626
+          ],
+          [
+            1086,
+            634
+          ],
+          [
+            1090,
+            630
+          ],
+          [
+            1100,
+            627
+          ],
+          [
+            1150,
+            630
+          ],
+          [
+            1200,
+            633
+          ],
+          [
+            1278,
+            634
+          ],
+          [
+            1292,
+            640
+          ],
+          [
+            1298,
+            652
+          ],
+          [
+            1299,
+            660
+          ],
+          [
+            1312,
+            660
+          ],
+          [
+            1313,
+            692
+          ],
+          [
+            1338,
+            697
+          ],
+          [
+            1348,
+            712
+          ],
+          [
+            1352,
+            745
+          ],
+          [
+            1360,
+            780
+          ],
+          [
+            1372,
+            820
+          ],
+          [
+            1380,
+            900
+          ]
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "area": "olive",
+        "box": [
+          730,
+          540,
+          270,
+          170
+        ]
+      },
+      {
+        "area": "sofa-top",
+        "box": [
+          680,
+          600,
+          640,
+          110
+        ]
+      },
+      {
+        "area": "sofa-arm",
+        "box": [
+          1250,
+          630,
+          150,
+          240
+        ]
+      },
+      {
+        "area": "curtain-left",
+        "box": [
+          0,
+          280,
+          90,
+          420
+        ]
+      },
+      {
+        "area": "curtain-middle",
+        "box": [
+          420,
+          240,
+          100,
+          500
+        ]
+      },
+      {
+        "area": "curtain-right",
+        "box": [
+          690,
+          280,
+          80,
+          420
+        ]
+      },
+      {
+        "area": "crown-left",
+        "box": [
+          0,
+          40,
+          520,
+          150
+        ]
+      },
+      {
+        "area": "crown-right",
+        "box": [
+          720,
+          110,
+          752,
+          190
+        ]
+      },
+      {
+        "area": "baseboard-right",
+        "box": [
+          1280,
+          780,
+          192,
+          120
+        ]
+      },
+      {
+        "area": "baseboard-left",
+        "box": [
+          0,
+          830,
+          60,
+          110
+        ]
+      },
+      {
+        "area": "art",
+        "box": [
+          900,
+          320,
+          300,
+          260
+        ]
+      }
+    ]
+  }
 }

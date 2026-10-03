@@ -531,109 +531,170 @@ feed is connected.
   4 across from 1024px (eight). Every print opens the post in a new tab and is
   named from its caption (hashtags dropped); the picture itself is `alt=""`.
 
-## The concept room (2026-09-30)
+## The concept room (2026-09-30; the scroll scrub, 2026-10-02; the annotated room, 2026-10-03)
 
 `home/RoomStory.astro` (loads and checks) and `home/RoomStage.astro` (draws),
-on Home right after "How it works" (the `roomStory` marker). An AI-generated
-living room that starts EMPTY; as the visitor scrolls past short captions the
-room fills up piece by piece (trim, then the rug and sofa, tables and a lamp,
-curtains and a chair, art, styling). **Whole frames, no cut-outs** (Nathan,
-2026-09-30): every step of the build is ONE COMPLETE AI photo of the room, and
-the new piece APPEARS IN PLACE with a soft reveal limited to the region that
-changed, plus a small settle. The first version cut each piece out as an RGBA
-layer over one base photo, and the cut-outs proved unreliable (curtain rods
-vanished, shadows were clipped, table legs smeared); a complete photo carries
-its own shadows, reflections and light, and because two neighbouring frames are
-identical outside the change, nothing outside it can pop. All from
-`src/assets/room/<slug>/` (manifest v3: frames, a wall mask per frame, a change
-mask and box per piece, made by tools/room-lab); the component renders nothing
-until they exist.
+on Home right after "How it works" (the `roomStory` marker). **A job in
+progress, marked up by the designer** (Nathan, 2026-10-03; brief in
+`docs/design/2026-10-03-annotated-room.md`): one AI-generated living room
+starts EMPTY and fills up piece by piece as the visitor scrolls, and every
+piece that arrives is tied to a sample tag on a string that says WHY it is
+there, in one plain sentence, under one of the five checks from Staci's
+notebook (lighting, scale, texture, balance, what's missing;
+`src/data/closing-notes.ts`). It opens on **the brief** (an example client's
+answers to the three questions Staci asks on /process) and closes on **what is
+in the plan** and the booking button. The order answers the visitor's
+questions: what do you want for me, how do you think, what do I get, what do I
+do next. The paint-colour deck and its wall masks were removed the same day
+(the masks kept leaving bad edges); the WebGL reveal stays.
 
-- **Several rooms, one tab each** (2026-09-30): living room (Transitional),
-  family room (Modern farmhouse), dining room (Art deco), kitchen (Modern),
-  bathroom (Seaside), bedroom (Japandi), in the order `src/assets/room/rooms.json`
-  lists them. Each room has its own frames, stages and captions; the
-  paint chips are the same for all, and the chosen chip stays on across a
-  switch. A real ARIA tablist sits above the room (inside the sticky stage,
-  so it stays in reach mid-build): each tab is the room type with its style
-  as a smaller second line, **no numbering**. Tabs sit on the Linen ground as
-  plain labels led by a small punched-hole ring; the chosen tab is a pulled
-  paper sample tag (the `.r-tag` notched shape, tilted -1.5deg, lifted 2px, a
-  soft drop shadow, a Warm Bronze ring as a mark, never text on Bronze).
-  Hover shows a faint paper tag; focus is the house 2px ink outline. On a
-  phone the row scrolls sideways with scroll-snap, like the chip deck.
-  Manual activation (arrows, Home, End move; Enter, Space or a click
-  chooses), because choosing downloads that room's pictures and may scroll.
-  Choosing a room mid-story scrolls the room's top back to just under the
-  header (smoothly; instantly under reduced motion) so its build starts
-  afresh. The tabs are `hidden` without a script (the first room shows,
-  finished, with all its captions), and with only one room there is no
-  tablist at all.
+**The paint swatches** (2026-10-03, later the same day): once the build has
+FINISHED (the last frame showing whole), a quiet row under the booking tag
+offers four wall colours, Sage #a8b5a0, Clay #b5785f, Lake #8b9ea3 and
+Espresso #5f4639, plus "As it is". It is labelled with the plan's chip,
+"Color and finish guidance: try a wall color", so it reads as a taste of
+that deliverable. Small round paint dabs with their names in 0.8rem ink
+type, real buttons with aria-pressed, the chosen one ringed and underlined:
+deliberately quieter than the booking tag, which stays the loudest thing
+in the close. Lake and Clay are wall-paint swatches ONLY, never UI colours.
+The walls repaint in the photo's own light (linear-light maths, a 900 ms
+roll from the left; an instant swap under reduced motion) through ONE wall
+mask for the finished frame, redrawn at full resolution and corrected by
+hand (tools/room-lab `wall.mjs`, fixes in the room spec). Scroll back off
+the finished room and the row hides and the walls go back. No WebGL, no
+script, or any failure: the row never shows and the close looks exactly as
+it did. Every colour was checked at 2x crops on the olive leaves, the sofa
+top, both curtain edges, the crown and the baseboards before it shipped; a
+colour with an edge that cannot be fixed by hand is dropped, not shipped.
 
+**The build follows the scroll** (2026-10-02): scroll slowly and a piece
+slides in as you go, stop and it stops part-way, scroll back and it slides
+out; about three screens of scroll carry it all on a laptop (a 300svh track) and about nine on a phone (900svh, 2026-10-03: at 300svh a single flick raced through five or six pieces; now a normal flick moves one or two), in three beats (the bones:
+trim, rug, sofa; easy to live in: coffee table, lamp, chair, curtains; making
+it yours: art, olive branches, books and a throw). **Whole frames, no
+cut-outs** (2026-09-30): every step is ONE COMPLETE AI photo, and the new
+piece appears in place with a soft reveal limited to the region that changed,
+plus a small settle. All from `src/assets/room/<slug>/` (manifest v4: frames,
+a change mask and box per piece, and the words: each piece's note, pin and
+side, the beats' labels and captions, the brief, the plan, the closing line;
+made by tools/room-lab); the component renders nothing until they exist.
+
+**The objects** (craft objects from this site's world, never a tooltip UI):
+
+- **The piece tag** (`RoomTag.astro`): a paper shipping tag (both corners
+  clipped at the left end, a REAL punched hole with a Warm Bronze reinforcing
+  ring, a drop shadow that follows the shape). On it: the check as a small
+  paint-chip swatch with its name printed on the face (Lighting on Oat, Scale
+  on Sandbar, Texture on Saddle, Balance on Walnut with cream, What's missing
+  on Linen; ink text otherwise; never chip 5), then the sentence in Zodiak
+  Light (1.05 to 1.18rem, at most 28ch). On a phone the tag is a hang tag:
+  both top corners clipped and the hole on its top edge, right under the pin.
+- **The string**: one SVG over the figure, two slots (the tag going and the
+  tag coming, so they cross-fade). A slack quadratic that sags a little under
+  its own weight (more on a long run, almost none when it hangs straight),
+  sampled with a slow seeded wobble so it reads as thread, not a ruled line;
+  an ink thread over a paper halo so it shows on linen, a bright window and
+  dark walnut alike. It runs OVER the tag from its edge to the hole, with a
+  second strand looping round the edge (tied through the hole), and DRAWS
+  with its piece (stroke-dashoffset by `noteDraw`), un-drawing as the visitor
+  scrolls back. It never crosses its tag's words.
+- **The pin**: a Warm Bronze ring on a paper dot with a soft halo and a tiny
+  ink centre, on the piece itself (frame-pixel points chosen at 1:1 with
+  `npm run room:preview`: the crown's edge, the sofa's back cushion, the
+  lamp's shade, the curtain's fold).
+- **The beat card and the brief** (`RoomNotes.astro`, `RoomBrief.astro`): a
+  page from the planning notebook, a DIFFERENT object from the tags: paper,
+  no notch, no hole, a short Warm Bronze rule over the text, and fine ruled
+  lines drawn on the writing itself (one rule under each line's baseline, so
+  they always line up). The beat card holds the beat's short name and its
+  caption, a step quieter than the tag (ink 2). The brief is filled in like a
+  form: "The brief" in Zodiak, "an example" beside it (it is never a real
+  client), each question in General Sans 500 with its answer in Zodiak italic
+  on a ruled line.
+- **The plan dock** (`RoomPlan.astro`): "What's in the plan" (sentence case,
+  led by a short rule), then Staci's deliverables as a short paint strip:
+  each chip a ramp face (chips 1 to 4 and 6) with its label printed on it and
+  a punched hole. Unlit: a Paper face, ink label, the hole ringed in its
+  colour (contrast never depends on opacity). Lit, once its beat has finished:
+  the face fills, it lifts 4px with a soft shadow and a hand-drawn tick draws
+  in.
+- **The close** (`RoomClose.astro`): the line "You see everything before a
+  single item is purchased." in Zodiak, the house booking tag (`.r-pricetag`,
+  ink on linen) with the SAME label and link as the header button and the
+  consultation price derived from content (`getChromeFacts()` consultPrice,
+  never typed; no price, no price part), and "See the full process". Straight
+  on the linen, not on a card.
+
+**Layout:**
+
+- **Wide laptop window** (1100px+ and 8/5 or wider: 1280x800, 1440x900,
+  1920x1080): the room centred and height-limited, giving up a little width
+  so each margin is at least 19.5rem. LEFT margin, bottom-aligned with the
+  photo: the brief while the room is empty, then the current beat card. RIGHT
+  margin: the current tag, vertically centred on its pin (kept inside the
+  photo's height), its string running left into the photo. The plan dock
+  under the room. At the end the close takes the right margin,
+  bottom-aligned with the photo (clear of the back-to-top button), and the
+  dock stays with every chip lit.
+- **Tall laptop window** (e.g. 1280x1024, or 1024 to 1099px wide): the beat
+  card (and the brief at the start) is a slim notebook STRIP above the photo,
+  its label beside the words; the photo gives up that height. Only the tag
+  goes over the photo, in the corner that covers least of its piece and keeps
+  its string off its own words (a left-hand tag is mirrored so its hole faces
+  the room); computed from the pin and the piece's box, never hard-coded. The
+  close takes the dock's place. (The brief asked for the beat card over the
+  photo's lower-left; tried, it covered the chair and the rug as they
+  arrived.)
+- **Phone** (375x667 and 375x812, everything inside one screen): the room full
+  width with the pin on it; then ONE card, the hang tag (its beat's short name
+  beside its check; the brief takes this slot at the start), its string a
+  short drop from under the pin to its hole; then the plan as one sideways
+  scroll-snap row (a newly lit chip scrolls into view inside its own row,
+  never the page). The close replaces the card and the row.
+- **No script** (or a browser without `@media (scripting)`): no track, no
+  pinning; the finished room, then a plain readable list: the brief, the three
+  beats each with its tags as list items (the check as a bold label), the plan
+  as a list, the closing line and the booking tag. Nothing hidden, no other
+  frame downloads.
+
+**Behaviour:** the build position (`scrubPosition`) drives everything. Piece
+k's tag becomes current at k-1+0.30 (`NOTE_IN`, so the piece has started to
+appear first) and holds until the next one takes over; the brief shows until
+then; the cards cross-fade (340ms) and a new tag swings on from its hole and
+lands square. The plan chips light when their beat's last piece has landed;
+the close shows from n-0.15 (`CLOSE_LEAD`), when the tag and string go so the
+finished room is seen clean. A visually hidden live region reads each new tag
+("Scale: ..."), the beat's caption with the beat's first tag, and the closing
+line. **Reduced motion:** the build snaps to whole frames, the string is
+shown whole, chips do not lift, cards swap without a fade or swing.
+
+- **Several rooms, one tab each:** each room carries its own notes, brief and
+  plan in its manifest; a real ARIA tablist above the room (manual
+  activation, pulled paper sample tag for the chosen one), hidden without a
+  script and absent with one room. Choosing a room keeps the visitor's place
+  (the same share of its build) and swaps the picture and the notes together.
 - **Ground:** Linen chip (chip 1), NOT a second ink band (Nathan,
-  2026-09-30): HomeWords stays the home page's one dark moment. TapeProcess
-  (linen) sits before it and PaintChips (paper) after, so it reads apart from
-  both.
+  2026-09-30). TapeProcess (linen) sits before it and PaintChips (paper)
+  after. One accent per view: Warm Bronze marks only, never text on it.
 - **Honesty:** it is a CONCEPT room and must never read as Staci's portfolio.
-  A `.r-tag` sample tag on the picture reads "Concept room"; every frame's alt
-  opens "Concept image:" (`parseRoomManifest` refuses anything else); no town
-  or project names; no numbering (no "01", no "Stage 1", no counters). Each
-  stage's caption is led by a short Warm Bronze rule, not a numeral.
-- **Layout:** heading (RiseWords, italic accent) with the intro lede on the
-  right, the tape head's grid. Desktop: the room sticky on the left (7 of 12
-  columns, sized by screen height too so the chips fit), captions scrolling
-  past on the right, each about 80% of a screen tall. Phone: the room pins
-  under the header strip and the captions scroll beneath it; the chip deck is
-  one sideways scroll-snap row.
-- **Default render** (no script): the FINISHED room (the last frame) with its
-  tag, and every caption; no other frame downloads (their sources wait in
-  data attributes). The deck is in the markup but hidden. Only the finished
-  frame is described (its alt opens "Concept image:"); every other frame is
-  `alt=""`, and a visually hidden live region narrates the build (the empty
-  room's description before the first caption, then each stage's caption).
-- **The paint deck:** a `fieldset` with the visible legend "Try a paint colour
-  on the walls", then paper chips (`button aria-pressed`, swatch plus visible
-  name, the house 2px ink focus outline). "As it is" first (its swatch is the
-  room's own wall colour), then the seven ramp tones, then Sage, Lake and
-  Clay. **Sage, Lake and Clay are wall-paint swatches only, never UI
-  colours** (Lake `#8b9ea3` and Clay `#b5785f` are PROPOSED, pending Nathan's
-  approval on the contact sheet). Warm Bronze appears as a swatch with its
-  name beside it, never text on it. The deck only appears once the WebGL
-  painter has drawn; the colour carries through every stage.
-- **Motion (the reveal and the settle):** one WebGL canvas draws the frame
-  showing and, while a piece arrives, the next frame over it, revealed ONLY
-  inside that piece's change mask by a soft, noisy, feathered front shaped by
-  its manifest `motion`: `sweep` (soft wipe along the box's long axis, trim,
-  mouldings) and `unroll` (the same with a tighter edge, the rug), `drop`
-  (falls from the top of its box, curtains, art), `rise` (comes up from the
-  bottom), `slide-left`/`slide-right` (comes in from its side), `pop` (grows
-  from the box centre, styling). The shader also settles the piece into place:
-  slides move about 2.5% of the frame across, drop and rise about 2% down or
-  up, pop scales 97% to 100% round the box centre. 750ms each,
-  `cubic-bezier(0.23, 1, 0.32, 1)`. Driven by an IntersectionObserver on the
-  captions (no scroll listener, so Lenis and native scroll behave the same):
-  when caption k becomes current the room plays every piece up to stage k's
-  last, one after another, pieces of the same stage overlapping (each starts
-  45% into the one before); stage k's caption is current once it passes the
-  reading line (mid screen on a laptop, 70% down on a phone). Scrolling back
-  jumps straight to the right frame with a quick 200ms crossfade, never a
-  reverse animation. A piece never starts before its frame and masks have
-  decoded (the room holds on what it shows). Idle, nothing runs. Reduced
-  motion: every change is an instant frame swap, and a chip change is instant.
-- **Paint over whole frames:** a chip rolls its colour onto the walls from the
-  left with a noisy front (~900ms) over whatever frames are showing; each
-  frame is painted with ITS OWN wall mask, and one wall median for the whole
-  room keeps the paint identical frame to frame (linear light maths,
-  `src/scripts/room-painter.ts`), so a new piece arrives already standing in
-  the chosen colour. The chip survives every frame and every room tab.
-- **No WebGL** (none, a failed shader, a lost context): the frames are a
-  stack of `<img>`s that switch by a 400ms whole-frame opacity crossfade (the
-  new frame fades in over the old; going back, the frames above fade away; no
-  fade under reduced motion), and the chips stay hidden.
+  The "Concept room" `.r-tag` on the photo's top-left corner sits above the
+  canvas, the string, the pins and the cards (`tests/room-story.spec.ts`
+  checks its pixels); every frame's alt opens "Concept image:"
+  (`parseRoomManifest` refuses anything else); the brief says "an example";
+  no town or project names; no digits or em-dashes in any note, label or
+  line (the manifest parser and `room:publish` refuse them). The notes are
+  plain design principles; Staci reviews them (docs/PENDING.md).
+- **The reveal** (unchanged by the annotations): one WebGL canvas draws the
+  frame showing and, over it, the next frame revealed ONLY inside that
+  piece's change mask by a soft, noisy front shaped by its `motion` (sweep,
+  unroll, drop, rise, slide-left/right, pop) with a small settle. Native
+  scroll only; a mouse wheel's steps are eased over about 90ms; idle, nothing
+  runs. **No WebGL:** the frames are a stack of `<img>`s crossfaded by the
+  same position; the notes work the same.
 - **WebGL on the home page** (Nathan, 2026-09-30) reverses the design
-  debate's "CSS/SVG only, no WebGL" and "no more craft devices" rulings for
-  this one section (addendum in `docs/design/2026-09-30-design-debate.md`).
-  Budget and loading rules are in `docs/agent/performance.md`.
+  debate's "CSS/SVG only, no WebGL" ruling for this one section (addendum in
+  `docs/design/2026-09-30-design-debate.md`). Budget and loading rules are in
+  `docs/agent/performance.md`.
 
 ## The hand layer (2026-09-30)
 
@@ -649,7 +710,7 @@ and still) under reduced motion, none carrying meaning on its own.
   `src/assets/doodles/`) for the phone menu's sprig and the share cards;
   `src/lib/doodle-map.ts` now only picks each card's botanical.
 - **Phone menu sprig.** The olive sprig in faint cream beside her logo, drawn
-  in each time the menu opens, behind the chip deck.
+  in each time the menu opens.
 - **Designer markup.** The italic accent phrase in the closing band's
   heading (FinalCta, the planning page) gets a hand-drawn marker swoosh in
   Sandbar, pulled across as the heading scrolls in. Once per page: every

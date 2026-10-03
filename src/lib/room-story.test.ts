@@ -1,77 +1,166 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  CLOSE_LEAD,
   CONCEPT_ALT_PREFIX,
-  ROOM_CHIPS,
+  EM_DASH,
+  NOTE_IN,
+  ROOM_CHECKS,
   ROOM_MOTIONS,
-  hexToLinear,
-  linearToHex,
+  ROOM_SWATCHES,
+  SCRUB_DWELL,
+  SCRUB_TRACK_SVH,
+  SCRUB_TRACK_SVH_PHONE,
+  SCRUB_PHONE_QUERY,
+  beatAt,
+  beatTicks,
+  checkInfo,
+  closeShown,
+  isCopy,
+  noteAt,
+  noteDraw,
   parseRoomIndex,
   parseRoomManifest,
+  planLit,
   roomAnnouncement,
   roomFiles,
   roomFolder,
-  srgbToLinear,
+  hexToLinear,
+  swatchesShown,
+  scrubPosition,
+  snapPosition,
   stageFrames,
+  stringPath,
+  trackProgress,
 } from './room-story';
 
+const note = { check: 'scale', text: 'Big enough that the front feet sit on it.' };
 const frame = (n: number, over: Record<string, unknown> = {}) => ({
   id: `piece-${n}`,
   stage: 'anchor',
   image: `frame-${n}.jpg`,
-  wall: `wall-${n}.png`,
   change: `change-${n}.png`,
   box: [100, 500, 600, 300],
   motion: 'rise',
+  note,
   ...over,
 });
-const empty = { image: 'frame-0.jpg', wall: 'wall-0.png' };
+const empty = { image: 'frame-0.jpg' };
+const brief = {
+  title: 'The brief',
+  tag: 'an example',
+  rows: [
+    { question: 'What’s working', answer: 'The big windows.' },
+    { question: 'What isn’t', answer: 'Nowhere to sit.' },
+  ],
+};
+const plan = [
+  { id: 'layout', label: 'Layout plan', beat: 'shell' },
+  { id: 'picks', label: 'Furniture and decor picks', beat: 'anchor' },
+];
 const manifest = (over: Record<string, unknown> = {}) => ({
-  version: 3,
+  version: 5,
   width: 1472,
   height: 1104,
-  wallMedianLinear: [0.61, 0.55, 0.47],
   base: { alt: 'Concept image: an empty, bright living room with tired tan walls' },
   final: { alt: 'Concept image: the same living room finished' },
   stages: [
-    { id: 'shell', caption: 'The empty room.' },
-    { id: 'anchor', caption: 'A rug and the sofa.' },
+    { id: 'shell', label: 'The bones', caption: 'The empty room.' },
+    { id: 'anchor', label: 'Easy to live in', caption: 'A rug and the sofa.' },
   ],
-  frames: [empty, frame(1, { id: 'trim', stage: 'shell', motion: 'sweep' }), frame(2)],
+  brief,
+  plan,
+  closing: { line: 'You see everything before a single item is purchased.' },
+  frames: [
+    empty,
+    frame(1, { id: 'trim', stage: 'shell', motion: 'sweep', pin: [700, 200], side: 'left' }),
+    frame(2),
+  ],
   ...over,
 });
 
-describe('parseRoomManifest (v3, whole frames)', () => {
+describe('parseRoomManifest (v5, the annotated room with the finished wall)', () => {
   it('accepts the contract and returns a clean copy', () => {
     const m = parseRoomManifest(manifest());
-    expect(m?.version).toBe(3);
+    expect(m?.version).toBe(5);
+    expect(m?.wall).toBeNull();
     expect(m?.stages).toHaveLength(2);
+    expect(m?.stages[0]).toEqual({ id: 'shell', label: 'The bones', caption: 'The empty room.' });
     expect(m?.empty).toEqual(empty);
     expect(m?.pieces.map((p) => p.id)).toEqual(['trim', 'piece-2']);
-    expect(m?.pieces[0]).toMatchObject({ stage: 'shell', motion: 'sweep', change: 'change-1.png' });
-    expect(m?.wallMedianLinear).toEqual([0.61, 0.55, 0.47]);
+    expect(m?.pieces[0]).toMatchObject({
+      stage: 'shell',
+      motion: 'sweep',
+      change: 'change-1.png',
+      note,
+      pin: [700, 200],
+      side: 'left',
+    });
+    expect(m?.brief).toEqual(brief);
+    expect(m?.plan).toEqual(plan);
+    expect(m?.closing.line).toMatch(/^You see/);
     expect(m?.base.alt).toMatch(/^Concept image:/);
   });
 
-  it('drops unknown keys', () => {
+  it('defaults the pin to the centre of the box and the side to the right', () => {
+    const m = parseRoomManifest(manifest());
+    expect(m?.pieces[1].pin).toEqual([400, 650]);
+    expect(m?.pieces[1].side).toBe('right');
+  });
+
+  it('drops unknown keys, including the old room-level wall median', () => {
     const m = parseRoomManifest(
-      manifest({ extra: 1, frames: [{ ...empty, x: 1 }, frame(1, { y: 2 })] }),
+      manifest({
+        extra: 1,
+        wallMedianLinear: [0.5, 0.5, 0.5],
+        frames: [{ ...empty, x: 1 }, frame(1, { y: 2 })],
+      }),
     );
     expect(m).not.toHaveProperty('extra');
+    expect(m).not.toHaveProperty('wallMedianLinear');
     expect(m?.empty).not.toHaveProperty('x');
     expect(m?.pieces[0]).not.toHaveProperty('y');
   });
 
-  it('lists every file it names, frame by frame', () => {
+  it('takes ONE wall mask, on the finished frame, with its median', () => {
+    const m = parseRoomManifest(
+      manifest({
+        frames: [
+          empty,
+          frame(1),
+          frame(2, { wall: 'wall-2.png', wallMedianLinear: [0.4, 0.3, 0.12] }),
+        ],
+      }),
+    );
+    expect(m?.wall).toEqual({ mask: 'wall-2.png', median: [0.4, 0.3, 0.12] });
+    expect(m?.pieces[1]).not.toHaveProperty('wall');
+    expect(m && roomFiles(m)).toContain('wall-2.png');
+  });
+
+  it('refuses a wall anywhere but the finished frame, or without a sound median', () => {
+    const med = { wallMedianLinear: [0.4, 0.3, 0.12] };
+    for (const frames of [
+      [{ ...empty, wall: 'wall-0.png', ...med }, frame(1), frame(2)],
+      [empty, frame(1, { wall: 'wall-1.png', ...med }), frame(2)],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png' })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.jpg', ...med })],
+      [empty, frame(1), frame(2, { wall: '../wall.png', ...med })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png', wallMedianLinear: [0.4, 0.3] })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png', wallMedianLinear: [1.4, 0.3, 0.1] })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png', wallMedianLinear: [0, 0, 0] })],
+      [empty, frame(1), frame(2, { wallMedianLinear: [0.4, 0.3, 0.12] })],
+    ]) {
+      expect(parseRoomManifest(manifest({ frames }))).toBeNull();
+    }
+  });
+
+  it('lists every file it names, frame by frame (no wall mask when there is none)', () => {
     const m = parseRoomManifest(manifest());
     expect(m && roomFiles(m)).toEqual([
       'frame-0.jpg',
-      'wall-0.png',
       'frame-1.jpg',
-      'wall-1.png',
       'change-1.png',
       'frame-2.jpg',
-      'wall-2.png',
       'change-2.png',
     ]);
   });
@@ -81,7 +170,7 @@ describe('parseRoomManifest (v3, whole frames)', () => {
       manifest({
         frames: [
           { ...empty, image: 'frame-0.webp', change: null, box: null, motion: null, stage: null },
-          frame(1, { image: 'frame-1.webp' }),
+          frame(1, { image: 'frame-1.webp', stage: 'shell' }),
         ],
       }),
     );
@@ -90,19 +179,16 @@ describe('parseRoomManifest (v3, whole frames)', () => {
 
   it.each([
     ['not an object', null],
-    ['version 2', manifest({ version: 2 })],
-    ['a v2 shape (base image and layers)', { ...manifest(), frames: undefined, layers: [] }],
+    ['version 3 (the paint deck)', manifest({ version: 3 })],
+    ['version 4 (before the swatches)', manifest({ version: 4 })],
     ['a missing width', manifest({ width: undefined })],
-    ['a missing wall median', manifest({ wallMedianLinear: undefined })],
-    ['a median above 1', manifest({ wallMedianLinear: [1.2, 0.5, 0.5] })],
-    ['a zero median', manifest({ wallMedianLinear: [0, 0.5, 0.5] })],
-    ['one stage', manifest({ stages: [{ id: 'anchor', caption: 'x' }] })],
+    ['one stage', manifest({ stages: [{ id: 'anchor', label: 'A', caption: 'x' }] })],
     [
       'duplicate stage ids',
       manifest({
         stages: [
-          { id: 'anchor', caption: 'a' },
-          { id: 'anchor', caption: 'b' },
+          { id: 'anchor', label: 'A', caption: 'a' },
+          { id: 'anchor', label: 'B', caption: 'b' },
         ],
       }),
     ],
@@ -110,20 +196,45 @@ describe('parseRoomManifest (v3, whole frames)', () => {
       'an empty caption',
       manifest({
         stages: [
-          { id: 'shell', caption: ' ' },
-          { id: 'anchor', caption: 'x' },
+          { id: 'shell', label: 'A', caption: ' ' },
+          { id: 'anchor', label: 'B', caption: 'x' },
+        ],
+      }),
+    ],
+    [
+      'a stage with no label',
+      manifest({
+        stages: [
+          { id: 'shell', caption: 'a' },
+          { id: 'anchor', label: 'B', caption: 'x' },
         ],
       }),
     ],
     ['a base alt without the prefix', manifest({ base: { alt: 'An empty room' } })],
     ['a final alt without the prefix', manifest({ final: { alt: 'A room' } })],
     ['no final alt', manifest({ final: {} })],
+    ['no brief', manifest({ brief: undefined })],
+    ['a brief with no rows', manifest({ brief: { ...brief, rows: [] } })],
+    ['a brief without its "example" line', manifest({ brief: { ...brief, tag: '' } })],
+    [
+      'a brief answer with a digit',
+      manifest({ brief: { ...brief, rows: [{ question: 'Budget', answer: 'About $5k' }] } }),
+    ],
+    ['no plan', manifest({ plan: [] })],
+    ['a plan chip naming no real beat', manifest({ plan: [{ id: 'a', label: 'A', beat: 'x' }] })],
+    ['duplicate plan ids', manifest({ plan: [plan[0], { ...plan[1], id: 'layout' }] })],
+    ['a plan label with a digit', manifest({ plan: [{ ...plan[0], label: 'Plan 1' }] })],
+    ['no closing line', manifest({ closing: {} })],
+    [
+      'a closing line with an em-dash',
+      manifest({ closing: { line: `You see it ${EM_DASH} all` } }),
+    ],
     ['no frames', manifest({ frames: [] })],
     ['only the empty room', manifest({ frames: [empty] })],
     ['a frame-0 with a change', manifest({ frames: [{ ...empty, change: 'c.png' }, frame(1)] })],
     ['a frame-0 with a box', manifest({ frames: [{ ...empty, box: [0, 0, 1, 1] }, frame(1)] })],
     ['a frame-0 with a motion', manifest({ frames: [{ ...empty, motion: 'pop' }, frame(1)] })],
-    ['a frame-0 without a wall', manifest({ frames: [{ image: 'frame-0.jpg' }, frame(1)] })],
+    ['a frame-0 with a note', manifest({ frames: [{ ...empty, note }, frame(1)] })],
     ['a frame-0 PNG photo', manifest({ frames: [{ ...empty, image: 'frame-0.png' }, frame(1)] })],
     ['duplicate piece ids', manifest({ frames: [empty, frame(1), frame(2, { id: 'piece-1' })] })],
     [
@@ -145,7 +256,6 @@ describe('parseRoomManifest (v3, whole frames)', () => {
     ['an unknown motion', { motion: 'spin' }],
     ['an image URL', { image: 'https://example.com/a.jpg' }],
     ['a PNG photo', { image: 'frame-1.png' }],
-    ['a JPG wall mask', { wall: 'wall-1.jpg' }],
     ['a change in a folder', { change: '../change-1.png' }],
     ['a change that is a number', { change: 5 }],
     ['a box off the right edge', { box: [1000, 0, 500, 100] }],
@@ -154,13 +264,27 @@ describe('parseRoomManifest (v3, whole frames)', () => {
     ['a zero-size box', { box: [0, 0, 0, 100] }],
     ['a three-number box', { box: [0, 0, 100] }],
     ['a NaN box', { box: [0, Number.NaN, 100, 100] }],
+    ['no note', { note: undefined }],
+    ['a note with an unknown check', { note: { check: 'colour', text: 'Warm.' } }],
+    ['a note with no text', { note: { check: 'scale', text: ' ' } }],
+    ['a note with a digit', { note: { check: 'scale', text: 'An eight by ten rug, 8x10.' } }],
+    ['a note with an em-dash', { note: { check: 'scale', text: `Big ${EM_DASH} bigger.` } }],
+    ['a pin outside the frame', { pin: [1500, 10] }],
+    ['a pin that is not two numbers', { pin: [10] }],
+    ['an unknown side', { side: 'top' }],
   ])('rejects a piece frame with %s', (_label, over) => {
     expect(parseRoomManifest(manifest({ frames: [empty, frame(1, over)] }))).toBeNull();
   });
 
-  it('accepts every motion in the set', () => {
+  it('accepts every motion and every check in the set', () => {
     for (const motion of ROOM_MOTIONS) {
       expect(parseRoomManifest(manifest({ frames: [empty, frame(1, { motion })] }))).not.toBeNull();
+    }
+    for (const { id } of ROOM_CHECKS) {
+      const n = { check: id, text: 'A plain reason.' };
+      expect(
+        parseRoomManifest(manifest({ frames: [empty, frame(1, { note: n })] })),
+      ).not.toBeNull();
     }
   });
 
@@ -171,12 +295,156 @@ describe('parseRoomManifest (v3, whole frames)', () => {
   });
 });
 
+describe('the published living room', () => {
+  const raw = JSON.parse(
+    readFileSync('src/assets/room/living-transitional/manifest.json', 'utf8'),
+  ) as unknown;
+  const m = parseRoomManifest(raw);
+
+  it('parses as v5, with a note and a pin inside its own piece for every piece', () => {
+    expect(m).not.toBeNull();
+    for (const p of m!.pieces) {
+      expect(p.note.text.length).toBeGreaterThan(10);
+      const [x, y, w, h] = p.box;
+      expect(p.pin[0], p.id).toBeGreaterThanOrEqual(x);
+      expect(p.pin[0], p.id).toBeLessThanOrEqual(x + w);
+      expect(p.pin[1], p.id).toBeGreaterThanOrEqual(y);
+      expect(p.pin[1], p.id).toBeLessThanOrEqual(y + h);
+    }
+  });
+
+  it('names real beats in the plan, and uses all five checks', () => {
+    for (const p of m!.plan) expect(m!.stages.some((s) => s.id === p.beat)).toBe(true);
+    expect(new Set(m!.pieces.map((p) => p.note.check)).size).toBe(ROOM_CHECKS.length);
+  });
+
+  it('has exactly one wall mask, on the finished frame', () => {
+    const frames = (raw as { frames: Record<string, unknown>[] }).frames;
+    expect(frames.filter((f) => 'wall' in f)).toHaveLength(1);
+    expect(frames[frames.length - 1].wall).toBe(`wall-${frames.length - 1}.png`);
+    expect(m!.wall?.mask).toBe(`wall-${frames.length - 1}.png`);
+  });
+});
+
+describe('the paint swatches', () => {
+  it('are Sage, Clay, Lake and Espresso, at their approved values', () => {
+    expect(ROOM_SWATCHES).toEqual([
+      { name: 'Sage', hex: '#a8b5a0' },
+      { name: 'Clay', hex: '#b5785f' },
+      { name: 'Lake', hex: '#8b9ea3' },
+      { name: 'Espresso', hex: '#5f4639' },
+    ]);
+  });
+
+  it('hexToLinear: the sRGB curve, and null when malformed', () => {
+    expect(hexToLinear('#ffffff')).toEqual([1, 1, 1]);
+    expect(hexToLinear('#000000')).toEqual([0, 0, 0]);
+    expect(hexToLinear('#808080')![0]).toBeCloseTo(0.2159, 3);
+    expect(hexToLinear('nope')).toBeNull();
+  });
+
+  it('swatchesShown: only once the build has finished', () => {
+    expect(swatchesShown(10, 10)).toBe(true);
+    expect(swatchesShown(9.9, 10)).toBe(false);
+    expect(swatchesShown(0, 0)).toBe(false);
+  });
+});
+
+describe('the five checks', () => {
+  it('follow Staci’s notebook order, with a real apostrophe', () => {
+    expect(ROOM_CHECKS.map((c) => c.id)).toEqual([
+      'lighting',
+      'scale',
+      'texture',
+      'balance',
+      'whats-missing',
+    ]);
+    expect(checkInfo('whats-missing').label).toBe('What’s missing');
+    expect(checkInfo('nope').id).toBe('lighting');
+  });
+
+  it('never put a label on Warm Bronze (chip 5)', () => {
+    for (const c of ROOM_CHECKS) expect(c.tone).not.toBe(5);
+  });
+
+  it('isCopy refuses digits, em-dashes and blanks', () => {
+    expect(isCopy('A lamp at seat height.')).toBe(true);
+    expect(isCopy('Step 1')).toBe(false);
+    expect(isCopy(`a ${EM_DASH} b`)).toBe(false);
+    expect(isCopy('  ')).toBe(false);
+  });
+});
+
+describe('the annotations follow the build', () => {
+  const n = 10;
+  const ends = [3, 7, 10];
+
+  it('noteAt: the brief, then each piece’s tag a little way in, then the close', () => {
+    expect(noteAt(0, n)).toBe(0);
+    expect(noteAt(NOTE_IN - 0.01, n)).toBe(0);
+    expect(noteAt(NOTE_IN, n)).toBe(1);
+    expect(noteAt(1, n)).toBe(1);
+    expect(noteAt(1 + NOTE_IN - 0.01, n)).toBe(1);
+    expect(noteAt(1 + NOTE_IN, n)).toBe(2);
+    // On a beat's rest (a whole number) the last piece's tag stays.
+    expect(noteAt(3, n)).toBe(3);
+    expect(noteAt(n - CLOSE_LEAD - 0.01, n)).toBe(n);
+    expect(noteAt(n - CLOSE_LEAD, n)).toBe(-1);
+    expect(noteAt(n, n)).toBe(-1);
+    expect(noteAt(1, 0)).toBe(0);
+  });
+
+  it('every tag is current for a while, and the order never skips one', () => {
+    const seen: number[] = [];
+    for (let i = 0; i <= 10_000; i++) {
+      const k = noteAt((i / 10_000) * n, n);
+      if (seen[seen.length - 1] !== k) seen.push(k);
+    }
+    expect(seen).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1]);
+  });
+
+  it('closeShown: from n - CLOSE_LEAD on', () => {
+    expect(closeShown(n - CLOSE_LEAD - 0.01, n)).toBe(false);
+    expect(closeShown(n - CLOSE_LEAD, n)).toBe(true);
+    expect(closeShown(5, 0)).toBe(false);
+  });
+
+  it('noteDraw: the string draws with its piece and is whole before it lands', () => {
+    expect(noteDraw(0, 1)).toBe(0);
+    expect(noteDraw(NOTE_IN, 1)).toBeGreaterThan(0);
+    expect(noteDraw(NOTE_IN, 1)).toBeLessThan(0.2);
+    expect(noteDraw(0.9, 1)).toBe(1);
+    expect(noteDraw(3.5, 4)).toBeLessThan(noteDraw(3.7, 4));
+    expect(noteDraw(9, 4)).toBe(1);
+  });
+
+  it('planLit: a chip lights once its beat’s last piece has landed', () => {
+    const beats = [0, 0, 1, 1, 2];
+    expect(planLit(0, beats, ends)).toEqual([false, false, false, false, false]);
+    expect(planLit(2.99, beats, ends)).toEqual([false, false, false, false, false]);
+    expect(planLit(3, beats, ends)).toEqual([true, true, false, false, false]);
+    expect(planLit(7, beats, ends)).toEqual([true, true, true, true, false]);
+    expect(planLit(10, beats, ends)).toEqual([true, true, true, true, true]);
+    expect(planLit(10, [-1, 9], ends)).toEqual([false, false]);
+  });
+
+  it('stringPath: starts at the hole, ends at the pin, sags, and is the same every time', () => {
+    const d = stringPath(0, 0, 300, 0, 3);
+    expect(d.startsWith('M0 0')).toBe(true);
+    expect(d.endsWith('L300 0')).toBe(true);
+    expect(stringPath(0, 0, 300, 0, 3)).toBe(d);
+    // The middle of a level string hangs below the line between its ends.
+    const ys = [...d.matchAll(/L[\d.-]+ ([\d.-]+)/g)].map((x) => Number(x[1]));
+    expect(Math.max(...ys)).toBeGreaterThan(8);
+  });
+});
+
 describe('stageFrames', () => {
   const stages = [
-    { id: 'shell', caption: 'a' },
-    { id: 'anchor', caption: 'b' },
-    { id: 'art', caption: 'c' },
-    { id: 'styling', caption: 'd' },
+    { id: 'shell', label: 'A', caption: 'a' },
+    { id: 'anchor', label: 'B', caption: 'b' },
+    { id: 'art', label: 'C', caption: 'c' },
+    { id: 'styling', label: 'D', caption: 'd' },
   ];
 
   it('shows the last frame of each stage', () => {
@@ -205,6 +473,100 @@ describe('stageFrames', () => {
       }),
     )!;
     expect(stageFrames(m)).toEqual([0, 1, 1, 2]);
+  });
+});
+
+describe('the scrub (scroll position drives the build)', () => {
+  // The living room's shape: ten pieces in three beats (bones, comfort, finish).
+  const ends = [3, 7, 10];
+  const n = 10;
+
+  it('trackProgress: 0 when the stage pins, 1 when it lets go, clamped outside', () => {
+    // Track 3000 tall, stage 700 tall, pinned 100 from the top: 2300 of travel.
+    expect(trackProgress(500, 3000, 700, 100)).toBe(0);
+    expect(trackProgress(100, 3000, 700, 100)).toBe(0);
+    expect(trackProgress(100 - 1150, 3000, 700, 100)).toBeCloseTo(0.5);
+    expect(trackProgress(100 - 2300, 3000, 700, 100)).toBe(1);
+    expect(trackProgress(-9000, 3000, 700, 100)).toBe(1);
+    // A track no taller than its stage: a step at the pin line.
+    expect(trackProgress(101, 700, 700, 100)).toBe(0);
+    expect(trackProgress(99, 700, 700, 100)).toBe(1);
+  });
+
+  it('scrubPosition: the ends rest on the empty and the finished room', () => {
+    expect(scrubPosition(0, n, ends)).toBe(0);
+    expect(scrubPosition(SCRUB_DWELL / 2, n, ends)).toBe(0);
+    expect(scrubPosition(1, n, ends)).toBe(n);
+    expect(scrubPosition(1 - SCRUB_DWELL / 2, n, ends)).toBe(n);
+    expect(scrubPosition(-1, n, ends)).toBe(0);
+    expect(scrubPosition(2, n, ends)).toBe(n);
+  });
+
+  it('scrubPosition: monotonic, continuous, and passes through every frame', () => {
+    let last = -1;
+    const seen = new Set<number>();
+    for (let i = 0; i <= 2000; i++) {
+      const pos = scrubPosition(i / 2000, n, ends);
+      expect(pos).toBeGreaterThanOrEqual(last);
+      if (last >= 0) expect(pos - last).toBeLessThan(0.02);
+      last = pos;
+      seen.add(Math.round(pos * 100) / 100);
+    }
+    for (let f = 0; f <= n; f++) expect(seen.has(f)).toBe(true);
+  });
+
+  it('scrubPosition: each beat but the last ends with a rest', () => {
+    // Somewhere in the middle the position sits exactly on frame 3 (and 7)
+    // for a stretch of scroll, while never sitting still on frame 5.
+    const hold = (frame: number) => {
+      let count = 0;
+      for (let i = 0; i <= 1000; i++) if (scrubPosition(i / 1000, n, ends) === frame) count++;
+      return count;
+    };
+    expect(hold(3)).toBeGreaterThan(10);
+    expect(hold(7)).toBeGreaterThan(10);
+    expect(hold(5)).toBeLessThanOrEqual(1);
+    // Without beats there are no rests: plain linear between the dwells.
+    expect(scrubPosition(0.5, n)).toBeCloseTo(5);
+  });
+
+  it('scrubPosition: no frames, no build', () => {
+    expect(scrubPosition(0.5, 0, [])).toBe(0);
+  });
+
+  it('beatAt: the beat of the piece arriving, or of the one that just landed', () => {
+    expect(beatAt(0, ends)).toBe(0);
+    expect(beatAt(0.4, ends)).toBe(0);
+    expect(beatAt(3, ends)).toBe(0);
+    expect(beatAt(3.01, ends)).toBe(1);
+    expect(beatAt(7, ends)).toBe(1);
+    expect(beatAt(7.5, ends)).toBe(2);
+    expect(beatAt(10, ends)).toBe(2);
+    expect(beatAt(99, ends)).toBe(2);
+    // A beat with no pieces of its own is never current.
+    expect(beatAt(0.5, [0, 1, 1, 2])).toBe(1);
+    expect(beatAt(1.5, [0, 1, 1, 2])).toBe(3);
+    expect(beatAt(1, [])).toBe(-1);
+  });
+
+  it('beatTicks: each beat end as a fraction of the build', () => {
+    expect(beatTicks(ends, n)).toEqual([0.3, 0.7, 1]);
+    expect(beatTicks(ends, 0)).toEqual([]);
+  });
+
+  it('snapPosition: whole frames only, switching mid-piece', () => {
+    expect(snapPosition(2.2)).toBe(2);
+    expect(snapPosition(2.6)).toBe(3);
+    expect(snapPosition(10)).toBe(10);
+  });
+
+  it('the track constant matches the CSS', () => {
+    const css = readFileSync('src/components/home/RoomStage.astro', 'utf8');
+    expect(css).toContain(`--room-track: ${SCRUB_TRACK_SVH}svh`);
+    expect(css).toContain(
+      `@media ${SCRUB_PHONE_QUERY} {\n    .room {\n      --room-track: ${SCRUB_TRACK_SVH_PHONE}svh;`,
+    );
+    expect(SCRUB_TRACK_SVH_PHONE).toBeGreaterThan(SCRUB_TRACK_SVH * 2);
   });
 });
 
@@ -265,50 +627,7 @@ describe('parseRoomIndex (rooms.json v1)', () => {
   });
 });
 
-describe('ROOM_CHIPS', () => {
-  it('starts with "As it is" (no paint), then only real hex colours', () => {
-    expect(ROOM_CHIPS[0]).toEqual({ name: 'As it is', hex: null });
-    for (const c of ROOM_CHIPS.slice(1)) expect(c.hex).toMatch(/^#[0-9a-f]{6}$/);
-    expect(new Set(ROOM_CHIPS.map((c) => c.name)).size).toBe(ROOM_CHIPS.length);
-  });
-
-  it('carries the seven ramp tones exactly as globals.css defines them', () => {
-    const css = readFileSync(new URL('../styles/globals.css', import.meta.url), 'utf8');
-    const ramp = [...css.matchAll(/--color-chip-([1-7]):\s*(#[0-9a-f]{6})/gi)].map((m) =>
-      m[2].toLowerCase(),
-    );
-    expect(ramp.length).toBeGreaterThanOrEqual(7);
-    expect(ROOM_CHIPS.slice(1, 8).map((c) => c.hex)).toEqual(ramp.slice(0, 7));
-  });
-
-  it('names no chip with a number (no decorative numbering)', () => {
-    for (const c of ROOM_CHIPS) expect(c.name).not.toMatch(/\d/);
-  });
-});
-
-describe('colour helpers', () => {
-  it('srgbToLinear hits the curve ends and the knee', () => {
-    expect(srgbToLinear(0)).toBe(0);
-    expect(srgbToLinear(1)).toBeCloseTo(1, 10);
-    expect(srgbToLinear(0.04045)).toBeCloseTo(0.04045 / 12.92, 10);
-    expect(srgbToLinear(0.5)).toBeCloseTo(0.214, 3);
-  });
-
-  it('hexToLinear reads 6 and 3 digit hex, and refuses junk', () => {
-    expect(hexToLinear('#ffffff')).toEqual([1, 1, 1].map((v) => expect.closeTo(v, 10)));
-    expect(hexToLinear('#000')).toEqual([0, 0, 0]);
-    expect(hexToLinear('808080')?.[0]).toBeCloseTo(0.2159, 4);
-    expect(hexToLinear('#12345')).toBeNull();
-    expect(hexToLinear('teal')).toBeNull();
-  });
-
-  it('linearToHex round-trips hexToLinear', () => {
-    for (const c of ROOM_CHIPS.slice(1)) {
-      expect(linearToHex(hexToLinear(c.hex as string) as [number, number, number])).toBe(c.hex);
-    }
-    expect(linearToHex([2, -1, 0])).toBe('#ff0000');
-  });
-
+describe('honesty', () => {
   it('the prefix constant is the one the honesty rule names', () => {
     expect(CONCEPT_ALT_PREFIX).toBe('Concept image:');
   });

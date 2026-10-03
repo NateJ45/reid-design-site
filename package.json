@@ -26,6 +26,7 @@
     "room:candidates": "npm --prefix tools/room-lab run candidates --",
     "room:relock": "npm --prefix tools/room-lab run relock --",
     "room:walls": "npm --prefix tools/room-lab run walls --",
+    "room:wall": "npm --prefix tools/room-lab run wall --",
     "room:layers": "npm --prefix tools/room-lab run layers --",
     "room:sheet": "npm --prefix tools/room-lab run sheet --",
     "room:preview": "npm --prefix tools/room-lab run preview --",

@@ -36,7 +36,7 @@ export const routes: string[] = [
  * See migration-docs/05-reid-design-2.0-changes.md for the recommended fix
  * (turn the sections on, or stop emitting sitemap entries for hidden ones).
  */
-export const hiddenRoutes: string[] = ['/portfolio', '/portfolio/before-after'];
+export const hiddenRoutes: string[] = ['/portfolio'];
 
 /** Every route that should return HTTP 200, whether or not it renders content. */
 export const allRoutes: string[] = [...routes, ...hiddenRoutes];

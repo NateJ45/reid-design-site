@@ -1,97 +1,61 @@
-// preview: the room as the SITE will draw it (manifest v3, whole frames), painted in chips.
+// preview: the published room's PINS (manifest v4, the annotated room, 2026-10-03).
 //
-// Reads the PUBLISHED room (src/assets/room/<slug>/: run room:publish first) and paints each
-// frame's own wall mask with the site's shader maths (linear light, shade =
-// luma(px)/luma(wallMedian), a 0.35 tint term; see src/scripts/room-painter.ts). Anything that
-// looks wrong here will look wrong on the page, so review this before committing.
+// Reads the PUBLISHED room (src/assets/room/<slug>/: run room:publish first) and draws, on each
+// piece's own frame, its change box (thin outline) and its pin (a ring with a crosshair), with
+// the note's check and id written beside it. The page ties every piece's tag to that pin with a
+// string, so a pin that misses its object (on the wall beside the lamp, on the floor under the
+// chair) looks wrong on the page. Check every pin here at 1:1 before committing.
+//
+// (Until 2026-10-03 this script painted the walls in the paint chips; the paint deck and the
+// wall masks are gone.)
 //
 //   npm run room:preview -- --room living-transitional
-//     -> work/<room>/preview-paint.jpg       finished room in six chips
-//     -> work/<room>/preview-sage-full.png   finished room in Sage at full size (check at 1:1)
-//     -> work/<room>/preview-steps.jpg       every frame of the build, painted Sage
-import { readFile } from 'node:fs/promises';
+//     -> work/<room>/preview-pins.jpg        every piece's frame, box and pin, in a grid
+//     -> work/<room>/preview-pin-<id>.jpg    one crop per pin at full size (1:1)
+import { readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { WORK, DEST } from './lib/paths.mjs';
 
 const manifest = JSON.parse(await readFile(join(DEST, 'manifest.json'), 'utf8'));
-if (manifest.version !== 3) throw new Error(`Expected manifest v3 in ${DEST}; run room:publish first.`);
-const { width: W, height: H, wallMedianLinear: med, frames } = manifest;
+if (manifest.version !== 4) throw new Error(`Expected manifest v4 in ${DEST}; run room:publish first.`);
+const { width: W, height: H, frames } = manifest;
+await mkdir(WORK, { recursive: true });
 
-const lin = (v) => {
-  v /= 255;
-  return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const marked = async (f) => {
+  const [bx, by, bw, bh] = f.box;
+  const [px, py] = f.pin;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+    <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="none" stroke="#ff2a6d" stroke-width="3" stroke-dasharray="12 8"/>
+    <circle cx="${px}" cy="${py}" r="16" fill="none" stroke="#fff" stroke-width="7"/>
+    <circle cx="${px}" cy="${py}" r="16" fill="none" stroke="#9c7661" stroke-width="4"/>
+    <path d="M${px - 30} ${py}H${px + 30}M${px} ${py - 30}V${py + 30}" stroke="#ff2a6d" stroke-width="2"/>
+    <rect x="${Math.min(px + 24, W - 420)}" y="${Math.max(py - 50, 8)}" width="400" height="40" fill="#fff" opacity=".9"/>
+    <text x="${Math.min(px + 34, W - 410)}" y="${Math.max(py - 22, 36)}" font-family="sans-serif" font-size="26" fill="#231e1b">${esc(f.id)} . ${esc(f.note.check)}</text>
+  </svg>`;
+  return sharp(join(DEST, f.image)).composite([{ input: Buffer.from(svg) }]).jpeg({ quality: 88 }).toBuffer();
 };
-const srgb = (v) => {
-  v = Math.max(0, Math.min(1, v));
-  return Math.round(255 * (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055));
-};
-const luma = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
-const lm = luma(...med);
-const hex = (h) => [1, 3, 5].map((i) => lin(parseInt(h.slice(i, i + 2), 16)));
 
-async function paintFrame(f, h) {
-  const img = await sharp(join(DEST, f.image)).resize(W, H).removeAlpha().raw().toBuffer();
-  if (!h) return img;
-  const wall = await sharp(join(DEST, f.wall)).resize(W, H).extractChannel(0).raw().toBuffer();
-  const chip = hex(h);
-  const R = Buffer.from(img);
-  for (let p = 0; p < W * H; p++) {
-    const m = wall[p] / 255;
-    if (!m) continue;
-    const px = [lin(img[p * 3]), lin(img[p * 3 + 1]), lin(img[p * 3 + 2])];
-    const lp = Math.max(1e-4, luma(...px));
-    for (let c = 0; c < 3; c++) {
-      const tint = 1 + 0.35 * (px[c] / lp / (med[c] / lm) - 1);
-      R[p * 3 + c] = srgb(px[c] * (1 - m) + chip[c] * (lp / lm) * tint * m);
-    }
-  }
-  return R;
-}
-const png = (raw, w) => sharp(raw, { raw: { width: W, height: H, channels: 3 } }).resize(w).png().toBuffer();
-const label = (text, w) =>
-  Buffer.from(`<svg width="${w}" height="34"><text x="8" y="24" font-family="Segoe UI" font-size="20">${text}</text></svg>`);
-
-const last = frames[frames.length - 1];
-const chips = [
-  ['As it is', null],
-  ['Sage', '#a8b5a0'],
-  ['Lake', '#8b9ea3'],
-  ['Clay', '#b5785f'],
-  ['Linen', '#f1e7dc'],
-  ['Walnut', '#80604f'],
-];
-const TW = 736;
+const pieces = frames.slice(1);
+const TW = 480;
 const TH = Math.round((TW * H) / W);
-const comps = [];
-for (const [i, [name, h]] of chips.entries()) {
-  const x = (i % 3) * TW;
-  const y = Math.floor(i / 3) * (TH + 34);
-  comps.push({ input: await png(await paintFrame(last, h), TW), left: x, top: y + 34 });
-  comps.push({ input: label(name, TW), left: x, top: y });
-}
-await sharp({ create: { width: TW * 3, height: 2 * (TH + 34), channels: 3, background: '#fff' } })
-  .composite(comps)
-  .jpeg({ quality: 88 })
-  .toFile(join(WORK, 'preview-paint.jpg'));
-await sharp(await paintFrame(last, '#a8b5a0'), { raw: { width: W, height: H, channels: 3 } })
-  .png()
-  .toFile(join(WORK, 'preview-sage-full.png'));
-
-// Every step painted Sage: the paint must hold on each frame, not just the last.
-const SW = 480;
-const SH = Math.round((SW * H) / W);
 const cols = 4;
-const rows = Math.ceil(frames.length / cols);
-const steps = [];
-for (const [i, f] of frames.entries()) {
-  const x = (i % cols) * SW;
-  const y = Math.floor(i / cols) * (SH + 34);
-  steps.push({ input: await png(await paintFrame(f, '#a8b5a0'), SW), left: x, top: y + 34 });
-  steps.push({ input: label(`${i} ${f.id ?? 'empty'}`, SW), left: x, top: y });
+const rows = Math.ceil(pieces.length / cols);
+const comps = [];
+for (const [i, f] of pieces.entries()) {
+  const full = await marked(f);
+  comps.push({ input: await sharp(full).resize(TW).toBuffer(), left: (i % cols) * TW, top: Math.floor(i / cols) * TH });
+  // A 1:1 crop round the pin, so it can be judged at real size.
+  const [px, py] = f.pin;
+  const cw = 520;
+  const ch = 380;
+  const left = Math.max(0, Math.min(W - cw, Math.round(px - cw / 2)));
+  const top = Math.max(0, Math.min(H - ch, Math.round(py - ch / 2)));
+  await sharp(full).extract({ left, top, width: cw, height: ch }).toFile(join(WORK, `preview-pin-${f.id}.jpg`));
 }
-await sharp({ create: { width: SW * cols, height: rows * (SH + 34), channels: 3, background: '#fff' } })
-  .composite(steps)
-  .jpeg({ quality: 85 })
-  .toFile(join(WORK, 'preview-steps.jpg'));
-console.log(join(WORK, 'preview-paint.jpg'));
+await sharp({ create: { width: cols * TW, height: rows * TH, channels: 3, background: '#f7f3ee' } })
+  .composite(comps)
+  .jpeg({ quality: 86 })
+  .toFile(join(WORK, 'preview-pins.jpg'));
+console.log(`Wrote ${join(WORK, 'preview-pins.jpg')} and ${pieces.length} pin crops.`);
