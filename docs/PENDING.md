@@ -502,9 +502,7 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   else imports each (BaseLayout, BrandKit and FeaturedTestimonial mention
   Cormorant), then drop them and their `_headers` / globals.css comments in one
   commit.
-- **The 404 page is still on the old grammar** (tracked small-caps eyebrow and
-  buttons). A rebuild in the new primitives, with the armchair doodle
-  ("Take a seat"), would finish the set.
+- **404 copy in Sanity (2026-10-03):** the 404 was rebuilt as "This room is still empty." (hand-lettered "empty."), but the `notFoundPage` document in Sanity still holds the old headline, body and "404" eyebrow, and Sanity wins over the page's defaults. Patch those three fields to the new copy (or clear them) so the new headline shows.
 - **CI and Lighthouse build without a Sanity read token.** Anonymous reads
   return only the page singletons (dotted _ids like `service.*` are private),
   so `ci.yml` and `lighthouse.yml` audit pages with no services, testimonials
