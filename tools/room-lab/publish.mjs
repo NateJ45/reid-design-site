@@ -1,29 +1,36 @@
-// Publish one room's reviewed output into the site as manifest v3 (WHOLE FRAMES), then
-// regenerate src/assets/room/rooms.json (the tab list).
+// Publish one room's reviewed output into the site as manifest v4 (WHOLE FRAMES plus the
+// ANNOTATIONS), then regenerate src/assets/room/rooms.json (the tab list).
 //
 // Why whole frames (Nathan, 2026-09-30): cut-out layers kept losing things (curtain rods,
-// table legs) and clipping shadows. Each step is now one complete photo of the room; the page
-// reveals the change in place and paints the walls of whichever frame is showing.
+// table legs) and clipping shadows. Each step is one complete photo of the room; the page
+// reveals the change in place.
+//
+// Why annotations, and no wall masks (Nathan, 2026-10-03): the paint-colour deck kept leaving
+// bad mask edges, so it went. The room now shows WHY each piece is there: a sample tag on a
+// string per piece (note + pin), an example brief at the start, and the plan and the booking
+// button at the end. All of those words come from the room's spec file, rooms/<slug>.json.
 //
 // Writes into src/assets/room/<slug>/:
 //   frame-N.jpg    the room after N pieces (frame-0 is empty), mozjpeg q90, full width
-//   wall-N.png     greyscale, frame width: paintable wall IN THAT FRAME (SegFormer, trim removed,
-//                  edges re-decided at full resolution by lib/wallrefine.mjs)
 //   change-N.png   greyscale 1024 wide, soft: where frame N differs from frame N-1 (N >= 1)
-//   manifest.json  { version: 3, width, height, wallMedianLinear, base, final, stages, frames }
-// One wallMedianLinear for the whole room (the empty room's), so paint looks the same on every
-// frame. Refuses (exit 1) when anything is missing. Stale files are removed from THIS room's
-// folder only. THE MANIFEST SHAPE IS A CONTRACT with src/lib/room-story.ts.
+//   manifest.json  { version: 4, width, height, base, final, stages, brief, plan, closing, frames }
+// Refuses (exit 1) when anything is missing or any visible copy breaks the house rules (no
+// digits, no em-dashes, one of the five checks, every piece has a note, every plan chip names
+// a real beat). Stale files (old wall masks included) are removed from THIS room's folder only.
+// THE MANIFEST SHAPE IS A CONTRACT with src/lib/room-story.ts (parseRoomManifest).
+//
+// CPU only (sharp); no ComfyUI and no model needed.
 //
 //   npm run room:publish -- --room living-transitional
-import { readFile, writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
+import { writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { DEST, ROOMS_DIR, FINAL, loadSpec, loadIndex } from './lib/paths.mjs';
 import { prettyJson } from './lib/json.mjs';
-import { loadSegmenter, segment } from './lib/wallmask.mjs';
-import { refineWall } from './lib/wallrefine.mjs';
+
+// The five checks from Staci's notebook (src/lib/room-story.ts ROOM_CHECKS).
+const CHECKS = ['lighting', 'scale', 'texture', 'balance', 'whats-missing'];
 
 const spec = await loadSpec();
 const W = spec.width;
@@ -33,30 +40,52 @@ const problems = [];
 const need = (cond, msg) => {
   if (!cond) problems.push(msg);
 };
-const walls = existsSync(join(FINAL, 'walls.json')) ? JSON.parse(await readFile(join(FINAL, 'walls.json'), 'utf8')) : null;
-const median = walls?.base?.wallMedianLinear;
-need(Array.isArray(median) && median.length === 3, 'walls.json has no base.wallMedianLinear (run room:walls)');
+/** Printable copy: non-blank, no digits (no decorative numbering), no em-dash. */
+const copy = (v, where) => {
+  if (typeof v !== 'string' || !v.trim()) return need(false, `${where}: missing`);
+  need(!/\d/.test(v), `${where}: no digits allowed ("${v}")`);
+  need(!v.includes(String.fromCharCode(0x2014)), `${where}: no em-dashes allowed ("${v}")`);
+};
+
 for (let n = 0; n <= N; n++) need(existsSync(join(FINAL, `frame-${n}.png`)), `missing frame-${n}.png`);
 for (const pc of spec.pieces) need(existsSync(join(FINAL, `piece-${pc.id}.mask.png`)), `missing piece-${pc.id}.mask.png`);
 need(spec.base?.alt?.startsWith('Concept image: '), 'base.alt must begin "Concept image: "');
 need(spec.final?.alt?.startsWith('Concept image: '), 'final.alt must begin "Concept image: "');
 const stageIds = new Set(spec.stages.map((s) => s.id));
-for (const st of spec.stages) need(Boolean(st.caption), `stage ${st.id}: caption is empty`);
-for (const pc of spec.pieces) need(stageIds.has(pc.stage), `piece ${pc.id}: unknown stage "${pc.stage}"`);
+for (const st of spec.stages) {
+  copy(st.label, `stage ${st.id} label`);
+  copy(st.caption, `stage ${st.id} caption`);
+}
+for (const pc of spec.pieces) {
+  need(stageIds.has(pc.stage), `piece ${pc.id}: unknown stage "${pc.stage}"`);
+  need(CHECKS.includes(pc.note?.check), `piece ${pc.id}: note.check must be one of ${CHECKS.join(', ')}`);
+  copy(pc.note?.text, `piece ${pc.id} note`);
+  if (pc.pin !== undefined) {
+    const [x, y] = Array.isArray(pc.pin) ? pc.pin : [];
+    need(Number.isFinite(x) && Number.isFinite(y) && x >= 0 && y >= 0 && x <= W && y <= H, `piece ${pc.id}: pin must be [x, y] inside the frame`);
+  }
+  if (pc.side !== undefined) need(pc.side === 'left' || pc.side === 'right', `piece ${pc.id}: side must be "left" or "right"`);
+}
+copy(spec.brief?.title, 'brief title');
+copy(spec.brief?.tag, 'brief tag');
+need(Array.isArray(spec.brief?.rows) && spec.brief.rows.length > 0, 'brief: needs rows');
+for (const [i, r] of (spec.brief?.rows ?? []).entries()) {
+  copy(r?.question, `brief row ${i + 1} question`);
+  copy(r?.answer, `brief row ${i + 1} answer`);
+}
+need(Array.isArray(spec.plan) && spec.plan.length > 0, 'plan: needs at least one chip');
+for (const p of spec.plan ?? []) {
+  copy(p?.label, `plan ${p?.id}`);
+  need(stageIds.has(p?.beat), `plan ${p?.id}: unknown beat "${p?.beat}"`);
+}
+copy(spec.closing?.line, 'closing line');
 if (problems.length) {
   console.error('publish refused:\n  - ' + problems.join('\n  - '));
   process.exit(1);
 }
 
 await mkdir(DEST, { recursive: true });
-// Wall masks are written at the frame's own width (they were 1024 wide before 2026-10-03, which
-// softened every edge); change masks stay 1024 wide (soft by design).
-const greyFull = (buf, dest) =>
-  sharp(buf, { raw: { width: W, height: H, channels: 1 } })
-    .extractChannel(0)
-    .toColourspace('b-w')
-    .png()
-    .toFile(join(DEST, dest));
+// Change masks are 1024 wide (soft by design).
 const grey1024 = (buf, dest) =>
   sharp(buf, { raw: { width: W, height: H, channels: 1 } })
     .resize({ width: 1024 })
@@ -65,62 +94,12 @@ const grey1024 = (buf, dest) =>
     .png()
     .toFile(join(DEST, dest));
 
-const segmenter = await loadSegmenter();
-let wall0 = null; // the refined empty-room mask, the prior for every later frame
-const empty = await sharp(join(FINAL, 'frame-0.png')).removeAlpha().raw().toBuffer();
 const frames = [];
 for (let n = 0; n <= N; n++) {
   const src = join(FINAL, `frame-${n}.png`);
   await sharp(src).resize({ width: W }).jpeg({ quality: 90, mozjpeg: true }).toFile(join(DEST, `frame-${n}.jpg`));
-  // The frame's own paintable wall: SegFormer's wall label with the baseboard and trim passes
-  // (lib/wallmask segment), exactly as the empty room's mask is made.
-  const { wall } = await segment(segmenter, src);
-  // SegFormer calls thin brass curtain rods and white crown moulding "wall", so they got
-  // painted. Judge each wall pixel against the EMPTY room at the same spot: far darker, or
-  // another hue when not brighter (brass, iron), or clearly whiter and far less coloured
-  // (new trim) is not wall. Re-lit and shadowed wall stays inside these limits.
-  if (n > 0) {
-    const cur = await sharp(src).removeAlpha().raw().toBuffer();
-    const odd = Buffer.alloc(W * H);
-    for (let p = 0; p < W * H; p++) {
-      if (wall[p] === 0) continue;
-      const j = p * 3;
-      const yc = 0.299 * cur[j] + 0.587 * cur[j + 1] + 0.114 * cur[j + 2];
-      const y0 = 0.299 * empty[j] + 0.587 * empty[j + 1] + 0.114 * empty[j + 2];
-      const r = yc / Math.max(1, y0);
-      const sat = (a, b, c) => {
-        const mx = Math.max(a, b, c);
-        return mx ? (mx - Math.min(a, b, c)) / mx : 0;
-      };
-      const s0 = sat(empty[j], empty[j + 1], empty[j + 2]);
-      const sc = sat(cur[j], cur[j + 1], cur[j + 2]);
-      const s1 = empty[j] + empty[j + 1] + empty[j + 2] + 1;
-      const s2 = cur[j] + cur[j + 1] + cur[j + 2] + 1;
-      const hue = Math.max(
-        Math.abs(empty[j] / s1 - cur[j] / s2),
-        Math.abs(empty[j + 1] / s1 - cur[j + 1] / s2),
-        Math.abs(empty[j + 2] / s1 - cur[j + 2] / s2),
-      );
-      if (r > 1.12 && sc < 0.45 * s0) wall[p] = 0; // new white trim
-      else if (r < 0.55 || (r <= 1 && hue > 0.06)) odd[p] = 255;
-    }
-    // Only THIN odd features leave the wall (rods, frame edges). A broad odd patch is a
-    // shadow (the sofa's, on the wall by its arm) and must still take paint. Opening the odd
-    // mask (erode then dilate, ~5 px) keeps only the broad parts; the difference is thin.
-    const eroded = await sharp(odd, { raw: { width: W, height: H, channels: 1 } }).blur(5).extractChannel(0).raw().toBuffer();
-    for (let p = 0; p < W * H; p++) eroded[p] = eroded[p] > 235 ? 255 : 0;
-    const opened = await sharp(eroded, { raw: { width: W, height: H, channels: 1 } }).blur(5).extractChannel(0).raw().toBuffer();
-    for (let p = 0; p < W * H; p++) if (odd[p] && opened[p] < 20) wall[p] = 0;
-  }
-  // Re-decide the uncertain band along every edge at full resolution (lib/wallrefine.mjs): the
-  // coarse mask above is soft and out by up to ~10 px, which painted as halos and patches.
-  // Every later frame also takes back wide shadow strips the empty room had as wall.
-  const rgbNow = n > 0 ? await sharp(src).removeAlpha().raw().toBuffer() : empty;
-  const refined = await refineWall(rgbNow, wall, W, H, n > 0 ? wall0 : null);
-  if (n === 0) wall0 = refined;
-  await greyFull(refined, `wall-${n}.png`);
   if (n === 0) {
-    frames.push({ image: 'frame-0.jpg', wall: 'wall-0.png' });
+    frames.push({ image: 'frame-0.jpg' });
     console.log('frame-0 (empty room)');
     continue;
   }
@@ -145,30 +124,42 @@ for (let n = 0; n <= N; n++) {
   }
   const soft = await sharp(m, { raw: { width: W, height: H, channels: 1 } }).blur(3).extractChannel(0).raw().toBuffer();
   await grey1024(soft, `change-${n}.png`);
+  const box = [x0, y0, x1 - x0 + 1, y1 - y0 + 1];
+  // The pin: the spec's point, else the box centre (always written out, so the manifest says
+  // exactly where every string goes).
+  const pin = Array.isArray(pc.pin) ? [Math.round(pc.pin[0]), Math.round(pc.pin[1])] : [Math.round(x0 + box[2] / 2), Math.round(y0 + box[3] / 2)];
   frames.push({
     id: pc.id,
     stage: pc.stage,
     image: `frame-${n}.jpg`,
-    wall: `wall-${n}.png`,
     change: `change-${n}.png`,
-    box: [x0, y0, x1 - x0 + 1, y1 - y0 + 1],
+    box,
     motion: pc.motion,
+    note: { check: pc.note.check, text: pc.note.text },
+    pin,
+    side: pc.side === 'left' ? 'left' : 'right',
   });
-  console.log(`frame-${n} ${pc.id}: box ${x0},${y0} ${x1 - x0 + 1}x${y1 - y0 + 1}, ${pc.motion}`);
+  console.log(`frame-${n} ${pc.id}: box ${box.join(',')}, pin ${pin.join(',')}, ${pc.motion}`);
 }
 
 const manifest = {
-  version: 3,
+  version: 4,
   width: W,
   height: H,
-  wallMedianLinear: median,
   base: { alt: spec.base.alt },
   final: { alt: spec.final.alt },
-  stages: spec.stages.map((s) => ({ id: s.id, caption: s.caption })),
+  stages: spec.stages.map((s) => ({ id: s.id, label: s.label, caption: s.caption })),
+  brief: {
+    title: spec.brief.title,
+    tag: spec.brief.tag,
+    rows: spec.brief.rows.map((r) => ({ question: r.question, answer: r.answer })),
+  },
+  plan: spec.plan.map((p) => ({ id: p.id, label: p.label, beat: p.beat })),
+  closing: { line: spec.closing.line },
   frames,
 };
 
-const keep = new Set(['manifest.json', ...frames.flatMap((f) => [f.image, f.wall, f.change].filter(Boolean))]);
+const keep = new Set(['manifest.json', ...frames.flatMap((f) => [f.image, f.change].filter(Boolean))]);
 for (const f of await readdir(DEST)) {
   if (/^(frame|wall|change|mask|layer|shade|light|base|final)[-.].*\.(jpg|png|webp)$/.test(f) && !keep.has(f)) {
     await unlink(join(DEST, f));
@@ -183,4 +174,4 @@ const roomsList = loadIndex()
   .map((r) => ({ slug: r.slug, label: r.label, type: r.type, style: r.style, manifest: `${r.slug}/manifest.json` }));
 await writeFile(join(ROOMS_DIR, 'rooms.json'), prettyJson({ version: 1, rooms: roomsList }));
 console.log(`rooms.json lists: ${roomsList.map((r) => r.slug).join(', ') || '(none)'}`);
-console.log(`Published ${frames.length} frames (manifest v3) to ${DEST}. Review, then commit src/assets/room.`);
+console.log(`Published ${frames.length} frames (manifest v4) to ${DEST}. Review, then commit src/assets/room.`);

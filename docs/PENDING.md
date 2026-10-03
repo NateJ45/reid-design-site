@@ -14,6 +14,16 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-03: the annotated concept room (branch `claude/room-annotated`, worktree `../reid-concept-room`)
+
+Built by a delegated agent for the main session to review (brief: `docs/design/2026-10-03-annotated-room.md`).
+
+- [ ] Staci reviews the piece notes, the example brief and the plan labels in `tools/room-lab/rooms/living-transitional.json`; the notes are plain design principles drafted by Claude, not her words. The beat short names ("The bones", "Easy to live in", "Making it yours") are new too and need her eye. Change them in that file, then `npm run room:publish -- --room living-transitional` and commit.
+- [ ] Main session: patch `homePage.roomStoryHeadline` = "Every piece is chosen for a reason.", `roomStoryScriptAccent` = "for a reason", `roomStoryIntro` = "Watch one empty room get built, and see why each piece is there." (the live intro may still mention the paint chips).
+- [ ] Nathan looks at it on a real phone and laptop (the tag hand-over speed is `NOTE_IN` / `CLOSE_LEAD` in `src/lib/room-story.ts`), and Lighthouse on `/` in CI (a11y 100).
+- [ ] Decide whether `tools/room-lab/walls.mjs` (+ `room:walls`) and `layers.mjs` (+ `room:layers`) go: they are v2 leftovers (the cut-out layers and their base wall mask); nothing the site uses reads their output any more, but `layers.mjs` still needs `walls.mjs`, so they were kept as a pair.
+- [ ] A held room (the kitchen, the four others) now needs a `note` (and a `pin` checked with `room:preview`) on every piece, plus `label` on each stage and a `brief`, `plan` and `closing` in its spec, before `room:publish` will accept it.
+
 ### From 2026-10-01: mid-market pass (`ccr-a5ebbe27-eingtv`), content APPLIED 2026-10-02
 
 Staci's decision: Reid Design is a mid-market studio (polished and trustworthy,
@@ -398,7 +408,7 @@ rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5
 
 **2026-10-03, About placeholders (waiting on Staci):** the About "Off the Clock" board shows placeholder rows (`_key`s start `ph-`, wording "Placeholder...") in Currently, Rapid fire and Local spots, published at Nathan's request so the whole layout shows. Staci writes her real answers in Studio > About > Off the clock. Never restore the old seed wording (invented, see changelog 2026-10-03).
 
-**2026-10-03, wall masks:** Nathan reported paint fringes (halos round leaves and the sofa, curtain-edge patches). Fixed by `tools/room-lab/lib/wallrefine.mjs` (see changelog); PR on `claude/room-wall-masks`. Any room published from now on gets it automatically (`room:publish`); the held kitchen and the four other rooms need no extra step. A thin warm edge beside the curtain stays under a dark chip: it is the curtain's own edge.
+**2026-10-03, wall masks (SUPERSEDED the same day: the paint deck and every wall mask were removed for the annotated room, see the top of this file):** Nathan reported paint fringes (halos round leaves and the sofa, curtain-edge patches). Fixed by `tools/room-lab/lib/wallrefine.mjs` (see changelog); PR on `claude/room-wall-masks`. Any room published from now on gets it automatically (`room:publish`); the held kitchen and the four other rooms need no extra step. A thin warm edge beside the curtain stays under a dark chip: it is the curtain's own edge.
 
 **2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
 `../reid-concept-room`, PR #83 on top of the merged #81):** built by a delegated agent for the main session to
@@ -417,8 +427,7 @@ only: black pulls, faucet, pendant, runner, roman shade, art, counter styling) i
 reviewed in `tools/room-lab/work/kitchen-modern/` (frames, spec `rooms/kitchen-modern.json`) but
 held back, so it is not under `src/assets/room/`. To add it later:
 `npm run room:publish -- --room kitchen-modern` (rewrites its folder and rooms.json), check
-`room:preview`, build, commit. Two known small mask flaws: a pink block at the far left edge
-under the cabinet and a sliver of the bottom-right baseboard get painted. The other four rooms
+`room:preview`, build, commit. (Its two known wall-mask flaws no longer matter: the paint deck is gone. It needs notes, pins, a brief and a plan in its spec first.) The other four rooms
 (family, dining, bath, bedroom) are still held (see below). Work in a git worktree
 (`../reid-concept-room`): another session shares the main checkout and switches its branch.
 
@@ -432,8 +441,8 @@ under the cabinet and a sliver of the bottom-right baseboard get painted. The ot
    `room:generate -- stages --base tools/room-lab/work/<slug>/base/<pick>.png --workflow edit-reflatent` →
    look at every frame at 1:1; redo a weak piece with `room:candidates -- --piece <id>` then
    `--pick <seed>` (then regenerate later pieces with `stages --only <id>` in order) →
-   `room:grade` → `room:walls` → `room:publish` → `room:preview` (check
-   `preview-sage-full.png` at 1:1: rods/legs unpainted, shadows paint) → `npm run build` and
+   `room:grade` → write each piece's `note` and `pin` in the spec → `room:publish` → `room:preview` (check
+   `preview-pins.jpg` and the `preview-pin-<id>.jpg` crops at 1:1: every pin on its object) → `npm run build` and
    check the page → show Nathan → commit `src/assets/room/`.
 3. Base picks so far: family-farmhouse **khaki-6606**, dining-deco **salmon-2202**, kitchen-modern **yellow-3303**, bath-seaside **pink-6606**, bedroom-japandi **bluegrey-6606**.
    Kitchen, bath: re-rolled as dated-but-complete rooms (specs rewritten), candidates were

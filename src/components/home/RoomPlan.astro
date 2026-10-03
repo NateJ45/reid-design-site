@@ -1,0 +1,183 @@
+---
+// Safe to edit by hand (the look); the labels come from the room's manifest
+// =============================================================================
+// RoomPlan: "What's in the plan", the dock under the annotated concept room
+// (2026-10-03)
+// =============================================================================
+// Staci's real deliverables (from /services and /process) as a short PAINT
+// STRIP, the home page's paint-chip vocabulary (home/PaintChips.astro): each
+// chip a ramp face with its label printed on it and a punched hole.
+//
+//   - Unlit: a Paper face, ink label, and the punched hole ringed in the
+//     chip's own colour, so you can see what it will become. Contrast never
+//     depends on opacity: the label is always full ink.
+//   - Lit (RoomStage's script sets data-lit once the chip's beat has
+//     finished): the face fills with its colour, the chip lifts about 4px
+//     with a soft shadow, and a hand-drawn tick draws in. Ink on chips 1 to
+//     4, cream on chip 6; never chip 5 (no text on Warm Bronze).
+//
+// The label above the strip is sentence case, led by a short rule (no
+// tracked capitals). On a phone the strip is one sideways scroll-snap row.
+// Scripted only: without a script the plan is the plain list in RoomNotes.
+// =============================================================================
+import type { PlanView } from './room-view';
+
+interface Props {
+  plan: PlanView[];
+}
+
+const { plan } = Astro.props as Props;
+---
+
+<div class="room__dock" data-room-dock>
+  <p class="room__dock-label">What’s in the plan</p>
+  {
+    /* Focusable: on a phone the strip scrolls sideways, and a keyboard must
+    be able to reach and scroll it (axe scrollable-region-focusable). */
+  }
+  <ul class="room__chips" tabindex="0" aria-label="What’s in the plan">
+    {
+      plan.map((p) => (
+        <li
+          class="pchip"
+          data-plan-beat={p.stage}
+          data-tone={p.tone}
+          style={`--tone: var(--color-chip-${p.tone})`}
+        >
+          <span class="pchip__hole" aria-hidden="true" />
+          <span class="pchip__label">{p.label}</span>
+          <svg class="pchip__tick" viewBox="0 0 20 16" aria-hidden="true" focusable="false">
+            <path pathLength="1" d="M2.5 8.6c1.4 1.1 2.7 2.6 3.9 4.6C9 8.4 12.6 4.4 17.6 2.2" />
+          </svg>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .room__dock {
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 0;
+  }
+  .room__dock-label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 0.45rem;
+    font: 500 0.82rem/1.2 var(--font-body);
+    color: var(--color-ink);
+  }
+  .room__dock-label::before {
+    content: '';
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-chip-5);
+  }
+  .room__chips {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.3rem 0 0;
+    list-style: none;
+  }
+  .room__chips:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .pchip {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 3.35rem;
+    padding: 1.2rem 1.7rem 0.5rem 0.6rem;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-rule);
+  }
+  /* The punched hole, ringed in the chip's own colour. */
+  .pchip__hole {
+    position: absolute;
+    top: 0.45rem;
+    left: 0.6rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-bg);
+    box-shadow:
+      0 0 0 1.5px var(--tone),
+      inset 0 1px 1.5px rgb(0 0 0 / 0.18);
+  }
+  .pchip__label {
+    font: 500 0.76rem/1.2 var(--font-body);
+    text-wrap: balance;
+  }
+  .pchip__tick {
+    position: absolute;
+    right: 0.45rem;
+    top: 0.4rem;
+    width: 1.05rem;
+    height: 0.85rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1 1.05;
+    stroke-dashoffset: 1.02;
+  }
+  .pchip[data-lit] {
+    background: var(--tone);
+    box-shadow:
+      inset 0 0 0 1px rgb(35 30 27 / 0.08),
+      0 10px 16px -10px rgb(35 30 27 / 0.45);
+    transform: translateY(-4px);
+  }
+  .pchip[data-lit] .pchip__tick {
+    stroke-dashoffset: 0;
+  }
+  .pchip[data-lit][data-tone='6'] {
+    color: var(--color-cream);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pchip {
+      transition:
+        background-color 450ms var(--ease),
+        box-shadow 450ms var(--ease),
+        transform 450ms var(--ease),
+        color 450ms var(--ease);
+    }
+    .pchip__tick {
+      transition: stroke-dashoffset 520ms var(--ease) 180ms;
+    }
+  }
+  /* Phone: one sideways scroll-snap row, as the paint chips were. Padding
+     inside the scroll box leaves room for the lift and its shadow, and lets
+     the last chip scroll clear of the back-to-top button. */
+  @media (max-width: 1023px) {
+    .room__chips {
+      grid-auto-columns: 7.4rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 0.25rem;
+      padding: 0.45rem 4.5rem 0.75rem 0.25rem;
+      margin: -0.15rem -0.25rem -0.75rem;
+      scrollbar-width: none;
+    }
+    .room__chips::-webkit-scrollbar {
+      display: none;
+    }
+    .pchip {
+      scroll-snap-align: start;
+      min-height: 3.1rem;
+    }
+  }
+  /* Reduced motion: the chip fills, but does not lift or draw. */
+  @media (prefers-reduced-motion: reduce) {
+    .pchip[data-lit] {
+      transform: none;
+    }
+  }
+</style>

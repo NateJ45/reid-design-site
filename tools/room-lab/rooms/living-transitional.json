@@ -29,25 +29,85 @@
   "stages": [
     {
       "id": "bones",
+      "label": "The bones",
       "caption": "Start with the bones: crown moulding, a rug that sets the scale, and a sofa that fits without hiding the big wall."
     },
     {
       "id": "comfort",
+      "label": "Easy to live in",
       "caption": "Then what makes it easy to live in: a table for the mug, a lamp for the evenings, a chair angled toward the conversation, and curtains that finish the windows."
     },
     {
       "id": "finish",
+      "label": "Making it yours",
       "caption": "Last, what makes it yours: art hung low on the big wall, olive branches, books and a soft throw."
     }
   ],
   "final": {
     "alt": "Concept image: the finished living room with crown moulding, a rug, sofa, tables, chair, curtains, art and styling."
   },
+  "brief": {
+    "title": "The brief",
+    "tag": "an example",
+    "rows": [
+      {
+        "question": "What’s working",
+        "answer": "The big windows."
+      },
+      {
+        "question": "What isn’t",
+        "answer": "Nowhere to sit, and nothing matches."
+      },
+      {
+        "question": "What I wished it felt like",
+        "answer": "Bright, and easy to be in."
+      }
+    ]
+  },
+  "plan": [
+    {
+      "id": "layout",
+      "label": "Layout plan",
+      "beat": "bones"
+    },
+    {
+      "id": "color",
+      "label": "Color and finish guidance",
+      "beat": "bones"
+    },
+    {
+      "id": "picks",
+      "label": "Furniture and decor picks",
+      "beat": "comfort"
+    },
+    {
+      "id": "sourcing",
+      "label": "Sourcing list with links",
+      "beat": "comfort"
+    },
+    {
+      "id": "styling",
+      "label": "Styling and final reveal",
+      "beat": "finish"
+    }
+  ],
+  "closing": {
+    "line": "You see everything before a single item is purchased."
+  },
   "pieces": [
     {
       "id": "trim",
       "stage": "bones",
       "motion": "sweep",
+      "note": {
+        "check": "whats-missing",
+        "text": "A room without trim looks unfinished. Crown moulding gives the ceiling a clean edge."
+      },
+      "pin": [
+        1080,
+        206
+      ],
+      "side": "right",
       "change": "add white crown moulding where the walls meet the ceiling, taller white baseboards along the bottom of every wall, and wider white casing around both windows. Add no furniture and no rug; the floor stays bare. Keep the walls, windows, floor and light exactly the same.",
       "seeds": [
         11,
@@ -60,6 +120,15 @@
       "id": "rug",
       "stage": "bones",
       "motion": "unroll",
+      "note": {
+        "check": "scale",
+        "text": "Big enough that the front feet of the furniture sit on it. A small rug shrinks a room."
+      },
+      "pin": [
+        470,
+        1000
+      ],
+      "side": "right",
       "change": "add one large 9 by 12 foot natural wool area rug in a soft oat colour with a subtle low texture, lying flat on the floor in the middle of the room and reaching close to the large plain wall on the right. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         21,
@@ -74,6 +143,15 @@
       "id": "sofa",
       "stage": "bones",
       "motion": "slide-left",
+      "note": {
+        "check": "balance",
+        "text": "It fits the wall without hiding it. The big wall gets room to breathe."
+      },
+      "pin": [
+        1180,
+        676
+      ],
+      "side": "left",
       "change": "add one relaxed three-seat sofa upholstered in a smooth, solid, matte oat brushed-cotton fabric with a soft even surface (like a well-worn cotton slipcover), gentle natural creases, slightly rumpled seat cushions, rolled arms and short walnut legs. Centred against the large plain wall on the right with its front legs on the rug; the wall above it stays bare. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         3031,
@@ -91,6 +169,15 @@
       "id": "coffee-table",
       "stage": "comfort",
       "motion": "rise",
+      "note": {
+        "check": "scale",
+        "text": "Close enough to reach from the sofa, with space left to walk around it."
+      },
+      "pin": [
+        900,
+        840
+      ],
+      "side": "right",
       "change": "add a low rectangular coffee table in solid oiled walnut with simple straight legs, plain wood only (no metal inlays, no brass corners), standing on the rug in front of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1041,
@@ -106,6 +193,15 @@
       "id": "side-table-lamp",
       "stage": "comfort",
       "motion": "rise",
+      "note": {
+        "check": "lighting",
+        "text": "A lamp at seat height. Overhead light flattens a room; a lamp makes it feel lived in."
+      },
+      "pin": [
+        628,
+        545
+      ],
+      "side": "right",
       "change": "add a small round walnut side table next to the left arm of the sofa, a little in front of the wall, with a table lamp on it that has a cream linen drum shade and a brass base. The lamp is switched OFF: the shade is plain unlit cream linen in daylight, with no glow. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1051,
@@ -123,6 +219,15 @@
       "id": "chair",
       "stage": "comfort",
       "motion": "slide-right",
+      "note": {
+        "check": "balance",
+        "text": "Angled toward the sofa: a spot to talk, and the room stops leaning to one side."
+      },
+      "pin": [
+        240,
+        720
+      ],
+      "side": "right",
       "change": "add one mid-century accent chair with a solid walnut frame and a cushioned seat and back in plain cream boucle, on the rug near the windows, angled toward the sofa. Plain wooden arms with no pads. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1061,
@@ -140,6 +245,15 @@
       "id": "curtains",
       "stage": "comfort",
       "motion": "drop",
+      "note": {
+        "check": "texture",
+        "text": "Hung high and wide so the windows read taller, and the light comes in soft."
+      },
+      "pin": [
+        100,
+        330
+      ],
+      "side": "right",
       "change": "hang simple full-length cream linen curtains on thin brass rods at both windows, pulled open to the sides so the windows stay bright. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1071,
@@ -154,6 +268,15 @@
       "id": "art",
       "stage": "finish",
       "motion": "drop",
+      "note": {
+        "check": "balance",
+        "text": "Hung low enough to belong to the sofa instead of floating on the wall."
+      },
+      "pin": [
+        1050,
+        450
+      ],
+      "side": "left",
       "change": "hang one medium framed landscape print with a thin black frame and a white mat on the large plain wall, centred above the sofa, leaving plenty of bare wall around it. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         1081,
@@ -168,6 +291,15 @@
       "id": "olive",
       "stage": "finish",
       "motion": "pop",
+      "note": {
+        "check": "texture",
+        "text": "Something living and loose to soften all the straight lines."
+      },
+      "pin": [
+        860,
+        620
+      ],
+      "side": "left",
       "change": "place a sparse, natural arrangement of three freshly cut olive branches in a small matte white ceramic vase at one end of the coffee table. Real olive: long thin woody stems that bend irregularly, small narrow leaves that are dull grey-green on top and pale silvery underneath, leaves pointing in different directions with gaps between them, a little asymmetric and loose, photographed in soft daylight. Not a fern, not a houseplant, not dark green, not symmetrical. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         4091,
@@ -187,6 +319,15 @@
       "id": "books-throw",
       "stage": "finish",
       "motion": "pop",
+      "note": {
+        "check": "texture",
+        "text": "Books and a throw: the layer that makes it look like someone lives here."
+      },
+      "pin": [
+        715,
+        785
+      ],
+      "side": "right",
       "change": "add a short stack of three books on the coffee table and a soft oat knitted throw draped over the arm of the sofa. Style: warm, relaxed transitional; colours oat, cream and linen, walnut wood, touches of brass. Add ONLY this one thing and nothing else; keep the floor, walls, windows and light exactly the same.",
       "seeds": [
         101,
