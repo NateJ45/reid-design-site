@@ -48,7 +48,7 @@ designer, not a showroom salesperson. Three words: **collected, candid, handmade
 The site should feel like sitting at Staci's work table with the sample book open:
 real materials, real prices, a person you can picture in your kitchen.
 
-Voice rules are in `CLAUDE.md` (Communication style, Reid Design site voice).
+Voice rules are in `docs/claude/voice-and-audience.md` (Communication style, Reid Design site voice).
 
 ## Anti-references
 

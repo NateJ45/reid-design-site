@@ -200,10 +200,10 @@ sources of build nondeterminism.
 
 - **Lighthouse on the deployed edge.** `.github/workflows/lighthouse.yml`
   audits the static build on every push, but against a local static server,
-  not Cloudflare. CLAUDE.md's visual verification workflow still asks for a
+  not Cloudflare. docs/claude/visual-verification.md still asks for a
   Lighthouse run on the deployed URL for accessibility-affecting changes.
 - **No visual regression / screenshot diffing.** Both viewports (the site is
-  light only since 2026-09-29, so there is one theme to check) are checked by a human against the running site, per CLAUDE.md. The family
+  light only since 2026-09-29, so there is one theme to check) are checked by a human against the running site, per docs/claude/visual-verification.md. The family
   standard only screenshots a fixture-driven `/styleguide` route (WCP has one);
   this site has none, and its pages are CMS-driven, so pixel diffs would flake
   with content.
