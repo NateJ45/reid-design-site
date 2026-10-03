@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Header Google rating links to the write-a-review page
+
+Nathan: the header rating should go where Contact's "Leave a review" button goes. It linked to the business profile (maps.google.com/?cid=...). `RatingTag`'s `compact` variant (the header's) now uses `googleWriteReviewUrl` (g.page/.../review) and falls back to the profile when that is unset; the other variants are unchanged. A smoke test compares the header link with Contact's button.
+
 ## 2026-10-03: Concept room caption card moved off the coffee table
 
 Nathan: the laptop caption card covered part of the coffee table. On a wide window (min-width 1100px and min-aspect-ratio 8/5) the card now sits in the margin left of the room (13.25rem wide, `right: calc(100% + 1rem)`), so it never covers the furniture; a taller window, where the room leaves no margins, keeps a narrow (14.5rem) overlay at the lower-left. CSS only, in `RoomCaptions.astro`. Checked at 1280x800 (margin) and 1280x1024 (overlay).
