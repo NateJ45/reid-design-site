@@ -2,6 +2,22 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: The staging branch is gone
+
+Nathan's call: staging is no longer used (the nixoncreativestudio project dropped it too). Deleted the `staging` branch and every merged or abandoned branch and agent worktree, local and on GitHub; only `main` and the open Dependabot PR branches remain. CI changes: removed `.github/workflows/deploy-staging.yml`, the `staging` push trigger from `ci.yml` and `lighthouse.yml`, the starter-staging sync-check ref (every build now checks the starter's `main`), and the "fast-forward staging to main" step in `dependabot-auto-merge.yml`. The deployed `reid-design-site-staging` Cloudflare Worker is NOT deleted by this and no longer updates. Older entries below that mention staging are history and were left as written.
+
+## 2026-10-03: Phone menu: rating beside the logo, kicker removed (#100)
+
+The phone menu's "Reid Design, Plainfield" kicker line was dropped to save space, and the Google rating (one star and the number, never five stars for a 4.6) moved from the foot to the top row, just right of her cream logo. `MobileNav.tsx` and `mobile-nav.css`; DESIGN.md "Chrome" and docs/agent/components.md follow. (The header comment inside `MobileNav.tsx` still describes the old layout.)
+
+## 2026-10-03: The 404 is "This room is still empty" (#97)
+
+`src/pages/404.astro` rebuilt in the house primitives: the headline in the word-rise with the hand-lettered accent on "empty.", the concept room's EMPTY frame (`frame-0.jpg`, AI only) in `.r-frame` with a "Concept room, before" tag, a line-drawn armchair with a floor-plan dimension, a four-row deck index (Services, How it works, Meet Staci, Write a note), one "Back home" tag button and a plain GET search to `/search`. `notFoundPage` copy fields (eyebrow, headline, body, primary button, SEO) still win when set; its `heroImage` and secondary/tertiary CTA fields are no longer read. Spec: DESIGN.md "The 404".
+
+## 2026-10-03: Contact: room and style picks (#96)
+
+`ContactForm.tsx` gains two optional picks in "Your space": "Which rooms?" (sample tags; any number, "Whole home" stands alone) and "Which of these feels like home?" (eight paint-chip style cards, up to two, "Not sure yet" stands alone). Pure data and rules in `src/lib/style-picker.ts` (`src/lib/style-picker.test.ts`); they reach Staci as the Web3Forms fields `rooms` and `style_feel`, omitted when empty, never folded into the message. Styles mirror the concept-room tabs. CSS in `contact-form.css`. Spec: DESIGN.md "Contact and Privacy".
+
 ## 2026-10-03: E-Design pricing chip no longer stranded
 
 Nathan: the lone price card sat by itself under its heading. With a single tier, `EDesignTiers.astro` now uses the page's heading-left / content-right split (same as What's included and the FAQ: heading cols 1-4, chip cols 6-12, stacked under 1024px) and drops the chip's feature list, which repeated "What's included" directly above. Two or more tiers are unchanged (full-width row, feature lists kept).
@@ -66,6 +82,10 @@ Nathan sent crops of the paint chips showing where the wall masks were wrong: a 
 ## 2026-10-03: Concept room caption card moved off the coffee table
 
 Nathan: the laptop caption card covered part of the coffee table. On a wide window (min-width 1100px and min-aspect-ratio 8/5) the card now sits in the margin left of the room (13.25rem wide, `right: calc(100% + 1rem)`), so it never covers the furniture; a taller window, where the room leaves no margins, keeps a narrow (14.5rem) overlay at the lower-left. CSS only, in `RoomCaptions.astro`. Checked at 1280x800 (margin) and 1280x1024 (overlay).
+
+## 2026-10-02: The Before & After page is removed (#89)
+
+Nathan's call. `src/pages/portfolio/before-after.astro` is gone, with its nav entry (the Resources dropdown) and the shortcut link on the portfolio grid (`ProjectBoard.astro`); `public/_redirects` 301s `/portfolio/before-after` and its trailing-slash form to `/portfolio/`, and `tests/routes.ts` `hiddenRoutes` lost the entry. The before/after sliders stay on each project page. Same PR: full-hour clock faces keep their hand at 12 instead of fading, the "Google reviews first, newest first" note on Home was dropped, a missing space before the link on the empty portfolio state was fixed, and the concept room's phone padding tightened (section padding floor 5rem to 2.5rem; caption steps below 1024px). Leftovers not removed (code): the `beforeAfter` field group on `portfolioPage`, `getProjectsWithBeforeAfter()` and the `beforeAfter*` projection in `queries.ts`, and the `project.ts` field description that still says the pairs feed the Before & After page.
 
 ## 2026-10-02: Concept room: the scroll scrub (branch `claude/concept-room-scrub`)
 

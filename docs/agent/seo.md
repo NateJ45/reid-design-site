@@ -10,7 +10,7 @@ Reid Design competes on local search ("Plainfield interior designer", "Indianapo
 
 - `<title>`, unique per page, 50–60 characters, brand name as suffix ("Services: Reid Design LLC"). Pulled from the page singleton's `seoTitle` field, falls back to the page's primary headline.
 - `<meta name="description">`, unique per page, 150–160 characters, written as a sentence a human would click. Pulled from `seoDescription`. No marketing puffery, match the on-page voice.
-- `<link rel="canonical">`, absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and the staging domain from competing with reiddesignllc.com once DNS cuts over.
+- `<link rel="canonical">`, absolute URL computed from `Astro.url.pathname` + `site.url`. Prevents the workers.dev URL and any preview domain from competing with reiddesignllc.com once DNS cuts over.
 - Open Graph + Twitter meta, set in BaseLayout. **Every BaseLayout page gets its own share card, drawn on every build** (drawn since 2026-09-29; design F "the cover" since 2026-09-30: Staci's branding portrait with her name tag, her real logo in the masthead, the page's own name as the big line, one real fact, at most one object, one ground colour per page; DESIGN.md "Share cards". Replaced design E "the hero card", which replaced design D, the Cormorant arch window). See "Share cards" below.
 
 ### Share cards (og:image)

@@ -554,8 +554,10 @@ FINISHED (the last frame showing whole), a quiet row under the booking tag
 offers four wall colours, Sage #a8b5a0, Clay #b5785f, Lake #8b9ea3 and
 Espresso #5f4639, plus "As it is". It is labelled with the plan's chip,
 "Color and finish guidance: try a wall color", so it reads as a taste of
-that deliverable. Small round paint dabs with their names in 0.8rem ink
-type, real buttons with aria-pressed, the chosen one ringed and underlined:
+that deliverable. Each is a small square-cornered paint chip (a block of the colour over a Paper
+label strip with its name in ink type, a soft shadow; redrawn from round dabs on
+2026-10-03 because they read as pills), real buttons with aria-pressed, the chosen
+one lifted with an ink outline (no lift under reduced motion):
 deliberately quieter than the booking tag, which stays the loudest thing
 in the close. Lake and Clay are wall-paint swatches ONLY, never UI colours.
 The walls repaint in the photo's own light (linear-light maths, a 900 ms
@@ -700,8 +702,8 @@ shown whole, chips do not lift, cards swap without a fade or swing.
 ## The hand layer (2026-09-30)
 
 The site should feel worked on by a person, the way a project board does:
-botanical line drawings in the margins, a marker under the word that matters,
-afternoon light moving across the room. All decorative, all off (or finished
+botanical line drawings (now only in the phone menu and the share cards), a
+marker under the word that matters. All decorative, all off (or finished
 and still) under reduced motion, none carrying meaning on its own.
 
 - **Botanical ambience: removed 2026-10-01.** The faint botanicals that grew
@@ -735,9 +737,11 @@ craft vocabulary stays, edited down:
   but it lands square. The price tags tilt on hover only where a real
   pointer hovers (`(hover: hover)`), so a tap never leaves one crooked. The
   one exception is the turning guarantee stamp, whose angle is its job.
-- **The phone menu deck is a square stack** with hairlines between the
-  chips, not a fan with cast shadows.
-- **Two botanicals per page**, not one per section (`MAX_DOODLES`).
+- **The phone menu deck was a square stack** with hairlines between the
+  chips, not a fan with cast shadows (the whole deck was replaced by the
+  Walnut contents page on 2026-10-01).
+- **Botanicals in the page margins: removed 2026-10-01** (this bullet used to
+  say two per page, `MAX_DOODLES`; that constant is gone with the script).
 - **One marker swoosh per page**, on the closing heading.
 - **A plainer notebook page** in the closing band: ruled lines, the floor
   plan and her checklist; no coffee ring, binder holes or margin rule.
@@ -774,8 +778,8 @@ whose site it was or which page. Design F is an interiors-magazine cover:
   Contact), never the hero slogan.
 - **One real fact** under it, from `getChromeFacts()` (the footer index's
   numbers: from $225, 4 steps, from $250, 19 answers), and **at most one
-  object** from the site's vocabulary: the ink price tag on Contact (the
-  header's "Book a consult $225"), the tape measure on Process, the floor plan
+  object** from the site's vocabulary: the ink price tag on Contact's card ("Book a consult $225", drawn by
+  `og-card.ts`; the live header's own tag lost its price on 2026-10-01), the tape measure on Process, the floor plan
   on E-Design, a ruled checklist on FAQ (its topics) and the fallback
   ("Things I notice in every room").
 - **One ground per page** so nine cards read as nine pages: Home Walnut, About
@@ -881,5 +885,6 @@ while the headline still contains "empty.".
 Nothing public is left on it. The eight hidden sections that were (journal,
 shop, quiz, calculator, guides, press, gift certificates, resources) were
 removed outright on 2026-09-30 rather than rebuilt, because they were never
-launched. The portfolio, still switched off in Sanity, was rebuilt in phase 2
-(see "Blocks and Portfolio") and is ready the day it is switched on.
+launched. The portfolio was rebuilt in phase 2 (see "Blocks and Portfolio"); it
+was switched ON in Sanity on 2026-10-02 and shows its deliberate empty state
+until the first room story is published.

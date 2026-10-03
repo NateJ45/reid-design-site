@@ -37,7 +37,7 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 - `faqItem`: FAQ questions with category, displayed on both FAQ page and (selectively) Process page
 - `philosophyPoint`: The 3 values on the About page
 - `processStep`: The 4 numbered steps in Staci's process
-- `project`: Case studies. Optional `metaTitle` / `metaDescription` override the default SEO fields per-project. `roomType` + `designStyle` enums drive portfolio filtering (both required). The `gallery` is labeled "Project photos," sits directly under the hero, and requires at least 3 images so a project never ships as a lone hero shot. `beforeAfters` holds structured before/after pairs (each a required before + after image) that feed the slider and `/portfolio/before-after`. **Project page extra fields (post-polish):**
+- `project`: Case studies. Optional `metaTitle` / `metaDescription` override the default SEO fields per-project. `roomType` + `designStyle` enums drive portfolio filtering (both required). The `gallery` is labeled "Project photos," sits directly under the hero, and requires at least 3 images so a project never ships as a lone hero shot. `beforeAfters` holds structured before/after pairs (each a required before + after image) that feed the slider on the project page (the standalone `/portfolio/before-after` page was removed 2026-10-02). **Project page extra fields (post-polish):**
   - `briefLine` (required), one-sentence client situation, e.g. "Beautiful reno but the family room felt unfinished." Renders in the ProjectMetaBand.
   - `designCall` (required), one-sentence Staci response, e.g. "Edit, don't add. Source vintage. Anchor seating." Renders in the ProjectMetaBand.
   - `heroImage.caption`, optional italic caption beneath the hero image.

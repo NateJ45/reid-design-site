@@ -47,7 +47,7 @@ Removed 2026-09-30 (never launched): the newsletter, shop, guides, gift certific
 - [ ] **Google Business URL** set on `siteSettings.googleBusinessUrl` (powers the "Read more on Google" link) + a short `siteSettings.reviewsNote`.
 - [ ] **E-Design pricing** filled on `eDesignPage` (tiers, what's-included, how-it-works), until then `/e-design` shows a coming-soon state.
 - [ ] **Privacy policy** reviewed: either fill `privacyPage.body` or confirm the static fallback copy is accurate.
-- [ ] Run `npm run studio:deploy` after the schema additions so Studio shows the new document types.
+- [x] (obsolete since 2026-08-28: there is no `studio:deploy`; the Studio is embedded at `/studio` and ships with the site, so new document types appear with the next deploy)
 
 ### Pre-launch validation
 

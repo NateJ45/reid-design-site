@@ -8,7 +8,7 @@ Patterns for the moments when things go sideways or content hasn't landed yet.
 
 ### 404
 
-`src/pages/404.astro` uses BaseLayout, sets a clear "That page wandered off." headline, and gives the visitor three paths: back to Home, browse the Portfolio, or Contact. Two-column editorial layout, text on the left, a styled vignette photograph on the right (currently Staci's studio-dogs shot). Don't link "Search" (there isn't one). Don't dump a list of random pages. Eyebrow + headline + body + image + the three CTA labels & hrefs are all Sanity-editable via the `notFoundPage` singleton, every field has a hardcoded fallback that matches the prior look so the page works even before the doc exists.
+`src/pages/404.astro` (rebuilt 2026-10-03, DESIGN.md "The 404") uses BaseLayout, `noindex`, and says "This room is still empty." with the concept room's EMPTY frame (AI image, never one of Staci's photos), a line-drawn armchair, a four-row deck index of furnished pages (Services, How it works, Meet Staci, Write a note), one tag button ("Back home") and a plain GET search box that hands off to `/search`. Don't dump a list of random pages. Eyebrow + headline + body + the primary button label and link + SEO are Sanity-editable via the `notFoundPage` singleton, every field has a hardcoded fallback so the page works even before the doc exists (the hand-lettered accent only applies while the headline still contains "empty."). The schema still carries `heroImage` and the secondary/tertiary CTA fields; the rebuilt page no longer reads them.
 
 ### Form submission failure
 

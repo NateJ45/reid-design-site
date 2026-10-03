@@ -43,8 +43,10 @@ Use `until ! grep -q '...'` (with the bang) when waiting for something to be **r
 
 ```bash
 npm run deploy
-# = npm run build && wrangler deploy
+# = npm run build && wrangler deploy -c dist/server/wrangler.json
 ```
+
+The `-c dist/server/wrangler.json` is load-bearing (adapter 14 writes its own config there; a plain `wrangler deploy` misses the SSR bundle). See CLAUDE.md "Stack essentials".
 
 Only needed if you're testing a config change locally before committing, or if the auto-deploy webhook is broken.
 
@@ -52,7 +54,7 @@ Only needed if you're testing a config change locally before committing, or if t
 
 The site is fully prerendered, so a Sanity content edit doesn't change the live HTML until a rebuild. A Sanity webhook is already configured and hits a Cloudflare deploy hook. The flow:
 
-1. Staci edits in `reid-design.sanity.studio`
+1. Staci edits in the Studio embedded in the site (`reiddesignllc.com/studio`)
 2. Clicks Publish
 3. Sanity POSTs to the Cloudflare deploy hook
 4. Cloudflare rebuilds + deploys in ~1–2 min
@@ -131,31 +133,19 @@ Sanity Studio includes a built-in Comments feature (the speech-bubble icon that 
 
 Nathan sees the comment the next time he opens the Studio. Comments stay attached to the specific field until resolved, so they don't get lost in a text thread. Good uses: "Not sure what to put here," "Is this the right photo?", "This copy feels off, can you rewrite?" Comments do not affect published content in any way.
 
-### Studio deploy
+### Studio deploy: there isn't one
 
-Studio code (schemas, structure, plugins) deploys separately from the site:
+Since 2026-08-28 the Studio is embedded in the site at `/studio` (one package, root `sanity.config.ts`; schemas in `src/sanity/schemaTypes/`, the desk in `src/sanity/structure.ts`), so it deploys with every site build. There is no `studio:deploy` script and no separate `reid-design.sanity.studio`. **Do NOT run `npx sanity deploy`**: it would publish a second, hand-updated Studio against the same production data. After a schema change, run `npm run typegen` (rewrites `src/lib/sanity.types.ts`), commit the regenerated file, and merge a PR; CI regenerates the types and fails on a diff.
 
-```bash
-npm run studio:deploy
-# = npm --prefix studio run deploy
-```
+### Critical: never click "Remove field"
 
-Run this after any change in `studio/schemaTypes/`, `studio/structure.ts`, or `studio/sanity.config.ts`, otherwise Staci's Studio at `reid-design.sanity.studio` doesn't see the new schema fields.
-
-**Always** run `npm run typegen` after schema changes so `src/lib/sanity.types.ts` is fresh, then commit.
-
-### Critical: run studio:deploy after every schema change
-
-If you add or rename a field in a schema file and forget to run `npm run studio:deploy`, the hosted Studio will show "unknown fields" warnings next to the new data, and Staci will see a prompt offering to "Remove field" in the editor. **Do NOT click "Remove field" in Studio.** That action deletes the actual Sanity document data for every document that has that field populated. It cannot be undone without a dataset restore.
+If Studio ever shows "unknown fields" next to existing data with an offer to "Remove field", **do NOT click it.** That action deletes the actual Sanity document data for every document that has that field populated. It cannot be undone without a dataset restore (docs/RESTORE-DRILL.md). With the embedded Studio the schema cannot fall behind the code, so seeing it means something else is wrong; stop and ask.
 
 The correct sequence after any schema edit:
 
-1. Edit the schema file in `studio/schemaTypes/`.
+1. Edit the schema file in `src/sanity/schemaTypes/`.
 2. `npm run typegen` to regenerate `src/lib/sanity.types.ts`.
-3. `npm run studio:deploy` to push the schema update to the hosted Studio.
-4. Commit + push.
-
-The site build can run any time after step 1. The Studio deploy (step 3) is what clears the "unknown fields" warning for Staci.
+3. Commit + push on a branch and merge the PR.
 
 ---
 
@@ -213,27 +203,27 @@ Weekly (Mondays 09:15 UTC) and on demand: GitHub > Actions > **Link health** > R
 
 ## Routes inventory
 
-All prerendered routes as of the conversion build (May 2026):
+Prerendered public routes (refreshed 2026-10-03; custom pages Staci builds herself also get one static page each at `/<slug>`):
 
-| Path                 | Notes                                                     |
-| -------------------- | --------------------------------------------------------- |
-| `/`                  | Home                                                      |
-| `/about`             | About                                                     |
-| `/process`           | Process + step FAQs                                       |
-| `/services`          | Services listing                                          |
-| `/faq`               | FAQ grouped by category                                   |
-| `/contact`           | Contact form + Calendly + post-inquiry roadmap            |
-| `/portfolio`         | Project grid with Room x Style filter chips               |
-| `/portfolio/[slug]`  | Project detail                                            |
-| `/e-design`          | E-Design offering page                                    |
-| `/privacy`           | Privacy policy                                            |
-| `/search`            | Site search (Pagefind index, noindex, header + 404 entry) |
-| `/404`               | Custom 404                                                |
-| `/sitemap-index.xml` | Auto-generated by @astrojs/sitemap                        |
+| Path                 | Notes                                                              |
+| -------------------- | ------------------------------------------------------------------ |
+| `/`                  | Home                                                               |
+| `/about`             | About                                                              |
+| `/process`           | Process + step FAQs                                                |
+| `/services`          | Services listing                                                   |
+| `/faq`               | FAQ grouped by category                                            |
+| `/contact`           | Contact form + Calendly + post-inquiry roadmap                     |
+| `/portfolio`         | Project grid with Room x Style filter chips                        |
+| `/portfolio/[slug]`  | Project detail                                                     |
+| `/e-design`          | E-Design offering page                                             |
+| `/privacy`           | Privacy policy                                                     |
+| `/search`            | Site search (Pagefind index, noindex, footer base row + 404 entry) |
+| `/404`               | Custom 404                                                         |
+| `/sitemap-index.xml` | Auto-generated by @astrojs/sitemap                                 |
 
-The nav uses grouped dropdowns: **Services** (Services, E-Design, Process) and **Resources** (FAQ, plus any custom page placed "Under Resources"; when FAQ would be its only link it renders as a plain top-level "FAQ" link). "Contact" is the CTA pill in the header, not a nav link.
+The header nav (the swatch book chrome) is flat: Portfolio (when on), Services, Process, E-Design (when on), Staci's own top-level pages, About, FAQ. Services becomes a dropdown only when a custom page is placed "Under Services", and FAQ becomes a **Resources** dropdown only when a custom page is placed "Under Resources". "Contact" is the ink booking tag in the header, not a nav link. The Studio, `/preview/**` and `/api/*` routes are SSR (see CLAUDE.md).
 
-Removed 2026-09-30 (never launched): `/journal`, `/shop`, `/quiz`, `/calculator`, `/guides`, `/press`, `/gift-certificates`, `/resources`. `public/_redirects` 301s them (journal and guides to `/`, shop to `/`, quiz and calculator to `/services/`, press to `/about/`, gift certificates to `/contact/`, resources to `/faq/`), pinned by `src/lib/retired-redirects.test.ts`.
+`/portfolio/before-after` was removed 2026-10-02 and 301s to `/portfolio/`. Removed 2026-09-30 (never launched): `/journal`, `/shop`, `/quiz`, `/calculator`, `/guides`, `/press`, `/gift-certificates`, `/resources`. `public/_redirects` 301s them (journal and guides to `/`, shop to `/`, quiz and calculator to `/services/`, press to `/about/`, gift certificates to `/contact/`, resources to `/faq/`), pinned by `src/lib/retired-redirects.test.ts`.
 
 ---
 
@@ -273,6 +263,8 @@ Written as the pre-cutover gate. **DNS has since been cut over** (reiddesignllc.
 ## Patch Sanity content programmatically
 
 For one-off content updates (backfilling new fields, fixing typos across many docs, rewriting placeholder content), write a script in `scripts/`. Pattern:
+
+Most scripts since 2026-10-01 use the shared helper `scripts/lib/sanity-script.mjs` (reads `.env`, DRY RUN by default, `--apply` to write, a client that sees drafts). The plain pattern it wraps:
 
 ```js
 import { createClient } from '@sanity/client';
@@ -349,14 +341,14 @@ Note: the MCP lighthouse_audit only returns Accessibility / BP / SEO / Agentic. 
 
 ### Common diagnostic findings (most are unscored)
 
-| Lighthouse flag                              | What it's actually saying                                     | Fix                                                                                                           |
-| -------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| "Reduce unused JavaScript"                   | React + Astro runtime has unreachable error-handling branches | Unavoidable without Preact swap. Accept.                                                                      |
-| "Improve image delivery: Est savings X KiB"  | Loaded files are slightly bigger than display needs           | Tighten srcset breakpoints if X > 100 KiB. Otherwise theoretical.                                             |
-| "Avoid long main-thread tasks (78 ms found)" | Radix Sheet hydration on `MobileNav`                          | Fires after LCP/FCP. Real-user INP is fine. Accept.                                                           |
-| "Render-blocking SanityImage.css (18 KiB)"   | The whole Tailwind output is chunked under that name          | Extracting critical CSS is high effort for marginal LCP benefit at our current scores. Skip.                  |
-| "Uses third-party cookies (sanitySession)"   | Sanity CDN sets a session cookie                              | `crossorigin="anonymous"` BREAKS Sanity images. Skip.                                                         |
-| "No CSP"                                     | Astro 6's `security.csp` would satisfy this                   | DON'T enable: ClientRouter's runtime inline scripts get blocked. See CLAUDE.md → Stack → Astro config don'ts. |
+| Lighthouse flag                              | What it's actually saying                                              | Fix                                                                                                                                                               |
+| -------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Reduce unused JavaScript"                   | React + Astro runtime has unreachable error-handling branches          | Unavoidable without Preact swap. Accept.                                                                                                                          |
+| "Improve image delivery: Est savings X KiB"  | Loaded files are slightly bigger than display needs                    | Tighten srcset breakpoints if X > 100 KiB. Otherwise theoretical.                                                                                                 |
+| "Avoid long main-thread tasks (78 ms found)" | Radix Sheet hydration on `MobileNav`                                   | Fires after LCP/FCP. Real-user INP is fine. Accept.                                                                                                               |
+| "Render-blocking SanityImage.css (18 KiB)"   | The whole Tailwind output is chunked under that name                   | Extracting critical CSS is high effort for marginal LCP benefit at our current scores. Skip.                                                                      |
+| "Uses third-party cookies (sanitySession)"   | Sanity CDN sets a session cookie                                       | `crossorigin="anonymous"` BREAKS Sanity images. Skip.                                                                                                             |
+| "No CSP"                                     | (Historical) there is now a full CSP in `public/_headers` (2026-09-29) | Don't enable Astro's `security.csp`: ClientRouter's runtime inline scripts get blocked. A new third-party origin needs a grant in `_headers` (CLAUDE.md rule 12). |
 
 ---
 
@@ -374,7 +366,7 @@ node scripts/generate-logo-variants.mjs reid-design-logo-3.jpg
 node scripts/optimize-logo-files.mjs
 ```
 
-The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage()` pipeline can emit content-hashed WebPs. Header.astro reads these via `getImage()` (the light logo at 1x/2x for the hanging sign, the cream one at 1x/2x for the phone menu) and Footer.astro does the same for its large cream logo.
+The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage()` pipeline can emit content-hashed WebPs. Header.astro reads these via `getImage()` (the light logo at 122w/244w for the header, the cream one at 102w/204w for the phone menu) and Footer.astro draws its clean line logo from `src/assets/logo-lockup-mask.png` instead.
 
 **Don't move them back to `public/`** Astro can't touch `public/` files and you'd lose the WebP conversion + content-hashing.
 
@@ -384,13 +376,12 @@ The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage(
 
 ### Add a new field to a page singleton
 
-1. Edit `studio/schemaTypes/<page>.ts`, add `defineField(...)`.
+1. Edit `src/sanity/schemaTypes/<page>.ts`, add `defineField(...)`.
 2. `npm run typegen` (runs schema-extract + sanity typegen).
 3. Add the field to the GROQ projection in `src/lib/queries.ts` → `get<Page>()`.
 4. Use the field in the corresponding Astro page (`src/pages/<page>.astro`) with a sensible fallback.
 5. Write a backfill script in `scripts/` to set the value on the existing production doc so launch state matches the new default (use `setIfMissing` so future editor changes aren't clobbered).
-6. `npm run studio:deploy` to push the new field to Staci's Studio.
-7. Commit + push.
+6. Commit + push (the embedded Studio picks the field up with the next build; there is no Studio deploy step).
 
 See commits `bd74083` (`Header polish + make hero accents…`) and `7b0f2b7` (Sanity third-party + CSP attempt) for full examples.
 
@@ -398,11 +389,11 @@ See commits `bd74083` (`Header polish + make hero accents…`) and `7b0f2b7` (Sa
 
 If a page singleton should let Staci append library blocks (a banner, gallery, CTA, etc.) to the bottom, it takes five small steps, the pattern used on faq/contact/privacy/portfolio:
 
-1. In `studio/schemaTypes/<page>.ts`: `import { additionalSectionsField } from './sections';`, add `{ name: 'extra', title: 'Extra sections' }` to `groups`, and add `additionalSectionsField,` as the last entry in `fields`.
+1. In `src/sanity/schemaTypes/<page>.ts`: `import { additionalSectionsField } from './sections';`, add `{ name: 'extra', title: 'Extra sections' }` to `groups`, and add `additionalSectionsField,` as the last entry in `fields`.
 2. In `src/lib/queries.ts` → `get<Page>()`: add `${sectionsProjection('additionalSections')},` to the projection (it resolves images + cta blocks per block type).
 3. In `src/pages/<page>.astro`: `import SectionRenderer from '@/components/SectionRenderer.astro';` and render `<SectionRenderer sections={page?.additionalSections} idPrefix="<page>-extra" />` near the tail (above the final CTA if there is one). Empty array renders nothing, so the page is unchanged until Staci adds a block.
 4. `npm run typegen` then `npm run build` to verify.
-5. `npm run studio:deploy` (schema changed) + commit + push.
+5. Commit + push (no Studio deploy step; the Studio is embedded).
 
 No backfill script is needed, `additionalSections` is optional and defaults to empty. For a brand-new standalone page, point Staci at the `page` doc type (the page builder) instead; this zone is only for extending an existing standard page.
 
@@ -475,4 +466,4 @@ curl -s "https://reid-design-site.nathanjnixon86.workers.dev/?cb=$(date +%s)" | 
 
 ---
 
-_Last updated: Sept 30, 2026: removed the eight never-launched sections (journal, shop, quiz, calculator, guides, press, gift certificates, resources) and the newsletter; see CLAUDE.md. Earlier history follows. May 29, 2026, added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas._
+_Last updated: Oct 3, 2026: docs audit against main (Studio deploy section removed: the Studio is embedded and ships with the site; deploy command, nav, routes, CSP and logo notes corrected). Earlier: Sept 30, 2026: removed the eight never-launched sections (journal, shop, quiz, calculator, guides, press, gift certificates, resources) and the newsletter; see CLAUDE.md. Earlier history follows. May 29, 2026, added seed-about-personal.mjs + seed-studio-guide.mjs to seed script inventory; added About personal section + Start Here guide/notes to before-DNS-cutover checklist; documented patch-contact-form-options.mjs force-set behavior for formProjectTypeOptions and formSourceOptions. Earlier: documented section visibility system: how-to for turning sections on and off via Site Settings, toggle semantics (unset = on, explicit false = off), what disappears when a section is off, draft safety, and core pages that are always on. Earlier: studio editor-experience improvements: added rebuild webhook deny-list filter recommendation (covers new content types automatically, replacing the old allow-list approach); documented scheduled publishing workflow for Staci; documented field comments (built-in v5 feature, no config needed); noted that `@sanity/scheduled-publishing` plugin is incompatible with React 19 as of this date. Schema preview/defaults polish: `project` gets `initialValue` for `year` and a title fallback in preview; `journalEntry` gets a title fallback in preview. Earlier: conversion build shipped: documented studio:deploy-after-schema-changes rule (including the "do NOT click Remove field" warning), seed scripts for conversion content + script accents, full routes inventory, new `PUBLIC_NEWSLETTER_FORM_ACTION` env var, and before-DNS-cutover checklist. Earlier: home page conversion reorder (Kind Words up, Journal down) + warm-voice copy pass; copy-audit/patch scripts and the "Sanity value beats code fallback on populated fields" gotcha. Earlier still: Featured Work + Featured Journal sections and Playwright iteration gotchas._
