@@ -1,133 +1,329 @@
 ---
 // Safe to edit by hand
-// Custom 404. Warm, on-brand, clear paths back, plus a search box that hands off
-// to /search (Pagefind). The box is a plain GET form, so it works with no JS.
+// Custom 404, rebuilt 2026-10-03 in the house primitives ("This room is still
+// empty."). The photograph is the concept room's EMPTY frame (AI-generated,
+// never one of Staci's photos), hung in the house frame with a sample tag, and
+// a line-drawn armchair with a floor-plan dimension sits on its corner. Four
+// furnished rooms (the site's own pages) are listed as a small deck index, then
+// the page's one tag button and a plain GET search form that hands off to
+// /search (Pagefind, reads ?q=). Works with no JS.
 //
-// Layout: two-column on desktop (text + photograph), stacked on mobile. The
-// photo grounds the page as Reid Design, using a styled vignette from the
-// media library (Staci's dogs on the studio sofa) reads as "smart friend, not
-// 404 chrome." Asset is referenced by _ref so it pipes through the same
-// SanityImage CDN/transform pipeline as every other photo on the site.
-
+// Editable copy: the notFoundPage singleton in Sanity (headline, body, the
+// three CTAs, SEO) still wins when set. The rooms list is fixed here.
+import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import RiseWords from '@/components/RiseWords.astro';
 import { getNotFoundPage, getSiteSettings } from '@/lib/queries';
-import SanityImage from '@/components/SanityImage.astro';
+import emptyRoom from '@/assets/room/living-transitional/frame-0.jpg';
 
 const [notFoundPage, siteSettings] = await Promise.all([getNotFoundPage(), getSiteSettings()]);
-
-// Fallback photo: Studio dogs on the sofa, in case the singleton hasn't been
-// populated. Sanity singleton always wins if its image field is set.
-const fallbackPhoto = {
-  asset: { _ref: 'image-ce9be41407b946b7453724575c3cfd7aec2f7c4c-3024x4032-jpg' },
-  alt: 'Reid Design studio dogs resting on a sofa.',
-};
 
 const seoTitle = notFoundPage?.seoTitle ?? 'Page not found';
 const seoDescription =
   notFoundPage?.seoDescription ??
-  'That page wandered off. Head back to the homepage or get in touch.';
-
-const eyebrow = notFoundPage?.eyebrow ?? '404';
-const headline = notFoundPage?.headline ?? 'That page wandered off.';
+  'That page is not here. Head back to the homepage or get in touch.';
+const eyebrow = notFoundPage?.eyebrow ?? 'Page not found';
+const headline = notFoundPage?.headline ?? 'This room is still empty.';
+// The word set in the hand-lettered script. Only applies when the headline
+// still contains it (an edited headline in Studio simply renders plain).
+const accent = 'empty.';
 const body =
   notFoundPage?.body ??
-  "It happens. Maybe a link is old, maybe the URL has a typo. Either way, here's where to head next.";
-
+  'The link may be old, or the address picked up a typo. Nothing is lost. These rooms are all furnished:';
 const primaryLabel = notFoundPage?.primaryCtaLabel ?? 'Back home';
 const primaryHref = notFoundPage?.primaryCtaHref ?? '/';
-const secondaryLabel = notFoundPage?.secondaryCtaLabel ?? 'Browse the portfolio';
-const secondaryHref = notFoundPage?.secondaryCtaHref ?? '/portfolio';
-const tertiaryLabel = notFoundPage?.tertiaryCtaLabel ?? 'Get in touch';
-const tertiaryHref = notFoundPage?.tertiaryCtaHref ?? '/contact';
 
-const photo = notFoundPage?.heroImage ?? fallbackPhoto;
-const caption = notFoundPage?.heroImage?.caption ?? 'From the studio';
+// The deck index: a swatch, the page, a dotted leader and a note. Tones are
+// the paint-strip chips 1 to 4.
+const rooms = [
+  { label: 'Services', note: 'What it costs', href: '/services/', tone: 'var(--color-chip-1)' },
+  { label: 'How it works', note: 'The process', href: '/process/', tone: 'var(--color-chip-2)' },
+  { label: 'Meet Staci', note: 'About', href: '/about/', tone: 'var(--color-chip-3)' },
+  { label: 'Write a note', note: 'Contact', href: '/contact/', tone: 'var(--color-chip-4)' },
+];
 ---
 
 <BaseLayout title={seoTitle} description={seoDescription} siteSettings={siteSettings} noindex>
-  <section
-    class="mx-auto grid max-w-content grid-cols-1 items-center gap-section-md px-m py-section-lg md:grid-cols-[1fr_1.1fr]"
-    aria-labelledby="not-found-heading"
-  >
-    {
-      /* Text column. Three clear paths back, then a search box (a plain GET form to
-        /search, which reads ?q=).
-        Centered on mobile so the lone-element page reads as a sympathetic
-        "you're off-path" moment; left-aligned on desktop where the
-        two-column layout needs the text anchored beside the photo column. */
-    }
-    <div class="text-center md:text-left">
-      <p class="mb-s text-xs tracking-eyebrow text-foreground/80 uppercase">{eyebrow}</p>
-      <h1
-        id="not-found-heading"
-        class="font-display text-h1 leading-headline-tight text-foreground"
-      >
-        {headline}
-      </h1>
-      <p class="mx-auto mt-m max-w-xl text-lg leading-relaxed text-foreground/80 md:mx-0">
-        {body}
-      </p>
+  <section class="nf" aria-labelledby="not-found-heading">
+    <div class="r-wrap nf__grid">
+      <div class="nf__text">
+        <p class="nf__kicker">{eyebrow}</p>
+        <RiseWords
+          as="h1"
+          id="not-found-heading"
+          text={headline}
+          accent={accent}
+          class="r-display r-hand nf__h"
+        />
+        <p class="r-lede nf__lede">{body}</p>
 
-      {
-        /* One tag button, then underline links (the site's one button
-          identity, 2026-10-01; reid.css "Buttons"). */
-      }
-      <div class="mt-l flex flex-wrap items-center justify-center gap-x-l gap-y-m md:justify-start">
-        <a href={primaryHref} class="r-btn r-btn--ink">
-          {primaryLabel}
-        </a>
-        <a href={secondaryHref} class="r-link">
-          {secondaryLabel}
-        </a>
-        <a href={tertiaryHref} class="r-link">
-          {tertiaryLabel}
-        </a>
+        <nav aria-label="Where to next">
+          <ul class="nf__rooms">
+            {
+              rooms.map((r) => (
+                <li>
+                  <a href={r.href} class="nf__room">
+                    <span class="nf__sw" style={`background:${r.tone}`} aria-hidden="true" />
+                    <span class="nf__name">{r.label}</span>
+                    <span class="nf__lead" aria-hidden="true" />
+                    <span class="nf__note">
+                      {r.note}
+                      <span aria-hidden="true">→</span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <div class="nf__actions">
+          <a href={primaryHref} class="r-btn r-btn--ink">
+            {primaryLabel}
+            <span class="r-arrow" aria-hidden="true">→</span>
+          </a>
+          <form action="/search" method="get" role="search" class="nf__search">
+            <label for="notfound-search" class="sr-only">Search the site</label>
+            <input
+              id="notfound-search"
+              name="q"
+              type="search"
+              autocomplete="off"
+              placeholder="Or search the site"
+              class="nf__input"
+            />
+            <button type="submit" class="r-link nf__go">Search</button>
+          </form>
+        </div>
       </div>
 
-      {/* Search hand-off. Native GET form to /search?q=..., no JS needed. */}
-      <form
-        action="/search"
-        method="get"
-        role="search"
-        class="mx-auto mt-l flex max-w-md gap-s md:mx-0"
-      >
-        <label for="notfound-search" class="sr-only">Search the site</label>
-        <input
-          id="notfound-search"
-          name="q"
-          type="search"
-          autocomplete="off"
-          placeholder="Or search the site"
-          class="min-w-0 flex-1 rounded-sm border border-border-soft bg-card px-m py-2.5 text-base text-foreground placeholder:text-foreground/60 focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        />
-        {
-          /* An underline link, not a second button: "Back home" above is
-            this screen's one tag (DESIGN.md "Primitives"). */
-        }
-        <button
-          type="submit"
-          class="r-link shrink-0 cursor-pointer self-center border-0 bg-transparent px-0 text-foreground"
-        >
-          Search
-        </button>
-      </form>
+      <figure class="nf__photo">
+        <div class="r-frame nf__frame">
+          <Image
+            src={emptyRoom}
+            alt="Concept image: a bright, empty living room with big windows and a bare floor."
+            widths={[480, 720, 1000]}
+            sizes="(min-width: 64rem) 46vw, 92vw"
+            quality={72}
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+        <span class="r-tag nf__tag">Concept room, before</span>
+        <div class="nf__chair" aria-hidden="true">
+          <svg
+            viewBox="0 0 160 150"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M30 22 Q80 6 130 22 L128 80 L32 80 Z"></path>
+            <path d="M14 58 Q14 45 29 47 L33 47 L33 106 L17 106 Q12 106 12 100 Z"></path>
+            <path d="M146 58 Q146 45 131 47 L127 47 L127 106 L143 106 Q148 106 148 100 Z"></path>
+            <rect x="33" y="78" width="94" height="24" rx="6"></rect>
+            <path d="M12 106 L148 106"></path>
+            <path d="M22 106 L19 126 M138 106 L141 126 M50 106 L50 118 M110 106 L110 118"></path>
+            <circle cx="56" cy="42" r="1.3"></circle>
+            <circle cx="80" cy="37" r="1.3"></circle>
+            <circle cx="104" cy="42" r="1.3"></circle>
+            <path d="M12 138 L148 138 M12 134 L12 142 M148 134 L148 142" stroke-width="1"></path>
+          </svg>
+          <span class="nf__dim">32″, take a seat</span>
+        </div>
+      </figure>
     </div>
-
-    {
-      /* Photo column. Stacks above the text on mobile (md:order-2 swaps it on
-        desktop so the eye lands on text first, photo balances right). */
-    }
-    <figure class="order-first md:order-2">
-      <SanityImage
-        source={photo}
-        width={1200}
-        sizes="(min-width: 768px) 50vw, 100vw"
-        quality={75}
-        class="h-auto w-full rounded-md"
-      />
-      <figcaption class="mt-s text-right text-xs tracking-eyebrow text-foreground/80 uppercase">
-        {caption}
-      </figcaption>
-    </figure>
   </section>
 </BaseLayout>
+
+<style>
+  .nf {
+    padding-block: clamp(2rem, 6vw, 5.5rem) clamp(4rem, 8vw, 7rem);
+  }
+  .nf__grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+    align-items: center;
+  }
+  @media (min-width: 64rem) {
+    .nf__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    }
+  }
+  /* Phone: the room first, then the words. */
+  .nf__photo {
+    order: -1;
+  }
+  @media (min-width: 64rem) {
+    .nf__photo {
+      order: 0;
+    }
+  }
+  .nf__kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+    font: 500 0.95rem/1.3 var(--font-body);
+    color: var(--color-chip-7);
+  }
+  .nf__kicker::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: var(--color-chip-5);
+  }
+  .nf__h {
+    margin: 0;
+  }
+  .nf__lede {
+    margin-top: 1.35rem;
+    max-width: 34rem;
+  }
+
+  /* Deck index: swatch, name, dotted leader, note. */
+  .nf__rooms {
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    max-width: 34rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .nf__room {
+    display: grid;
+    grid-template-columns: 0.9rem auto minmax(1rem, 1fr) auto;
+    align-items: center;
+    column-gap: 0.9rem;
+    min-height: 3.5rem;
+    border-top: 1px solid var(--color-rule);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .nf__sw {
+    width: 0.9rem;
+    height: 1.25rem;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.12);
+  }
+  .nf__name {
+    font: 300 clamp(1.3rem, 1.1rem + 0.6vw, 1.5rem) / 1.15 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  .nf__lead {
+    align-self: end;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px dotted var(--color-chip-5);
+  }
+  .nf__note {
+    display: inline-flex;
+    gap: 0.5rem;
+    font: 400 0.95rem/1.3 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .nf__room:hover .nf__name {
+    text-decoration: underline;
+    text-decoration-color: var(--color-chip-5);
+    text-underline-offset: 0.2em;
+  }
+  .nf__room:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.1rem 1.75rem;
+    margin-top: 1.9rem;
+  }
+  .nf__search {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.9rem;
+    flex: 1 1 14rem;
+    min-width: 0;
+  }
+  .nf__input {
+    flex: 1;
+    min-width: 0;
+    height: 2.75rem;
+    padding: 0 0.15rem;
+    border: 0;
+    border-bottom: 1px solid var(--color-chip-5);
+    border-radius: 0;
+    background: transparent;
+    font: 400 1rem/1.4 var(--font-body);
+    color: var(--color-ink);
+  }
+  .nf__input::placeholder {
+    color: var(--color-ink-2);
+  }
+  .nf__input:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .nf__go {
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-weight: 500;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  /* The photograph, hung. */
+  .nf__photo {
+    position: relative;
+    margin: 0;
+    padding: 0.5rem 0.25rem 4.25rem;
+  }
+  @media (min-width: 64rem) {
+    .nf__photo {
+      padding: 1rem 0 3.75rem 2.5rem;
+    }
+  }
+  .nf__frame {
+    transform: rotate(0.6deg);
+  }
+  .nf__frame :global(img) {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  .nf__tag {
+    position: absolute;
+    top: 0;
+    right: -0.25rem;
+    transform: rotate(3deg);
+    font: 500 0.85rem/1.2 var(--font-body);
+  }
+  .nf__chair {
+    position: absolute;
+    left: -0.25rem;
+    bottom: 0;
+    width: 7rem;
+    color: var(--color-chip-6);
+  }
+  @media (min-width: 64rem) {
+    .nf__chair {
+      left: -1.5rem;
+      width: 10.5rem;
+    }
+  }
+  .nf__chair svg {
+    display: block;
+    width: 100%;
+    /* Paper fill so the frame's edge does not show through the chair. */
+    fill: var(--color-bg);
+  }
+  .nf__dim {
+    display: block;
+    margin-top: -0.35rem;
+    text-align: center;
+    white-space: nowrap;
+    font: italic 300 0.95rem/1.2 var(--font-display);
+    color: var(--color-chip-7);
+  }
+</style>

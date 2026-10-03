@@ -814,6 +814,20 @@ phone crops kept almost nothing of the picture.
   hotspot whenever it is not cropping on the CDN, so CSS crops keep the
   subject in any box shape.
 
+## The 404 (2026-10-03)
+
+"This room is still empty." `src/pages/404.astro`: the headline in the
+word-rise with the hand-lettered accent on "empty." (the page's one hand), the
+concept room's EMPTY frame (`src/assets/room/living-transitional/frame-0.jpg`,
+AI only, never Staci's photos) hung in `.r-frame` with a "Concept room, before"
+sample tag, and a line-drawn armchair on the corner with a floor-plan
+dimension ("32″, take a seat"). The four furnished pages (Services, How it
+works, Meet Staci, Write a note) are a deck index: swatch, name, dotted leader,
+note. One tag button ("Back home"), then a plain GET search to `/search`. Phone:
+room first, then the words. Copy overrides from the `notFoundPage` singleton
+(headline, body, eyebrow, CTA) still win when set; the accent only applies
+while the headline still contains "empty.".
+
 ## Motion
 
 - Every entrance enhances an already visible default. Nothing starts at
