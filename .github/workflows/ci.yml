@@ -307,7 +307,13 @@ jobs:
       - name: Run tests (smoke, a11y light + dark, reflow)
         env:
           PLAYWRIGHT_SKIP_BUILD: '1'
-        run: npm test -- --shard=${{ matrix.shard }}/3 --reporter=github,html
+          PLAYWRIGHT_JSON_OUTPUT_NAME: pw-timings.json
+        run: npm test -- --shard=${{ matrix.shard }}/3 --reporter=github,html,json
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pw-timings-${{ matrix.shard }}
+          path: pw-timings.json
 
       # Only on failure: a green run has nothing worth the upload time.
       - uses: actions/upload-artifact@v7
