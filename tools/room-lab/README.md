@@ -1,6 +1,6 @@
 # room-lab
 
-Offline authoring kit for the home page "concept rooms": SIX rooms shown as room tabs (living room transitional, family room modern farmhouse, dining room art deco, kitchen modern, bathroom seaside, bedroom Japandi; the list and order live in `rooms/index.json`). Each room starts empty and fills up piece by piece (trim, rug, sofa, coffee table, side table and lamp, chair, curtains, art, olive branches, books and throw). Each piece is an EDIT of the previous frame made by a local ComfyUI server, and the site shows every step as a WHOLE FRAME, revealing the new piece in place. Since 2026-10-03 the room is ANNOTATED: the spec also carries, for every piece, a `note` (why it is there, under one of the five checks) and a `pin` (where its tag's string is pinned), plus an example `brief`, the `plan` and the `closing` line (see "The annotations" below). The paint-colour deck and its wall masks were removed that day. (The cut-out layers below, `layers.mjs`, belong to the v2 site and nothing the site uses reads them any more; see "Layer maths".)
+Offline authoring kit for the home page "concept rooms": SIX rooms shown as room tabs (living room transitional, family room modern farmhouse, dining room art deco, kitchen modern, bathroom seaside, bedroom Japandi; the list and order live in `rooms/index.json`). Each room starts empty and fills up piece by piece (trim, rug, sofa, coffee table, side table and lamp, chair, curtains, art, olive branches, books and throw). Each piece is an EDIT of the previous frame made by a local ComfyUI server, and the site shows every step as a WHOLE FRAME, revealing the new piece in place. Since 2026-10-03 the room is ANNOTATED: the spec also carries, for every piece, a `note` (why it is there, under one of the five checks) and a `pin` (where its tag's string is pinned), plus an example `brief`, the `plan` and the `closing` line (see "The annotations" below). The paint-colour deck and its wall masks were removed that day; four paint swatches came back the same day on the FINISHED frame only, through ONE hand-corrected wall mask (see "The finished room's wall" below). (The cut-out layers below, `layers.mjs`, belong to the v2 site and nothing the site uses reads them any more; see "Layer maths".)
 
 ## Rooms
 
@@ -11,7 +11,7 @@ Every script takes `--room <slug>` (or env `ROOM`); with no room and no override
 | Room list     | `rooms/index.json` (ordered `{ slug, label, type, style }`) |
 | Spec          | `rooms/<slug>.json` (the old `stages.json`) |
 | Work folder   | `work/<slug>/` (`base/`, `raw/`, `final/`, `layers/`, `run.log.json`) |
-| Publish       | `src/assets/room/<slug>/` (manifest v4 plus its frames and change masks) |
+| Publish       | `src/assets/room/<slug>/` (manifest v5 plus its frames, change masks and the finished frame's wall mask) |
 | Tab list      | `src/assets/room/rooms.json`, rebuilt by every publish |
 
 `ROOM_WORK`, `ROOM_DEST`, `ROOM_STAGES` (and `ROOM_INDEX`, `ROOM_ROOMS_DIR`) still override, for tests. Only `living-transitional` has a spec so far; the others are written before their room is generated.
@@ -48,8 +48,9 @@ Run from the repo root. Extra arguments pass through the `room:*` scripts; put `
 5. (v2 only, optional) `npm run room:layers` cuts every piece into transparent layers; the whole-frame site does not use them.
 6. `npm run room:sheet` writes `work/sheet-frames.jpg` (and the v2 sheets). Review the frames at 1:1.
 7. Write every piece's `note` and `pin` (and `side`), each stage's `label`, and the room's `brief`, `plan` and `closing` in the spec (see "The annotations").
-8. `npm run room:publish -- --room <slug>` writes manifest v4, the frames and the change masks to `src/assets/room/<slug>/` (CPU only, no model needed), then rebuilds `src/assets/room/rooms.json` (index order, only rooms whose manifest exists on disk). Stale-file cleanup is scoped to that room's folder; other rooms are never touched. Commit those files.
-9. `npm run room:preview -- --room <slug>` draws every piece's box and pin on its frame (`work/<slug>/preview-pins.jpg`) and a 1:1 crop per pin (`preview-pin-<id>.jpg`). A pin must sit ON its object (the lamp's shade, not the wall beside it); fix it in the spec and publish again.
+8. (Optional, for the paint swatches) `npm run room:wall -- --room <slug>`, then inspect `work/<slug>/final/crops/` at 2x and add hand fixes to the spec until every edge is clean (see "The finished room's wall").
+9. `npm run room:publish -- --room <slug>` writes manifest v5, the frames, the change masks and (when `work/<slug>/final/wall-final.png` exists) the finished frame's wall mask to `src/assets/room/<slug>/` (CPU only, no model needed), then rebuilds `src/assets/room/rooms.json` (index order, only rooms whose manifest exists on disk). Stale-file cleanup is scoped to that room's folder; other rooms are never touched. Commit those files.
+10. `npm run room:preview -- --room <slug>` draws every piece's box and pin on its frame (`work/<slug>/preview-pins.jpg`) and a 1:1 crop per pin (`preview-pin-<id>.jpg`). A pin must sit ON its object (the lamp's shade, not the wall beside it); fix it in the spec and publish again.
 10. `npm run room:sheet -- --all` (no room needed) writes `work/overview.jpg`: one tile per room, its final frame (graded if available), labelled with slug and style.
 
 To redo one piece: `npm run room:generate -- --room <slug> stages --only <pieceId>`. Every LATER piece was built on the old frame, so redo them in order too, then grade and publish again.
@@ -82,6 +83,10 @@ A piece with an empty mask fails loudly: redo it. If SegFormer calls a rug "floo
 ## The sharp trap
 
 Resizing or blurring a 1-channel raw buffer can come back with THREE channels. Always `.extractChannel(0)` before `.raw()` when you expect one channel, or the mask comes out as horizontal stripes. Every mask path in this kit does it.
+
+## The finished room's wall (manifest v5, 2026-10-03)
+
+The site's paint swatches repaint the FINISHED frame's walls only, through one mask. `wall.mjs` makes it at full resolution: SegFormer's wall label with the trim passes, the old "judge against the empty room" pass (rods and frame edges out), `lib/wallrefine.mjs` (unmix each edge pixel between the local wall and non-wall colours, take back wide shadow strips, fill speckle), then the spec's HAND CORRECTIONS, `wall.fixes`, applied in order: polygons in frame pixels with an op, `clear` (never wall), `fill`, `key` (chromaticity against the local wall), `sat` (more saturated than `minSat` = wall: curtain edges), `leaves` (a luminance unmix between `minLum` and `fullLum`, not green, or strongly warm: sunlit wall behind leaves), each with optional `feather` and `max` (only adds wall). Every fix carries a `why`. `wall.swatches` and `wall.checks` drive the previews: `paint-<swatch>.jpg` with the site's own maths and 2x crops of every edge area. Measure pixels before choosing a threshold (the living room's were measured at the curtains and behind the leaves). If a colour keeps a bad edge that cannot be fixed by hand, drop it from `ROOM_SWATCHES` rather than ship it.
 
 ## The annotations (manifest v4, 2026-10-03)
 

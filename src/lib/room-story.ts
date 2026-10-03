@@ -10,14 +10,16 @@
 // tied to a sample tag on a string that says why it is there, under one of the
 // five checks from Staci's notebook (lighting, scale, texture, balance, what's
 // missing). It opens on an example brief and closes on what is in the plan and
-// the booking button. (The paint-colour deck and its wall masks were removed
-// on 2026-10-03, Nathan's call: the masks kept leaving bad edges.)
+// the booking button. (The paint-colour deck and its per-frame wall masks were
+// removed on 2026-10-03, Nathan's call: the masks kept leaving bad edges. The
+// same day four paint SWATCHES came back on the FINISHED frame only, with ONE
+// wall mask redrawn at full resolution and hand-corrected: manifest v5.)
 //
 // Its pictures and words are NOT in Sanity. The authoring tools in
 // tools/room-lab/ publish them into src/assets/room/<folder>/ with a
-// manifest.json. This module is the contract for that file. VERSION 4:
+// manifest.json. This module is the contract for that file. VERSION 5:
 //
-//   { "version": 4, "width": 1472, "height": 1104,
+//   { "version": 5, "width": 1472, "height": 1104,
 //     "base":  { "alt": "Concept image: ..." },
 //     "final": { "alt": "Concept image: ..." },
 //     "stages": [ { "id": "bones", "label": "The bones", "caption": "..." }, ... ],
@@ -30,7 +32,9 @@
 //       { "id": "trim", "stage": "bones", "image": "frame-1.jpg",
 //         "change": "change-1.png", "box": [x, y, w, h], "motion": "sweep",
 //         "note": { "check": "whats-missing", "text": "..." },
-//         "pin": [x, y], "side": "right" }, ... ] }
+//         "pin": [x, y], "side": "right" }, ...,
+//       { ...the last piece..., "wall": "wall-10.png",
+//         "wallMedianLinear": [r, g, b] } ] }
 //
 //   - frames[0] is the EMPTY room and has no change. Every later frame is the
 //     COMPLETE room after one more piece (JPG/WebP, width x height), in build
@@ -51,6 +55,11 @@
 //   - brief: the card the section opens on (an EXAMPLE client's answers to the
 //     three questions Staci asks on /process). plan: the deliverables, each
 //     lit when its beat has finished. closing: the line over the booking tag.
+//   - wall (v5, optional, the LAST frame only): a greyscale PNG at the frame's
+//     full size, white = paintable wall in the finished room, and
+//     wallMedianLinear, that wall's median colour in linear light (the paint
+//     maths' reference). Without it the swatches simply do not show. A wall on
+//     any other frame is refused.
 //   - base.alt describes the empty room, final.alt the finished room (the
 //     picture the page shows by default).
 //
@@ -133,6 +142,14 @@ export interface RoomPieceFrame extends RoomEmptyFrame {
   side: 'left' | 'right';
 }
 
+/** The finished room's paintable wall (v5; the last frame only). */
+export interface RoomWall {
+  /** Greyscale PNG, full frame size: white = wall. */
+  mask: string;
+  /** The wall's median colour, linear light, each 0..1. */
+  median: [number, number, number];
+}
+
 export interface RoomBrief {
   /** "The brief". */
   title: string;
@@ -151,7 +168,7 @@ export interface RoomPlanItem {
 }
 
 export interface RoomManifest {
-  version: 4;
+  version: 5;
   width: number;
   height: number;
   base: { alt: string };
@@ -164,6 +181,8 @@ export interface RoomManifest {
   empty: RoomEmptyFrame;
   /** Every later frame, in build order (frame N is pieces[N - 1]). */
   pieces: RoomPieceFrame[];
+  /** The finished frame's wall, for the paint swatches; null = no swatches. */
+  wall: RoomWall | null;
 }
 
 /** Every alt text must open with this (the honesty rule). */
@@ -232,6 +251,13 @@ function isPoint(v: unknown, width: number, height: number): v is [number, numbe
 
 const absent = (v: unknown) => v === undefined || v === null;
 
+/** Three finite numbers in 0..1 with a positive brightness (a wall median). */
+const isLinearRgb = (v: unknown): v is [number, number, number] =>
+  Array.isArray(v) &&
+  v.length === 3 &&
+  v.every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 1) &&
+  v.some((n) => (n as number) > 0);
+
 /** The brief card, or null if any part is missing or not printable copy. */
 function parseBrief(v: unknown): RoomBrief | null {
   if (!isObj(v) || !isCopy(v.title) || !isCopy(v.tag)) return null;
@@ -249,7 +275,7 @@ function parseBrief(v: unknown): RoomBrief | null {
  * anything is wrong; the component renders nothing on null.
  */
 export function parseRoomManifest(raw: unknown): RoomManifest | null {
-  if (!isObj(raw) || raw.version !== 4) return null;
+  if (!isObj(raw) || raw.version !== 5) return null;
   const { width, height, base, final, stages, frames, brief, plan, closing } = raw;
   if (!isPositiveInt(width) || !isPositiveInt(height)) return null;
   if (!isObj(base) || !isAlt(base.alt) || !isObj(final) || !isAlt(final.alt)) return null;
@@ -297,7 +323,9 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
   const pieces: RoomPieceFrame[] = [];
   const ids = new Set<string>();
   let lastStage = 0;
-  for (const f of rest) {
+  let wall: RoomWall | null = null;
+  if (!absent(zero.wall) || !absent(zero.wallMedianLinear)) return null;
+  for (const [i, f] of rest.entries()) {
     if (!isObj(f) || !isText(f.id) || ids.has(f.id)) return null;
     if (!isText(f.stage) || !stageIndex.has(f.stage)) return null;
     // Build order: a frame never goes back to an earlier beat.
@@ -311,6 +339,12 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
     if (!isObj(note) || !isCheck(note.check) || !isCopy(note.text)) return null;
     if (!absent(f.pin) && !isPoint(f.pin, width, height)) return null;
     if (!absent(f.side) && f.side !== 'left' && f.side !== 'right') return null;
+    // The wall mask belongs to the finished frame only, and comes with its median.
+    if (!absent(f.wall) || !absent(f.wallMedianLinear)) {
+      if (i !== rest.length - 1 || !isMask(f.wall) || !isLinearRgb(f.wallMedianLinear)) return null;
+      const [r, g, b] = f.wallMedianLinear;
+      wall = { mask: f.wall, median: [r, g, b] };
+    }
     ids.add(f.id);
     const [x, y, w, h] = f.box;
     const pin: [number, number] = isPoint(f.pin, width, height)
@@ -330,7 +364,7 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
   }
 
   return {
-    version: 4,
+    version: 5,
     width,
     height,
     base: { alt: base.alt },
@@ -341,6 +375,7 @@ export function parseRoomManifest(raw: unknown): RoomManifest | null {
     closing: { line: closing.line },
     empty: { image: zero.image },
     pieces,
+    wall,
   };
 }
 
@@ -411,8 +446,56 @@ export function roomAnnouncement(entry: Pick<RoomIndexEntry, 'label' | 'style'>)
 
 /** Every file the manifest names (for the component's "is it all there?" check). */
 export function roomFiles(m: RoomManifest): string[] {
-  return [m.empty.image, ...m.pieces.flatMap((p) => [p.image, p.change])];
+  return [
+    m.empty.image,
+    ...m.pieces.flatMap((p) => [p.image, p.change]),
+    ...(m.wall ? [m.wall.mask] : []),
+  ];
 }
+
+// -----------------------------------------------------------------------------
+// The paint swatches (the finished frame only, 2026-10-03)
+// -----------------------------------------------------------------------------
+// Four wall colours a visitor can try on the finished room, tied to the plan's
+// "Color and finish guidance" chip. Sage, Clay and Lake are WALL-PAINT SWATCHES
+// ONLY, never UI colours (DESIGN.md); Espresso is the ramp's darkest chip. Each
+// was checked at 2x crops on the olive leaves, the sofa top, both curtain
+// edges, the crown and the baseboards before it shipped (a colour with an edge
+// that could not be fixed by hand is dropped, not shipped).
+
+export interface RoomSwatch {
+  /** Printed name and the button's accessible name ("Sage"). */
+  name: string;
+  /** sRGB hex, the chip's face. */
+  hex: string;
+}
+
+export const ROOM_SWATCHES: readonly RoomSwatch[] = [
+  { name: 'Sage', hex: '#a8b5a0' },
+  { name: 'Clay', hex: '#b5785f' },
+  { name: 'Lake', hex: '#8b9ea3' },
+  { name: 'Espresso', hex: '#5f4639' },
+];
+
+/** One sRGB channel (0..1) to linear light (the standard IEC 61966-2-1 curve). */
+export function srgbToLinear(c: number): number {
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/** "#rrggbb" to linear-light [r, g, b], each 0..1. Null if malformed. */
+export function hexToLinear(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => srgbToLinear(v / 255)) as [
+    number,
+    number,
+    number,
+  ];
+}
+
+/** The swatches show only once the build has finished: the last frame, whole. */
+export const swatchesShown = (pos: number, n: number): boolean => n > 0 && pos >= n - 0.001;
 
 // -----------------------------------------------------------------------------
 // Which frame each beat shows
@@ -447,6 +530,15 @@ export function stageFrames(m: Pick<RoomManifest, 'stages' | 'pieces'>): number[
 
 /** Pinned track height, in svh (one constant: the CSS reads the same number). */
 export const SCRUB_TRACK_SVH = 300;
+/**
+ * The phone's track (2026-10-03, Nathan: on a phone one flick raced through
+ * five or six pieces). A phone's screen is short, so 300svh left about 150px
+ * of swipe per piece; this gives each piece several hundred, so a normal flick
+ * moves one or two. Native scroll only: no snapping, no hijacking.
+ */
+export const SCRUB_TRACK_SVH_PHONE = 900;
+/** Where the phone track applies (the same query the CSS uses). */
+export const SCRUB_PHONE_QUERY = '(max-width: 767px)';
 /** Share of the track at EACH end where the room rests (empty, then finished). */
 export const SCRUB_DWELL = 0.06;
 /** A rest at the end of each beat but the last, in piece-lengths, so its card reads. */

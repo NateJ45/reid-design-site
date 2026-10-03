@@ -30,9 +30,17 @@
 // scroll back and it goes out the way it came. At t = 1 B is whole, which is
 // exactly frame A + 1 with t = 0, so crossing a piece boundary never jumps.
 //
-// (Until 2026-10-03 the shader also repainted the walls in a chosen paint
-// chip, using a wall mask per frame and the room's wall median. The masks kept
-// leaving bad edges, so the deck, the masks and all of that maths went.)
+// THE PAINT (the swatches, 2026-10-03). Only the FINISHED frame has a wall
+// mask (one, redrawn at full resolution and hand-corrected; manifest v5), so
+// paint is drawn only while the last frame shows whole, never mid-piece. The
+// maths keeps the photo's own light and shadow, in linear light:
+//   shade   = luma(px) / luma(median)
+//   tint    = mix(1, (px / luma(px)) / (median / luma(median)), 0.35)
+//   painted = chip * shade * tint
+//   out     = mix(px, painted, wall)
+// A swatch change rolls the new colour on from the left with a noisy front
+// (900 ms, time-based); reduced motion swaps it at once. (The old deck, with a
+// mask per frame, was removed earlier the same day for bad edges.)
 //
 // SMOOTHING. A mouse wheel moves the page in steps, so the position shown
 // eases toward the position asked for (about 90 ms to close most of the gap)
@@ -77,11 +85,18 @@ export interface PainterFrame {
 
 export interface PainterRoom {
   frames: PainterFrame[];
+  /** The finished frame's wall mask URL and median (linear), or null: no paint. */
+  wall: { url: string; median: [number, number, number] } | null;
   /** width / height of the frames. */
   aspect: number;
 }
 
 export interface RoomPainter {
+  /**
+   * Paint the finished room's walls this colour (linear rgb), or null for the
+   * room as it is. Resolves true once the wall mask is in, false if it failed.
+   */
+  setChip(linear: [number, number, number] | null): Promise<boolean>;
   /** Show build position `pos` in [0, frames - 1]: whole frames plus the next piece's share. */
   setProgress(pos: number): void;
   /**
@@ -115,13 +130,20 @@ precision highp float;
 precision mediump float;
 #endif
 varying vec2 v;
-uniform sampler2D fA,fB,cB;
-uniform float ar;
+uniform sampler2D fA,fB,cB,wA;
+uniform vec3 d,cO,cN;
+uniform float ar,pO,pN,tC,pw;
 uniform vec4 bB;
 uniform vec2 kB;
 float h(vec2 q){return fract(sin(dot(q,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 q){vec2 i=floor(q),g=fract(q);g=g*g*(3.-2.*g);
 return mix(mix(h(i),h(i+vec2(1,0)),g.x),mix(h(i+vec2(0,1)),h(i+1.),g.x),g.y);}
+vec3 lin(vec3 c){return mix(c/12.92,pow((c+.055)/1.055,vec3(2.4)),step(.04045,c));}
+vec3 srgb(vec3 c){c=clamp(c,0.,1.);return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(.0031308,c));}
+float lu(vec3 c){return dot(c,vec3(.2126,.7152,.0722));}
+vec3 paint(vec3 px,vec3 ch){
+  float l=max(lu(px),1e-4),lm=max(lu(d),1e-4);
+  return ch*(l/lm)*mix(vec3(1.),(px/l)/(d/lm),.35);}
 vec3 rev(vec4 b,vec2 k,sampler2D c){
   float e=k.x,m=k.y,u=1.-e,s,g=.07,a=.2;
   if(m<0.)return vec3(v,0.);
@@ -136,6 +158,10 @@ vec3 rev(vec4 b,vec2 k,sampler2D c){
   return vec3(q,(1.-smoothstep(f-g,f+g,s+(n(v*vec2(ar,1.)*16.)-.5)*a))*texture2D(c,q).r);}
 void main(){
   vec3 o=texture2D(fA,v).rgb,r=rev(bB,kB,cB);
+  if(pw>0.){
+    vec3 px=lin(o);float m=texture2D(wA,v).r,fr=tC*1.3-.15,
+    rl=1.-smoothstep(fr-.025,fr+.025,v.x+(n(vec2(v.y*9.,tC*3.))-.5)*.16);
+    o=srgb(mix(mix(px,paint(px,cO),m*pO),mix(px,paint(px,cN),m*pN),rl));}
   if(r.z>0.)o=mix(o,texture2D(fB,r.xy).rgb,r.z);
   gl_FragColor=vec4(o,1.);}`;
 
@@ -144,6 +170,8 @@ const smooth = (x: number) => x * x * (3 - 2 * x);
 
 /** The smoothing's time constant: the shown position closes 63% of the gap in this long. */
 const LAG_MS = 90;
+const CHIP_MS = 900;
+type Rgb = [number, number, number];
 /** Texture sets kept: the frames used most recently. */
 const SETS = 4;
 
@@ -218,8 +246,20 @@ export function createRoomPainter(
 
   const u = (name: string) => g.getUniformLocation(prog, name);
   // Sampler units, in texture-bind order: A (frame), B (frame, change).
-  ['fA', 'fB', 'cB'].forEach((s, i) => g.uniform1i(u(s), i));
-  const U = { ar: u('ar'), b: u('bB'), k: u('kB') };
+  // Sampler units: A (frame), B (frame, change), then the finished frame's wall.
+  ['fA', 'fB', 'cB', 'wA'].forEach((s, i) => g.uniform1i(u(s), i));
+  const U = {
+    ar: u('ar'),
+    b: u('bB'),
+    k: u('kB'),
+    d: u('d'),
+    cO: u('cO'),
+    cN: u('cN'),
+    pO: u('pO'),
+    pN: u('pN'),
+    tC: u('tC'),
+    pw: u('pw'),
+  };
 
   g.pixelStorei(g.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
   // Keep the photo's own bytes, so the canvas matches the <img> exactly.
@@ -247,7 +287,24 @@ export function createRoomPainter(
     g.texImage2D(g.TEXTURE_2D, 0, format, format, g.UNSIGNED_BYTE, src);
   };
 
+  const wallTex = texture();
   // ---- state ---------------------------------------------------------------
+  // The paint: the wall mask (per room), and the swatch roll.
+  let wallIn: Promise<boolean> | null = null;
+  let wallOk = false;
+  let chipOld: Rgb = [1, 1, 1];
+  let chipNew: Rgb = [1, 1, 1];
+  let paintOld = 0;
+  let paintNew = 0;
+  let chipT = 0;
+  let chipStart = 0;
+  let busy = false;
+  const settle = () => {
+    busy = false;
+    chipT = 0;
+    chipOld = chipNew;
+    paintOld = paintNew;
+  };
   let room = first;
   let dead = false;
   let ready = false;
@@ -319,6 +376,16 @@ export function createRoomPainter(
     const texB = b < 0 ? texA : texOf(b);
     g.uniform4fv(U.b, (b < 0 ? null : room.frames[b].box) ?? [0, 0, 1, 1]);
     g.uniform2f(U.k, b < 0 ? 0 : smooth(t), b < 0 ? -1 : room.frames[b].motion);
+    // Paint only on the finished frame, whole, with its mask in.
+    const paint = wallOk && b < 0 && a === top() && (paintOld > 0 || paintNew > 0);
+    g.uniform1f(U.pw, paint ? 1 : 0);
+    g.uniform3fv(U.cO, chipOld);
+    g.uniform3fv(U.cN, chipNew);
+    g.uniform1f(U.pO, paintOld);
+    g.uniform1f(U.pN, paintNew);
+    g.uniform1f(U.tC, busy ? smooth(chipT) : 0);
+    g.activeTexture(g.TEXTURE3);
+    g.bindTexture(g.TEXTURE_2D, wallTex);
     [texA[0], ...texB].forEach((tx, i) => {
       g.activeTexture(g.TEXTURE0 + i);
       g.bindTexture(g.TEXTURE_2D, tx);
@@ -341,8 +408,12 @@ export function createRoomPainter(
     last = now;
     const gap = goal - shown;
     shown = Math.abs(gap) < 0.002 ? goal : shown + gap * (1 - Math.exp(-dt / LAG_MS));
+    if (busy) {
+      chipT = Math.min(1, (now - chipStart) / CHIP_MS);
+      if (chipT >= 1) settle();
+    }
     draw();
-    if (shown !== goal) kick();
+    if (shown !== goal || busy) kick();
     else last = 0;
   }
 
@@ -382,6 +453,12 @@ export function createRoomPainter(
     got = [];
     sets.forEach((s) => (s.n = -1));
     goal = shown = fit(pos);
+    // A new room starts as it is: no paint, its own wall mask fetched on first use.
+    wallIn = null;
+    wallOk = false;
+    chipOld = chipNew = [1, 1, 1];
+    paintOld = paintNew = 0;
+    settle();
     g.uniform1f(U.ar, r.aspect);
     const at = Math.floor(shown);
     return Promise.all([need(at), at < top() ? need(at + 1).catch(() => null) : null])
@@ -401,7 +478,47 @@ export function createRoomPainter(
     /* On failure the <img> stack stays in charge. */
   };
 
+  /** The finished frame's wall mask, uploaded once per room. */
+  const loadWall = (): Promise<boolean> => {
+    const w = room.wall;
+    if (!w) return Promise.resolve(false);
+    if (!wallIn) {
+      const mine = generation;
+      wallIn = mask(w.url).then(
+        (im) => {
+          if (dead || mine !== generation) return false;
+          put(wallTex, g.LUMINANCE, im);
+          g.uniform3fv(U.d, w.median);
+          wallOk = true;
+          return true;
+        },
+        () => false,
+      );
+    }
+    return wallIn;
+  };
+
   const api: RoomPainter = {
+    setChip(linear) {
+      if (dead) return Promise.resolve(false);
+      return loadWall().then((ok) => {
+        if (!ok || dead) return false;
+        // Finish a roll in progress first, so the new one starts from what shows.
+        if (busy) settle();
+        chipNew = linear ?? chipOld;
+        paintNew = linear ? 1 : 0;
+        if (opts.reducedMotion) {
+          settle();
+          draw();
+        } else {
+          busy = true;
+          chipT = 0;
+          chipStart = performance.now();
+          kick();
+        }
+        return true;
+      });
+    },
     setProgress(pos) {
       if (dead) return;
       goal = fit(pos);

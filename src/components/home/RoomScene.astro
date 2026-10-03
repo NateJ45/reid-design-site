@@ -59,6 +59,8 @@ const SIZES = '(min-width: 1024px) 75vw, 100vw';
   data-room-frames={room.slug}
   data-base-alt={room.baseAlt}
   data-ends={room.ends.join(',')}
+  data-wall={room.wall?.url}
+  data-wall-median={room.wall?.median.join(',')}
   style={`--ar:${width} / ${height}`}
 >
   {

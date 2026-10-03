@@ -536,9 +536,28 @@ questions: what do you want for me, how do you think, what do I get, what do I
 do next. The paint-colour deck and its wall masks were removed the same day
 (the masks kept leaving bad edges); the WebGL reveal stays.
 
+**The paint swatches** (2026-10-03, later the same day): once the build has
+FINISHED (the last frame showing whole), a quiet row under the booking tag
+offers four wall colours, Sage #a8b5a0, Clay #b5785f, Lake #8b9ea3 and
+Espresso #5f4639, plus "As it is". It is labelled with the plan's chip,
+"Color and finish guidance: try a wall color", so it reads as a taste of
+that deliverable. Small round paint dabs with their names in 0.8rem ink
+type, real buttons with aria-pressed, the chosen one ringed and underlined:
+deliberately quieter than the booking tag, which stays the loudest thing
+in the close. Lake and Clay are wall-paint swatches ONLY, never UI colours.
+The walls repaint in the photo's own light (linear-light maths, a 900 ms
+roll from the left; an instant swap under reduced motion) through ONE wall
+mask for the finished frame, redrawn at full resolution and corrected by
+hand (tools/room-lab `wall.mjs`, fixes in the room spec). Scroll back off
+the finished room and the row hides and the walls go back. No WebGL, no
+script, or any failure: the row never shows and the close looks exactly as
+it did. Every colour was checked at 2x crops on the olive leaves, the sofa
+top, both curtain edges, the crown and the baseboards before it shipped; a
+colour with an edge that cannot be fixed by hand is dropped, not shipped.
+
 **The build follows the scroll** (2026-10-02): scroll slowly and a piece
 slides in as you go, stop and it stops part-way, scroll back and it slides
-out; about three screens of scroll carry it all, in three beats (the bones:
+out; about three screens of scroll carry it all on a laptop (a 300svh track) and about nine on a phone (900svh, 2026-10-03: at 300svh a single flick raced through five or six pieces; now a normal flick moves one or two), in three beats (the bones:
 trim, rug, sofa; easy to live in: coffee table, lamp, chair, curtains; making
 it yours: art, olive branches, books and a throw). **Whole frames, no
 cut-outs** (2026-09-30): every step is ONE COMPLETE AI photo, and the new

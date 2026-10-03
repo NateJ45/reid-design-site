@@ -20,9 +20,10 @@
 //
 // PARTS
 //   - Heading and intro (scroll away normally).
-//   - The TRACK: a tall box (--room-track, 300svh; the same number as
-//     SCRUB_TRACK_SVH in src/lib/room-story.ts, a unit test holds them
-//     together) with the STAGE pinned inside it (position: sticky, just under
+//   - The TRACK: a tall box (--room-track, 300svh, and 900svh on a phone,
+//     max-width 767px, so one flick moves a piece or two, not six; the same
+//     numbers as SCRUB_TRACK_SVH / SCRUB_TRACK_SVH_PHONE in
+//     src/lib/room-story.ts, a unit test holds them together) with the STAGE pinned inside it (position: sticky, just under
 //     the header). Its height is reserved in CSS, so nothing shifts when the
 //     script starts. Only with scripting: `@media (scripting: enabled)`.
 //   - In the stage:
@@ -812,6 +813,12 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
   .room :global(.room__note) {
     transform-origin: 0.95rem 50%;
   }
+  /* The phone's longer track: SCRUB_TRACK_SVH_PHONE / SCRUB_PHONE_QUERY (tested). */
+  @media (max-width: 767px) {
+    .room {
+      --room-track: 900svh;
+    }
+  }
 </style>
 
 <script>
@@ -819,12 +826,14 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     beatAt,
     beatTicks,
     closeShown,
+    hexToLinear,
     noteAt,
     noteDraw,
     planLit,
     scrubPosition,
     snapPosition,
     stringPath,
+    swatchesShown,
     trackProgress,
   } from '@/lib/room-story';
   import type { PainterRoom, RoomPainter } from '@/scripts/room-painter';
@@ -876,7 +885,12 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     const imgs = imgsOf(box);
     if (imgs.length < 2) return null;
     const aspect = Number(imgs[0].getAttribute('width')) / Number(imgs[0].getAttribute('height'));
+    const med = numbers(box.dataset.wallMedian);
     return {
+      wall:
+        box.dataset.wall && med.length === 3
+          ? { url: box.dataset.wall, median: med as [number, number, number] }
+          : null,
       aspect: aspect > 0 ? aspect : 4 / 3,
       frames: imgs.map((img) => {
         const b = numbers(img.dataset.box);
@@ -952,6 +966,11 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     let chips: HTMLElement[] = [];
     let chipBeats: number[] = [];
     let closeLine = '';
+    // The paint swatches (finished frame only): shown once the painter has
+    // drawn AND the wall mask is in, and only while the build has finished.
+    let paintRow: HTMLElement | null = null;
+    let wallOk = false;
+    let paintShown = false;
 
     // ---- the <img> stack (the picture without WebGL) -------------------------
     // Frames up to floor(pos) are on (each covers the ones under it), the next
@@ -1162,6 +1181,41 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       lit = now;
     };
 
+    /** Show or hide the swatch row; leaving the finished room puts the walls back. */
+    const showPaint = () => {
+      const on =
+        Boolean(paintRow) && wallOk && root.hasAttribute('data-painted') && swatchesShown(pos, n);
+      if (on === paintShown) return;
+      paintShown = on;
+      if (paintRow) paintRow.hidden = !on;
+      if (!on) pickSwatch(null, false);
+    };
+    /** Choose a swatch (its button, or null for "As it is"). */
+    const pickSwatch = (btn: HTMLButtonElement | null, speak: boolean) => {
+      const btns = [...(paintRow?.querySelectorAll<HTMLButtonElement>('[data-swatch]') ?? [])];
+      const chosen = btn ?? btns[0];
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(b === chosen)));
+      const hex = chosen?.dataset.swatch ?? '';
+      void painter?.setChip(hex ? hexToLinear(hex) : null);
+      if (speak && chosen)
+        live.textContent = hex ? `Walls in ${chosen.textContent?.trim()}.` : 'Walls as they are.';
+    };
+    const onSwatch = (e: Event) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>('[data-swatch]');
+      if (b) pickSwatch(b, true);
+    };
+    /** Fetch the showing room's wall mask (the painter answers whether it is in). */
+    const loadWall = () => {
+      wallOk = false;
+      const mine = paintRow;
+      if (!painter || !mine) return showPaint();
+      void painter.setChip(null).then((ok) => {
+        if (dead || mine !== paintRow) return;
+        wallOk = ok;
+        showPaint();
+      });
+    };
+
     /** Read the scroll, and draw the build there. */
     const apply = () => {
       if (dead) return;
@@ -1185,6 +1239,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       }
       painter?.setProgress(pos);
       syncStack();
+      showPaint();
     };
 
     // One read per frame at most, and only while the track is near the screen.
@@ -1241,6 +1296,12 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       chips = box ? [...box.querySelectorAll<HTMLElement>('[data-plan-beat]')] : [];
       chipBeats = chips.map((c) => Number(c.dataset.planBeat));
       closeLine = box?.querySelector('[data-room-close] .room__close-line')?.textContent ?? '';
+      paintRow?.removeEventListener('click', onSwatch);
+      if (paintRow) paintRow.hidden = true;
+      paintRow = box?.querySelector<HTMLElement>('[data-room-paint]') ?? null;
+      paintRow?.addEventListener('click', onSwatch);
+      wallOk = false;
+      paintShown = false;
       ends = numbers(frames()?.dataset.ends);
       n = Math.max(0, imgsOf(frames() as HTMLElement).length - 1);
       current = beat = -2;
@@ -1278,6 +1339,9 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     // ---- frames and the painter, loaded about a screen early --------------
     const fallback = () => {
       painter = null;
+      wallOk = false;
+      if (paintRow) paintRow.hidden = true;
+      paintShown = false;
       canvas.hidden = true;
       root.dataset.nogl = '';
       delete root.dataset.painted;
@@ -1298,6 +1362,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
               if (dead) return;
               canvas.hidden = false;
               root.dataset.painted = '';
+              loadWall();
             },
             onLost: fallback,
           });
@@ -1368,6 +1433,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
           canvas.hidden = !ok;
           root.toggleAttribute('data-painted', ok);
           if (!ok) syncStack();
+          else loadWall();
         });
       } else {
         canvas.removeAttribute('data-loading');
@@ -1414,6 +1480,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       tabs.forEach((t) => t.removeEventListener('click', onTabClick));
       tablist?.removeEventListener('keydown', onTabKey);
       kept.clear();
+      paintRow?.removeEventListener('click', onSwatch);
       painter?.destroy();
       painter = null;
     };
