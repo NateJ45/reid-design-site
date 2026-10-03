@@ -32,7 +32,8 @@
 //     COMPLETE room after one more piece (JPG/WebP, width x height), in build
 //     order; its `stage` groups it under a caption, and stages never go
 //     backwards along the list.
-//   - wall-N.png: greyscale, 1024 wide; white = paintable wall IN THAT FRAME.
+//   - wall-N.png: greyscale, the frame's own width (it was 1024 wide before 2026-10-03,
+//     which softened every edge); white = paintable wall IN THAT FRAME.
 //   - change-N.png: greyscale, 1024 wide, soft-edged; white = where frame N
 //     differs from frame N-1 (the piece and its shadow). The reveal and the
 //     settle motion happen only there, so nothing outside it can pop.

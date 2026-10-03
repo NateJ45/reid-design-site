@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Concept room wall masks redrawn at full resolution (branch `claude/room-wall-masks`)
+
+Nathan sent crops of the paint chips showing where the wall masks were wrong: a pale halo round the olive leaves and above the sofa, brown patches on the curtain edge, an unpainted strip beside the curtain, a speckled edge along the crown. Cause: SegFormer labels at 640 px and the mask was published 1024 wide, so every wall/piece edge was soft and out by up to ~10 px, and each frame was segmented on its own. Fix: `tools/room-lab/lib/wallrefine.mjs` keeps the coarse mask as a prior and re-decides the uncertain band along every edge at the frame's own resolution by unmixing each pixel between the local wall colour and the local non-wall colour (alpha 0.5 for a half-leaf pixel), then takes back wide shadow strips the empty room had as wall (an opening keeps an 18 px shadow strip and drops a 5 px curtain rod), then fills the speckle. `publish.mjs` runs it on every frame and now writes `wall-N.png` at the frame width. Only `wall-*.png` changed in `src/assets/room/living-transitional/`; frames, change masks and the manifest are byte-identical. Checked through the real painter (Espresso, Sage, Clay, Linen) at 2x.
+
 ## 2026-10-03: Concept room caption card moved off the coffee table
 
 Nathan: the laptop caption card covered part of the coffee table. On a wide window (min-width 1100px and min-aspect-ratio 8/5) the card now sits in the margin left of the room (13.25rem wide, `right: calc(100% + 1rem)`), so it never covers the furniture; a taller window, where the room leaves no margins, keeps a narrow (14.5rem) overlay at the lower-left. CSS only, in `RoomCaptions.astro`. Checked at 1280x800 (margin) and 1280x1024 (overlay).
