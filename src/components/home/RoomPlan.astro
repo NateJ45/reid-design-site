@@ -31,8 +31,10 @@ const { plan } = Astro.props as Props;
 
 <div class="room__dock" data-room-dock>
   <p class="room__dock-label">What’s in the plan</p>
-  {/* Focusable: on a phone the strip scrolls sideways, and a keyboard must
-    be able to reach and scroll it (axe scrollable-region-focusable). */}
+  {
+    /* Focusable: on a phone the strip scrolls sideways, and a keyboard must
+    be able to reach and scroll it (axe scrollable-region-focusable). */
+  }
   <ul class="room__chips" tabindex="0" aria-label="What’s in the plan">
     {
       plan.map((p) => (
