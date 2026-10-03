@@ -75,3 +75,20 @@ test('Header Google rating links to the write-a-review page', async ({ page }) =
   test.skip((await rating.count()) === 0, 'no Google rating in the dataset');
   expect(await rating.first().getAttribute('href')).toBe(reviewHref);
 });
+
+// A link that is in the markup but under pointer-events: none is not clickable: the header
+// is pointer-events: none so only its own pieces take clicks, and the rating was missed
+// (2026-10-03). Ask the browser what is actually at the rating's centre.
+test('Header Google rating is clickable (nothing swallows the click)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const rating = page.locator('a.hdr__rating');
+  test.skip((await rating.count()) === 0, 'no Google rating in the dataset');
+  await expect(rating).toBeVisible();
+  const hit = await rating.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return Boolean(top && el.contains(top));
+  });
+  expect(hit, 'the rating link is what the pointer reaches').toBe(true);
+});

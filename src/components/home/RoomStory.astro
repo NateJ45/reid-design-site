@@ -1,45 +1,57 @@
 ---
 // Foundation, edit with care
 // =============================================================================
-// RoomStory: the home page's CONCEPT ROOMS (added 2026-09-30)
+// RoomStory: the home page's CONCEPT ROOMS (added 2026-09-30; the annotated
+// room, 2026-10-03)
 // =============================================================================
 // Labelled, AI-generated sample rooms. Each starts EMPTY and fills up piece by
-// piece as the visitor scrolls past short captions: every step of the build is
-// ONE COMPLETE PHOTO of the room, and the new piece appears in place with a
-// soft reveal (WebGL), while a deck of paint chips repaints the walls of
-// whichever photo is showing. Tabs above the room switch between rooms
-// (living room, family room, dining room, kitchen, bathroom, bedroom, each in
-// one style); every room shares the same chips. It is openly a concept: a
-// "Concept room" sample tag sits on the picture and every alt text opens
-// "Concept image:". It must never read as Staci's portfolio (no town or
-// project names, no numbering).
+// piece as the visitor scrolls: every step of the build is ONE COMPLETE PHOTO
+// of the room, and the new piece appears in place with a soft reveal (WebGL).
+// Since 2026-10-03 the room is a job in progress marked up by the designer:
+// it opens on an example BRIEF, every piece that arrives is tied to a sample
+// TAG on a string that says why it is there (one of the five checks from
+// Staci's notebook), and it closes on WHAT IS IN THE PLAN and the booking
+// button. (The paint-colour deck went the same day: its wall masks kept
+// leaving bad edges.) Tabs above the room switch between rooms, if there is
+// more than one. It is openly a concept: a "Concept room" sample tag sits on
+// the picture, every alt text opens "Concept image:" and the brief says "an
+// example". It must never read as Staci's portfolio (no town or project
+// names, no numbering).
 //
 // This file only LOADS and CHECKS the rooms; RoomStage.astro draws them (and
 // carries the script), so when nothing valid is there the page gets no markup
 // and no script at all.
 //
 //   src/assets/room/rooms.json            -> parseRoomIndex() (tab order, labels)
-//   src/assets/room/<slug>/manifest.json  -> parseRoomManifest() (v3, whole frames;
-//                                            file names relative to its folder)
+//   src/assets/room/<slug>/manifest.json  -> parseRoomManifest() (v4: frames plus
+//                                            notes, pins, brief, plan, closing)
 //   frame-N.jpg (every frame)             -> getImage(): avif + webp at 640/960/1440
-//   wall-N.png, change-N.png              -> ?url (fetched by the painter only)
+//   change-N.png                          -> ?url (fetched by the painter only)
 //
 // A listed room whose manifest is invalid or whose files are missing is
 // DROPPED with a build-time warning naming it; the others still render. No
 // rooms.json, an invalid one, or no valid room: nothing. One valid room: no
-// tabs at all (the single-room section as it was before the tabs).
+// tabs at all.
 //
-// The files are made by tools/room-lab (room:publish). Captions and alt text
-// live in each manifest, NOT in Sanity; Sanity only holds the heading, its
-// italic phrase, the intro and the Show switch (homePage.roomStory*). Placed
-// by the `roomStory` Home marker (CLAUDE.md rule 13).
+// THE BOOKING BUTTON at the close is the header's: the same label and link
+// (resolveChrome(siteSettings).headerCta, exactly what Header.astro prints)
+// and the consultation price derived from content (getChromeFacts()
+// consultPrice, the rule the footer and Contact use). Never a typed price: no
+// price in Sanity, no price on the button.
+//
+// The files are made by tools/room-lab (room:publish). Notes, captions, the
+// brief, the plan and alt text live in each manifest, NOT in Sanity; Sanity
+// only holds the heading, its italic phrase, the intro and the Show switch
+// (homePage.roomStory*). Placed by the `roomStory` Home marker (CLAUDE.md
+// rule 13).
 // =============================================================================
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import RoomStage from './RoomStage.astro';
-import type { RoomView, StageFrame } from './room-view';
+import type { CloseCta, RoomView, StageFrame } from './room-view';
 import {
   ROOM_MOTIONS,
+  checkInfo,
   parseRoomIndex,
   parseRoomManifest,
   roomAnnouncement,
@@ -48,14 +60,19 @@ import {
   stageFrames,
   type RoomIndexEntry,
 } from '@/lib/room-story';
+import { resolveChrome } from '@/lib/siteSettings';
+import { resolveChromeFacts } from '@/lib/chrome-facts';
+import { getChromeFacts } from '@/lib/queries';
 
 interface Props {
   headline?: string | null;
   scriptAccent?: string | null;
   intro?: string | null;
+  /** Site settings, for the header button's label and link (the close's button). */
+  siteSettings?: Parameters<typeof resolveChrome>[0];
 }
 
-const { headline, scriptAccent, intro } = Astro.props as Props;
+const { headline, scriptAccent, intro, siteSettings } = Astro.props as Props;
 
 // Globs, not imports: a missing folder is an empty object, never a build error.
 const indexes = import.meta.glob<{ default: unknown }>('../../assets/room/rooms.json', {
@@ -64,10 +81,10 @@ const indexes = import.meta.glob<{ default: unknown }>('../../assets/room/rooms.
 const manifests = import.meta.glob<{ default: unknown }>('../../assets/room/*/manifest.json', {
   eager: true,
 });
-// Frames go through the image pipeline; the masks are served as they are,
-// ALWAYS as files: `no-inline` stops Vite turning a small mask (a vase's change
-// mask can be under its 4 KB limit) into a data: URL baked into the HTML of
-// every room, template rooms included.
+// Frames go through the image pipeline; the change masks are served as they
+// are, ALWAYS as files: `no-inline` stops Vite turning a small mask (a vase's
+// change mask can be under its 4 KB limit) into a data: URL baked into the
+// HTML of every room, template rooms included.
 const images = import.meta.glob<{ default: ImageMetadata }>(
   '../../assets/room/*/*.{jpg,jpeg,webp}',
   { eager: true },
@@ -85,9 +102,14 @@ if (rawIndex !== undefined && !index) {
 }
 
 // The room is up to three quarters of a laptop screen (as wide as its height
-// allows, 2026-10-02 scrub), full width on a phone.
+// allows), full width on a phone.
 const WIDTHS = [640, 960, 1440];
 const SIZES = '(min-width: 1024px) 75vw, 100vw';
+// Plan chips spread over the ramp, palest first, never chip 5 (Warm Bronze
+// takes no text). Five chips get 1, 2, 3, 4, 6.
+const PLAN_RAMP = [1, 2, 3, 4, 6];
+const planTone = (i: number, n: number) =>
+  PLAN_RAMP[n <= 1 ? 0 : Math.round((i * (PLAN_RAMP.length - 1)) / (n - 1))] ?? 1;
 
 /** Load one listed room, or null (with a build-time warning) when it is not all there. */
 async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
@@ -100,7 +122,7 @@ async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
   const raw = manifests[at('manifest.json')]?.default;
   if (raw === undefined) return drop(`no ${folder}/manifest.json`);
   const manifest = parseRoomManifest(raw);
-  if (!manifest) return drop(`${folder}/manifest.json is not a valid v3 manifest`);
+  if (!manifest) return drop(`${folder}/manifest.json is not a valid v4 manifest`);
   const missing = roomFiles(manifest).filter((f) =>
     f.toLowerCase().endsWith('.png') ? !pngUrls[at(f)] : !images[at(f)],
   );
@@ -122,28 +144,25 @@ async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
   };
   const stageIndex = new Map(manifest.stages.map((s, i) => [s.id, i]));
   const round = (v: number) => Math.round(v * 1e5) / 1e5;
+  const fracBox = ([x, y, w, h]: number[]) =>
+    [round(x / W), round(y / H), round(w / W), round(h / H)] as [number, number, number, number];
 
   const frames: StageFrame[] = [
     {
       ...(await photo(manifest.empty.image)),
-      wall: pngUrls[at(manifest.empty.wall)],
       change: null,
       box: null,
       motion: -1,
       stage: -1,
     },
     ...(await Promise.all(
-      manifest.pieces.map(async (p) => {
-        const [x, y, w, h] = p.box;
-        return {
-          ...(await photo(p.image)),
-          wall: pngUrls[at(p.wall)],
-          change: pngUrls[at(p.change)],
-          box: [round(x / W), round(y / H), round(w / W), round(h / H)] as StageFrame['box'],
-          motion: ROOM_MOTIONS.indexOf(p.motion),
-          stage: stageIndex.get(p.stage) ?? 0,
-        };
-      }),
+      manifest.pieces.map(async (p) => ({
+        ...(await photo(p.image)),
+        change: pngUrls[at(p.change)],
+        box: fracBox(p.box),
+        motion: ROOM_MOTIONS.indexOf(p.motion),
+        stage: stageIndex.get(p.stage) ?? 0,
+      })),
     )),
   ];
 
@@ -154,30 +173,64 @@ async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
     announce: roomAnnouncement(entry),
     width: W,
     height: H,
-    median: manifest.wallMedianLinear,
     baseAlt: manifest.base.alt,
     finalAlt: manifest.final.alt,
-    stages: manifest.stages.map((s) => s.caption),
+    beats: manifest.stages.map((s) => ({ label: s.label, caption: s.caption })),
     ends: stageFrames(manifest),
     frames,
+    notes: manifest.pieces.map((p) => {
+      const c = checkInfo(p.note.check);
+      return {
+        id: p.id,
+        check: c.id,
+        checkLabel: c.label,
+        tone: c.tone,
+        text: p.note.text,
+        pin: [round(p.pin[0] / W), round(p.pin[1] / H)],
+        box: fracBox(p.box),
+        side: p.side,
+        stage: stageIndex.get(p.stage) ?? 0,
+      };
+    }),
+    brief: manifest.brief,
+    plan: manifest.plan.map((p, i) => ({
+      label: p.label,
+      stage: stageIndex.get(p.beat) ?? 0,
+      tone: planTone(i, manifest.plan.length),
+    })),
+    closing: manifest.closing.line,
   };
 }
 
 const rooms = index
   ? (await Promise.all(index.rooms.map(loadRoom))).filter((r): r is RoomView => r !== null)
   : [];
+
+// The close's booking button: the header button's label and link, and the
+// consultation price. A failed facts read fails a static build (CLAUDE.md
+// rule 9, the same handling as Footer.astro); in a live preview the button
+// simply drops its price.
+let cta: CloseCta | null = null;
+if (rooms.length) {
+  const chrome = resolveChrome(siteSettings);
+  const facts = resolveChromeFacts(
+    await getChromeFacts().catch((err: unknown) => {
+      if (Astro.isPrerendered) throw err;
+      return null;
+    }),
+  );
+  cta = { label: chrome.headerCta.label, href: chrome.headerCta.href, price: facts.consultPrice };
+}
 ---
 
 {
-  rooms.length > 0 && (
+  rooms.length > 0 && cta && (
     <RoomStage
       rooms={rooms}
-      headline={headline || 'Watch a room come together'}
-      scriptAccent={headline ? scriptAccent : (scriptAccent ?? 'come together')}
-      intro={
-        intro ||
-        'This is a concept room, not a client’s home. It fills up the way a project does, one piece at a time, and the paint chips try a colour on its walls.'
-      }
+      cta={cta}
+      headline={headline || 'Every piece is chosen for a reason.'}
+      scriptAccent={headline ? scriptAccent : (scriptAccent ?? 'for a reason')}
+      intro={intro || 'Watch one empty room get built, and see why each piece is there.'}
     />
   )
 }

@@ -14,7 +14,7 @@ const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   { value: 'testimonials', title: 'Kind words (testimonials)' },
   { value: 'processPreview', title: 'How it works' },
   // Added 2026-09-30: the concept room (a labelled sample room that fills up
-  // as the visitor scrolls, with paint chips that repaint its walls). A layout
+  // as the visitor scrolls, each piece tagged with why it is there). A layout
   // saved before this existed has no row for it; HomeSectionRenderer then
   // places it just after "How it works", and Home > Concept room > "Show on
   // the home page" turns it off. Renders nothing until the room's frames are

@@ -1,0 +1,67 @@
+---
+// Safe to edit by hand (the look); the line comes from the room's manifest,
+// the button from the header (RoomStory.astro)
+// =============================================================================
+// RoomClose: the end of the annotated concept room (2026-10-03)
+// =============================================================================
+// Shows once the build has finished: the closing line in Zodiak ("You see
+// everything before a single item is purchased.", Staci's own words from
+// /process), the house booking tag (`.r-pricetag`, ink on linen) carrying the
+// SAME label and link as the header button and the consultation price derived
+// from content (never typed; no price, no price part), and a quiet link to
+// /process.
+//
+// It sits straight on the linen ground, not on a card: it is the house tag,
+// a different object from the paper tags and notebook pages. RoomStage places
+// it: the right margin at the dock's end on a wide laptop window, over the
+// dock on a tall one, and in place of the tag and the dock on a phone. The
+// same markup also ends the plain list without a script (`plain`).
+// =============================================================================
+import type { CloseCta } from './room-view';
+
+interface Props {
+  line: string;
+  cta: CloseCta;
+  /** The no-script list's copy (not a card, never hidden by the script). */
+  plain?: boolean;
+}
+
+const { line, cta, plain = false } = Astro.props as Props;
+---
+
+<div
+  class:list={['room__close', plain && 'room__close--plain']}
+  data-room-close={!plain || undefined}
+>
+  <p class="room__close-line">{line}</p>
+  <div class="room__close-acts">
+    <a href={cta.href} class="r-pricetag room__close-cta">
+      <span>{cta.label}</span>
+      {cta.price && <span class="r-pricetag__price">{cta.price}</span>}
+    </a>
+    <a href="/process" class="r-link room__close-more">See the full process</a>
+  </div>
+</div>
+
+<style>
+  .room__close {
+    color: var(--color-ink);
+  }
+  .room__close-line {
+    margin: 0 0 1rem;
+    max-width: 19ch;
+    font: 300 clamp(1.35rem, 1.05rem + 0.75vw, 1.7rem) / 1.18 var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .room__close-acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem 1.25rem;
+  }
+  .room__close-more {
+    font-size: 0.92rem;
+    color: var(--color-ink);
+  }
+</style>

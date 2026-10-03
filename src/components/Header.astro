@@ -449,6 +449,14 @@ function isGroupActive(items: { href: string }[]) {
   .hdr__bar > * {
     pointer-events: auto;
   }
+  /* The rating is another component's root, so it carries RatingTag's scope id, not this
+     file's, and the scoped rule above never reached it: the whole header is
+     pointer-events: none, so it was inheriting that and clicks fell through to the hero
+     photo behind it (Nathan, 2026-10-03: "still isn't clickable"). The header slot needs
+     its own global rule. */
+  .hdr__bar > :global(.hdr__rating) {
+    pointer-events: auto;
+  }
 
   /* ---- The logo (2026-09-30 design pass): set straight on the page, no
      paper plate. Nathan found the boxed "hanging sign" read as a sticker
