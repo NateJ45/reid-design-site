@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Wall-colour selectors drawn as paint chips
+
+Nathan: the selectors looked like circle pills, not swatches. `RoomClose.astro` now draws each as a small square-cornered paint chip (colour block over a Paper label strip, a soft shadow), the chosen one lifted with an ink outline. Same buttons, `aria-pressed`, labels and behaviour; reduced motion drops the lift. Markup change only inside the swatch buttons (a `room__swatch-name` span); no logic touched.
+
 ## 2026-10-03: Header Google rating links to the write-a-review page
 
 Nathan: the header rating should go where Contact's "Leave a review" button goes. It linked to the business profile (maps.google.com/?cid=...). `RatingTag`'s `compact` variant (the header's) now uses `googleWriteReviewUrl` (g.page/.../review) and falls back to the profile when that is unset; the other variants are unchanged. A smoke test compares the header link with Contact's button. **Follow-up, same day:** the rating was still not clickable. The header is `pointer-events: none` (only its own pieces take the pointer), and `.hdr__bar > *` is a SCOPED rule that never matched RatingTag's root (it carries RatingTag's scope id), so clicks fell through to the hero photo. Fixed with `.hdr__bar > :global(.hdr__rating)`; a second smoke test asks the browser what is at the rating's centre (`elementFromPoint`), because a link in the markup says nothing about whether it can be clicked.
