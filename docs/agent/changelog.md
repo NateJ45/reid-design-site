@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Concept room caption card moved off the coffee table
+
+Nathan: the laptop caption card covered part of the coffee table. On a wide window (min-width 1100px and min-aspect-ratio 8/5) the card now sits in the margin left of the room (13.25rem wide, `right: calc(100% + 1rem)`), so it never covers the furniture; a taller window, where the room leaves no margins, keeps a narrow (14.5rem) overlay at the lower-left. CSS only, in `RoomCaptions.astro`. Checked at 1280x800 (margin) and 1280x1024 (overlay).
+
 ## 2026-10-02: Concept room: the scroll scrub (branch `claude/concept-room-scrub`)
 
 Delegated agent (Opus), for review by the main session. Nathan's decisions (2026-10-02): the build follows scroll position both directions; on a laptop a full-width pinned room with a small paper caption card over a lower corner and the chips in a slim dock under it; about three screens of scroll for the three beats; chips always there; on a phone the card below the room; reduced motion snaps; no numerals; tabs kept.
