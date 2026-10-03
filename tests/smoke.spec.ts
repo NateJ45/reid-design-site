@@ -62,18 +62,16 @@ test('GA4 sends nothing from localhost, even when the id is built in', async ({ 
   );
 });
 
-// The header's Google rating goes to the same write-a-review page as Contact's "Leave a review"
-// (2026-10-03, Nathan). Skips when the dataset has no write-review link (the header then falls
-// back to the profile, which is correct) or no rating at all.
-test('Header Google rating links to the write-a-review page', async ({ page }) => {
+// The header's Google rating goes to the business profile (a Google Maps cid link), NOT the
+// write-a-review page (2026-10-03, Nathan). Skips when the dataset has no rating.
+test('Header Google rating links to the Google profile, not the review form', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/contact/', { waitUntil: 'domcontentloaded' });
-  const leave = page.locator('a.cx__leave');
-  test.skip((await leave.count()) === 0, 'no write-a-review link in the dataset');
-  const reviewHref = await leave.first().getAttribute('href');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   const rating = page.locator('a.hdr__rating');
   test.skip((await rating.count()) === 0, 'no Google rating in the dataset');
-  expect(await rating.first().getAttribute('href')).toBe(reviewHref);
+  const href = (await rating.first().getAttribute('href')) ?? '';
+  expect(href).toMatch(/cid=/);
+  expect(href).not.toMatch(/review/i);
 });
 
 // A link that is in the markup but under pointer-events: none is not clickable: the header
