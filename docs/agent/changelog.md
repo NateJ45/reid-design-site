@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: CI is parallel, sharded and builds once (PORTS.md card 62)
+
+`ci.yml` was two serial jobs (`build` 4 to 5 min of gates, `test` re-running `npm run build` inside Playwright's webServer after a 40s browser download) and `lighthouse.yml` built a third time, 7 to 8 minutes in total on every PR. Now `static` (drift check, audit, typegen, types guard, check, lint, format, unit) and `site` (build, link check, upload `dist/client`) run in parallel; `build` is an aggregator over both. `e2e` runs Playwright in 3 shards (`--shard=N/3`, about 150s of tests split three ways) on the uploaded artifact with `PLAYWRIGHT_SKIP_BUILD=1`, browsers cached by Playwright version; `test` is an aggregator over the shards. `playwright.config.ts` webServer honours `PLAYWRIGHT_SKIP_BUILD`; local runs still build fresh. The config is not `PORTABLE`-marked here, so sync-check does not cover it (36/36 SAME). `build`, `test` and `lighthouse` stay the three required checks, so neither workflow has a `paths:` filter. Lighthouse cost was cut by sampling instead: PRs audit `/`, `/services/`, `/contact/` and `/404.html` through `--collect.url` (assertions and median-of-3 untouched); push to `main`, a new Monday 05:17 UTC cron and manual dispatch audit all nine URLs.
+
 ## 2026-10-03: The staging branch is gone
 
 Nathan's call: staging is no longer used (the nixoncreativestudio project dropped it too). Deleted the `staging` branch and every merged or abandoned branch and agent worktree, local and on GitHub; only `main` and the open Dependabot PR branches remain. CI changes: removed `.github/workflows/deploy-staging.yml`, the `staging` push trigger from `ci.yml` and `lighthouse.yml`, the starter-staging sync-check ref (every build now checks the starter's `main`), and the "fast-forward staging to main" step in `dependabot-auto-merge.yml`. The deployed `reid-design-site-staging` Cloudflare Worker is NOT deleted by this and no longer updates. Older entries below that mention staging are history and were left as written.

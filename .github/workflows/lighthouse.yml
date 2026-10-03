@@ -1,9 +1,24 @@
+# PORTS.md card 62: cheaper, not rarer. This repo's ruleset "main: PR + green
+# CI" REQUIRES the `lighthouse` check (the starter and most family repos
+# require only `build` and `test`), so the pull_request trigger has NO `paths:`
+# filter: a required check that never reports blocks the merge forever, and the
+# job id/name `lighthouse` must not change. The cost is cut by SAMPLING instead:
+#
+#   - pull_request: ONE URL per template via --collect.url below. The full list
+#     in lighthouserc.json, the assertions and the median-of-3 are untouched;
+#     passing --collect.url only replaces which pages are audited.
+#   - push to main: the FULL url list, the post-merge record.
+#   - weekly schedule: the FULL url list, catches drift nobody pushed (a font
+#     host change, a dependency bump).
+#   - workflow_dispatch: a branch tip on demand, full list.
 name: Lighthouse
 
 on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: '17 5 * * 1'
   # Dispatchable so a main tip can be re-audited on demand, without
   # pushing an empty commit. mas and presacademy already allow this.
   workflow_dispatch:
@@ -34,7 +49,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       # Same build ci.yml runs: consumes the committed src/lib/sanity.types.ts,
       # emits dist/client (audited here) and dist/server (the SSR bundle for
@@ -44,5 +59,23 @@ jobs:
 
       # Accessibility is a hard gate (minScore 1) in lighthouserc.json;
       # performance / best-practices / SEO are warnings.
-      - name: Lighthouse CI
+      #
+      # On a PR the URL list is overridden with ONE PAGE PER TEMPLATE, written
+      # in the same http://localhost/<path>/index.html form as the config (the
+      # staticDistDir server rewrites the host). Sample: / (home hero, the LCP
+      # gate), /services/ (the section-stack page template with the sticky CTA),
+      # /contact/ (the only form page) and /404.html (bespoke 404). The other
+      # content pages (about, process, faq, e-design, privacy) are not audited
+      # on a PR; the full list covers them after merge and every Monday.
+      - name: Lighthouse CI (sample, pull request)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: >-
+          npx lhci autorun
+          --collect.url=http://localhost/index.html
+          --collect.url=http://localhost/services/index.html
+          --collect.url=http://localhost/contact/index.html
+          --collect.url=http://localhost/404.html
+
+      - name: Lighthouse CI (full)
+        if: ${{ github.event_name != 'pull_request' }}
         run: npx lhci autorun

@@ -41,7 +41,7 @@ Removed 2026-09-30, never launched: the journal, shop, style quiz, budget calcul
 
 Also live: a dated announcement bar / popup Staci posts from the Studio (Announcements), site search (Pagefind, built at the end of `npm run build`), a Studio "Site stats" traffic panel (needs the `CF_ANALYTICS_TOKEN` secret), and a weekly outbound-link report (`.github/workflows/link-health.yml`).
 
-Automatic jobs in `.github/workflows/`: `ci.yml` (sync-check, `npm run check`, unit tests, build, Playwright) and `lighthouse.yml` on every PR; `sanity-backup.yml` (nightly dataset export), `uptime.yml` (hourly, needs the `SITE_URL` repo variable), `link-health.yml` (Mondays), `refresh-instagram-token.yml` + `weekly-rebuild.yml` (Mondays, keep the Instagram feed fresh), and `dependabot-auto-merge.yml` (merges green minor/patch Dependabot PRs).
+Automatic jobs in `.github/workflows/`: `ci.yml` (parallel `static` and `site` jobs aggregated into the required `build` check, then Playwright in 3 shards against the uploaded build, aggregated into `test`) and `lighthouse.yml` on every PR (a 4-page sample), on push to `main` and every Monday (all pages); `sanity-backup.yml` (nightly dataset export), `uptime.yml` (hourly, needs the `SITE_URL` repo variable), `link-health.yml` (Mondays), `refresh-instagram-token.yml` + `weekly-rebuild.yml` (Mondays, keep the Instagram feed fresh), and `dependabot-auto-merge.yml` (merges green minor/patch Dependabot PRs).
 
 ## Running it locally
 
