@@ -274,3 +274,211 @@
   margin: 1rem 0 0;
   color: var(--color-ink-2);
 }
+
+/* ---- Room and style picks (2026-10-03) ----------------------------------
+   Rooms are sample tags (the .r-tag notch and punched hole); styles are small
+   paint-chip cards. Both are <button aria-pressed>. A picked item turns ink
+   with a check, never colour alone. No text sits on the swatch bands: names
+   and notes are on paper (ink 14.9, ink-2 7.3+). Focus is the house 2px ink
+   outline. Motion only for no-preference. */
+.cf-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.75rem;
+}
+.cf-roomtag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.1rem 0 1.9rem;
+  border: 0;
+  font: 500 0.95rem/1 var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  cursor: pointer;
+  /* Notched left edge, as .r-tag. Outline would be clipped by the notch, so
+     the focus ring sits on a drop-shadow-free wrapper via :focus-visible below. */
+  clip-path: polygon(0.8rem 0, 100% 0, 100% 100%, 0.8rem 100%, 0 50%);
+  box-shadow: inset 0 0 0 1px var(--color-chip-3);
+}
+.cf-roomtag::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-top: -0.225rem;
+  border-radius: 50%;
+  background: var(--color-rule);
+}
+.cf-roomtag[aria-pressed='true'] {
+  color: var(--color-cream);
+  background: var(--color-ink);
+  box-shadow: none;
+}
+.cf-roomtag[aria-pressed='true']::before {
+  background: var(--color-bg);
+}
+.cf-roomtag:focus-visible,
+.cf-stylecard:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  /* clip-path cuts the outline on the tag, so give it room with a filled ring. */
+  clip-path: none;
+}
+.cf-roomtag:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--color-bg),
+    0 0 0 4px var(--color-ink);
+}
+
+.cf-styles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (min-width: 40rem) {
+  .cf-styles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+.cf-stylecard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border: 0;
+  border-radius: 0.2rem;
+  box-shadow:
+    0 0 0 1px var(--color-rule),
+    0 1px 2px rgb(35 30 27 / 0.06);
+  cursor: pointer;
+}
+.cf-stylecard__bands {
+  display: flex;
+  height: 4.4rem;
+}
+@media (min-width: 40rem) {
+  .cf-stylecard__bands {
+    height: 5.75rem;
+  }
+}
+.cf-stylecard__bands > span:nth-child(1) {
+  flex: 1.4;
+}
+.cf-stylecard__bands > span:nth-child(2) {
+  flex: 1;
+}
+.cf-stylecard__bands > span:nth-child(3) {
+  flex: 0.6;
+}
+.cf-stylecard__unsure {
+  flex: 1 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: italic 300 2rem/1 var(--font-display);
+  color: var(--color-chip-6);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-chip-1) 0 8px,
+    var(--color-bg) 8px 16px
+  );
+}
+/* The punched hole at the top of the chip. */
+.cf-stylecard::after {
+  content: '';
+  position: absolute;
+  top: 0.55rem;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-left: -0.3rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: inset 0 1px 2px rgb(35 30 27 / 0.35);
+}
+.cf-stylecard__check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+.cf-stylecard__check svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: none;
+  stroke: var(--color-cream);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cf-stylecard[aria-pressed='true'] {
+  box-shadow:
+    0 0 0 2px var(--color-ink),
+    0 0.9rem 1.6rem -0.7rem rgb(35 30 27 / 0.35);
+}
+.cf-stylecard[aria-pressed='true'] .cf-stylecard__check {
+  display: flex;
+}
+.cf-stylecard__body {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem 0.9rem;
+  border-top: 1px solid var(--color-rule);
+}
+.cf-stylecard__name {
+  font: 300 1.2rem/1.15 var(--font-display);
+  letter-spacing: -0.01em;
+}
+.cf-stylecard__notes {
+  font: 400 0.85rem/1.4 var(--font-body);
+  color: var(--color-ink-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cf-roomtag {
+    transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cf-roomtag[aria-pressed='true'] {
+    transform: rotate(-1.5deg) translateY(-1px);
+  }
+  .cf-stylecard {
+    transition:
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cf-stylecard[aria-pressed='true'] {
+    transform: translateY(-4px) rotate(-1deg);
+  }
+}
+
+/* The live summary above the message. */
+.cf-picked {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  width: fit-content;
+  max-width: 100%;
+  font: 500 0.9rem/1.4 var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  box-shadow: inset 0 0 0 1px var(--color-rule);
+  border-radius: 0.2rem;
+}
+.cf-picked__lead {
+  font-weight: 400;
+  color: var(--color-ink-2);
+}
