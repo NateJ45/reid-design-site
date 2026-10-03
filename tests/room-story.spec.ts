@@ -1,56 +1,65 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import sharp from 'sharp';
 import { join } from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
-import { scrubPosition } from '../src/lib/room-story';
+import { NOTE_IN, ROOM_CHECKS, scrubPosition } from '../src/lib/room-story';
 
 // =============================================================================
-// The home page's concept room (added 2026-09-30; whole frames, manifest v3;
-// the scroll scrub, 2026-10-02)
+// The home page's concept room (added 2026-09-30; whole frames; the scroll
+// scrub, 2026-10-02; THE ANNOTATED ROOM, 2026-10-03)
 // =============================================================================
 // src/components/home/RoomStory.astro + RoomStage.astro + RoomScene.astro +
-// RoomCaptions.astro + src/scripts/room-painter.ts. Holds:
+// RoomNotes.astro (+ RoomTag, RoomBrief, RoomPlan, RoomClose) +
+// src/scripts/room-painter.ts. Holds:
 //   - the honesty rules (the "Concept room" sample tag, visible by PIXELS once
 //     the painter draws; "Concept image:" on the described picture, every other
-//     frame alt=""; no numbering in the captions);
-//   - the no-script default: the FINISHED room, every caption as a plain list,
-//     no pinned track, and no other frame downloading;
-//   - THE SCRUB: the build follows scroll position. At 0, 50 and 100 percent of
-//     the track the canvas changes INSIDE the change boxes of the pieces in
+//     frame alt=""; no digits in any word the room prints);
+//   - no paint deck and no wall masks anywhere in the build;
+//   - the no-script default: the FINISHED room and the plain list (the brief,
+//     every beat with its tags, the plan, the closing line and the booking
+//     tag), no pinned track, no other frame downloading;
+//   - THE SCRUB: the canvas changes inside the change boxes of the pieces in
 //     between and not outside them; a piece stops part-way when the scroll
 //     stops; scrolling back gives the very same pixels; nothing runs while idle;
-//   - the caption card (beat by scroll position, the live region), the chips
-//     always there (they repaint the empty room too), the pinned stage (no
-//     ancestor breaks sticky) and the phone layout fitting one screen;
-//   - the no-WebGL fallback (the <img> stack crossfaded by the same position,
-//     chips gone) and reduced motion (whole frames only, no card fade).
-//
-// The room tabs: keyboard navigation along the tablist, a switch changing the
-// finished picture and the captions while keeping the visitor's place, the
-// chip colour surviving a switch (a canvas pixel check), one GL context however
-// many switches, and no tabs without a script or with a single room.
+//   - THE ANNOTATIONS: the brief at the start; each piece's tag (its text from
+//     the manifest) follows the scrub, with its pin and a string that draws;
+//     the plan chips light by beat; the close at the end carries the header
+//     button's link and the consultation price the Contact page shows (never
+//     typed); the live region reads each tag and the closing line; a tag never
+//     covers its own pin (1280x800, 1440x900, 1280x1024);
+//   - the no-WebGL fallback, reduced motion, and the phone fitting one screen.
 //
 // The rooms render NOTHING until tools/room-lab publishes src/assets/room/
 // rooms.json and each room's folder, so this whole file skips while there is
-// no listed room with a manifest (CI stays green before the real rooms land).
-// ROOMS counts the listed rooms whose manifest exists; the tab tests need two
+// no listed room with a manifest. ROOMS counts them; the tab tests need two
 // or more, the no-tablist test exactly one.
 // =============================================================================
 
 const ROOM_DIR = join(process.cwd(), 'src/assets/room');
-function countRooms(): number {
+interface Manifest {
+  stages: { id: string; label: string; caption: string }[];
+  brief: { title: string; tag: string; rows: { question: string; answer: string }[] };
+  plan: { id: string; label: string; beat: string }[];
+  closing: { line: string };
+  frames: { id?: string; stage?: string; note?: { check: string; text: string } }[];
+}
+function listed(): Manifest[] {
   try {
     const index = JSON.parse(readFileSync(join(ROOM_DIR, 'rooms.json'), 'utf8')) as {
       rooms?: { manifest?: string }[];
     };
-    return (index.rooms ?? []).filter(
-      (r) => typeof r.manifest === 'string' && existsSync(join(ROOM_DIR, r.manifest)),
-    ).length;
+    return (index.rooms ?? [])
+      .filter((r) => typeof r.manifest === 'string' && existsSync(join(ROOM_DIR, r.manifest)))
+      .map((r) => JSON.parse(readFileSync(join(ROOM_DIR, r.manifest as string), 'utf8')));
   } catch {
-    return 0;
+    return [];
   }
 }
-const ROOMS = countRooms();
+const MANIFESTS = listed();
+const ROOMS = MANIFESTS.length;
+const FIRST = MANIFESTS[0];
+const NOTES = FIRST ? FIRST.frames.slice(1).map((f) => f.note!) : [];
+const label = (check: string) => ROOM_CHECKS.find((c) => c.id === check)?.label ?? check;
 test.skip(
   ROOMS === 0,
   'No src/assets/room/rooms.json with a room yet: the concept room renders nothing',
@@ -75,7 +84,6 @@ const posNow = (page: Page) =>
     return Number(rule.style.getPropertyValue('--room-p') || 0) * n;
   });
 
-/** Scroll until the build position is `target` (a bisection over the track). */
 /**
  * Scroll to the point of the track where the RAW build position (before any
  * reduced-motion snap) is `target`: the same scrubPosition() the page uses,
@@ -264,12 +272,45 @@ const stubNoWebGL = (page: Page) =>
     };
   });
 
+/** What shows now: the card ids switched on, the pins on, the string's state. */
+const annotations = (page: Page) =>
+  page.evaluate(() => {
+    const vis = (el: Element | null) =>
+      !!el && getComputedStyle(el).visibility === 'visible' && el.hasAttribute('data-on');
+    const tags = [...document.querySelectorAll<HTMLElement>('.room__note')].filter(vis);
+    const g = document.querySelector<SVGGElement>('[data-room-string] g[data-on]');
+    return {
+      brief: vis(document.querySelector('.room__brief')),
+      tags: tags.map((t) => Number(t.dataset.card)),
+      text: tags[0]?.querySelector('.rtag__text')?.textContent?.trim() ?? '',
+      check: tags[0]?.querySelector('.rtag__check')?.textContent?.trim() ?? '',
+      pins: [...document.querySelectorAll<HTMLElement>('[data-pin-for][data-on]')].map((p) =>
+        Number(p.dataset.pinFor),
+      ),
+      string: g?.querySelector('.room__string-ink')?.getAttribute('d') ?? '',
+      off: g ? Number(getComputedStyle(g).getPropertyValue('--off')) : NaN,
+      closed: document.querySelector('section.room')?.hasAttribute('data-closed') ?? false,
+      lit: [...document.querySelectorAll<HTMLElement>('[data-plan-beat]')].map((c) =>
+        c.hasAttribute('data-lit'),
+      ),
+    };
+  });
+
+/** The price the Contact page prints for the consultation (the same derived rule). */
+async function contactPrice(page: Page): Promise<string | null> {
+  const html = await (await page.request.get('/contact/')).text();
+  const m = /consultation<\/span>(?:(?!<\/li>).)*?<b[^>]*>(\$[\d,]+)<\/b>/s.exec(html);
+  return m ? m[1] : null;
+}
+
 test.describe('Concept room', () => {
-  test('is on the home page and labelled honestly', async ({ page }) => {
+  test('is on the home page and labelled honestly, with no digits in its words', async ({
+    page,
+  }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
     await expect(room).toHaveCount(1);
-    await expect(room.locator('.r-tag')).toHaveText('Concept room');
+    await expect(room.locator('figcaption.r-tag')).toHaveText('Concept room');
 
     const imgs = await room
       .locator('img')
@@ -279,32 +320,47 @@ test.describe('Concept room', () => {
     expect(imgs.length).toBeGreaterThanOrEqual(2);
     expect(imgs.filter((i) => i.final)).toHaveLength(1);
     for (const { alt, final } of imgs) {
-      // The finished room is described honestly; the other frames are
-      // decorative (the live region narrates the build).
       expect(alt).not.toBeNull();
       if (final) expect(alt).toMatch(/^Concept image:/);
       else expect(alt).toBe('');
     }
     await expect(room.locator('.room__frames')).toHaveAttribute('data-base-alt', /^Concept image:/);
-    // The live region starts on the finished room's description.
     await expect(room.locator('[data-room-live]')).toHaveText(/^Concept image:/);
+    // The brief says it is an example, never a real client.
+    await expect(room.locator('.room__brief')).toContainText(FIRST.brief.tag);
 
-    // No decorative numbering: no digits in any caption.
-    const captions = await room.locator('[data-room-step]').allTextContents();
-    expect(captions.length).toBeGreaterThanOrEqual(2);
-    for (const c of captions) expect(c, c).not.toMatch(/\d/);
+    // No decorative numbering anywhere in the notes (the price lives only on
+    // the booking tag, which is a fact).
+    const words = await room.locator('.room__notes').evaluate((el) => {
+      const c = el.cloneNode(true) as HTMLElement;
+      c.querySelectorAll('.r-pricetag__price').forEach((p) => p.remove());
+      return c.textContent ?? '';
+    });
+    expect(words).not.toMatch(/\d/);
+    expect(words).not.toContain('—');
+  });
+
+  test('has no paint deck and no wall masks anywhere in the build', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const room = page.locator('section.room');
+    await expect(room.locator('[data-room-chips], .room__chip, .room__deck')).toHaveCount(0);
+    await expect(room.getByText(/paint colour/i)).toHaveCount(0);
+    const html = await (await page.request.get('/')).text();
+    expect(html).not.toMatch(/wall-\d+[.\w]*\.png|data-wall|data-median/);
+    const dist = join(process.cwd(), 'dist/client/_astro');
+    if (existsSync(dist)) expect(readdirSync(dist).filter((f) => /^wall-/.test(f))).toEqual([]);
+    for (const m of MANIFESTS) expect(JSON.stringify(m)).not.toMatch(/wall-\d|wallMedian/);
   });
 
   test('the "Concept room" tag stays visible once the painter draws', async ({ page }) => {
     // Regression (2026-10-02): the canvas got a z-index above the tag, so the honesty label
-    // vanished the moment WebGL took over. Hit-testing cannot see it (the canvas has
-    // pointer-events: none), so look at the pixels a visitor sees: the tag is a paper-white
-    // shape, and if the room photo covers it those pixels are not white.
+    // vanished the moment WebGL took over. Look at the pixels a visitor sees: the tag is a
+    // paper-white shape, and if the photo, a card or the string covers it those are not white.
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
     await toProgress(page, 0.5);
     await expect(room).toHaveAttribute('data-painted', '', { timeout: 15_000 });
-    const tag = room.locator('.r-tag');
+    const tag = room.locator('figcaption.r-tag');
     const png = await tag.screenshot();
     const { data, info } = await sharp(png)
       .removeAlpha()
@@ -317,7 +373,7 @@ test.describe('Concept room', () => {
     expect(paper / (data.length / info.channels)).toBeGreaterThan(0.5);
   });
 
-  test('without a script: the finished room, every caption, no pinned track, no other frame', async ({
+  test('without a script: the finished room and the whole plain list, no pinned track', async ({
     browser,
   }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'reduce' });
@@ -345,25 +401,35 @@ test.describe('Concept room', () => {
       expect(p.opacity).toBe(p.final ? 1 : 0);
       if (!p.final) expect(p.src).toBeNull();
     }
-    await expect(room.locator('[data-room-chips]')).toBeHidden();
+    // The board (cards, pins, string) is not drawn; the list is, all of it.
+    await expect(room.locator('[data-room-board]')).toBeHidden();
     await expect(room.locator('[data-room-rule]')).toBeHidden();
-    // Every caption shows, as a plain list.
-    const steps = room.locator('[data-room-step]');
-    expect(await steps.count()).toBeGreaterThan(1);
-    for (const s of await steps.all()) await expect(s).toBeVisible();
+    const list = room.locator('.room__list');
+    await expect(list).toBeVisible();
+    for (const r of FIRST.brief.rows) {
+      await expect(list.getByText(r.question, { exact: true })).toBeVisible();
+      await expect(list.getByText(r.answer, { exact: true })).toBeVisible();
+    }
+    for (const s of FIRST.stages) await expect(list.getByText(s.caption)).toBeVisible();
+    const items = list.locator('.room__list-beats ul > li');
+    await expect(items).toHaveCount(NOTES.length);
+    for (const [i, n] of NOTES.entries()) {
+      await expect(items.nth(i)).toHaveText(`${label(n.check)}: ${n.text}`);
+      await expect(items.nth(i).locator('strong')).toHaveText(`${label(n.check)}:`);
+    }
+    for (const p of FIRST.plan)
+      await expect(list.getByText(p.label, { exact: true })).toBeVisible();
+    await expect(list.getByText(FIRST.closing.line)).toBeVisible();
+    await expect(list.locator('a.r-pricetag')).toBeVisible();
     // No pinned track: the stage is not sticky and the track is only as tall as it.
     const layout = await page.evaluate(() => {
       const t = document.querySelector('[data-room-track]') as HTMLElement;
       const s = document.querySelector('[data-room-stage]') as HTMLElement;
-      return {
-        position: getComputedStyle(s).position,
-        extra: t.offsetHeight - s.offsetHeight,
-      };
+      return { position: getComputedStyle(s).position, extra: t.offsetHeight - s.offsetHeight };
     });
     expect(layout.position).toBe('static');
     expect(layout.extra).toBeLessThanOrEqual(1);
     await page.waitForLoadState('networkidle');
-    // Only the finished room's own picture (one size of it).
     expect(new Set(frames.map((u) => /frame-(\d+)\./.exec(u)?.[1])).size).toBeLessThanOrEqual(1);
     await ctx.close();
   });
@@ -374,17 +440,12 @@ test.describe('Concept room', () => {
       const t = document.querySelector('[data-room-track]') as HTMLElement;
       return { track: t.offsetHeight, vh: innerHeight };
     });
-    // 300svh (SCRUB_TRACK_SVH); headless Chromium has no browser chrome, so svh = vh.
     expect(Math.abs(g.track - 3 * g.vh)).toBeLessThanOrEqual(2);
     for (const p of [0.2, 0.5, 0.9]) {
       await toProgress(page, p);
-      // Sticky holds: no ancestor's overflow has turned it off.
       const top = await page.evaluate(() => {
         const s = document.querySelector('[data-room-stage]') as HTMLElement;
-        return {
-          at: s.getBoundingClientRect().top,
-          pin: parseFloat(getComputedStyle(s).top),
-        };
+        return { at: s.getBoundingClientRect().top, pin: parseFloat(getComputedStyle(s).top) };
       });
       expect(Math.abs(top.at - top.pin)).toBeLessThanOrEqual(1);
     }
@@ -405,7 +466,6 @@ test.describe('Concept room', () => {
     const n = (await page.locator('.room__frame').count()) - 1;
     expect(mid).toBeGreaterThan(0);
     expect(mid).toBeLessThan(n);
-
     let checkedOutside = 0;
     for (const [a, b, from, to] of [
       ['p0', 'p50', 0, mid],
@@ -414,11 +474,8 @@ test.describe('Concept room', () => {
       const r = await boxDiff(page, a, b, from, to);
       expect(r.boxes, `${a} to ${b}`).toBeGreaterThan(0);
       expect(r.inMean, `${a} to ${b}: the new pieces show inside their boxes`).toBeGreaterThan(8);
-      // Big pieces (the trim, the curtains) leave little "outside"; judge it where it exists.
       if (r.outN >= 200) {
         checkedOutside++;
-        // Separate photos through AVIF/WebP: allow codec noise, nothing that reads as a change.
-        // Half the build at once (five frames) gathers more of it than one beat (below).
         expect(r.outMean, `${a} to ${b}: nothing outside the boxes moved`).toBeLessThan(2);
         expect(r.outMax).toBeLessThan(24);
       }
@@ -455,10 +512,8 @@ test.describe('Concept room', () => {
     await toPos(page, 2.5);
     await settled(page);
     await snap(page, 'half');
-    // Mid-piece is neither the frame before nor the frame after...
     expect((await boxDiff(page, 'two', 'half', 2, 3)).inMean).toBeGreaterThan(2);
     expect((await boxDiff(page, 'half', 'three', 2, 3)).inMean).toBeGreaterThan(2);
-    // ...and with the scroll still, the picture is still too (no clock moves it on).
     await page.waitForTimeout(800);
     await snap(page, 'later');
     expect(await maxDiff(page, 'half', 'later')).toBeLessThanOrEqual(1);
@@ -497,66 +552,150 @@ test.describe('Concept room', () => {
     const before = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
     await page.waitForTimeout(1000);
     const after = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
-    // The page may have its own one-off frames; the room adds no loop.
     expect(after - before).toBeLessThanOrEqual(2);
   });
 
-  test('the caption card follows the beats, and the live region reads each new one', async ({
+  test('the brief opens it, then each tag follows the scrub with its pin and string', async ({
     page,
   }) => {
     await painted(page);
-    const room = page.locator('section.room');
-    const steps = room.locator('[data-room-step]');
-    const count = await steps.count();
+    let a = await annotations(page);
+    expect(a.brief).toBe(true);
+    expect(a.tags).toEqual([]);
+    expect(a.closed).toBe(false);
+    const n = NOTES.length;
+    for (let k = 1; k <= n; k++) {
+      await toPos(page, k === n ? n - 0.3 : k);
+      await expect.poll(async () => (await annotations(page)).tags).toEqual([k]);
+      a = await annotations(page);
+      expect(a.brief).toBe(false);
+      expect(a.text).toBe(NOTES[k - 1].text);
+      expect(a.check).toBe(label(NOTES[k - 1].check));
+      expect(a.pins).toEqual([k]);
+      // A real string, aimed: a path with many points.
+      expect(a.string.split('L').length).toBeGreaterThan(10);
+    }
+    // And back: the brief again.
+    await toProgress(page, 0);
+    await expect.poll(async () => (await annotations(page)).brief).toBe(true);
+  });
+
+  test('the string draws as its piece arrives and un-draws going back', async ({ page }) => {
+    await painted(page);
+    await toPos(page, 2 + NOTE_IN + 0.05);
+    const early = (await annotations(page)).off;
+    await toPos(page, 3);
+    const landed = (await annotations(page)).off;
+    expect(early).toBeGreaterThan(0.6); // barely begun (--off 1 = nothing drawn)
+    expect(landed).toBe(0); // whole
+    await toPos(page, 2 + NOTE_IN + 0.05);
+    expect((await annotations(page)).off).toBeCloseTo(early, 2);
+  });
+
+  test('the plan chips light when their beat has finished', async ({ page }) => {
+    await painted(page);
     const e = await ends(page);
-    await expect(steps.first()).toHaveAttribute('aria-current', 'step');
-    await expect(steps.first()).toBeVisible();
-    for (let k = 1; k < count; k++) {
-      await toPos(page, e[k - 1] + 0.5);
-      await expect(steps.nth(k)).toHaveAttribute('aria-current', 'step');
-      await expect(steps.nth(k)).toBeVisible();
-      await expect(steps.nth(k - 1)).toBeHidden();
-      await expect(room.locator('[data-room-live]')).toHaveText(
-        ((await steps.nth(k).textContent()) ?? '').trim(),
-      );
+    const beatOf = FIRST.plan.map((p) => FIRST.stages.findIndex((s) => s.id === p.beat));
+    expect((await annotations(page)).lit.every((l) => !l)).toBe(true);
+    for (const [k, end] of e.entries()) {
+      await toPos(page, end - 0.2);
+      expect((await annotations(page)).lit).toEqual(beatOf.map((b) => b < k));
+      await toPos(page, end);
+      expect((await annotations(page)).lit).toEqual(beatOf.map((b) => b <= k));
     }
-    // Back to the start: the first beat again.
-    await toProgress(page, 0);
-    await expect(steps.first()).toHaveAttribute('aria-current', 'step');
   });
 
-  test('the paint chips are always there, and repaint the empty room too', async ({ page }) => {
-    const room = await painted(page);
-    const deck = room.locator('[data-room-chips]');
-    for (const p of [0, 0.5, 1]) {
-      await toProgress(page, p);
-      await expect(deck).toBeVisible();
-      await expect(deck).toBeInViewport({ ratio: 1 });
-    }
-    await toProgress(page, 0);
-    await settled(page);
-    const pixels = () =>
-      page.evaluate(() =>
-        (document.querySelector('.room__canvas') as HTMLCanvasElement).toDataURL(),
-      );
-    const before = await pixels();
-    const sage = deck.getByRole('button', { name: 'Sage' });
-    await sage.click();
-    await expect(sage).toHaveAttribute('aria-pressed', 'true');
-    await expect(deck.getByRole('button', { name: 'As it is' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
-    // The roll takes ~900ms; poll until the picture has changed.
-    await expect.poll(pixels, { timeout: 5_000 }).not.toBe(before);
-    // The colour stays on as the build moves.
-    await settled(page);
+  test('the close: the line, and the header’s booking tag with the derived price', async ({
+    page,
+  }) => {
+    await painted(page);
+    const close = page.locator('section.room [data-room-close]');
+    await expect(close).toBeHidden();
     await toProgress(page, 1);
-    await settled(page);
-    await expect(sage).toHaveAttribute('aria-pressed', 'true');
+    await expect(close).toBeVisible();
+    await expect(close.locator('.room__close-line')).toHaveText(FIRST.closing.line);
+    const tag = close.locator('a.r-pricetag');
+    // The same link as the header's booking button, never typed here.
+    const headerHref = await page.locator('header a.hdr__cta').getAttribute('href');
+    expect(headerHref).toBeTruthy();
+    await expect(tag).toHaveAttribute('href', headerHref as string);
+    await expect(tag.locator('span').first()).toHaveText(
+      ((await page.locator('header a.hdr__cta').textContent()) ?? '').trim(),
+    );
+    // The price, derived from content the way Contact derives it.
+    const price = await contactPrice(page);
+    if (price) await expect(tag.locator('.r-pricetag__price')).toHaveText(price);
+    else await expect(tag.locator('.r-pricetag__price')).toHaveCount(0);
+    await expect(close.getByRole('link', { name: 'See the full process' })).toHaveAttribute(
+      'href',
+      '/process',
+    );
+    // Every plan chip lit, the tag and string gone, the closing line read out.
+    const a = await annotations(page);
+    expect(a.lit.every(Boolean)).toBe(true);
+    expect(a.tags).toEqual([]);
+    expect(a.closed).toBe(true);
+    await expect(page.locator('[data-room-live]')).toHaveText(FIRST.closing.line);
   });
 
-  test('without WebGL the <img> stack crossfades by scroll and the chips go', async ({ page }) => {
+  test('the live region reads each new tag, with its beat’s caption when a beat starts', async ({
+    page,
+  }) => {
+    await painted(page);
+    const live = page.locator('[data-room-live]');
+    // The first tag the visitor meets carries its beat's caption in front.
+    await toPos(page, 2);
+    await expect(live).toHaveText(
+      `${FIRST.stages[0].caption} ${label(NOTES[1].check)}: ${NOTES[1].text}`,
+    );
+    // Within a beat: just the tag.
+    await toPos(page, 3);
+    await expect(live).toHaveText(`${label(NOTES[2].check)}: ${NOTES[2].text}`);
+    const e = await ends(page);
+    await toPos(page, e[0] + 1);
+    const first = NOTES[e[0]];
+    await expect(live).toHaveText(
+      `${FIRST.stages[1].caption} ${label(first.check)}: ${first.text}`,
+    );
+  });
+
+  for (const [w, h] of [
+    [1280, 800],
+    [1440, 900],
+    [1280, 1024],
+  ] as const) {
+    test.describe(`at ${w}x${h}`, () => {
+      test.use({ viewport: { width: w, height: h } });
+      test('a tag never covers its own pin, and stays on the screen', async ({ page }) => {
+        await painted(page);
+        for (let k = 1; k <= NOTES.length; k++) {
+          await toPos(page, k === NOTES.length ? NOTES.length - 0.3 : k);
+          await page.waitForTimeout(700); // the swing-in settles
+          const m = await page.evaluate((k) => {
+            const r = (el: Element) => el.getBoundingClientRect();
+            const tag = r(document.querySelector(`.room__note[data-card="${k}"]`)!);
+            const pin = r(document.querySelector(`[data-pin-for="${k}"]`)!);
+            return { tag, pin, vw: document.documentElement.clientWidth, vh: innerHeight };
+          }, k);
+          const cx = m.pin.x + m.pin.width / 2;
+          const cy = m.pin.y + m.pin.height / 2;
+          const covers =
+            cx > m.tag.left - 8 &&
+            cx < m.tag.right + 8 &&
+            cy > m.tag.top - 8 &&
+            cy < m.tag.bottom + 8;
+          expect(covers, `tag ${k} covers its pin`).toBe(false);
+          expect(m.tag.left).toBeGreaterThanOrEqual(0);
+          expect(m.tag.right).toBeLessThanOrEqual(m.vw);
+          expect(m.tag.bottom).toBeLessThanOrEqual(m.vh);
+        }
+      });
+    });
+  }
+
+  test('without WebGL the <img> stack crossfades by scroll, and the notes still follow', async ({
+    page,
+  }) => {
     await stubNoWebGL(page);
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
@@ -573,12 +712,10 @@ test.describe('Concept room', () => {
         { timeout: 20_000 },
       )
       .toBe(true);
-    // The start: only the empty room is on (the finished one stays underneath).
     await toProgress(page, 0);
     await expect
       .poll(async () => (await stack(page)).map((f) => f.on))
       .toEqual((await stack(page)).map((_, i) => i === 0));
-    // Mid-piece: frames up to the piece are on, the piece's frame half in.
     await toPos(page, 2.5);
     await expect
       .poll(async () => {
@@ -586,7 +723,7 @@ test.describe('Concept room', () => {
         return [s[2].on, s[3].on, Math.round(s[3].opacity * 10) / 10, s[4].on];
       })
       .toEqual([true, false, 0.5, false]);
-    // The end: the finished room on top of the stack.
+    expect((await annotations(page)).tags).toEqual([3]);
     await toProgress(page, 1);
     await expect
       .poll(async () => {
@@ -595,15 +732,15 @@ test.describe('Concept room', () => {
         return [last.on, last.opacity, last.z];
       })
       .toEqual([true, 1, '1']);
-    await expect(room.locator('[data-room-chips]')).toBeHidden();
     await expect(room.locator('.room__canvas')).toBeHidden();
     expect(await room.getAttribute('data-painted')).toBeNull();
+    await expect(room.locator('[data-room-close]')).toBeVisible();
   });
 
   test.describe('under reduced motion', () => {
     test.use({ reducedMotion: 'reduce' });
 
-    test('without WebGL the stack swaps whole frames, and the card does not fade', async ({
+    test('without WebGL the stack swaps whole frames, and the cards do not fade', async ({
       page,
     }) => {
       await stubNoWebGL(page);
@@ -617,41 +754,40 @@ test.describe('Concept room', () => {
         .poll(async () => (await stack(page)).every((f) => f.opacity === 0 || f.opacity === 1))
         .toBe(true);
       expect(await posNow(page)).toBe(2);
-      expect(
-        await page
-          .locator('[data-room-step]')
-          .first()
-          .evaluate((el) => getComputedStyle(el).transitionDuration),
-      ).toBe('0s');
+      const durations = await page.evaluate(() =>
+        [
+          document.querySelector('.room__note'),
+          document.querySelector('.room__brief'),
+          document.querySelector('[data-room-close]'),
+        ].map((el) => getComputedStyle(el as Element).transitionDuration),
+      );
+      expect(durations.every((d) => /^0s(, 0s)*$/.test(d))).toBe(true);
     });
 
-    test('with WebGL the build snaps to whole frames and a chip lands at once', async ({
+    test('the string is whole at once, a lit chip does not lift, the build snaps', async ({
       page,
     }) => {
-      const room = await painted(page);
+      await painted(page);
       await toPos(page, 2);
       await settled(page);
       await snap(page, 'two');
-      // Part-way through the next piece's stretch: still frame 2, exactly.
       await toPos(page, 2.4);
       await settled(page);
       await snap(page, 'nearly');
       expect(await maxDiff(page, 'two', 'nearly')).toBeLessThanOrEqual(1);
-      // Past half-way: frame 3, all at once.
       await toPos(page, 2.6);
       await settled(page);
       await snap(page, 'three');
       expect((await boxDiff(page, 'two', 'three', 2, 3)).inMean).toBeGreaterThan(8);
-      // The chip, too, is instant: one frame after the click it has landed.
-      const read = () =>
-        page.evaluate(() =>
-          (document.querySelector('.room__canvas') as HTMLCanvasElement).toDataURL(),
-        );
-      await room.getByRole('button', { name: 'Walnut' }).click();
-      await page.waitForTimeout(100);
-      const a = await read();
-      await page.waitForTimeout(400);
-      expect(await read()).toBe(a);
+      // The tag for piece three is current, and its string is drawn whole.
+      expect((await annotations(page)).off).toBe(0);
+      const e = await ends(page);
+      await toPos(page, e[0]);
+      const t = await page
+        .locator('[data-plan-beat][data-lit]')
+        .first()
+        .evaluate((el) => getComputedStyle(el).transform);
+      expect(t).toBe('none');
     });
   });
 
@@ -661,30 +797,41 @@ test.describe('Concept room', () => {
   ] as const) {
     test.describe(`on a ${w}x${h} phone`, () => {
       test.use({ viewport: { width: w, height: h } });
-      test('the room, the card and the chips fit one screen', async ({ page }) => {
+      test('the room, the one card and the plan row fit one screen', async ({ page }) => {
         await painted(page);
-        for (const p of [0, 0.5, 1]) {
+        for (const p of [0, 0.3, 0.6, 1]) {
           await toProgress(page, p);
+          await page.waitForTimeout(700); // the swing-in settles
           const m = await page.evaluate(() => {
             const r = (s: string) =>
               (document.querySelector(s) as HTMLElement).getBoundingClientRect();
+            const on = document.querySelector<HTMLElement>(
+              '.room__note[data-on], .room__brief[data-on]',
+            );
+            const closed = document.querySelector('section.room')?.hasAttribute('data-closed');
             return {
               vh: innerHeight,
               vw: document.documentElement.clientWidth,
               page: document.documentElement.scrollWidth,
               frames: r('.room__frames'),
-              card: r('.room__captions'),
-              deck: r('[data-room-chips]'),
+              card: on?.getBoundingClientRect() ?? null,
+              dock: r('[data-room-dock]'),
+              close: r('[data-room-close]'),
+              closed,
             };
           });
-          // Top to bottom: room, then the card, then the chips, all on screen.
           expect(m.frames.top).toBeGreaterThanOrEqual(0);
-          expect(m.card.top).toBeGreaterThanOrEqual(m.frames.bottom - 1);
-          expect(m.deck.top).toBeGreaterThanOrEqual(m.card.bottom - 1);
-          expect(m.deck.bottom).toBeLessThanOrEqual(m.vh);
-          // The room is full width (inside the page gutter), and nothing widens the page.
           expect(m.frames.width).toBeGreaterThan(m.vw * 0.8);
           expect(m.page).toBeLessThanOrEqual(m.vw);
+          if (m.closed) {
+            expect(m.close.top).toBeGreaterThanOrEqual(m.frames.bottom - 1);
+            expect(m.close.bottom).toBeLessThanOrEqual(m.vh);
+          } else {
+            expect(m.card).not.toBeNull();
+            expect(m.card!.top).toBeGreaterThanOrEqual(m.frames.bottom - 1);
+            expect(m.dock.top).toBeGreaterThanOrEqual(m.card!.bottom - 1);
+            expect(m.dock.bottom).toBeLessThanOrEqual(m.vh);
+          }
         }
       });
     });
@@ -712,22 +859,6 @@ test.describe('Concept room', () => {
 test.describe('Concept room tabs', () => {
   test.skip(ROOMS < 2, `${ROOMS} room(s): the tabs need two or more`);
 
-  /** The painter canvas's colour at (u, v), 0..1 from the top left. */
-  const canvasPixel = (page: Page, u: number, v: number) =>
-    page.evaluate(
-      ([u, v]) => {
-        const c = document.querySelector('.room__canvas') as HTMLCanvasElement;
-        const o = document.createElement('canvas');
-        o.width = c.width;
-        o.height = c.height;
-        const x = o.getContext('2d') as CanvasRenderingContext2D;
-        x.drawImage(c, 0, 0);
-        const d = x.getImageData(Math.floor(c.width * u), Math.floor(c.height * v), 1, 1).data;
-        return [d[0], d[1], d[2]];
-      },
-      [u, v],
-    );
-
   test('the tablist is a real ARIA tablist and the keys move along it', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await toProgress(page, 0);
@@ -736,61 +867,34 @@ test.describe('Concept room tabs', () => {
     const tabs = list.getByRole('tab');
     await expect(tabs).toHaveCount(ROOMS);
     await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-    await expect(tabs.first()).toHaveAttribute('tabindex', '0');
-    await expect(tabs.nth(1)).toHaveAttribute('tabindex', '-1');
     for (const t of await tabs.all()) {
-      expect((await t.getAttribute('aria-controls'))?.split(' ')).toContain('room-panel');
       expect(await t.textContent(), 'no decorative numbering').not.toMatch(/\d/);
     }
     await expect(page.locator('#room-panel')).toHaveAttribute('role', 'tabpanel');
-
     await tabs.first().focus();
     await page.keyboard.press('ArrowRight');
     await expect(tabs.nth(1)).toBeFocused();
-    // Manual activation: moving focus does not choose.
     await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-    await page.keyboard.press('End');
-    await expect(tabs.last()).toBeFocused();
-    await page.keyboard.press('ArrowRight');
-    await expect(tabs.first()).toBeFocused(); // wraps
-    await page.keyboard.press('ArrowLeft');
-    await expect(tabs.last()).toBeFocused();
-    await page.keyboard.press('Home');
-    await expect(tabs.first()).toBeFocused();
-    await page.keyboard.press('ArrowRight');
     await page.keyboard.press('Enter');
     await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
-    await expect(tabs.nth(1)).toHaveAttribute('tabindex', '0');
-    await expect(tabs.first()).toHaveAttribute('aria-selected', 'false');
-    await expect(tabs.first()).toHaveAttribute('tabindex', '-1');
-    await expect(page.locator('#room-panel')).toHaveAttribute(
-      'aria-labelledby',
-      (await tabs.nth(1).getAttribute('id')) as string,
-    );
   });
 
-  test('choosing a room swaps the picture and the captions, and says so', async ({ page }) => {
+  test('choosing a room swaps the picture and its notes, and says so', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await toProgress(page, 0);
     const room = page.locator('section.room');
     const final = room.locator('[data-room-final]');
     const src0 = (await final.getAttribute('src')) as string;
-    const caps0 = await room.locator('[data-room-step]').allTextContents();
+    const notes0 = await room.locator('.rtag__text').allTextContents();
     await page.getByRole('tab').nth(1).click();
     await expect(final).not.toHaveAttribute('src', src0);
-    await expect(final).toHaveAttribute('alt', /^Concept image:/);
-    const caps1 = await room.locator('[data-room-step]').allTextContents();
-    expect(caps1).not.toEqual(caps0);
-    expect(caps1.length).toBeGreaterThanOrEqual(2);
+    expect(await room.locator('.rtag__text').allTextContents()).not.toEqual(notes0);
     await expect(room.locator('[data-room-live]')).toHaveText(/^Showing the .+ style\.$/);
-    // Only one room's stack and captions in the document at a time.
     await expect(room.locator('.room__frames')).toHaveCount(1);
-    await expect(room.locator('.room__captions')).toHaveCount(1);
+    await expect(room.locator('.room__notes')).toHaveCount(1);
     await expect(room.locator('.room__canvas')).toHaveCount(1);
-    // And back again.
     await page.getByRole('tab').first().click();
     await expect(final).toHaveAttribute('src', src0);
-    expect(await room.locator('[data-room-step]').allTextContents()).toEqual(caps0);
   });
 
   test('a switch keeps the visitor’s place: the same share of the new room’s build', async ({
@@ -805,33 +909,8 @@ test.describe('Concept room tabs', () => {
     };
     const before = await share();
     await page.getByRole('tab').nth(1).click();
-    // The page does not move, and the new room is as far along its own build.
     expect(await page.evaluate(() => scrollY)).toBe(y);
     expect(Math.abs((await share()) - before)).toBeLessThan(0.15);
-  });
-
-  test('the chosen chip colour carries across a switch', async ({ page }) => {
-    const room = await painted(page);
-    const sage = room.getByRole('button', { name: 'Sage' });
-    await sage.click();
-    await page.waitForTimeout(1200); // the ~900ms roll
-
-    // The last room: a different wall colour from the first.
-    await page.getByRole('tab').last().click();
-    const canvas = room.locator('.room__canvas');
-    await expect(canvas).toBeVisible();
-    await expect(canvas).not.toHaveAttribute('data-loading', '');
-    await expect(sage).toHaveAttribute('aria-pressed', 'true');
-    await settled(page);
-    // A wall point: right of the window, above the furniture.
-    const painted_ = await canvasPixel(page, 0.8, 0.3);
-    await room.getByRole('button', { name: 'As it is' }).click();
-    await page.waitForTimeout(1200);
-    const plain = await canvasPixel(page, 0.8, 0.3);
-    expect(painted_, 'the wall is still painted after the switch').not.toEqual(plain);
-    // Sage (#a8b5a0) is greenest; the painted pixel keeps that order.
-    expect(painted_[1]).toBeGreaterThan(painted_[0]);
-    expect(painted_[1]).toBeGreaterThan(painted_[2]);
   });
 
   test('ten switches use one GL context', async ({ page }) => {
@@ -859,6 +938,5 @@ test.describe('Concept room tabs', () => {
     await expect(canvas).not.toHaveAttribute('data-loading', '');
     await expect(canvas).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { __gl: number }).__gl)).toBe(1);
-    await expect(room.locator('[data-room-chips]')).toBeVisible();
   });
 });

@@ -497,7 +497,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
      goes over the photo, in the corner that covers least of its piece. */
   @media (scripting: enabled) and (min-width: 1024px) {
     .room {
-      --room-band: 5.25rem;
+      --room-band: 6.5rem;
     }
     /* As wide as the height left over allows. */
     .room__col {
@@ -526,7 +526,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       right: 0;
       bottom: calc(100% + 0.6rem);
       display: grid;
-      grid-template-columns: 9rem 1fr;
+      grid-template-columns: 7.5rem 1fr;
       align-items: start;
       column-gap: 1.25rem;
       padding: 0.7rem 1.1rem 0.75rem;
@@ -548,6 +548,11 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       grid-column: 2;
       grid-row: 1;
     }
+    /* Up to three lines in the strip, even in a 1024px window. */
+    .room :global(.room__beat-text) {
+      --line: 1.5rem;
+      font-size: 1rem;
+    }
     .room :global(.room__brief-title) {
       display: block;
     }
@@ -561,6 +566,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     }
     .room :global(.room__brief .room__brief-row dd) {
       border-bottom: 1px solid rgb(156 118 97 / 0.32);
+      font-size: 1rem;
     }
     /* The tag: placed by the script (the corner that covers least of its
        piece and never its pin). */
@@ -933,6 +939,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     let current = -2; // the card showing: 0 brief, k tag, -1 close; -2 = not read yet
     let beat = -2;
     let closed = false;
+    let pendingCaption = '';
     let lit: boolean[] = [];
     // After a room is chosen, its "Showing the ..." line stands a moment.
     let quietUntil = 0;
@@ -990,11 +997,13 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
         // Phone: the tag sits in the grid under the photo and hangs from its
         // top edge; punch the hole under the pin (kept off the corners).
         tag.style.left = tag.style.top = '';
+        tag.removeAttribute('data-flip');
         const x = Math.max(30, Math.min(tag.offsetWidth - 30, px * w - tag.offsetLeft));
         tag.style.setProperty('--hx', `${Math.round(x)}px`);
         return;
       }
       tag.style.removeProperty('--hx');
+      tag.removeAttribute('data-flip');
       const th = tag.offsetHeight;
       const tw = tag.offsetWidth;
       if (wide.matches) {
@@ -1009,10 +1018,12 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       const pinY = py * h;
       // Candidates: the right side top and bottom, the left side top (below
       // the "Concept room" tag). Lower-left belongs to the beat card.
+      // A tag on the left side is MIRRORED (hole at its right end), so its
+      // hole always faces into the room.
       const cands = [
-        { x: w - tw - m, y: m, side: 'right' },
-        { x: w - tw - m, y: h - th - m, side: 'right' },
-        { x: m, y: Math.min(h - th - m, 64), side: 'left' },
+        { x: w - tw - m, y: m, side: 'right', flip: false },
+        { x: w - tw - m, y: h - th - m, side: 'right', flip: false },
+        { x: m, y: Math.min(h - th - m, 64), side: 'left', flip: true },
       ];
       const area = (x: number, y: number) => {
         const ox = Math.max(0, Math.min(x + tw, (bx + bw) * w) - Math.max(x, bx * w));
@@ -1023,11 +1034,14 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       let score = Infinity;
       // Score: how much of the piece it covers (a share of the tag), how far
       // the string has to run (a share of the photo's width), the piece's
-      // preferred side as a tie-breaker; covering the pin rules a corner out.
+      // preferred side as a tie-breaker. Ruled out: a corner whose string
+      // would have to cross its own tag to reach the pin (the pin must lie
+      // beyond the hole's end of the tag), which also keeps the tag off it.
       for (const c of cands) {
-        const coversPin =
-          pinX > c.x - 24 && pinX < c.x + tw + 24 && pinY > c.y - 24 && pinY < c.y + th + 24;
-        const run = Math.hypot(pinX - (c.x + 15), pinY - (c.y + th / 2));
+        const holeX = c.flip ? c.x + tw - 15 : c.x + 15;
+        const crosses = c.flip ? pinX < c.x + tw + 12 : pinX > c.x - 12;
+        const coversPin = crosses;
+        const run = Math.hypot(pinX - holeX, pinY - (c.y + th / 2));
         const s =
           (2 * area(c.x, c.y)) / (tw * th) +
           run / w +
@@ -1040,6 +1054,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       }
       tag.style.left = `${Math.round(best.x)}px`;
       tag.style.top = `${Math.round(best.y)}px`;
+      tag.toggleAttribute('data-flip', best.flip);
     };
 
     /** Point the slot's string from piece k's tag hole to its pin. */
@@ -1104,7 +1119,8 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
           const tag = notes[k];
           const label = tag.querySelector('.rtag__check')?.textContent?.trim() ?? '';
           const text = tag.querySelector('.rtag__text')?.textContent?.trim() ?? '';
-          say(`${label}: ${text}`);
+          say(`${pendingCaption ? `${pendingCaption} ` : ''}${label}: ${text}`);
+          pendingCaption = '';
         }
       } else {
         slots[slot].note = -1;
@@ -1112,17 +1128,16 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     };
 
     /** The beat card on show (laptop's left margin): the brief before the first tag. */
-    const showBeat = (k: number) => {
-      const b = current === 0 ? -1 : k;
+    const showBeat = (k: number, card: number) => {
+      const b = card === 0 ? -1 : k;
       if (b === beat) return;
       const was = beat;
       beat = b;
       beats.forEach((el, i) => toggle(el, i === b));
-      // A new beat: read its caption first (the tag follows it).
+      // A new beat: its caption is read with the beat's first tag (which
+      // arrives a moment later), so neither cuts the other off.
       if (was !== -2 && b >= 0 && beats[b]) {
-        const cap = beats[b].querySelector('.room__beat-text')?.textContent?.trim() ?? '';
-        const msg = live.textContent ?? '';
-        if (performance.now() >= quietUntil) live.textContent = `${cap} ${msg}`.trim();
+        pendingCaption = beats[b].querySelector('.room__beat-text')?.textContent?.trim() ?? '';
       }
     };
 
@@ -1157,8 +1172,9 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       pos = reduced ? snapPosition(raw) : raw;
       rule.style.setProperty('--room-p', String(n ? pos / n : 0));
       const wasFirst = current === -2;
-      showCard(noteAt(pos, n));
-      showBeat(beatAt(pos, ends));
+      const card = noteAt(pos, n);
+      showBeat(beatAt(pos, ends), card);
+      showCard(card);
       drawString();
       showPlan();
       const c = closeShown(pos, n);
@@ -1228,6 +1244,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       ends = numbers(frames()?.dataset.ends);
       n = Math.max(0, imgsOf(frames() as HTMLElement).length - 1);
       current = beat = -2;
+      pendingCaption = '';
       lit = [];
       closed = false;
       root.removeAttribute('data-closed');

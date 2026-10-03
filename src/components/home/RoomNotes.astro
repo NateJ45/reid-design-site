@@ -125,7 +125,9 @@ const { room, cta } = Astro.props as Props;
      the baseline. */
   .room__beat-text {
     margin: 0;
-    font: 300 clamp(1rem, 0.9rem + 0.25vw, 1.1rem) / var(--line, 1.6rem) var(--font-display);
+    /* Context, not the voice: a step quieter than the tag's sentence. */
+    font: 300 clamp(0.98rem, 0.9rem + 0.18vw, 1.05rem) / var(--line, 1.6rem) var(--font-display);
+    color: var(--color-ink-2);
     background: linear-gradient(
         transparent calc(var(--line, 1.6rem) - 0.36rem),
         rgb(156 118 97 / 0.22) 0,

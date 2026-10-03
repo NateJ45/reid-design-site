@@ -139,6 +139,20 @@ const { note, index, beat } = Astro.props as Props;
     letter-spacing: -0.008em;
     text-wrap: pretty;
   }
+  /* Mirrored (a tall laptop window's left-hand corner, set by RoomStage):
+     the hole at the right end, so it faces into the room. */
+  .rtag[data-flip] {
+    --hx: calc(100% - 0.95rem);
+    --shape: polygon(
+      0 0,
+      calc(100% - var(--notch)) 0,
+      100% var(--notch),
+      100% calc(100% - var(--notch)),
+      calc(100% - var(--notch)) 100%,
+      0 100%
+    );
+    padding: 0.85rem 2.15rem 1rem 1.15rem;
+  }
   /* Phone: a hang tag. Both top corners clipped, the hole on the top edge
      (its x set by the script, under the pin), the text a full line wide. */
   @media (max-width: 1023px) {
