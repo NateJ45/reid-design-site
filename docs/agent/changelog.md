@@ -18,6 +18,19 @@ Nathan: the header rating should go where Contact's "Leave a review" button goes
 
 Nathan: on a phone the scrub raced through the steps and a flick skipped several. Measured at 375x812 against a local build: the 300svh track gave about 149px of scroll per piece, and a 900px flick crossed up to 6.2 pieces. Phones (max-width 767px) now get a 900svh track (`SCRUB_TRACK_SVH_PHONE`, `SCRUB_PHONE_QUERY` in room-story.ts, the CSS rule in RoomStage.astro, held together by the unit test): about 578px per piece, and the worst 600 / 900 / 1200px flick crosses 1.2 / 1.8 / 2.3 pieces. Laptops unchanged (300svh, 151px per piece). Native scroll only; the close and the plan still land at the end.
 
+## 2026-10-03: Wall mask touch-ups on the living room (branch `claude/wall-mask-fixes`)
+
+Nathan: the swatches were better but still had mask errors (crown edge, rod, curtain edges and hem). Measured at 3x on the Lake and Espresso previews, then fixed in `rooms/living-transitional.json` `wall.fixes` and a new last pass in `wall.mjs`:
+
+- A pale-blue notch where paint crept up into the crown's lower edge at x 372 to 450 (`sat` strip along the crown line).
+- Unpainted tan wall right of the chair post / left of the middle curtain, and behind the side table between its legs (`sat`; `key` had no local wall to compare with there and read 1.0).
+- A blue speck on the left baseboard by the curtain hem (a `clear`, placed LAST because the left curtain's `sat` strip re-added it).
+- The thin curtain rod between the two curtains was painted over (`clear` band along its line).
+- Salt-and-pepper specks along pleats and window casings: a despeckle pass in `wall.mjs` (4-connected components under 18 px flip to their surroundings). A 3 x 3 median was tried first and ate the rod, so it was dropped.
+- `WALL_DEBUG=1` prints dh / lr percentiles inside `key` polygons.
+
+Only `wall-10.png` changed in `src/assets/room/living-transitional/`; the manifest is byte-identical.
+
 ## 2026-10-03: Paint swatches on the finished concept room (branch `claude/room-swatches`)
 
 Delegated agent. Sage, Clay, Lake and Espresso came back as a quiet row under the close's booking tag, shown only once the build has finished, tied to the plan's "Color and finish guidance" chip.

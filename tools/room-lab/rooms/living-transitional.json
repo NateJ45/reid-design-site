@@ -362,6 +362,102 @@
     ],
     "fixes": [
       {
+        "why": "Crown, left wall at x 372 to 450: a pale-blue notch where the wall mask crept up into the crown's lower edge. Along the strip the wall is more saturated (0.40 and up) than the cream crown, so the sat rule redraws just that edge.",
+        "op": "sat",
+        "poly": [
+          [
+            372,
+            186
+          ],
+          [
+            450,
+            209
+          ],
+          [
+            450,
+            227
+          ],
+          [
+            372,
+            205
+          ]
+        ],
+        "minSat": 0.4,
+        "feather": 1
+      },
+      {
+        "why": "Wall right of the chair's post, left of the middle curtain, below the chair arm: left unpainted (a tan patch). Here the wall is in the curtain's shadow and very saturated (0.64) against the curtain (0.46), so the sat rule decides.",
+        "op": "sat",
+        "poly": [
+          [
+            474,
+            716
+          ],
+          [
+            492,
+            716
+          ],
+          [
+            491,
+            773
+          ],
+          [
+            474,
+            773
+          ]
+        ],
+        "max": true,
+        "minSat": 0.55
+      },
+      {
+        "why": "Wall behind the side table, between its legs and above the baseboard: left unpainted. The colour key had nothing nearby to compare with, so the sat rule decides instead: wall 0.34 and up, the cream baseboard 0.20.",
+        "op": "sat",
+        "poly": [
+          [
+            581,
+            716
+          ],
+          [
+            617,
+            716
+          ],
+          [
+            617,
+            754
+          ],
+          [
+            581,
+            758
+          ]
+        ],
+        "max": true,
+        "minSat": 0.3
+      },
+      {
+        "why": "Same wall, between the table's middle and back legs.",
+        "op": "sat",
+        "poly": [
+          [
+            629,
+            716
+          ],
+          [
+            662,
+            716
+          ],
+          [
+            662,
+            744
+          ],
+          [
+            629,
+            751
+          ]
+        ],
+        "max": true,
+        "minSat": 0.3
+      },
+      {
         "why": "Left curtain, outer edge: the curtain's shadow on the wall was left unpainted (a dark strip). The wall there is far more saturated than the curtain's shaded side (measured: wall 0.62 and up, curtain 0.52 and down).",
         "op": "sat",
         "poly": [
@@ -788,6 +884,52 @@
             900
           ]
         ]
+      },
+      {
+        "why": "Left baseboard beside the curtain's hem: a blue speck of paint on the trim. No wall is below y 874 here. (Last in the list: the left curtain's sat strip reaches this far down and would put it back.)",
+        "op": "clear",
+        "poly": [
+          [
+            0,
+            874
+          ],
+          [
+            34,
+            874
+          ],
+          [
+            34,
+            935
+          ],
+          [
+            0,
+            935
+          ]
+        ],
+        "feather": 0.8
+      },
+      {
+        "why": "Curtain rod between the left window's right curtain and the middle curtain's pair: where it runs thin and shaded it was painted over. A band 3.5 px either side of its line (y = 276 + 0.23 (x - 565)) is never wall.",
+        "op": "clear",
+        "poly": [
+          [
+            562,
+            272
+          ],
+          [
+            642,
+            290
+          ],
+          [
+            642,
+            298
+          ],
+          [
+            562,
+            279
+          ]
+        ],
+        "feather": 0.8
       }
     ],
     "checks": [

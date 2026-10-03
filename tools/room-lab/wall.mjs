@@ -31,7 +31,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { FINAL, loadSpec } from './lib/paths.mjs';
-import { loadSegmenter, segment, writeGrey, writeOverlay, blur1, srgbToLinear, median } from './lib/wallmask.mjs';
+import { loadSegmenter, segment, writeGrey, writeOverlay, blur1, srgbToLinear, median, components } from './lib/wallmask.mjs';
 import { refineWall, keyFields, keyOf } from './lib/wallrefine.mjs';
 
 const spec = await loadSpec();
@@ -132,8 +132,50 @@ for (const [k, fx] of (cfg.fixes ?? []).entries()) {
     out[i] = fx.max ? Math.max(out[i], next) : next;
   }
   console.log(`fix ${k + 1} (${fx.op}): ${fx.why}`);
+  if (fx.op === 'key' && process.env.WALL_DEBUG) {
+    // dh / lr percentiles inside the polygon, for choosing `tol` and `bright`.
+    const dh = [];
+    const lr = [];
+    for (let i = 0; i < W * H; i++)
+      if (soft[i] > 230) {
+        dh.push(key.dh[i]);
+        lr.push(key.lr[i]);
+      }
+    dh.sort((a, b) => a - b);
+    lr.sort((a, b) => a - b);
+    const q = (a, p) => a[Math.floor(a.length * p)]?.toFixed(3);
+    console.log(`  dh p10/50/90 ${q(dh, 0.1)} ${q(dh, 0.5)} ${q(dh, 0.9)}; lr ${q(lr, 0.1)} ${q(lr, 0.5)} ${q(lr, 0.9)}`);
+  }
+  if (fx.op === 'key' && process.env.WALL_DEBUG) {
+    // dh / lr percentiles inside the polygon, for choosing `tol` and `bright`.
+    const dh = [], lr = [];
+    for (let i = 0; i < W * H; i++) if (soft[i] > 230) { dh.push(key.dh[i]); lr.push(key.lr[i]); }
+    dh.sort((a, b) => a - b); lr.sort((a, b) => a - b);
+    const q = (a, p) => a[Math.floor(a.length * p)]?.toFixed(3);
+    console.log(`  dh p10/50/90 ${q(dh, .1)} ${q(dh, .5)} ${q(dh, .9)}; lr ${q(lr, .1)} ${q(lr, .5)} ${q(lr, .9)}`);
+  }
 }
 
+// Last of all: despeckle. Specks of a few pixels (the white dots along curtain pleats and window
+// casings on a dark paint, 2026-10-03) are connected components of "wall" or "not wall" far
+// smaller than any real feature, so those are flipped to match their surroundings. A median
+// filter was tried first and ate the thin curtain rod between the two curtains. Components are
+// 4-connected, so a rod (long, thin, one component) always survives.
+{
+  const SPECK = 18; // pixels
+  for (const wallSide of [false, true]) {
+    const bin = Buffer.alloc(W * H);
+    for (let i = 0; i < bin.length; i++) bin[i] = (out[i] >= 128) === wallSide ? 1 : 0;
+    const { parent, sizes } = components(bin, W, H);
+    let flipped = 0;
+    for (let i = 0; i < bin.length; i++)
+      if (bin[i] && sizes.get(parent[i]) < SPECK) {
+        out[i] = wallSide ? 0 : 255;
+        flipped++;
+      }
+    console.log(`despeckle: ${flipped} px of ${wallSide ? 'wall' : 'non-wall'} specks flipped`);
+  }
+}
 await writeGrey(out, W, H, join(FINAL, 'wall-final.png'));
 await writeOverlay(src, out, W, H, join(FINAL, 'wall-final.overlay.jpg'));
 
