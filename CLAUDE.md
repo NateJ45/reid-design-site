@@ -4,7 +4,7 @@ This is the always-loaded reference for the Reid Design code project: the conven
 
 This file is kept under 200 lines on purpose. File-specific rules live in `.claude/rules/*.md` and load only when you touch matching files; long reference lives in `docs/claude/*.md` and `docs/agent/*.md`. The "topic index" mentioned above is now the docs map near the bottom. Nothing was dropped in the 2026-10-03 split: the long text moved, and this file keeps a one-line version of each rule with a pointer.
 
-Companion tactical runbook: `OPERATIONS.md`. Migration planning docs (strategy, audit, schemas, content extraction) live under `C:\Users\natha\Documents\Claude\Projects\ReidDesignAstro\Astro Sanity Migration\`.
+Companion tactical runbook: `OPERATIONS.md`. Migration planning docs (strategy, audit, schemas, content extraction) live under `C:\Users\natha\Documents\Claude\Projects\clients\ReidDesignAstro\Astro Sanity Migration\`.
 
 ---
 
