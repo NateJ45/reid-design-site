@@ -51,13 +51,6 @@ const styleOptions = optionsFor('designStyle');
 
     <div class="pf__bar">
       <PortfolioFilterChips client:visible rooms={roomOptions} styles={styleOptions} />
-      {
-        /* Shortcut for visitors who came for the reveals. Safe before there is
-        content: that page has its own empty state. */
-      }
-      <a href="/portfolio/before-after" class="r-link pf__ba">
-        See the before and afters <span aria-hidden="true">→</span>
-      </a>
     </div>
 
     <ul class="pf__grid" data-portfolio-cursor-zone>
@@ -103,11 +96,6 @@ const styleOptions = optionsFor('designStyle');
     justify-content: space-between;
     gap: 1.5rem 3rem;
     margin-bottom: clamp(2.5rem, 5vw, 4rem);
-  }
-  .pf__ba {
-    margin-left: auto;
-    color: var(--color-ink);
-    font-size: 0.98rem;
   }
 
   .pf__grid {

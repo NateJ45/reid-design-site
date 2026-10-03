@@ -401,7 +401,7 @@ rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5
 **2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
 `../reid-concept-room`, PR #83 on top of the merged #81):** built by a delegated agent for the main session to
 review. The build now follows scroll position both ways in a 300svh pinned track: the room
-full width on a laptop with a paper caption card over its lower-left corner and the chips
+full width on a laptop with a paper caption card in its left margin and the chips
 in a one-row dock under it; on a phone the card sits below the room and everything fits one
 375x667 screen; reduced motion snaps to whole frames; tabs keep the visitor's place. Open on
 it: (1) Nathan to look at it on a real phone and laptop (the feel of the scroll speed, about
