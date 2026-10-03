@@ -166,7 +166,8 @@ const asIsHex = linearToHex(first.median);
     /* The tab row's share of the pinned stage (0 without tabs). */
     --room-tabs: 0rem;
     background: var(--color-chip-1);
-    padding-block: clamp(5rem, 10vw, 8.5rem);
+    /* Phone: a tighter band, the pinned room already gives it height. */
+    padding-block: clamp(2.5rem, 10vw, 8.5rem);
   }
   .room[data-tabbed] {
     --room-tabs: 4.25rem;
