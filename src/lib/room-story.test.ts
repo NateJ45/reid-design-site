@@ -10,6 +10,8 @@ import {
   ROOM_SWATCHES,
   SCRUB_DWELL,
   SCRUB_TRACK_SVH,
+  SCRUB_TRACK_SVH_PHONE,
+  SCRUB_PHONE_QUERY,
   beatAt,
   beatTicks,
   checkInfo,
@@ -561,6 +563,10 @@ describe('the scrub (scroll position drives the build)', () => {
   it('the track constant matches the CSS', () => {
     const css = readFileSync('src/components/home/RoomStage.astro', 'utf8');
     expect(css).toContain(`--room-track: ${SCRUB_TRACK_SVH}svh`);
+    expect(css).toContain(
+      `@media ${SCRUB_PHONE_QUERY} {\n    .room {\n      --room-track: ${SCRUB_TRACK_SVH_PHONE}svh;`,
+    );
+    expect(SCRUB_TRACK_SVH_PHONE).toBeGreaterThan(SCRUB_TRACK_SVH * 2);
   });
 });
 

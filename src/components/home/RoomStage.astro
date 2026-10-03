@@ -20,9 +20,10 @@
 //
 // PARTS
 //   - Heading and intro (scroll away normally).
-//   - The TRACK: a tall box (--room-track, 300svh; the same number as
-//     SCRUB_TRACK_SVH in src/lib/room-story.ts, a unit test holds them
-//     together) with the STAGE pinned inside it (position: sticky, just under
+//   - The TRACK: a tall box (--room-track, 300svh, and 900svh on a phone,
+//     max-width 767px, so one flick moves a piece or two, not six; the same
+//     numbers as SCRUB_TRACK_SVH / SCRUB_TRACK_SVH_PHONE in
+//     src/lib/room-story.ts, a unit test holds them together) with the STAGE pinned inside it (position: sticky, just under
 //     the header). Its height is reserved in CSS, so nothing shifts when the
 //     script starts. Only with scripting: `@media (scripting: enabled)`.
 //   - In the stage:
@@ -811,6 +812,12 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
   }
   .room :global(.room__note) {
     transform-origin: 0.95rem 50%;
+  }
+  /* The phone's longer track: SCRUB_TRACK_SVH_PHONE / SCRUB_PHONE_QUERY (tested). */
+  @media (max-width: 767px) {
+    .room {
+      --room-track: 900svh;
+    }
   }
 </style>
 

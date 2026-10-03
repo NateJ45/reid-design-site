@@ -6,6 +6,10 @@
 
 Nathan: the header rating should go where Contact's "Leave a review" button goes. It linked to the business profile (maps.google.com/?cid=...). `RatingTag`'s `compact` variant (the header's) now uses `googleWriteReviewUrl` (g.page/.../review) and falls back to the profile when that is unset; the other variants are unchanged. A smoke test compares the header link with Contact's button. **Follow-up, same day:** the rating was still not clickable. The header is `pointer-events: none` (only its own pieces take the pointer), and `.hdr__bar > *` is a SCOPED rule that never matched RatingTag's root (it carries RatingTag's scope id), so clicks fell through to the hero photo. Fixed with `.hdr__bar > :global(.hdr__rating)`; a second smoke test asks the browser what is at the rating's centre (`elementFromPoint`), because a link in the markup says nothing about whether it can be clicked.
 
+## 2026-10-03: A longer scrub track on phones (branch `claude/room-swatches`)
+
+Nathan: on a phone the scrub raced through the steps and a flick skipped several. Measured at 375x812 against a local build: the 300svh track gave about 149px of scroll per piece, and a 900px flick crossed up to 6.2 pieces. Phones (max-width 767px) now get a 900svh track (`SCRUB_TRACK_SVH_PHONE`, `SCRUB_PHONE_QUERY` in room-story.ts, the CSS rule in RoomStage.astro, held together by the unit test): about 578px per piece, and the worst 600 / 900 / 1200px flick crosses 1.2 / 1.8 / 2.3 pieces. Laptops unchanged (300svh, 151px per piece). Native scroll only; the close and the plan still land at the end.
+
 ## 2026-10-03: Paint swatches on the finished concept room (branch `claude/room-swatches`)
 
 Delegated agent. Sage, Clay, Lake and Espresso came back as a quiet row under the close's booking tag, shown only once the build has finished, tied to the plan's "Color and finish guidance" chip.

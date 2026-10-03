@@ -530,6 +530,15 @@ export function stageFrames(m: Pick<RoomManifest, 'stages' | 'pieces'>): number[
 
 /** Pinned track height, in svh (one constant: the CSS reads the same number). */
 export const SCRUB_TRACK_SVH = 300;
+/**
+ * The phone's track (2026-10-03, Nathan: on a phone one flick raced through
+ * five or six pieces). A phone's screen is short, so 300svh left about 150px
+ * of swipe per piece; this gives each piece several hundred, so a normal flick
+ * moves one or two. Native scroll only: no snapping, no hijacking.
+ */
+export const SCRUB_TRACK_SVH_PHONE = 900;
+/** Where the phone track applies (the same query the CSS uses). */
+export const SCRUB_PHONE_QUERY = '(max-width: 767px)';
 /** Share of the track at EACH end where the room rests (empty, then finished). */
 export const SCRUB_DWELL = 0.06;
 /** A rest at the end of each beat but the last, in piece-lengths, so its card reads. */

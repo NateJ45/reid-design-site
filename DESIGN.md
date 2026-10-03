@@ -557,7 +557,7 @@ colour with an edge that cannot be fixed by hand is dropped, not shipped.
 
 **The build follows the scroll** (2026-10-02): scroll slowly and a piece
 slides in as you go, stop and it stops part-way, scroll back and it slides
-out; about three screens of scroll carry it all, in three beats (the bones:
+out; about three screens of scroll carry it all on a laptop (a 300svh track) and about nine on a phone (900svh, 2026-10-03: at 300svh a single flick raced through five or six pieces; now a normal flick moves one or two), in three beats (the bones:
 trim, rug, sofa; easy to live in: coffee table, lamp, chair, curtains; making
 it yours: art, olive branches, books and a throw). **Whole frames, no
 cut-outs** (2026-09-30): every step is ONE COMPLETE AI photo, and the new
