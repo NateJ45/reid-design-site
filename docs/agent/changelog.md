@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: About "Off the Clock" placeholders published
+
+Nathan: the About page was missing most of its Off the Clock board, because the 2026-10-02 mid-market patch removed the seeded lists (their wording, oat latte and Mass Ave and 70s soul, was invented and never confirmed as true of Staci). Nathan chose to publish CLEARLY MARKED placeholders so every piece shows: `aboutPage.currentlyList` (4 rows, "Placeholder: Staci adds her own answer."), `rapidFire` (4 prompts, answer "Placeholder answer.") and `localSpots` (3 rows, "Placeholder note."), `_key`s prefixed `ph-`. They contain no claims about her. Written through the Sanity MCP (draft, then published), not a script. **Staci replaces them in Studio > About > Off the clock; until she does the live page reads "Placeholder" in those spots.** Do NOT restore the old seed wording.
+
 ## 2026-10-03: Concept room wall masks redrawn at full resolution (branch `claude/room-wall-masks`)
 
 Nathan sent crops of the paint chips showing where the wall masks were wrong: a pale halo round the olive leaves and above the sofa, brown patches on the curtain edge, an unpainted strip beside the curtain, a speckled edge along the crown. Cause: SegFormer labels at 640 px and the mask was published 1024 wide, so every wall/piece edge was soft and out by up to ~10 px, and each frame was segmented on its own. Fix: `tools/room-lab/lib/wallrefine.mjs` keeps the coarse mask as a prior and re-decides the uncertain band along every edge at the frame's own resolution by unmixing each pixel between the local wall colour and the local non-wall colour (alpha 0.5 for a half-leaf pixel), then takes back wide shadow strips the empty room had as wall (an opening keeps an 18 px shadow strip and drops a 5 px curtain rod), then fills the speckle. `publish.mjs` runs it on every frame and now writes `wall-N.png` at the frame width. Only `wall-*.png` changed in `src/assets/room/living-transitional/`; frames, change masks and the manifest are byte-identical. Checked through the real painter (Espresso, Sage, Clay, Linen) at 2x.

@@ -396,6 +396,8 @@ as tests; hyper-realistic, check at 1:1 before showing; kitchen and bath are STY
 (Staci keeps existing cabinets, appliances, toilet, tub; changes hardware, fixtures, paint,
 rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5785f approved.
 
+**2026-10-03, About placeholders (waiting on Staci):** the About "Off the Clock" board shows placeholder rows (`_key`s start `ph-`, wording "Placeholder...") in Currently, Rapid fire and Local spots, published at Nathan's request so the whole layout shows. Staci writes her real answers in Studio > About > Off the clock. Never restore the old seed wording (invented, see changelog 2026-10-03).
+
 **2026-10-03, wall masks:** Nathan reported paint fringes (halos round leaves and the sofa, curtain-edge patches). Fixed by `tools/room-lab/lib/wallrefine.mjs` (see changelog); PR on `claude/room-wall-masks`. Any room published from now on gets it automatically (`room:publish`); the held kitchen and the four other rooms need no extra step. A thin warm edge beside the curtain stays under a dark chip: it is the curtain's own edge.
 
 **2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
