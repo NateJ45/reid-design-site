@@ -1,6 +1,6 @@
 name: CI
 
-# SHAPE (PORTS.md card 62). Before card 62 this was two serial jobs and the
+# SHAPE (PORTS.md card 70). Before card 70 this was two serial jobs and the
 # site was built twice per PR (the build job and Playwright's webServer), plus
 # a third time in Lighthouse. Now:
 #

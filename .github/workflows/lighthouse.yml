@@ -1,4 +1,4 @@
-# PORTS.md card 62: cheaper, not rarer. This repo's ruleset "main: PR + green
+# PORTS.md card 70: cheaper, not rarer. This repo's ruleset "main: PR + green
 # CI" REQUIRES the `lighthouse` check (the starter and most family repos
 # require only `build` and `test`), so the pull_request trigger has NO `paths:`
 # filter: a required check that never reports blocks the merge forever, and the
