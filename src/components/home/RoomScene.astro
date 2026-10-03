@@ -30,11 +30,14 @@
 // with it: data-median, data-base-alt, data-ends (the frame each caption
 // shows) and --ar.
 //
-// SWITCHING FRAMES without WebGL: the script sets `data-on` on every frame up
-// to the one to show (the ones under it are hidden by it anyway) and clears it
-// above, so going forward fades the new frame in over the old one, and going
-// back fades the frames above away: a 400ms whole-frame crossfade with no dip
-// to the background, only under no-preference.
+// SWITCHING FRAMES without WebGL (the scrub, 2026-10-02): the script sets
+// `data-on` on every frame up to floor(pos) (the ones under the top are hidden
+// by it anyway), gives the NEXT frame an inline opacity equal to the fraction
+// of pos, and clears the rest, so scrolling fades the next whole frame in over
+// the last and scrolling back fades it out again, with no dip to the
+// background and no timed transition (the scroll is the timing). A frame that
+// has not decoded is left off. Under reduced motion pos is a whole number, so
+// frames simply swap.
 // =============================================================================
 import type { RoomView } from './room-view';
 
@@ -47,7 +50,7 @@ interface Props {
 const { room, canvas = false } = Astro.props as Props;
 const { width, height, frames } = room;
 const last = frames.length - 1;
-const SIZES = '(min-width: 1024px) 50vw, 100vw';
+const SIZES = '(min-width: 1024px) 75vw, 100vw';
 ---
 
 <div
@@ -94,10 +97,9 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
 
 <style>
   .room__frames {
-    --ease: cubic-bezier(0.23, 1, 0.32, 1);
     position: relative;
     /* Keep the stack's z-indexes (final underlay, frames, canvas) private, so the
-       "Concept room" tag beside it always paints above all of them. */
+       "Concept room" tag and the caption card beside it always paint above all of them. */
     isolation: isolate;
     aspect-ratio: var(--ar);
     width: 100%;
@@ -120,6 +122,7 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
   }
   .room__frame {
     opacity: 0;
+    z-index: 1;
   }
   .room__frame[data-on] {
     opacity: 1;
@@ -127,12 +130,13 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
   /* The finished room is a permanent underlay (under every other frame): a frame the build
      switches to before its photo has decoded then shows the finished room instead of an
      empty box (seen on a phone, 2026-09-30). Every frame is a full opaque photo, so a
-     decoded frame on top hides it completely. */
+     decoded frame on top hides it completely. When the finished room IS the frame being
+     shown it comes up to the top of the stack (data-on, or an inline z-index mid-fade). */
   .room__frame--final {
     opacity: 1;
     z-index: 0;
   }
-  .room__frame:not(.room__frame--final) {
+  .room__frame--final[data-on] {
     z-index: 1;
   }
   .room__canvas {
@@ -145,31 +149,5 @@ const SIZES = '(min-width: 1024px) 50vw, 100vw';
      the painter can measure it) but show the plain photo. */
   .room__canvas[data-loading] {
     visibility: hidden;
-  }
-
-  @media (max-width: 1023px) {
-    /* Keep the pinned room short enough to leave the captions some screen
-       (the tabs, when there are any, take --room-tabs of it). */
-    .room__frames {
-      width: min(
-        100%,
-        calc((100svh - var(--room-pin, 4.5rem) - 17rem - var(--room-tabs, 0rem)) * var(--ar))
-      );
-      margin-inline: auto;
-    }
-  }
-  @media (min-width: 1024px) {
-    /* Sized by the screen's height too, so the room, its tabs and its chips fit. */
-    .room__frames {
-      width: min(100%, calc((100svh - 16rem - var(--room-tabs, 0rem)) * var(--ar)));
-    }
-  }
-
-  /* The no-WebGL crossfade (whole frames). Off while the painter draws: the
-     canvas covers the stack, so a fade under it would be wasted work. */
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.room[data-enhanced]:not([data-painted])) .room__frame {
-      transition: opacity 400ms var(--ease);
-    }
   }
 </style>

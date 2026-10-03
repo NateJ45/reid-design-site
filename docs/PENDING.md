@@ -396,6 +396,18 @@ as tests; hyper-realistic, check at 1:1 before showing; kitchen and bath are STY
 (Staci keeps existing cabinets, appliances, toilet, tub; changes hardware, fixtures, paint,
 rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5785f approved.
 
+**2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
+`../reid-concept-room`, PR #83 on top of the merged #81):** built by a delegated agent for the main session to
+review. The build now follows scroll position both ways in a 300svh pinned track: the room
+full width on a laptop with a paper caption card in its left margin and the chips
+in a one-row dock under it; on a phone the card sits below the room and everything fits one
+375x667 screen; reduced motion snaps to whole frames; tabs keep the visitor's place. Open on
+it: (1) Nathan to look at it on a real phone and laptop (the feel of the scroll speed, about
+three screens; `SCRUB_TRACK_SVH`, `SCRUB_DWELL` and `SCRUB_BEAT_REST` in
+`src/lib/room-story.ts` tune it), (2) Lighthouse on `/` in CI (a11y 100, hero stays LCP),
+(3) the room-tab path has only been exercised against a temporary copy of the living room,
+so re-run `tests/room-story.spec.ts` once a second real room is published.
+
 **2026-10-02 update (Nathan):** the release is the LIVING ROOM ONLY. The kitchen (modern, styling
 only: black pulls, faucet, pendant, runner, roman shade, art, counter styling) is fully built and
 reviewed in `tools/room-lab/work/kitchen-modern/` (frames, spec `rooms/kitchen-modern.json`) but

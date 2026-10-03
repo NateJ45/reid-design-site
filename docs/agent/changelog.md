@@ -2,6 +2,20 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Concept room caption card moved off the coffee table
+
+Nathan: the laptop caption card covered part of the coffee table. On a wide window (min-width 1100px and min-aspect-ratio 8/5) the card now sits in the margin left of the room (13.25rem wide, `right: calc(100% + 1rem)`), so it never covers the furniture; a taller window, where the room leaves no margins, keeps a narrow (14.5rem) overlay at the lower-left. CSS only, in `RoomCaptions.astro`. Checked at 1280x800 (margin) and 1280x1024 (overlay).
+
+## 2026-10-02: Concept room: the scroll scrub (branch `claude/concept-room-scrub`)
+
+Delegated agent (Opus), for review by the main session. Nathan's decisions (2026-10-02): the build follows scroll position both directions; on a laptop a full-width pinned room with a small paper caption card over a lower corner and the chips in a slim dock under it; about three screens of scroll for the three beats; chips always there; on a phone the card below the room; reduced motion snaps; no numerals; tabs kept.
+
+- **Maths:** `src/lib/room-story.ts` gains `trackProgress` (track geometry to 0..1), `scrubPosition` (0..1 to a build position in [0, n], resting 6% at each end and 0.6 of a piece after each beat but the last; monotonic), `beatAt`, `beatTicks`, `snapPosition` and `SCRUB_TRACK_SVH` (300, held to the CSS by a unit test).
+- **Painter:** `setProgress(pos)` replaces `go(frame)`: frame floor(pos) plus the next piece revealed by the fraction (same motion-shaped front and settle, now eased by smoothstep of the fraction); renders on demand with a ~90ms ease toward the asked position, no idle loop; holds on the nearest decoded frame; four texture sets kept by recent use (scrolling to and fro across a boundary uploads nothing); the second in-flight slot, the timed queue, the overlap and the 200ms crossfade back are gone. Chip roll still 900ms. 3.2 KB gzipped (was 3.5).
+- **Section:** `RoomStage.astro` is a 300svh track (reserved in CSS under `@media (scripting: enabled)`) with the stage sticky under the header; the room as wide as the height allows on a laptop; a hairline progress rule with a tick per beat; the "Concept room" tag moved to the top-left; the paint dock is one row and keeps its space while the painter loads. A passive scroll listener, rAF-coalesced, attached only while the track is near the screen, drives the painter, the beat, the rule and (without WebGL) the `<img>` stack crossfade. Tabs keep the share of the build instead of scrolling back to the top. `RoomCaptions.astro` is the caption card (paper `.r-tag` look, all captions in one grid cell, cross-fade) or, without a script, a plain list. `RoomScene.astro`: the finished frame comes to the top of the stack only when shown (fixes the no-WebGL stack showing the second-to-last frame at the end); `sizes` 75vw on laptops.
+- **Tests:** `tests/room-story.spec.ts` rewritten (scrub at 0/50/100 inside vs outside the change boxes, beat to beat, mid-piece stop, reverse to identical pixels, idle rAF count, caption card and live region, chips always on screen and repainting the empty room, no-WebGL crossfade, reduced motion, phones fit one screen, sticky holds, no-script plain list); unit tests for the scrub maths.
+- **Docs:** DESIGN.md "The concept room", CLAUDE.md foundation line, performance.md, TESTING.md, PENDING.md.
+
 ## 2026-10-02: Mid-market content applied; content scripts now see drafts
 
 - **Home accessibility fix.** `.chips__foot` in `PaintChips.astro` is lifted above the
