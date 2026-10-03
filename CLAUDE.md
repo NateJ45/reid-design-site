@@ -113,7 +113,7 @@ Voice in brief: warm, plain-spoken, quietly confident about money; no em-dashes 
 
 - Business context, decisions and the Work log live in `_vault/clients/reid-design.md` at the Projects root (`C:\Users\natha\Documents\Claude\Projects`), never in this repo. Read its `## Current state` first.
 - Update the repo docs (CLAUDE.md, README, OPERATIONS, `docs/agent/*`, `docs/PENDING.md`) in the SAME piece of work as any code, behaviour, setup or decision change. Open loops: `docs/PENDING.md`, edited in the commit that opens or closes an item.
-- The note says `plan: none`, `mrr: 0` (built free as portfolio work), so no Work log row unless Nathan asks; re-check the note's `plan` frontmatter if that changes, and append a row at session end if it becomes paying.
+- Work log: the note keeps a `## Work log`, so append a row (`- YYYY-MM-DD | ~Xh | summary`) at the end of each real-work session and commit and push `_vault/` (`_vault/README.md` rule 6), even though `plan` is `none` (built free as portfolio work, hours still logged).
 
 ## Ports (Astro + Sanity + Cloudflare site family)
 
