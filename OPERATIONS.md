@@ -27,6 +27,8 @@ gh pr merge --auto --merge
 
 `--auto` is allowed on this repo: GitHub merges the PR by itself once the three checks pass.
 
+2026-10-03: staging abandoned; main is the only branch. A merged PR is the production deploy.
+
 When the merge lands, Cloudflare detects the push to `main`, runs `npm run build` in their CI, and deploys the resulting `dist/` to the Worker. Takes ~1–2 minutes. Watch in the Cloudflare dashboard under Workers → reid-design-site → Deployments.
 
 **Verify a deploy landed:**
