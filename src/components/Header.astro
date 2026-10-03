@@ -226,13 +226,9 @@ const servicesNavItems =
       ]
     : coreServiceItems.map((it) => ({ kind: 'flat' as const, ...it }));
 
-// Resources: FAQ, Before & After (follows the portfolio switch), and custom
-// pages placed "Under Resources". A one-link group is a plain FAQ link.
-const resourcesDropdownItems = [
-  { label: 'FAQ', href: '/faq' },
-  ...(visible.portfolio ? [{ label: 'Before & After', href: '/portfolio/before-after' }] : []),
-  ...customResourcesItems,
-];
+// Resources: FAQ and custom pages placed "Under Resources". A one-link group
+// is a plain FAQ link.
+const resourcesDropdownItems = [{ label: 'FAQ', href: '/faq' }, ...customResourcesItems];
 const resourcesNavItems =
   resourcesDropdownItems.length > 1
     ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]

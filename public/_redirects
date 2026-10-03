@@ -41,3 +41,8 @@
 /gift-certificates/ /contact/ 301
 /resources /faq/ 301
 /resources/ /faq/ 301
+
+# Before & After page removed 2026-10-02 (Nathan's call). The sliders still live on each
+# project page; the standalone gallery is gone.
+/portfolio/before-after /portfolio/ 301
+/portfolio/before-after/ /portfolio/ 301
