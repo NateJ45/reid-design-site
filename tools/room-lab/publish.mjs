@@ -44,7 +44,7 @@ const need = (cond, msg) => {
 const copy = (v, where) => {
   if (typeof v !== 'string' || !v.trim()) return need(false, `${where}: missing`);
   need(!/\d/.test(v), `${where}: no digits allowed ("${v}")`);
-  need(!v.includes('—'), `${where}: no em-dashes allowed ("${v}")`);
+  need(!v.includes(String.fromCharCode(0x2014)), `${where}: no em-dashes allowed ("${v}")`);
 };
 
 for (let n = 0; n <= N; n++) need(existsSync(join(FINAL, `frame-${n}.png`)), `missing frame-${n}.png`);

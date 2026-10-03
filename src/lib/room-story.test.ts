@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CLOSE_LEAD,
   CONCEPT_ALT_PREFIX,
+  EM_DASH,
   NOTE_IN,
   ROOM_CHECKS,
   ROOM_MOTIONS,
@@ -187,7 +188,10 @@ describe('parseRoomManifest (v4, the annotated room)', () => {
     ['duplicate plan ids', manifest({ plan: [plan[0], { ...plan[1], id: 'layout' }] })],
     ['a plan label with a digit', manifest({ plan: [{ ...plan[0], label: 'Plan 1' }] })],
     ['no closing line', manifest({ closing: {} })],
-    ['a closing line with an em-dash', manifest({ closing: { line: 'You see it — all' } })],
+    [
+      'a closing line with an em-dash',
+      manifest({ closing: { line: `You see it ${EM_DASH} all` } }),
+    ],
     ['no frames', manifest({ frames: [] })],
     ['only the empty room', manifest({ frames: [empty] })],
     ['a frame-0 with a change', manifest({ frames: [{ ...empty, change: 'c.png' }, frame(1)] })],
@@ -227,7 +231,7 @@ describe('parseRoomManifest (v4, the annotated room)', () => {
     ['a note with an unknown check', { note: { check: 'colour', text: 'Warm.' } }],
     ['a note with no text', { note: { check: 'scale', text: ' ' } }],
     ['a note with a digit', { note: { check: 'scale', text: 'An eight by ten rug, 8x10.' } }],
-    ['a note with an em-dash', { note: { check: 'scale', text: 'Big — bigger.' } }],
+    ['a note with an em-dash', { note: { check: 'scale', text: `Big ${EM_DASH} bigger.` } }],
     ['a pin outside the frame', { pin: [1500, 10] }],
     ['a pin that is not two numbers', { pin: [10] }],
     ['an unknown side', { side: 'top' }],
@@ -302,7 +306,7 @@ describe('the five checks', () => {
   it('isCopy refuses digits, em-dashes and blanks', () => {
     expect(isCopy('A lamp at seat height.')).toBe(true);
     expect(isCopy('Step 1')).toBe(false);
-    expect(isCopy('a — b')).toBe(false);
+    expect(isCopy(`a ${EM_DASH} b`)).toBe(false);
     expect(isCopy('  ')).toBe(false);
   });
 });

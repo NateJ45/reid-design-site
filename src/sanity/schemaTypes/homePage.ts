@@ -327,11 +327,13 @@ export const homePage = defineType({
     }),
 
     // ── Concept room (2026-09-30) ─────────────────────────────────────────
-    // A labelled sample room that fills up stage by stage as the visitor
-    // scrolls, with paint chips that repaint its walls
+    // A labelled sample room that fills up piece by piece as the visitor
+    // scrolls, each piece tagged with why it is there (the annotated room,
+    // 2026-10-03; the paint chips went that day)
     // (src/components/home/RoomStory.astro). These fields only set its words;
-    // the pictures, captions and alt text come from src/assets/room/manifest.json
-    // (made by tools/room-lab), not from Sanity. Placement: the "Concept room"
+    // the pictures, notes, brief, plan and alt text come from each room's
+    // src/assets/room/<slug>/manifest.json (made by tools/room-lab), not from
+    // Sanity. Placement: the "Concept room"
     // marker in Layout & order; a layout saved before the marker existed gets
     // it just after "How it works". Off: untick "Show on the home page" below.
     defineField({
@@ -341,14 +343,14 @@ export const homePage = defineType({
       group: 'roomStory',
       initialValue: true,
       description:
-        'The concept room: a sample room that fills up as visitors scroll, with paint chips that try colours on its walls. It shows by itself just after "How it works"; drag the "Concept room" section in Layout & order to move it. Untick to hide it.',
+        'The concept room: a sample room that fills up as visitors scroll, with a tag on each piece saying why it is there. It shows by itself just after "How it works"; drag the "Concept room" section in Layout & order to move it. Untick to hide it.',
     }),
     defineField({
       name: 'roomStoryHeadline',
       title: 'Heading',
       type: 'string',
       group: 'roomStory',
-      description: 'Optional. Leave blank for "Watch a room come together".',
+      description: 'Optional. Leave blank for "Every piece is chosen for a reason."',
     }),
     defineField({
       name: 'roomStoryScriptAccent',
@@ -365,7 +367,7 @@ export const homePage = defineType({
       rows: 2,
       group: 'roomStory',
       description:
-        'Optional. One or two short sentences. Leave blank for the built-in line explaining that this is a concept room and that the chips try paint colours on the walls.',
+        'Optional. One or two short sentences. Leave blank for "Watch one empty room get built, and see why each piece is there."',
     }),
 
     // Testimonials

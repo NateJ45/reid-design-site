@@ -337,7 +337,7 @@ test.describe('Concept room', () => {
       return c.textContent ?? '';
     });
     expect(words).not.toMatch(/\d/);
-    expect(words).not.toContain('—');
+    expect(words).not.toContain(String.fromCharCode(0x2014));
   });
 
   test('has no paint deck and no wall masks anywhere in the build', async ({ page }) => {

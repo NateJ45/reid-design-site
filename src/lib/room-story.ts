@@ -179,7 +179,11 @@ const isText = (v: unknown): v is string => typeof v === 'string' && v.trim().le
  * and no em-dash (the site copy rule). Used for every word the room prints
  * besides the alt texts.
  */
-export const isCopy = (v: unknown): v is string => isText(v) && !/\d/.test(v) && !v.includes('—');
+/** The em-dash, spelled as a code point so no source file holds one. */
+export const EM_DASH = String.fromCharCode(0x2014);
+
+export const isCopy = (v: unknown): v is string =>
+  isText(v) && !/\d/.test(v) && !v.includes(EM_DASH);
 
 /** A plain file name: no folders, no URL, no "..". */
 const isFileName = (v: unknown): v is string =>
