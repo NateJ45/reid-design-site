@@ -13,9 +13,11 @@
 // button goes to /contact?type=e-design. Renders nothing with no tiers.
 //
 // One tier is the normal case (2026-10-01): E-Design is a single package,
-// "Starting at $695", so a lone chip gets a plain "What it costs" heading and
-// a readable width instead of stretching across the whole row. Two or more
-// tiers keep the "Pick your package" row.
+// "Starting at $695". A lone chip takes the page's heading-left / content-right
+// layout (like What's included and the FAQ) instead of sitting alone under its
+// heading, and drops its feature list, which would repeat "What's included"
+// directly above (2026-10-03). Two or more tiers keep the "Pick your package"
+// row with full feature lists.
 import SectionHeading from '@/components/SectionHeading.astro';
 import { chipPrice, toneFor } from '@/components/services/tones';
 import RoomBackdrop from '@/components/RoomBackdrop.astro';
@@ -40,11 +42,14 @@ const single = n === 1;
 {
   n > 0 && (
     <section class="edt" aria-labelledby="edesign-tiers-heading">
-      <div class="r-wrap">
-        <SectionHeading
-          headline={single ? 'What it costs' : 'Pick your package'}
-          headingId="edesign-tiers-heading"
-        />
+      <div class:list={['r-wrap', single && 'edt__split']}>
+        {single ? (
+          <h2 id="edesign-tiers-heading" class="r-h2 edt__h">
+            What it costs
+          </h2>
+        ) : (
+          <SectionHeading headline="Pick your package" headingId="edesign-tiers-heading" />
+        )}
         <ul
           class:list={['edt__list', single && 'edt__list--single']}
           style={`--cols:${Math.min(n, 3)}`}
@@ -74,7 +79,7 @@ const single = n === 1;
                   )}
                 </div>
                 <div class="edt__label">
-                  {tier.features && tier.features.length > 0 && (
+                  {!single && tier.features && tier.features.length > 0 && (
                     <ul class="edt__features">
                       {tier.features.map((f) => (
                         <li>{f}</li>
@@ -127,9 +132,23 @@ const single = n === 1;
       transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 700ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  /* One package: a readable width, left on the page's own edge. */
+  /* One package: heading left, chip right, the same split as What's included. */
+  .edt__split {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    align-items: start;
+  }
+  .edt__h {
+    grid-column: 1 / 5;
+    margin: 0;
+    max-width: 8ch;
+    color: var(--color-ink);
+  }
   .edt__list--single {
-    max-width: 38rem;
+    grid-column: 6 / 13;
+    max-width: 34rem;
+    margin-top: 0;
   }
   /* Out of line: every other chip hangs lower, like cards pulled from a deck. */
   .edt__tier:nth-child(even) {
@@ -253,6 +272,19 @@ const single = n === 1;
   @media (prefers-reduced-motion: reduce) {
     .edt__tier {
       transition: none;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .edt__split {
+      display: block;
+    }
+    .edt__h {
+      max-width: none;
+      margin-bottom: 2.25rem;
+    }
+    .edt__list--single {
+      max-width: 38rem;
     }
   }
 

@@ -397,6 +397,18 @@ Rebuilt 2026-09-30. Component notes in `docs/agent/components.md`.
   its price, so nobody reads the $225 as the cost of getting in touch;
   2026-10-01), and email / phone / book-a-free-call rows. Rhythm: linen hero,
   linen note, ink call band, paper roadmap, linen service area, ink footer.
+- **Room and style picks** (2026-10-03, `src/lib/style-picker.ts`, tested): in
+  "Your space", above the message. "Which rooms?" is a row of sample tags
+  (notched, punched hole; a picked one turns ink and tilts) and "Which of these
+  feels like home?" is eight small paint-chip cards (three colour bands, name and
+  materials on paper, a check on the picked ones, never colour alone). Both
+  optional. Rooms: any number, "Whole home" stands alone. Styles: up to two (the
+  third pick drops the oldest), "Not sure yet" stands alone. A tag above the
+  message shows what travels with the note and the placeholder follows the first
+  room. They reach Staci as two extra Web3Forms fields, `rooms` and `style_feel`
+  (their own lines in her email), omitted when empty; nothing is folded into the
+  message text. The style bands are the looks of the styles, not house colours,
+  and no text sits on them. Styles mirror the concept-room tabs.
 - **Form language** (`src/components/contact/contact-form.css`): three
   fieldsets (About you, Your space, Timing and budget), each legend led by a
   small paint-chip swatch (chips 2, 3, 4), never a numeral;

@@ -4,7 +4,8 @@
 // Honeypot included. Accessible focus management on error.
 //
 // Form scope, in three groups (fieldsets) since the 2026-09-30 phase 2
-// restyle. Same nine fields, same names, same payload; only the on-screen
+// restyle. Same nine fields, same names, same payload (plus the two optional room and
+// style picks below, added 2026-10-03); only the on-screen
 // order moved the message up beside the space questions. Each legend is led
 // by a small paint-chip swatch, not a "01" numeral (the no-decorative-
 // numbering rule in DESIGN.md):
@@ -25,6 +26,17 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { site } from '@/data/site';
+import {
+  ROOM_OPTIONS,
+  STYLE_OPTIONS,
+  joinPicks,
+  messagePlaceholder,
+  parsePicks,
+  pickFields,
+  summarizePicks,
+  toggleRoom,
+  toggleStyle,
+} from '@/lib/style-picker';
 import './contact/contact-form.css';
 
 const DRAFT_KEY = `${site.storageKeyPrefix}-contact-draft`;
@@ -130,6 +142,11 @@ interface Draft {
   timeline: string;
   message: string;
   source: string;
+  // The room and style picks (2026-10-03), each a '|'-joined string so the
+  // draft stays all-strings (see src/lib/style-picker.ts). Optional: they go to
+  // Staci as the extra Web3Forms fields `rooms` and `style_feel`.
+  rooms: string;
+  styles: string;
 }
 
 const EMPTY: Draft = {
@@ -142,6 +159,8 @@ const EMPTY: Draft = {
   timeline: '',
   message: '',
   source: '',
+  rooms: '',
+  styles: '',
 };
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -205,6 +224,8 @@ export default function ContactForm({
   // and this must never be persisted or restored.
   const [botcheck, setBotcheck] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const roomPicks = parsePicks(draft.rooms);
+  const stylePicks = parsePicks(draft.styles);
   const restoredOnce = useRef(false);
 
   // Restore draft on mount, then apply ?type= URL param if present.
@@ -344,6 +365,9 @@ export default function ContactForm({
           // Lead source is optional; omit from the payload when blank so it
           // doesn't add a "Source: " line to Staci's email for no reason.
           source: draft.source || undefined,
+          // Room and style picks: two extra lines in Staci's email, omitted
+          // when nothing was picked.
+          ...pickFields(roomPicks, stylePicks),
           // Web3Forms autoresponder fields. When these are set, Web3Forms
           // sends a confirmation email to the visitor in addition to the
           // notification email to Staci. The reply-to_email key is
@@ -587,15 +611,91 @@ export default function ContactForm({
           </div>
         </div>
 
+        {/* Room and style picks (2026-10-03). Optional, and both are real
+            buttons with aria-pressed, so keyboard and screen readers get the
+            same choices. The tag under them is a live summary of what will
+            travel with the note. */}
+        <div role="group" aria-labelledby="rooms-q" className="cf-field">
+          <div>
+            <div id="rooms-q" className="cf-label">
+              Which rooms? <span className="cf-optional">(optional)</span>
+            </div>
+            <p className="cf-hint">Pick any that apply.</p>
+          </div>
+          <div className="cf-tags">
+            {ROOM_OPTIONS.map((room) => {
+              const on = roomPicks.includes(room);
+              return (
+                <button
+                  key={room}
+                  type="button"
+                  aria-pressed={on}
+                  className="cf-roomtag"
+                  onClick={() => update('rooms', joinPicks(toggleRoom(roomPicks, room)))}
+                >
+                  {room}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div role="group" aria-labelledby="style-q" className="cf-field">
+          <div>
+            <div id="style-q" className="cf-label">
+              Which of these feels like home? <span className="cf-optional">(optional)</span>
+            </div>
+            <p className="cf-hint">Pick one or two. No wrong answers, and it is fine to be torn.</p>
+          </div>
+          <div className="cf-styles">
+            {STYLE_OPTIONS.map((opt) => {
+              const on = stylePicks.includes(opt.label);
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  aria-pressed={on}
+                  className="cf-stylecard"
+                  onClick={() => update('styles', joinPicks(toggleStyle(stylePicks, opt.label)))}
+                >
+                  <span className="cf-stylecard__bands" aria-hidden="true">
+                    {opt.bands ? (
+                      opt.bands.map((c, i) => <span key={i} style={{ background: c }} />)
+                    ) : (
+                      <span className="cf-stylecard__unsure">?</span>
+                    )}
+                  </span>
+                  <span className="cf-stylecard__check" aria-hidden="true">
+                    <svg viewBox="0 0 14 14">
+                      <path d="M2.5 7.5l3 3 6-7" />
+                    </svg>
+                  </span>
+                  <span className="cf-stylecard__body">
+                    <span className="cf-stylecard__name">{opt.label}</span>
+                    <span className="cf-stylecard__notes">{opt.notes}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="cf-field">
           <label htmlFor="message" className="cf-label">
             Tell us about the space
           </label>
+          {(roomPicks.length > 0 || stylePicks.length > 0) && (
+            <p className="cf-picked" aria-live="polite">
+              <span className="cf-picked__lead">Goes with your note: </span>
+              {summarizePicks(roomPicks, stylePicks)}
+            </p>
+          )}
           <textarea
             id="message"
             name="message"
             required
             rows={6}
+            placeholder={messagePlaceholder(roomPicks)}
             value={draft.message}
             onChange={(e) => update('message', e.target.value)}
             aria-invalid={!!errors.message}

@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: E-Design pricing chip no longer stranded
+
+Nathan: the lone price card sat by itself under its heading. With a single tier, `EDesignTiers.astro` now uses the page's heading-left / content-right split (same as What's included and the FAQ: heading cols 1-4, chip cols 6-12, stacked under 1024px) and drops the chip's feature list, which repeated "What's included" directly above. Two or more tiers are unchanged (full-width row, feature lists kept).
+
 ## 2026-10-03: Wall-colour selectors drawn as paint chips
 
 Nathan: the selectors looked like circle pills, not swatches. `RoomClose.astro` now draws each as a small square-cornered paint chip (colour block over a Paper label strip, a soft shadow), the chosen one lifted with an ink outline. Same buttons, `aria-pressed`, labels and behaviour; reduced motion drops the lift. Markup change only inside the swatch buttons (a `room__swatch-name` span); no logic touched.
