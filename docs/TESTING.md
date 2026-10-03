@@ -27,6 +27,8 @@ failure does not hide a build failure, and vice versa. The Playwright config
 serves an already-built `dist/client` when `PLAYWRIGHT_SKIP_BUILD` is set (CI
 shards only); unset, every local run still builds first.
 
+**Shard weights recipe.** `--shard=N/M` gives each shard a contiguous block of an equal number of tests in project order, not equal time. `ci.yml` sets `PWTEST_SHARD_WEIGHTS: '77:58:36'` (Playwright-internal env var, colon-separated, one weight per shard, applied to test COUNTS). Re-derive when specs are added or removed or the shard count changes: (1) on a throwaway branch add `PLAYWRIGHT_JSON_OUTPUT_NAME: pw-timings.json` and `--reporter=github,html,json` to the e2e test step plus an upload-artifact of that file, and run the workflow via `gh workflow run ci.yml --ref <branch>`; (2) sum each test's duration across the three shards, walk the tests in listed shard order (shard 1's block, then 2, then 3: that is the global order) and cut where the running total passes 1/3 and 2/3 of the grand total; (3) the block sizes are the weights; (4) verify with `PWTEST_SHARD_WEIGHTS=a:b:c npx playwright test --list --shard=N/3` for N = 1..3: the counts must be a, b, c, sum to the unweighted `--list` total, and the sorted concatenation must equal the sorted unweighted list. Last derived 2026-10-03: 171 tests, about 84s / 83s / 83s per block (was 57 tests each at about 65 / 92 / 92s).
+
 Three files are deliberately outside prettier's reach (see `.prettierignore`):
 `Hero.astro`, `HeroBackground.astro` and `BaseLayout.astro` nest a
 `<script is:inline>` inside a template expression, which prettier-plugin-astro

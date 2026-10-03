@@ -240,7 +240,12 @@ jobs:
           [ "${{ needs.static.result }}" = "success" ] && [ "${{ needs.site.result }}" = "success" ]
 
   # The Playwright suite, sharded. fullyParallel is on in playwright.config.ts,
-  # so --shard splits at TEST granularity and the shards come out even.
+  # so --shard splits at TEST granularity, but into contiguous blocks of an
+  # EQUAL NUMBER of tests in project order, and tests are not equal cost:
+  # chromium reflow is ~0.3s a test, room-story and every webkit axe /
+  # reduced-motion test is 2 to 3s. Equal counts measured 30s / 55s / 63s of
+  # test step. PWTEST_SHARD_WEIGHTS (Playwright-internal, one weight per
+  # shard) resizes the blocks; see the recipe in docs/TESTING.md.
   e2e:
     name: e2e (shard ${{ matrix.shard }}/3)
     needs: [site]
@@ -307,13 +312,8 @@ jobs:
       - name: Run tests (smoke, a11y light + dark, reflow)
         env:
           PLAYWRIGHT_SKIP_BUILD: '1'
-          PLAYWRIGHT_JSON_OUTPUT_NAME: pw-timings.json
-        run: npm test -- --shard=${{ matrix.shard }}/3 --reporter=github,html,json
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: pw-timings-${{ matrix.shard }}
-          path: pw-timings.json
+          PWTEST_SHARD_WEIGHTS: '77:58:36'
+        run: npm test -- --shard=${{ matrix.shard }}/3 --reporter=github,html
 
       # Only on failure: a green run has nothing worth the upload time.
       - uses: actions/upload-artifact@v7
