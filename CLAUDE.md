@@ -55,8 +55,9 @@ Do NOT run `npx sanity deploy` (it would publish a second, drifting Studio; ther
 ## Branch, CI and deploy
 
 - Production: push to `main` triggers a Cloudflare Workers build for reiddesignllc.com. Any other branch gets a preview URL. Sanity edits go live only after a rebuild (publish webhook or a push); see rule 6.
-- CI runs `scripts/sync-check.mjs` FIRST and short-circuits the rest when red (later steps show skipped, not passed). It goes red with no change here when the starter updates a `PORTABLE` file. Fix recipe: `.claude/rules/build-pipeline-and-scripts.md`.
-- Lighthouse CI (`lighthouse.yml`, `lighthouserc.json`): accessibility must hold 100. Run `npm run check` and the relevant tests before every push; tests map in `docs/TESTING.md`.
+- CI runs `scripts/sync-check.mjs` FIRST and short-circuits the rest of the `static` job when red (later steps show skipped, not passed; `build` goes red). It goes red with no change here when the starter updates a `PORTABLE` file. Fix recipe: `.claude/rules/build-pipeline-and-scripts.md`.
+- CI shape (PORTS.md card 70): `ci.yml` runs `static` and `site` in parallel, `build` and `test` are aggregator jobs over them and over the 3 `e2e` Playwright shards (the shards serve the `dist/client` that `site` uploads, `PLAYWRIGHT_SKIP_BUILD=1`). `build`, `test` and `lighthouse` are all REQUIRED checks: keep those job names, and never add a `paths:` filter to `ci.yml` or to `lighthouse.yml`'s `pull_request` trigger (a required check that never reports blocks the merge).
+- Lighthouse CI (`lighthouse.yml`, `lighthouserc.json`): accessibility must hold 100. PRs audit a 4-page sample (`/`, `/services/`, `/contact/`, `/404.html`) via `--collect.url`; push to `main`, the Monday cron and manual dispatch audit the full list. Run `npm run check` and the relevant tests before every push; tests map in `docs/TESTING.md`.
 - Pause for confirmation before installing new dependencies.
 
 ---
