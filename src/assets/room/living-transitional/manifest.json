@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "width": 1472,
   "height": 1104,
   "base": {
@@ -215,7 +215,9 @@
         "text": "Books and a throw: the layer that makes it look like someone lives here."
       },
       "pin": [715, 785],
-      "side": "right"
+      "side": "right",
+      "wall": "wall-10.png",
+      "wallMedianLinear": [0.3968, 0.2961, 0.1221]
     }
   ]
 }

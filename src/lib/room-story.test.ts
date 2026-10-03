@@ -7,6 +7,7 @@ import {
   NOTE_IN,
   ROOM_CHECKS,
   ROOM_MOTIONS,
+  ROOM_SWATCHES,
   SCRUB_DWELL,
   SCRUB_TRACK_SVH,
   beatAt,
@@ -22,6 +23,8 @@ import {
   roomAnnouncement,
   roomFiles,
   roomFolder,
+  hexToLinear,
+  swatchesShown,
   scrubPosition,
   snapPosition,
   stageFrames,
@@ -54,7 +57,7 @@ const plan = [
   { id: 'picks', label: 'Furniture and decor picks', beat: 'anchor' },
 ];
 const manifest = (over: Record<string, unknown> = {}) => ({
-  version: 4,
+  version: 5,
   width: 1472,
   height: 1104,
   base: { alt: 'Concept image: an empty, bright living room with tired tan walls' },
@@ -74,10 +77,11 @@ const manifest = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
-describe('parseRoomManifest (v4, the annotated room)', () => {
+describe('parseRoomManifest (v5, the annotated room with the finished wall)', () => {
   it('accepts the contract and returns a clean copy', () => {
     const m = parseRoomManifest(manifest());
-    expect(m?.version).toBe(4);
+    expect(m?.version).toBe(5);
+    expect(m?.wall).toBeNull();
     expect(m?.stages).toHaveLength(2);
     expect(m?.stages[0]).toEqual({ id: 'shell', label: 'The bones', caption: 'The empty room.' });
     expect(m?.empty).toEqual(empty);
@@ -102,23 +106,53 @@ describe('parseRoomManifest (v4, the annotated room)', () => {
     expect(m?.pieces[1].side).toBe('right');
   });
 
-  it('drops unknown keys, including the old wall fields', () => {
+  it('drops unknown keys, including the old room-level wall median', () => {
     const m = parseRoomManifest(
       manifest({
         extra: 1,
         wallMedianLinear: [0.5, 0.5, 0.5],
-        frames: [{ ...empty, x: 1, wall: 'wall-0.png' }, frame(1, { y: 2, wall: 'wall-1.png' })],
+        frames: [{ ...empty, x: 1 }, frame(1, { y: 2 })],
       }),
     );
     expect(m).not.toHaveProperty('extra');
     expect(m).not.toHaveProperty('wallMedianLinear');
     expect(m?.empty).not.toHaveProperty('x');
-    expect(m?.empty).not.toHaveProperty('wall');
     expect(m?.pieces[0]).not.toHaveProperty('y');
-    expect(m?.pieces[0]).not.toHaveProperty('wall');
   });
 
-  it('lists every file it names, frame by frame (no wall masks)', () => {
+  it('takes ONE wall mask, on the finished frame, with its median', () => {
+    const m = parseRoomManifest(
+      manifest({
+        frames: [
+          empty,
+          frame(1),
+          frame(2, { wall: 'wall-2.png', wallMedianLinear: [0.4, 0.3, 0.12] }),
+        ],
+      }),
+    );
+    expect(m?.wall).toEqual({ mask: 'wall-2.png', median: [0.4, 0.3, 0.12] });
+    expect(m?.pieces[1]).not.toHaveProperty('wall');
+    expect(m && roomFiles(m)).toContain('wall-2.png');
+  });
+
+  it('refuses a wall anywhere but the finished frame, or without a sound median', () => {
+    const med = { wallMedianLinear: [0.4, 0.3, 0.12] };
+    for (const frames of [
+      [{ ...empty, wall: 'wall-0.png', ...med }, frame(1), frame(2)],
+      [empty, frame(1, { wall: 'wall-1.png', ...med }), frame(2)],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png' })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.jpg', ...med })],
+      [empty, frame(1), frame(2, { wall: '../wall.png', ...med })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png', wallMedianLinear: [0.4, 0.3] })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png', wallMedianLinear: [1.4, 0.3, 0.1] })],
+      [empty, frame(1), frame(2, { wall: 'wall-2.png', wallMedianLinear: [0, 0, 0] })],
+      [empty, frame(1), frame(2, { wallMedianLinear: [0.4, 0.3, 0.12] })],
+    ]) {
+      expect(parseRoomManifest(manifest({ frames }))).toBeNull();
+    }
+  });
+
+  it('lists every file it names, frame by frame (no wall mask when there is none)', () => {
     const m = parseRoomManifest(manifest());
     expect(m && roomFiles(m)).toEqual([
       'frame-0.jpg',
@@ -144,6 +178,7 @@ describe('parseRoomManifest (v4, the annotated room)', () => {
   it.each([
     ['not an object', null],
     ['version 3 (the paint deck)', manifest({ version: 3 })],
+    ['version 4 (before the swatches)', manifest({ version: 4 })],
     ['a missing width', manifest({ width: undefined })],
     ['one stage', manifest({ stages: [{ id: 'anchor', label: 'A', caption: 'x' }] })],
     [
@@ -264,7 +299,7 @@ describe('the published living room', () => {
   ) as unknown;
   const m = parseRoomManifest(raw);
 
-  it('parses as v4, with a note and a pin inside its own piece for every piece', () => {
+  it('parses as v5, with a note and a pin inside its own piece for every piece', () => {
     expect(m).not.toBeNull();
     for (const p of m!.pieces) {
       expect(p.note.text.length).toBeGreaterThan(10);
@@ -281,8 +316,35 @@ describe('the published living room', () => {
     expect(new Set(m!.pieces.map((p) => p.note.check)).size).toBe(ROOM_CHECKS.length);
   });
 
-  it('names no wall mask any more', () => {
-    expect(JSON.stringify(raw)).not.toMatch(/wall-\d|wallMedian/);
+  it('has exactly one wall mask, on the finished frame', () => {
+    const frames = (raw as { frames: Record<string, unknown>[] }).frames;
+    expect(frames.filter((f) => 'wall' in f)).toHaveLength(1);
+    expect(frames[frames.length - 1].wall).toBe(`wall-${frames.length - 1}.png`);
+    expect(m!.wall?.mask).toBe(`wall-${frames.length - 1}.png`);
+  });
+});
+
+describe('the paint swatches', () => {
+  it('are Sage, Clay, Lake and Espresso, at their approved values', () => {
+    expect(ROOM_SWATCHES).toEqual([
+      { name: 'Sage', hex: '#a8b5a0' },
+      { name: 'Clay', hex: '#b5785f' },
+      { name: 'Lake', hex: '#8b9ea3' },
+      { name: 'Espresso', hex: '#5f4639' },
+    ]);
+  });
+
+  it('hexToLinear: the sRGB curve, and null when malformed', () => {
+    expect(hexToLinear('#ffffff')).toEqual([1, 1, 1]);
+    expect(hexToLinear('#000000')).toEqual([0, 0, 0]);
+    expect(hexToLinear('#808080')![0]).toBeCloseTo(0.2159, 3);
+    expect(hexToLinear('nope')).toBeNull();
+  });
+
+  it('swatchesShown: only once the build has finished', () => {
+    expect(swatchesShown(10, 10)).toBe(true);
+    expect(swatchesShown(9.9, 10)).toBe(false);
+    expect(swatchesShown(0, 0)).toBe(false);
   });
 });
 

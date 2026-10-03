@@ -67,7 +67,7 @@ const { room, cta } = Astro.props as Props;
       ))
     }
     <RoomPlan plan={room.plan} />
-    <RoomClose line={room.closing} cta={cta} />
+    <RoomClose line={room.closing} cta={cta} paint={Boolean(room.wall)} />
   </div>
 
   <div class="room__list">

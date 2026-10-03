@@ -13,13 +13,20 @@
 // Writes into src/assets/room/<slug>/:
 //   frame-N.jpg    the room after N pieces (frame-0 is empty), mozjpeg q90, full width
 //   change-N.png   greyscale 1024 wide, soft: where frame N differs from frame N-1 (N >= 1)
-//   manifest.json  { version: 4, width, height, base, final, stages, brief, plan, closing, frames }
+//   wall-N.png     (v5, the LAST frame only, when work/<slug>/final/wall-final.png exists)
+//                  greyscale, full frame size: the finished room's paintable wall, made and
+//                  hand-corrected by wall.mjs; the frame also gets wallMedianLinear
+//   manifest.json  { version: 5, width, height, base, final, stages, brief, plan, closing, frames }
 // Refuses (exit 1) when anything is missing or any visible copy breaks the house rules (no
 // digits, no em-dashes, one of the five checks, every piece has a note, every plan chip names
 // a real beat). Stale files (old wall masks included) are removed from THIS room's folder only.
 // THE MANIFEST SHAPE IS A CONTRACT with src/lib/room-story.ts (parseRoomManifest).
 //
-// CPU only (sharp); no ComfyUI and no model needed.
+// Why one wall mask (2026-10-03): the paint swatches came back on the FINISHED frame only, so
+// one mask, redrawn at full resolution and corrected by hand (wall.mjs), replaces the eleven
+// automatic ones that kept leaving bad edges.
+//
+// CPU only (sharp); no ComfyUI and no model needed (wall.mjs needs SegFormer; publish does not).
 //
 //   npm run room:publish -- --room living-transitional
 import { writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
@@ -142,8 +149,35 @@ for (let n = 0; n <= N; n++) {
   console.log(`frame-${n} ${pc.id}: box ${box.join(',')}, pin ${pin.join(',')}, ${pc.motion}`);
 }
 
+// The finished frame's wall (optional): copied at full size, with its median in linear light.
+const wallSrc = join(FINAL, 'wall-final.png');
+if (existsSync(wallSrc)) {
+  const wm = await sharp(wallSrc).extractChannel(0).raw().toBuffer({ resolveWithObject: true });
+  if (wm.info.width !== W || wm.info.height !== H) {
+    console.error(`publish refused: wall-final.png is ${wm.info.width}x${wm.info.height}, the frames are ${W}x${H}.`);
+    process.exit(1);
+  }
+  const rgb = await sharp(join(FINAL, `frame-${N}.png`)).resize(W, H).removeAlpha().raw().toBuffer();
+  const lin = (v) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const ch = [[], [], []];
+  for (let i = 0; i < W * H; i++) if (wm.data[i] > 200) for (let c = 0; c < 3; c++) ch[c].push(lin(rgb[i * 3 + c]));
+  if (ch[0].length < W * H * 0.05) {
+    console.error('publish refused: wall-final.png marks under 5% of the frame as wall.');
+    process.exit(1);
+  }
+  const med = ch.map((a) => Math.round(Float64Array.from(a).sort()[a.length >> 1] * 10000) / 10000);
+  const last = frames[frames.length - 1];
+  last.wall = `wall-${N}.png`;
+  last.wallMedianLinear = med;
+  await sharp(wm.data, { raw: { width: W, height: H, channels: 1 } }).toColourspace('b-w').png().toFile(join(DEST, last.wall));
+  console.log(`wall-${N}.png (the finished room's wall), median linear ${med.join(', ')}`);
+}
+
 const manifest = {
-  version: 4,
+  version: 5,
   width: W,
   height: H,
   base: { alt: spec.base.alt },
@@ -159,7 +193,7 @@ const manifest = {
   frames,
 };
 
-const keep = new Set(['manifest.json', ...frames.flatMap((f) => [f.image, f.change].filter(Boolean))]);
+const keep = new Set(['manifest.json', ...frames.flatMap((f) => [f.image, f.change, f.wall].filter(Boolean))]);
 for (const f of await readdir(DEST)) {
   if (/^(frame|wall|change|mask|layer|shade|light|base|final)[-.].*\.(jpg|png|webp)$/.test(f) && !keep.has(f)) {
     await unlink(join(DEST, f));
@@ -174,4 +208,4 @@ const roomsList = loadIndex()
   .map((r) => ({ slug: r.slug, label: r.label, type: r.type, style: r.style, manifest: `${r.slug}/manifest.json` }));
 await writeFile(join(ROOMS_DIR, 'rooms.json'), prettyJson({ version: 1, rooms: roomsList }));
 console.log(`rooms.json lists: ${roomsList.map((r) => r.slug).join(', ') || '(none)'}`);
-console.log(`Published ${frames.length} frames (manifest v4) to ${DEST}. Review, then commit src/assets/room.`);
+console.log(`Published ${frames.length} frames (manifest v5) to ${DEST}. Review, then commit src/assets/room.`);

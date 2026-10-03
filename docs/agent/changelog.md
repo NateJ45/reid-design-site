@@ -6,6 +6,16 @@
 
 Nathan: the header rating should go where Contact's "Leave a review" button goes. It linked to the business profile (maps.google.com/?cid=...). `RatingTag`'s `compact` variant (the header's) now uses `googleWriteReviewUrl` (g.page/.../review) and falls back to the profile when that is unset; the other variants are unchanged. A smoke test compares the header link with Contact's button. **Follow-up, same day:** the rating was still not clickable. The header is `pointer-events: none` (only its own pieces take the pointer), and `.hdr__bar > *` is a SCOPED rule that never matched RatingTag's root (it carries RatingTag's scope id), so clicks fell through to the hero photo. Fixed with `.hdr__bar > :global(.hdr__rating)`; a second smoke test asks the browser what is at the rating's centre (`elementFromPoint`), because a link in the markup says nothing about whether it can be clicked.
 
+## 2026-10-03: Paint swatches on the finished concept room (branch `claude/room-swatches`)
+
+Delegated agent. Sage, Clay, Lake and Espresso came back as a quiet row under the close's booking tag, shown only once the build has finished, tied to the plan's "Color and finish guidance" chip.
+
+- **Mask:** ONE wall mask, for the finished frame only, at full resolution (`src/assets/room/living-transitional/wall-10.png`). `tools/room-lab/wall.mjs` (`npm run room:wall`) rebuilds it: SegFormer plus the old empty-room judgement, then `lib/wallrefine.mjs` (recovered from a48eb5d: unmix every edge pixel between local wall and local non-wall colour, take back wide shadow strips, fill speckle), then HAND CORRECTIONS from the spec's `wall.fixes` (polygons with ops clear, fill, key, sat, leaves: the curtain shadows by saturation, the sunlit wall behind the olive branches by a luminance unmix, the art traced at 8x, the sofa line traced by hand). It writes paint previews and 2x crops of every edge area in `wall.checks`.
+- **Contract:** manifest v5: `wall` + `wallMedianLinear` on the last frame only (refused elsewhere); `ROOM_SWATCHES`, `hexToLinear`, `swatchesShown`. `publish.mjs` copies `work/<slug>/final/wall-final.png` and computes the median.
+- **Painter:** the paint path is back for the finished frame only (wall texture, `setChip`, the median uniform, the roll): 2.7 KB to 3.3 KB gzipped.
+- **Section:** RoomClose's swatch row ships `hidden`; RoomStage shows it once the painter has drawn and the mask is in, at the finished frame; scrolling back hides it and puts the walls back. Real buttons, aria-pressed, live region "Walls in Sage.".
+- **Tests:** unit tests for v5 and the swatches; room-story.spec checks one mask per room, the row hidden mid-build and shown at the end, Sage changes the wall and not the art, keyboard, reset on scroll back, and no row without WebGL or a script.
+
 ## 2026-10-03: The annotated concept room (branch `claude/room-annotated`)
 
 Nathan's call: the paint-colour feature kept leaving bad masks, so it went, and the concept room became the page that shows what Staci does and how she thinks (brief: `docs/design/2026-10-03-annotated-room.md`). Delegated agent (Opus), for review by the main session.

@@ -14,7 +14,8 @@ import { NOTE_IN, ROOM_CHECKS, scrubPosition } from '../src/lib/room-story';
 //   - the honesty rules (the "Concept room" sample tag, visible by PIXELS once
 //     the painter draws; "Concept image:" on the described picture, every other
 //     frame alt=""; no digits in any word the room prints);
-//   - no paint deck and no wall masks anywhere in the build;
+//   - one wall mask (the finished frame); the swatches show only on the finished
+//     room, paint the wall and nothing else, and never show without WebGL or JS;
 //   - the no-script default: the FINISHED room and the plain list (the brief,
 //     every beat with its tags, the plan, the closing line and the booking
 //     tag), no pinned track, no other frame downloading;
@@ -340,16 +341,81 @@ test.describe('Concept room', () => {
     expect(words).not.toContain(String.fromCharCode(0x2014));
   });
 
-  test('has no paint deck and no wall masks anywhere in the build', async ({ page }) => {
+  test('one wall mask, on the finished frame only; no old paint deck', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
     await expect(room.locator('[data-room-chips], .room__chip, .room__deck')).toHaveCount(0);
-    await expect(room.getByText(/paint colour/i)).toHaveCount(0);
     const html = await (await page.request.get('/')).text();
-    expect(html).not.toMatch(/wall-\d+[.\w]*\.png|data-wall|data-median/);
+    expect(html.match(/data-wall="[^"]+"/g) ?? []).toHaveLength(MANIFESTS.length);
     const dist = join(process.cwd(), 'dist/client/_astro');
-    if (existsSync(dist)) expect(readdirSync(dist).filter((f) => /^wall-/.test(f))).toEqual([]);
-    for (const m of MANIFESTS) expect(JSON.stringify(m)).not.toMatch(/wall-\d|wallMedian/);
+    if (existsSync(dist)) {
+      expect(readdirSync(dist).filter((f) => /^wall-/.test(f))).toHaveLength(MANIFESTS.length);
+    }
+    for (const m of MANIFESTS) {
+      const frames = (m as { frames: Record<string, unknown>[] }).frames;
+      expect(frames.filter((f) => 'wall' in f).length).toBe(1);
+      expect('wall' in frames[frames.length - 1]).toBe(true);
+    }
+  });
+
+  test('the swatches: hidden mid-build, shown on the finished room, paint the walls only', async ({
+    page,
+  }) => {
+    await painted(page);
+    const row = page.locator('[data-room-paint]');
+    await toPos(page, 9.5);
+    await expect(row).toBeHidden();
+    await toProgress(page, 1);
+    await expect(row).toBeVisible({ timeout: 10_000 });
+    // Real buttons, named, one pressed; "As it is" first.
+    const btns = row.getByRole('button');
+    await expect(btns).toHaveText(['As it is', 'Sage', 'Clay', 'Lake', 'Espresso']);
+    await expect(btns.first()).toHaveAttribute('aria-pressed', 'true');
+    await settled(page);
+    await snap(page, 'as');
+    // Keyboard: Tab to Sage and press it.
+    await row.getByRole('button', { name: 'Sage' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(row.getByRole('button', { name: 'Sage' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-room-live]')).toHaveText(/Sage/);
+    await settled(page);
+    await snap(page, 'sage');
+    // The wall changed, the art (never wall) did not.
+    const d = await page.evaluate(() => {
+      const s = (window as unknown as { __snaps: Record<string, ImageData> }).__snaps;
+      const at = (u: number, v: number) => {
+        const A = s.as;
+        const i = (Math.round(v * A.height) * A.width + Math.round(u * A.width)) * 4;
+        return (
+          Math.abs(s.as.data[i] - s.sage.data[i]) + Math.abs(s.as.data[i + 2] - s.sage.data[i + 2])
+        );
+      };
+      return { wall: at(0.92, 0.4), art: at(0.72, 0.42) };
+    });
+    expect(d.wall).toBeGreaterThan(20);
+    expect(d.art).toBeLessThan(6);
+    // Going back hides the row and puts the walls back.
+    await toPos(page, 8);
+    await expect(row).toBeHidden();
+    await toProgress(page, 1);
+    await expect(row).toBeVisible();
+    await expect(btns.first()).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('the swatches never show without WebGL or without a script', async ({ page, browser }) => {
+    await stubNoWebGL(page);
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await toProgress(page, 1);
+    await expect(page.locator('section.room')).toHaveAttribute('data-nogl', '', {
+      timeout: 15_000,
+    });
+    await expect(page.locator('[data-room-paint]')).toBeHidden();
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const p2 = await ctx.newPage();
+    await p2.goto('/', { waitUntil: 'load' });
+    await expect(p2.locator('[data-room-paint]')).toBeHidden();
+    await expect(p2.getByRole('button', { name: 'Sage' })).toHaveCount(0);
+    await ctx.close();
   });
 
   test('the "Concept room" tag stays visible once the painter draws', async ({ page }) => {

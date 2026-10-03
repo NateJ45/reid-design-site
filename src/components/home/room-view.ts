@@ -91,4 +91,6 @@ export interface RoomView {
   brief: RoomBrief;
   plan: PlanView[];
   closing: string;
+  /** The finished frame's wall for the paint swatches (manifest v5), or null: no swatches. */
+  wall: { url: string; median: [number, number, number] } | null;
 }

@@ -122,7 +122,7 @@ async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
   const raw = manifests[at('manifest.json')]?.default;
   if (raw === undefined) return drop(`no ${folder}/manifest.json`);
   const manifest = parseRoomManifest(raw);
-  if (!manifest) return drop(`${folder}/manifest.json is not a valid v4 manifest`);
+  if (!manifest) return drop(`${folder}/manifest.json is not a valid v5 manifest`);
   const missing = roomFiles(manifest).filter((f) =>
     f.toLowerCase().endsWith('.png') ? !pngUrls[at(f)] : !images[at(f)],
   );
@@ -199,6 +199,9 @@ async function loadRoom(entry: RoomIndexEntry): Promise<RoomView | null> {
       tone: planTone(i, manifest.plan.length),
     })),
     closing: manifest.closing.line,
+    wall: manifest.wall
+      ? { url: pngUrls[at(manifest.wall.mask)], median: manifest.wall.median }
+      : null,
   };
 }
 

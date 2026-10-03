@@ -340,5 +340,556 @@
         "blanket"
       ]
     }
-  ]
+  ],
+  "wall": {
+    "swatches": [
+      {
+        "name": "Sage",
+        "hex": "#a8b5a0"
+      },
+      {
+        "name": "Clay",
+        "hex": "#b5785f"
+      },
+      {
+        "name": "Lake",
+        "hex": "#8b9ea3"
+      },
+      {
+        "name": "Espresso",
+        "hex": "#5f4639"
+      }
+    ],
+    "fixes": [
+      {
+        "why": "Left curtain, outer edge: the curtain's shadow on the wall was left unpainted (a dark strip). The wall there is far more saturated than the curtain's shaded side (measured: wall 0.62 and up, curtain 0.52 and down).",
+        "op": "sat",
+        "poly": [
+          [
+            22,
+            140
+          ],
+          [
+            53,
+            140
+          ],
+          [
+            51,
+            350
+          ],
+          [
+            48,
+            500
+          ],
+          [
+            45,
+            650
+          ],
+          [
+            42,
+            800
+          ],
+          [
+            39,
+            905
+          ],
+          [
+            18,
+            905
+          ]
+        ],
+        "minSat": 0.56,
+        "max": true
+      },
+      {
+        "why": "Between the windows, left side: speckle along the curtain edge (wall 0.46 and up, curtain under 0.38).",
+        "op": "sat",
+        "poly": [
+          [
+            440,
+            235
+          ],
+          [
+            464,
+            235
+          ],
+          [
+            464,
+            705
+          ],
+          [
+            440,
+            705
+          ]
+        ],
+        "minSat": 0.41,
+        "max": true
+      },
+      {
+        "why": "Between the windows, right side: blocks of unpainted shadow along the middle curtain's edge.",
+        "op": "sat",
+        "poly": [
+          [
+            476,
+            250
+          ],
+          [
+            502,
+            250
+          ],
+          [
+            502,
+            712
+          ],
+          [
+            476,
+            712
+          ]
+        ],
+        "minSat": 0.41,
+        "max": true
+      },
+      {
+        "why": "Right curtain, outer edge: speckle along the curtain's shadow (wall 0.41 and up, curtain under 0.34).",
+        "op": "sat",
+        "poly": [
+          [
+            716,
+            300
+          ],
+          [
+            748,
+            300
+          ],
+          [
+            748,
+            690
+          ],
+          [
+            716,
+            690
+          ]
+        ],
+        "minSat": 0.41,
+        "max": true
+      },
+      {
+        "why": "Sunlit wall behind the olive branches and above the sofa back: pale cream, so the leaf rule decides (bright and redder than green = wall).",
+        "op": "leaves",
+        "poly": [
+          [
+            776,
+            530
+          ],
+          [
+            928,
+            530
+          ],
+          [
+            928,
+            570
+          ],
+          [
+            1300,
+            570
+          ],
+          [
+            1300,
+            652
+          ],
+          [
+            1292,
+            640
+          ],
+          [
+            1278,
+            634
+          ],
+          [
+            1200,
+            633
+          ],
+          [
+            1150,
+            630
+          ],
+          [
+            1100,
+            627
+          ],
+          [
+            1090,
+            630
+          ],
+          [
+            1086,
+            634
+          ],
+          [
+            1078,
+            626
+          ],
+          [
+            1050,
+            622
+          ],
+          [
+            940,
+            621
+          ],
+          [
+            880,
+            616
+          ],
+          [
+            815,
+            613
+          ],
+          [
+            810,
+            617
+          ],
+          [
+            808,
+            640
+          ],
+          [
+            806,
+            672
+          ],
+          [
+            776,
+            668
+          ]
+        ],
+        "minLum": 95,
+        "fullLum": 150
+      },
+      {
+        "why": "Shaded wall between the right curtain and the sofa, behind the leaves: the leaf rule with a lower unmix range (this wall is in the curtain's shadow).",
+        "op": "leaves",
+        "minLum": 130,
+        "poly": [
+          [
+            727,
+            530
+          ],
+          [
+            800,
+            530
+          ],
+          [
+            800,
+            670
+          ],
+          [
+            727,
+            670
+          ]
+        ],
+        "fullLum": 170
+      },
+      {
+        "why": "Round the art: the frame's shadow on the wall (right and below) and a jagged lit edge (left) were unpainted. The leaf rule takes lit and shadowed wall and keeps the olive tip at the bottom-left corner out.",
+        "op": "leaves",
+        "minLum": 150,
+        "max": true,
+        "poly": [
+          [
+            906,
+            347
+          ],
+          [
+            1197,
+            317
+          ],
+          [
+            1198,
+            582
+          ],
+          [
+            908,
+            582
+          ]
+        ]
+      },
+      {
+        "why": "The art itself (frame, mat, canvas), traced at 8x: never wall.",
+        "op": "clear",
+        "feather": 0.7,
+        "poly": [
+          [
+            921,
+            362
+          ],
+          [
+            1181,
+            332
+          ],
+          [
+            1182,
+            567
+          ],
+          [
+            923,
+            565
+          ]
+        ]
+      },
+      {
+        "why": "The throw's shadow on the baseboard by the sofa's right arm was painted.",
+        "op": "clear",
+        "poly": [
+          [
+            1368,
+            826
+          ],
+          [
+            1402,
+            826
+          ],
+          [
+            1402,
+            872
+          ],
+          [
+            1368,
+            872
+          ]
+        ]
+      },
+      {
+        "why": "The sofa and the throw, from the top edge down: never wall (the shaded cushions are wall-coloured, so nothing automatic can be trusted here).",
+        "op": "clear",
+        "feather": 0.8,
+        "poly": [
+          [
+            683,
+            900
+          ],
+          [
+            683,
+            700
+          ],
+          [
+            688,
+            680
+          ],
+          [
+            700,
+            670
+          ],
+          [
+            760,
+            667
+          ],
+          [
+            790,
+            670
+          ],
+          [
+            806,
+            672
+          ],
+          [
+            808,
+            640
+          ],
+          [
+            810,
+            617
+          ],
+          [
+            815,
+            613
+          ],
+          [
+            880,
+            616
+          ],
+          [
+            940,
+            621
+          ],
+          [
+            1050,
+            622
+          ],
+          [
+            1078,
+            626
+          ],
+          [
+            1086,
+            634
+          ],
+          [
+            1090,
+            630
+          ],
+          [
+            1100,
+            627
+          ],
+          [
+            1150,
+            630
+          ],
+          [
+            1200,
+            633
+          ],
+          [
+            1278,
+            634
+          ],
+          [
+            1292,
+            640
+          ],
+          [
+            1298,
+            652
+          ],
+          [
+            1299,
+            660
+          ],
+          [
+            1312,
+            660
+          ],
+          [
+            1313,
+            692
+          ],
+          [
+            1338,
+            697
+          ],
+          [
+            1348,
+            712
+          ],
+          [
+            1352,
+            745
+          ],
+          [
+            1360,
+            780
+          ],
+          [
+            1372,
+            820
+          ],
+          [
+            1380,
+            900
+          ]
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "area": "olive",
+        "box": [
+          730,
+          540,
+          270,
+          170
+        ]
+      },
+      {
+        "area": "sofa-top",
+        "box": [
+          680,
+          600,
+          640,
+          110
+        ]
+      },
+      {
+        "area": "sofa-arm",
+        "box": [
+          1250,
+          630,
+          150,
+          240
+        ]
+      },
+      {
+        "area": "curtain-left",
+        "box": [
+          0,
+          280,
+          90,
+          420
+        ]
+      },
+      {
+        "area": "curtain-middle",
+        "box": [
+          420,
+          240,
+          100,
+          500
+        ]
+      },
+      {
+        "area": "curtain-right",
+        "box": [
+          690,
+          280,
+          80,
+          420
+        ]
+      },
+      {
+        "area": "crown-left",
+        "box": [
+          0,
+          40,
+          520,
+          150
+        ]
+      },
+      {
+        "area": "crown-right",
+        "box": [
+          720,
+          110,
+          752,
+          190
+        ]
+      },
+      {
+        "area": "baseboard-right",
+        "box": [
+          1280,
+          780,
+          192,
+          120
+        ]
+      },
+      {
+        "area": "baseboard-left",
+        "box": [
+          0,
+          830,
+          60,
+          110
+        ]
+      },
+      {
+        "area": "art",
+        "box": [
+          900,
+          320,
+          300,
+          260
+        ]
+      }
+    ]
+  }
 }
