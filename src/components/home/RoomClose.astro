@@ -69,12 +69,12 @@ const { line, cta, plain = false, paint = false } = Astro.props as Props;
         <div class="room__paint-row">
           <button type="button" class="room__swatch" data-swatch="" aria-pressed="true">
             <span class="room__dab room__dab--as" aria-hidden="true" />
-            As it is
+            <span class="room__swatch-name">As it is</span>
           </button>
           {ROOM_SWATCHES.map((sw) => (
             <button type="button" class="room__swatch" data-swatch={sw.hex} aria-pressed="false">
               <span class="room__dab" style={`--dab:${sw.hex}`} aria-hidden="true" />
-              {sw.name}
+              <span class="room__swatch-name">{sw.name}</span>
             </button>
           ))}
         </div>
@@ -119,10 +119,12 @@ const { line, cta, plain = false, paint = false } = Astro.props as Props;
   .room__paint-label span::after {
     content: ':';
   }
+  /* Each swatch is a little paint chip: a colour block over a Paper label
+     strip, square-cornered like the home page chips. */
   .room__paint-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 0.1rem;
+    gap: 0.55rem;
   }
   /* Phone: keep the row clear of the back-to-top button in the corner. */
   @media (max-width: 767px) {
@@ -131,50 +133,62 @@ const { line, cta, plain = false, paint = false } = Astro.props as Props;
     }
   }
   .room__swatch {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    min-height: 2.75rem;
-    padding: 0 0.3rem 0 0.1rem;
+    display: flex;
+    flex-direction: column;
+    width: 4.6rem;
+    padding: 0;
     border: 0;
-    border-radius: 999px;
-    background: none;
+    border-radius: 2px;
+    background: var(--color-paper);
     color: var(--color-ink);
-    font: 400 0.8rem/1 var(--font-sans);
+    font: 400 0.75rem/1.2 var(--font-sans);
+    text-align: left;
     cursor: pointer;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.12),
+      0 2px 5px rgb(60 40 30 / 0.12);
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease;
   }
   .room__swatch:focus-visible {
     outline: 2px solid var(--color-ink);
-    outline-offset: 1px;
+    outline-offset: 2px;
   }
   .room__dab {
-    width: 1.15rem;
-    height: 1.15rem;
-    border-radius: 50%;
+    display: block;
+    height: 1.9rem;
     background: var(--dab);
-    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
-    transition: transform 160ms ease;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.12);
   }
   .room__dab--as {
     background: linear-gradient(135deg, #c9b07a 50%, #f1e7dc 50%);
   }
-  .room__swatch[aria-pressed='true'] {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+  .room__swatch-name {
+    display: block;
+    padding: 0.4rem 0.45rem 0.45rem;
   }
-  .room__swatch[aria-pressed='true'] .room__dab {
+  .room__swatch[aria-pressed='true'] {
+    transform: translateY(-3px);
     box-shadow:
-      0 0 0 2px var(--color-chip-1),
-      0 0 0 3.5px var(--color-ink);
+      0 0 0 2px var(--color-ink),
+      0 5px 9px rgb(60 40 30 / 0.2);
+  }
+  .room__swatch[aria-pressed='true'] .room__swatch-name {
+    font-weight: 500;
   }
   @media (hover: hover) {
-    .room__swatch:hover .room__dab {
-      transform: scale(1.12);
+    .room__swatch:hover {
+      transform: translateY(-3px);
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .room__dab {
+    .room__swatch {
       transition: none;
+    }
+    .room__swatch[aria-pressed='true'],
+    .room__swatch:hover {
+      transform: none;
     }
   }
   .room__close-more {
