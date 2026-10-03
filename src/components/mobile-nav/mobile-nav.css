@@ -121,29 +121,12 @@
   fill-opacity: 0.35;
 }
 
-/* ---- The kicker: a short rule and the studio line ---- */
-.mnav__kicker {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin: 1rem var(--gut) 0.5rem;
-  font: 500 0.82rem/1 var(--font-body);
-  color: var(--color-cream);
-}
-.mnav__kicker::before {
-  content: '';
-  width: 1.6rem;
-  height: 1px;
-  background: currentColor;
-}
-
 /* ---- The contents: big names, an italic note, an arrow, hairlines ---- */
 .mnav__list {
   position: relative;
   z-index: 1;
   flex: 1 0 auto;
+  margin-top: 0.75rem;
   padding: 0 var(--gut);
 }
 .mnav__list ul {
@@ -242,11 +225,12 @@
   outline: 2px solid var(--color-cream);
   outline-offset: 3px;
 }
+/* Sits in the top row, just right of the logo; the close button keeps the far right. */
 .mnav__rate {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0;
+  gap: 0.4rem;
+  margin: 0 auto 0 0;
   font: 500 0.88rem/1.2 var(--font-body);
   color: var(--color-cream);
 }
@@ -289,7 +273,6 @@
     animation: mnav-rise 800ms var(--ease) both;
     animation-delay: calc(60ms + var(--n) * 60ms);
   }
-  .mnav__kicker,
   .mnav__foot {
     animation: mnav-fade 600ms ease-out both;
     animation-delay: 380ms;
