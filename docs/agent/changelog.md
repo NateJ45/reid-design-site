@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Header Google rating links to the write-a-review page
+
+Nathan: the header rating should go where Contact's "Leave a review" button goes. It linked to the business profile (maps.google.com/?cid=...). `RatingTag`'s `compact` variant (the header's) now uses `googleWriteReviewUrl` (g.page/.../review) and falls back to the profile when that is unset; the other variants are unchanged. A smoke test compares the header link with Contact's button. **Follow-up, same day:** the rating was still not clickable. The header is `pointer-events: none` (only its own pieces take the pointer), and `.hdr__bar > *` is a SCOPED rule that never matched RatingTag's root (it carries RatingTag's scope id), so clicks fell through to the hero photo. Fixed with `.hdr__bar > :global(.hdr__rating)`; a second smoke test asks the browser what is at the rating's centre (`elementFromPoint`), because a link in the markup says nothing about whether it can be clicked.
+
 ## 2026-10-03: The annotated concept room (branch `claude/room-annotated`)
 
 Nathan's call: the paint-colour feature kept leaving bad masks, so it went, and the concept room became the page that shows what Staci does and how she thinks (brief: `docs/design/2026-10-03-annotated-room.md`). Delegated agent (Opus), for review by the main session.

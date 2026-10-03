@@ -61,3 +61,34 @@ test('GA4 sends nothing from localhost, even when the id is built in', async ({ 
     'undefined',
   );
 });
+
+// The header's Google rating goes to the same write-a-review page as Contact's "Leave a review"
+// (2026-10-03, Nathan). Skips when the dataset has no write-review link (the header then falls
+// back to the profile, which is correct) or no rating at all.
+test('Header Google rating links to the write-a-review page', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/contact/', { waitUntil: 'domcontentloaded' });
+  const leave = page.locator('a.cx__leave');
+  test.skip((await leave.count()) === 0, 'no write-a-review link in the dataset');
+  const reviewHref = await leave.first().getAttribute('href');
+  const rating = page.locator('a.hdr__rating');
+  test.skip((await rating.count()) === 0, 'no Google rating in the dataset');
+  expect(await rating.first().getAttribute('href')).toBe(reviewHref);
+});
+
+// A link that is in the markup but under pointer-events: none is not clickable: the header
+// is pointer-events: none so only its own pieces take clicks, and the rating was missed
+// (2026-10-03). Ask the browser what is actually at the rating's centre.
+test('Header Google rating is clickable (nothing swallows the click)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const rating = page.locator('a.hdr__rating');
+  test.skip((await rating.count()) === 0, 'no Google rating in the dataset');
+  await expect(rating).toBeVisible();
+  const hit = await rating.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return Boolean(top && el.contains(top));
+  });
+  expect(hit, 'the rating link is what the pointer reaches').toBe(true);
+});

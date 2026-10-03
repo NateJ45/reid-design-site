@@ -24,7 +24,8 @@
 //   stamp    larger, for the heading of the home reviews band
 //   compact  one short line with no tag shape, for the header. Takes
 //            currentColor, so it reads on any ground; stars via --star-on /
-//            --star-off (see Stars.astro).
+//            --star-off (see Stars.astro). Links to the write-a-review page
+//            (googleWriteReviewUrl), not the profile.
 //
 // Accessible name, built from visible text plus visually hidden words so the
 // visible words appear in it in order (WCAG 2.5.3):
@@ -51,10 +52,13 @@ interface Props {
 
 const { settings, variant = 'inline', class: cls } = Astro.props as Props;
 const summary = googleRatingFrom(settings);
-const Tag = summary?.profileUrl ? 'a' : 'div';
-const linkAttrs = summary?.profileUrl
-  ? { href: summary.profileUrl, target: '_blank', rel: 'noopener noreferrer' }
-  : {};
+// The header's compact line goes straight to Google's WRITE-A-REVIEW page, the same link as
+// Contact's "Leave a review" (2026-10-03, Nathan), and falls back to the business profile when
+// that link is unset. Every other placement links to the profile, where the reviews are listed.
+const href =
+  variant === 'compact' ? (summary?.writeReviewUrl ?? summary?.profileUrl) : summary?.profileUrl;
+const Tag = href ? 'a' : 'div';
+const linkAttrs = href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
 {
@@ -69,7 +73,7 @@ const linkAttrs = summary?.profileUrl
         </span>
         <span class="rt__src">
           Google
-          {summary.profileUrl && <span class="sr-only">, opens Google in a new tab</span>}
+          {href && <span class="sr-only">, opens Google in a new tab</span>}
         </span>
       </Tag>
     ) : (
