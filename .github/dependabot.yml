@@ -48,7 +48,7 @@ updates:
       # builds, lints and tests green and only dies in the browser AFTER
       # sign-in (error #18, or "Cannot read properties of undefined (reading
       # 'v2')"). So these move by hand, with the Sanity set, followed by a
-      # signed-in Presentation click-through on staging. The trade-off: no
+      # signed-in Presentation click-through on a preview or production build. The trade-off: no
       # automatic patch PRs for them, so check `npm audit` when the set moves.
       - dependency-name: 'react'
       - dependency-name: 'react-dom'

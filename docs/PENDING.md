@@ -14,12 +14,12 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
-### From 2026-10-03: the annotated concept room (branch `claude/room-annotated`, worktree `../reid-concept-room`)
+### From 2026-10-03: the annotated concept room (MERGED to main: #93 the room, #94 swatches + phone track, #95 chip look, #98 wall touch-ups)
 
-Built by a delegated agent for the main session to review (brief: `docs/design/2026-10-03-annotated-room.md`).
+Built by a delegated agent and reviewed by the main session (brief: `docs/design/2026-10-03-annotated-room.md`). The `../reid-concept-room` worktree now sits on `claude/wall-mask-fixes`.
 
 - [ ] Staci reviews the piece notes, the example brief and the plan labels in `tools/room-lab/rooms/living-transitional.json`; the notes are plain design principles drafted by Claude, not her words. The beat short names ("The bones", "Easy to live in", "Making it yours") are new too and need her eye. Change them in that file, then `npm run room:publish -- --room living-transitional` and commit.
-- [ ] Main session: patch `homePage.roomStoryHeadline` = "Every piece is chosen for a reason.", `roomStoryScriptAccent` = "for a reason", `roomStoryIntro` = "Watch one empty room get built, and see why each piece is there." (the live intro may still mention the paint chips).
+- [x] Main session: patch `homePage.roomStoryHeadline` / `roomStoryScriptAccent` / `roomStoryIntro` (checked 2026-10-03 against the live dataset: headline "Every piece is chosen for a reason.", accent "for a reason", intro "Watch one empty room get built, and see why each piece is there.").
 - [ ] Nathan looks at it on a real phone and laptop (the tag hand-over speed is `NOTE_IN` / `CLOSE_LEAD` in `src/lib/room-story.ts`), and Lighthouse on `/` in CI (a11y 100).
 - [ ] Decide whether `tools/room-lab/walls.mjs` (+ `room:walls`) and `layers.mjs` (+ `room:layers`) go: they are v2 leftovers (the cut-out layers and their base wall mask); nothing the site uses reads their output any more, but `layers.mjs` still needs `walls.mjs`, so they were kept as a pair.
 - [ ] Nathan tries the phone scrub on a real phone (900svh track since 2026-10-03, about 578px of swipe per piece; `SCRUB_TRACK_SVH_PHONE` tunes it).
@@ -191,7 +191,7 @@ the About "Kind words" wall already shows every review. What only a human can do
 
 ### From the 2026-09-29 locked-set audit (`claude/dependabot-lock-set`)
 
-- **Sign in to the staging Studio and open Presentation: the only proof #32 is
+- **Sign in to the Studio (production /studio, or `npm run dev`) and open Presentation: the only proof #32 is
   safe.** Dependabot's 2026-09-06 group (#32, on `main` as `2facf2b` and on
   staging as `8d9bbd4`) moved `react`/`react-dom`/`react-is` 19.2.7 to 19.2.8,
   `styled-components` 6.4.3 to 6.5.3 and `@astrojs/cloudflare` 14.2.4 to 14.3.0,
@@ -206,7 +206,7 @@ the About "Kind words" wall already shows every review. What only a human can do
   exists: production has carried #32 since 2026-09-06, and the 2026-09-29 night
   check of build `bfbc119` opened `/studio/presentation` signed in with no
   errors. What nobody has recorded yet is a custom component pane plus the
-  in-canvas hover, which is where a split theme context throws. So, on staging: open
+  in-canvas hover, which is where a split theme context throws. So, on production or `npm run dev`: open
   `/studio`, sign in, open **Brand Kit** or **Business Overview** (custom
   component panes), then open **Presentation** and hover a section so the layout
   card and the script-accent picker draw. Pass = no styled-components error #18
@@ -218,7 +218,7 @@ the About "Kind words" wall already shows every review. What only a human can do
 ### From the 2026-09-29 editor-experience branch (`claude/studio-editor`)
 
 Every automated gate is green, but none of these can be exercised without a
-signed-in Studio. Click through them on staging (or production after merge),
+signed-in Studio. Click through them on production (or `npm run dev`),
 signed in as an editor:
 
 1. **Search.** Studio search box: type a project's town ("Fishers") or a
@@ -325,7 +325,7 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
 
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
-- **Sign in to the staging Studio, then open Presentation.** (Same click-through
+- **Sign in to the Studio (production /studio, or `npm run dev`), then open Presentation.** (Same click-through
   as the 2026-09-29 locked-set item at the top; one pass closes both. Since #32
   the styled-components count below is one copy of 6.5.3, not 6.4.3.) The stack moved to
   `sanity` 6.9.1 / `@sanity/ui` 3.5.4 / `@sanity/client` 7.26.2 /
@@ -335,7 +335,7 @@ CF_ANALYTICS_TOKEN`.** Until it exists the Studio tool (top bar, "Site
   styled-components `errors.md#` chunk). But the failure this pinning regime
   exists for shows up ONLY after sign-in: the login screen is core code and
   renders fine even when the theme context is broken. So open `/studio` on
-  staging, sign in, open a document with a custom component pane (Brand Kit or
+  production, sign in, open a document with a custom component pane (Brand Kit or
   Business Overview), then open **Presentation** and hover a section so the
   in-canvas layout card and the script-accent picker draw. If the desk throws
   styled-components error #18 or `Cannot read properties of undefined (reading
@@ -395,13 +395,12 @@ one still open. Kept here in full because they document WHY each is needed.
 
 ## Open, code and content work queued
 
-### Concept room: five more rooms to build (branch `claude/concept-room`, not pushed, 2026-09-30)
+### Concept room: five more rooms to build (the living room is merged and live; the rest are held)
 
 **State.** The living room (transitional) is DONE and approved by Nathan: published to
-`src/assets/room/living-transitional/` (manifest v3, 11 whole frames) and committed. The
-site (whole frames, reveal + settle, per-frame wall paint, room tabs) is merged and green
-(room-story, a11y, reduced-motion, smoke). Tabs appear automatically once a second room is
-published. Nothing is pushed or PR'd yet.
+`src/assets/room/living-transitional/` (11 whole frames; manifest v5 since 2026-10-03) and merged
+to main (#81, then the scrub, the annotated room and the swatches). Tabs appear automatically once a second room is
+published.
 
 **Rules (Nathan, 2026-09-30):** every room 100% AI-generated, never Staci's photos, not even
 as tests; hyper-realistic, check at 1:1 before showing; kitchen and bath are STYLING ONLY
@@ -410,7 +409,7 @@ rugs, decor); light trim stays as step one everywhere; Lake #8b9ea3 and Clay #b5
 
 **2026-10-03, About placeholders (waiting on Staci):** the About "Off the Clock" board shows placeholder rows (`_key`s start `ph-`, wording "Placeholder...") in Currently, Rapid fire and Local spots, published at Nathan's request so the whole layout shows. Staci writes her real answers in Studio > About > Off the clock. Never restore the old seed wording (invented, see changelog 2026-10-03).
 
-**2026-10-03, wall masks (SUPERSEDED the same day: the paint deck and every wall mask were removed for the annotated room, see the top of this file):** Nathan reported paint fringes (halos round leaves and the sofa, curtain-edge patches). Fixed by `tools/room-lab/lib/wallrefine.mjs` (see changelog); PR on `claude/room-wall-masks`. Any room published from now on gets it automatically (`room:publish`); the held kitchen and the four other rooms need no extra step. A thin warm edge beside the curtain stays under a dark chip: it is the curtain's own edge.
+**2026-10-03, wall masks (the all-frames paint deck and its eleven masks were removed for the annotated room the same day; ONE finished-frame mask came back with the swatches, #94, and got touch-ups in #98, see the top of this file):** Nathan reported paint fringes (halos round leaves and the sofa, curtain-edge patches). Fixed by `tools/room-lab/lib/wallrefine.mjs` (see changelog); PR on `claude/room-wall-masks`. Any room published from now on gets it automatically (`room:publish`); the held kitchen and the four other rooms need no extra step. A thin warm edge beside the curtain stays under a dark chip: it is the curtain's own edge.
 
 **2026-10-02, the scroll scrub (branch `claude/concept-room-scrub`, worktree
 `../reid-concept-room`, PR #83 on top of the merged #81):** built by a delegated agent for the main session to
@@ -622,8 +621,8 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   filled-button surface toward `--primary-accent` (#7A5D4C, 6:1 with white), or
   pin white button labels at >=18.66px bold. When either lands, raise that one
   assertion to `AA_BODY_TEXT`.
-- **Ten routes ship as meta-refresh stubs (out of the sitemap since
-  2026-09-28).** `tests/routes.ts` `hiddenRoutes` documents this fully:
+- **Meta-refresh stubs for switched-off sections (out of the sitemap since
+  2026-09-28); none is live now.** (Checked 2026-10-03: `https://reiddesignllc.com/portfolio/` answers a real page, no refresh tag, since the Portfolio switch went ON 2026-10-02; the other eight sections were removed outright.) `tests/routes.ts` `hiddenRoutes` still lists `/portfolio` as a smoke-only entry; trimming it is a code change. The original note: `tests/routes.ts` `hiddenRoutes` documents this fully:
   sections switched off in `siteSettings.sectionVisibility` make the page call
   `Astro.redirect('/')`, which a static build bakes into a ~275-byte stub with
   no `lang`, no `<main>`, no `h1`, no analytics tag, and a

@@ -27,7 +27,7 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 ## Stack
 
 - **Astro 7** (static output plus a few SSR routes) + TypeScript strict mode
-- **Sanity 6.4** headless CMS in the same package (schemas in `src/sanity/schemaTypes/`), with the Studio **embedded at `/studio`** so it rebuilds with every deploy and cannot drift stale
+- **Sanity 6.9** headless CMS in the same package (schemas in `src/sanity/schemaTypes/`), with the Studio **embedded at `/studio`** so it rebuilds with every deploy and cannot drift stale
 - **Live preview** at `/preview/*` through Sanity's Presentation tool: click any text to edit it, and add, duplicate, reorder or remove whole sections right in the canvas
 - **Tailwind 4** via `@tailwindcss/vite` (brand tokens in `src/styles/globals.css`, no `tailwind.config`)
 - **React 19** islands for the interactive pieces: nav drawer, contact form, before/after sliders, galleries
@@ -35,11 +35,13 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 
 ## Pages
 
-Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail, + before/after index) · E-Design · Privacy · Search, plus custom pages Staci builds herself.
+Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail) · E-Design · Privacy · Search, plus custom pages Staci builds herself.
 
 Removed 2026-09-30, never launched: the journal, shop, style quiz, budget calculator, guides, press, gift certificates and resources pages, and the newsletter signup. Their old addresses forward permanently (`public/_redirects`); their documents are still in the dataset, untouched.
 
 Also live: a dated announcement bar / popup Staci posts from the Studio (Announcements), site search (Pagefind, built at the end of `npm run build`), a Studio "Site stats" traffic panel (needs the `CF_ANALYTICS_TOKEN` secret), and a weekly outbound-link report (`.github/workflows/link-health.yml`).
+
+Automatic jobs in `.github/workflows/`: `ci.yml` (sync-check, `npm run check`, unit tests, build, Playwright) and `lighthouse.yml` on every PR; `sanity-backup.yml` (nightly dataset export), `uptime.yml` (hourly, needs the `SITE_URL` repo variable), `link-health.yml` (Mondays), `refresh-instagram-token.yml` + `weekly-rebuild.yml` (Mondays, keep the Instagram feed fresh), and `dependabot-auto-merge.yml` (merges green minor/patch Dependabot PRs).
 
 ## Running it locally
 
@@ -74,9 +76,7 @@ npm run og:cards -- preview tmp/og-preview   # writes the PNGs + _contact-sheet.
 ```
 
 The cards are drawn with satori + resvg, so no browser is needed and Workers Builds
-can do it. `OG_RENDERER=chromium` switches to a local Playwright review renderer for
-an A/B check.
-
+can do it.
 Full architecture reference in [`CLAUDE.md`](./CLAUDE.md); operational playbook in [`OPERATIONS.md`](./OPERATIONS.md).
 
 ---
