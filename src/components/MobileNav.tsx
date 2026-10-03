@@ -188,6 +188,20 @@ export default function MobileNav({
                 <span>Reid Design</span>
               )}
             </a>
+            {rating && (
+              <p className="mnav__rate">
+                {/* One star and the number, so a 4.6 never shows five full stars. */}
+                <span className="mnav__star" aria-hidden="true">
+                  ★
+                </span>
+                <span>
+                  {/* "5.0 on Google": no review count (it was typed by hand
+                      and went stale; see googleRatingFrom). */}
+                  {rating.value}
+                  <span className="sr-only"> out of 5</span> {rating.label}
+                </span>
+              </p>
+            )}
             <Dialog.Close asChild>
               <button type="button" className="mnav__close">
                 Close
@@ -197,10 +211,6 @@ export default function MobileNav({
               </button>
             </Dialog.Close>
           </div>
-
-          <p className="mnav__kicker" aria-hidden="true">
-            Reid Design, Plainfield
-          </p>
 
           <nav className="mnav__list" aria-label="Primary mobile">
             <ul role="list">
@@ -239,20 +249,6 @@ export default function MobileNav({
                   →
                 </span>
               </a>
-            )}
-            {rating && (
-              <p className="mnav__rate">
-                {/* One star and the number, so a 4.6 never shows five full stars. */}
-                <span className="mnav__star" aria-hidden="true">
-                  ★
-                </span>
-                <span>
-                  {/* "5.0 on Google": no review count (it was typed by hand
-                      and went stale; see googleRatingFrom). */}
-                  {rating.value}
-                  <span className="sr-only"> out of 5</span> {rating.label}
-                </span>
-              </p>
             )}
             {(phone || email) && (
               <p className="mnav__meta">
