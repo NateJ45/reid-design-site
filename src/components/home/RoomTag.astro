@@ -1,0 +1,159 @@
+---
+// Foundation, edit with care (the look is safe to tune; the data attributes
+// and the hole element are read by RoomStage's script)
+// =============================================================================
+// RoomTag: ONE piece's sample tag in the annotated concept room (2026-10-03,
+// docs/design/2026-10-03-annotated-room.md)
+// =============================================================================
+// A paper shipping tag, the house `.r-tag` vocabulary grown to hold a
+// sentence: both corners clipped at the left end (a real tag's shape, so a
+// four-line tag does not become a long arrow), a REAL punched hole there (a
+// mask, so the photo or the linen shows through) with a Warm Bronze
+// reinforcing ring round it, and a soft drop shadow that follows the shape.
+// RoomStage's script ties a string from this hole to the pin on the piece.
+//
+// On the tag, top to bottom:
+//   - the beat's short name (phone only, where there is no beat card);
+//   - the CHECK as a small paint-chip swatch with its name printed on the
+//     face: Linen, Oat, Sandbar or Saddle with ink text, Walnut with cream.
+//     Never Warm Bronze (no text on chip 5). The word is the label, so the
+//     colour is never the only signal;
+//   - the sentence in Zodiak Light.
+//
+// The shape is drawn on ::before so text and the hole ring sit above it and
+// the element itself stays a plain box (the shadow comes from a filter on
+// the element, which follows the clipped shape).
+// =============================================================================
+import type { NoteView } from './room-view';
+
+interface Props {
+  note: NoteView;
+  /** 1-based piece number (frame k): the card id the script switches on. */
+  index: number;
+  /** The beat's short name, printed above the check on a phone. */
+  beat: string;
+}
+
+const { note, index, beat } = Astro.props as Props;
+---
+
+<div
+  class="rtag room__card room__note"
+  data-card={index}
+  data-pin={note.pin.join(',')}
+  data-box={note.box.join(',')}
+  data-side={note.side}
+  data-tone={note.tone}
+>
+  <span class="rtag__hole" aria-hidden="true"></span>
+  <span class="rtag__beat">{beat}</span>
+  <span class="rtag__check" style={`--tone: var(--color-chip-${note.tone})`}>{note.checkLabel}</span
+  >
+  <p class="rtag__text">{note.text}</p>
+</div>
+
+<style>
+  .rtag {
+    --notch: 1rem;
+    --hole: 0.42rem;
+    /* Where the hole is punched. A laptop tag is a shipping tag lying on
+       its side (hole at the left end); a phone tag hangs from the photo
+       above it (hole on its top edge, under the pin: RoomStage sets --hx). */
+    --hx: 0.95rem;
+    --hy: 50%;
+    --shape: polygon(
+      var(--notch) 0,
+      100% 0,
+      100% 100%,
+      var(--notch) 100%,
+      0 calc(100% - var(--notch)),
+      0 var(--notch)
+    );
+    position: relative;
+    isolation: isolate;
+    box-sizing: border-box;
+    padding: 0.85rem 1.15rem 1rem 2.15rem;
+    color: var(--color-ink);
+    filter: drop-shadow(0 1px 1px rgb(35 30 27 / 0.12)) drop-shadow(0 12px 16px rgb(35 30 27 / 0.2));
+  }
+  /* The paper: clipped corners at the left end, the real hole punched by a
+     radial mask at the same spot as the ring. */
+  .rtag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      /* the faintest fibre: two soft washes so the paper is not flat white */
+      radial-gradient(120% 90% at 85% 0%, rgb(241 231 220 / 0.55), transparent 60%),
+      var(--color-paper);
+    clip-path: var(--shape);
+    -webkit-mask: radial-gradient(
+      circle at var(--hx) var(--hy),
+      #0000 calc(var(--hole) / 2),
+      #000 calc(var(--hole) / 2 + 0.6px)
+    );
+    mask: radial-gradient(
+      circle at var(--hx) var(--hy),
+      #0000 calc(var(--hole) / 2),
+      #000 calc(var(--hole) / 2 + 0.6px)
+    );
+  }
+  /* The reinforcing ring round the hole: a mark in Warm Bronze, never text. */
+  .rtag__hole {
+    position: absolute;
+    left: var(--hx);
+    top: var(--hy);
+    width: calc(var(--hole) + 0.42rem);
+    height: calc(var(--hole) + 0.42rem);
+    border-radius: 50%;
+    translate: -50% -50%;
+    box-shadow: inset 0 0 0 1.5px var(--color-chip-5);
+  }
+  .rtag__beat {
+    display: none; /* phone only (RoomStage) */
+    margin-bottom: 0.35rem;
+    font: 500 0.78rem/1.2 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  /* The check: a little paint chip with its name printed on the face. */
+  .rtag__check {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.4rem;
+    padding: 0.18rem 0.55rem 0.2rem;
+    border-radius: 1px;
+    background: var(--tone);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.1);
+    font: 500 0.74rem/1.1 var(--font-body);
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+  }
+  .rtag[data-tone='6'] .rtag__check {
+    color: var(--color-cream);
+  }
+  .rtag__text {
+    margin: 0.55rem 0 0;
+    max-width: 28ch;
+    font: 300 clamp(1.05rem, 0.92rem + 0.3vw, 1.18rem) / 1.32 var(--font-display);
+    letter-spacing: -0.008em;
+    text-wrap: pretty;
+  }
+  /* Phone: a hang tag. Both top corners clipped, the hole on the top edge
+     (its x set by the script, under the pin), the text a full line wide. */
+  @media (max-width: 1023px) {
+    .rtag {
+      --hy: 0.8rem;
+      --notch: 0.85rem;
+      --shape: polygon(
+        var(--notch) 0,
+        calc(100% - var(--notch)) 0,
+        100% var(--notch),
+        100% 100%,
+        0 100%,
+        0 var(--notch)
+      );
+      padding: 1.45rem 1.1rem 0.95rem;
+    }
+  }
+</style>

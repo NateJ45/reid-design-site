@@ -1,0 +1,230 @@
+---
+// Foundation, edit with care
+// =============================================================================
+// RoomNotes: ONE concept room's annotations (2026-10-03, the annotated room;
+// it replaced RoomCaptions.astro). The first room's set is rendered in place,
+// the others inside <template>s, and RoomStage's script swaps the whole box
+// with the room's picture stack when a tab is chosen.
+// =============================================================================
+// Two renderings of the same words, and CSS shows exactly one:
+//
+//   1. THE BOARD (`.room__board`, only with `@media (scripting: enabled)`):
+//      the craft objects RoomStage's script brings on as the build scrolls:
+//        - a PIN per piece on the photo (`.room__pin`, decorative);
+//        - the BRIEF (RoomBrief.astro), the card the room opens on;
+//        - a BEAT CARD per beat (a notebook page holding its caption);
+//        - a TAG per piece (RoomTag.astro), tied to its pin by the string;
+//        - the PLAN dock (RoomPlan.astro);
+//        - the CLOSE (RoomClose.astro): the line, the booking tag, a link.
+//      Only the current card of each kind is visible; the others keep their
+//      size but are `visibility: hidden`, so a screen reader reads just what
+//      shows (and the live region in RoomStage announces each new tag).
+//   2. THE PLAIN LIST (`.room__list`, without a script, or in a browser that
+//      cannot say whether scripting runs): the brief, the three beats each
+//      with its tags as list items (the check as a bold label), the plan as
+//      a list, then the closing line and the booking tag. Nothing hidden.
+//
+// Card ids (`data-card`): 0 = the brief, k = piece k's tag (frame k).
+// =============================================================================
+import RoomBrief from './RoomBrief.astro';
+import RoomClose from './RoomClose.astro';
+import RoomPlan from './RoomPlan.astro';
+import RoomTag from './RoomTag.astro';
+import type { CloseCta, RoomView } from './room-view';
+
+interface Props {
+  room: RoomView;
+  cta: CloseCta;
+}
+
+const { room, cta } = Astro.props as Props;
+---
+
+<div class="room__notes" data-room-notes={room.slug}>
+  <div class="room__board" data-room-board>
+    {
+      room.notes.map((n, i) => (
+        <span
+          class="room__pin"
+          data-pin-for={i + 1}
+          style={`--px:${n.pin[0]};--py:${n.pin[1]}`}
+          aria-hidden="true"
+        />
+      ))
+    }
+    <RoomBrief brief={room.brief} />
+    {
+      room.beats.map((b, k) => (
+        <div class="npage room__card room__beat" data-beat={k}>
+          <p class="room__beat-label">{b.label}</p>
+          <p class="room__beat-text">{b.caption}</p>
+        </div>
+      ))
+    }
+    {
+      room.notes.map((n, i) => (
+        <RoomTag note={n} index={i + 1} beat={room.beats[n.stage]?.label ?? ''} />
+      ))
+    }
+    <RoomPlan plan={room.plan} />
+    <RoomClose line={room.closing} cta={cta} />
+  </div>
+
+  <div class="room__list">
+    <section class="room__list-brief" aria-label={room.brief.title}>
+      <p class="room__list-head">
+        <strong>{room.brief.title}</strong>, {room.brief.tag}
+      </p>
+      <dl>
+        {
+          room.brief.rows.map((r) => (
+            <div>
+              <dt>{r.question}</dt>
+              <dd>{r.answer}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+    <ol class="room__list-beats">
+      {
+        room.beats.map((b, k) => (
+          <li>
+            <p class="room__list-caption">{b.caption}</p>
+            <ul>
+              {room.notes
+                .filter((n) => n.stage === k)
+                .map((n) => (
+                  <li>
+                    <strong>{n.checkLabel}:</strong> {n.text}
+                  </li>
+                ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+    <section class="room__list-plan" aria-label="What’s in the plan">
+      <p class="room__list-head"><strong>What’s in the plan</strong></p>
+      <ul>
+        {room.plan.map((p) => <li>{p.label}</li>)}
+      </ul>
+    </section>
+    <RoomClose line={room.closing} cta={cta} plain />
+  </div>
+</div>
+
+<style>
+  /* ---- the beat card: a notebook page (shares .npage with the brief) ---- */
+  .room__beat-label {
+    margin: 0 0 0.3rem;
+    font: 500 0.78rem/1.25 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  /* Written on the page's ruled lines: one rule per line box, just under
+     the baseline. */
+  .room__beat-text {
+    margin: 0;
+    font: 300 clamp(1rem, 0.9rem + 0.25vw, 1.1rem) / var(--line, 1.6rem) var(--font-display);
+    background: linear-gradient(
+        transparent calc(var(--line, 1.6rem) - 0.36rem),
+        rgb(156 118 97 / 0.22) 0,
+        rgb(156 118 97 / 0.22) calc(var(--line, 1.6rem) - 0.36rem + 1px),
+        transparent 0
+      )
+      0 0 / 100% var(--line, 1.6rem);
+    letter-spacing: -0.006em;
+    text-wrap: pretty;
+  }
+
+  /* ---- the pin: a Warm Bronze ring on a paper dot, with a soft halo so it
+     reads on a bright window and a dark walnut table alike ---------------- */
+  .room__pin {
+    width: 0.95rem;
+    height: 0.95rem;
+    border-radius: 50%;
+    background: var(--color-paper);
+    box-shadow:
+      inset 0 0 0 2px var(--color-chip-5),
+      0 0 0 3px rgb(255 253 250 / 0.55),
+      0 2px 6px rgb(35 30 27 / 0.45);
+  }
+  /* A tiny ink centre, where the string ties on. */
+  .room__pin::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 0.2rem;
+    height: 0.2rem;
+    border-radius: 50%;
+    background: var(--color-ink);
+  }
+
+  /* ---- the plain list (no script) ----------------------------------------- */
+  .room__list {
+    display: grid;
+    gap: 1.75rem;
+    margin-top: 1.75rem;
+    max-width: 46rem;
+    color: var(--color-ink);
+  }
+  .room__list-head {
+    margin: 0 0 0.5rem;
+    font: 400 1rem/1.4 var(--font-body);
+  }
+  .room__list dl {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+  }
+  .room__list dt {
+    font: 500 0.85rem/1.3 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .room__list dd {
+    margin: 0 0 0.25rem;
+    font: italic 400 1.1rem/1.35 var(--font-display);
+  }
+  .room__list-beats {
+    display: grid;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .room__list-caption {
+    margin: 0 0 0.6rem;
+    max-width: 38ch;
+    font: 300 clamp(1.15rem, 1.6vw, 1.4rem) / 1.3 var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  .room__list-caption::before {
+    content: '';
+    display: block;
+    width: 2.25rem;
+    height: 2px;
+    margin-bottom: 0.6rem;
+    background: var(--color-chip-5);
+  }
+  .room__list ul {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding-left: 1.1rem;
+    font: 400 1rem/1.5 var(--font-body);
+  }
+  .room__list strong {
+    font-weight: 600;
+  }
+
+  /* One rendering at a time: the board with a script, the list without. */
+  .room__board {
+    display: none;
+  }
+  @media (scripting: enabled) {
+    .room__list {
+      display: none;
+    }
+  }
+</style>

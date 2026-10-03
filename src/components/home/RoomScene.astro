@@ -4,6 +4,7 @@
 // RoomScene: ONE concept room's picture stack (split out of RoomStage.astro on
 // 2026-09-30 for the room tabs; whole frames, manifest v3, the same day).
 // RoomStage renders the first room's scene in place and every other room's
+// (with its RoomNotes)
 // inside a <template>, so their pictures download only when a tab is chosen;
 // the script swaps this whole `.room__frames` box.
 // =============================================================================
@@ -18,17 +19,17 @@
 //      data-webp, data-src), so it downloads NOTHING until the script arms it
 //      (in build order, when the section is about a screen away).
 //   2. the WebGL canvas (src/scripts/room-painter.ts), which draws the frame
-//      showing, its walls painted, and each new piece's reveal. Rendered once,
+//      showing and each new piece's reveal. Rendered once,
 //      in the first room (`canvas`); the script MOVES it into whichever room
 //      is showing, so the painter keeps one GL context for the life of the
 //      page. When it is running the stack under it is only a backstop.
 //
-// Each frame's <img> also carries what the painter needs: data-wall (its wall
-// mask), data-change (where it differs from the frame before), data-box (that
-// change's box, as fractions), data-motion (index into ROOM_MOTIONS) and
-// data-stage (its caption). The room's own data rides on the box so it swaps
-// with it: data-median, data-base-alt, data-ends (the frame each caption
-// shows) and --ar.
+// Each frame's <img> also carries what the painter needs: data-change (where
+// it differs from the frame before), data-box (that change's box, as
+// fractions), data-motion (index into ROOM_MOTIONS) and data-stage (its beat).
+// (The wall masks and the room's wall median went with the paint deck,
+// 2026-10-03.) The room's own data rides on the box so it swaps
+// with it: data-base-alt, data-ends (the frame each beat ends on) and --ar.
 //
 // SWITCHING FRAMES without WebGL (the scrub, 2026-10-02): the script sets
 // `data-on` on every frame up to floor(pos) (the ones under the top are hidden
@@ -57,7 +58,6 @@ const SIZES = '(min-width: 1024px) 75vw, 100vw';
   class="room__frames"
   data-room-frames={room.slug}
   data-base-alt={room.baseAlt}
-  data-median={room.median.join(',')}
   data-ends={room.ends.join(',')}
   style={`--ar:${width} / ${height}`}
 >
@@ -67,7 +67,6 @@ const SIZES = '(min-width: 1024px) 75vw, 100vw';
         width,
         height,
         decoding: 'async' as const,
-        'data-wall': f.wall,
         'data-change': f.change ?? undefined,
         'data-box': f.box?.join(','),
         'data-motion': f.motion,

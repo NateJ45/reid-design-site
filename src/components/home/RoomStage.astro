@@ -2,14 +2,21 @@
 // Foundation, edit with care
 // =============================================================================
 // RoomStage: draws the concept rooms (added 2026-09-30; room tabs the same
-// day; the scroll scrub and the pinned full-width room, 2026-10-02). Only
+// day; the scroll scrub and the pinned full-width room, 2026-10-02; THE
+// ANNOTATED ROOM, 2026-10-03, docs/design/2026-10-03-annotated-room.md). Only
 // RoomStory.astro renders it, and only with at least one valid, complete
 // room, so this markup and its script never reach a page that has no room.
 // =============================================================================
+// THE IDEA: a job in progress, marked up by the designer. One empty room
+// fills up piece by piece as the visitor scrolls (the scrub). Each piece that
+// arrives is tied to a SAMPLE TAG ON A STRING that says why it is there, in
+// one plain sentence, under one of the five checks from Staci's notebook. It
+// opens on THE BRIEF (an example client's answers) and closes on WHAT IS IN
+// THE PLAN and the booking button. The order answers the visitor's questions:
+// what do you want for me, how do you think, what do I get, what next.
+//
 // THE SCRUB (Nathan, 2026-10-02): the build follows the visitor's scroll
-// position in BOTH directions. Scroll slowly and a piece slides in as you go;
-// stop and it stops part-way; scroll back and it slides out. About three
-// screens of scroll carry the whole story (three beats).
+// position in BOTH directions. About three screens of scroll carry it all.
 //
 // PARTS
 //   - Heading and intro (scroll away normally).
@@ -18,80 +25,86 @@
 //     together) with the STAGE pinned inside it (position: sticky, just under
 //     the header). Its height is reserved in CSS, so nothing shifts when the
 //     script starts. Only with scripting: `@media (scripting: enabled)`.
-//   - In the stage, top to bottom:
+//   - In the stage:
 //       * Room tabs (only with two or more rooms): a real ARIA tablist,
-//         `hidden` in the markup and shown by the script. Manual activation:
-//         arrows / Home / End move focus, Enter or Space (or a click) chooses,
-//         because choosing downloads a room's pictures. The chosen tab is a
-//         pulled paper sample tag. Choosing keeps the visitor's place: the new
-//         room shows at the same share of its build.
-//       * The room (RoomScene.astro), as wide as the screen's height allows,
-//         with the "Concept room" sample tag in its top corner (the honesty
-//         label, always above the canvas).
-//       * A hairline progress rule under it with a tick at the end of each
-//         beat. Decorative (aria-hidden), no numbers.
-//       * The caption card (RoomCaptions.astro): a small paper card in the
-//         margin left of the room on a wide laptop window (over its lower-left
-//         corner, narrow, in a tall one), BELOW the room on a phone.
-//         It shows the current beat's caption and cross-fades on a beat
-//         change; a visually hidden live region reads each new caption.
-//       * The paint deck, a slim dock under the room, ALWAYS there once the
-//         painter has drawn (you can repaint the empty room too).
-//   - Every other room's scene and captions inside a <template>, srcsets
-//     baked in. Template content is inert, so nothing downloads until chosen.
+//         `hidden` in the markup and shown by the script. Manual activation.
+//         Choosing keeps the visitor's place: the new room shows at the same
+//         share of its build, with its own notes.
+//       * The FIGURE (a size container, so cards can be placed against the
+//         photo's height in CSS: --ph = 100cqw / aspect):
+//           - the room (RoomScene.astro) with the "Concept room" sample tag
+//             in its top corner (the honesty label, always on top);
+//           - a hairline progress rule under it, a tick per beat (decorative);
+//           - the STRING: one SVG over the figure with two slots (the tag
+//             going and the tag coming, so they cross-fade), each a paper
+//             halo under a fine ink thread, drawn by the script;
+//           - the room's notes (RoomNotes.astro): pins, the brief, the beat
+//             cards, the tags, the plan dock and the close.
+//       * A visually hidden live region: each new tag ("Scale: ..."), the
+//         beat's caption when a beat starts, and the closing line.
+//   - Every other room's scene and notes inside a <template>, srcsets baked
+//     in. Template content is inert, so nothing downloads until chosen.
+//
+// LAYOUT (scripted; every size is checked in tests/room-story.spec.ts)
+//   - WIDE LAPTOP WINDOW (1100px+ and 8/5 or wider: 1280x800, 1440x900,
+//     1920x1080): the room centred and height-limited. LEFT margin,
+//     bottom-aligned with the photo: the brief while the room is empty, then
+//     the current beat card. RIGHT margin: the current tag, vertically
+//     centred on its pin (kept inside the photo's height), its string running
+//     left into the photo to the pin. The plan dock under the room. At the
+//     end the close takes the right margin at the dock's end.
+//   - TALL LAPTOP WINDOW (no margins worth using, e.g. 1280x1024): the brief
+//     and the beat card as one narrow column over the photo's lower-left; the
+//     tag over the photo in the corner that covers least of its piece, never
+//     its pin (computed from the pin and the piece's box, not hard-coded).
+//     The close takes the dock's place.
+//   - PHONE: the room full width with the pin on it; then ONE card: the tag
+//     (its beat's short name as a small line on it; the brief takes this slot
+//     at the start), its string running up into the photo; then the plan as
+//     one sideways scroll-snap row. The close replaces the card and the row.
+//     All of it inside one screen (375x667 and 375x812).
+//   - NO SCRIPT (or a browser without the `scripting` media feature): no
+//     track and no pinning; the finished room, then the plain list (the
+//     brief, the beats with their tags, the plan, the line and the booking
+//     tag). Nothing hidden.
 //
 // SCROLL INPUT: a passive scroll listener, coalesced to one
 // requestAnimationFrame, attached ONLY while the track is near the screen (an
 // IntersectionObserver turns it on and off). Native scrolling only: nothing
-// here ever moves, snaps or hijacks the page (no smooth-scroll library; see
-// CLAUDE.md rule 5). Progress along the track (0..1) becomes a build position
-// (scrubPosition in room-story.ts: rests at both ends and after each beat),
-// which drives the painter (src/scripts/room-painter.ts) or, without WebGL,
-// the <img> stack (whole frames crossfaded by the same position). Reduced
-// motion: the position snaps to whole frames, and the card does not animate.
-//
-// FALLBACKS
-//   - No script (or a browser without the `scripting` media feature): no
-//     track, no pinning. The finished room with its tag, and the three
-//     captions as a plain list under it. No other frame downloads.
-//   - Script but no WebGL (none, a failed shader, a lost context): the <img>
-//     frames crossfade by scroll position; the chips go away.
-//
-// LAYOUT
-//   - Laptop (1024px+): stage pinned 7rem down (under the condensed header
-//     strip); the room centred, its width min(100%, height left * aspect);
-//     the card in its left margin (see RoomCaptions.astro); chips in one row under it.
-//   - Phone: pinned under the 4.5rem header strip; room full width, then the
-//     card, then the chips as a sideways scroll-snap row; ALL of it inside one
-//     375x667 screen (tests/room-story.spec.ts measures it).
+// here ever moves, snaps or hijacks the page (CLAUDE.md rule 5). Progress
+// along the track becomes a build position (scrubPosition), which drives the
+// painter (src/scripts/room-painter.ts) or, without WebGL, the <img> stack,
+// and the annotations (noteAt, noteDraw, planLit, closeShown in
+// room-story.ts). Reduced motion: the position snaps to whole frames, the
+// string is shown whole (no draw), the chips do not lift and the cards swap
+// without a fade.
 // =============================================================================
 import RiseWords from '@/components/RiseWords.astro';
-import { ROOM_CHIPS, linearToHex } from '@/lib/room-story';
 import RoomScene from './RoomScene.astro';
-import RoomCaptions from './RoomCaptions.astro';
-import type { RoomView } from './room-view';
+import RoomNotes from './RoomNotes.astro';
+import type { CloseCta, RoomView } from './room-view';
 
 interface Props {
   /** At least one room; the first shows on load. */
   rooms: RoomView[];
+  /** The close's booking button (the header's label and link, the consult price). */
+  cta: CloseCta;
   headline: string;
   scriptAccent?: string | null;
   intro: string;
 }
 
-const { rooms, headline, scriptAccent, intro } = Astro.props as Props;
+const { rooms, cta, headline, scriptAccent, intro } = Astro.props as Props;
 const [first, ...others] = rooms;
 const tabbed = rooms.length > 1;
-// "As it is" shows the first room's own wall colour as its swatch (the script
-// updates it on a switch).
-const asIsHex = linearToHex(first.median);
+const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
 ---
 
 <section
   class="room"
   aria-labelledby="room-heading"
   data-room
-  style={`--room-ar:${first.width} / ${first.height}`}
+  style={`--room-ar:${first.width} / ${first.height};--room-arn:${arn}`}
 >
   <div class="r-wrap room__head">
     <RiseWords as="h2" id="room-heading" text={headline} accent={scriptAccent} class="r-h2" />
@@ -110,7 +123,7 @@ const asIsHex = linearToHex(first.median);
                 class="room__tab"
                 id={`room-tab-${r.slug}`}
                 aria-selected={i === 0 ? 'true' : 'false'}
-                aria-controls="room-panel room-captions"
+                aria-controls="room-panel"
                 tabindex={i === 0 ? 0 : -1}
                 data-room-tab={r.slug}
                 data-announce={r.announce}
@@ -127,39 +140,27 @@ const asIsHex = linearToHex(first.median);
           take role="tabpanel"); the script adds the role only with tabs. */
       }
       <div class="room__col" id="room-panel" data-room-panel>
-        <figure class="room__figure">
+        <figure class="room__figure" data-room-figure>
           <RoomScene room={first} canvas />
           <div class="room__rule" aria-hidden="true" data-room-rule>
             <span class="room__rule-fill"></span>
           </div>
+          <svg class="room__string" aria-hidden="true" focusable="false" data-room-string>
+            {
+              [0, 1].map((slot) => (
+                <g data-slot={slot}>
+                  <path class="room__string-halo" pathLength="1" d="" />
+                  <path class="room__string-ink" pathLength="1" d="" />
+                  <path class="room__string-knot" d="" />
+                </g>
+              ))
+            }
+          </svg>
+          <RoomNotes room={first} cta={cta} />
           <figcaption class="room__tag r-tag"><strong>Concept room</strong></figcaption>
-          <RoomCaptions stages={first.stages} />
         </figure>
       </div>
       <p class="sr-only" aria-live="polite" data-room-live>{first.finalAlt}</p>
-
-      <fieldset class="room__deck" data-room-chips hidden>
-        <legend class="room__legend">Try a paint colour on the walls</legend>
-        <div class="room__chips">
-          {
-            ROOM_CHIPS.map((c, i) => (
-              <button
-                type="button"
-                class="room__chip"
-                aria-pressed={i === 0 ? 'true' : 'false'}
-                data-hex={c.hex ?? ''}
-              >
-                <span
-                  class="room__swatch"
-                  data-as-is={c.hex ? undefined : ''}
-                  style={`background:${c.hex ?? asIsHex}`}
-                />
-                <span>{c.name}</span>
-              </button>
-            ))
-          }
-        </div>
-      </fieldset>
     </div>
   </div>
 
@@ -167,7 +168,7 @@ const asIsHex = linearToHex(first.median);
     others.map((r) => (
       <template data-room-tpl={r.slug}>
         <RoomScene room={r} />
-        <RoomCaptions stages={r.stages} />
+        <RoomNotes room={r} cta={cta} />
       </template>
     ))
   }
@@ -188,8 +189,10 @@ const asIsHex = linearToHex(first.median);
     /* The progress rule (its line plus the gap round it). */
     --room-rule: 1.25rem;
     /* Everything in the stage that is not the picture (laptop): rule, the
-       chip dock and breathing room. The picture takes the rest. */
-    --room-dock: 6.25rem;
+       plan dock and breathing room. The picture takes the rest. */
+    --room-dock: 6.75rem;
+    /* The gap between the photo and a card in its margin. */
+    --room-gap: 1.75rem;
     background: var(--color-chip-1);
     /* Phone: a tighter band, the pinned room already gives it height. */
     padding-block: clamp(2.5rem, 10vw, 8.5rem);
@@ -238,9 +241,9 @@ const asIsHex = linearToHex(first.median);
     position: absolute;
     left: -0.4rem;
     top: 1rem;
-    rotate: -2deg;
-    /* Above the room's canvas: the honesty label must never be covered. */
-    z-index: 3;
+    /* Above the canvas, the string, the pins and the cards: the honesty
+       label must never be covered. */
+    z-index: 7;
   }
   .room__tag strong {
     font-size: 1rem;
@@ -271,12 +274,15 @@ const asIsHex = linearToHex(first.median);
     background: var(--color-chip-6);
   }
 
+  /* ---- the string: hidden without the script ---------------------------- */
+  .room__string {
+    display: none;
+  }
+
   /* ---- the room tabs: a row of sample tags; the chosen one is pulled ----- */
   .room__tabs {
     display: flex;
     gap: 0.25rem;
-    /* Room for the focus outline and the pulled tag's lift and shadow
-       inside the scroll box. */
     padding: 0.45rem 0.3rem 0.5rem;
     margin: -0.45rem -0.3rem 0;
     overflow-x: auto;
@@ -306,9 +312,6 @@ const asIsHex = linearToHex(first.median);
     white-space: nowrap;
     cursor: pointer;
   }
-  /* The tag's body: a paper shape with a notched left edge (as .r-tag), drawn
-     on ::before so the focus outline is never clipped. Empty until hover or
-     choice. */
   .room__tab::before {
     content: '';
     position: absolute;
@@ -317,7 +320,6 @@ const asIsHex = linearToHex(first.median);
     background: transparent;
     clip-path: polygon(0.9rem 0, 100% 0, 100% 100%, 0.9rem 100%, 0 50%);
   }
-  /* The tag's punched hole: a ring, Warm Bronze on the chosen tag. */
   .room__tab::after {
     content: '';
     position: absolute;
@@ -356,67 +358,6 @@ const asIsHex = linearToHex(first.median);
     outline-offset: 2px;
   }
 
-  /* ---- the paint deck: one slim row under the room ------------------------ */
-  .room__deck {
-    min-width: 0; /* a fieldset is min-content wide by default; let the row scroll */
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-  .room__legend {
-    padding: 0;
-    margin-bottom: 0.4rem;
-    font: 500 0.85rem/1.3 var(--font-body);
-    color: var(--color-ink);
-  }
-  .room__chips {
-    display: flex;
-    gap: 0.4rem;
-    /* One row, scrolling sideways when it is wider than the stage. Padding
-       inside the scroll box keeps the focus outline unclipped. */
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 0.25rem;
-    padding: 0.25rem;
-    margin: -0.25rem;
-    scrollbar-width: none;
-  }
-  .room__chips::-webkit-scrollbar {
-    display: none;
-  }
-  .room__chip {
-    flex: none;
-    scroll-snap-align: start;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 2.75rem;
-    padding: 0.3rem 0.7rem 0.3rem 0.35rem;
-    border: 1px solid var(--color-rule);
-    border-radius: 3px;
-    background: var(--color-paper);
-    color: var(--color-ink);
-    font: 500 0.82rem/1 var(--font-body);
-    white-space: nowrap;
-    cursor: pointer;
-  }
-  .room__chip[aria-pressed='true'] {
-    border-color: var(--color-ink);
-    box-shadow: inset 0 0 0 1px var(--color-ink);
-  }
-  .room__chip:focus-visible {
-    outline: 2px solid var(--color-ink);
-    outline-offset: 2px;
-  }
-  .room__swatch {
-    flex: none;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 2px;
-    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.14);
-  }
-
   @media (max-width: 1023px) {
     .room__head :global(.r-h2),
     .room__head .r-lede {
@@ -427,19 +368,11 @@ const asIsHex = linearToHex(first.median);
     .room {
       --room-pin: 7rem;
     }
-    /* Centre the dock's single row under the room when it fits. */
-    .room__deck {
-      align-self: center;
-      max-width: 100%;
-    }
-    .room__legend {
-      margin-inline: auto;
-    }
   }
 
-  /* ---- the scrub: only where scripting runs ------------------------------
-     Without a script none of this applies: no track, no pin, and the
-     captions are a plain list under the finished room. */
+  /* ==== THE SCRUB AND THE ANNOTATIONS: only where scripting runs ==========
+     Without a script none of this applies: no track, no pin, and the notes
+     are the plain list under the finished room (RoomNotes.astro). */
   @media (scripting: enabled) {
     .room {
       /* The track ends with the stage's own bottom; no extra padding under. */
@@ -459,49 +392,370 @@ const asIsHex = linearToHex(first.median);
     .room__rule {
       display: block;
     }
-    /* The deck keeps its space while the painter loads (so nothing moves when
-       it appears); without WebGL it goes for good. */
-    .room__deck[hidden] {
-      display: block !important;
+    /* The figure is a size container: its children place themselves
+       against the photo's height, --ph (the frame's aspect is --room-arn). */
+    .room__figure {
+      container-type: inline-size;
+    }
+    .room :global(.room__board) {
+      --ph: calc(100cqw / var(--room-arn));
+      display: contents;
+    }
+
+    /* ---- the string ----------------------------------------------------- */
+    /* Above the cards: the thread runs OVER the tag from its edge to the
+       hole, the way a real one is threaded through. It never crosses a
+       card's words (it leaves the hole outwards, away from the text). */
+    .room__string {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .room__string g {
+      opacity: 0;
+    }
+    .room__string g[data-on] {
+      opacity: 1;
+    }
+    .room__string path {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    /* A paper halo under the thread, so it shows on the linen, on a bright
+       window and on dark walnut alike. */
+    .room__string-halo,
+    .room__string-ink {
+      stroke-dasharray: 1 1.02;
+      stroke-dashoffset: var(--off, 1);
+    }
+    .room__string-halo {
+      stroke: rgb(255 253 250 / 0.7);
+      stroke-width: 3.4;
+    }
+    .room__string-ink {
+      stroke: rgb(35 30 27 / 0.88);
+      stroke-width: 1.1;
+    }
+    /* The little curl where the thread is tied through the tag's hole. */
+    .room__string-knot {
+      stroke: rgb(35 30 27 / 0.88);
+      stroke-width: 1.1;
+      opacity: var(--knot, 0);
+    }
+
+    /* ---- the pins ------------------------------------------------------- */
+    .room :global(.room__pin) {
+      position: absolute;
+      left: calc(var(--px) * 100%);
+      top: calc(var(--py) * var(--ph));
+      z-index: 4;
+      translate: -50% -50%;
+      opacity: 0;
+      scale: 0.6;
+    }
+    .room :global(.room__pin[data-on]) {
+      opacity: 1;
+      scale: 1;
+    }
+
+    /* ---- the cards: only the current one of each kind shows ------------- */
+    .room :global(.room__card) {
+      z-index: 5;
+      opacity: 0;
       visibility: hidden;
     }
-    .room[data-nogl] .room__deck {
-      display: none !important;
+    .room :global(.room__card[data-on]),
+    /* Before the script has read the scroll, the brief shows. */
+    .room:not([data-enhanced]) :global(.room__brief) {
+      opacity: 1;
+      visibility: visible;
+    }
+    .room :global([data-room-close]) {
+      z-index: 5;
+      opacity: 0;
+      visibility: hidden;
+    }
+    .room[data-closed] :global([data-room-close]) {
+      opacity: 1;
+      visibility: visible;
     }
   }
-  @media (scripting: enabled) and (max-width: 1023px) {
-    /* Let the last chip scroll clear of the floating back-to-top button in
-       the bottom corner. */
-    .room__chips {
-      padding-inline-end: 4.5rem;
+
+  /* ---- laptop, both shapes (the TALL window's layout, then the wide
+     window's overrides below) ---------------------------------------------
+     TALL window (2026-10-03, a deliberate change from the brief): the beat
+     card does NOT sit over the photo. Tried there first, its eight lines
+     covered the chair and the rug as they arrived. It is a slim notebook
+     strip above the photo instead (--room-band, taken from the photo's
+     height), with the brief in the same strip at the start. Only the tag
+     goes over the photo, in the corner that covers least of its piece. */
+  @media (scripting: enabled) and (min-width: 1024px) {
+    .room {
+      --room-band: 5.25rem;
     }
-    /* Phone: the room is full width, unless the screen is so short (a phone
-       on its side) that it would push the card and chips off it. */
-    .room__col {
-      width: max(
-        min(100%, 14rem),
-        min(100%, calc((100svh - var(--room-pin) - var(--room-tabs) - 17rem) * var(--room-ar)))
-      );
-    }
-  }
-  @media (min-width: 1024px) {
-    /* Laptop: as wide as the height left over allows (pinned or not, so the
-       no-script picture also fits a screen). */
+    /* As wide as the height left over allows. */
     .room__col {
       width: min(
         100%,
+        calc(
+          (
+              100svh - var(--room-pin) - var(--room-tabs) - var(--room-rule) - var(--room-dock) -
+                var(--room-band)
+            ) *
+            var(--room-ar)
+        )
+      );
+    }
+    .room__figure {
+      margin-top: var(--room-band);
+    }
+    .room :global(.room__card),
+    .room :global([data-room-close]) {
+      position: absolute;
+    }
+    /* TALL window: the strip above the photo, the label beside the words. */
+    .room :global(.room__brief),
+    .room :global(.room__beat) {
+      left: 0;
+      right: 0;
+      bottom: calc(100% + 0.6rem);
+      display: grid;
+      grid-template-columns: 9rem 1fr;
+      align-items: start;
+      column-gap: 1.25rem;
+      padding: 0.7rem 1.1rem 0.75rem;
+    }
+    .room :global(.room__brief::before),
+    .room :global(.room__beat::before) {
+      grid-column: 1;
+      grid-row: 1;
+      margin: 0.15rem 0 0;
+    }
+    .room :global(.room__beat-label),
+    .room :global(.room__brief-title) {
+      grid-column: 1;
+      grid-row: 1;
+      margin: 0.75rem 0 0;
+    }
+    .room :global(.room__beat-text),
+    .room :global(.room__brief-rows) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .room :global(.room__brief-title) {
+      display: block;
+    }
+    .room :global(.room__brief-title small) {
+      display: block;
+      margin-top: 0.2rem;
+    }
+    .room :global(.room__brief-rows) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+    .room :global(.room__brief .room__brief-row dd) {
+      border-bottom: 1px solid rgb(156 118 97 / 0.32);
+    }
+    /* The tag: placed by the script (the corner that covers least of its
+       piece and never its pin). */
+    .room :global(.room__note) {
+      left: 0;
+      top: 0;
+      width: min(17rem, 38%);
+    }
+    /* The close takes the dock's place, as one row. */
+    .room :global([data-room-close]) {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem 2rem;
+    }
+    .room :global([data-room-close] .room__close-line) {
+      margin: 0;
+      max-width: none;
+    }
+    .room[data-closed] :global(.room__dock) {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  /* ---- WIDE laptop window: the cards live in the margins ------------------
+     The room is height-limited, so it leaves side margins; the 8/5 test
+     stands in for "the margin is wide enough". The room also gives up a
+     little width so each margin is at least --room-side (the cards are the
+     content here, and the booking tag at the close must fit beside the
+     photo). --gw is the card width: the margin less a breathing gap. */
+  @media (scripting: enabled) and (min-width: 1100px) and (min-aspect-ratio: 8/5) {
+    .room {
+      --room-gap: 1.5rem;
+      --room-side: 19.5rem;
+    }
+    .room__col {
+      width: min(
+        100%,
+        calc(100vw - 2 * var(--room-side)),
         calc(
           (100svh - var(--room-pin) - var(--room-tabs) - var(--room-rule) - var(--room-dock)) *
             var(--room-ar)
         )
       );
     }
+    .room :global(.room__board) {
+      --gw: clamp(13rem, calc((100vw - 100cqw) / 2 - var(--room-gap) - 2.25rem), 18.5rem);
+    }
+    .room {
+      --room-band: 0rem;
+    }
+    .room :global(.room__brief),
+    .room :global(.room__beat) {
+      left: auto;
+      right: calc(100% + var(--room-gap));
+      bottom: calc(100% - var(--ph));
+      display: block;
+      width: var(--gw);
+      padding: 1.05rem 1.2rem 1.15rem;
+    }
+    .room :global(.room__beat-label),
+    .room :global(.room__brief-title) {
+      margin: 0 0 0.3rem;
+    }
+    .room :global(.room__brief-title) {
+      display: flex;
+    }
+    .room :global(.room__brief-title small) {
+      display: inline;
+      margin: 0;
+    }
+    .room :global(.room__brief::before),
+    .room :global(.room__beat::before) {
+      margin: 0 0 0.6rem;
+    }
+    .room :global(.room__brief-rows) {
+      grid-template-columns: none;
+      gap: 0.3rem;
+    }
+    /* The tag: in the right margin; the script sets its top so it is
+       centred on its pin, inside the photo's height. */
+    .room :global(.room__note) {
+      left: calc(100% + var(--room-gap));
+      width: var(--gw);
+    }
+    /* The close: the right margin, bottom-aligned with the photo (mirroring
+       the beat card, and clear of the back-to-top button in the corner).
+       The dock stays, every chip lit. */
+    .room :global([data-room-close]) {
+      left: calc(100% + var(--room-gap));
+      right: auto;
+      bottom: calc(100% - var(--ph));
+      display: block;
+      width: var(--gw);
+    }
+    .room :global([data-room-close] .room__close-line) {
+      margin-bottom: 1.1rem;
+      max-width: 17ch;
+    }
+    .room[data-closed] :global(.room__dock) {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .room__chip {
-      transition: border-color 150ms ease;
+  /* ---- phone: one card under the room, the plan row under that ----------- */
+  @media (scripting: enabled) and (max-width: 1023px) {
+    /* The room is full width, unless the screen is so short (a phone on its
+       side) that it would push the card and the plan off it. */
+    .room__col {
+      width: max(
+        min(100%, 14rem),
+        min(100%, calc((100svh - var(--room-pin) - var(--room-tabs) - 18rem) * var(--room-ar)))
+      );
     }
+    .room :global(.room__board) {
+      display: grid;
+      grid-template-areas: 'slot' 'dock';
+      grid-template-rows: auto auto;
+      row-gap: 0.85rem;
+      margin-top: 0.15rem;
+    }
+    .room :global(.room__brief),
+    .room :global(.room__note) {
+      grid-area: slot;
+      align-self: start;
+    }
+    .room :global(.room__beat) {
+      display: none;
+    }
+    /* The beat's short name rides on the tag, beside its check. */
+    .room :global(.rtag__beat) {
+      display: inline-block;
+      margin: 0 0.6rem 0 0;
+    }
+    .room :global(.room__dock) {
+      grid-area: dock;
+    }
+    .room :global([data-room-close]) {
+      grid-row: 1 / 3;
+      grid-column: 1;
+      align-self: center;
+    }
+    .room[data-closed] :global(.room__dock) {
+      opacity: 0;
+      visibility: hidden;
+    }
+    /* A phone card is a touch smaller than a laptop one. */
+    .room :global(.rtag__text) {
+      max-width: none;
+      font-size: 1.04rem;
+    }
+    /* The brief, compact: each question and its answer on one line. */
+    .room :global(.room__brief) {
+      padding: 0.75rem 1rem 0.7rem;
+    }
+    .room :global(.room__brief::before) {
+      margin-bottom: 0.45rem;
+    }
+    .room :global(.room__brief-title) {
+      margin-bottom: 0.2rem;
+    }
+    .room :global(.room__brief-title span) {
+      font-size: 1.25rem;
+    }
+    .room :global(.room__brief-rows) {
+      gap: 0;
+    }
+    .room :global(.room__brief-row) {
+      display: grid;
+      grid-template-columns: 6.6rem 1fr;
+      align-items: baseline;
+      gap: 0.6rem;
+      padding: 0.3rem 0 0.25rem;
+      border-bottom: 1px solid rgb(156 118 97 / 0.32);
+    }
+    .room :global(.room__brief-row:last-child) {
+      border-bottom: 0;
+    }
+    .room :global(.room__brief-row dd) {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+  }
+
+  /* ---- motion ------------------------------------------------------------- */
+  @media (prefers-reduced-motion: no-preference) {
     .room__tab {
       transition:
         color 200ms var(--ease),
@@ -512,16 +766,59 @@ const asIsHex = linearToHex(first.median);
       transition: background-color 200ms var(--ease);
     }
   }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    /* The hand-over: the old card fades out as the new one comes. */
+    .room :global(.room__card),
+    .room :global([data-room-close]),
+    .room :global(.room__dock) {
+      transition:
+        opacity 340ms var(--ease),
+        visibility 0s linear 340ms;
+    }
+    .room :global(.room__card[data-on]),
+    .room[data-closed] :global([data-room-close]),
+    .room:not([data-closed]) :global(.room__dock) {
+      transition:
+        opacity 340ms var(--ease),
+        visibility 0s;
+    }
+    /* A new tag swings on from its hole and lands square. */
+    .room :global(.room__note[data-on]) {
+      animation: room-swing 620ms var(--ease) both;
+    }
+    .room :global(.room__pin) {
+      transition:
+        opacity 260ms var(--ease),
+        scale 420ms var(--ease);
+    }
+    .room__string g {
+      transition: opacity 320ms var(--ease);
+    }
+  }
+  @keyframes room-swing {
+    from {
+      transform: rotate(-4deg) translateY(-0.35rem);
+    }
+    to {
+      transform: none;
+    }
+  }
+  .room :global(.room__note) {
+    transform-origin: 0.95rem 50%;
+  }
 </style>
 
 <script>
   import {
     beatAt,
     beatTicks,
-    hexToLinear,
-    linearToHex,
+    closeShown,
+    noteAt,
+    noteDraw,
+    planLit,
     scrubPosition,
     snapPosition,
+    stringPath,
     trackProgress,
   } from '@/lib/room-story';
   import type { PainterRoom, RoomPainter } from '@/scripts/room-painter';
@@ -570,18 +867,15 @@ const asIsHex = linearToHex(first.median);
 
   /** The painter's view of a room's frames box, or null if it is malformed. */
   function roomOf(box: HTMLElement): PainterRoom | null {
-    const median = numbers(box.dataset.median);
     const imgs = imgsOf(box);
-    if (median.length !== 3 || median.some((n) => !(n > 0)) || imgs.length < 2) return null;
+    if (imgs.length < 2) return null;
     const aspect = Number(imgs[0].getAttribute('width')) / Number(imgs[0].getAttribute('height'));
     return {
-      median: median as [number, number, number],
       aspect: aspect > 0 ? aspect : 4 / 3,
       frames: imgs.map((img) => {
         const b = numbers(img.dataset.box);
         return {
           load: () => loadFrame(img),
-          wall: img.dataset.wall ?? '',
           change: img.dataset.change ?? null,
           box: b.length === 4 ? (b as [number, number, number, number]) : null,
           motion: Number(img.dataset.motion ?? -1),
@@ -590,60 +884,77 @@ const asIsHex = linearToHex(first.median);
     };
   }
 
+  const toggle = (el: Element | undefined | null, on: boolean) =>
+    el?.toggleAttribute('data-on', on);
+
   function init() {
     teardown?.();
     teardown = null;
     const root = document.querySelector<HTMLElement>('[data-room]');
     if (!root) return;
     // A browser that cannot say whether scripting runs never got the pinned
-    // track in CSS: leave it the plain, finished room with its caption list.
+    // track in CSS: leave it the plain, finished room with its list.
     if (!matchMedia('(scripting: enabled)').matches) return;
     const track = root.querySelector<HTMLElement>('[data-room-track]');
     const stage = root.querySelector<HTMLElement>('[data-room-stage]');
+    const figure = root.querySelector<HTMLElement>('[data-room-figure]');
     const canvas = root.querySelector<HTMLCanvasElement>('.room__canvas');
-    const deck = root.querySelector<HTMLElement>('[data-room-chips]');
     const live = root.querySelector<HTMLElement>('[data-room-live]');
     const panel = root.querySelector<HTMLElement>('[data-room-panel]');
     const rule = root.querySelector<HTMLElement>('[data-room-rule]');
-    const chips = [...root.querySelectorAll<HTMLButtonElement>('.room__chip')];
-    const asIs = root.querySelector<HTMLElement>('.room__swatch[data-as-is]');
+    const svg = root.querySelector<SVGSVGElement>('[data-room-string]');
     const tablist = root.querySelector<HTMLElement>('[data-room-tabs]');
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-room-tab]')];
     const frames = () => root.querySelector<HTMLElement>('.room__frames');
-    const captions = () => root.querySelector<HTMLElement>('.room__captions');
-    if (!track || !stage || !canvas || !deck || !live || !panel || !rule) return;
-    if (!frames() || !captions()) return;
-    if (captions()!.querySelectorAll('[data-room-step]').length < 2) return;
+    const notesBox = () => root.querySelector<HTMLElement>('.room__notes');
+    if (!track || !stage || !figure || !canvas || !live || !panel || !rule || !svg) return;
+    if (!frames() || !notesBox()) return;
 
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wide = matchMedia('(min-width: 1100px) and (min-aspect-ratio: 8/5)');
+    const laptop = matchMedia('(min-width: 1024px)');
     let painter: RoomPainter | null = null;
-    let chip: [number, number, number] | null = null;
     let dead = false;
     root.dataset.enhanced = '';
+
+    // ---- the string's two slots (the tag going, the tag coming) ------------
+    const slots = [...svg.querySelectorAll<SVGGElement>('g[data-slot]')].map((g) => ({
+      g,
+      paths: [...g.querySelectorAll<SVGPathElement>('path')],
+      note: -1,
+    }));
+    let slot = 0;
 
     // ---- where the visitor is ----------------------------------------------
     let progress = 0; // 0..1 along the track
     let pos = 0; // build position, 0..n
     let n = 0; // the showing room's last frame
     let ends: number[] = [];
-    let steps: HTMLElement[] = [];
-    let beat = -2; // -2 = not read yet
-    // After a room is chosen, its "Showing the ..." line stands a moment;
-    // beat lines resume after that.
+    let current = -2; // the card showing: 0 brief, k tag, -1 close; -2 = not read yet
+    let beat = -2;
+    let closed = false;
+    let lit: boolean[] = [];
+    // After a room is chosen, its "Showing the ..." line stands a moment.
     let quietUntil = 0;
+
+    // The showing room's annotation elements (re-read on a room switch).
+    let notes: HTMLElement[] = []; // notes[k] = piece k's tag (index 0 unused)
+    let pins: HTMLElement[] = [];
+    let beats: HTMLElement[] = [];
+    let brief: HTMLElement | null = null;
+    let chips: HTMLElement[] = [];
+    let chipBeats: number[] = [];
+    let closeLine = '';
 
     // ---- the <img> stack (the picture without WebGL) -------------------------
     // Frames up to floor(pos) are on (each covers the ones under it), the next
     // one fades in by the fraction, the rest are off. A frame that has not
-    // decoded is left off, so the room holds on the last one that has, never
-    // an empty box. The finished frame is the permanent underlay (and the
-    // no-script picture); it comes to the top only when it is being shown.
+    // decoded is left off, so the room holds on the last one that has.
     const syncStack = () => {
       const f = frames();
       if (!f || root.hasAttribute('data-painted')) return;
       const pics = [...f.querySelectorAll<HTMLElement>('.room__frame')];
       const imgs = imgsOf(f);
-      // Until the empty room has loaded the markup's default (finished) stays.
       if (!imgs[0] || !ready(imgs[0])) return;
       const a = Math.floor(pos);
       const t = pos - a;
@@ -656,18 +967,184 @@ const asIsHex = linearToHex(first.median);
       });
     };
 
-    /** Which beat is current, and say so (not on the first read). */
-    const showBeat = (k: number) => {
-      if (k === beat) return;
-      const first = beat === -2;
-      beat = k;
-      steps.forEach((s, i) => {
-        if (i === k) s.setAttribute('aria-current', 'step');
-        else s.removeAttribute('aria-current');
-      });
-      if (!first && k >= 0 && performance.now() >= quietUntil) {
-        live.textContent = (steps[k].textContent ?? '').trim();
+    // ---- placing a tag and its string ---------------------------------------
+    /** The photo's size inside the figure (the figure's width, the frame's shape). */
+    const photo = () => {
+      const w = figure.clientWidth;
+      const arn = Number(getComputedStyle(root).getPropertyValue('--room-arn')) || 4 / 3;
+      return { w, h: w / arn };
+    };
+
+    /**
+     * Put piece k's tag where it belongs (laptop; a phone's tag sits in the
+     * grid). Wide window: in the right margin, centred on its pin and kept
+     * inside the photo's height. Tall window: over the photo, in the corner
+     * that covers least of its piece and never its pin.
+     */
+    const placeTag = (k: number) => {
+      const tag = notes[k];
+      if (!tag) return;
+      const { w, h } = photo();
+      const [px, py] = numbers(tag.dataset.pin);
+      if (!laptop.matches) {
+        // Phone: the tag sits in the grid under the photo and hangs from its
+        // top edge; punch the hole under the pin (kept off the corners).
+        tag.style.left = tag.style.top = '';
+        const x = Math.max(30, Math.min(tag.offsetWidth - 30, px * w - tag.offsetLeft));
+        tag.style.setProperty('--hx', `${Math.round(x)}px`);
+        return;
       }
+      tag.style.removeProperty('--hx');
+      const th = tag.offsetHeight;
+      const tw = tag.offsetWidth;
+      if (wide.matches) {
+        tag.style.left = '';
+        tag.style.top = `${Math.round(Math.max(0, Math.min(h - th, py * h - th / 2)))}px`;
+        return;
+      }
+      const [bx, by, bw, bh] = numbers(tag.dataset.box);
+      const m = 16; // inset from the photo's edges
+      const prefer = tag.dataset.side === 'left' ? 'left' : 'right';
+      const pinX = px * w;
+      const pinY = py * h;
+      // Candidates: the right side top and bottom, the left side top (below
+      // the "Concept room" tag). Lower-left belongs to the beat card.
+      const cands = [
+        { x: w - tw - m, y: m, side: 'right' },
+        { x: w - tw - m, y: h - th - m, side: 'right' },
+        { x: m, y: Math.min(h - th - m, 64), side: 'left' },
+      ];
+      const area = (x: number, y: number) => {
+        const ox = Math.max(0, Math.min(x + tw, (bx + bw) * w) - Math.max(x, bx * w));
+        const oy = Math.max(0, Math.min(y + th, (by + bh) * h) - Math.max(y, by * h));
+        return ox * oy;
+      };
+      let best = cands[0];
+      let score = Infinity;
+      // Score: how much of the piece it covers (a share of the tag), how far
+      // the string has to run (a share of the photo's width), the piece's
+      // preferred side as a tie-breaker; covering the pin rules a corner out.
+      for (const c of cands) {
+        const coversPin =
+          pinX > c.x - 24 && pinX < c.x + tw + 24 && pinY > c.y - 24 && pinY < c.y + th + 24;
+        const run = Math.hypot(pinX - (c.x + 15), pinY - (c.y + th / 2));
+        const s =
+          (2 * area(c.x, c.y)) / (tw * th) +
+          run / w +
+          (coversPin ? 1e9 : 0) +
+          (c.side === prefer ? 0 : 0.12);
+        if (s < score) {
+          score = s;
+          best = c;
+        }
+      }
+      tag.style.left = `${Math.round(best.x)}px`;
+      tag.style.top = `${Math.round(best.y)}px`;
+    };
+
+    /** Point the slot's string from piece k's tag hole to its pin. */
+    const aim = (s: (typeof slots)[number], k: number) => {
+      const tag = notes[k];
+      const hole = tag?.querySelector<HTMLElement>('.rtag__hole');
+      if (!tag || !hole) return;
+      const { w, h } = photo();
+      const [px, py] = numbers(tag.dataset.pin);
+      const hx = tag.offsetLeft + hole.offsetLeft;
+      const hy = tag.offsetTop + hole.offsetTop;
+      const d = stringPath(hx, hy, px * w, py * h, k);
+      s.paths[0].setAttribute('d', d);
+      s.paths[1].setAttribute('d', d);
+      // The loop: a second strand from the hole round the tag's edge, so
+      // the thread reads as tied through the hole, not stuck to it. It
+      // leaves the hole the way the string does (toward the pin).
+      const ang = Math.atan2(py * h - hy, px * w - hx);
+      const ux = Math.cos(ang);
+      const uy = Math.sin(ang);
+      const L = 15;
+      const ex = hx + ux * L - uy * 2.5;
+      const ey = hy + uy * L + ux * 2.5;
+      const cx = hx + ux * L * 0.35 - uy * 7.5;
+      const cy = hy + uy * L * 0.35 + ux * 7.5;
+      const r = (v: number) => Math.round(v * 10) / 10;
+      s.paths[2].setAttribute('d', `M${r(hx)} ${r(hy)}Q${r(cx)} ${r(cy)} ${r(ex)} ${r(ey)}`);
+      s.note = k;
+    };
+
+    /** How much of the current tag's string shows. */
+    const drawString = () => {
+      const s = slots[slot];
+      if (s.note < 1) return;
+      const d = reduced ? 1 : noteDraw(pos, s.note);
+      s.g.style.setProperty('--off', String(1 - d));
+      s.g.style.setProperty('--knot', d > 0.02 ? '1' : '0');
+    };
+
+    /** Say something in the live region (not on the first read, not just after a room switch). */
+    const say = (text: string) => {
+      if (performance.now() >= quietUntil) live.textContent = text;
+    };
+
+    /** Switch the cards, pins and string to card `k` (0 brief, k tag, -1 close). */
+    const showCard = (k: number) => {
+      if (k === current) return;
+      const first = current === -2;
+      current = k;
+      toggle(brief, k === 0);
+      notes.forEach((t, i) => toggle(t, i === k));
+      pins.forEach((p, i) => toggle(p, i === k));
+      // The string: the old slot fades with its tag, the new one draws in.
+      slots[slot].g.toggleAttribute('data-on', false);
+      if (k > 0) {
+        slot = 1 - slot;
+        placeTag(k);
+        aim(slots[slot], k);
+        slots[slot].g.toggleAttribute('data-on', true);
+        drawString();
+        if (!first) {
+          const tag = notes[k];
+          const label = tag.querySelector('.rtag__check')?.textContent?.trim() ?? '';
+          const text = tag.querySelector('.rtag__text')?.textContent?.trim() ?? '';
+          say(`${label}: ${text}`);
+        }
+      } else {
+        slots[slot].note = -1;
+      }
+    };
+
+    /** The beat card on show (laptop's left margin): the brief before the first tag. */
+    const showBeat = (k: number) => {
+      const b = current === 0 ? -1 : k;
+      if (b === beat) return;
+      const was = beat;
+      beat = b;
+      beats.forEach((el, i) => toggle(el, i === b));
+      // A new beat: read its caption first (the tag follows it).
+      if (was !== -2 && b >= 0 && beats[b]) {
+        const cap = beats[b].querySelector('.room__beat-text')?.textContent?.trim() ?? '';
+        const msg = live.textContent ?? '';
+        if (performance.now() >= quietUntil) live.textContent = `${cap} ${msg}`.trim();
+      }
+    };
+
+    /** Light the plan chips whose beat has finished. */
+    const showPlan = () => {
+      const now = planLit(pos, chipBeats, ends);
+      now.forEach((on, i) => {
+        if (on === lit[i]) return;
+        chips[i].toggleAttribute('data-lit', on);
+        // On a phone the strip scrolls sideways: bring a newly lit chip
+        // into view inside its own row (never the page).
+        const row = chips[i].parentElement;
+        if (on && lit.length && row && row.scrollWidth > row.clientWidth + 1) {
+          const left = chips[i].offsetLeft - 4;
+          if (
+            left < row.scrollLeft ||
+            left + chips[i].offsetWidth > row.scrollLeft + row.clientWidth
+          )
+            row.scrollTo({ left, behavior: reduced ? 'auto' : 'smooth' });
+        }
+      });
+      lit = now;
     };
 
     /** Read the scroll, and draw the build there. */
@@ -679,7 +1156,17 @@ const asIsHex = linearToHex(first.median);
       const raw = scrubPosition(progress, n, ends);
       pos = reduced ? snapPosition(raw) : raw;
       rule.style.setProperty('--room-p', String(n ? pos / n : 0));
+      const wasFirst = current === -2;
+      showCard(noteAt(pos, n));
       showBeat(beatAt(pos, ends));
+      drawString();
+      showPlan();
+      const c = closeShown(pos, n);
+      if (c !== closed) {
+        closed = c;
+        root.toggleAttribute('data-closed', c);
+        if (c && !wasFirst) say(closeLine);
+      }
       painter?.setProgress(pos);
       syncStack();
     };
@@ -694,31 +1181,60 @@ const asIsHex = linearToHex(first.median);
         });
       }
     };
+    /** A resize moves every card: re-place the tag and re-aim its string. */
+    const onResize = () => {
+      if (current > 0) {
+        placeTag(current);
+        aim(slots[slot], current);
+      }
+      onScroll();
+    };
     let listening = false;
     const listen = (on: boolean) => {
       if (on === listening) return;
       listening = on;
       if (on) {
         window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll, { passive: true });
+        window.addEventListener('resize', onResize, { passive: true });
         apply();
       } else {
         window.removeEventListener('scroll', onScroll);
-        window.removeEventListener('resize', onScroll);
+        window.removeEventListener('resize', onResize);
       }
     };
     const nearTrack = new IntersectionObserver((es) => listen(es.some((e) => e.isIntersecting)), {
       rootMargin: '50% 0px',
     });
     nearTrack.observe(track);
+    // The fonts change every card's height: re-place once they are in.
+    void document.fonts?.ready.then(() => !dead && onResize());
 
-    /** (Re-)arm for the room now in the DOM: its beats, ticks and frames. */
+    /** (Re-)arm for the room now in the DOM: its beats, notes, ticks and frames. */
     const arm = () => {
-      const c = captions();
-      steps = c ? [...c.querySelectorAll<HTMLElement>('[data-room-step]')] : [];
+      const box = notesBox();
+      notes = [];
+      box?.querySelectorAll<HTMLElement>('.room__note').forEach((t) => {
+        notes[Number(t.dataset.card)] = t;
+      });
+      pins = [];
+      box?.querySelectorAll<HTMLElement>('[data-pin-for]').forEach((p) => {
+        pins[Number(p.dataset.pinFor)] = p;
+      });
+      beats = box ? [...box.querySelectorAll<HTMLElement>('.room__beat')] : [];
+      brief = box?.querySelector<HTMLElement>('.room__brief') ?? null;
+      chips = box ? [...box.querySelectorAll<HTMLElement>('[data-plan-beat]')] : [];
+      chipBeats = chips.map((c) => Number(c.dataset.planBeat));
+      closeLine = box?.querySelector('[data-room-close] .room__close-line')?.textContent ?? '';
       ends = numbers(frames()?.dataset.ends);
       n = Math.max(0, imgsOf(frames() as HTMLElement).length - 1);
-      beat = -2;
+      current = beat = -2;
+      lit = [];
+      closed = false;
+      root.removeAttribute('data-closed');
+      slots.forEach((s) => {
+        s.g.removeAttribute('data-on');
+        s.note = -1;
+      });
       rule.querySelectorAll('i').forEach((i) => i.remove());
       for (const t of beatTicks(ends, n)) {
         const tick = document.createElement('i');
@@ -742,25 +1258,10 @@ const asIsHex = linearToHex(first.median);
       }
     };
 
-    // ---- paint chips ------------------------------------------------------
-    const onChip = (e: Event) => {
-      const btn = e.currentTarget as HTMLButtonElement;
-      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === btn)));
-      chip = btn.dataset.hex ? hexToLinear(btn.dataset.hex) : null;
-      painter?.setChip(chip);
-    };
-    chips.forEach((c) => c.addEventListener('click', onChip));
-    const paintAsIs = () => {
-      const m = numbers(frames()?.dataset.median);
-      if (asIs && m.length === 3)
-        asIs.style.background = linearToHex(m as [number, number, number]);
-    };
-
     // ---- frames and the painter, loaded about a screen early --------------
     const fallback = () => {
       painter = null;
       canvas.hidden = true;
-      deck.hidden = true;
       root.dataset.nogl = '';
       delete root.dataset.painted;
       syncStack();
@@ -779,13 +1280,11 @@ const asIsHex = linearToHex(first.median);
             onReady: () => {
               if (dead) return;
               canvas.hidden = false;
-              deck.hidden = false;
               root.dataset.painted = '';
             },
             onLost: fallback,
           });
           if (!painter) fallback();
-          else if (chip) painter.setChip(chip);
         } catch {
           fallback();
         }
@@ -796,25 +1295,25 @@ const asIsHex = linearToHex(first.median);
 
     // ---- room tabs (two or more rooms) -------------------------------------
     // Rooms already shown, kept detached so going back is instant.
-    const kept = new Map<string, { frames: HTMLElement; captions: HTMLElement }>();
-    let current = 0;
+    const kept = new Map<string, { frames: HTMLElement; notes: HTMLElement }>();
+    let chosen = 0;
 
     const select = (k: number) => {
-      if (k === current || !tabs[k]) return;
+      if (k === chosen || !tabs[k]) return;
       const slug = tabs[k].dataset.roomTab ?? '';
       let next = kept.get(slug);
       if (!next) {
         const tpl = root.querySelector<HTMLTemplateElement>(`template[data-room-tpl="${slug}"]`);
         const frag = tpl?.content.cloneNode(true) as DocumentFragment | undefined;
         const f = frag?.querySelector<HTMLElement>('.room__frames');
-        const c = frag?.querySelector<HTMLElement>('.room__captions');
+        const c = frag?.querySelector<HTMLElement>('.room__notes');
         if (!f || !c) return;
-        next = { frames: f, captions: c };
+        next = { frames: f, notes: c };
       }
       const outFrames = frames();
-      const outCaptions = captions();
-      if (!outFrames || !outCaptions) return;
-      kept.set(tabs[current].dataset.roomTab ?? '', { frames: outFrames, captions: outCaptions });
+      const outNotes = notesBox();
+      if (!outFrames || !outNotes) return;
+      kept.set(tabs[chosen].dataset.roomTab ?? '', { frames: outFrames, notes: outNotes });
       kept.delete(slug);
 
       // Swap. The canvas moves with the room (on top of its stack); it shows
@@ -822,21 +1321,24 @@ const asIsHex = linearToHex(first.median);
       canvas.toggleAttribute('data-loading', !canvas.hidden);
       outFrames.replaceWith(next.frames);
       next.frames.append(canvas);
-      outCaptions.replaceWith(next.captions);
+      outNotes.replaceWith(next.notes);
       const ar = next.frames.style.getPropertyValue('--ar');
-      if (ar) root.style.setProperty('--room-ar', ar);
+      if (ar) {
+        root.style.setProperty('--room-ar', ar);
+        const [a, b] = ar.split('/').map(Number);
+        if (a > 0 && b > 0) root.style.setProperty('--room-arn', String(a / b));
+      }
 
       tabs.forEach((t, i) => {
         t.setAttribute('aria-selected', String(i === k));
         t.tabIndex = i === k ? 0 : -1;
       });
       panel.setAttribute('aria-labelledby', tabs[k].id);
-      current = k;
+      chosen = k;
       // The visitor keeps their place: the same share of the new room's build.
-      arm();
-      paintAsIs();
       live.textContent = tabs[k].dataset.announce ?? '';
       quietUntil = performance.now() + 1500;
+      arm();
       void preload(next.frames);
 
       const room = roomOf(next.frames);
@@ -844,10 +1346,9 @@ const asIsHex = linearToHex(first.median);
         const mine = k;
         painter.setRoom(room, pos).then((ok) => {
           // null: a later choice superseded this load.
-          if (dead || ok === null || current !== mine) return;
+          if (dead || ok === null || chosen !== mine) return;
           canvas.removeAttribute('data-loading');
           canvas.hidden = !ok;
-          deck.hidden = !ok;
           root.toggleAttribute('data-painted', ok);
           if (!ok) syncStack();
         });
@@ -893,7 +1394,6 @@ const asIsHex = linearToHex(first.median);
       if (queued) cancelAnimationFrame(queued);
       nearTrack.disconnect();
       near.disconnect();
-      chips.forEach((c) => c.removeEventListener('click', onChip));
       tabs.forEach((t) => t.removeEventListener('click', onTabClick));
       tablist?.removeEventListener('keydown', onTabKey);
       kept.clear();
