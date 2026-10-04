@@ -341,6 +341,44 @@ test.describe('Concept room', () => {
     expect(words).not.toContain(String.fromCharCode(0x2014));
   });
 
+  test('the scroll cue shows over the photo at the start and goes once the build begins', async ({
+    page,
+  }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const cue = page.locator('[data-room-cue]');
+    await expect(cue).toHaveCount(1);
+    // Decorative: the live region and the plan already speak.
+    await expect(cue).toHaveAttribute('aria-hidden', 'true');
+
+    await toProgress(page, 0);
+    await expect(cue).toBeVisible();
+    // Inside the photo (not down on the plan dock), horizontally centred on it.
+    const box = await page.evaluate(() => {
+      const fig = document.querySelector('[data-room-figure]') as HTMLElement;
+      const sec = document.querySelector('section.room') as HTMLElement;
+      const c = document.querySelector('[data-room-cue]') as HTMLElement;
+      const f = fig.getBoundingClientRect();
+      const r = c.getBoundingClientRect();
+      const arn = parseFloat(sec.style.getPropertyValue('--room-arn'));
+      return {
+        photoBottom: f.top + f.width / arn,
+        cueBottom: r.bottom,
+        cueMid: r.left + r.width / 2,
+        figMid: f.left + f.width / 2,
+      };
+    });
+    expect(box.cueBottom).toBeLessThanOrEqual(box.photoBottom);
+    expect(Math.abs(box.cueMid - box.figMid)).toBeLessThan(2);
+
+    await toProgress(page, 0.5);
+    await expect(cue).toBeHidden();
+    await toProgress(page, 1);
+    await expect(cue).toBeHidden();
+    // Back at the top of the track, it returns.
+    await toProgress(page, 0);
+    await expect(cue).toBeVisible();
+  });
+
   test('one wall mask, on the finished frame only; no old paint deck', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const room = page.locator('section.room');
