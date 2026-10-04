@@ -13,7 +13,7 @@
 //   │  subhead            [primary CTA] secondary    │                  │
 //   └────────────────────────────────────────────────┴──────────────────┘
 //
-// Phone: the portrait sits on top (40svh since 2026-10-03), the bronze block with the
+// Phone: the portrait sits on top (50svh since 2026-10-04), the bronze block with the
 // headline below it.
 //
 // Content (all from the homePage singleton, nothing new to fill in except the
@@ -337,13 +337,18 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
       flex-direction: column-reverse;
       min-height: 0;
     }
-    /* Shorter photo on phones (2026-10-03, Impeccable audit P2): at 62svh the
-       headline began at y~650 of an 844 screen and both buttons sat below the
-       fold. 40svh puts the headline at ~y400 and the primary button above the
-       fold at 390x844. */
+    /* Phone photo height. 2026-10-03 (Impeccable audit P2): 62svh pushed both
+       buttons below the fold, so it went to 40svh. 2026-10-04 (Nathan): that
+       cropped Staci's head against the top of the screen. The headline lost its
+       second clause (now just "Homes that feel completely yours", three short
+       lines), which frees the room, so the photo is back up to 50svh and the
+       crop is anchored higher (object-position below) to give her head air. */
     .home-hero__photo {
-      height: min(40svh, 26rem);
+      height: min(50svh, 32rem);
       min-height: 15rem;
+    }
+    .home-hero__photo :global(.home-hero__img) {
+      object-position: 50% 8%;
     }
     .home-hero__photo::after {
       background: linear-gradient(0deg, var(--color-chip-6) 0, transparent 28%);
