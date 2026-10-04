@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: the concept room on weak phones
+
+Staci's iPhone (Low Power Mode, battery under 20%) showed the room stuck on the empty photo while she scrolled; Android Chrome and a WebKit iPhone 14 profile were fine. Measured under 6x CPU and a slow network (chromium, iPhone 14 profile): 0 of 11 frames were decoded when the room pinned, because frames loaded one at a time and only a screen early. Fix in `RoomStage.astro`: preload three frames at a time, starting three screens early; `sizes` gained `(max-width: 767px) 66vw` (RoomScene, RoomStory and RoomStage's script) so a phone takes the 960 size, not 1440. Low Power Mode itself could not be reproduced from a desktop, so this is a hardening measured under throttling, not a confirmed fix of her phone.
+
 ## 2026-10-03: Re-sync of preview-morph, preview-stega and redirects (port cards 77, 78, 79)
 
 Pulled the starter's copies forward byte for byte (fbcm's fixes, promoted in starter PR #70): `src/lib/preview-morph.ts` keeps the post-load client-state classes (`is-visible`, `is-drawn`, `is-revealed`, `is-staggered`) when it syncs `class`, so the live preview no longer re-hides revealed sections after a draft edit (card 77); `src/lib/preview-stega.ts` exports `RUN_SOURCE` (card 78, no behaviour change); `src/lib/redirects.ts` keeps `?query` and `#fragment` on redirect destinations and its loop guard compares paths (card 79). No site-side change: the site only calls `buildRedirectMap` (`astro.config.mjs`) and `splitStega`/`sourceKey`, all unchanged. `preview-morph.test.ts` and `redirects.test.ts` are unmarked vitest adaptations and were left as they are (they pass against the new code); the starter's new test cases are not ported here. `sync-check` is 38 same, 0 drifted.

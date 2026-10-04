@@ -104,7 +104,7 @@ if (rawIndex !== undefined && !index) {
 // The room is up to three quarters of a laptop screen (as wide as its height
 // allows), full width on a phone.
 const WIDTHS = [640, 960, 1440];
-const SIZES = '(min-width: 1024px) 75vw, 100vw';
+const SIZES = '(min-width: 1024px) 75vw, (max-width: 767px) 66vw, 100vw';
 // Plan chips spread over the ramp, palest first, never chip 5 (Warm Bronze
 // takes no text). Five chips get 1, 2, 3, 4, 6.
 const PLAN_RAMP = [1, 2, 3, 4, 6];

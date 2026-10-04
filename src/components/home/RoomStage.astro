@@ -838,7 +838,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
   } from '@/lib/room-story';
   import type { PainterRoom, RoomPainter } from '@/scripts/room-painter';
 
-  const SIZES = '(min-width: 1024px) 75vw, 100vw';
+  const SIZES = '(min-width: 1024px) 75vw, (max-width: 767px) 66vw, 100vw';
   let teardown: (() => void) | null = null;
 
   /**
@@ -1323,17 +1323,29 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     };
     arm();
 
-    /** Decode a room's frames one after another, in build order. */
+    /**
+     * Decode a room's frames in build order, THREE AT A TIME (2026-10-03). One
+     * after another left a slow or power-saving phone far behind the scroll:
+     * the visitor reached piece 5 with only frame 1 in, and the room sat on
+     * the empty photo. Three lanes take frames in order, so the early ones
+     * still arrive first, without a burst of eleven avif decodes at once.
+     */
     const preload = async (box: HTMLElement) => {
-      for (const img of imgsOf(box)) {
-        try {
-          await loadFrame(img);
-        } catch {
-          /* a missing frame: the stack keeps what it shows */
+      const imgs = imgsOf(box);
+      let next = 0;
+      const lane = async () => {
+        while (next < imgs.length) {
+          const img = imgs[next++];
+          try {
+            await loadFrame(img);
+          } catch {
+            /* a missing frame: the stack keeps what it shows */
+          }
+          if (dead || box !== frames()) return;
+          syncStack();
         }
-        if (dead || box !== frames()) return;
-        syncStack();
-      }
+      };
+      await Promise.all([lane(), lane(), lane()]);
     };
 
     // ---- frames and the painter, loaded about a screen early --------------
@@ -1371,7 +1383,11 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
           fallback();
         }
       },
-      { rootMargin: '100% 0px' },
+      // Three screens early (was one): the pinned track is long, so this still
+      // fetches nothing for a visitor who never nears the room, but a phone
+      // that is slow to fetch and decode has the first frames in by the time
+      // the room pins.
+      { rootMargin: '300% 0px' },
     );
     near.observe(root);
 
