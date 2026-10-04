@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-04: Home hero re-balanced after the headline got shorter
+
+With the shorter headline, `HomeHero.astro` still pinned the eyebrow to the top and the headline to the foot, leaving a large empty band between them. The copy column is now `justify-content: center` with one even gap, the eyebrow's `margin-bottom: auto` is gone, and the h1 `max-width` went from 13ch to 16ch so it can wrap as "Homes that / feel completely yours" on wider screens. Verified at 1527x921 in the browser.
+
 ## 2026-10-04: Home hero headline shortened, phone portrait given room back
 
 Nathan: the phone hero's line breaks were off (a stray comma opening a line) and Staci's head sat too high against the top of the screen. Fixes: the Sanity `homePage.heroHeadline` lost its second clause (now "Homes that feel completely yours"; the accent phrase is unchanged), and the phone portrait in `HomeHero.astro` went from `min(40svh, 26rem)` to `min(50svh, 32rem)` with `object-position: 50% 8%` so more room sits above her head. The shorter headline pays for the taller photo, so the primary button should still land near the fold. Revert: restore the old height in the `max-width: 1023px` block and re-enter the longer headline in Studio.

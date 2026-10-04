@@ -193,23 +193,25 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     z-index: 3;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    gap: clamp(1.5rem, 3vw, 2.5rem);
+    /* Centred as one group (2026-10-04): the headline is two lines now, so
+       pinning the eyebrow to the top and the headline to the foot left a
+       hole in the middle of the hero. */
+    justify-content: center;
+    gap: clamp(1.75rem, 3.5vw, 3rem);
     /* Generous top room: the eyebrow sits well clear of the header row. */
     padding: clamp(3.5rem, 8vw, 6.5rem) var(--gut) clamp(2.75rem, 6vw, 5.5rem);
     /* Start the copy on the page container's left edge on wide screens. */
     padding-left: max(var(--gut), calc((100vw - 85rem) / 2 + var(--gut)));
   }
 
-  /* Eyebrow and rating share the top line; margin-bottom auto pushes the
-     headline down to the foot of the hero, as the eyebrow alone used to. */
+  /* Eyebrow and rating share the top line, sitting directly above the headline. */
   .home-hero__top {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1rem 2rem;
-    margin: 0 0 auto;
+    margin: 0;
   }
   .home-hero__eyebrow {
     display: flex;
@@ -238,7 +240,7 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
     font-size: clamp(3rem, 0.9rem + 5.6vw, 6.4rem);
     line-height: 0.95;
     letter-spacing: -0.035em;
-    max-width: 13ch;
+    max-width: 16ch;
     text-wrap: balance;
   }
 
