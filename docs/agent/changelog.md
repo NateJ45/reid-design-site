@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-04: Home hero headline shortened, phone portrait given room back
+
+Nathan: the phone hero's line breaks were off (a stray comma opening a line) and Staci's head sat too high against the top of the screen. Fixes: the Sanity `homePage.heroHeadline` lost its second clause (now "Homes that feel completely yours"; the accent phrase is unchanged), and the phone portrait in `HomeHero.astro` went from `min(40svh, 26rem)` to `min(50svh, 32rem)` with `object-position: 50% 8%` so more room sits above her head. The shorter headline pays for the taller photo, so the primary button should still land near the fold. Revert: restore the old height in the `max-width: 1023px` block and re-enter the longer headline in Studio.
+
 ## 2026-10-03: Impeccable audit fixes (hero fold, script accent, touch targets, portfolio empty state)
 
 An Impeccable design audit of the live site (verdict "minor polish") found four code-fixable issues; fixed in one PR. Measured with a scripted Playwright pass (own headless Chromium, 390x844 and 1440x900, plus 1024 and 1280) before and after, and axe-core 4.x (wcag2a/aa, 2.1 AA, 2.2 AA, best-practice) on `/`, `/services`, `/portfolio`, `/contact`: 0 violations before and after.
