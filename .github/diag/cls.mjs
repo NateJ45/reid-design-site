@@ -16,7 +16,12 @@ for (const run of [1, 2]) {
   await c.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   await p.addInitScript(() => {
     window.__shifts = []; window.__fonts = [];
-    new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__shifts.push({ t: Math.round(e.startTime), v: +e.value.toFixed(4), src: (e.sources || []).map((s) => ({ n: s.node && (s.node.id || s.node.className || s.node.nodeName), from: [s.previousRect.y, s.previousRect.height].map(Math.round), to: [s.currentRect.y, s.currentRect.height].map(Math.round) })) }); } }).observe({ type: 'layout-shift', buffered: true });
+    new PerformanceObserver((l) => {
+      for (const e of l.getEntries()) {
+        const src = (e.sources || []).map((s) => ({ n: s.node ? (s.node.id || s.node.className || s.node.nodeName) : '', from: [Math.round(s.previousRect.y), Math.round(s.previousRect.height)], to: [Math.round(s.currentRect.y), Math.round(s.currentRect.height)] }));
+        window.__shifts.push({ t: Math.round(e.startTime), v: +e.value.toFixed(4), src });
+      }
+    }).observe({ type: 'layout-shift', buffered: true });
     document.fonts && document.fonts.addEventListener('loadingdone', (ev) => window.__fonts.push({ t: Math.round(performance.now()), faces: ev.fontfaces.map((f) => f.family + ' ' + f.style + ' ' + f.weight) }));
   });
   await p.goto('http://localhost:4555/', { waitUntil: 'load' });
