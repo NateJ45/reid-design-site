@@ -16,6 +16,6 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build
-      - run: fc-list : family | sort -u | head -60
+      - run: "fc-list : family | sort -u | head -60"
       - run: npx playwright install --with-deps chromium
       - run: node .github/diag/cls.mjs
