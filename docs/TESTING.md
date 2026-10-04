@@ -17,13 +17,15 @@ it before adding a check, and update it in the same commit that adds one.
 | Link health        | `node scripts/check-live-links.mjs` (weekly in `link-health.yml`) | Node, reads the live dataset   | NOT part of CI. Every outbound http(s) link in every published document, probed; gone = red, host refuses scripts = reported only. Reid fork of the starter's card 42 (walks documents, not a field list)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Parity             | `npm run parity capture` / `compare`                              | Node, reads `dist/client`      | Rendered-HTML drift on a change that is supposed to be render-neutral (below)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Drift check        | `npm run sync-check`                                              | Node, dependency-free          | Whether this repo's copies of the shared starter files still match the library of record (below)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| CI                 | push / PR, `.github/workflows/ci.yml` and `lighthouse.yml`        | GitHub Actions                 | ci.yml has two jobs: **build** (typegen with retry, stale-types guard, astro check, eslint, prettier check, unit tests, Astro build, link check) and **test** (both Playwright projects, html report artifact). lighthouse.yml builds once more and runs `lhci autorun` on its own                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| CI                 | push / PR, `.github/workflows/ci.yml` and `lighthouse.yml`        | GitHub Actions                 | ci.yml (card 70) runs **static** (drift check, data audit, typegen with retry, stale-types guard, astro check, eslint, prettier check, unit tests) and **site** (Astro build, link check, uploads `dist/client`) in parallel; **e2e** runs both Playwright projects in 3 shards against that artifact; **build** and **test** are the required aggregator checks over them. lighthouse.yml builds once more and runs `lhci autorun` on its own: a 4-page sample on PRs, the full list on push to main, Mondays and dispatch                                                                                                                                                                                                                           |
 
 This is the family test standard (2026-09-05): every Astro site in the family
 runs the same gates in the same order, copied from WCP. `npm run check:full`
 keeps the old local chain (typegen, build, unit tests) for a from-scratch
-verification. CI splits build and Playwright into separate jobs so a Playwright
-failure does not hide a build failure, and vice versa.
+verification. CI splits static checks, build and Playwright into separate jobs so a Playwright
+failure does not hide a build failure, and vice versa. The Playwright config
+serves an already-built `dist/client` when `PLAYWRIGHT_SKIP_BUILD` is set (CI
+shards only); unset, every local run still builds first.
 
 Three files are deliberately outside prettier's reach (see `.prettierignore`):
 `Hero.astro`, `HeroBackground.astro` and `BaseLayout.astro` nest a
@@ -178,7 +180,7 @@ are normalized; everything else is byte-exact, marker line included. Locate the
 library with `NCS_STARTER_DIR`, or leave it to find a sibling
 `ncs-astro-sanity-starter` directory.
 
-Since 2026-09-06 this is a CI gate, not only a hand-run check: the build job
+Since 2026-09-06 this is a CI gate, not only a hand-run check: the static job
 checks the starter out at `.ncs-starter` and runs `node scripts/sync-check.mjs`
 against it on every push and PR (see the starter's PORTS.md card 36).
 
@@ -199,7 +201,7 @@ sources of build nondeterminism.
 - **The Content-Security-Policy.** `public/_headers` is only served by `npm run preview` (wrangler) or Cloudflare, never by the static server the Playwright suites use, so no suite sees a CSP violation. Check it by hand under `npm run preview` whenever an embed, script, font or API host is added: load the page and look for "violates the following Content-Security-Policy directive" in the console. The 2026-09-29 sweep script (9 public routes on localhost and on the production hostname via request routing, so GA4 fires, plus `/studio/` up to the sign-in screen) is described in the changelog entry of that date.
 
 - **Lighthouse on the deployed edge.** `.github/workflows/lighthouse.yml`
-  audits the static build on every push, but against a local static server,
+  audits the static build (a 4-page sample on PRs, all pages on push to main and Mondays), but against a local static server,
   not Cloudflare. docs/claude/visual-verification.md still asks for a
   Lighthouse run on the deployed URL for accessibility-affecting changes.
 - **No visual regression / screenshot diffing.** Both viewports (the site is

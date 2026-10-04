@@ -55,8 +55,9 @@ Do NOT run `npx sanity deploy` (it would publish a second, drifting Studio; ther
 ## Branch, CI and deploy
 
 - Production: push to `main` triggers a Cloudflare Workers build for reiddesignllc.com. Any other branch gets a preview URL. Sanity edits go live only after a rebuild (publish webhook or a push); see rule 6.
-- CI runs `scripts/sync-check.mjs` FIRST and short-circuits the rest when red (later steps show skipped, not passed). It goes red with no change here when the starter updates a `PORTABLE` file. Fix recipe: `.claude/rules/build-pipeline-and-scripts.md`.
-- Lighthouse CI (`lighthouse.yml`, `lighthouserc.json`): accessibility must hold 100. Run `npm run check` and the relevant tests before every push; tests map in `docs/TESTING.md`.
+- CI runs `scripts/sync-check.mjs` FIRST and short-circuits the rest of the `static` job when red (later steps show skipped, not passed; `build` goes red). It goes red with no change here when the starter updates a `PORTABLE` file. Fix recipe: `.claude/rules/build-pipeline-and-scripts.md`.
+- CI shape (PORTS.md card 70): `ci.yml` runs `static` and `site` in parallel, `build` and `test` are aggregator jobs over them and over the 3 `e2e` Playwright shards (the shards serve the `dist/client` that `site` uploads, `PLAYWRIGHT_SKIP_BUILD=1`). `build`, `test` and `lighthouse` are all REQUIRED checks: keep those job names, and never add a `paths:` filter to `ci.yml` or to `lighthouse.yml`'s `pull_request` trigger (a required check that never reports blocks the merge).
+- Lighthouse CI (`lighthouse.yml`, `lighthouserc.json`): accessibility must hold 100. PRs audit a 4-page sample (`/`, `/services/`, `/contact/`, `/404.html`) via `--collect.url`; push to `main`, the Monday cron and manual dispatch audit the full list. Run `npm run check` and the relevant tests before every push; tests map in `docs/TESTING.md`.
 - Pause for confirmation before installing new dependencies.
 
 ---
@@ -81,29 +82,19 @@ One-line versions. The full text of each sits in the rules file named in bracket
 
 ---
 
-## Code conventions
+## Family conventions
 
-- TypeScript strict mode. No `any`.
-- Comment generously, especially in components that future-Nathan might edit by hand.
-- At the top of each component file, add a header comment marking it `// Safe to edit by hand` or `// Foundation, edit with care`.
-- Astro components for static content. React islands only where interactivity is required (lightbox, mobile nav, form handler, before/after slider, accordions).
-- Prefer Astro's built-in `<Image />` and `<Picture />` components over plain `<img>` tags for any locally-bundled assets. For Sanity-hosted images, use the project's `<SanityImage />` wrapper (see image handling section).
-- Tailwind utility classes inline. Pull into `@apply` only when a pattern repeats four or more times.
-- Use `clsx` or `class-variance-authority` for conditional classes once components get state-dependent styling.
+Shared by every site repo in the family, so they live in one PORTABLE file imported here (it is expanded into context at launch, so this saves lines in this file, not tokens): the code conventions (strict TypeScript, header comments, Astro and React islands, images, Tailwind) and the working-with-Claude habits (desktop app, Plan Mode, confirm before installing, describe design in plain language, verify in a real browser).
+
+@docs/claude/family-conventions.md
+
+Repo-specific additions to the shared text:
+
+- The `<SanityImage />` wrapper and the image rules are in `docs/agent/images.md`.
+- What to verify, and when, is in `docs/claude/visual-verification.md`. The site is light only (since 2026-09-29), so that is one theme at both viewports.
+- For Studio testing, open `/studio` and check the editor experience as Staci would see it.
 
 Foundation files (change only in a planned Claude session) and hand-editable files: `docs/claude/safe-to-edit-by-hand.md`, plus the "Foundation files" section of each rules file. In short, foundation means `src/styles/globals.css`, `src/sanity/schemaTypes/*.ts`, the Studio and preview stack, `src/lib/sanity.ts` and `queries.ts`, `BaseLayout.astro`, `astro.config.mjs`, `wrangler.jsonc`, `package.json`, `public/_redirects` and `public/_headers`.
-
----
-
-## Working with Claude
-
-- Use Claude Code from the desktop app, not the terminal. Show diffs clearly so they read well in that UI.
-- Prefer Plan Mode for any multi-file change, especially when touching Sanity schemas (schema changes propagate to live content).
-- Pause for confirmation before installing new dependencies.
-- When proposing design changes, describe the visual outcome in plain language, not just the code.
-- For browser-based verification, prefer the Playwright MCP. See `docs/claude/visual-verification.md` for what to verify and when.
-- For Sanity Studio testing, run `npm run dev` and open `/studio` to check the editor experience as Staci would see it.
-- Don't report a UI change as done without screenshots at both viewports (light only since 2026-09-29).
 
 Voice in brief: warm, plain-spoken, quietly confident about money; no em-dashes in public-facing site copy (comments, commits and internal docs are exempt); banned on the site: "transformative," "curated experience," "investment in your space," "elevated living," "tailored solutions." Audience, tone and the five do/don't pairs: `docs/claude/voice-and-audience.md`.
 
@@ -118,7 +109,7 @@ Voice in brief: warm, plain-spoken, quietly confident about money; no em-dashes 
 ## Ports (Astro + Sanity + Cloudflare site family)
 
 - `internal/ncs-astro-sanity-starter/PORTS.md` is the registry of improvements that generalise across the family. A fix that is not client-specific gets a port card in the SAME commit that generalises it.
-- Files marked `PORTABLE:` are canonical in the starter; do not edit our copy alone. `node scripts/sync-check.mjs` detects drift (this CLAUDE.md is not PORTABLE-marked and is not read by the script).
+- Files marked `PORTABLE:` are canonical in the starter; do not edit our copy alone. That includes `.claude/settings.json` (git reset --hard and force-push deny rules; `.claude/settings.local.json` stays git-ignored) and `docs/claude/family-conventions.md` (port card 71). `node scripts/sync-check.mjs` detects drift (this CLAUDE.md is not PORTABLE-marked and is not read by the script).
 - A lesson that bites two or more repos goes in `_vault/gotchas/` with an "applies-to" list and a "Ported to" checklist; check `_vault/gotchas/INDEX.md` before debugging anything familiar.
 
 ---
@@ -153,6 +144,7 @@ Read on demand with the Read tool; plain paths so they stay lazy. Path-scoped ru
 | Component sourcing (shadcn, Starwind, Magic UI, PrimeReact, copy-paste sources, token-remap cheat sheet) | `docs/agent/component-sources.md`                                                    |
 | Path-scoped rules (auto-load when matching files are touched)                                            | `.claude/rules/*.md` (list above)                                                    |
 | Stack essentials, full text (versions, pins, fonts, GA4, Instagram)                                      | `docs/claude/stack-essentials.md`                                                    |
+| Family conventions (PORTABLE, imported above; shared code + working-with-Claude text)                    | `docs/claude/family-conventions.md`                                                  |
 | Safe to edit by hand                                                                                     | `docs/claude/safe-to-edit-by-hand.md`                                                |
 | Visual verification workflow (screenshots, both viewports)                                               | `docs/claude/visual-verification.md`                                                 |
 | Audience, communication style, site voice, banned words                                                  | `docs/claude/voice-and-audience.md`                                                  |
