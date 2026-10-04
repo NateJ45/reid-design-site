@@ -41,7 +41,7 @@
 //             centre of the PHOTO, so a visitor does not take the pinned
 //             room for the end of the page. Scripted layout only; the scroll
 //             handler sets data-cue-off on the section once the build has
-//             begun (progress over 0.04), so it shows at the start and again
+//             begun (progress over 0.12), so it shows at the start and again
 //             if they scroll back to the top, never at the close. Decorative
 //             (aria-hidden); still under reduced motion (no bob);
 //           - the STRING: one SVG over the figure with two slots (the tag
@@ -1320,7 +1320,7 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       pos = reduced ? snapPosition(raw) : raw;
       rule.style.setProperty('--room-p', String(n ? pos / n : 0));
       // The scroll cue shows only until the build has visibly begun.
-      root.toggleAttribute('data-cue-off', progress > 0.04);
+      root.toggleAttribute('data-cue-off', progress > 0.12);
       const wasFirst = current === -2;
       const card = noteAt(pos, n);
       showBeat(beatAt(pos, ends), card);
