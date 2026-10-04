@@ -32,6 +32,8 @@
 // only at display size).
 import SanityImage from '@/components/SanityImage.astro';
 import RiseWords from '@/components/RiseWords.astro';
+// Vite fingerprints the hand face; ?url gives the hashed path for the preload below.
+import waterfallUrl from '@/assets/fonts/Waterfall-400.woff2?url';
 import { resolveCtaHref, ctaOpensNewTab, type CtaBlock } from '@/lib/cta';
 // Google rating under the buttons (2026-09-30). Renders nothing until
 // siteSettings has a Google rating (no review count since 2026-10-01).
@@ -79,6 +81,19 @@ const photo = portrait?.asset ? portrait : (fallbackImages?.find((i) => i?.asset
 const primaryHref = resolveCtaHref(primaryCta, '/services');
 const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
 ---
+
+{
+  /* Preload the two faces the headline is set in (2026-10-03). On a phone the
+     subhead and buttons now sit above the fold, so a late font swap that
+     re-wraps the headline shifted them (Lighthouse CLS 0.15 to 0.20 on a Linux
+     runner, gate 0.1). The site-wide "no font preload" rule (BaseLayout.astro)
+     was measured on a text-heavy Cormorant page where it delayed the hero photo;
+     here only these two small files (~25 KB + 36 KB) are preloaded, on the home
+     page only, and LCP is re-measured in CI. Revert by deleting these two
+     links if the home page's LCP regresses. */
+}
+<link rel="preload" href="/fonts/Zodiak-300.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={waterfallUrl} as="font" type="font/woff2" crossorigin />
 
 <section class="home-hero" aria-labelledby={headingId}>
   <div class="home-hero__copy">
