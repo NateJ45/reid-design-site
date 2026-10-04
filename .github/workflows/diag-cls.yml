@@ -1,0 +1,21 @@
+# TEMPORARY (remove before merge): CLS diagnosis on a Linux runner for PR #113.
+name: diag-cls
+on:
+  pull_request:
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_SANITY_PROJECT_ID: ba403vjc
+      PUBLIC_SANITY_DATASET: production
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: fc-list : family | sort -u | head -60
+      - run: npx playwright install --with-deps chromium
+      - run: node .github/diag/cls.mjs
