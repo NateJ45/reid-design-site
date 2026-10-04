@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Concept room: scroll cue
+
+The pinned concept room stops the page moving, so a visitor can take it for the end of the page. `RoomStage.astro` gains `.room__cue`: a small paper pill with a slowly bobbing chevron at the bottom centre of the photo ("Scroll" on a laptop, "Keep scrolling" under 768px). It shows while the room is still empty, fades once the build has begun (progress over 0.04, `data-cue-off` on the section), returns if they scroll back to the top, and is hidden at the close. Scripted layout only (no track, no cue without scripting), `aria-hidden`, no bob under reduced motion. Test: `tests/room-story.spec.ts` "the scroll cue". Verified in the browser pane at 1440x900 and 375x812.
+
 ## 2026-10-03: The staging branch is gone
 
 Nathan's call: staging is no longer used (the nixoncreativestudio project dropped it too). Deleted the `staging` branch and every merged or abandoned branch and agent worktree, local and on GitHub; only `main` and the open Dependabot PR branches remain. CI changes: removed `.github/workflows/deploy-staging.yml`, the `staging` push trigger from `ci.yml` and `lighthouse.yml`, the starter-staging sync-check ref (every build now checks the starter's `main`), and the "fast-forward staging to main" step in `dependabot-auto-merge.yml`. The deployed `reid-design-site-staging` Cloudflare Worker is NOT deleted by this and no longer updates. Older entries below that mention staging are history and were left as written.

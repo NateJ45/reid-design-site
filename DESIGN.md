@@ -679,6 +679,13 @@ shown whole, chips do not lift, cards swap without a fade or swing.
 - **Ground:** Linen chip (chip 1), NOT a second ink band (Nathan,
   2026-09-30). TapeProcess (linen) sits before it and PaintChips (paper)
   after. One accent per view: Warm Bronze marks only, never text on it.
+- **Scroll cue (2026-10-03):** the pinned room stops the page moving, so a
+  small paper pill with a slowly bobbing chevron ("Scroll", "Keep scrolling"
+  under 768px) sits at the bottom centre of the PHOTO while the room is still
+  empty. It fades once the build has begun, comes back at the top of the
+  track, and is hidden at the close. Ink-2 text on paper, never Warm Bronze;
+  no bob under reduced motion; aria-hidden (the live region and the plan
+  already speak).
 - **Honesty:** it is a CONCEPT room and must never read as Staci's portfolio.
   The "Concept room" `.r-tag` on the photo's top-left corner sits above the
   canvas, the string, the pins and the cards (`tests/room-story.spec.ts`
