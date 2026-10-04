@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Re-sync of sync-check (port card 80)
+
+Pulled the starter's `scripts/sync-check.mjs` forward byte for byte (12321 bytes): the walker now skips `_worktrees/` folders as well as `.claude/worktrees`, so a local run in a checkout with live worktrees no longer lists every marked file twice as `MISSING-IN-STARTER`. CI is unaffected (a fresh checkout has no worktrees); the re-sync is needed because `ci.yml` checks out live starter `main` and enforces the diff, so the starter change turns `build` red here until this copy matches. `sync-check` is 38 same, 0 drifted.
+
 ## 2026-10-03: the concept room on weak phones
 
 Staci's iPhone (Low Power Mode, battery under 20%) showed the room stuck on the empty photo while she scrolled; Android Chrome and a WebKit iPhone 14 profile were fine. Measured under 6x CPU and a slow network (chromium, iPhone 14 profile): 0 of 11 frames were decoded when the room pinned, because frames loaded one at a time and only a screen early. Fix in `RoomStage.astro`: preload three frames at a time, starting three screens early; `sizes` gained `(max-width: 767px) 66vw` (RoomScene, RoomStory and RoomStage's script) so a phone takes the 960 size, not 1440. Low Power Mode itself could not be reproduced from a desktop, so this is a hardening measured under throttling, not a confirmed fix of her phone.
