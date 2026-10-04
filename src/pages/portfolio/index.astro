@@ -16,6 +16,9 @@ import { site } from '@/data/site';
 import Hero from '@/components/Hero.astro';
 import ProjectBoard from '@/components/portfolio/ProjectBoard.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import RatingTag from '@/components/reviews/RatingTag.astro';
+import { googleRatingFrom } from '@/lib/reviews';
+import { DEFAULT_CTA_LABEL } from '@/lib/siteSettings';
 
 const [projects, page, siteSettings] = await Promise.all([
   getAllProjects(),
@@ -82,12 +85,15 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
     ) : (
       <section class="pf pf--empty" aria-labelledby="portfolio-empty-heading">
         <div class="r-wrap pf__empty">
-          <div class="pf__chips" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
+          {/* The blank swatch tags that used to sit here were decoration with
+              nothing in them (Impeccable audit, 2026-10-03). In their place:
+              the Google rating card that is already on the home page, which is
+              real proof, and renders nothing when no rating is set. */}
+          {googleRatingFrom(siteSettings) && (
+            <div class="pf__proof">
+              <RatingTag settings={siteSettings} />
+            </div>
+          )}
           <div>
             <h2 id="portfolio-empty-heading" class="pf__empty-h">
               Case studies are on the way.
@@ -104,6 +110,17 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
               </a>
               .
             </p>
+            <div class="pf__actions">
+              <a class="r-btn r-btn--ink" href="/contact">
+                {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
+                <span class="r-arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+              <a class="r-link" href="/services">
+                See services and prices
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -138,44 +155,15 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
   .pf__empty-p .r-link {
     color: var(--color-ink);
   }
-  /* Four blank chips off the ramp, waiting for their photos. */
-  .pf__chips {
+  .pf__actions {
     display: flex;
-    gap: 0.6rem;
-  }
-  .pf__chips span {
-    position: relative;
-    width: clamp(3.5rem, 9vw, 5.5rem);
-    aspect-ratio: 4 / 5;
-  }
-  .pf__chips span::before {
-    content: '';
-    position: absolute;
-    top: 0.5rem;
-    left: 50%;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    translate: -50% 0;
-    background: var(--color-bg);
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
-  }
-  .pf__chips span:nth-child(1) {
-    background: var(--color-chip-1);
-  }
-  .pf__chips span:nth-child(2) {
-    background: var(--color-chip-2);
-    translate: 0 0.75rem;
-  }
-  .pf__chips span:nth-child(3) {
-    background: var(--color-chip-3);
-  }
-  .pf__chips span:nth-child(4) {
-    background: var(--color-chip-4);
-    translate: 0 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 1.75rem;
   }
   @media (min-width: 1024px) {
-    .pf__empty {
+    .pf__empty:has(.pf__proof) {
       grid-template-columns: auto minmax(0, 1fr);
       gap: clamp(3rem, 7vw, 6rem);
     }

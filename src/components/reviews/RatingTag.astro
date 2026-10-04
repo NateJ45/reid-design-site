@@ -211,6 +211,16 @@ const linkAttrs = href ? { href, target: '_blank', rel: 'noopener noreferrer' } 
     font: 600 0.85rem/1 var(--font-body);
     letter-spacing: 0;
   }
+  /* Invisible hit area for the header line, which is only 14px tall
+     (2026-10-03, Impeccable audit P2). Reaches 0.9rem above and below. */
+  a.rt--compact {
+    position: relative;
+  }
+  a.rt--compact::after {
+    content: '';
+    position: absolute;
+    inset: -0.9rem -0.25rem;
+  }
   a.rt--compact:hover .rt__src {
     text-decoration: underline;
     text-underline-offset: 3px;

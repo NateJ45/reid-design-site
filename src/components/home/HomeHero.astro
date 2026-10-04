@@ -13,7 +13,7 @@
 //   │  subhead            [primary CTA] secondary    │                  │
 //   └────────────────────────────────────────────────┴──────────────────┘
 //
-// Phone: the portrait sits on top (62svh), the bronze block with the
+// Phone: the portrait sits on top (40svh since 2026-10-03), the bronze block with the
 // headline below it.
 //
 // Content (all from the homePage singleton, nothing new to fill in except the
@@ -322,9 +322,13 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
       flex-direction: column-reverse;
       min-height: 0;
     }
+    /* Shorter photo on phones (2026-10-03, Impeccable audit P2): at 62svh the
+       headline began at y~650 of an 844 screen and both buttons sat below the
+       fold. 40svh puts the headline at ~y400 and the primary button above the
+       fold at 390x844. */
     .home-hero__photo {
-      height: min(62svh, 38rem);
-      min-height: 22rem;
+      height: min(40svh, 26rem);
+      min-height: 15rem;
     }
     .home-hero__photo::after {
       background: linear-gradient(0deg, var(--color-chip-6) 0, transparent 28%);
@@ -343,8 +347,39 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
       padding-top: 0.5rem;
       margin-top: -1.5rem;
     }
+    /* Phone order: eyebrow, headline, buttons, subhead, then the rating card
+       last (it is also proof, but the offer comes first). display: contents
+       lets the eyebrow and the card be ordered as siblings of the headline. */
     .home-hero__top {
-      margin-bottom: 0.5rem;
+      display: contents;
+    }
+    .home-hero__eyebrow {
+      order: 0;
+    }
+    :global(.home-hero__h1) {
+      order: 1;
+    }
+    .home-hero__foot {
+      order: 2;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .home-hero__ctas {
+      order: -1;
+    }
+    .home-hero__rating {
+      order: 3;
+    }
+  }
+
+  /* From 1200px the header carries its own compact "5.0 Google" line
+     (Header.astro), so the hero card would show the same proof twice. The
+     header's is kept (it travels with every page); the hero card stays below
+     1200px, where the header hides its own. To bring the hero card back on
+     wide screens, delete this block (DECISIONS 2026-10-03). */
+  @media (min-width: 1200px) {
+    .home-hero__rating {
+      display: none;
     }
   }
 </style>

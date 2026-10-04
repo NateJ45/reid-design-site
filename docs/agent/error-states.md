@@ -22,7 +22,7 @@ Don't show "Oops!" or "Something went wrong." Always tell the user what to do ne
 
 ### "No projects yet" empty state
 
-`/portfolio` index (post-launch) renders an empty state for the period between launch and the first 1 or 2 case studies landing. Content: brief explanation that case studies are coming, link to Contact for "start your own project," link back to Services. Don't hide the page entirely, keeping it live builds expectation and gives Google something to crawl.
+`/portfolio` index (post-launch) renders an empty state for the period between launch and the first 1 or 2 case studies landing. Content: brief explanation that case studies are coming, link to Contact for "start your own project," link back to Services. Since 2026-10-03 it also shows the Google rating card (real proof, nothing when no rating is set) and a booking button; the old blank swatch chips were removed. Don't hide the page entirely, keeping it live builds expectation and gives Google something to crawl.
 
 ### Sanity reference resolution
 
