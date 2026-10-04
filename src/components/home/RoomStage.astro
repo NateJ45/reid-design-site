@@ -36,6 +36,14 @@
 //           - the room (RoomScene.astro) with the "Concept room" sample tag
 //             in its top corner (the honesty label, always on top);
 //           - a hairline progress rule under it, a tick per beat (decorative);
+//           - the SCROLL CUE (2026-10-03): a small paper pill with a bobbing
+//             chevron ("Scroll", "Keep scrolling" under 768px) at the bottom
+//             centre of the PHOTO, so a visitor does not take the pinned
+//             room for the end of the page. Scripted layout only; the scroll
+//             handler sets data-cue-off on the section once the build has
+//             begun (progress over 0.04), so it shows at the start and again
+//             if they scroll back to the top, never at the close. Decorative
+//             (aria-hidden); still under reduced motion (no bob);
 //           - the STRING: one SVG over the figure with two slots (the tag
 //             going and the tag coming, so they cross-fade), each a paper
 //             halo under a fine ink thread, drawn by the script;
@@ -158,6 +166,25 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
             }
           </svg>
           <RoomNotes room={first} cta={cta} />
+          {
+            /* The scroll cue (2026-10-03): the room pins, so the page stops
+              moving and a visitor can think they have hit the end. Decorative
+              (the live region and the plan already speak); shown by CSS only
+              with scripting, and the script hides it once the build starts. */
+          }
+          <div class="room__cue" aria-hidden="true" data-room-cue>
+            <svg viewBox="0 0 16 16" width="16" height="16" focusable="false">
+              <path
+                d="M3 6l5 5 5-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+            <span class="room__cue-wide">Scroll</span>
+            <span class="room__cue-phone">Keep scrolling</span>
+          </div>
           <figcaption class="room__tag r-tag"><strong>Concept room</strong></figcaption>
         </figure>
       </div>
@@ -273,6 +300,73 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
     height: 7px;
     margin-left: -0.5px;
     background: var(--color-chip-6);
+  }
+
+  /* ---- the scroll cue: a small paper pill, bottom centre of the photo ----
+     Only with scripting (no track, no pinning, no cue without it). Hidden by
+     the script (data-cue-off on .room) once the build has begun, and at the
+     close. Under the "Concept room" tag in z-order; never takes a click. */
+  .room__cue {
+    display: none;
+  }
+  .room__cue-phone {
+    display: none;
+  }
+  @media (scripting: enabled) {
+    .room__cue {
+      position: absolute;
+      left: 50%;
+      /* The figure also holds the rule and the plan dock, so measure up from
+         its bottom to the PHOTO's bottom edge (the figure is a size container
+         in the scripted layout, --room-arn is the frame's aspect), then in. */
+      bottom: calc(100% - 100cqw / var(--room-arn) + 0.9rem);
+      z-index: 6;
+      translate: -50% 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.85rem 0.4rem 0.7rem;
+      border-radius: 999px;
+      background: var(--color-paper);
+      color: var(--color-ink-2);
+      font: 500 0.78rem/1 var(--font-body);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 6px 14px rgb(35 30 27 / 0.18);
+      pointer-events: none;
+      transition:
+        opacity 300ms var(--ease),
+        visibility 0s;
+    }
+    .room[data-cue-off] .room__cue {
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 300ms var(--ease),
+        visibility 0s linear 300ms;
+    }
+  }
+  @media (scripting: enabled) and (max-width: 767px) {
+    .room__cue-wide {
+      display: none;
+    }
+    .room__cue-phone {
+      display: inline;
+    }
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .room__cue svg {
+      animation: room-cue 1.9s ease-in-out infinite;
+    }
+  }
+  @keyframes room-cue {
+    0%,
+    100% {
+      transform: translateY(-2px);
+    }
+    50% {
+      transform: translateY(3px);
+    }
   }
 
   /* ---- the string: hidden without the script ---------------------------- */
@@ -1225,6 +1319,8 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
       const raw = scrubPosition(progress, n, ends);
       pos = reduced ? snapPosition(raw) : raw;
       rule.style.setProperty('--room-p', String(n ? pos / n : 0));
+      // The scroll cue shows only until the build has visibly begun.
+      root.toggleAttribute('data-cue-off', progress > 0.04);
       const wasFirst = current === -2;
       const card = noteAt(pos, n);
       showBeat(beatAt(pos, ends), card);

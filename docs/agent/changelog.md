@@ -16,6 +16,10 @@ Decisions and judgement calls (each is small and easy to revert):
 - **Contrast triage (P3).** Scripted every visible text node on nine routes at both widths (fg vs effective solid ground). Oat `#e2cfbd` on Walnut `#80604f` (3.75:1) appears only as LARGE display text (the hero's script "completely" at 60 to 118px, the "your room" accent at 45 to 90px), which needs 3:1: passes. Sandbar `#cdb09a` and Saddle `#b39079` never appear as text on white (the audit's 2.0:1 and 2.9:1 pairings are chip fills and rules, i.e. decoration). No small text below AA found, so no colour was changed. Tag and button faces are drawn with pseudo-elements and are covered by the axe suite, not by this script.
 - **Portfolio empty state (P1, content gap).** The four blank swatch chips are gone; in their place the Google rating card (real proof, renders nothing if no rating is set), the existing copy, a "Book a consultation" button and a "See services and prices" link. No project was invented. The real fix is content: see `docs/PENDING.md` ("Portfolio needs real case studies").
 
+## 2026-10-03: Concept room: scroll cue
+
+The pinned concept room stops the page moving, so a visitor can take it for the end of the page. `RoomStage.astro` gains `.room__cue`: a small paper pill with a slowly bobbing chevron at the bottom centre of the photo ("Scroll" on a laptop, "Keep scrolling" under 768px). It shows while the room is still empty, fades once the build has begun (progress over 0.04, `data-cue-off` on the section), returns if they scroll back to the top, and is hidden at the close. Scripted layout only (no track, no cue without scripting), `aria-hidden`, no bob under reduced motion. Test: `tests/room-story.spec.ts` "the scroll cue". Verified in the browser pane at 1440x900 and 375x812.
+
 ## 2026-10-03: Re-sync of sync-check (port card 80)
 
 Pulled the starter's `scripts/sync-check.mjs` forward byte for byte (12321 bytes): the walker now skips `_worktrees/` folders as well as `.claude/worktrees`, so a local run in a checkout with live worktrees no longer lists every marked file twice as `MISSING-IN-STARTER`. CI is unaffected (a fresh checkout has no worktrees); the re-sync is needed because `ci.yml` checks out live starter `main` and enforces the diff, so the starter change turns `build` red here until this copy matches. `sync-check` is 38 same, 0 drifted.
@@ -35,6 +39,8 @@ Pulled the starter's copies forward byte for byte (fbcm's fixes, promoted in sta
 ## 2026-10-03: Shared Claude setup from the starter (port card 71)
 
 Adopted the starter's card 71. `.claude/settings.json` (tracked deny rules for `git reset --hard` and force pushes; `settings.local.json` stays git-ignored) and `docs/claude/family-conventions.md` are PORTABLE byte-for-byte copies, so `sync-check` now covers them. In `CLAUDE.md` the repo's own "Code conventions" and "Working with Claude" bullets were replaced by the import line `@docs/claude/family-conventions.md` plus three repo-specific bullets (the `SanityImage` pointer, the visual-verification doc and the light-only note, the Studio-as-Staci check). The foundation-files paragraph and the voice paragraph were kept. Numbered rules untouched.
+
+> > > > > > > origin/main
 
 ## 2026-10-03: The staging branch is gone
 
