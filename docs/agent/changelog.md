@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: the concept room on weak phones
+
+Staci's iPhone (Low Power Mode, battery under 20%) showed the room stuck on the empty photo while she scrolled; Android Chrome and a WebKit iPhone 14 profile were fine. Measured under 6x CPU and a slow network (chromium, iPhone 14 profile): 0 of 11 frames were decoded when the room pinned, because frames loaded one at a time and only a screen early. Fix in `RoomStage.astro`: preload three frames at a time, starting three screens early; `sizes` gained `(max-width: 767px) 66vw` (RoomScene, RoomStory and RoomStage's script) so a phone takes the 960 size, not 1440. Low Power Mode itself could not be reproduced from a desktop, so this is a hardening measured under throttling, not a confirmed fix of her phone.
+
 ## 2026-10-03: CI is parallel, sharded and builds once (PORTS.md card 70)
 
 `ci.yml` was two serial jobs (`build` 4 to 5 min of gates, `test` re-running `npm run build` inside Playwright's webServer after a 40s browser download) and `lighthouse.yml` built a third time, 7 to 8 minutes in total on every PR. Now `static` (drift check, audit, typegen, types guard, check, lint, format, unit) and `site` (build, link check, upload `dist/client`) run in parallel; `build` is an aggregator over both. `e2e` runs Playwright in 3 shards (`--shard=N/3`, about 150s of tests split three ways) on the uploaded artifact with `PLAYWRIGHT_SKIP_BUILD=1`, browsers cached by Playwright version; `test` is an aggregator over the shards. `playwright.config.ts` webServer honours `PLAYWRIGHT_SKIP_BUILD`; local runs still build fresh. The config is not `PORTABLE`-marked here, so sync-check does not cover it (36/36 SAME). `build`, `test` and `lighthouse` stay the three required checks, so neither workflow has a `paths:` filter. Lighthouse cost was cut by sampling instead: PRs audit `/`, `/services/`, `/contact/` and `/404.html` through `--collect.url` (assertions and median-of-3 untouched); push to `main`, a new Monday 05:17 UTC cron and manual dispatch audit all nine URLs.

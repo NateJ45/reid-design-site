@@ -51,7 +51,7 @@ interface Props {
 const { room, canvas = false } = Astro.props as Props;
 const { width, height, frames } = room;
 const last = frames.length - 1;
-const SIZES = '(min-width: 1024px) 75vw, 100vw';
+const SIZES = '(min-width: 1024px) 75vw, (max-width: 767px) 66vw, 100vw';
 ---
 
 <div
