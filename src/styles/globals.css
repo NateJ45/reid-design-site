@@ -110,6 +110,31 @@
   font-display: swap;
 }
 
+/* Waterfall's stand-in while it loads (2026-10-03). Waterfall is far narrower
+   than any serif italic: "completely" is ~140px in Waterfall and ~340px in
+   Georgia Italic at the hero size, so before the font landed the headline
+   wrapped onto an extra line and the subhead and buttons jumped ~60px (CLS
+   0.16 on a phone, over the 0.1 Lighthouse gate, once the phone hero put them
+   above the fold). Measured ratio Waterfall / Georgia Italic = 0.42 on
+   "completely" and "yours,", so size-adjust is 109.28% x 0.42 = 45.9% for
+   Georgia and 118.19% x 0.42 = 49.6% for the Times-metric twins (Linux).
+   Same method as the Zodiak fallbacks below; re-measure if the hand face or
+   .r-hand's size ever changes. Only the accent phrase uses it. */
+@font-face {
+  font-family: 'Waterfall Fallback';
+  font-style: italic;
+  src: local('Georgia Italic'), local('Georgia-Italic');
+  size-adjust: 45.9%;
+}
+@font-face {
+  font-family: 'Waterfall Fallback TNR';
+  font-style: italic;
+  src:
+    local('Times New Roman Italic'), local('TimesNewRomanPS-ItalicMT'),
+    local('Liberation Serif Italic'), local('Tinos Italic');
+  size-adjust: 49.6%;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* ---------- Metric-matched fallback faces (2026-09-29, rebuild) -------------
@@ -231,7 +256,9 @@
   --font-script: 'Zodiak', 'Zodiak Fallback', Georgia, serif;
   /* The hand-lettered hero accent (Waterfall, see its @font-face). Falls
      back to the Zodiak italic every other accent uses. */
-  --font-hand: 'Waterfall', 'Zodiak', 'Zodiak Fallback', Georgia, serif;
+  --font-hand:
+    'Waterfall', 'Waterfall Fallback', 'Waterfall Fallback TNR', 'Zodiak', 'Zodiak Fallback',
+    Georgia, serif;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;

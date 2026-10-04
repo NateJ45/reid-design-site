@@ -59,13 +59,14 @@ const plainName = displayName(splitStega(review.attribution ?? '').cleaned);
     align-items: center;
     white-space: nowrap;
   }
-  /* The dot between the age and the link is drawn by the link's ::after,
-     outside its box, so the link's drawn underline starts at the words. */
+  /* The dot between the age and the link is drawn by the link's ::before
+     (::after is the link's invisible touch hit area, reid.css .r-link,
+     2026-10-03), outside its box, so the link's drawn underline starts at the words. */
   .gcite__meta > time + .gcite__read {
     margin-left: 1.65rem;
     position: relative;
   }
-  .gcite__meta > time + .gcite__read::after {
+  .gcite__meta > time + .gcite__read::before {
     content: '';
     position: absolute;
     left: -0.95rem;

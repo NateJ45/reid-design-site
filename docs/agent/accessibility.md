@@ -44,7 +44,7 @@ This applies to editor-authored Portable Text too, so the block-style options a 
 
 ### Touch targets and tap spacing
 
-All interactive elements get at least a 44×44px hit area on mobile (WCAG 2.5.5 AAA, and table stakes on touch screens). For icon-only buttons, that means generous padding even if the icon glyph is 20px. For inline links in body copy, ensure adequate line-height so adjacent links aren't fat-finger collisions.
+All interactive elements get at least a 44×44px hit area on mobile (WCAG 2.5.5 AAA, and table stakes on touch screens). For icon-only buttons, that means generous padding even if the icon glyph is 20px. For inline links in body copy, ensure adequate line-height so adjacent links aren't fat-finger collisions. Since 2026-10-03 `.r-link` has an invisible `::after` hit area (0.75rem above and below), the footer rows and base links are 44px or more, and the header's compact rating has its own hit area. Measure with elementFromPoint probing from the element's centre (it sees padding and pseudo-elements; `getBoundingClientRect` does not). The contact form's 13x13 checkbox is the off-screen honeypot, not a target.
 
 Adjacent independent controls (two side-by-side icon buttons, two stacked nav links) get at least 8px of clear space between them. The shadcn primitives generally handle this; verify any custom button or link adheres.
 

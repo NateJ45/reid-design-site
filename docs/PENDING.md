@@ -14,6 +14,14 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-03: Portfolio needs real case studies (Impeccable audit, P1)
+
+`/portfolio` is the one real gap the audit found, and it is content, not code. The empty state is now honest and has a next step (rating card, booking button, services link), but a buyer deciding on thousands of dollars of furniture still has no finished room to look at, and the lead photo is a client kitchen with "Party of 3" decor.
+
+- [ ] Staci supplies 1 or 2 finished rooms (8 to 12 photos each, tier and price, client OK to share) for Sanity `project` documents (Projects > room story; fields as in the first-room-story item below). Optionally a stronger lead photo in `portfolioPage.heroImage`.
+- [ ] Until then, Nathan decides whether the Portfolio nav link stays (the audit suggested hiding it; the switch is Site settings > Section visibility).
+- [ ] Observation, not fixed: the floating "Ready to talk it through?" chip on `/services` is translucent enough that page text shows through its lower edge at 390px. Cosmetic; see `StickyCTAChip.tsx`.
+
 ### From 2026-10-03: the annotated concept room (MERGED to main: #93 the room, #94 swatches + phone track, #95 chip look, #98 wall touch-ups)
 
 Built by a delegated agent and reviewed by the main session (brief: `docs/design/2026-10-03-annotated-room.md`). The `../reid-concept-room` worktree now sits on `claude/wall-mask-fixes`.

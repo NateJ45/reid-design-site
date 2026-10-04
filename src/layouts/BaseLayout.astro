@@ -251,7 +251,10 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
         (always the hero PHOTO here, never text) rose by roughly 250-300ms on
         /, /about and /services. What a preload would buy, no reflow when the
         font lands, the metric-matched fallback faces in globals.css already
-        buy for free. Revisit only if a page's LCP element becomes text. */}
+        buy for free. Revisit only if a page's LCP element becomes text.
+        EXCEPTION (2026-10-03): HomeHero.astro preloads Zodiak-300 and Waterfall
+        for the phone hero, where the subhead and buttons are above the fold
+        and a late swap shifted them on Linux (docs/agent/changelog.md). */}
 
 
     {/* (The journal RSS autodiscovery link lived here until the journal was

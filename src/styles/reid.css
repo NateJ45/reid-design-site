@@ -105,6 +105,21 @@
     background-size: 0 1px;
     background-position: 100% 100%;
   }
+  /* Touch hit area (2026-10-03, Impeccable audit P2): the link text is ~24px
+     tall, under the 44px comfortable target. An invisible ::after reaches
+     0.75rem above and below the text (no layout shift; the underline and the
+     focus ring stay tight on the words). It also applies to the few links that
+     sit inside a paragraph; they are one line tall at most, so it stays within
+     the line spacing. A component that wants its own ::after on an .r-link
+     must use ::before instead (GoogleCite's dot did). */
+  .r-link {
+    position: relative;
+  }
+  .r-link::after {
+    content: '';
+    position: absolute;
+    inset: -0.75rem -0.15rem;
+  }
   .r-link:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
@@ -154,14 +169,20 @@
     font-family: var(--font-hand);
     font-weight: 400;
     font-synthesis: none;
-    font-size: 1.38em;
+    font-size: 1.24em;
     line-height: 0.68;
     letter-spacing: 0;
   }
   .r-hand.r-rise .r-w.r-accent,
   .r-hand .r-rise .r-w.r-accent {
     padding: 0.32em 0.12em 0.3em 0.06em;
-    margin: -0.32em -0.08em -0.3em -0.02em;
+    /* Bottom margin -0.06em, not -0.3em (2026-10-03, Impeccable audit P2): the
+       script's loops (p, y) hang well below the baseline, and the old margin
+       cancelled all of the padding, so the line below sat on top of them. The
+       line now keeps ~0.24em of the descender room. Size 1.38em -> 1.24em
+       with it. Measured at 1024/1280/1440/390: no content-box overlap with
+       the neighbouring lines. */
+    margin: -0.24em -0.08em -0.06em -0.02em;
   }
   .r-lede {
     font-size: var(--text-lede);

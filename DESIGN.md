@@ -86,7 +86,7 @@ figures printed on the tape measure (part of the drawing, aria-hidden).
   in **Waterfall**, a hairline signature script echoing the handwriting Staci
   puts on her Instagram graphics (her own face is probably a Canva Pro font
   that cannot go on the web; Waterfall was the closest of ~30 free faces set
-  side by side with her phrases). Set ~1.4x the serif, upright, in the
+  side by side with her phrases). Set ~1.24x the serif (was 1.38x until 2026-10-03, when its descenders ran into the next line), upright, in the
   accent colour. Everywhere else (section headings, the closing band) the
   accent stays Zodiak italic, so the hand appears once per page. This is
   deliberately not the generic "serif + Pinyon Script" template look the
@@ -113,7 +113,7 @@ figures printed on the tape measure (part of the drawing, aria-hidden).
   (primary = tag, secondary = `.r-link`). Do not add a pill, a rounded
   rectangle or an uppercase-tracked button anywhere; the round back-to-top
   control is an icon, not a button style.
-- `.r-link`: underline link that draws away on hover.
+- `.r-link`: underline link that draws away on hover. It carries an invisible `::after` touch hit area (0.75rem above and below, 2026-10-03), so a component that needs its own pseudo-element on an `.r-link` uses `::before`.
 - `.r-display`, `.r-h2`, `.r-h3`, `.r-lede`, `.r-accent`, `.r-muted`.
 - `.r-tag`: the sample tag (paper, notched left edge, punched hole). Used for
   captions on photos and Staci's name on her portrait.
@@ -499,7 +499,7 @@ the quiet pass; `--rt-tilt` is the hook). The word "Google" is text, never the l
   empty stars Oat (or faint cream on ink). Never text colours.
 - Text on the card is ink and ink 2 on paper; on a paper band the card face turns
   Linen (`--rt-face`) so it still reads as an object.
-- Placements: home hero (top line, opposite the eyebrow, paper card on Walnut),
+- Placements: home hero (top line, opposite the eyebrow, paper card on Walnut; below 1200px only, since the header carries the same proof from 1200px up; on phones it comes last in the hero, after the buttons and subhead),
   home reviews band (the `stamp`, right of the heading; under it on phones),
   Contact aside (under the price tag, with "Leave a
   review" beside it), Services (hanging off the price index's bottom rule, on
