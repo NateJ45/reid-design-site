@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-03: Scroll cue stays 3x longer
+
+Nathan: the cue vanished too soon. The cut-off in `RoomStage.astro` moved from 4% to 12% of the track (`progress > 0.12`), so it stays through the brief and the first piece or two. Progress runs over the track less the pinned stage, so that is roughly 24svh of scroll on a laptop (300svh track) and 96svh on a phone (900svh). The cue test now asserts visible at 10%, hidden at 16%. The entry below describes the first cut at 0.04.
+
 ## 2026-10-03: Concept room: scroll cue
 
 The pinned concept room stops the page moving, so a visitor can take it for the end of the page. `RoomStage.astro` gains `.room__cue`: a small paper pill with a slowly bobbing chevron at the bottom centre of the photo ("Scroll" on a laptop, "Keep scrolling" under 768px). It shows while the room is still empty, fades once the build has begun (progress over 0.04, `data-cue-off` on the section), returns if they scroll back to the top, and is hidden at the close. Scripted layout only (no track, no cue without scripting), `aria-hidden`, no bob under reduced motion. Test: `tests/room-story.spec.ts` "the scroll cue". Verified in the browser pane at 1440x900 and 375x812.

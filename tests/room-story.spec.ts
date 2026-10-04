@@ -370,6 +370,12 @@ test.describe('Concept room', () => {
     expect(box.cueBottom).toBeLessThanOrEqual(box.photoBottom);
     expect(Math.abs(box.cueMid - box.figMid)).toBeLessThan(2);
 
+    // It stays well into the track (Nathan, 2026-10-03: 3x the first cut's
+    // 4%): still there at 10%, gone by 16%.
+    await toProgress(page, 0.1);
+    await expect(cue).toBeVisible();
+    await toProgress(page, 0.16);
+    await expect(cue).toBeHidden();
     await toProgress(page, 0.5);
     await expect(cue).toBeHidden();
     await toProgress(page, 1);
