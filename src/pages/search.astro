@@ -121,7 +121,7 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
             suggestions.map((q) => (
               <li>
                 <a
-                  href={`/search?q=${encodeURIComponent(q)}`}
+                  href={`/search/?q=${encodeURIComponent(q)}`}
                   class="inline-flex min-h-11 items-center rounded-full border border-border-soft px-m text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-link"
                 >
                   {q}
@@ -136,7 +136,7 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
         <p class="mt-l text-foreground/80">
           Search needs JavaScript turned on. You can also browse from the
           <a href="/" class="text-link underline underline-offset-4">home page</a>, or
-          <a href="/contact" class="text-link underline underline-offset-4">ask Staci directly</a>.
+          <a href="/contact/" class="text-link underline underline-offset-4">ask Staci directly</a>.
         </p>
       </noscript>
     </div>
@@ -259,7 +259,7 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
       if (hits.length === 0) {
         say('Nothing found for “' + current + '”. Try a shorter word, or ');
         const a = document.createElement('a');
-        a.href = '/contact';
+        a.href = '/contact/';
         a.className = 'text-link underline underline-offset-4';
         a.textContent = 'ask Staci directly';
         status.append(a, '.');

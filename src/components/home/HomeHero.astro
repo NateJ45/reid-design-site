@@ -78,8 +78,8 @@ const {
 
 const photo = portrait?.asset ? portrait : (fallbackImages?.find((i) => i?.asset) ?? fallbackImage);
 
-const primaryHref = resolveCtaHref(primaryCta, '/services');
-const secondaryHref = resolveCtaHref(secondaryCta, '/contact');
+const primaryHref = resolveCtaHref(primaryCta, '/services/');
+const secondaryHref = resolveCtaHref(secondaryCta, '/contact/');
 ---
 
 {

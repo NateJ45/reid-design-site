@@ -44,7 +44,7 @@ const heroSubhead =
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
-    { name: 'Portfolio', url: `${site.url}/portfolio` },
+    { name: 'Portfolio', url: `${site.url}/portfolio/` },
   ]),
 ];
 
@@ -101,23 +101,23 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
             <p class="pf__empty-p">
               The first projects are wrapping up now, with full write-ups to follow. Until then,
               here is{' '}
-              <a href="/process" class="r-link">
+              <a href="/process/" class="r-link">
                 how Reid Design works
               </a>
               , or you can{' '}
-              <a href="/contact" class="r-link">
+              <a href="/contact/" class="r-link">
                 start a conversation about your space
               </a>
               .
             </p>
             <div class="pf__actions">
-              <a class="r-btn r-btn--ink" href="/contact">
+              <a class="r-btn r-btn--ink" href="/contact/">
                 {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
                 <span class="r-arrow" aria-hidden="true">
                   →
                 </span>
               </a>
-              <a class="r-link" href="/services">
+              <a class="r-link" href="/services/">
                 See services and prices
               </a>
             </div>

@@ -738,7 +738,7 @@ test.describe('Concept room', () => {
     else await expect(tag.locator('.r-pricetag__price')).toHaveCount(0);
     await expect(close.getByRole('link', { name: 'See the full process' })).toHaveAttribute(
       'href',
-      '/process',
+      '/process/',
     );
     // Every plan chip lit, the tag and string gone, the closing line read out.
     const a = await annotations(page);

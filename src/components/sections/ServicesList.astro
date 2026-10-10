@@ -110,7 +110,7 @@ const showIndex = n >= 3;
                 total={n}
                 secondary={
                   visibleEDesign && service.slug?.current === 'e-design'
-                    ? { href: '/e-design', label: 'See the full E-Design overview' }
+                    ? { href: '/e-design/', label: 'See the full E-Design overview' }
                     : null
                 }
               />
@@ -120,7 +120,7 @@ const showIndex = n >= 3;
       ) : (
         <p class="svcs__empty">
           Services are being updated.{' '}
-          <a class="r-link" href="/contact">
+          <a class="r-link" href="/contact/">
             Get in touch
           </a>{' '}
           and we'll talk through what you need.

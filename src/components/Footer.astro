@@ -144,15 +144,15 @@ interface IndexLine {
 const footerPages = (navPages ?? []).filter((p) => p.addToFooter && p.slug);
 const builtInIndex: IndexLine[] = [
   ...(visible.portfolio
-    ? [{ label: 'Portfolio', href: '/portfolio', fact: facts.portfolioFact }]
+    ? [{ label: 'Portfolio', href: '/portfolio/', fact: facts.portfolioFact }]
     : []),
-  { label: 'Services', href: '/services', fact: facts.servicesFact },
-  { label: 'Process', href: '/process', fact: facts.processFact },
-  ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design', fact: facts.eDesignFact }] : []),
-  { label: 'About Staci', href: '/about' },
-  { label: 'FAQ', href: '/faq', fact: facts.faqFact },
-  { label: 'Contact', href: '/contact' },
-  ...footerPages.map((p) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}` })),
+  { label: 'Services', href: '/services/', fact: facts.servicesFact },
+  { label: 'Process', href: '/process/', fact: facts.processFact },
+  ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design/', fact: facts.eDesignFact }] : []),
+  { label: 'About Staci', href: '/about/' },
+  { label: 'FAQ', href: '/faq/', fact: facts.faqFact },
+  { label: 'Contact', href: '/contact/' },
+  ...footerPages.map((p) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}/` })),
 ];
 
 // Site settings -> Footer link columns, when set, stand in for the index.
@@ -260,7 +260,7 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
               visible.eDesign && (
                 <>
                   {' '}
-                  Farther out, <a href="/e-design">E-Design</a> works anywhere.
+                  Farther out, <a href="/e-design/">E-Design</a> works anywhere.
                 </>
               )
             }
@@ -284,10 +284,10 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
               </a>
             ))
           ) : (
-            <a href="/privacy">Privacy</a>
+            <a href="/privacy/">Privacy</a>
           )
         }
-        <a href="/search">Search</a>
+        <a href="/search/">Search</a>
         {
           siteCredit &&
             (siteCreditUrl ? (

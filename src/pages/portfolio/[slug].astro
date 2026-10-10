@@ -76,8 +76,8 @@ const heroOg = project.heroImage?.asset
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
-    { name: 'Portfolio', url: `${site.url}/portfolio` },
-    { name: project.title ?? slug, url: `${site.url}/portfolio/${slug}` },
+    { name: 'Portfolio', url: `${site.url}/portfolio/` },
+    { name: project.title ?? slug, url: `${site.url}/portfolio/${slug}/` },
   ]),
   projectSchema(project, heroOg ?? null),
 ];

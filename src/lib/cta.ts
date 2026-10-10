@@ -3,6 +3,8 @@
 // 2026-09-29 (rebuild) so the new home components resolve links exactly the
 // way every existing button does. CtaLink.astro imports this; keep one copy.
 
+import { withTrailingSlash } from '@/lib/href';
+
 export interface CtaBlock {
   label?: string | null;
   linkType?: 'internal' | 'external' | 'email' | 'phone' | null;
@@ -15,14 +17,18 @@ export interface CtaBlock {
 
 const TYPE_TO_PATH: Record<string, string> = {
   homePage: '/',
-  aboutPage: '/about',
-  processPage: '/process',
-  servicesPage: '/services',
-  faqPage: '/faq',
-  contactPage: '/contact',
+  aboutPage: '/about/',
+  processPage: '/process/',
+  servicesPage: '/services/',
+  faqPage: '/faq/',
+  contactPage: '/contact/',
 };
 
-export function resolveCtaHref(c: CtaBlock | null | undefined, fallbackHref = '/contact'): string {
+export function resolveCtaHref(c: CtaBlock | null | undefined, fallbackHref = '/contact/'): string {
+  return withTrailingSlash(rawCtaHref(c, fallbackHref));
+}
+
+function rawCtaHref(c: CtaBlock | null | undefined, fallbackHref: string): string {
   if (!c?.linkType) return fallbackHref;
   switch (c.linkType) {
     case 'internal': {

@@ -68,7 +68,7 @@ const description = pageDoc.seoDescription ?? '';
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
-    { name: pageDoc.title ?? 'Page', url: `${site.url}/${pageDoc.slug}` },
+    { name: pageDoc.title ?? 'Page', url: `${site.url}/${pageDoc.slug}/` },
   ]),
 ];
 ---

@@ -85,7 +85,7 @@ export interface ResolvedChrome {
 
 /** The built-in header button: the label field Staci already has, pointed at Contact. */
 export const DEFAULT_CTA_LABEL = 'Book a consultation';
-export const DEFAULT_CTA_HREF = '/contact';
+export const DEFAULT_CTA_HREF = '/contact/';
 
 /** Trim a Sanity string; treat blank/whitespace-only/missing as "unset". */
 function clean(value?: string | null): string | undefined {

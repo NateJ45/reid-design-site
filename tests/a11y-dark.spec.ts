@@ -69,7 +69,7 @@ test.describe('Light only: a stored dark preference still renders light and pass
 // /guides/[slug] went with the guides on 2026-09-30.)
 // =============================================================================
 
-const FORM_ROUTES = ['/contact'];
+const FORM_ROUTES = ['/contact/'];
 
 test.describe('Focus indicators are visible', () => {
   for (const route of FORM_ROUTES) {

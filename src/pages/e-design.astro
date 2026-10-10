@@ -34,12 +34,12 @@ const heroSubhead = page?.heroSubhead ?? '';
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
-    { name: 'E-Design', url: `${site.url}/e-design` },
+    { name: 'E-Design', url: `${site.url}/e-design/` },
   ]),
 ];
 
 // Contact CTA href: always preselects the E-Design option in the form.
-const CONTACT_HREF = '/contact?type=e-design';
+const CONTACT_HREF = '/contact/?type=e-design';
 ---
 
 <BaseLayout
