@@ -288,6 +288,7 @@
 }
 .cf-roomtag {
   position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
@@ -295,12 +296,26 @@
   border: 0;
   font: 500 0.95rem/1 var(--font-body);
   color: var(--color-ink);
-  background: var(--color-paper);
+  /* The button's own ground is the 1px border colour, clipped to the notched
+     tag shape; the ::after fill below sits 1px inside the same shape, so the
+     border follows the diagonal notch edges instead of stopping at them. */
+  background: var(--color-chip-3);
   cursor: pointer;
-  /* Notched left edge, as .r-tag. Outline would be clipped by the notch, so
-     the focus ring sits on a drop-shadow-free wrapper via :focus-visible below. */
   clip-path: polygon(0.8rem 0, 100% 0, 100% 100%, 0.8rem 100%, 0 50%);
-  box-shadow: inset 0 0 0 1px var(--color-chip-3);
+}
+.cf-roomtag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-paper);
+  clip-path: polygon(
+    calc(0.8rem + 0.58px) 1px,
+    calc(100% - 1px) 1px,
+    calc(100% - 1px) calc(100% - 1px),
+    calc(0.8rem + 0.58px) calc(100% - 1px),
+    1.16px 50%
+  );
 }
 .cf-roomtag::before {
   content: '';
@@ -316,7 +331,9 @@
 .cf-roomtag[aria-pressed='true'] {
   color: var(--color-cream);
   background: var(--color-ink);
-  box-shadow: none;
+}
+.cf-roomtag[aria-pressed='true']::after {
+  background: var(--color-ink);
 }
 .cf-roomtag[aria-pressed='true']::before {
   background: var(--color-bg);
@@ -325,13 +342,17 @@
 .cf-stylecard:focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 3px;
-  /* clip-path cuts the outline on the tag, so give it room with a filled ring. */
-  clip-path: none;
 }
 .cf-roomtag:focus-visible {
-  box-shadow:
-    0 0 0 2px var(--color-bg),
-    0 0 0 4px var(--color-ink);
+  /* clip-path would cut the focus outline, so the tag goes rectangular while focused. */
+  clip-path: none;
+  background: var(--color-chip-3);
+}
+.cf-roomtag:focus-visible::after {
+  clip-path: inset(1px);
+}
+.cf-roomtag[aria-pressed='true']:focus-visible {
+  background: var(--color-ink);
 }
 
 .cf-styles {

@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-09: Contact form room tags keep their border around the notch
+
+The `.cf-roomtag` border was an inset box-shadow, a rectangle, so the clip-path notch on the left edge cut it off and the diagonal edges had no border. The button now carries the border colour as its ground, clipped to the notched shape, and a `::after` paper fill sits 1px inside the same shape. Focus goes rectangular (clip-path would cut the outline). Only `src/components/contact/contact-form.css` changed.
+
 ## 2026-10-09: Trailing-slash links
 
 Canonical tags and the sitemap use `/page/`, but every internal link was written `/page`, so Cloudflare answered each click and each Googlebot crawl with a 307 and Search Console reported "Page with redirect" and "Google chose different canonical". `astro.config.mjs` now sets `trailingSlash: 'always'`, every internal href ends in a slash, and `src/lib/href.ts` (`withTrailingSlash`) covers links built from Sanity data (nav, CTA buttons, Portable Text links, JSON-LD urls). SSR routes (`/preview`, `/api/*`) still work: Astro 301s a slashless request to the slashed form. Tests, `tests/routes.ts` and the Lighthouse URL lists were already slash-safe or were updated.
