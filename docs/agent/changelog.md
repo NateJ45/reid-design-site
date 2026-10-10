@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-09: Contact form room tags keep their border around the notch
+
+The `.cf-roomtag` border was an inset box-shadow, a rectangle, so the clip-path notch on the left edge cut it off and the diagonal edges had no border. The button now carries the border colour as its ground, clipped to the notched shape, and a `::after` paper fill sits 1px inside the same shape. Focus goes rectangular (clip-path would cut the outline). Only `src/components/contact/contact-form.css` changed.
+
 ## 2026-10-04: Home hero re-balanced after the headline got shorter
 
 With the shorter headline, `HomeHero.astro` still pinned the eyebrow to the top and the headline to the foot, leaving a large empty band between them. The copy column is now `justify-content: center` with one even gap, the eyebrow's `margin-bottom: auto` is gone, and the h1 `max-width` went from 13ch to 16ch so it can wrap as "Homes that / feel completely yours" on wider screens. Verified at 1527x921 in the browser.
