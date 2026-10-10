@@ -51,7 +51,7 @@ const total = groups.reduce((n, g) => n + g.items.length, 0);
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
-    { name: 'FAQ', url: `${site.url}/faq` },
+    { name: 'FAQ', url: `${site.url}/faq/` },
   ]),
   faqPageSchema(faqs),
 ];
@@ -100,7 +100,7 @@ const schemas = [
             </ol>
             <p class="faqp__ask">
               Something not covered?{' '}
-              <a href="/contact" class="r-link">
+              <a href="/contact/" class="r-link">
                 Ask Staci
               </a>
             </p>
@@ -119,7 +119,7 @@ const schemas = [
           ) : (
             <p class="faqp__empty">
               FAQ content is being updated.{' '}
-              <a href="/contact" class="r-link">
+              <a href="/contact/" class="r-link">
                 Ask anything
               </a>{' '}
               in the meantime.

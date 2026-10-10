@@ -37,7 +37,7 @@ const areaServed = `${siteSettings?.city ?? 'Plainfield'} and ${siteSettings?.se
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
-    { name: 'Services', url: `${site.url}/services` },
+    { name: 'Services', url: `${site.url}/services/` },
   ]),
   serviceListSchema(services, areaServed),
 ];
@@ -67,7 +67,7 @@ const schemas = [
       <StickyCTAChip
         client:idle
         label={page?.stickyCtaLabel ?? 'Ready to talk it through?'}
-        href="/contact"
+        href="/contact/"
       />
     )
   }

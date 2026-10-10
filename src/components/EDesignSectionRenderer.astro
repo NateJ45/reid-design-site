@@ -43,7 +43,7 @@ const { sections = [], page, editDoc } = Astro.props as Props;
 const Wrap = editDoc ? 'div' : Fragment;
 const wrapAttrs = (key: string | undefined) =>
   editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
-const CONTACT_HREF = '/contact?type=e-design';
+const CONTACT_HREF = '/contact/?type=e-design';
 
 const DEFAULT_ORDER = ['intro', 'howItWorks', 'whatsIncluded', 'tiers', 'faq'].map((section) => ({
   _type: 'eDesignSectionMarker',

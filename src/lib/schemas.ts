@@ -116,7 +116,7 @@ export function serviceListSchema(
       name: s.name,
       serviceType: s.name,
       description: s.shortDescription,
-      url: s.slug?.current ? `${site.url}/services#${s.slug.current}` : `${site.url}/services`,
+      url: s.slug?.current ? `${site.url}/services/#${s.slug.current}` : `${site.url}/services/`,
       provider: { '@id': `${site.url}/#business` },
       areaServed,
       // Schema.org wants a bare number in Offer.price, so the display string
@@ -208,7 +208,7 @@ export function projectSchema(project: Project, heroImageUrl: string | null): st
     '@type': 'CreativeWork',
     name: project.title,
     description: project.briefSummary,
-    url: project.slug?.current ? `${site.url}/portfolio/${project.slug.current}` : undefined,
+    url: project.slug?.current ? `${site.url}/portfolio/${project.slug.current}/` : undefined,
     image: heroImageUrl ?? undefined,
     creator: { '@id': `${site.url}/#business` },
     locationCreated: project.location ? { '@type': 'Place', name: project.location } : undefined,

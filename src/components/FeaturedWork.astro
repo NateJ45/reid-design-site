@@ -54,7 +54,7 @@ const {
 const list = Array.isArray(projects) ? projects.filter((p) => p?.title) : [];
 const [lead, ...rest] = list;
 const more = rest.slice(0, 3);
-const hrefFor = (p?: ProjectLite) => (p?.slug?.current ? `/portfolio/${p.slug.current}` : '#');
+const hrefFor = (p?: ProjectLite) => (p?.slug?.current ? `/portfolio/${p.slug.current}/` : '#');
 const lineFor = (p?: ProjectLite) => [p?.location, p?.year].filter(Boolean).join(' · ');
 const leadRoom = humanizeEnum(lead?.roomType);
 ---
@@ -130,7 +130,7 @@ const leadRoom = humanizeEnum(lead?.roomType);
           <CtaLink
             cta={cta}
             variant="secondary"
-            fallbackHref="/portfolio"
+            fallbackHref="/portfolio/"
             fallbackLabel="See all the work"
           />
         </div>

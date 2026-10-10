@@ -80,6 +80,8 @@ One-line versions. The full text of each sits in the rules file named in bracket
 12. **A new third-party origin needs a CSP grant in `public/_headers`, or it fails silently.** Check under `npm run preview`. [config-headers-and-public]
 13. **A built-in section marker added AFTER layouts were saved needs `placeMarker()` and its own "Show" switch** (`src/lib/auto-marker.ts`). [sanity-and-studio]
 
+14. **Internal page links end in a slash** (`/about/`), matching `trailingSlash: 'always'`, the canonical tags and the sitemap. A bare `/about` 307s and Search Console reports "Page with redirect". Hand-written hrefs carry the slash; hrefs built from Sanity data go through `withTrailingSlash()` (`src/lib/href.ts`; `navHref` and `resolveCtaHref` already do). Files (`.pdf`, `.xml`), `#anchors`, `mailto:`/`tel:`, `/studio` and `/api` are left alone.
+
 ---
 
 ## Family conventions

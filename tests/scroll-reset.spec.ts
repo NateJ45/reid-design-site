@@ -20,7 +20,7 @@ async function scrollDownThenFollowLink(page: Page) {
   // A real in-page link, clicked through the DOM so the ClientRouter handles
   // it (the footer and header both carry one to /about/).
   await page.evaluate(() => {
-    const a = document.querySelector<HTMLAnchorElement>('a[href="/about/"], a[href="/about"]');
+    const a = document.querySelector<HTMLAnchorElement>('a[href="/about/"]');
     if (!a) throw new Error('no link to /about on the home page');
     a.click();
   });

@@ -113,7 +113,7 @@ export default function MobileNav({
   const email = showEmail ? siteSettings?.email : undefined;
   const phone = siteSettings?.phone;
   const showCta = cta?.show !== false;
-  const ctaHref = cta?.href ?? '/contact';
+  const ctaHref = cta?.href ?? '/contact/';
   // A label Staci set herself is used as written (no price since 2026-10-01).
   const ctaLabel = cta?.label ?? siteSettings?.primaryCtaLabel ?? 'Book a consultation';
 
@@ -123,13 +123,13 @@ export default function MobileNav({
   const flat = links.flatMap((item) =>
     item.kind === 'flat' ? [{ label: item.label, href: item.href }] : item.items,
   );
-  const rows = flat.some((r) => normalizePath(r.href) === CONTACT_ROW.href)
+  const rows = flat.some((r) => normalizePath(r.href) === normalizePath(CONTACT_ROW.href))
     ? flat
     : [...flat, { label: CONTACT_ROW.label, href: CONTACT_ROW.href }];
 
   const close = () => setOpen(false);
 
-  // Same rule as the desktop header's isActive(): '/services' marks
+  // Same rule as the desktop header's isActive(): '/services/' marks
   // '/services/' and anything under it.
   const isCurrent = (href: string) => {
     if (!currentPath) return false;

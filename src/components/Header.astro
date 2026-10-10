@@ -205,15 +205,15 @@ const mobileChrome = {
 // Custom pages Staci placed "Under Services" turn Services back into a
 // dropdown (Services, Process, E-Design and hers) so they have a home.
 const customNav = (navPages ?? []).filter((p) => p.addToMainNav && p.slug);
-const toNavItem = (p: NavPage) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}` });
+const toNavItem = (p: NavPage) => ({ label: p.navLabel || p.title || 'Page', href: `/${p.slug}/` });
 const customTopItems = customNav.filter((p) => (p.navGroup ?? 'top') === 'top').map(toNavItem);
 const customServicesItems = customNav.filter((p) => p.navGroup === 'services').map(toNavItem);
 const customResourcesItems = customNav.filter((p) => p.navGroup === 'resources').map(toNavItem);
 
 const coreServiceItems = [
-  { label: 'Services', href: '/services' },
-  { label: 'Process', href: '/process' },
-  ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design' }] : []),
+  { label: 'Services', href: '/services/' },
+  { label: 'Process', href: '/process/' },
+  ...(visible.eDesign ? [{ label: 'E-Design', href: '/e-design/' }] : []),
 ];
 const servicesNavItems =
   customServicesItems.length > 0
@@ -228,17 +228,19 @@ const servicesNavItems =
 
 // Resources: FAQ and custom pages placed "Under Resources". A one-link group
 // is a plain FAQ link.
-const resourcesDropdownItems = [{ label: 'FAQ', href: '/faq' }, ...customResourcesItems];
+const resourcesDropdownItems = [{ label: 'FAQ', href: '/faq/' }, ...customResourcesItems];
 const resourcesNavItems =
   resourcesDropdownItems.length > 1
     ? [{ kind: 'dropdown' as const, label: 'Resources', items: resourcesDropdownItems }]
     : resourcesDropdownItems.map((it) => ({ kind: 'flat' as const, ...it }));
 
 const BUILT_IN_NAV_ITEMS = [
-  ...(visible.portfolio ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio' }] : []),
+  ...(visible.portfolio
+    ? [{ kind: 'flat' as const, label: 'Portfolio', href: '/portfolio/' }]
+    : []),
   ...servicesNavItems,
   ...customTopItems.map((it) => ({ kind: 'flat' as const, label: it.label, href: it.href })),
-  { kind: 'flat' as const, label: 'About', href: '/about' },
+  { kind: 'flat' as const, label: 'About', href: '/about/' },
   ...resourcesNavItems,
 ];
 
