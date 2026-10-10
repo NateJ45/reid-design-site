@@ -25,7 +25,7 @@ export const MENU_NOTES: Record<string, string> = {
 };
 
 /** The Contact row, added to the menu when the nav does not already link it. */
-export const CONTACT_ROW = { label: 'Contact', href: '/contact' } as const;
+export const CONTACT_ROW = { label: 'Contact', href: '/contact/' } as const;
 
 /** "/services/" and "/services" are the same page; "/" stays "/". */
 export function normalizePath(href: string): string {

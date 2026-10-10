@@ -112,6 +112,9 @@ async function cmsQuery(query, fallback) {
 
 // https://astro.build/config
 export default defineConfig({
+  // Canonical tags and the sitemap use /page/, so every internal link does too
+  // (src/lib/href.ts). Without this, a no-slash link 307s to the slashed URL.
+  trailingSlash: 'always',
   site: 'https://reiddesignllc.com',
   output: 'static',
   // 2026-08-28 (Astro 7 / @astrojs/cloudflare 14 upgrade): there is no gated

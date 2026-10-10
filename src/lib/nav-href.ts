@@ -30,19 +30,21 @@
 // address) returns undefined and the caller DROPS it. A dead <a> in a menu is
 // worse than a missing one.
 
+import { withTrailingSlash } from '@/lib/href';
+
 /** Live route per path-mapped singleton. Mirrors SINGLETON_PREVIEW_PATHS. */
 export const SINGLETON_LIVE_PATHS: Record<string, string> = {
   // Builder pages
   homePage: '/',
-  aboutPage: '/about',
-  processPage: '/process',
-  servicesPage: '/services',
-  eDesignPage: '/e-design',
+  aboutPage: '/about/',
+  processPage: '/process/',
+  servicesPage: '/services/',
+  eDesignPage: '/e-design/',
   // Bespoke pages
-  faqPage: '/faq',
-  contactPage: '/contact',
-  portfolioPage: '/portfolio',
-  privacyPage: '/privacy',
+  faqPage: '/faq/',
+  contactPage: '/contact/',
+  portfolioPage: '/portfolio/',
+  privacyPage: '/privacy/',
   notFoundPage: '/404',
 };
 
@@ -96,6 +98,10 @@ export function plain(value?: string | null): string {
 
 /** Work out where one link points, or undefined when it points nowhere. */
 export function navHref(link?: RawNavLink | null): string | undefined {
+  return withTrailingSlash(rawNavHref(link));
+}
+
+function rawNavHref(link?: RawNavLink | null): string | undefined {
   if (!link) return undefined;
 
   const typed = plain(link.href);

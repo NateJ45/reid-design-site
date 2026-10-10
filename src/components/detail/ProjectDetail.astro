@@ -81,7 +81,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
   <div class="r-wrap pd-hero__grid">
     <div class="pd-hero__copy">
       <p class="pd-hero__crumb">
-        <a href="/portfolio" class="r-link">Portfolio</a>
+        <a href="/portfolio/" class="r-link">Portfolio</a>
         {roomLabel && <span aria-hidden="true">/</span>}
         {roomLabel && <span>{roomLabel}</span>}
       </p>
@@ -147,7 +147,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
                 {services.map((s: any, i: number) => (
                   <li>
                     <a
-                      href={`/services#${s.slug?.current ?? ''}`}
+                      href={`/services/#${s.slug?.current ?? ''}`}
                       class="pd-svc"
                       style={`--tab: var(--color-chip-${(i % 4) + 1})`}
                     >
@@ -231,7 +231,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
     <nav class="pd-nav" aria-label="More projects">
       <div class="r-wrap pd-nav__grid">
         {prev ? (
-          <a href={`/portfolio/${prev.slug}`} class="pd-nav__link">
+          <a href={`/portfolio/${prev.slug}/`} class="pd-nav__link">
             <span class="pd-nav__dir">Previous project</span>
             <span class="pd-nav__title">
               <span aria-hidden="true">← </span>
@@ -242,7 +242,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
           <div />
         )}
         {next ? (
-          <a href={`/portfolio/${next.slug}`} class="pd-nav__link pd-nav__link--next">
+          <a href={`/portfolio/${next.slug}/`} class="pd-nav__link pd-nav__link--next">
             <span class="pd-nav__dir">Next project</span>
             <span class="pd-nav__title">
               {next.title}
@@ -267,7 +267,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
     <StickyCTAChip
       client:idle
       label={project?.stickyCtaLabel ?? 'Want a room like this?'}
-      href="/contact"
+      href="/contact/"
     />
   )
 }

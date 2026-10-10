@@ -83,7 +83,7 @@ const toneFor = (i: number) =>
         services.map((s, i) => {
           const tone = toneFor(i);
           const { label, amount, unit, run } = splitPrice(s.price);
-          const href = s.slug?.current ? `/services#${s.slug.current}` : '/services';
+          const href = s.slug?.current ? `/services/#${s.slug.current}` : '/services/';
           return (
             <li
               class="chip"
@@ -127,7 +127,7 @@ const toneFor = (i: number) =>
       <CtaLink
         cta={cta}
         variant="secondary"
-        fallbackHref="/services"
+        fallbackHref="/services/"
         fallbackLabel="Compare everything on the services page"
       />
     </div>

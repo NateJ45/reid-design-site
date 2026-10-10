@@ -35,7 +35,7 @@ const {
   level = 'h3',
   sizes = '(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw',
 } = Astro.props as Props;
-const href = project.slug?.current ? `/portfolio/${project.slug.current}` : '#';
+const href = project.slug?.current ? `/portfolio/${project.slug.current}/` : '#';
 const Title = level;
 
 const roomLabel = humanizeEnum(project.roomType);

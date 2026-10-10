@@ -18,6 +18,7 @@
 // this component.
 
 import { PortableText as PT, type PortableTextComponents } from '@portabletext/react';
+import { withTrailingSlash } from '@/lib/href';
 import type { PortableTextBlock } from '@portabletext/types';
 import { urlFor, parseSanityAssetDimensions } from '@/lib/sanity';
 import { slugify } from '@/lib/slugify';
@@ -98,7 +99,7 @@ function makeComponents(): PortableTextComponents {
       strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
       em: ({ children }) => <em className="italic">{children}</em>,
       link: ({ children, value }) => {
-        const href = value?.href ?? '#';
+        const href = withTrailingSlash(value?.href ?? '#');
         const isExternal = /^https?:\/\//.test(href);
         const newTab = value?.openInNewTab || isExternal;
         return (
