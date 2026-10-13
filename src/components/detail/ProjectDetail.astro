@@ -78,7 +78,7 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
 
 {/* 1. Hero */}
 <section class:list={['pd-hero', hero && 'pd-hero--photo']} aria-labelledby="project-hero-heading">
-  <div class="r-wrap pd-hero__grid">
+  <div class:list={['r-wrap pd-hero__grid', hero && 'split']}>
     <div class="pd-hero__copy">
       <p class="pd-hero__crumb">
         <a href="/portfolio/" class="r-link">
@@ -263,8 +263,12 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
   }
   .pd-hero__grid {
     display: grid;
-    gap: 2.5rem;
     align-items: end;
+  }
+  @media (max-width: 1023px) {
+    .pd-hero__grid {
+      gap: 2.5rem;
+    }
   }
   .pd-hero__crumb {
     display: flex;
@@ -329,10 +333,8 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
     }
   }
   @media (min-width: 1024px) {
-    .pd-hero--photo .pd-hero__grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(2.5rem, 5vw, 5rem);
-    }
+    /* With a photo the columns are the shared split (globals.css, PORTS.md
+       card 91), the same 7fr/5fr this hero always had. */
     .pd-hero__photo {
       max-width: none;
       justify-self: end;

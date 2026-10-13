@@ -27,7 +27,7 @@ const buttonLabel = label.replace(/^\s*or\s+/i, '').replace(/^./, (c) => c.toUpp
 ---
 
 <section id="book-a-call" class="call" aria-labelledby="book-a-call-heading">
-  <div class="r-wrap call__grid">
+  <div class="r-wrap split call__grid">
     <h2 id="book-a-call-heading" class="r-h2 call__h">
       Rather talk it through <span class="r-accent">first?</span>
     </h2>
@@ -55,9 +55,12 @@ const buttonLabel = label.replace(/^\s*or\s+/i, '').replace(/^./, (c) => c.toUpp
     padding-block: clamp(4.5rem, 9vw, 7.5rem);
     scroll-margin-top: 5rem;
   }
-  .call__grid {
-    display: grid;
-    gap: 2rem;
+  /* The columns are the shared split (globals.css, PORTS.md card 91): heading
+     7fr, words 5fr. Until 2026-10-13 it was 6fr/5fr with its own gutter. */
+  @media (max-width: 1023px) {
+    .call__grid {
+      gap: 2rem;
+    }
   }
   .call__h {
     margin: 0;
@@ -88,8 +91,6 @@ const buttonLabel = label.replace(/^\s*or\s+/i, '').replace(/^./, (c) => c.toUpp
   }
   @media (min-width: 1024px) {
     .call__grid {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      gap: clamp(2rem, 6vw, 6rem);
       align-items: end;
     }
     /* A loaded scheduler needs the full width of the band. */

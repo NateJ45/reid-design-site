@@ -19,7 +19,7 @@ const [home, ...rest] = list;
 ---
 
 <section class="carea" aria-labelledby="contact-area-heading">
-  <div class="r-wrap carea__grid">
+  <div class="r-wrap split carea__grid">
     <div class="carea__copy">
       <h2 id="contact-area-heading" class="r-h2 carea__h">
         Based in {home || 'Plainfield'}. <span class="r-accent">Happy to drive.</span>
@@ -47,10 +47,8 @@ const [home, ...rest] = list;
   .carea {
     padding-block: clamp(4.5rem, 9vw, 7.5rem);
   }
-  .carea__grid {
-    display: grid;
-    gap: 2.5rem;
-  }
+  /* The columns are the shared split (globals.css, PORTS.md card 91): words
+     7fr, map 5fr. Until 2026-10-13 it was words 5fr, map 6fr. */
   .carea__h {
     margin: 0;
     max-width: 13ch;
@@ -82,10 +80,13 @@ const [home, ...rest] = list;
   .carea__map {
     min-width: 0;
   }
+  @media (max-width: 1023px) {
+    .carea__grid {
+      gap: 2.5rem;
+    }
+  }
   @media (min-width: 1024px) {
     .carea__grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-      gap: clamp(2rem, 6vw, 6rem);
       align-items: center;
     }
   }

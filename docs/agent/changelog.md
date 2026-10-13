@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: One text/picture column split (starter card 91)
+
+Every band that puts words beside a picture now sits on `.split` (`src/styles/globals.css`): words 7fr, picture 5fr, gutter `clamp(2rem, 5vw, 5rem)`, the ratio the page hero already used. Moved onto it: `Hero.astro`, `ProjectDetail` hero, `HomeStaci`, `AboutStory`, `ImageText` (flex 44% from md, now the split from lg; its `md:order-*` pair is now `lg:order-*`, test updated), `ServiceArea`, `ServiceAreaCue`, `ContactArea`, `CallBand`; `HomeHero` lays the same tracks out full-bleed (five tracks); the contact form band takes the tokens. `scripts/measure-columns.mjs` and `scripts/lib/column-alignment.mjs` copied from the starter (PORTABLE). At 1280 on `/`, `/about/`, `/contact/`: 7 misaligned before, 2 after (AboutPersonal, left alone on purpose, and the call band's heading capped at 14ch inside its track). Screenshots: `_vault/attachments/column-split-2026-10-13/reid/`.
+
 ## 2026-10-13: SanityImage srcset ladder starts at 160w
 
 The srcset ladder in `SanityImage.astro` now comes from `src/lib/imageLadder.ts` (new, with `imageLadder.test.ts`) and runs `[160, 240, 320, 400, 600, 700, 800, 900, 1200, 1600, 2400]`. It started at 400w, so small slots downloaded 1.4 to 2x the bytes they painted. A slot that needs 400px or more picks the same candidate as before (asserted in the test). When `sizes` is passed and readable, steps below 75% of its smallest slot are dropped. `SanityImage.astro` is not `PORTABLE` (this site's copy has its own props), so this is a hand-applied three-line change from starter PORTS.md card 93. Live image bytes before and after are in the PR.

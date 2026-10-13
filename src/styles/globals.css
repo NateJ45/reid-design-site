@@ -1101,6 +1101,52 @@ body::before {
   mix-blend-mode: screen;
 }
 
+/* ---------- The shared split (PORTS.md card 91, 2026-10-13) ----------------
+   ONE text/picture column split for every band that puts words beside a
+   picture (or a map, or a big heading beside its words).
+
+   WHY. Before this, each band declared its own grid: the page hero 7fr/5fr,
+   "Meet Staci" and the About story on a 12-column grid (picture in 1/6, words
+   in 7/13), the service-area band in 1/6 and 6/13, the contact map 5fr/6fr and
+   the page-builder ImageText a 44% flex row. At 1280 that put the seam between
+   words and picture at x=765, 652, 552 and 659 on different scrolls of the same
+   site. Measure it with
+   `MSYS_NO_PATHCONV=1 node scripts/measure-columns.mjs <baseUrl> --paths /,/about/`.
+
+   THE TOKENS are Reid's house ratio, the one the page hero, the home hero and
+   the project hero already used: words 7fr, picture 5fr, gutter
+   clamp(2rem, 5vw, 5rem). At 1280 inside .r-wrap: words 650, picture 464,
+   gutter 64, seam at x=765 (x=579 with the picture on the left). Change the
+   feel here, never in a band.
+
+   ONE SEAM, TWO ORIENTATIONS. `.split` puts the words first; `.split--media-first`
+   mirrors the tracks so the picture leads and is still the narrow one.
+
+   ONE COLUMN BELOW `lg` (64rem), the breakpoint the bands already stacked at.
+   A band whose picture can sit on either side keeps the picture first in the
+   DOM and flips with `lg:order-*`, so the phone reading order never changes.
+
+   THE TRAP. Astro's scoped styles carry an attribute selector, so a band's own
+   `display`, `gap` or `grid-template-columns` BEATS this unlayered block. A band
+   that adopts .split must not set those itself at lg and up. */
+:root {
+  --split-text: 7fr;
+  --split-media: 5fr;
+  --split-gutter: clamp(2rem, 5vw, 5rem);
+}
+.split {
+  display: grid;
+  gap: var(--split-gutter);
+}
+@media (width >= 64rem) {
+  .split {
+    grid-template-columns: minmax(0, var(--split-text)) minmax(0, var(--split-media));
+  }
+  .split--media-first {
+    grid-template-columns: minmax(0, var(--split-media)) minmax(0, var(--split-text));
+  }
+}
+
 /* ---------- Reduced motion -------------------------------------------- */
 /* Disables animations, transitions, and smooth scroll for users who
    prefer reduced motion.

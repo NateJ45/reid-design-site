@@ -148,7 +148,7 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact/');
       <SanityImage
         source={photo}
         width={1100}
-        sizes="(min-width: 1024px) 42vw, 100vw"
+        sizes="(min-width: 1024px) 41vw, 100vw"
         loading="eager"
         fetchpriority="high"
         quality={70}
@@ -163,7 +163,19 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact/');
     --gut: clamp(1rem, 4vw, 3.5rem);
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    /* The shared split (globals.css, PORTS.md card 91) as five tracks: margin,
+       words, gutter, photo, margin. The hero bleeds to the viewport edge, so it
+       cannot be a `.split` inside `.r-wrap`; the margins are .r-wrap's own
+       (85rem box, --gut padding), so the words start on the page's left edge
+       and the photo starts on the same seam as every other split band (x=765
+       at 1280). Until 2026-10-13 it was 7fr/5fr of the whole viewport (seam
+       x=747 at 1280, the words padded in from x=0). The photo takes the photo
+       track and the right margin, so it still bleeds. Below 1024px the hero
+       is a flex column and these tracks do nothing. */
+    --hero-margin: max(var(--gut), calc((100% - 85rem) / 2 + var(--gut)));
+    grid-template-columns:
+      var(--hero-margin) minmax(0, var(--split-text)) var(--split-gutter)
+      minmax(0, var(--split-media)) var(--hero-margin);
     min-height: clamp(640px, calc(100svh - 88px), 1000px);
     background: var(--color-chip-6);
     color: var(--color-cream);
@@ -290,6 +302,13 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact/');
   /* Desktop: the copy clears the header that now overlaps the top of the
      hero. (On a phone the photo comes first and takes the overlap.) */
   @media (min-width: 1024px) {
+    .home-hero__copy {
+      grid-column: 2;
+      padding-inline: 0;
+    }
+    .home-hero__photo {
+      grid-column: 4 / 6;
+    }
     :global(body:has(.hdr[data-over-hero])) .home-hero__copy {
       padding-top: calc(6.25rem + clamp(3.5rem, 8vw, 6.5rem));
     }

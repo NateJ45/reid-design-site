@@ -101,7 +101,7 @@ const specs = [
 ---
 
 <section class="story" aria-labelledby={headingId}>
-  <div class="r-wrap story__grid">
+  <div class="r-wrap split split--media-first story__grid">
     <figure class="story__photo">
       <div class="story__mat r-frame">
         {photo?.asset ? (
@@ -173,17 +173,15 @@ const specs = [
        sticky portrait working (it is not a scroll container). */
     overflow-x: clip;
   }
+  /* The columns are the shared split (globals.css, PORTS.md card 91), picture
+     first. It was a 12-column grid (portrait 1/6, copy 7/13) until 2026-10-13. */
   .story__grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 1.5rem;
     align-items: start;
   }
 
   /* ---- Portrait: photo on an Oat mat that sits a little proud of it, the
      way a print sits on a mount board. ---- */
   .story__photo {
-    grid-column: 1 / 6;
     position: sticky;
     top: 6.5rem;
     margin: 0;
@@ -215,9 +213,6 @@ const specs = [
   }
 
   /* ---- Copy column. ---- */
-  .story__copy {
-    grid-column: 7 / 13;
-  }
   .story__h {
     margin: 0;
     color: var(--color-ink);
