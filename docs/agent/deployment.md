@@ -117,6 +117,15 @@ Build variables are **per trigger**: a branch-preview trigger without `INSTAGRAM
 
 **Weekly link report.** `.github/workflows/link-health.yml` runs `scripts/check-live-links.mjs` on Mondays 09:15 UTC (and on demand from the Actions tab). It reads every published document in the dataset, probes each outbound link, and writes a table to the run's Summary page. A link that is gone fails the run (GitHub emails the owner); one whose host refuses scripts is reported without failing. It needs no secrets (it uses the `PUBLIC_SANITY_*` repository variables, already set).
 
+**Sanity backup off-site copy.** `.github/workflows/sanity-backup.yml` exports the dataset nightly (documents only, `-docs`) and on Mondays and manual runs in full (`-full`, about 557 MiB with assets), encrypts it and keeps it as a 14-day GitHub artifact. The weekly `-full` file is also copied to the R2 bucket named by the `BACKUP_R2_BUCKET` variable (`ncs-backups`), key `sanity/reid-design-site/<file>`, where the bucket's lifecycle rule keeps about 12 weeks. `wrangler r2 object put` caps at 300 MiB, so a bigger file goes through `aws s3 cp` (multipart) against `https://<CLOUDFLARE_ACCOUNT_ID>.r2.cloudflarestorage.com`, which needs two more secrets:
+
+| Secret                 | What                                                                                                                                                                                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `R2_ACCESS_KEY_ID`     | From an R2 API token: Cloudflare dashboard > R2 Object Storage > Manage API tokens > Create API token, permission **Object Read & Write**, "Apply to specific buckets only" with `ncs-backups`. The page shows the Access Key ID once. |
+| `R2_SECRET_ACCESS_KEY` | The Secret Access Key from the same token page (also shown once; keep a copy in 1Password).                                                                                                                                            |
+
+Without them the step logs one `::warning::` naming both secrets and the backup still succeeds; the artifact is the only copy that week. Files at or under 300 MiB still use `CLOUDFLARE_API_TOKEN` (needs "Workers R2 Storage: Edit") and `CLOUDFLARE_ACCOUNT_ID`.
+
 ### Security headers
 
 `public/_redirects` ships with the deploy too (2026-09-29). It holds hand-written rules only, today the single `/studio/* /studio/ 200` Studio deep-link proxy; `@astrojs/cloudflare` APPENDS the editor-managed redirects (Studio, Pages, Redirects) below it in `dist/client/_redirects`, so a hand rule is listed first. Workers Static Assets supports 3xx redirects and 200 proxying there, not other rewrite codes.
