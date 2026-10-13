@@ -395,11 +395,11 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     display: none;
   }
   /* The link-mode booking line is 18px tall: an invisible hit area reaches
-     0.8rem above and below it (2026-10-03, Impeccable audit P2). */
+     0.85rem above and below it (44.8px in all) (2026-10-03, Impeccable audit P2). */
   :global(body:has(.final .r-btn)) .ftr__cta::after {
     content: '';
     position: absolute;
-    inset: -0.8rem -0.25rem;
+    inset: -0.85rem -0.25rem;
   }
   :global(body:has(.final .r-btn)) .ftr__cta:hover {
     background-size: 0 1px;

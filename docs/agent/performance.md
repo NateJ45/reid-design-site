@@ -34,6 +34,8 @@ If a new dependency pushes a budget, that's a discussion before merging. Some ar
 | Testimonial avatar         | 120×120            | `urlFor(...).width(120).height(120).fit('crop')`                               | Static thumbnail                                  |
 | OG share card              | 1200×630           | n/a, drawn every build into `dist/client/og/` (`src/integrations/og-cards.ts`) | Fallback `public/og-default.png` via `npm run og` |
 
+The page-hero photo (`Hero.astro`) and the home "Meet Staci" photo carry `sizes` strings that follow the real slot width (it is the viewport minus the page gutters, capped, not 100vw): the 2026-10-13 audit measured both slots at 361px on a 412px phone while `100vw` made the phone fetch the next srcset step up. Re-measure with `getBoundingClientRect` at 320, 412, 768 and 1024 if the layout changes.
+
 Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than the slot renders at.** Format defaults to `auto` (AVIF / WebP / JPEG fallback), quality to 75, drop to 65 for big hero photos.
 
 ### Font loading

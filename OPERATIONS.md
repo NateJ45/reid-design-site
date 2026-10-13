@@ -368,7 +368,7 @@ node scripts/generate-logo-variants.mjs reid-design-logo-3.jpg
 node scripts/optimize-logo-files.mjs
 ```
 
-The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage()` pipeline can emit content-hashed WebPs. Header.astro reads these via `getImage()` (the light logo at 122w/244w for the header, the cream one at 102w/204w for the phone menu) and Footer.astro draws its clean line logo from `src/assets/logo-lockup-mask.png` instead.
+The PNGs land in `src/assets/` (NOT `public/`) so Astro's `<Image>` / `getImage()` pipeline can emit content-hashed WebPs. Header.astro reads these via `getImage()` (the header logo, light and cream, as a 96w/112w/164w/240w width srcset; the cream one at 102w/204w for the phone menu) and Footer.astro draws its clean line logo from `src/assets/logo-lockup-mask.png` instead.
 
 **Don't move them back to `public/`** Astro can't touch `public/` files and you'd lose the WebP conversion + content-hashing.
 
