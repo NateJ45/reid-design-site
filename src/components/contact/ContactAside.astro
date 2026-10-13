@@ -68,117 +68,107 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
 
 <div class="cx">
   <div class="cx__staci">
-    {
-      photo?.asset && (
-        <figure class="cx__photo r-frame">
-          <SanityImage
-            source={photo}
-            width={640}
-            height={800}
-            sizes="(min-width: 1024px) 26rem, 6rem"
-            quality={70}
-            class="cx__img"
-          />
-        </figure>
-      )
-    }
+    {photo?.asset && (
+      <figure class="cx__photo r-frame">
+        <SanityImage
+          source={photo}
+          width={640}
+          height={800}
+          sizes="(min-width: 1024px) 26rem, 6rem"
+          quality={70}
+          class="cx__img"
+        />
+      </figure>
+    )}
     <div class="cx__who">
       <p class="cx__name">Staci Perkins</p>
       <p class="cx__role">Owner and designer. Reads every note herself.</p>
     </div>
   </div>
 
-  {
-    availability && (
-      <p class="cx__avail">
-        <span class="cx__dot" aria-hidden="true" />
-        {availability}
-      </p>
-    )
-  }
+  {availability && (
+    <p class="cx__avail">
+      <span class="cx__dot" aria-hidden="true" />
+      {availability}
+    </p>
+  )}
 
   <div class="cx__start">
-    <p class="cx__start-h" id="cx-start-h">How it starts</p>
+    <p class="cx__start-h" id="cx-start-h">
+      How it starts
+    </p>
     <ol class="cx__steps" aria-labelledby="cx-start-h">
       <li>
         <span class="cx__step">Your first email or call</span>
         <em aria-hidden="true"></em>
         <b class="cx__free">Free</b>
       </li>
-      {
-        price && (
-          <li>
-            <span class="cx__step">{consultName || 'In-home consultation'}</span>
-            <em aria-hidden="true" />
-            <b>
-              {price.amount}
-              {price.unit}
-              {price.run}
-            </b>
-          </li>
-        )
-      }
+      {price && (
+        <li>
+          <span class="cx__step">{consultName || 'In-home consultation'}</span>
+          <em aria-hidden="true" />
+          <b>
+            {price.amount}
+            {price.unit}
+            {price.run}
+          </b>
+        </li>
+      )}
     </ol>
     <p class="cx__price-note">
-      {
-        price
-          ? 'The consultation comes after, once we both know it’s a good fit. '
-          : 'No charge to get in touch, and no commitment. '
-      }
+      {price
+        ? 'The consultation comes after, once we both know it’s a good fit. '
+        : 'No charge to get in touch, and no commitment. '}
       <a href="/services/">See what’s included</a>
     </p>
   </div>
 
   {/* ---- Google reviews insertion (2026-09-30) ---- */}
-  {
-    (hasRating || writeReview) && (
-      <div class="cx__reviews">
-        <RatingTag settings={ratingSettings} />
-        {writeReview && (
-          <a class="r-link cx__leave" href={writeReview} target="_blank" rel="noopener noreferrer">
-            Leave a review
-            <span class="sr-only"> on Google, opens in a new tab</span>
-          </a>
-        )}
-      </div>
-    )
-  }
+  {(hasRating || writeReview) && (
+    <div class="cx__reviews">
+      <RatingTag settings={ratingSettings} />
+      {writeReview && (
+        <a class="r-link cx__leave" href={writeReview} target="_blank" rel="noopener noreferrer">
+          Leave a review
+          <span class="sr-only"> on Google, opens in a new tab</span>
+        </a>
+      )}
+    </div>
+  )}
   {/* ---- end Google reviews insertion ---- */}
 
-  {
-    (email || phone || hasScheduling) && (
-      <dl class="cx__ways">
-        {email && (
-          <div class="cx__way">
-            <dt>Email</dt>
-            <dd>
-              <CopyEmailButton client:visible email={email} variant="note" />
-            </dd>
-          </div>
-        )}
-        {phone && (
-          <div class="cx__way">
-            <dt>Call</dt>
-            <dd>
-              <a class="r-link" href={telHref(phone)}>
-                {phone}
-              </a>
-            </dd>
-          </div>
-        )}
-        {hasScheduling && (
-          <div class="cx__way">
-            <dt>Talk first</dt>
-            <dd>
-              <a class="r-link" href="#book-a-call">
-                Book a free call
-              </a>
-            </dd>
-          </div>
-        )}
-      </dl>
-    )
-  }
+  {(email || phone || hasScheduling) && (
+    <dl class="cx__ways">
+      {email && (
+        <div class="cx__way">
+          <dt>Email</dt>
+          <dd>
+            <CopyEmailButton client:visible email={email} variant="note" />
+          </dd>
+        </div>
+      )}
+      {phone && (
+        <div class="cx__way">
+          <dt>Call</dt>
+          <dd>
+            <a class="r-link" href={telHref(phone)}>
+              {phone}
+            </a>
+          </dd>
+        </div>
+      )}
+      {hasScheduling && (
+        <div class="cx__way">
+          <dt>Talk first</dt>
+          <dd>
+            <a class="r-link" href="#book-a-call">
+              Book a free call
+            </a>
+          </dd>
+        </div>
+      )}
+    </dl>
+  )}
 </div>
 
 <style>

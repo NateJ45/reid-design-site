@@ -113,104 +113,100 @@ const CLIENT_SCRIPT = `
 `;
 ---
 
-{
-  bars.length > 0 && (
-    <div class="announcements" role="region" aria-label="Announcements">
-      {bars.map((a) => {
-        const link = linkFor(a);
-        return (
-          <div
-            class="ann-bar"
-            data-tone={plain(a.tone) || 'info'}
-            data-ann-key={contentKey(a)}
-            data-ann-until={a.showUntil ?? undefined}
-          >
-            <div class="ann-inner">
-              <span aria-hidden="true" />
-              <p class="ann-text">
-                <span>{a.message}</span>
-                {link && (
-                  <a
-                    href={link.href}
-                    class="ann-link"
-                    {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
-                  >
-                    {link.label}
-                  </a>
-                )}
-              </p>
-              <button
-                type="button"
-                class="ann-close"
-                data-ann-dismiss
-                aria-label="Dismiss this announcement"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
+{bars.length > 0 && (
+  <div class="announcements" role="region" aria-label="Announcements">
+    {bars.map((a) => {
+      const link = linkFor(a);
+      return (
+        <div
+          class="ann-bar"
+          data-tone={plain(a.tone) || 'info'}
+          data-ann-key={contentKey(a)}
+          data-ann-until={a.showUntil ?? undefined}
+        >
+          <div class="ann-inner">
+            <span aria-hidden="true" />
+            <p class="ann-text">
+              <span>{a.message}</span>
+              {link && (
+                <a
+                  href={link.href}
+                  class="ann-link"
+                  {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
                 >
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+                  {link.label}
+                </a>
+              )}
+            </p>
+            <button
+              type="button"
+              class="ann-close"
+              data-ann-dismiss
+              aria-label="Dismiss this announcement"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-        );
-      })}
-    </div>
-  )
-}
+        </div>
+      );
+    })}
+  </div>
+)}
 
-{
-  popup && (
-    <dialog
-      class="ann-popup"
-      data-tone={plain(popup.tone) || 'info'}
-      data-ann-popup
-      autofocus
-      data-ann-key={contentKey(popup)}
-      data-ann-frequency={plain(popup.frequency) || 'once'}
-      aria-labelledby={popup.heading ? 'ann-popup-heading' : undefined}
-      aria-label={popup.heading ? undefined : 'Announcement'}
-    >
-      <button type="button" class="ann-popup-close" data-ann-popup-close aria-label="Close">
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <path d="M18 6 6 18M6 6l12 12" />
-        </svg>
-      </button>
-      {popup.heading && (
-        <h2 id="ann-popup-heading" class="ann-popup-heading">
-          {popup.heading}
-        </h2>
-      )}
-      <p class="ann-popup-message">{popup.message}</p>
-      {popupLink && (
-        <a
-          href={popupLink.href}
-          class="r-btn r-btn--ink ann-popup-cta"
-          data-ann-popup-close
-          {...(popupLink.external ? { target: '_blank', rel: 'noopener' } : {})}
-        >
-          {popupLink.label}
-        </a>
-      )}
-    </dialog>
-  )
-}
+{popup && (
+  <dialog
+    class="ann-popup"
+    data-tone={plain(popup.tone) || 'info'}
+    data-ann-popup
+    autofocus
+    data-ann-key={contentKey(popup)}
+    data-ann-frequency={plain(popup.frequency) || 'once'}
+    aria-labelledby={popup.heading ? 'ann-popup-heading' : undefined}
+    aria-label={popup.heading ? undefined : 'Announcement'}
+  >
+    <button type="button" class="ann-popup-close" data-ann-popup-close aria-label="Close">
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+    {popup.heading && (
+      <h2 id="ann-popup-heading" class="ann-popup-heading">
+        {popup.heading}
+      </h2>
+    )}
+    <p class="ann-popup-message">{popup.message}</p>
+    {popupLink && (
+      <a
+        href={popupLink.href}
+        class="r-btn r-btn--ink ann-popup-cta"
+        data-ann-popup-close
+        {...(popupLink.external ? { target: '_blank', rel: 'noopener' } : {})}
+      >
+        {popupLink.label}
+      </a>
+    )}
+  </dialog>
+)}
 
 {(bars.length > 0 || popup) && <script is:inline set:html={CLIENT_SCRIPT} />}
 

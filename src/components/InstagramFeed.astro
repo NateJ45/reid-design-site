@@ -77,78 +77,76 @@ const profile = instagramProfileUrl(settings?.socialInstagram);
 const follow = followLabel(settings?.instagramFeedLinkLabel, settings?.socialInstagram);
 ---
 
-{
-  tiles.length > 0 && (
-    <section class="ig" aria-labelledby={headingId} data-ig-feed>
-      <div class="r-wrap">
-        <header class="ig__head">
-          <div class="ig__intro">
-            <h2 id={headingId} class="r-h2 ig__h">
-              {h.found ? (
-                <>
-                  {h.before}
-                  <span class="r-accent">{h.word}</span>
-                  {h.after}
-                  {head.encoded}
-                </>
-              ) : (
-                headText
-              )}
-            </h2>
-            <p class="ig__sub">{intro}</p>
-          </div>
-          {profile && (
+{tiles.length > 0 && (
+  <section class="ig" aria-labelledby={headingId} data-ig-feed>
+    <div class="r-wrap">
+      <header class="ig__head">
+        <div class="ig__intro">
+          <h2 id={headingId} class="r-h2 ig__h">
+            {h.found ? (
+              <>
+                {h.before}
+                <span class="r-accent">{h.word}</span>
+                {h.after}
+                {head.encoded}
+              </>
+            ) : (
+              headText
+            )}
+          </h2>
+          <p class="ig__sub">{intro}</p>
+        </div>
+        {profile && (
+          <a
+            class="r-btn r-btn--ink ig__follow"
+            href={profile}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {follow}
+            <span class="sr-only">, opens Instagram in a new tab</span>
+            <span class="r-arrow" aria-hidden="true">
+              ↗
+            </span>
+          </a>
+        )}
+      </header>
+
+      <ul class="ig__grid" role="list">
+        {tiles.map((t) => (
+          <li class="ig__tile">
             <a
-              class="r-btn r-btn--ink ig__follow"
-              href={profile}
+              href={t.href}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`${t.label} (opens in a new tab)`}
             >
-              {follow}
-              <span class="sr-only">, opens Instagram in a new tab</span>
-              <span class="r-arrow" aria-hidden="true">
-                ↗
+              <span class="ig__print">
+                <span class="ig__photo">
+                  <img
+                    src={t.src}
+                    alt=""
+                    width="720"
+                    height="720"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {t.isVideo && (
+                    <span class="ig__play" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                        <path d="M8 5.5v13l11-6.5z" />
+                      </svg>
+                    </span>
+                  )}
+                </span>
               </span>
             </a>
-          )}
-        </header>
-
-        <ul class="ig__grid" role="list">
-          {tiles.map((t) => (
-            <li class="ig__tile">
-              <a
-                href={t.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${t.label} (opens in a new tab)`}
-              >
-                <span class="ig__print">
-                  <span class="ig__photo">
-                    <img
-                      src={t.src}
-                      alt=""
-                      width="720"
-                      height="720"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    {t.isVideo && (
-                      <span class="ig__play" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                          <path d="M8 5.5v13l11-6.5z" />
-                        </svg>
-                      </span>
-                    )}
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  )
-}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
 
 <style>
   .ig {

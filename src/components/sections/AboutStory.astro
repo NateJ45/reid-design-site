@@ -104,20 +104,18 @@ const specs = [
   <div class="r-wrap story__grid">
     <figure class="story__photo">
       <div class="story__mat r-frame">
-        {
-          photo?.asset ? (
-            <SanityImage
-              source={photo}
-              width={900}
-              height={1125}
-              sizes="(min-width: 1024px) 38vw, (min-width: 640px) 30rem, 100vw"
-              quality={75}
-              class="story__img"
-            />
-          ) : (
-            <div class="story__img story__img--empty" aria-hidden="true" />
-          )
-        }
+        {photo?.asset ? (
+          <SanityImage
+            source={photo}
+            width={900}
+            height={1125}
+            sizes="(min-width: 1024px) 38vw, (min-width: 640px) 30rem, 100vw"
+            quality={75}
+            class="story__img"
+          />
+        ) : (
+          <div class="story__img story__img--empty" aria-hidden="true" />
+        )}
       </div>
       <figcaption class="r-tag story__tag">
         {tagRole && <small>{tagRole}</small>}
@@ -130,46 +128,40 @@ const specs = [
 
     <div class="story__copy">
       <AboutKicker text={eyebrow} />
-      <h2 id={headingId} class="r-h2 story__h">{headline}</h2>
+      <h2 id={headingId} class="r-h2 story__h">
+        {headline}
+      </h2>
 
       {lede && <p class="story__lede">{lede}</p>}
 
-      {
-        beforePull.length > 0 && (
-          <div class="story__body">
-            <PortableText value={beforePull} />
-          </div>
-        )
-      }
+      {beforePull.length > 0 && (
+        <div class="story__body">
+          <PortableText value={beforePull} />
+        </div>
+      )}
 
-      {
-        pull && (
-          <blockquote class="story__pull">
-            <p>{pull}</p>
-          </blockquote>
-        )
-      }
+      {pull && (
+        <blockquote class="story__pull">
+          <p>{pull}</p>
+        </blockquote>
+      )}
 
-      {
-        afterPull.length > 0 && (
-          <div class="story__body">
-            <PortableText value={afterPull} />
-          </div>
-        )
-      }
+      {afterPull.length > 0 && (
+        <div class="story__body">
+          <PortableText value={afterPull} />
+        </div>
+      )}
 
-      {
-        specs.length > 0 && (
-          <dl class="story__specs">
-            {specs.map((s) => (
-              <div>
-                <dt>{s.label}</dt>
-                <dd>{s.value}</dd>
-              </div>
-            ))}
-          </dl>
-        )
-      }
+      {specs.length > 0 && (
+        <dl class="story__specs">
+          {specs.map((s) => (
+            <div>
+              <dt>{s.label}</dt>
+              <dd>{s.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
   </div>
 </section>

@@ -14,24 +14,22 @@ const { items } = Astro.props as Props;
 const list = (items ?? []).filter(Boolean);
 ---
 
-{
-  list.length > 0 && (
-    <section class="edx" aria-labelledby="edesign-included-heading">
-      <div class="r-wrap edx__grid">
-        <h2 id="edesign-included-heading" class="r-h2 edx__h">
-          What's <span class="r-accent">included</span>
-        </h2>
-        <ul class="edx__board">
-          {list.map((item) => (
-            <li class="r-tag edx__tag">
-              <strong>{item}</strong>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  )
-}
+{list.length > 0 && (
+  <section class="edx" aria-labelledby="edesign-included-heading">
+    <div class="r-wrap edx__grid">
+      <h2 id="edesign-included-heading" class="r-h2 edx__h">
+        What's <span class="r-accent">included</span>
+      </h2>
+      <ul class="edx__board">
+        {list.map((item) => (
+          <li class="r-tag edx__tag">
+            <strong>{item}</strong>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
 
 <style>
   .edx {

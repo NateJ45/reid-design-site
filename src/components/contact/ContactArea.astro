@@ -24,19 +24,17 @@ const [home, ...rest] = list;
       <h2 id="contact-area-heading" class="r-h2 carea__h">
         Based in {home || 'Plainfield'}. <span class="r-accent">Happy to drive.</span>
       </h2>
-      {
-        list.length > 0 && (
-          <p class="carea__towns">
-            <b>{home}</b>
-            {rest.map((t) => (
-              <>
-                {' '}
-                <i aria-hidden="true">/</i> {t}
-              </>
-            ))}
-          </p>
-        )
-      }
+      {list.length > 0 && (
+        <p class="carea__towns">
+          <b>{home}</b>
+          {rest.map((t) => (
+            <>
+              {' '}
+              <i aria-hidden="true">/</i> {t}
+            </>
+          ))}
+        </p>
+      )}
       <p class="carea__note">Outside these towns? Ask anyway.</p>
     </div>
     <div class="carea__map">

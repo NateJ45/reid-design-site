@@ -59,31 +59,33 @@ const rooms = [
 
         <nav aria-label="Where to next">
           <ul class="nf__rooms">
-            {
-              rooms.map((r) => (
-                <li>
-                  <a href={r.href} class="nf__room">
-                    <span class="nf__sw" style={`background:${r.tone}`} aria-hidden="true" />
-                    <span class="nf__name">{r.label}</span>
-                    <span class="nf__lead" aria-hidden="true" />
-                    <span class="nf__note">
-                      {r.note}
-                      <span aria-hidden="true">→</span>
-                    </span>
-                  </a>
-                </li>
-              ))
-            }
+            {rooms.map((r) => (
+              <li>
+                <a href={r.href} class="nf__room">
+                  <span class="nf__sw" style={`background:${r.tone}`} aria-hidden="true" />
+                  <span class="nf__name">{r.label}</span>
+                  <span class="nf__lead" aria-hidden="true" />
+                  <span class="nf__note">
+                    {r.note}
+                    <span aria-hidden="true">→</span>
+                  </span>
+                </a>
+              </li>
+            ))}
           </ul>
         </nav>
 
         <div class="nf__actions">
           <a href={primaryHref} class="r-btn r-btn--ink">
             {primaryLabel}
-            <span class="r-arrow" aria-hidden="true">→</span>
+            <span class="r-arrow" aria-hidden="true">
+              →
+            </span>
           </a>
           <form action="/search" method="get" role="search" class="nf__search">
-            <label for="notfound-search" class="sr-only">Search the site</label>
+            <label for="notfound-search" class="sr-only">
+              Search the site
+            </label>
             <input
               id="notfound-search"
               name="q"
@@ -92,7 +94,9 @@ const rooms = [
               placeholder="Or search the site"
               class="nf__input"
             />
-            <button type="submit" class="r-link nf__go">Search</button>
+            <button type="submit" class="r-link nf__go">
+              Search
+            </button>
           </form>
         </div>
       </div>

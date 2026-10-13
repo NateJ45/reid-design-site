@@ -39,74 +39,72 @@ const n = list.length;
 const single = n === 1;
 ---
 
-{
-  n > 0 && (
-    <section class="edt" aria-labelledby="edesign-tiers-heading">
-      <div class:list={['r-wrap', single && 'edt__split']}>
-        {single ? (
-          <h2 id="edesign-tiers-heading" class="r-h2 edt__h">
-            What it costs
-          </h2>
-        ) : (
-          <SectionHeading headline="Pick your package" headingId="edesign-tiers-heading" />
-        )}
-        <ul
-          class:list={['edt__list', single && 'edt__list--single']}
-          style={`--cols:${Math.min(n, 3)}`}
-        >
-          {list.map((tier, i) => {
-            const tone = toneFor(i, n);
-            const price = chipPrice(tier.price);
-            return (
-              <li class="edt__tier" style={`--tone:${tone.bg}`} data-on={tone.on}>
-                <div class="edt__face r-backdrop-host">
-                  <RoomBackdrop
-                    index={i}
-                    start={5}
-                    ratio={1.1}
-                    tone={tone.on === 'cream' ? 'deep' : 'pale'}
-                  />
-                  <h3 class="edt__name">{tier.name}</h3>
-                  {tier.price && (
-                    <p class="edt__price">
-                      {price.label && <small>{price.label}</small>}
-                      <span class="edt__amount">
-                        {price.amount}
-                        {price.run}
-                        {price.unit && <span class="edt__unit">{price.unit}</span>}
-                      </span>
-                    </p>
-                  )}
-                </div>
-                <div class="edt__label">
-                  {!single && tier.features && tier.features.length > 0 && (
-                    <ul class="edt__features">
-                      {tier.features.map((f) => (
-                        <li>{f}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {tier.bestFor && (
-                    <p class="r-tag edt__tag">
-                      <small>Best for</small>
-                      <strong>{tier.bestFor}</strong>
-                    </p>
-                  )}
-                  <a class="r-btn r-btn--ink edt__cta" href={href}>
-                    {tier.ctaLabel ?? 'Inquire about E-Design'}
-                    <span class="r-arrow" aria-hidden="true">
-                      →
+{n > 0 && (
+  <section class="edt" aria-labelledby="edesign-tiers-heading">
+    <div class:list={['r-wrap', single && 'edt__split']}>
+      {single ? (
+        <h2 id="edesign-tiers-heading" class="r-h2 edt__h">
+          What it costs
+        </h2>
+      ) : (
+        <SectionHeading headline="Pick your package" headingId="edesign-tiers-heading" />
+      )}
+      <ul
+        class:list={['edt__list', single && 'edt__list--single']}
+        style={`--cols:${Math.min(n, 3)}`}
+      >
+        {list.map((tier, i) => {
+          const tone = toneFor(i, n);
+          const price = chipPrice(tier.price);
+          return (
+            <li class="edt__tier" style={`--tone:${tone.bg}`} data-on={tone.on}>
+              <div class="edt__face r-backdrop-host">
+                <RoomBackdrop
+                  index={i}
+                  start={5}
+                  ratio={1.1}
+                  tone={tone.on === 'cream' ? 'deep' : 'pale'}
+                />
+                <h3 class="edt__name">{tier.name}</h3>
+                {tier.price && (
+                  <p class="edt__price">
+                    {price.label && <small>{price.label}</small>}
+                    <span class="edt__amount">
+                      {price.amount}
+                      {price.run}
+                      {price.unit && <span class="edt__unit">{price.unit}</span>}
                     </span>
-                  </a>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
-  )
-}
+                  </p>
+                )}
+              </div>
+              <div class="edt__label">
+                {!single && tier.features && tier.features.length > 0 && (
+                  <ul class="edt__features">
+                    {tier.features.map((f) => (
+                      <li>{f}</li>
+                    ))}
+                  </ul>
+                )}
+                {tier.bestFor && (
+                  <p class="r-tag edt__tag">
+                    <small>Best for</small>
+                    <strong>{tier.bestFor}</strong>
+                  </p>
+                )}
+                <a class="r-btn r-btn--ink edt__cta" href={href}>
+                  {tier.ctaLabel ?? 'Inquire about E-Design'}
+                  <span class="r-arrow" aria-hidden="true">
+                    →
+                  </span>
+                </a>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+)}
 
 <style>
   .edt {

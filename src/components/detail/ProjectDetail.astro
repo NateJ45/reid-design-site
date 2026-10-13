@@ -81,32 +81,32 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
   <div class="r-wrap pd-hero__grid">
     <div class="pd-hero__copy">
       <p class="pd-hero__crumb">
-        <a href="/portfolio/" class="r-link">Portfolio</a>
+        <a href="/portfolio/" class="r-link">
+          Portfolio
+        </a>
         {roomLabel && <span aria-hidden="true">/</span>}
         {roomLabel && <span>{roomLabel}</span>}
       </p>
       <RiseWords as="h1" id="project-hero-heading" text={project.title ?? ''} class="pd-hero__h1" />
       {project.briefSummary && <p class="r-lede pd-hero__lede">{project.briefSummary}</p>}
     </div>
-    {
-      hero && (
-        <figure class:list={['pd-hero__photo', 'r-frame', heroWide && 'pd-hero__photo--wide']}>
-          <div class="pd-hero__frame">
-            <SanityImage
-              source={hero}
-              width={heroCrop.width}
-              height={heroCrop.height}
-              sizes="(min-width: 1024px) 42vw, 100vw"
-              loading="eager"
-              fetchpriority="high"
-              quality={72}
-              class="pd-hero__img"
-            />
-          </div>
-          {hero.caption && <figcaption class="r-tag pd-hero__tag">{hero.caption}</figcaption>}
-        </figure>
-      )
-    }
+    {hero && (
+      <figure class:list={['pd-hero__photo', 'r-frame', heroWide && 'pd-hero__photo--wide']}>
+        <div class="pd-hero__frame">
+          <SanityImage
+            source={hero}
+            width={heroCrop.width}
+            height={heroCrop.height}
+            sizes="(min-width: 1024px) 42vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            quality={72}
+            class="pd-hero__img"
+          />
+        </div>
+        {hero.caption && <figcaption class="r-tag pd-hero__tag">{hero.caption}</figcaption>}
+      </figure>
+    )}
   </div>
 </section>
 
@@ -124,153 +124,137 @@ const testimonial = project.relatedTestimonial?.quote ? project.relatedTestimoni
 />
 
 {/* 3. The story */}
-{
-  (hasStory || services.length > 0) && (
-    <section class="pd-story" aria-label="Project story">
-      <div class:list={['r-wrap pd-story__grid', hasToc && 'pd-story__grid--toc']}>
-        {hasToc && <CaseStudyTOC client:idle headings={headings} />}
-        <article class="pd-story__article">
-          {/*
+{(hasStory || services.length > 0) && (
+  <section class="pd-story" aria-label="Project story">
+    <div class:list={['r-wrap pd-story__grid', hasToc && 'pd-story__grid--toc']}>
+      {hasToc && <CaseStudyTOC client:idle headings={headings} />}
+      <article class="pd-story__article">
+        {/*
             `client:visible` defers the Sanity client bundle PortableText pulls
             in (via urlFor) until the story scrolls into view. The HTML is
             still server-rendered, so the words are there from the first byte.
           */}
-          {hasStory && (
-            <PortableText client:visible value={project.introStory} className="pd-story__body" />
-          )}
-          {services.length > 0 && (
-            <div class="pd-svcs">
-              <h2 class="pd-svcs__h" id="services-used">
-                Services on this project
-              </h2>
-              <ul class="pd-svcs__list">
-                {services.map((s: any, i: number) => (
-                  <li>
-                    <a
-                      href={`/services/#${s.slug?.current ?? ''}`}
-                      class="pd-svc"
-                      style={`--tab: var(--color-chip-${(i % 4) + 1})`}
-                    >
-                      {s.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </article>
-      </div>
-    </section>
-  )
-}
+        {hasStory && (
+          <PortableText client:visible value={project.introStory} className="pd-story__body" />
+        )}
+        {services.length > 0 && (
+          <div class="pd-svcs">
+            <h2 class="pd-svcs__h" id="services-used">
+              Services on this project
+            </h2>
+            <ul class="pd-svcs__list">
+              {services.map((s: any, i: number) => (
+                <li>
+                  <a
+                    href={`/services/#${s.slug?.current ?? ''}`}
+                    class="pd-svc"
+                    style={`--tab: var(--color-chip-${(i % 4) + 1})`}
+                  >
+                    {s.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </article>
+    </div>
+  </section>
+)}
 
 {/* 4. Before and after */}
-{
-  pairs.length > 0 && (
-    <section class="pd-band pd-band--paper" aria-labelledby="before-and-after">
-      <div class="r-wrap pd-split">
-        <div class="pd-band__head pd-split__head">
-          <h2 class="pd-h2" id="before-and-after">
-            Before and <span class="r-accent">after</span>
-          </h2>
-          <p class="pd-band__note">
-            Same room, same angle. Drag the divider, or use the arrow keys.
-          </p>
-        </div>
-        <div class="pd-ba">
-          {pairs.map((pair: any) => (
-            <BeforeAfterSlider
-              client:visible
-              beforeImage={pair.beforeImage}
-              afterImage={pair.afterImage}
-              caption={pair.caption}
-            />
-          ))}
-        </div>
+{pairs.length > 0 && (
+  <section class="pd-band pd-band--paper" aria-labelledby="before-and-after">
+    <div class="r-wrap pd-split">
+      <div class="pd-band__head pd-split__head">
+        <h2 class="pd-h2" id="before-and-after">
+          Before and <span class="r-accent">after</span>
+        </h2>
+        <p class="pd-band__note">Same room, same angle. Drag the divider, or use the arrow keys.</p>
       </div>
-    </section>
-  )
-}
+      <div class="pd-ba">
+        {pairs.map((pair: any) => (
+          <BeforeAfterSlider
+            client:visible
+            beforeImage={pair.beforeImage}
+            afterImage={pair.afterImage}
+            caption={pair.caption}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+)}
 
 {/* 5. Gallery */}
-{
-  gallery.length > 0 && (
-    <section class="pd-band" aria-labelledby="gallery">
-      <div class="r-wrap">
-        <div class="pd-band__head">
-          <h2 class="pd-h2" id="gallery">
-            More of the room
-          </h2>
-          <p class="pd-band__note">Tap any photo to see it larger.</p>
-        </div>
-        <ProjectGallery client:visible images={gallery} />
+{gallery.length > 0 && (
+  <section class="pd-band" aria-labelledby="gallery">
+    <div class="r-wrap">
+      <div class="pd-band__head">
+        <h2 class="pd-h2" id="gallery">
+          More of the room
+        </h2>
+        <p class="pd-band__note">Tap any photo to see it larger.</p>
       </div>
-    </section>
-  )
-}
+      <ProjectGallery client:visible images={gallery} />
+    </div>
+  </section>
+)}
 
 {/* 6. Kind words */}
-{
-  testimonial && (
-    <section class="pd-words" aria-label="What the client said">
-      <div class="r-wrap">
-        <figure class="pd-words__fig">
-          <blockquote>
-            <p>{testimonial.quote}</p>
-          </blockquote>
-          {testimonial.attribution && <figcaption>{testimonial.attribution}</figcaption>}
-        </figure>
-      </div>
-    </section>
-  )
-}
+{testimonial && (
+  <section class="pd-words" aria-label="What the client said">
+    <div class="r-wrap">
+      <figure class="pd-words__fig">
+        <blockquote>
+          <p>{testimonial.quote}</p>
+        </blockquote>
+        {testimonial.attribution && <figcaption>{testimonial.attribution}</figcaption>}
+      </figure>
+    </div>
+  </section>
+)}
 
 {/* Previous / next */}
-{
-  (prev || next) && (
-    <nav class="pd-nav" aria-label="More projects">
-      <div class="r-wrap pd-nav__grid">
-        {prev ? (
-          <a href={`/portfolio/${prev.slug}/`} class="pd-nav__link">
-            <span class="pd-nav__dir">Previous project</span>
-            <span class="pd-nav__title">
-              <span aria-hidden="true">← </span>
-              {prev.title}
-            </span>
-          </a>
-        ) : (
-          <div />
-        )}
-        {next ? (
-          <a href={`/portfolio/${next.slug}/`} class="pd-nav__link pd-nav__link--next">
-            <span class="pd-nav__dir">Next project</span>
-            <span class="pd-nav__title">
-              {next.title}
-              <span aria-hidden="true"> →</span>
-            </span>
-          </a>
-        ) : (
-          <div />
-        )}
-      </div>
-    </nav>
-  )
-}
+{(prev || next) && (
+  <nav class="pd-nav" aria-label="More projects">
+    <div class="r-wrap pd-nav__grid">
+      {prev ? (
+        <a href={`/portfolio/${prev.slug}/`} class="pd-nav__link">
+          <span class="pd-nav__dir">Previous project</span>
+          <span class="pd-nav__title">
+            <span aria-hidden="true">← </span>
+            {prev.title}
+          </span>
+        </a>
+      ) : (
+        <div />
+      )}
+      {next ? (
+        <a href={`/portfolio/${next.slug}/`} class="pd-nav__link pd-nav__link--next">
+          <span class="pd-nav__dir">Next project</span>
+          <span class="pd-nav__title">
+            {next.title}
+            <span aria-hidden="true"> →</span>
+          </span>
+        </a>
+      ) : (
+        <div />
+      )}
+    </div>
+  </nav>
+)}
 
-{
-  /* Sticky contextual CTA, appears past 50% scroll, hides on scroll-up.
+{/* Sticky contextual CTA, appears past 50% scroll, hides on scroll-up.
       Label is Sanity-editable per-project (project.stickyCtaLabel); clearing
-      the field hides the chip for that project. */
-}
-{
-  project?.stickyCtaLabel !== '' && (
-    <StickyCTAChip
-      client:idle
-      label={project?.stickyCtaLabel ?? 'Want a room like this?'}
-      href="/contact/"
-    />
-  )
-}
+      the field hides the chip for that project. */}
+{project?.stickyCtaLabel !== '' && (
+  <StickyCTAChip
+    client:idle
+    label={project?.stickyCtaLabel ?? 'Want a room like this?'}
+    href="/contact/"
+  />
+)}
 
 <style>
   /* ---- 1. Hero ---- */

@@ -56,22 +56,20 @@ const sizeClass = level === 'h1' ? 'sh__h--h1' : level === 'h2' ? 'r-h2' : 'r-h3
 
 <div class:list={['sh', tone === 'inverse' && 'sh--inverse', extraClass]}>
   <div class:list={['sh__grid', subhead && 'sh__grid--split']}>
-    {
-      headline && (
-        <Tag id={headingId} class:list={['sh__h', sizeClass]}>
-          {h.found ? (
-            <>
-              {h.before}
-              <span class="r-accent">{h.word}</span>
-              {h.after}
-              {h.run}
-            </>
-          ) : (
-            headline
-          )}
-        </Tag>
-      )
-    }
+    {headline && (
+      <Tag id={headingId} class:list={['sh__h', sizeClass]}>
+        {h.found ? (
+          <>
+            {h.before}
+            <span class="r-accent">{h.word}</span>
+            {h.after}
+            {h.run}
+          </>
+        ) : (
+          headline
+        )}
+      </Tag>
+    )}
     {subhead && <p class="sh__sub r-lede">{subhead}</p>}
   </div>
 </div>

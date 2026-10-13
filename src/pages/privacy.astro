@@ -112,141 +112,127 @@ const toc = [
     size="short"
   />
 
-  {
-    /* No aria-label on this section on purpose. The hero is already a
+  {/* No aria-label on this section on purpose. The hero is already a
       landmark named by the "Privacy Policy" heading, and labelling this one
       the same thing produced two identically-named regions (axe:
       landmark-unique). A <section> without an accessible name is not exposed
-      as a landmark, which is right for a plain content wrapper. */
-  }
+      as a landmark, which is right for a plain content wrapper. */}
   <section class="doc">
     <div class="r-wrap doc__grid">
       {/* Desktop contents: sticky in the left column. */}
       <nav class="doc__toc" aria-labelledby="doc-toc-heading" data-doc-toc>
-        <p id="doc-toc-heading" class="doc__toc-h">On this page</p>
+        <p id="doc-toc-heading" class="doc__toc-h">
+          On this page
+        </p>
         <ol class="doc__toc-list" role="list">
-          {
-            toc.map((t) => (
-              <li>
-                <a href={`#${t.id}`}>{t.text}</a>
-              </li>
-            ))
-          }
+          {toc.map((t) => (
+            <li>
+              <a href={`#${t.id}`}>{t.text}</a>
+            </li>
+          ))}
         </ol>
       </nav>
 
       <article class="doc__body">
-        {
-          /* Phone contents: collapsed, above the text. Not a second <nav>
-            landmark; the desktop one is display:none at this width. */
-        }
+        {/* Phone contents: collapsed, above the text. Not a second <nav>
+            landmark; the desktop one is display:none at this width. */}
         <details class="doc__toc-m">
           <summary>On this page</summary>
           <ol class="doc__toc-list" role="list">
-            {
-              toc.map((t) => (
-                <li>
-                  <a href={`#${t.id}`}>{t.text}</a>
-                </li>
-              ))
-            }
+            {toc.map((t) => (
+              <li>
+                <a href={`#${t.id}`}>{t.text}</a>
+              </li>
+            ))}
           </ol>
         </details>
 
         {lastUpdated && <p class="doc__updated">Last updated {lastUpdated}</p>}
 
-        {
-          hasSanityBody ? (
-            <PortableTextStatic
-              value={page!.body}
-              variant="doc"
-              reservedIds={[MEASURED_ID]}
-              className="doc__prose"
-            />
-          ) : (
-            <div class="doc__prose">
-              <p class="ptd-p doc__lead">
-                This is the privacy policy for Reid Design LLC, a one-person interior design studio
-                based in Plainfield, Indiana. The goal here is to be straightforward about what
-                information is collected and why.
-              </p>
+        {hasSanityBody ? (
+          <PortableTextStatic
+            value={page!.body}
+            variant="doc"
+            reservedIds={[MEASURED_ID]}
+            className="doc__prose"
+          />
+        ) : (
+          <div class="doc__prose">
+            <p class="ptd-p doc__lead">
+              This is the privacy policy for Reid Design LLC, a one-person interior design studio
+              based in Plainfield, Indiana. The goal here is to be straightforward about what
+              information is collected and why.
+            </p>
 
-              <h2 id="what-gets-collected" class="ptd-h2">
-                What gets collected
-              </h2>
-              <p class="ptd-p">
-                When you fill out the contact form on this site, you share your name, email address,
-                and whatever details you include in your message. That information is used only to
-                respond to you and to help plan your project. Nothing else.
-              </p>
+            <h2 id="what-gets-collected" class="ptd-h2">
+              What gets collected
+            </h2>
+            <p class="ptd-p">
+              When you fill out the contact form on this site, you share your name, email address,
+              and whatever details you include in your message. That information is used only to
+              respond to you and to help plan your project. Nothing else.
+            </p>
 
-              <h2 id="what-doesnt-happen" class="ptd-h2">
-                What doesn't happen
-              </h2>
-              <ul class="ptd-ul">
-                <li class="ptd-li">Your information is never sold.</li>
-                <li class="ptd-li">There is no ad targeting or retargeting on this site.</li>
-              </ul>
+            <h2 id="what-doesnt-happen" class="ptd-h2">
+              What doesn't happen
+            </h2>
+            <ul class="ptd-ul">
+              <li class="ptd-li">Your information is never sold.</li>
+              <li class="ptd-li">There is no ad targeting or retargeting on this site.</li>
+            </ul>
 
-              <h2 id="questions-or-data-requests" class="ptd-h2">
-                Questions or data requests
-              </h2>
-              <p class="ptd-p">
-                If you have questions about how your information is handled, or want your data
-                removed, reach out at{' '}
-                <a class="ptd-a" href={`mailto:${contactEmail}`}>
-                  {contactEmail}
-                </a>
-                . You'll hear back within a few business days.
-              </p>
+            <h2 id="questions-or-data-requests" class="ptd-h2">
+              Questions or data requests
+            </h2>
+            <p class="ptd-p">
+              If you have questions about how your information is handled, or want your data
+              removed, reach out at{' '}
+              <a class="ptd-a" href={`mailto:${contactEmail}`}>
+                {contactEmail}
+              </a>
+              . You'll hear back within a few business days.
+            </p>
 
-              <p class="ptd-p doc__fine">
-                This policy was last reviewed in May 2026 and will be updated if anything meaningful
-                changes about how this site handles your data.
-              </p>
-            </div>
-          )
-        }
+            <p class="ptd-p doc__fine">
+              This policy was last reviewed in May 2026 and will be updated if anything meaningful
+              changes about how this site handles your data.
+            </p>
+          </div>
+        )}
 
-        {
-          /*
+        {/*
           Measurement, described from the build's real configuration rather
           than asserted (see the header). Each branch says what the tool
           actually does, including the cookie.
-        */
-        }
+        */}
         <div class="doc__prose">
-          <h2 id={MEASURED_ID} class="ptd-h2">How traffic is measured</h2>
-          {
-            !hasGa && !hasCfAnalytics && (
-              <p class="ptd-p">
-                This site runs no analytics. Visits are not counted, and nothing is stored on your
-                device for measurement.
-              </p>
-            )
-          }
-          {
-            hasCfAnalytics && (
-              <p class="ptd-p">
-                Page visits are counted with Cloudflare Web Analytics, which sets no cookies and
-                does not identify individual visitors.
-              </p>
-            )
-          }
-          {
-            hasGa && (
-              <p class="ptd-p">
-                {/* "also" only reads right when the cookieless paragraph above rendered. */}
-                Visits are {hasCfAnalytics ? 'also ' : ''}measured with Google Analytics, which sets
-                cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by an
-                id) so a returning visit is recognized as the same visitor. It records which pages
-                are opened, roughly where the visit came from, and what kind of device was used. It
-                is not used for advertising, and the data is not sold. You can block these cookies
-                in your browser settings or with a tracker-blocking extension, and the site works
-                exactly the same.
-              </p>
-            )
-          }
+          <h2 id={MEASURED_ID} class="ptd-h2">
+            How traffic is measured
+          </h2>
+          {!hasGa && !hasCfAnalytics && (
+            <p class="ptd-p">
+              This site runs no analytics. Visits are not counted, and nothing is stored on your
+              device for measurement.
+            </p>
+          )}
+          {hasCfAnalytics && (
+            <p class="ptd-p">
+              Page visits are counted with Cloudflare Web Analytics, which sets no cookies and does
+              not identify individual visitors.
+            </p>
+          )}
+          {hasGa && (
+            <p class="ptd-p">
+              {/* "also" only reads right when the cookieless paragraph above rendered. */}
+              Visits are {hasCfAnalytics ? 'also ' : ''}measured with Google Analytics, which sets
+              cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by an
+              id) so a returning visit is recognized as the same visitor. It records which pages are
+              opened, roughly where the visit came from, and what kind of device was used. It is not
+              used for advertising, and the data is not sold. You can block these cookies in your
+              browser settings or with a tracker-blocking extension, and the site works exactly the
+              same.
+            </p>
+          )}
         </div>
       </article>
     </div>

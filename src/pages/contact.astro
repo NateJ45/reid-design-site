@@ -158,49 +158,41 @@ const schemas = [
   {schedulingLink && <CallBand url={schedulingLink} label={schedulingLinkLabel} />}
 
   {/* ---- What happens next ------------------------------------------- */}
-  {
-    hasRoadmap ? (
-      <PostInquiryRoadmap
-        steps={roadmapSteps}
-        eyebrow={page?.whatToExpectEyebrow}
-        headline={page?.whatToExpectHeadline}
-      />
-    ) : (
-      page?.whatToExpectContent && (
-        <section
-          class="expect"
-          aria-labelledby={page.whatToExpectHeadline ? 'expect-heading' : undefined}
-        >
-          <div class="r-wrap expect__grid">
-            <div>
-              {page.whatToExpectEyebrow && (
-                <p class="expect__eyebrow">{page.whatToExpectEyebrow}</p>
-              )}
-              {page.whatToExpectHeadline && (
-                <h2 id="expect-heading" class="r-h2 expect__h">
-                  {page.whatToExpectHeadline}
-                </h2>
-              )}
-            </div>
-            <PortableTextStatic value={page.whatToExpectContent} className="expect__body" />
+  {hasRoadmap ? (
+    <PostInquiryRoadmap
+      steps={roadmapSteps}
+      eyebrow={page?.whatToExpectEyebrow}
+      headline={page?.whatToExpectHeadline}
+    />
+  ) : (
+    page?.whatToExpectContent && (
+      <section
+        class="expect"
+        aria-labelledby={page.whatToExpectHeadline ? 'expect-heading' : undefined}
+      >
+        <div class="r-wrap expect__grid">
+          <div>
+            {page.whatToExpectEyebrow && <p class="expect__eyebrow">{page.whatToExpectEyebrow}</p>}
+            {page.whatToExpectHeadline && (
+              <h2 id="expect-heading" class="r-h2 expect__h">
+                {page.whatToExpectHeadline}
+              </h2>
+            )}
           </div>
-        </section>
-      )
+          <PortableTextStatic value={page.whatToExpectContent} className="expect__body" />
+        </div>
+      </section>
     )
-  }
+  )}
 
   {/* ---- Where Staci works ------------------------------------------- */}
   <ContactArea towns={siteSettings?.serviceAreas} />
 
-  {
-    /* ---- Latest Instagram posts (2026-09-30). Renders nothing without a
-      feed; Site settings > Instagram feed > "Show on the Contact page". ---- */
-  }
-  {
-    siteSettings?.instagramFeedOnContact !== false && (
-      <InstagramFeed settings={siteSettings} headingId="contact-instagram-heading" />
-    )
-  }
+  {/* ---- Latest Instagram posts (2026-09-30). Renders nothing without a
+      feed; Site settings > Instagram feed > "Show on the Contact page". ---- */}
+  {siteSettings?.instagramFeedOnContact !== false && (
+    <InstagramFeed settings={siteSettings} headingId="contact-instagram-heading" />
+  )}
 
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="contact-extra" />

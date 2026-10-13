@@ -62,70 +62,62 @@ const CONTACT_HREF = '/contact/?type=e-design';
   />
 
   {/* ------- Content sections (reorderable) or coming-soon state ------------ */}
-  {
-    /* Coming soon (no eDesignPage document yet): one quiet fold on linen with
-      a single ink button, in the phase 2 vocabulary (DESIGN.md). */
-  }
-  {
-    !page ? (
-      <section class="eds-soon" aria-labelledby="edesign-coming-soon">
-        <div class="r-wrap">
-          <h2 id="edesign-coming-soon" class="r-h2 eds-soon__h">
-            E-Design details are <span class="r-accent">on the way.</span>
-          </h2>
-          <p class="r-lede eds-soon__p">
-            We're pulling together the full overview. In the meantime, reach out. We're happy to
-            walk you through the remote design process directly.
+  {/* Coming soon (no eDesignPage document yet): one quiet fold on linen with
+      a single ink button, in the phase 2 vocabulary (DESIGN.md). */}
+  {!page ? (
+    <section class="eds-soon" aria-labelledby="edesign-coming-soon">
+      <div class="r-wrap">
+        <h2 id="edesign-coming-soon" class="r-h2 eds-soon__h">
+          E-Design details are <span class="r-accent">on the way.</span>
+        </h2>
+        <p class="r-lede eds-soon__p">
+          We're pulling together the full overview. In the meantime, reach out. We're happy to walk
+          you through the remote design process directly.
+        </p>
+        <a href={CONTACT_HREF} class="r-btn r-btn--ink">
+          Inquire about E-Design
+          <span class="r-arrow" aria-hidden="true">
+            →
+          </span>
+        </a>
+      </div>
+    </section>
+  ) : (
+    <EDesignSectionRenderer sections={page.pageBuilder} page={page} />
+  )}
+
+  {/* ------- Final CTA ------------------------------------------------------- */}
+  {/* With no finalCta set in Sanity, a Walnut close drawn here so the button
+      keeps its ?type=e-design (FinalCta's own fallback is plain /contact). */}
+  {page?.finalCta ? (
+    <FinalCta
+      eyebrow={page.finalCtaEyebrow}
+      headline={page.finalCtaHeadline}
+      subhead={page.finalCtaSubhead}
+      cta={page.finalCta}
+      scriptAccent={page.finalCtaScriptAccent}
+      backgroundImage={page.finalCtaBackgroundImage}
+    />
+  ) : (
+    <section class="eds-close" aria-labelledby="edesign-final-cta">
+      <div class="r-wrap eds-close__grid">
+        <h2 id="edesign-final-cta" class="eds-close__h">
+          Get a room you love from <span class="r-accent">wherever you are.</span>
+        </h2>
+        <div>
+          <p class="eds-close__p">
+            Reach out and we'll walk through what E-Design looks like for your space.
           </p>
-          <a href={CONTACT_HREF} class="r-btn r-btn--ink">
+          <a href={CONTACT_HREF} class="r-btn r-btn--cream">
             Inquire about E-Design
             <span class="r-arrow" aria-hidden="true">
               →
             </span>
           </a>
         </div>
-      </section>
-    ) : (
-      <EDesignSectionRenderer sections={page.pageBuilder} page={page} />
-    )
-  }
-
-  {/* ------- Final CTA ------------------------------------------------------- */}
-  {
-    /* With no finalCta set in Sanity, a Walnut close drawn here so the button
-      keeps its ?type=e-design (FinalCta's own fallback is plain /contact). */
-  }
-  {
-    page?.finalCta ? (
-      <FinalCta
-        eyebrow={page.finalCtaEyebrow}
-        headline={page.finalCtaHeadline}
-        subhead={page.finalCtaSubhead}
-        cta={page.finalCta}
-        scriptAccent={page.finalCtaScriptAccent}
-        backgroundImage={page.finalCtaBackgroundImage}
-      />
-    ) : (
-      <section class="eds-close" aria-labelledby="edesign-final-cta">
-        <div class="r-wrap eds-close__grid">
-          <h2 id="edesign-final-cta" class="eds-close__h">
-            Get a room you love from <span class="r-accent">wherever you are.</span>
-          </h2>
-          <div>
-            <p class="eds-close__p">
-              Reach out and we'll walk through what E-Design looks like for your space.
-            </p>
-            <a href={CONTACT_HREF} class="r-btn r-btn--cream">
-              Inquire about E-Design
-              <span class="r-arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-          </div>
-        </div>
-      </section>
-    )
-  }
+      </div>
+    </section>
+  )}
 </BaseLayout>
 
 <style>

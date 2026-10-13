@@ -35,19 +35,17 @@ const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subu
       <h2 id="area-heading" class="r-h2 area__h">
         Based in {home || 'Plainfield'}. <span class="r-accent">Happy to drive.</span>
       </h2>
-      {
-        cityList.length > 0 && (
-          <p class="area__towns">
-            <b>{home}</b>
-            {rest.map((c) => (
-              <>
-                {' '}
-                <i aria-hidden="true">/</i> {c}
-              </>
-            ))}
-          </p>
-        )
-      }
+      {cityList.length > 0 && (
+        <p class="area__towns">
+          <b>{home}</b>
+          {rest.map((c) => (
+            <>
+              {' '}
+              <i aria-hidden="true">/</i> {c}
+            </>
+          ))}
+        </p>
+      )}
       <p class="area__note">{note}</p>
     </div>
     <div class="area__map">

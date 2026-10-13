@@ -59,45 +59,43 @@ const Tag = href ? 'a' : 'div';
 const linkAttrs = href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
-{
-  summary &&
-    (variant === 'compact' ? (
-      <Tag class:list={['rt', 'rt--compact', cls]} {...linkAttrs}>
-        <Stars rating={summary.rating} class="rt__stars" />
+{summary &&
+  (variant === 'compact' ? (
+    <Tag class:list={['rt', 'rt--compact', cls]} {...linkAttrs}>
+      <Stars rating={summary.rating} class="rt__stars" />
+      <span class="rt__num">
+        <span class="sr-only">Rated </span>
+        {formatRating(summary.rating)}
+        <span class="sr-only">{' out of 5 on '}</span>
+      </span>
+      <span class="rt__src">
+        Google
+        {href && <span class="sr-only">, opens Google in a new tab</span>}
+      </span>
+    </Tag>
+  ) : (
+    <Tag class:list={['rt', `rt--${variant}`, cls]} {...linkAttrs}>
+      <span class="rt__tag">
         <span class="rt__num">
           <span class="sr-only">Rated </span>
           {formatRating(summary.rating)}
-          <span class="sr-only">{' out of 5 on '}</span>
+          <span class="sr-only">{' out of 5 '}</span>
         </span>
-        <span class="rt__src">
-          Google
-          {href && <span class="sr-only">, opens Google in a new tab</span>}
-        </span>
-      </Tag>
-    ) : (
-      <Tag class:list={['rt', `rt--${variant}`, cls]} {...linkAttrs}>
-        <span class="rt__tag">
-          <span class="rt__num">
-            <span class="sr-only">Rated </span>
-            {formatRating(summary.rating)}
-            <span class="sr-only">{' out of 5 '}</span>
-          </span>
-          <span class="rt__body">
-            <Stars rating={summary.rating} class="rt__stars" />
-            <span class="rt__count">
-              {RATING_SOURCE}
-              {summary.profileUrl && <span class="sr-only">, opens Google in a new tab</span>}
-              {summary.profileUrl && (
-                <span class="rt__arrow" aria-hidden="true">
-                  ↗
-                </span>
-              )}
-            </span>
+        <span class="rt__body">
+          <Stars rating={summary.rating} class="rt__stars" />
+          <span class="rt__count">
+            {RATING_SOURCE}
+            {summary.profileUrl && <span class="sr-only">, opens Google in a new tab</span>}
+            {summary.profileUrl && (
+              <span class="rt__arrow" aria-hidden="true">
+                ↗
+              </span>
+            )}
           </span>
         </span>
-      </Tag>
-    ))
-}
+      </span>
+    </Tag>
+  ))}
 
 <style>
   .rt {

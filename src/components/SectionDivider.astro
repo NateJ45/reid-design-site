@@ -29,31 +29,27 @@ const { variant = 'ornament', tone = 'linen', class: extraClass = '' } = Astro.p
 
 <div class:list={['sdiv', `sdiv--${tone}`, extraClass]} aria-hidden="true">
   <div class="r-wrap sdiv__inner">
-    {
-      variant === 'ornament' && (
-        <svg class="sdiv__sprig" viewBox="0 0 300 90" focusable="false">
-          <path d="M4 78 C70 62 150 50 296 20" />
-          <path d="M60 66 C52 48 58 34 74 28 C78 44 72 58 60 66Z" />
-          <path d="M60 66 C44 72 30 70 20 60 C34 52 50 56 60 66Z" />
-          <path d="M118 56 C110 38 116 24 132 18 C136 34 130 48 118 56Z" />
-          <path d="M118 56 C104 64 88 64 76 54 C90 46 106 48 118 56Z" />
-          <path d="M178 44 C172 28 178 14 194 8 C198 24 192 38 178 44Z" />
-          <path d="M178 44 C164 52 148 52 136 44 C150 36 166 36 178 44Z" />
-          <path d="M236 32 C232 18 238 6 252 2 C256 16 250 28 236 32Z" />
-          <path d="M236 32 C224 40 210 40 200 32 C212 24 226 26 236 32Z" />
-        </svg>
-      )
-    }
+    {variant === 'ornament' && (
+      <svg class="sdiv__sprig" viewBox="0 0 300 90" focusable="false">
+        <path d="M4 78 C70 62 150 50 296 20" />
+        <path d="M60 66 C52 48 58 34 74 28 C78 44 72 58 60 66Z" />
+        <path d="M60 66 C44 72 30 70 20 60 C34 52 50 56 60 66Z" />
+        <path d="M118 56 C110 38 116 24 132 18 C136 34 130 48 118 56Z" />
+        <path d="M118 56 C104 64 88 64 76 54 C90 46 106 48 118 56Z" />
+        <path d="M178 44 C172 28 178 14 194 8 C198 24 192 38 178 44Z" />
+        <path d="M178 44 C164 52 148 52 136 44 C150 36 166 36 178 44Z" />
+        <path d="M236 32 C232 18 238 6 252 2 C256 16 250 28 236 32Z" />
+        <path d="M236 32 C224 40 210 40 200 32 C212 24 226 26 236 32Z" />
+      </svg>
+    )}
     {variant === 'line' && <span class="sdiv__line" />}
-    {
-      variant === 'dots' && (
-        <span class="sdiv__dots">
-          <span />
-          <span />
-          <span />
-        </span>
-      )
-    }
+    {variant === 'dots' && (
+      <span class="sdiv__dots">
+        <span />
+        <span />
+        <span />
+      </span>
+    )}
   </div>
 </div>
 

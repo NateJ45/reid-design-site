@@ -79,47 +79,45 @@ const toneFor = (i: number) =>
     </div>
 
     <ol class="chips__strip">
-      {
-        services.map((s, i) => {
-          const tone = toneFor(i);
-          const { label, amount, unit, run } = splitPrice(s.price);
-          const href = s.slug?.current ? `/services/#${s.slug.current}` : '/services/';
-          return (
-            <li
-              class="chip"
-              style={`--i:${i}; --tone: var(--color-chip-${tone})`}
-              data-on={tone >= 5 ? 'cream' : 'ink'}
-            >
-              <a class="chip__link" href={href}>
-                {s.badge && <span class="chip__flag">{s.badge}</span>}
-                <div class="chip__face r-backdrop-host">
-                  <RoomBackdrop index={i} ratio={0.8} tone={tone >= 5 ? 'deep' : 'pale'} />
-                  <h3 class="chip__name">{s.name}</h3>
-                  <p class="chip__price">
-                    <small>{label}</small>
-                    {amount}
-                    {run}
-                    {unit && <span class="chip__unit">{unit}</span>}
-                  </p>
-                </div>
-                <div class="chip__label">
-                  {s.features && s.features.length > 0 && (
-                    <ul>
-                      {s.features.slice(0, 3).map((f) => (
-                        <li>{f}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <span class="chip__go">
-                    {s.ctaLabel || 'See the details'}
-                    <span aria-hidden="true">→</span>
-                  </span>
-                </div>
-              </a>
-            </li>
-          );
-        })
-      }
+      {services.map((s, i) => {
+        const tone = toneFor(i);
+        const { label, amount, unit, run } = splitPrice(s.price);
+        const href = s.slug?.current ? `/services/#${s.slug.current}` : '/services/';
+        return (
+          <li
+            class="chip"
+            style={`--i:${i}; --tone: var(--color-chip-${tone})`}
+            data-on={tone >= 5 ? 'cream' : 'ink'}
+          >
+            <a class="chip__link" href={href}>
+              {s.badge && <span class="chip__flag">{s.badge}</span>}
+              <div class="chip__face r-backdrop-host">
+                <RoomBackdrop index={i} ratio={0.8} tone={tone >= 5 ? 'deep' : 'pale'} />
+                <h3 class="chip__name">{s.name}</h3>
+                <p class="chip__price">
+                  <small>{label}</small>
+                  {amount}
+                  {run}
+                  {unit && <span class="chip__unit">{unit}</span>}
+                </p>
+              </div>
+              <div class="chip__label">
+                {s.features && s.features.length > 0 && (
+                  <ul>
+                    {s.features.slice(0, 3).map((f) => (
+                      <li>{f}</li>
+                    ))}
+                  </ul>
+                )}
+                <span class="chip__go">
+                  {s.ctaLabel || 'See the details'}
+                  <span aria-hidden="true">→</span>
+                </span>
+              </div>
+            </a>
+          </li>
+        );
+      })}
     </ol>
 
     <div class="chips__foot">

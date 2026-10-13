@@ -79,53 +79,49 @@ const schemas = [
   {/* ------- 2. The reference: topic index + grouped accordion -------------- */}
   <section class="faqp" aria-label="Frequently asked questions">
     <div class:list={['r-wrap faqp__grid', groups.length > 1 && 'faqp__grid--index']}>
-      {
-        groups.length > 1 && (
-          <nav class="faqp__index" aria-labelledby="faqp-index-heading">
-            <p id="faqp-index-heading" class="faqp__index-h">
-              {total} questions, {groups.length} topics
-            </p>
-            <ol class="faqp__topics" role="list">
-              {groups.map((g) => (
-                <li>
-                  <a href={`#${g.id}`} class="faqp__topic">
-                    <span class="faqp__swatch" aria-hidden="true" />
-                    <span class="faqp__topic-name">{g.category}</span>
-                    <span class="faqp__topic-n" aria-hidden="true">
-                      {g.items.length}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-            <p class="faqp__ask">
-              Something not covered?{' '}
-              <a href="/contact/" class="r-link">
-                Ask Staci
-              </a>
-            </p>
-          </nav>
-        )
-      }
+      {groups.length > 1 && (
+        <nav class="faqp__index" aria-labelledby="faqp-index-heading">
+          <p id="faqp-index-heading" class="faqp__index-h">
+            {total} questions, {groups.length} topics
+          </p>
+          <ol class="faqp__topics" role="list">
+            {groups.map((g) => (
+              <li>
+                <a href={`#${g.id}`} class="faqp__topic">
+                  <span class="faqp__swatch" aria-hidden="true" />
+                  <span class="faqp__topic-name">{g.category}</span>
+                  <span class="faqp__topic-n" aria-hidden="true">
+                    {g.items.length}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+          <p class="faqp__ask">
+            Something not covered?{' '}
+            <a href="/contact/" class="r-link">
+              Ask Staci
+            </a>
+          </p>
+        </nav>
+      )}
       <div class="faqp__list">
-        {
-          faqs.length > 0 ? (
-            <FaqAccordion
-              client:visible
-              faqs={faqs}
-              categoryOrder={categoryOrder}
-              idPrefix={ID_PREFIX}
-            />
-          ) : (
-            <p class="faqp__empty">
-              FAQ content is being updated.{' '}
-              <a href="/contact/" class="r-link">
-                Ask anything
-              </a>{' '}
-              in the meantime.
-            </p>
-          )
-        }
+        {faqs.length > 0 ? (
+          <FaqAccordion
+            client:visible
+            faqs={faqs}
+            categoryOrder={categoryOrder}
+            idPrefix={ID_PREFIX}
+          />
+        ) : (
+          <p class="faqp__empty">
+            FAQ content is being updated.{' '}
+            <a href="/contact/" class="r-link">
+              Ask anything
+            </a>{' '}
+            in the meantime.
+          </p>
+        )}
       </div>
     </div>
   </section>

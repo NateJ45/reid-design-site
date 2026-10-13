@@ -196,70 +196,68 @@ const rows = list.map((s, i) => {
 const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as const;
 ---
 
-{
-  rows.map(({ s, surface, ground, headingId, handle, coachInfo }) => (
-    <Wrap {...wrapAttrs(s._key)}>
-      {coachInfo ? (
-        <SectionCoach name={coachInfo.name} hint={coachInfo.hint} />
-      ) : s._type === 'heroSection' ? (
-        <Hero
-          eyebrow={s.eyebrow}
-          headline={s.headline}
-          subhead={s.subhead}
-          backgroundImage={s.backgroundImage}
-          primaryCta={s.primaryCta}
-          secondaryCta={s.secondaryCta}
-          scriptAccent={s.scriptAccent}
-          size={s.size ?? 'short'}
-          headingId={headingId}
-        />
-      ) : s._type === 'ctaBandSection' ? (
-        <FinalCta
-          eyebrow={s.eyebrow}
-          headline={s.headline}
-          subhead={s.subhead}
-          cta={s.cta}
-          scriptAccent={s.scriptAccent}
-          backgroundImage={s.backgroundImage}
-          headingId={headingId}
-        />
-      ) : s._type === 'statSection' ? (
-        <StatsRow stats={(s.stats ?? []).filter((x: any) => typeof x?.number === 'number')} />
-      ) : s._type === 'spacerSection' ? (
-        s.variant === 'space' ? (
-          <div class:list={['py-section-md', GROUND_CLASS[ground]]} aria-hidden="true" />
-        ) : (
-          <SectionDivider variant={s.variant === 'line' ? 'line' : 'ornament'} tone={ground} />
-        )
-      ) : s._type === 'richTextSection' ? (
-        <RichTextSection {...s} surface={surface} headingId={headingId} />
-      ) : s._type === 'imageTextSection' ? (
-        <ImageText {...s} surface={surface} headingId={headingId} />
-      ) : s._type === 'gallerySection' ? (
-        <GalleryGrid {...s} surface={surface} headingId={headingId} />
-      ) : s._type === 'quoteSection' ? (
-        <QuoteBlock {...s} surface={surface ?? 'background'} />
-      ) : s._type === 'videoSection' ? (
-        <VideoEmbed {...s} surface={surface} headingId={headingId} />
-      ) : s._type === 'instagramSection' ? (
-        <InstagramFeed
-          settings={igSettings}
-          heading={s.heading}
-          subhead={s.subhead}
-          headingId={headingId}
-        />
-      ) : null}
-      {handle && (
-        <div
-          data-sanity={handle}
-          data-layout-handle
-          title="Layout"
-          aria-hidden="true"
-          style={HANDLE_STYLE}
-        >
-          &#9776;
-        </div>
-      )}
-    </Wrap>
-  ))
-}
+{rows.map(({ s, surface, ground, headingId, handle, coachInfo }) => (
+  <Wrap {...wrapAttrs(s._key)}>
+    {coachInfo ? (
+      <SectionCoach name={coachInfo.name} hint={coachInfo.hint} />
+    ) : s._type === 'heroSection' ? (
+      <Hero
+        eyebrow={s.eyebrow}
+        headline={s.headline}
+        subhead={s.subhead}
+        backgroundImage={s.backgroundImage}
+        primaryCta={s.primaryCta}
+        secondaryCta={s.secondaryCta}
+        scriptAccent={s.scriptAccent}
+        size={s.size ?? 'short'}
+        headingId={headingId}
+      />
+    ) : s._type === 'ctaBandSection' ? (
+      <FinalCta
+        eyebrow={s.eyebrow}
+        headline={s.headline}
+        subhead={s.subhead}
+        cta={s.cta}
+        scriptAccent={s.scriptAccent}
+        backgroundImage={s.backgroundImage}
+        headingId={headingId}
+      />
+    ) : s._type === 'statSection' ? (
+      <StatsRow stats={(s.stats ?? []).filter((x: any) => typeof x?.number === 'number')} />
+    ) : s._type === 'spacerSection' ? (
+      s.variant === 'space' ? (
+        <div class:list={['py-section-md', GROUND_CLASS[ground]]} aria-hidden="true" />
+      ) : (
+        <SectionDivider variant={s.variant === 'line' ? 'line' : 'ornament'} tone={ground} />
+      )
+    ) : s._type === 'richTextSection' ? (
+      <RichTextSection {...s} surface={surface} headingId={headingId} />
+    ) : s._type === 'imageTextSection' ? (
+      <ImageText {...s} surface={surface} headingId={headingId} />
+    ) : s._type === 'gallerySection' ? (
+      <GalleryGrid {...s} surface={surface} headingId={headingId} />
+    ) : s._type === 'quoteSection' ? (
+      <QuoteBlock {...s} surface={surface ?? 'background'} />
+    ) : s._type === 'videoSection' ? (
+      <VideoEmbed {...s} surface={surface} headingId={headingId} />
+    ) : s._type === 'instagramSection' ? (
+      <InstagramFeed
+        settings={igSettings}
+        heading={s.heading}
+        subhead={s.subhead}
+        headingId={headingId}
+      />
+    ) : null}
+    {handle && (
+      <div
+        data-sanity={handle}
+        data-layout-handle
+        title="Layout"
+        aria-hidden="true"
+        style={HANDLE_STYLE}
+      >
+        &#9776;
+      </div>
+    )}
+  </Wrap>
+))}

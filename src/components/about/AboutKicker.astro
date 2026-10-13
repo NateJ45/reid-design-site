@@ -23,14 +23,12 @@ const { cleaned, encoded } = splitStega(text ?? '');
 const label = cleaned.trim().replace(/\.$/, '');
 ---
 
-{
-  label && (
-    <p class:list={['ak', tone === 'ink' && 'ak--ink', className]}>
-      {label}
-      {encoded}
-    </p>
-  )
-}
+{label && (
+  <p class:list={['ak', tone === 'ink' && 'ak--ink', className]}>
+    {label}
+    {encoded}
+  </p>
+)}
 
 <style>
   .ak {

@@ -91,60 +91,55 @@ const headingId = id ? `${id}-name` : undefined;
       ratio={0.75}
       tone={tone.on === 'cream' ? 'deep' : 'pale'}
     />
-    {
-      /* No "No. 01" label (2026-09-30): the strip's order and the tone ramp
-         already carry the sequence. The top row now only holds the badge. */
-    }
+    {/* No "No. 01" label (2026-09-30): the strip's order and the tone ramp
+         already carry the sequence. The top row now only holds the badge. */}
     <div class="svc__top">{badge && <span class="svc__flag">{badge}</span>}</div>
-    <h3 class="svc__name" id={headingId}>{service.name}</h3>
-    {
-      service.price && (
-        <p class="svc__price">
-          {price.label && <small>{price.label}</small>}
-          <span class="svc__amount">
-            {price.amount}
-            {price.run}
-            {price.unit && <span class="svc__unit">{price.unit}</span>}
-          </span>
-        </p>
-      )
-    }
+    <h3 class="svc__name" id={headingId}>
+      {service.name}
+    </h3>
+    {service.price && (
+      <p class="svc__price">
+        {price.label && <small>{price.label}</small>}
+        <span class="svc__amount">
+          {price.amount}
+          {price.run}
+          {price.unit && <span class="svc__unit">{price.unit}</span>}
+        </span>
+      </p>
+    )}
   </div>
 
   <div class="svc__body">
     {service.shortDescription && <p class="svc__desc">{service.shortDescription}</p>}
 
-    {
-      visibleFeatures.length > 0 && (
-        <ul class="svc__features" aria-label={`What ${service.name ?? 'this'} includes`}>
-          {visibleFeatures.map((f) => (
-            <li>{f}</li>
-          ))}
-        </ul>
-      )
-    }
+    {visibleFeatures.length > 0 && (
+      <ul class="svc__features" aria-label={`What ${service.name ?? 'this'} includes`}>
+        {visibleFeatures.map((f) => (
+          <li>{f}</li>
+        ))}
+      </ul>
+    )}
 
     <div class="svc__foot">
-      {
-        !compact && service.bestFor && (
-          <p class="r-tag svc__tag">
-            <small>Best for</small>
-            <strong>{service.bestFor}</strong>
-          </p>
-        )
-      }
+      {!compact && service.bestFor && (
+        <p class="r-tag svc__tag">
+          <small>Best for</small>
+          <strong>{service.bestFor}</strong>
+        </p>
+      )}
       <div class="svc__ctas">
         <a class="r-btn r-btn--ink" href={href}>
           {ctaLabel}
-          <span class="r-arrow" aria-hidden="true"> → </span>
+          <span class="r-arrow" aria-hidden="true">
+            {' '}
+            →{' '}
+          </span>
         </a>
-        {
-          secondary && (
-            <a class="r-link" href={secondary.href}>
-              {secondary.label}
-            </a>
-          )
-        }
+        {secondary && (
+          <a class="r-link" href={secondary.href}>
+            {secondary.label}
+          </a>
+        )}
       </div>
     </div>
   </div>

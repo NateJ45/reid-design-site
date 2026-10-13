@@ -63,36 +63,34 @@ const SIZES = '(min-width: 1024px) 75vw, (max-width: 767px) 66vw, 100vw';
   data-wall-median={room.wall?.median.join(',')}
   style={`--ar:${width} / ${height}`}
 >
-  {
-    frames.map((f, i) => {
-      const common = {
-        width,
-        height,
-        decoding: 'async' as const,
-        'data-change': f.change ?? undefined,
-        'data-box': f.box?.join(','),
-        'data-motion': f.motion,
-        'data-stage': f.stage,
-      };
-      return i === last ? (
-        <picture class="room__frame room__frame--final" data-frame={i} data-on="">
-          <source type="image/avif" srcset={f.avifSrcset} sizes={SIZES} />
-          <source type="image/webp" srcset={f.webpSrcset} sizes={SIZES} />
-          <img src={f.src} alt={room.finalAlt} loading="lazy" data-room-final {...common} />
-        </picture>
-      ) : (
-        <picture class="room__frame" data-frame={i}>
-          <img
-            alt=""
-            data-avif={f.avifSrcset}
-            data-webp={f.webpSrcset}
-            data-src={f.src}
-            {...common}
-          />
-        </picture>
-      );
-    })
-  }
+  {frames.map((f, i) => {
+    const common = {
+      width,
+      height,
+      decoding: 'async' as const,
+      'data-change': f.change ?? undefined,
+      'data-box': f.box?.join(','),
+      'data-motion': f.motion,
+      'data-stage': f.stage,
+    };
+    return i === last ? (
+      <picture class="room__frame room__frame--final" data-frame={i} data-on="">
+        <source type="image/avif" srcset={f.avifSrcset} sizes={SIZES} />
+        <source type="image/webp" srcset={f.webpSrcset} sizes={SIZES} />
+        <img src={f.src} alt={room.finalAlt} loading="lazy" data-room-final {...common} />
+      </picture>
+    ) : (
+      <picture class="room__frame" data-frame={i}>
+        <img
+          alt=""
+          data-avif={f.avifSrcset}
+          data-webp={f.webpSrcset}
+          data-src={f.src}
+          {...common}
+        />
+      </picture>
+    );
+  })}
   {canvas && <canvas class="room__canvas" aria-hidden="true" hidden />}
 </div>
 

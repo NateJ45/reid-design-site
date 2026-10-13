@@ -86,102 +86,95 @@ const hasFacebook = list.some((t) => reviewSource(t).kind === 'facebook');
 const plain = (v?: string | null) => splitStega(v ?? '').cleaned.trim();
 ---
 
-{
-  list.length > 0 && (
-    <section class="kw" aria-labelledby={headingId}>
-      <div class="r-wrap">
-        <header class="kw__head">
-          <div class="kw__intro">
-            <AboutKicker text={eyebrow || 'Kind words'} />
-            <h2 id={headingId} class="r-h2 kw__h">
-              {h.found ? (
-                <>
-                  {h.before}
-                  <span class="r-accent">{h.word}</span>
-                  {h.after}
-                  {head.encoded}
-                </>
-              ) : (
-                headText
-              )}
-            </h2>
-            <p class="kw__sub">{intro}</p>
-          </div>
-          <RatingTag settings={siteSettings} class="kw__rating" />
-        </header>
-
-        <ul class="kw__list" role="list">
-          {list.map((t) => {
-            const src = reviewSource(t);
-            const href = src.kind === 'google' ? httpUrl(t.reviewUrl) : null;
-            const when = monthYear(t.date);
-            return (
-              <li class:list={['kw__item', `kw__item--${quoteSize(t.quote)}`]}>
-                <figure>
-                  <blockquote>
-                    <p>{t.quote}</p>
-                  </blockquote>
-                  <figcaption>
-                    <span class="kw__who">{displayName(t.attribution)}</span>
-                    {(when || src.text) && (
-                      <span class="kw__meta">
-                        {when && <time datetime={plain(t.date)}>{when}</time>}
-                        {src.text && (
-                          <span class="kw__src">
-                            {src.stars != null && (
-                              <>
-                                <Stars rating={src.stars} class="kw__stars" />
-                                <span class="sr-only">{src.stars} out of 5 stars </span>
-                              </>
-                            )}
-                            {href ? (
-                              <a
-                                class="r-link"
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {src.text}
-                                <span class="sr-only">
-                                  : {displayName(plain(t.attribution))}’s review, opens in a new tab
-                                </span>
-                              </a>
-                            ) : (
-                              src.text
-                            )}
-                          </span>
-                        )}
-                      </span>
-                    )}
-                  </figcaption>
-                </figure>
-              </li>
-            );
-          })}
-        </ul>
-
-        {((hasGoogle && googleUrl) || (hasFacebook && facebookUrl)) && (
-          <p class="kw__links">
-            {hasGoogle && googleUrl && (
-              <a class="r-link" href={googleUrl} target="_blank" rel="noopener noreferrer">
-                Read them on Google
-                <span class="sr-only">, opens in a new tab</span>
-                <span aria-hidden="true"> ↗</span>
-              </a>
+{list.length > 0 && (
+  <section class="kw" aria-labelledby={headingId}>
+    <div class="r-wrap">
+      <header class="kw__head">
+        <div class="kw__intro">
+          <AboutKicker text={eyebrow || 'Kind words'} />
+          <h2 id={headingId} class="r-h2 kw__h">
+            {h.found ? (
+              <>
+                {h.before}
+                <span class="r-accent">{h.word}</span>
+                {h.after}
+                {head.encoded}
+              </>
+            ) : (
+              headText
             )}
-            {hasFacebook && facebookUrl && (
-              <a class="r-link" href={facebookUrl} target="_blank" rel="noopener noreferrer">
-                Read them on Facebook
-                <span class="sr-only">, opens in a new tab</span>
-                <span aria-hidden="true"> ↗</span>
-              </a>
-            )}
-          </p>
-        )}
-      </div>
-    </section>
-  )
-}
+          </h2>
+          <p class="kw__sub">{intro}</p>
+        </div>
+        <RatingTag settings={siteSettings} class="kw__rating" />
+      </header>
+
+      <ul class="kw__list" role="list">
+        {list.map((t) => {
+          const src = reviewSource(t);
+          const href = src.kind === 'google' ? httpUrl(t.reviewUrl) : null;
+          const when = monthYear(t.date);
+          return (
+            <li class:list={['kw__item', `kw__item--${quoteSize(t.quote)}`]}>
+              <figure>
+                <blockquote>
+                  <p>{t.quote}</p>
+                </blockquote>
+                <figcaption>
+                  <span class="kw__who">{displayName(t.attribution)}</span>
+                  {(when || src.text) && (
+                    <span class="kw__meta">
+                      {when && <time datetime={plain(t.date)}>{when}</time>}
+                      {src.text && (
+                        <span class="kw__src">
+                          {src.stars != null && (
+                            <>
+                              <Stars rating={src.stars} class="kw__stars" />
+                              <span class="sr-only">{src.stars} out of 5 stars </span>
+                            </>
+                          )}
+                          {href ? (
+                            <a class="r-link" href={href} target="_blank" rel="noopener noreferrer">
+                              {src.text}
+                              <span class="sr-only">
+                                : {displayName(plain(t.attribution))}’s review, opens in a new tab
+                              </span>
+                            </a>
+                          ) : (
+                            src.text
+                          )}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </figcaption>
+              </figure>
+            </li>
+          );
+        })}
+      </ul>
+
+      {((hasGoogle && googleUrl) || (hasFacebook && facebookUrl)) && (
+        <p class="kw__links">
+          {hasGoogle && googleUrl && (
+            <a class="r-link" href={googleUrl} target="_blank" rel="noopener noreferrer">
+              Read them on Google
+              <span class="sr-only">, opens in a new tab</span>
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          )}
+          {hasFacebook && facebookUrl && (
+            <a class="r-link" href={facebookUrl} target="_blank" rel="noopener noreferrer">
+              Read them on Facebook
+              <span class="sr-only">, opens in a new tab</span>
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          )}
+        </p>
+      )}
+    </div>
+  </section>
+)}
 
 <style>
   .kw {

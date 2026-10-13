@@ -23,26 +23,24 @@ const {
 } = Astro.props as Props;
 ---
 
-{
-  faqs.length > 0 && (
-    <section class="pfaq" aria-labelledby="process-faq-heading">
-      <div class="r-wrap pfaq__grid">
-        <div class="pfaq__head">
-          <SectionHeading eyebrow={eyebrow} headline={headline} headingId="process-faq-heading" />
-          <p class="pfaq__more">
-            More questions?{' '}
-            <a href="/faq/" class="r-link">
-              See the full FAQ
-            </a>
-          </p>
-        </div>
-        <div class="pfaq__list">
-          <FaqAccordion client:visible faqs={faqs} idPrefix="process-faq" />
-        </div>
+{faqs.length > 0 && (
+  <section class="pfaq" aria-labelledby="process-faq-heading">
+    <div class="r-wrap pfaq__grid">
+      <div class="pfaq__head">
+        <SectionHeading eyebrow={eyebrow} headline={headline} headingId="process-faq-heading" />
+        <p class="pfaq__more">
+          More questions?{' '}
+          <a href="/faq/" class="r-link">
+            See the full FAQ
+          </a>
+        </p>
       </div>
-    </section>
-  )
-}
+      <div class="pfaq__list">
+        <FaqAccordion client:visible faqs={faqs} idPrefix="process-faq" />
+      </div>
+    </div>
+  </section>
+)}
 
 <style>
   .pfaq {

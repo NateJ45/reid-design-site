@@ -38,30 +38,25 @@ const {
 const list = (points ?? []).filter((p) => p?.title?.trim());
 ---
 
-{
-  list.length > 0 && (
-    <section class="bel" aria-labelledby={headingId}>
-      <div class="r-wrap">
-        <AboutKicker text={eyebrow} tone="ink" />
-        <h2 id={headingId} class="r-h2 bel__h">
-          {headline}
-        </h2>
+{list.length > 0 && (
+  <section class="bel" aria-labelledby={headingId}>
+    <div class="r-wrap">
+      <AboutKicker text={eyebrow} tone="ink" />
+      <h2 id={headingId} class="r-h2 bel__h">
+        {headline}
+      </h2>
 
-        <ul class="bel__list" role="list">
-          {list.map((point, i) => (
-            <li
-              class:list={['bel__item', i % 2 === 1 && 'bel__item--alt']}
-              style={`--step:${i % 3}`}
-            >
-              <h3 class="bel__title">{point.title}</h3>
-              {point.description && <p class="bel__why">{point.description}</p>}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  )
-}
+      <ul class="bel__list" role="list">
+        {list.map((point, i) => (
+          <li class:list={['bel__item', i % 2 === 1 && 'bel__item--alt']} style={`--step:${i % 3}`}>
+            <h3 class="bel__title">{point.title}</h3>
+            {point.description && <p class="bel__why">{point.description}</p>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
 
 <style>
   .bel {

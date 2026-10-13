@@ -26,23 +26,21 @@ const plainName = displayName(splitStega(review.attribution ?? '').cleaned);
 
 <figcaption class="gcite">
   <span class="gcite__who">{displayName(review.attribution)}</span>
-  {
-    (age || href) && (
-      <span class="gcite__meta">
-        {age && (
-          <time datetime={splitStega(review.date ?? '').cleaned} data-rel>
-            {age}
-          </time>
-        )}
-        {href && (
-          <a class="r-link gcite__read" href={href} target="_blank" rel="noopener noreferrer">
-            Read on Google
-            <span class="sr-only">: {plainName}’s review, opens in a new tab</span>
-          </a>
-        )}
-      </span>
-    )
-  }
+  {(age || href) && (
+    <span class="gcite__meta">
+      {age && (
+        <time datetime={splitStega(review.date ?? '').cleaned} data-rel>
+          {age}
+        </time>
+      )}
+      {href && (
+        <a class="r-link gcite__read" href={href} target="_blank" rel="noopener noreferrer">
+          Read on Google
+          <span class="sr-only">: {plainName}’s review, opens in a new tab</span>
+        </a>
+      )}
+    </span>
+  )}
 </figcaption>
 
 <style>

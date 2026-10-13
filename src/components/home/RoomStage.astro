@@ -122,32 +122,28 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
 
   <div class="room__track" data-room-track>
     <div class="r-wrap room__stage" data-room-stage>
-      {
-        tabbed && (
-          <div class="room__tabs" role="tablist" aria-label="Concept rooms" data-room-tabs hidden>
-            {rooms.map((r, i) => (
-              <button
-                type="button"
-                role="tab"
-                class="room__tab"
-                id={`room-tab-${r.slug}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-                aria-controls="room-panel"
-                tabindex={i === 0 ? 0 : -1}
-                data-room-tab={r.slug}
-                data-announce={r.announce}
-              >
-                <span class="room__tab-label">{r.label}</span>
-                <span class="room__tab-style">{r.style}</span>
-              </button>
-            ))}
-          </div>
-        )
-      }
-      {
-        /* The tab panel is a plain div around the figure (a figure may not
-          take role="tabpanel"); the script adds the role only with tabs. */
-      }
+      {tabbed && (
+        <div class="room__tabs" role="tablist" aria-label="Concept rooms" data-room-tabs hidden>
+          {rooms.map((r, i) => (
+            <button
+              type="button"
+              role="tab"
+              class="room__tab"
+              id={`room-tab-${r.slug}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              aria-controls="room-panel"
+              tabindex={i === 0 ? 0 : -1}
+              data-room-tab={r.slug}
+              data-announce={r.announce}
+            >
+              <span class="room__tab-label">{r.label}</span>
+              <span class="room__tab-style">{r.style}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {/* The tab panel is a plain div around the figure (a figure may not
+          take role="tabpanel"); the script adds the role only with tabs. */}
       <div class="room__col" id="room-panel" data-room-panel>
         <figure class="room__figure" data-room-figure>
           <RoomScene room={first} canvas />
@@ -155,23 +151,19 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
             <span class="room__rule-fill"></span>
           </div>
           <svg class="room__string" aria-hidden="true" focusable="false" data-room-string>
-            {
-              [0, 1].map((slot) => (
-                <g data-slot={slot}>
-                  <path class="room__string-halo" pathLength="1" d="" />
-                  <path class="room__string-ink" pathLength="1" d="" />
-                  <path class="room__string-knot" d="" />
-                </g>
-              ))
-            }
+            {[0, 1].map((slot) => (
+              <g data-slot={slot}>
+                <path class="room__string-halo" pathLength="1" d="" />
+                <path class="room__string-ink" pathLength="1" d="" />
+                <path class="room__string-knot" d="" />
+              </g>
+            ))}
           </svg>
           <RoomNotes room={first} cta={cta} />
-          {
-            /* The scroll cue (2026-10-03): the room pins, so the page stops
+          {/* The scroll cue (2026-10-03): the room pins, so the page stops
               moving and a visitor can think they have hit the end. Decorative
               (the live region and the plan already speak); shown by CSS only
-              with scripting, and the script hides it once the build starts. */
-          }
+              with scripting, and the script hides it once the build starts. */}
           <div class="room__cue" aria-hidden="true" data-room-cue>
             <svg viewBox="0 0 16 16" width="16" height="16" focusable="false">
               <path
@@ -180,26 +172,29 @@ const arn = Math.round((first.width / first.height) * 1e5) / 1e5;
                 stroke="currentColor"
                 stroke-width="1.6"
                 stroke-linecap="round"
-                stroke-linejoin="round"></path>
+                stroke-linejoin="round"
+              ></path>
             </svg>
             <span class="room__cue-wide">Scroll</span>
             <span class="room__cue-phone">Keep scrolling</span>
           </div>
-          <figcaption class="room__tag r-tag"><strong>Concept room</strong></figcaption>
+          <figcaption class="room__tag r-tag">
+            <strong>Concept room</strong>
+          </figcaption>
         </figure>
       </div>
-      <p class="sr-only" aria-live="polite" data-room-live>{first.finalAlt}</p>
+      <p class="sr-only" aria-live="polite" data-room-live>
+        {first.finalAlt}
+      </p>
     </div>
   </div>
 
-  {
-    others.map((r) => (
-      <template data-room-tpl={r.slug}>
-        <RoomScene room={r} />
-        <RoomNotes room={r} cta={cta} />
-      </template>
-    ))
-  }
+  {others.map((r) => (
+    <template data-room-tpl={r.slug}>
+      <RoomScene room={r} />
+      <RoomNotes room={r} cta={cta} />
+    </template>
+  ))}
 </section>
 
 <style>

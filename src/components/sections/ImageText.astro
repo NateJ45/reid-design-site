@@ -68,48 +68,40 @@ const note: string | undefined = image?.alt || undefined;
         imageFirst ? 'md:order-1' : 'md:order-2',
       ]}
     >
-      {
-        image?.asset ? (
-          <div class="imt__frame">
-            <SanityImage
-              source={image}
-              width={crop.width}
-              height={crop.height}
-              sizes="(min-width: 768px) 44vw, 100vw"
-              quality={75}
-              class="imt__img"
-            />
-          </div>
-        ) : (
-          <div class="imt__swatch" aria-hidden="true" />
-        )
-      }
-      {
-        (eyebrow || note) && (
-          <figcaption class="r-tag imt__tag">
-            {eyebrow && <small>{eyebrow}</small>}
-            {note && <strong>{note}</strong>}
-          </figcaption>
-        )
-      }
+      {image?.asset ? (
+        <div class="imt__frame">
+          <SanityImage
+            source={image}
+            width={crop.width}
+            height={crop.height}
+            sizes="(min-width: 768px) 44vw, 100vw"
+            quality={75}
+            class="imt__img"
+          />
+        </div>
+      ) : (
+        <div class="imt__swatch" aria-hidden="true" />
+      )}
+      {(eyebrow || note) && (
+        <figcaption class="r-tag imt__tag">
+          {eyebrow && <small>{eyebrow}</small>}
+          {note && <strong>{note}</strong>}
+        </figcaption>
+      )}
     </figure>
 
     <div class:list={['imt__copy', imageFirst ? 'md:order-2' : 'md:order-1']}>
-      {
-        heading && (
-          <h2 id={headingId} class="imt__h">
-            {heading}
-          </h2>
-        )
-      }
+      {heading && (
+        <h2 id={headingId} class="imt__h">
+          {heading}
+        </h2>
+      )}
       {body && <PortableText value={body} className="imt__body" />}
-      {
-        cta?.label && (
-          <div class="imt__cta">
-            <CtaLink cta={cta} variant="secondary" />
-          </div>
-        )
-      }
+      {cta?.label && (
+        <div class="imt__cta">
+          <CtaLink cta={cta} variant="secondary" />
+        </div>
+      )}
     </div>
   </div>
 </section>

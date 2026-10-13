@@ -48,23 +48,21 @@ const focus = spot
 
 <a href={href} class="pcard">
   <div class="pcard__media" style={focus}>
-    {
-      project.heroImage?.asset ? (
-        <SanityImage source={project.heroImage} width={1100} {sizes} class="pcard__img" />
-      ) : (
-        <div class="pcard__blank" aria-hidden="true" />
-      )
-    }
-    {
-      roomLabel && (
-        <span class="r-tag pcard__tag">
-          <strong>{roomLabel}</strong>
-        </span>
-      )
-    }
+    {project.heroImage?.asset ? (
+      <SanityImage source={project.heroImage} width={1100} {sizes} class="pcard__img" />
+    ) : (
+      <div class="pcard__blank" aria-hidden="true" />
+    )}
+    {roomLabel && (
+      <span class="r-tag pcard__tag">
+        <strong>{roomLabel}</strong>
+      </span>
+    )}
   </div>
   <div class="pcard__meta">
-    <Title class="pcard__title"><span>{project.title}</span></Title>
+    <Title class="pcard__title">
+      <span>{project.title}</span>
+    </Title>
     {line && <p class="pcard__line">{line}</p>}
     {project.briefSummary && <p class="pcard__brief">{project.briefSummary}</p>}
   </div>

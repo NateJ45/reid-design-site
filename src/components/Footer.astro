@@ -166,18 +166,20 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
     <div class="ftr__frame">
       <div class="ftr__crest">
         <a href="/" class="ftr__logo" aria-label={`${brandName} home`}>
-          <span class="ftr__logo-mark" style={`--mark: url(${logoMask.src})`} aria-hidden="true"
+          <span
+            class="ftr__logo-mark"
+            style={`--mark: url(${logoMask.src})`}
+            aria-hidden="true"
           ></span>
         </a>
         <p class="ftr__tagline">
           {tagLead}
-          {tagLead && ' '}<em>{tagAccent}</em>
+          {tagLead && ' '}
+          <em>{tagAccent}</em>
         </p>
-        {
-          /* The booking button (2026-10-01): the same label and link as the
+        {/* The booking button (2026-10-01): the same label and link as the
             header's button (Site settings -> Header button), as a cream tag
-            on the ink, so the last thing on every page is a way to book. */
-        }
+            on the ink, so the last thing on every page is a way to book. */}
         <a href={chrome.headerCta.href} class="r-pricetag r-pricetag--cream ftr__cta">
           <span>{chrome.headerCta.label}</span>
         </a>
@@ -185,70 +187,60 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
       </div>
 
       <div class="ftr__grid">
-        {
-          columns.map((col, ci) => (
-            <nav class="ftr__col" aria-labelledby={`ftr-col-${ci}`}>
-              <h2 class="ftr__h" id={`ftr-col-${ci}`}>
-                {col.title}
-              </h2>
-              <ul class="ftr__idx" role="list">
-                {col.lines.map((line) => (
-                  <li>
-                    <a
-                      href={line.href}
-                      target={isExternalHref(line.href) ? '_blank' : undefined}
-                      rel={isExternalHref(line.href) ? 'noopener noreferrer' : undefined}
-                    >
-                      <span class="ftr__page">{line.label}</span>
-                      <em aria-hidden="true" />
-                      {line.fact && <span class="ftr__fact">{line.fact}</span>}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ))
-        }
+        {columns.map((col, ci) => (
+          <nav class="ftr__col" aria-labelledby={`ftr-col-${ci}`}>
+            <h2 class="ftr__h" id={`ftr-col-${ci}`}>
+              {col.title}
+            </h2>
+            <ul class="ftr__idx" role="list">
+              {col.lines.map((line) => (
+                <li>
+                  <a
+                    href={line.href}
+                    target={isExternalHref(line.href) ? '_blank' : undefined}
+                    rel={isExternalHref(line.href) ? 'noopener noreferrer' : undefined}
+                  >
+                    <span class="ftr__page">{line.label}</span>
+                    <em aria-hidden="true" />
+                    {line.fact && <span class="ftr__fact">{line.fact}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
 
         <div class="ftr__col">
           <h2 class="ftr__h">Get in touch</h2>
           <ul class="ftr__contact" role="list">
-            {
-              email && (
-                <li>
-                  <small>Email</small>
-                  <a href={`mailto:${email}`}>{email}</a>
-                </li>
-              )
-            }
-            {
-              phone && (
-                <li>
-                  <small>Call or text</small>
-                  <a href={telHref(phone)}>{phone}</a>
-                </li>
-              )
-            }
-            {
-              ig && (
-                <li>
-                  <small>Instagram</small>
-                  <a href={ig} target="_blank" rel="noopener noreferrer">
-                    {igHandle}
-                  </a>
-                </li>
-              )
-            }
-            {
-              fb && (
-                <li>
-                  <small>Facebook</small>
-                  <a href={fb} target="_blank" rel="noopener noreferrer">
-                    {brandName}
-                  </a>
-                </li>
-              )
-            }
+            {email && (
+              <li>
+                <small>Email</small>
+                <a href={`mailto:${email}`}>{email}</a>
+              </li>
+            )}
+            {phone && (
+              <li>
+                <small>Call or text</small>
+                <a href={telHref(phone)}>{phone}</a>
+              </li>
+            )}
+            {ig && (
+              <li>
+                <small>Instagram</small>
+                <a href={ig} target="_blank" rel="noopener noreferrer">
+                  {igHandle}
+                </a>
+              </li>
+            )}
+            {fb && (
+              <li>
+                <small>Facebook</small>
+                <a href={fb} target="_blank" rel="noopener noreferrer">
+                  {brandName}
+                </a>
+              </li>
+            )}
           </ul>
         </div>
 
@@ -256,48 +248,44 @@ const columns: { title: string; lines: IndexLine[] }[] = chrome.footerColumns
           <h2 class="ftr__h">Based in {city}</h2>
           <p class="ftr__area">
             Serving {townsLine} and the towns between.
-            {
-              visible.eDesign && (
-                <>
-                  {' '}
-                  Farther out, <a href="/e-design/">E-Design</a> works anywhere.
-                </>
-              )
-            }
+            {visible.eDesign && (
+              <>
+                {' '}
+                Farther out, <a href="/e-design/">E-Design</a> works anywhere.
+              </>
+            )}
           </p>
         </div>
       </div>
     </div>
 
     <div class="ftr__base">
-      <p>© {currentYear} {brandName} · {city}, {state}</p>
+      <p>
+        © {currentYear} {brandName} · {city}, {state}
+      </p>
       <p class="ftr__small">
-        {
-          chrome.legalNav ? (
-            chrome.legalNav.map((link) => (
-              <a
-                href={link.href}
-                target={isExternalHref(link.href) ? '_blank' : undefined}
-                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-              >
-                {link.label}
-              </a>
-            ))
-          ) : (
-            <a href="/privacy/">Privacy</a>
-          )
-        }
+        {chrome.legalNav ? (
+          chrome.legalNav.map((link) => (
+            <a
+              href={link.href}
+              target={isExternalHref(link.href) ? '_blank' : undefined}
+              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+            >
+              {link.label}
+            </a>
+          ))
+        ) : (
+          <a href="/privacy/">Privacy</a>
+        )}
         <a href="/search/">Search</a>
-        {
-          siteCredit &&
-            (siteCreditUrl ? (
-              <a href={siteCreditUrl} target="_blank" rel="noopener noreferrer">
-                {siteCredit}
-              </a>
-            ) : (
-              <span>{siteCredit}</span>
-            ))
-        }
+        {siteCredit &&
+          (siteCreditUrl ? (
+            <a href={siteCreditUrl} target="_blank" rel="noopener noreferrer">
+              {siteCredit}
+            </a>
+          ) : (
+            <span>{siteCredit}</span>
+          ))}
       </p>
     </div>
   </div>

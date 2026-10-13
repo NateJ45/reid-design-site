@@ -27,28 +27,26 @@ const list = steps ?? [];
 const PIN_TONES = [2, 3, 4, 6, 7];
 ---
 
-{
-  list.length > 0 && (
-    <section class="eds" aria-labelledby="edesign-how-heading">
-      <div class="r-wrap">
-        <SectionHeading headline="How E-Design works" headingId="edesign-how-heading" />
-        <ol class="eds__list" style={`--n:${list.length}`}>
-          {list.map((step, i) => (
-            <li class="eds__step">
-              <span
-                class="eds__pin"
-                aria-hidden="true"
-                style={`--tone:var(--color-chip-${PIN_TONES[i % PIN_TONES.length]})`}
-              />
-              <h3 class="r-h3 eds__title">{step.title}</h3>
-              {step.body && <p class="eds__body">{step.body}</p>}
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  )
-}
+{list.length > 0 && (
+  <section class="eds" aria-labelledby="edesign-how-heading">
+    <div class="r-wrap">
+      <SectionHeading headline="How E-Design works" headingId="edesign-how-heading" />
+      <ol class="eds__list" style={`--n:${list.length}`}>
+        {list.map((step, i) => (
+          <li class="eds__step">
+            <span
+              class="eds__pin"
+              aria-hidden="true"
+              style={`--tone:var(--color-chip-${PIN_TONES[i % PIN_TONES.length]})`}
+            />
+            <h3 class="r-h3 eds__title">{step.title}</h3>
+            {step.body && <p class="eds__body">{step.body}</p>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+)}
 
 <style>
   .eds {

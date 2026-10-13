@@ -190,103 +190,81 @@ const title = `${label} - Preview`;
 ---
 
 <PreviewLayout {title} {draftMode} {pageId}>
-  {
-    singletonType === 'homePage' && (
-      <HomeSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        siteSettings={siteSettings}
-        visible={visible}
-        editDoc={builderEditDoc}
-      />
-    )
-  }
-  {
-    singletonType === 'aboutPage' && (
-      <AboutSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        philosophyPoints={page.philosophyPoints ?? []}
-        siteSettings={siteSettings}
-        editDoc={builderEditDoc}
-      />
-    )
-  }
-  {
-    singletonType === 'processPage' && (
-      <ProcessSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
-    )
-  }
-  {
-    singletonType === 'servicesPage' && (
-      <ServicesSectionRenderer
-        sections={page.pageBuilder}
-        page={page}
-        siteSettings={siteSettings}
-        visible={visible}
-        editDoc={builderEditDoc}
-      />
-    )
-  }
-  {
-    singletonType === 'eDesignPage' && (
-      <EDesignSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
-    )
-  }
+  {singletonType === 'homePage' && (
+    <HomeSectionRenderer
+      sections={page.pageBuilder}
+      page={page}
+      siteSettings={siteSettings}
+      visible={visible}
+      editDoc={builderEditDoc}
+    />
+  )}
+  {singletonType === 'aboutPage' && (
+    <AboutSectionRenderer
+      sections={page.pageBuilder}
+      page={page}
+      philosophyPoints={page.philosophyPoints ?? []}
+      siteSettings={siteSettings}
+      editDoc={builderEditDoc}
+    />
+  )}
+  {singletonType === 'processPage' && (
+    <ProcessSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
+  )}
+  {singletonType === 'servicesPage' && (
+    <ServicesSectionRenderer
+      sections={page.pageBuilder}
+      page={page}
+      siteSettings={siteSettings}
+      visible={visible}
+      editDoc={builderEditDoc}
+    />
+  )}
+  {singletonType === 'eDesignPage' && (
+    <EDesignSectionRenderer sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
+  )}
 
   {/* Detail pages: the same body component the live page renders. */}
   {detailType === 'project' && <ProjectDetail project={page} />}
 
   {/* Custom page built in the page builder. */}
-  {
-    target?.kind === 'page' && (
-      <SectionRenderer sections={page.pageBuilder} idPrefix="page" editDoc={builderEditDoc} />
-    )
-  }
+  {target?.kind === 'page' && (
+    <SectionRenderer sections={page.pageBuilder} idPrefix="page" editDoc={builderEditDoc} />
+  )}
 
-  {
-    /* Bespoke page: hero, a note about what is not shown, the Extra sections
-      array, and the closing call to action. */
-  }
-  {
-    showHero && (
-      <Hero
-        eyebrow={heroEyebrow}
-        headline={heroHeadline}
-        subhead={page.heroSubhead ?? ''}
-        backgroundImage={page.heroImage ?? null}
-        scriptAccent={page.heroScriptAccent}
-        headingId="preview-hero"
-        size="short"
-      />
-    )
-  }
-  {
-    isBespoke && (
-      <div class="mx-auto max-w-3xl px-m py-m">
-        <p class="rounded-md border border-border-soft bg-bg-soft px-m py-s text-sm text-foreground/80">
-          This page's middle is drawn in code (the list, form or grid it is built around), so it
-          previews as its editable surface only: the hero above, any extra sections below, and the
-          closing call to action. The parts held in code render on the live site.
-        </p>
-      </div>
-    )
-  }
-  {
-    isBespoke && (
-      <SectionRenderer sections={extraSections} idPrefix="preview-extra" editDoc={extraEditDoc} />
-    )
-  }
-  {
-    hasFinalCta && (
-      <FinalCta
-        eyebrow={page.finalCtaEyebrow}
-        headline={page.finalCtaHeadline}
-        subhead={page.finalCtaSubhead}
-        scriptAccent={page.finalCtaScriptAccent}
-        cta={page.finalCta ?? null}
-        backgroundImage={page.finalCtaBackgroundImage ?? null}
-      />
-    )
-  }
+  {/* Bespoke page: hero, a note about what is not shown, the Extra sections
+      array, and the closing call to action. */}
+  {showHero && (
+    <Hero
+      eyebrow={heroEyebrow}
+      headline={heroHeadline}
+      subhead={page.heroSubhead ?? ''}
+      backgroundImage={page.heroImage ?? null}
+      scriptAccent={page.heroScriptAccent}
+      headingId="preview-hero"
+      size="short"
+    />
+  )}
+  {isBespoke && (
+    <div class="mx-auto max-w-3xl px-m py-m">
+      <p class="rounded-md border border-border-soft bg-bg-soft px-m py-s text-sm text-foreground/80">
+        This page's middle is drawn in code (the list, form or grid it is built around), so it
+        previews as its editable surface only: the hero above, any extra sections below, and the
+        closing call to action. The parts held in code render on the live site.
+      </p>
+    </div>
+  )}
+  {isBespoke && (
+    <SectionRenderer sections={extraSections} idPrefix="preview-extra" editDoc={extraEditDoc} />
+  )}
+  {hasFinalCta && (
+    <FinalCta
+      eyebrow={page.finalCtaEyebrow}
+      headline={page.finalCtaHeadline}
+      subhead={page.finalCtaSubhead}
+      scriptAccent={page.finalCtaScriptAccent}
+      cta={page.finalCta ?? null}
+      backgroundImage={page.finalCtaBackgroundImage ?? null}
+    />
+  )}
 </PreviewLayout>

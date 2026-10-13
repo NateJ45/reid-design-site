@@ -35,47 +35,45 @@ const audiences = show
   : [];
 ---
 
-{
-  show && (
-    <section id="builders" class="bld" aria-labelledby="builders-realtors-heading">
-      <div class="bld__plan" aria-hidden="true" />
-      <div class="r-wrap bld__grid">
-        <div class="bld__pitch">
-          {builders.eyebrow && <p class="bld__eyebrow">{builders.eyebrow}</p>}
-          <h2 id="builders-realtors-heading" class="r-h2 bld__h">
-            {builders.headline ?? 'Builder & Realtor Partnerships'}
-          </h2>
-          {builders.description && (
-            <div class="bld__desc">
-              <PortableText value={builders.description} />
-            </div>
-          )}
-          {builders.cta && (
-            <CtaLink
-              cta={builders.cta}
-              variant="primary"
-              onDark
-              fallbackHref="/contact/"
-              fallbackLabel="Start a partnership conversation"
-              class="bld__cta"
-            />
-          )}
-        </div>
-
-        {audiences.length > 0 && (
-          <dl class="bld__list">
-            {audiences.map((a) => (
-              <div class="bld__row">
-                <dt>{a.label}</dt>
-                <dd>{a.text}</dd>
-              </div>
-            ))}
-          </dl>
+{show && (
+  <section id="builders" class="bld" aria-labelledby="builders-realtors-heading">
+    <div class="bld__plan" aria-hidden="true" />
+    <div class="r-wrap bld__grid">
+      <div class="bld__pitch">
+        {builders.eyebrow && <p class="bld__eyebrow">{builders.eyebrow}</p>}
+        <h2 id="builders-realtors-heading" class="r-h2 bld__h">
+          {builders.headline ?? 'Builder & Realtor Partnerships'}
+        </h2>
+        {builders.description && (
+          <div class="bld__desc">
+            <PortableText value={builders.description} />
+          </div>
+        )}
+        {builders.cta && (
+          <CtaLink
+            cta={builders.cta}
+            variant="primary"
+            onDark
+            fallbackHref="/contact/"
+            fallbackLabel="Start a partnership conversation"
+            class="bld__cta"
+          />
         )}
       </div>
-    </section>
-  )
-}
+
+      {audiences.length > 0 && (
+        <dl class="bld__list">
+          {audiences.map((a) => (
+            <div class="bld__row">
+              <dt>{a.label}</dt>
+              <dd>{a.text}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
+  </section>
+)}
 
 <style>
   .bld {

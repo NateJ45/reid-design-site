@@ -59,31 +59,33 @@ const INCHES = Array.from({ length: 14 }, (_, i) => i);
 
     <div class="tape__rule" aria-hidden="true">
       <div class="tape__band">
-        <div class="tape__nums">{INCHES.map((n) => <span>{n}</span>)}</div>
+        <div class="tape__nums">
+          {INCHES.map((n) => (
+            <span>{n}</span>
+          ))}
+        </div>
       </div>
-      <div class="tape__case"><i></i></div>
+      <div class="tape__case">
+        <i></i>
+      </div>
     </div>
 
     <ol class="tape__steps">
-      {
-        steps.map((s, i) => (
-          <li class="tape__step">
-            <div class="tape__card r-backdrop-host">
-              <RoomBackdrop index={i} start={3} ratio={0.9} />
-              {s.timeEstimate && <span class="tape__when">{s.timeEstimate}</span>}
-              <h3 class="r-h3">{s.title}</h3>
-              {s.shortDescription && <p>{s.shortDescription}</p>}
-            </div>
-          </li>
-        ))
-      }
+      {steps.map((s, i) => (
+        <li class="tape__step">
+          <div class="tape__card r-backdrop-host">
+            <RoomBackdrop index={i} start={3} ratio={0.9} />
+            {s.timeEstimate && <span class="tape__when">{s.timeEstimate}</span>}
+            <h3 class="r-h3">{s.title}</h3>
+            {s.shortDescription && <p>{s.shortDescription}</p>}
+          </div>
+        </li>
+      ))}
     </ol>
 
-    {
-      cta?.label && (
-        <CtaLink cta={cta} variant="primary" fallbackHref="/process/" class="tape__cta" />
-      )
-    }
+    {cta?.label && (
+      <CtaLink cta={cta} variant="primary" fallbackHref="/process/" class="tape__cta" />
+    )}
   </div>
 </section>
 

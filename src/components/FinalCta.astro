@@ -99,30 +99,26 @@ const {
 } = splitScriptAccent(headline, scriptAccent);
 ---
 
-{
-  /* Rebuilt 2026-09-29 (art-direction rebuild). The close of every page: a
+{/* Rebuilt 2026-09-29 (art-direction rebuild). The close of every page: a
     Walnut bronze ground (chip 6; cream on it is 5.1:1), the headline very
     large on the left, the subhead and the button on the right. Since
     2026-09-30 it is also the planning page (see the header). Same props as
     before, so every page that ends with FinalCta changes together. An
     optional background photo still works: it sits behind a Walnut scrim,
-    with the notebook page over it. */
-}
+    with the notebook page over it. */}
 <section class:list={['final', hasBackground && 'final--photo']} aria-labelledby={headingId}>
-  {
-    hasBackground && (
-      <div class="final__bg" aria-hidden="true">
-        <SanityImage
-          source={backgroundImage}
-          width={1920}
-          sizes="100vw"
-          loading="lazy"
-          alt=""
-          class="final__bg-img"
-        />
-      </div>
-    )
-  }
+  {hasBackground && (
+    <div class="final__bg" aria-hidden="true">
+      <SanityImage
+        source={backgroundImage}
+        width={1920}
+        sizes="100vw"
+        loading="lazy"
+        alt=""
+        class="final__bg-img"
+      />
+    </div>
+  )}
   {/* The notebook page: faint ruled lines. */}
   <div class="final__page" aria-hidden="true"></div>
   <div class="r-wrap final__grid">
@@ -130,32 +126,28 @@ const {
     <div class="final__main">
       {eyebrow && <p class="final__eyebrow">{eyebrow}</p>}
       <h2 id={headingId} class="final__h">
-        {
-          scriptFound ? (
-            <>
-              {scriptBefore}
-              <span class="r-accent">{scriptWord}</span>
-              {scriptAfter}
-            </>
-          ) : (
-            headline
-          )
-        }
+        {scriptFound ? (
+          <>
+            {scriptBefore}
+            <span class="r-accent">{scriptWord}</span>
+            {scriptAfter}
+          </>
+        ) : (
+          headline
+        )}
       </h2>
       <div class="final__notes">
         <p class="final__notes-h">{CLOSING_NOTES.heading}</p>
         <ul class="final__check" role="list">
-          {
-            CLOSING_NOTES.items.map((item, i) => (
-              <li style={`--i:${i}`}>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <circle pathLength="1" cx="12" cy="12" r="10" />
-                  <path pathLength="1" d="M7 12.5l3.2 3.2L17 9" />
-                </svg>
-                {item}
-              </li>
-            ))
-          }
+          {CLOSING_NOTES.items.map((item, i) => (
+            <li style={`--i:${i}`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle pathLength="1" cx="12" cy="12" r="10" />
+                <path pathLength="1" d="M7 12.5l3.2 3.2L17 9" />
+              </svg>
+              {item}
+            </li>
+          ))}
         </ul>
         <p class="final__notes-foot">{CLOSING_NOTES.footer}</p>
       </div>

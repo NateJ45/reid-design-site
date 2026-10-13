@@ -45,35 +45,33 @@ function embedUrl(u?: string): string | null {
 const src = embedUrl(url);
 ---
 
-{
-  src && (
-    <section
-      class:list={['vid', surface === 'muted' ? 'vid--paper' : 'vid--linen']}
-      aria-labelledby={heading ? headingId : undefined}
-      aria-label={heading ? undefined : 'Video'}
-    >
-      <div class="r-wrap">
-        {heading && (
-          <div class="vid__head">
-            <SectionHeading headline={heading} headingId={headingId} />
-          </div>
-        )}
-        <figure class="vid__fig">
-          <div class="vid__frame">
-            <iframe
-              src={src}
-              title={heading || caption || 'Video'}
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-              allowfullscreen
-            />
-          </div>
-          {caption && <figcaption class="vid__cap">{caption}</figcaption>}
-        </figure>
-      </div>
-    </section>
-  )
-}
+{src && (
+  <section
+    class:list={['vid', surface === 'muted' ? 'vid--paper' : 'vid--linen']}
+    aria-labelledby={heading ? headingId : undefined}
+    aria-label={heading ? undefined : 'Video'}
+  >
+    <div class="r-wrap">
+      {heading && (
+        <div class="vid__head">
+          <SectionHeading headline={heading} headingId={headingId} />
+        </div>
+      )}
+      <figure class="vid__fig">
+        <div class="vid__frame">
+          <iframe
+            src={src}
+            title={heading || caption || 'Video'}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowfullscreen
+          />
+        </div>
+        {caption && <figcaption class="vid__cap">{caption}</figcaption>}
+      </figure>
+    </div>
+  </section>
+)}
 
 <style>
   .vid {

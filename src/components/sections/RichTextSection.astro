@@ -55,13 +55,11 @@ const alignClass = align === 'center' ? 'text-center' : '';
   aria-labelledby={heading ? headingId : undefined}
 >
   <div class:list={['rts__inner', widthClass, alignClass, heading && 'rts__inner--head']}>
-    {
-      heading && (
-        <div class="rts__head">
-          <SectionHeading headline={heading} headingId={headingId} scriptAccent={scriptAccent} />
-        </div>
-      )
-    }
+    {heading && (
+      <div class="rts__head">
+        <SectionHeading headline={heading} headingId={headingId} scriptAccent={scriptAccent} />
+      </div>
+    )}
     {body && <PortableText value={body} className="rts__body" />}
   </div>
 </section>
