@@ -73,6 +73,12 @@ updates:
       # rule is "never 7". Without this, Dependabot reopens the bump every week.
       - dependency-name: 'typescript'
         versions: ['>=7']
+      # No npm semver-major bumps from Dependabot (starter PR #57, PORTS.md card 62).
+      # Majors wait for ONE planned, starter-first stack upgrade (Astro, the adapter,
+      # Sanity, wrangler) with a real deploy test. Minors and patches still flow.
+      # The github-actions ecosystem below is exempt.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
   # No separate /studio entry here: Studio is folded into the root package
   # (PORTS.md card 10), one package.json/lockfile, so the entry above already

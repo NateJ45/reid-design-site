@@ -63,3 +63,6 @@ scripts/.og-fonts/
 # the JSON is the list the site reads. Neither is ever committed.
 public/ig/
 src/generated/
+
+# Playwright MCP session scratch
+.playwright-mcp/
