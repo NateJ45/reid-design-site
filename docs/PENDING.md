@@ -14,6 +14,12 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-13: R2 API token for the weekly off-site backup
+
+The Monday full Sanity export is about 557 MiB, over `wrangler r2 object put`'s 300 MiB cap, so the weekly R2 copy has been failing. `sanity-backup.yml` now uploads big files with `aws s3 cp` (multipart) instead, but that needs an R2 API token. Until it exists, the step warns and skips, and the 14-day GitHub artifact is the only copy.
+
+- [ ] Cloudflare dashboard > R2 Object Storage > Manage API tokens > Create API token: **Object Read & Write**, apply to the `ncs-backups` bucket only. Save the two values in 1Password, then `gh secret set R2_ACCESS_KEY_ID` and `gh secret set R2_SECRET_ACCESS_KEY` in this repo. Check the next Monday run (or a manual run) logs `with aws s3 cp (multipart)` and no warning. Detail: `docs/agent/deployment.md`, "Sanity backup off-site copy".
+
 ### From 2026-10-03: Portfolio needs real case studies (Impeccable audit, P1)
 
 `/portfolio` is the one real gap the audit found, and it is content, not code. The empty state is now honest and has a next step (rating card, booking button, services link), but a buyer deciding on thousands of dollars of furniture still has no finished room to look at, and the lead photo is a client kitchen with "Party of 3" decor.

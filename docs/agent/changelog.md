@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: Weekly R2 backup copy takes a multipart path over 300 MiB
+
+The Monday full export is about 557 MiB and `wrangler r2 object put` caps at 300 MiB, so the weekly off-site copy failed every time. `sanity-backup.yml` now checks the size: up to 300 MiB still goes through wrangler, anything bigger through `aws s3 cp` against R2's S3 endpoint with new secrets `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. Same bucket and `sanity/<repo>/` key prefix. Without the secrets it warns once and the backup still succeeds. Setup in `docs/agent/deployment.md`; open item in `docs/PENDING.md`.
+
 ## 2026-10-13: SanityImage srcset ladder starts at 160w
 
 The srcset ladder in `SanityImage.astro` now comes from `src/lib/imageLadder.ts` (new, with `imageLadder.test.ts`) and runs `[160, 240, 320, 400, 600, 700, 800, 900, 1200, 1600, 2400]`. It started at 400w, so small slots downloaded 1.4 to 2x the bytes they painted. A slot that needs 400px or more picks the same candidate as before (asserted in the test). When `sizes` is passed and readable, steps below 75% of its smallest slot are dropped. `SanityImage.astro` is not `PORTABLE` (this site's copy has its own props), so this is a hand-applied three-line change from starter PORTS.md card 93. Live image bytes before and after are in the PR.
