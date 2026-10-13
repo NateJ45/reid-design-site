@@ -23,7 +23,7 @@ Build for a future Nathan who hasn't touched the code in three months, and for a
 Full text (every version, pin and reason): `docs/claude/stack-essentials.md`. Read it before touching a dependency, the adapter, wrangler, fonts, GA4 or the Instagram feed. The must-knows:
 
 - **Astro 7.3.x**, TypeScript strict, `output: 'static'` plus a few SSR routes (`/studio`, `/preview/**`, `/api/*`). Node 22.12+.
-- **`@astrojs/cloudflare` pinned EXACTLY at 14.3.0** and **wrangler `~4.129.0`** are a MATCHED PAIR. Move them together, deliberately, and inspect the generated `dist/server/wrangler.json`. Dependabot ignores both.
+- **`@astrojs/cloudflare` pinned EXACTLY at 14.3.0** and **wrangler `~4.129.0`** are a MATCHED PAIR. Move them together, deliberately, and inspect the generated `dist/server/wrangler.json`. Dependabot ignores both, and `astro` too (the adapter imports Astro internals, so a lone astro bump can break the build; starter card 90).
 - **Sanity 6.9.1, one package, Studio embedded at `/studio`** (no nested `studio/`, no `studio:deploy`). The Sanity set (`sanity`, `@sanity/*`, `react`, `react-dom`, `react-is`, `styled-components`) is pinned to a combination known to work together; bumping one alone breaks the Studio at browser runtime, not build time. Dependabot ignores the whole set.
 - **Tailwind 4 via `@tailwindcss/vite`**: no `tailwind.config.mjs`, tokens in `@theme` blocks in `src/styles/globals.css`. React 19 islands only where interactivity is required.
 - **Cloudflare Workers, not Pages.** Deploy: `wrangler deploy -c dist/server/wrangler.json` (the `-c` is load-bearing).
