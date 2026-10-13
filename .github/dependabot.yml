@@ -18,7 +18,15 @@ updates:
       day: monday
       time: '07:00'
       timezone: America/New_York
+    # Groups are matched in order, so `formatters` must stay above the
+    # catch-all bundle.
     groups:
+      # A formatter bump can reformat files and fail format:check (starter
+      # PORTS.md card 92). Kept apart so only this small PR goes red, not the
+      # whole bundle; fix it with `npm run format` on the branch and push.
+      formatters:
+        patterns: ['prettier', 'prettier-plugin-*']
+        update-types: ['minor', 'patch']
       minor-and-patch:
         update-types: ['minor', 'patch']
     open-pull-requests-limit: 5
@@ -67,6 +75,10 @@ updates:
       # `astro` peer range fails `npm ci` / the build in CI, loudly.)
       - dependency-name: '@astrojs/cloudflare'
       - dependency-name: 'wrangler'
+      # Astro moves only with its adapter, by hand (starter PORTS.md card 92).
+      # The adapter imports Astro internals: astro 7.3 dropped an export that
+      # @astrojs/cloudflare 14.2.4 imports, so a lone astro bump failed the build.
+      - dependency-name: 'astro'
       # TypeScript 7 (the native Go compiler) drops the JavaScript compiler API
       # that Astro's tooling drives astro check and the build through, so it
       # breaks the site. 6.0.3 is the studio standard (2026-09-06); the studio
