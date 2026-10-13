@@ -54,7 +54,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "14.3.0",
     "@astrojs/mdx": "^7.0.8",
-    "@astrojs/react": "^6.0.5",
+    "@astrojs/react": "^6.0.6",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/geist": "^5.2.9",
@@ -125,7 +125,7 @@
     "linkinator": "^8.1.0",
     "opentype.js": "^2.0.0",
     "pagefind": "1.5.2",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.0",
