@@ -14,6 +14,12 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-13: Cloudflare's edge injects the Web Analytics beacon
+
+Cloudflare Web Analytics is on for the zone with automatic setup, so the edge adds its beacon to every HTML page (including `/studio/`, whose CSP now allows it). The site's own `CloudflareBeacon.astro` is off (no `PUBLIC_CF_ANALYTICS_TOKEN`), so `/privacy` names only Google Analytics.
+
+- [ ] Nathan decides: keep the edge beacon and add a line about Cloudflare Web Analytics (cookieless) to the `privacyPage` copy, or switch automatic setup off in the dashboard (Web Analytics > site > Manage site). Either way, nothing breaks.
+
 ### From 2026-10-03: Portfolio needs real case studies (Impeccable audit, P1)
 
 `/portfolio` is the one real gap the audit found, and it is content, not code. The empty state is now honest and has a next step (rating card, booking button, services link), but a buyer deciding on thousands of dollars of furniture still has no finished room to look at, and the lead photo is a client kitchen with "Party of 3" decor.

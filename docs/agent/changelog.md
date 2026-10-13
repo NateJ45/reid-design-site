@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: Studio CSP allows Cloudflare's edge-injected analytics beacon
+
+`/studio/` logged a CSP violation for `static.cloudflareinsights.com/beacon.min.js` on every load. The beacon is not ours: Web Analytics automatic setup makes Cloudflare's edge inject it into every HTML response. The `/studio/*` policy in `public/_headers` now grants `https://static.cloudflareinsights.com` (script-src) and `https://cloudflareinsights.com` (connect-src), the same two the public policy already had.
+
 ## 2026-10-13: SanityImage srcset ladder starts at 160w
 
 The srcset ladder in `SanityImage.astro` now comes from `src/lib/imageLadder.ts` (new, with `imageLadder.test.ts`) and runs `[160, 240, 320, 400, 600, 700, 800, 900, 1200, 1600, 2400]`. It started at 400w, so small slots downloaded 1.4 to 2x the bytes they painted. A slot that needs 400px or more picks the same candidate as before (asserted in the test). When `sizes` is passed and readable, steps below 75% of its smallest slot are dropped. `SanityImage.astro` is not `PORTABLE` (this site's copy has its own props), so this is a hand-applied three-line change from starter PORTS.md card 93. Live image bytes before and after are in the PR.
