@@ -55,6 +55,26 @@ name: Sanity dataset backup
 # scratch dataset, use the latest Monday -full artifact, or the weekly R2 copy
 # for anything older than 14 days.
 
+# OFF-SITE COPY TO R2, TWO UPLOAD PATHS (2026-10-13). The weekly -full file is
+# about 557 MiB, and `wrangler r2 object put` refuses anything over 300 MiB, so
+# every Monday copy was failing. Files up to 300 MiB still go through wrangler
+# with CLOUDFLARE_API_TOKEN; bigger ones go through `aws s3 cp` (preinstalled on
+# ubuntu runners; it switches to a multipart upload by itself) against R2's S3
+# endpoint https://<CLOUDFLARE_ACCOUNT_ID>.r2.cloudflarestorage.com. Same bucket
+# (BACKUP_R2_BUCKET), same key prefix (sanity/<repo>/), so the bucket's
+# lifecycle rule still expires them.
+#
+# HUMAN ACTION REQUIRED for the big-file path: two more repo secrets,
+# R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY. Make them in the Cloudflare
+# dashboard: R2 Object Storage > Manage API tokens > Create API token,
+# permission "Object Read & Write", "Apply to specific buckets only" with the
+# BACKUP_R2_BUCKET bucket (ncs-backups), TTL forever. The page shows an
+# Access Key ID and a Secret Access Key once: put them straight into
+# `gh secret set R2_ACCESS_KEY_ID` and `gh secret set R2_SECRET_ACCESS_KEY`
+# (and 1Password). The account id comes from the existing
+# CLOUDFLARE_ACCOUNT_ID secret. Until both exist, a file over 300 MiB is
+# skipped with one ::warning:: naming them, and the backup still succeeds.
+
 on:
   schedule:
     - cron: '0 7 * * *' # daily 07:00 UTC (03:00 Eastern)
@@ -175,14 +195,17 @@ jobs:
       # site AND its backups together. R2 is a different provider and a
       # different blast radius.
       #
-      # No new credentials: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are
-      # already set in every site repo for the deploy. The token does need R2
-      # write permission added to it - a deploy-only token will 403 here.
+      # Credentials: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are already
+      # set for the deploy. The token needs "Workers R2 Storage: Edit" added (a
+      # deploy-only token 403s here). Files over wrangler's 300 MiB cap also need
+      # R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY (an R2 API token; see the
+      # header, "OFF-SITE COPY TO R2, TWO UPLOAD PATHS").
       #
       # To enable, per site:
       #   1. Create the bucket:  npx wrangler r2 bucket create <name>
       #   2. Add "Workers R2 Storage: Edit" to CLOUDFLARE_API_TOKEN
       #   3. Set the BACKUP_R2_BUCKET repo variable to <name>
+      #   4. If the full export is over 300 MiB, add the two R2_* secrets
       # Unset, this step skips with a warning and the artifact still uploads,
       # matching the stance of the gate job: a missing off-site copy must never
       # fail the backup that is otherwise working.
@@ -194,6 +217,8 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           BUCKET: ${{ vars.BACKUP_R2_BUCKET }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: |
           if [ -z "$BUCKET" ] || [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "::warning::BACKUP_R2_BUCKET variable and/or Cloudflare credentials not set; the backup exists only as a 14-day GitHub artifact. See the header of sanity-backup.yml."
@@ -223,17 +248,41 @@ jobs:
             exit 0
           fi
 
+          # `wrangler r2 object put` refuses files over 300 MiB (2026-10-13: the
+          # full export is about 557 MiB, so every Monday copy failed). Bigger
+          # files take the S3 path below.
+          WRANGLER_CAP=$((300 * 1024 * 1024))
           for f in sanity-backup-*-full.tar.gz.enc; do
             # Keyed by repo so one bucket can hold the whole family, and by date
             # so a bad dataset restored last week has not overwritten the good
             # copy from the week before.
             KEY="sanity/${GITHUB_REPOSITORY##*/}/$f"
-            echo "uploading $f -> $BUCKET/$KEY"
-            # `|| echo ::warning::` because the header of this step promises
-            # "a missing off-site copy must never fail the backup that is
-            # otherwise working", and a bare command does not honour that. The
-            # realistic failure is CLOUDFLARE_API_TOKEN lacking "Workers R2
-            # Storage: Edit". The artifact is uploaded before this step, so the
-            # backup still exists; only the off-site COPY is lost.
-            npx wrangler r2 object put "$BUCKET/$KEY" --file "$f" --remote               || echo "::warning::off-site copy of $f failed - the 14-day GitHub artifact is still the backup. Check CLOUDFLARE_API_TOKEN carries 'Workers R2 Storage: Edit'."
+            SIZE=$(stat -c %s "$f")
+            MIB=$((SIZE / 1024 / 1024))
+            # Every upload ends `|| echo ::warning::` because the header of this
+            # step promises "a missing off-site copy must never fail the backup
+            # that is otherwise working", and a bare command does not honour
+            # that. The artifact is uploaded before this step, so the backup
+            # still exists; only the off-site COPY is lost.
+            if [ "$SIZE" -le "$WRANGLER_CAP" ]; then
+              echo "uploading $f ($MIB MiB) -> $BUCKET/$KEY with wrangler"
+              npx wrangler r2 object put "$BUCKET/$KEY" --file "$f" --remote \
+                || echo "::warning::off-site copy of $f failed - the 14-day GitHub artifact is still the backup. Check CLOUDFLARE_API_TOKEN carries 'Workers R2 Storage: Edit'."
+            elif [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ]; then
+              echo "::warning::$f is $MIB MiB, over wrangler's 300 MiB cap, so it needs the S3 multipart upload: add repo secrets R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY (an R2 API token, Object Read & Write, scoped to the $BUCKET bucket). Skipped the off-site copy; the 14-day GitHub artifact is still the backup."
+            else
+              echo "uploading $f ($MIB MiB) -> $BUCKET/$KEY with aws s3 cp (multipart)"
+              # Region "auto" is what R2 expects. The two *_CHECKSUM_* settings
+              # stop newer AWS CLI releases sending checksum headers R2 has
+              # rejected in the past; Cloudflare's aws-cli example sets them.
+              AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID" \
+                AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY" \
+                AWS_DEFAULT_REGION=auto \
+                AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED \
+                AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED \
+                aws s3 cp "$f" "s3://$BUCKET/$KEY" \
+                --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com" \
+                --only-show-errors \
+                || echo "::warning::off-site copy of $f failed - the 14-day GitHub artifact is still the backup. Check R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are an R2 token with Object Read & Write on $BUCKET."
+            fi
           done
