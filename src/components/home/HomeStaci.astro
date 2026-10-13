@@ -47,14 +47,14 @@ const body = first?._type === 'block' ? rest : blocks;
 ---
 
 <section class="staci" aria-labelledby="meet-staci-heading">
-  <div class="r-wrap staci__grid">
+  <div class="r-wrap split split--media-first staci__grid">
     <figure class="staci__photo r-frame">
       {photo?.asset && (
         <SanityImage
           source={photo}
           width={900}
           height={1125}
-          sizes="(min-width: 1024px) 35vw, min(calc(100vw - 3.2rem), 520px)"
+          sizes="(min-width: 1024px) 37vw, min(calc(100vw - 3.2rem), 520px)"
           class="staci__img"
         />
       )}
@@ -85,14 +85,12 @@ const body = first?._type === 'block' ? rest : blocks;
   .staci {
     padding-block: clamp(5rem, 10vw, 9rem);
   }
+  /* The columns are the shared split (globals.css, PORTS.md card 91), picture
+     first. It was a 12-column grid (picture 1/6, words 7/13) until 2026-10-13. */
   .staci__grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 1.5rem;
     align-items: center;
   }
   .staci__photo {
-    grid-column: 1 / 6;
     position: relative;
     margin: 0;
   }
@@ -107,9 +105,6 @@ const body = first?._type === 'block' ? rest : blocks;
     position: absolute;
     right: -1.5rem;
     bottom: 2.5rem;
-  }
-  .staci__copy {
-    grid-column: 7 / 13;
   }
   .staci__lede {
     margin: 1.75rem 0 1.25rem;

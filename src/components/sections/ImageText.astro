@@ -17,8 +17,14 @@
 // as deliberate while Staci finds the picture.
 //
 // LOAD-BEARING STRINGS (src/lib/section-fields.test.ts reads this file): the two
-// `md:order-*` ternaries must stay exactly as written. The tag's overhang keys
+// `lg:order-*` ternaries must stay exactly as written. The tag's overhang keys
 // off those same classes, so the Studio's live side swap looks right too.
+//
+// Columns: the shared split (globals.css, PORTS.md card 91), picture 5fr and
+// words 7fr from `lg`, stacked below it with the picture first. Until
+// 2026-10-13 this was a 44% flex row from `md` (the `md:order-*` pair).
+// The picture always leads in the DOM; with the picture on the right,
+// `lg:order-*` moves it, so the phone reading order never changes.
 //
 // Surface (background / muted) comes from SectionRenderer.
 import SanityImage from '@/components/SanityImage.astro';
@@ -59,13 +65,13 @@ const note: string | undefined = image?.alt || undefined;
   class:list={['imt', surface === 'muted' ? 'imt--paper' : 'imt--linen']}
   aria-labelledby={heading ? headingId : undefined}
 >
-  <div class="r-wrap imt__row">
+  <div class:list={['r-wrap split imt__row', imageFirst && 'split--media-first']}>
     <figure
       class:list={[
         'imt__media',
         'r-frame',
         landscape ? 'imt__media--wide' : 'imt__media--tall',
-        imageFirst ? 'md:order-1' : 'md:order-2',
+        imageFirst ? 'lg:order-1' : 'lg:order-2',
       ]}
     >
       {image?.asset ? (
@@ -74,7 +80,7 @@ const note: string | undefined = image?.alt || undefined;
             source={image}
             width={crop.width}
             height={crop.height}
-            sizes="(min-width: 768px) 44vw, 100vw"
+            sizes="(min-width: 1024px) 37vw, min(100vw, 34rem)"
             quality={75}
             class="imt__img"
           />
@@ -90,7 +96,7 @@ const note: string | undefined = image?.alt || undefined;
       )}
     </figure>
 
-    <div class:list={['imt__copy', imageFirst ? 'md:order-2' : 'md:order-1']}>
+    <div class:list={['imt__copy', imageFirst ? 'lg:order-2' : 'lg:order-1']}>
       {heading && (
         <h2 id={headingId} class="imt__h">
           {heading}
@@ -117,9 +123,7 @@ const note: string | undefined = image?.alt || undefined;
     background: var(--color-paper);
   }
   .imt__row {
-    display: flex;
-    flex-direction: column;
-    gap: 2.75rem;
+    align-items: center;
   }
   .imt__media {
     position: relative;
@@ -202,25 +206,23 @@ const note: string | undefined = image?.alt || undefined;
     margin-top: 2rem;
   }
 
-  @media (min-width: 768px) {
+  @media (max-width: 1023px) {
     .imt__row {
-      flex-direction: row;
-      align-items: center;
-      gap: clamp(2.5rem, 7vw, 7rem);
+      gap: 2.75rem;
     }
+  }
+  @media (min-width: 1024px) {
     .imt__media {
-      flex: 0 0 44%;
       max-width: none;
     }
     .imt__copy {
-      flex: 1 1 0;
       min-width: 0;
     }
     /* The tag hangs off the corner that faces the words. */
-    .imt__media[class~='md:order-1'] .imt__tag {
+    .imt__media[class~='lg:order-1'] .imt__tag {
       right: -1.5rem;
     }
-    .imt__media[class~='md:order-2'] .imt__tag {
+    .imt__media[class~='lg:order-2'] .imt__tag {
       right: auto;
       left: -1.5rem;
     }

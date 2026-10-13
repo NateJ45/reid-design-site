@@ -98,6 +98,15 @@ figures printed on the tape measure (part of the drawing, aria-hidden).
 ## Primitives (`src/styles/reid.css`)
 
 - `.r-wrap`: page container, max 85rem, fluid gutter (16px on a phone).
+- `.split` / `.split--media-first` (`globals.css`, PORTS.md card 91, 2026-10-13): the ONE
+  column split for words beside a picture, map or big heading. Words 7fr, picture 5fr, gutter
+  `clamp(2rem, 5vw, 5rem)` (`--split-text`, `--split-media`, `--split-gutter`); stacked below
+  1024px. At 1280 the seam is x=765 (picture right) or x=579 (picture left). On it: the page
+  hero, the project hero, Meet Staci, the About story, ImageText, both service-area bands, the
+  contact map and the call band; the home hero lays the same tracks out full-bleed and the
+  contact form band uses the tokens with grid areas. Not on it (grids of peers, on purpose):
+  AboutPersonal, the reviews head, the guarantee, the process steps. Check with
+  `MSYS_NO_PATHCONV=1 node scripts/measure-columns.mjs <baseUrl> --paths /,/about/,/contact/`.
 - **One button identity: the tag** (2026-10-01, Nathan's pick over "the
   pill everywhere"). `.r-btn` + `--ink` (default on light), `--cream` (on
   Walnut or ink), `--bronze` (Walnut). Every button on the site is the same

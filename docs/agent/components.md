@@ -84,7 +84,7 @@ The section feeds off the `featured: boolean` on `project`. The query (`getHomeP
 
 - `SectionRenderer.astro`, maps block `_type` to component and owns the ground cadence: content blocks alternate linen / paper (paper first after a hero), a quote takes the ink band unless a neighbour is a quote or CTA band or it is the last row, spacers and dividers take the ground above. The preview-only `data-sanity` wrapper, layout handle and SectionCoach are unchanged.
 - `sections/RichTextSection.astro`, editorial split (heading left, body right at ~64ch with a Zodiak lede) at normal width with a heading; one column when narrow or centred. The `widthClass` / `alignClass` strings are read by `section-fields.test.ts`.
-- `sections/ImageText.astro`, orientation-honest framed crop + sample tag (eyebrow + alt) beside a big Zodiak heading; blank chip when no photo. Keeps the two `md:order-*` ternaries the drift gate reads.
+- `sections/ImageText.astro`, orientation-honest framed crop + sample tag (eyebrow + alt) beside a big Zodiak heading; blank chip when no photo. Sits on the shared split (`.split`, PORTS.md card 91) and keeps the two `lg:order-*` ternaries the drift gate reads.
 - `sections/GalleryGrid.astro`, exact-tiling mosaic via `blocks/mosaic.ts` (`mosaicSpans(count, cols)`, unit tested); hotspot crops; sample-tag captions. Keeps the `colClass` strings the drift gate reads.
 - `sections/QuoteBlock.astro`, big Zodiak italic quote with the hung bronze mark; `surface` may be `ink`.
 - `sections/VideoEmbed.astro`, left-set heading, 16:9 on an ink keyline, ruled caption.

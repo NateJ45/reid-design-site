@@ -223,9 +223,10 @@ describe('the layout fields', () => {
   it('align, imageSide and variant deliberately do NOT recolour, and here is why', () => {
     // align: `left` adds no class, so there is no element to find.
     expect(RICH_TEXT).toContain("const alignClass = align === 'center' ? 'text-center' : '';");
-    // imageSide: the swap is `md:order-1` / `md:order-2` across TWO elements.
-    expect(IMAGE_TEXT).toContain("imageFirst ? 'md:order-1' : 'md:order-2'");
-    expect(IMAGE_TEXT).toContain("imageFirst ? 'md:order-2' : 'md:order-1'");
+    // imageSide: the swap is `lg:order-1` / `lg:order-2` across TWO elements (md until
+    // 2026-10-13, when the band moved onto the shared split, PORTS.md card 91).
+    expect(IMAGE_TEXT).toContain("imageFirst ? 'lg:order-1' : 'lg:order-2'");
+    expect(IMAGE_TEXT).toContain("imageFirst ? 'lg:order-2' : 'lg:order-1'");
     // variant: each value renders a different element entirely.
     expect(RENDERER).toContain("s.variant === 'space'");
   });

@@ -81,7 +81,7 @@ const subheadParts = parseSubhead(subhead);
 ---
 
 <section class:list={['phero', wrapperHeight, image && 'phero--image']} aria-labelledby={headingId}>
-  <div class="r-wrap phero__grid">
+  <div class:list={['r-wrap phero__grid', image && 'split']}>
     <div class="phero__copy">
       {eyebrow && <p class="phero__eyebrow">{eyebrow}</p>}
       <RiseWords as="h1" id={headingId} text={headline} accent={scriptAccent} class="phero__h1 r-hand" />
@@ -140,7 +140,6 @@ const subheadParts = parseSubhead(subhead);
   }
   .phero__grid {
     display: grid;
-    gap: 2.5rem;
     align-items: end;
   }
   .phero--image .phero__grid {
@@ -214,11 +213,14 @@ const subheadParts = parseSubhead(subhead);
       transform: scale(1.08);
     }
   }
-  @media (min-width: 1024px) {
-    .phero--image .phero__grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(2rem, 5vw, 5rem);
+  /* With a photo the columns are the shared split (globals.css, PORTS.md card
+     91): the same 7fr/5fr and gutter this hero always had, now from the tokens. */
+  @media (max-width: 1023px) {
+    .phero__grid {
+      gap: 2.5rem;
     }
+  }
+  @media (min-width: 1024px) {
     .phero__photo :global(.phero__img) {
       max-height: 34rem;
     }
