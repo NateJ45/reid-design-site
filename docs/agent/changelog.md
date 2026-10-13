@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: SanityImage srcset ladder starts at 160w
+
+The srcset ladder in `SanityImage.astro` now comes from `src/lib/imageLadder.ts` (new, with `imageLadder.test.ts`) and runs `[160, 240, 320, 400, 600, 700, 800, 900, 1200, 1600, 2400]`. It started at 400w, so small slots downloaded 1.4 to 2x the bytes they painted. A slot that needs 400px or more picks the same candidate as before (asserted in the test). When `sizes` is passed and readable, steps below 75% of its smallest slot are dropped. `SanityImage.astro` is not `PORTABLE` (this site's copy has its own props), so this is a hand-applied three-line change from starter PORTS.md card 93. Live image bytes before and after are in the PR.
+
 ## 2026-10-13: Live-site audit, image weight on the home page and /portfolio/
 
 The audit (mobile Lighthouse: home 85, /portfolio/ 90, LCP 3.4 to 3.8 s, "image delivery 171 KiB") traced the avoidable bytes to the header logos, not the photos: Lighthouse's phone settings fetched the 244w header logo (40 KB) AND the 244w cream hero logo (50 KB) for a 54px-wide slot. Changes: the header logo is now a width srcset (96/112/164/240w) with the real slot widths in `sizes` (`Header.astro`); the "Meet Staci" photo and the page-hero photo got accurate `sizes` (`HomeStaci.astro`, `Hero.astro`); the footer's link-mode booking line hit area went from 43 to 45 px measured (`Footer.astro`). Not changed: the home hero photo (its box is wider than the viewport on a phone, so `100vw` is right), the footer lockup mask (28 KB, a CSS mask has no srcset), the three render-blocking stylesheets (about 43 KB, no dead import to remove; inlining critical CSS was out of scope). The small-link item was already done: every `a.r-link` and the footer line have carried an invisible ::after hit area since 2026-10-03 (about 46 and 43 px effective before, measured by hit-testing); the audit measured the visible boxes. Revert: restore the `1x, 2x` density srcset.
