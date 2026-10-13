@@ -71,12 +71,26 @@ import {
 import type { RawNavLink } from '@/lib/nav-href';
 
 // Logo renditions. The source is 378x400. The header shows it 84px tall at
-// rest (about 80px wide), so 122w/244w cover 1x/2x with room to spare; the scrolled strip and
-// the phone header draw the same files smaller. The phone menu shows the
-// cream logo 108px tall on ink (102w/204w).
-const logo1x = await getImage({ src: logoLightAsset, format: 'webp', width: 122 });
-const logo2x = await getImage({ src: logoLightAsset, format: 'webp', width: 244 });
-const logoSrcset = `${logo1x.src} 1x, ${logo2x.src} 2x`;
+// rest (about 80px wide) from 1024px up and 58px tall (about 54px wide) below
+// that; the scrolled strip draws the same files smaller. The files are a soft
+// watercolour wash, so they are heavy for their size (a 244w webp is 40 KB):
+// a WIDTH srcset with the real slot widths in `sizes` lets a phone fetch the
+// 96w file (about 8 KB) instead of the 244w one, and a 2x desktop the 164w
+// (about 20 KB). Measured 2026-10-13: the home page's logos went from 91 KB to
+// about 19 KB at Lighthouse's phone settings. The phone menu shows the cream
+// logo 108px tall on ink (102w/204w).
+const LOGO_WIDTHS = [96, 112, 164, 240];
+const LOGO_SIZES = '(min-width: 1024px) 80px, 54px';
+async function logoSet(src: ImageMetadata) {
+  const files = await Promise.all(
+    LOGO_WIDTHS.map((width) => getImage({ src, format: 'webp', width })),
+  );
+  return {
+    src: files[2].src,
+    srcset: files.map((g, i) => `${g.src} ${LOGO_WIDTHS[i]}w`).join(', '),
+  };
+}
+const logo = await logoSet(logoLightAsset);
 const menuLogo1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 102 });
 const menuLogo2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 204 });
 
@@ -157,8 +171,7 @@ const wordmark = brandName.replace(/,?\s*LLC\.?$/i, '').trim();
 // recoloured, so it keeps today's bar instead.
 const onHero = overHero && !customLogo;
 // The cream logo for the hero (same art as the phone menu's), same box size.
-const heroLogo1x = await getImage({ src: logoDarkAsset, format: 'webp', width: 122 });
-const heroLogo2x = await getImage({ src: logoDarkAsset, format: 'webp', width: 244 });
+const heroLogo = await logoSet(logoDarkAsset);
 
 // Subset of siteSettings the phone menu needs. A plain object so the island
 // doesn't serialize the whole Sanity document graph into its props.
@@ -287,8 +300,9 @@ function isGroupActive(items: { href: string }[]) {
              before the file arrives (no CLS). Light only since 2026-09-29. */
           <>
             <img
-              src={logo1x.src}
-              srcset={logoSrcset}
+              src={logo.src}
+              srcset={logo.srcset}
+              sizes={LOGO_SIZES}
               alt={brandName}
               width={122}
               height={129}
@@ -301,8 +315,9 @@ function isGroupActive(items: { href: string }[]) {
                 the ink logo above carries the alt text. */}
             {onHero && (
               <img
-                src={heroLogo1x.src}
-                srcset={`${heroLogo1x.src} 1x, ${heroLogo2x.src} 2x`}
+                src={heroLogo.src}
+                srcset={heroLogo.srcset}
+                sizes={LOGO_SIZES}
                 alt=""
                 width={122}
                 height={129}

@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: Live-site audit, image weight on the home page and /portfolio/
+
+The audit (mobile Lighthouse: home 85, /portfolio/ 90, LCP 3.4 to 3.8 s, "image delivery 171 KiB") traced the avoidable bytes to the header logos, not the photos: Lighthouse's phone settings fetched the 244w header logo (40 KB) AND the 244w cream hero logo (50 KB) for a 54px-wide slot. Changes: the header logo is now a width srcset (96/112/164/240w) with the real slot widths in `sizes` (`Header.astro`); the "Meet Staci" photo and the page-hero photo got accurate `sizes` (`HomeStaci.astro`, `Hero.astro`); the footer's link-mode booking line hit area went from 43 to 45 px measured (`Footer.astro`). Not changed: the home hero photo (its box is wider than the viewport on a phone, so `100vw` is right), the footer lockup mask (28 KB, a CSS mask has no srcset), the three render-blocking stylesheets (about 43 KB, no dead import to remove; inlining critical CSS was out of scope). The small-link item was already done: every `a.r-link` and the footer line have carried an invisible ::after hit area since 2026-10-03 (about 46 and 43 px effective before, measured by hit-testing); the audit measured the visible boxes. Revert: restore the `1x, 2x` density srcset.
+
 ## 2026-10-09: Contact form room tags keep their border around the notch
 
 The `.cf-roomtag` border was an inset box-shadow, a rectangle, so the clip-path notch on the left edge cut it off and the diagonal edges had no border. The button now carries the border colour as its ground, clipped to the notched shape, and a `::after` paper fill sits 1px inside the same shape. Focus goes rectangular (clip-path would cut the outline). Only `src/components/contact/contact-form.css` changed.
