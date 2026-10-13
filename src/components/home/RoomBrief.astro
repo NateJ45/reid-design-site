@@ -32,14 +32,12 @@ const { brief } = Astro.props as Props;
     <small>{brief.tag}</small>
   </p>
   <dl class="room__brief-rows">
-    {
-      brief.rows.map((r) => (
-        <div class="room__brief-row">
-          <dt>{r.question}</dt>
-          <dd>{r.answer}</dd>
-        </div>
-      ))
-    }
+    {brief.rows.map((r) => (
+      <div class="room__brief-row">
+        <dt>{r.question}</dt>
+        <dd>{r.answer}</dd>
+      </div>
+    ))}
   </dl>
 </div>
 

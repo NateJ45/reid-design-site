@@ -64,11 +64,9 @@ const variantClasses =
   rel={newTab ? 'noopener noreferrer' : undefined}
 >
   {label}
-  {
-    variant === 'primary' && (
-      <span class="r-arrow" aria-hidden="true">
-        →
-      </span>
-    )
-  }
+  {variant === 'primary' && (
+    <span class="r-arrow" aria-hidden="true">
+      →
+    </span>
+  )}
 </a>

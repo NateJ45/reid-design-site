@@ -28,25 +28,23 @@ const list = (stats ?? []).filter((s) => typeof s?.number === 'number' && s?.lab
 const fmt = new Intl.NumberFormat('en-US');
 ---
 
-{
-  list.length > 0 && (
-    <section class="figs" aria-label="Studio numbers">
-      <div class="r-wrap">
-        <dl class="figs__run">
-          {list.map((s) => (
-            <div class="figs__item">
-              <dt class="figs__label">{s.label}</dt>
-              <dd class="figs__n">
-                {fmt.format(s.number)}
-                {s.suffix && <span class="figs__suf">{s.suffix}</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-    </section>
-  )
-}
+{list.length > 0 && (
+  <section class="figs" aria-label="Studio numbers">
+    <div class="r-wrap">
+      <dl class="figs__run">
+        {list.map((s) => (
+          <div class="figs__item">
+            <dt class="figs__label">{s.label}</dt>
+            <dd class="figs__n">
+              {fmt.format(s.number)}
+              {s.suffix && <span class="figs__suf">{s.suffix}</span>}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+)}
 
 <style>
   .figs {

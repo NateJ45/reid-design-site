@@ -42,30 +42,24 @@ const { room, cta } = Astro.props as Props;
 
 <div class="room__notes" data-room-notes={room.slug}>
   <div class="room__board" data-room-board>
-    {
-      room.notes.map((n, i) => (
-        <span
-          class="room__pin"
-          data-pin-for={i + 1}
-          style={`--px:${n.pin[0]};--py:${n.pin[1]}`}
-          aria-hidden="true"
-        />
-      ))
-    }
+    {room.notes.map((n, i) => (
+      <span
+        class="room__pin"
+        data-pin-for={i + 1}
+        style={`--px:${n.pin[0]};--py:${n.pin[1]}`}
+        aria-hidden="true"
+      />
+    ))}
     <RoomBrief brief={room.brief} />
-    {
-      room.beats.map((b, k) => (
-        <div class="npage room__card room__beat" data-beat={k}>
-          <p class="room__beat-label">{b.label}</p>
-          <p class="room__beat-text">{b.caption}</p>
-        </div>
-      ))
-    }
-    {
-      room.notes.map((n, i) => (
-        <RoomTag note={n} index={i + 1} beat={room.beats[n.stage]?.label ?? ''} />
-      ))
-    }
+    {room.beats.map((b, k) => (
+      <div class="npage room__card room__beat" data-beat={k}>
+        <p class="room__beat-label">{b.label}</p>
+        <p class="room__beat-text">{b.caption}</p>
+      </div>
+    ))}
+    {room.notes.map((n, i) => (
+      <RoomTag note={n} index={i + 1} beat={room.beats[n.stage]?.label ?? ''} />
+    ))}
     <RoomPlan plan={room.plan} />
     <RoomClose line={room.closing} cta={cta} paint={Boolean(room.wall)} />
   </div>
@@ -76,38 +70,38 @@ const { room, cta } = Astro.props as Props;
         <strong>{room.brief.title}</strong>, {room.brief.tag}
       </p>
       <dl>
-        {
-          room.brief.rows.map((r) => (
-            <div>
-              <dt>{r.question}</dt>
-              <dd>{r.answer}</dd>
-            </div>
-          ))
-        }
+        {room.brief.rows.map((r) => (
+          <div>
+            <dt>{r.question}</dt>
+            <dd>{r.answer}</dd>
+          </div>
+        ))}
       </dl>
     </section>
     <ol class="room__list-beats">
-      {
-        room.beats.map((b, k) => (
-          <li>
-            <p class="room__list-caption">{b.caption}</p>
-            <ul>
-              {room.notes
-                .filter((n) => n.stage === k)
-                .map((n) => (
-                  <li>
-                    <strong>{n.checkLabel}:</strong> {n.text}
-                  </li>
-                ))}
-            </ul>
-          </li>
-        ))
-      }
+      {room.beats.map((b, k) => (
+        <li>
+          <p class="room__list-caption">{b.caption}</p>
+          <ul>
+            {room.notes
+              .filter((n) => n.stage === k)
+              .map((n) => (
+                <li>
+                  <strong>{n.checkLabel}:</strong> {n.text}
+                </li>
+              ))}
+          </ul>
+        </li>
+      ))}
     </ol>
     <section class="room__list-plan" aria-label="What’s in the plan">
-      <p class="room__list-head"><strong>What’s in the plan</strong></p>
+      <p class="room__list-head">
+        <strong>What’s in the plan</strong>
+      </p>
       <ul>
-        {room.plan.map((p) => <li>{p.label}</li>)}
+        {room.plan.map((p) => (
+          <li>{p.label}</li>
+        ))}
       </ul>
     </section>
     <RoomClose line={room.closing} cta={cta} plain />

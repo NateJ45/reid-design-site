@@ -226,14 +226,12 @@ if (rooms.length) {
 }
 ---
 
-{
-  rooms.length > 0 && cta && (
-    <RoomStage
-      rooms={rooms}
-      cta={cta}
-      headline={headline || 'Every piece is chosen for a reason.'}
-      scriptAccent={headline ? scriptAccent : (scriptAccent ?? 'for a reason')}
-      intro={intro || 'Watch one empty room get built, and see why each piece is there.'}
-    />
-  )
-}
+{rooms.length > 0 && cta && (
+  <RoomStage
+    rooms={rooms}
+    cta={cta}
+    headline={headline || 'Every piece is chosen for a reason.'}
+    scriptAccent={headline ? scriptAccent : (scriptAccent ?? 'for a reason')}
+    intro={intro || 'Watch one empty room get built, and see why each piece is there.'}
+  />
+)}

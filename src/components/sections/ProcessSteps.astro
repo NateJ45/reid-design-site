@@ -38,54 +38,52 @@ const scope = ['--pj-journey', ...steps.map((_, i) => tl(i))].join(', ');
 const stepId = (i: number) => `step-${i + 1}`;
 ---
 
-{
-  steps.length > 0 && (
-    <section class="pj" aria-label="The process, step by step" style={`timeline-scope: ${scope}`}>
-      <div class="r-wrap pj__grid">
-        <nav class="pj__rail" aria-labelledby="pj-rail-heading">
-          <p id="pj-rail-heading" class="pj__rail-h">
-            {steps.length} steps, start to finish
-          </p>
-          <div class="pj__track">
-            <div class="pj__tape" aria-hidden="true">
-              <div class="pj__case" />
-              <div class="pj__band" />
-            </div>
-            <ol class="pj__index" role="list">
-              {steps.map((s: any, i: number) => (
-                <li class="pj__idx" style={`--tl: ${tl(i)}`}>
-                  <a href={`#${stepId(i)}`} class="pj__link">
-                    {s.timeEstimate && <span class="pj__time">{s.timeEstimate}</span>}
-                    <span class="pj__name">{s.title}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
+{steps.length > 0 && (
+  <section class="pj" aria-label="The process, step by step" style={`timeline-scope: ${scope}`}>
+    <div class="r-wrap pj__grid">
+      <nav class="pj__rail" aria-labelledby="pj-rail-heading">
+        <p id="pj-rail-heading" class="pj__rail-h">
+          {steps.length} steps, start to finish
+        </p>
+        <div class="pj__track">
+          <div class="pj__tape" aria-hidden="true">
+            <div class="pj__case" />
+            <div class="pj__band" />
           </div>
-          <p class="pj__cta">
-            Ready when you are.{' '}
-            <a href="/contact/" class="r-link">
-              Start with step one
-            </a>
-          </p>
-        </nav>
-
-        <div class="pj__steps">
-          {steps.map((step: any, i: number) => (
-            <ProcessStep
-              step={step}
-              variant="full"
-              index={i}
-              id={stepId(i)}
-              timeline={tl(i)}
-              isLast={i === steps.length - 1}
-            />
-          ))}
+          <ol class="pj__index" role="list">
+            {steps.map((s: any, i: number) => (
+              <li class="pj__idx" style={`--tl: ${tl(i)}`}>
+                <a href={`#${stepId(i)}`} class="pj__link">
+                  {s.timeEstimate && <span class="pj__time">{s.timeEstimate}</span>}
+                  <span class="pj__name">{s.title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
         </div>
+        <p class="pj__cta">
+          Ready when you are.{' '}
+          <a href="/contact/" class="r-link">
+            Start with step one
+          </a>
+        </p>
+      </nav>
+
+      <div class="pj__steps">
+        {steps.map((step: any, i: number) => (
+          <ProcessStep
+            step={step}
+            variant="full"
+            index={i}
+            id={stepId(i)}
+            timeline={tl(i)}
+            isLast={i === steps.length - 1}
+          />
+        ))}
       </div>
-    </section>
-  )
-}
+    </div>
+  </section>
+)}
 
 <style>
   .pj {

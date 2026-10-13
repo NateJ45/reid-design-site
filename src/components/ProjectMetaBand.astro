@@ -65,30 +65,26 @@ if (facts.length === 0 && story.length === 0) return null;
 
 <aside class="r-wrap spec" aria-label="Project at a glance">
   <div class:list={['spec__sheet', facts.length > 0 && story.length > 0 && 'spec__sheet--both']}>
-    {
-      facts.length > 0 && (
-        <dl class="spec__facts">
-          {facts.map((f) => (
-            <div class="spec__row">
-              <dt>{f.label}</dt>
-              <dd>{f.value}</dd>
-            </div>
-          ))}
-        </dl>
-      )
-    }
-    {
-      story.length > 0 && (
-        <div class="spec__story">
-          {story.map((s) => (
-            <div class="spec__line">
-              <p class="spec__label">{s.label}</p>
-              <p class="spec__body">{s.body}</p>
-            </div>
-          ))}
-        </div>
-      )
-    }
+    {facts.length > 0 && (
+      <dl class="spec__facts">
+        {facts.map((f) => (
+          <div class="spec__row">
+            <dt>{f.label}</dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+    )}
+    {story.length > 0 && (
+      <div class="spec__story">
+        {story.map((s) => (
+          <div class="spec__line">
+            <p class="spec__label">{s.label}</p>
+            <p class="spec__body">{s.body}</p>
+          </div>
+        ))}
+      </div>
+    )}
   </div>
 </aside>
 

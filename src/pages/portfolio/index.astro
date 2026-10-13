@@ -79,53 +79,51 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
     scriptAccent={page?.heroScriptAccent ?? 'Plainfield'}
   />
 
-  {
-    hasProjects ? (
-      <ProjectBoard projects={projects} />
-    ) : (
-      <section class="pf pf--empty" aria-labelledby="portfolio-empty-heading">
-        <div class="r-wrap pf__empty">
-          {/* The blank swatch tags that used to sit here were decoration with
+  {hasProjects ? (
+    <ProjectBoard projects={projects} />
+  ) : (
+    <section class="pf pf--empty" aria-labelledby="portfolio-empty-heading">
+      <div class="r-wrap pf__empty">
+        {/* The blank swatch tags that used to sit here were decoration with
               nothing in them (Impeccable audit, 2026-10-03). In their place:
               the Google rating card that is already on the home page, which is
               real proof, and renders nothing when no rating is set. */}
-          {googleRatingFrom(siteSettings) && (
-            <div class="pf__proof">
-              <RatingTag settings={siteSettings} />
-            </div>
-          )}
-          <div>
-            <h2 id="portfolio-empty-heading" class="pf__empty-h">
-              Case studies are on the way.
-            </h2>
-            <p class="pf__empty-p">
-              The first projects are wrapping up now, with full write-ups to follow. Until then,
-              here is{' '}
-              <a href="/process/" class="r-link">
-                how Reid Design works
-              </a>
-              , or you can{' '}
-              <a href="/contact/" class="r-link">
-                start a conversation about your space
-              </a>
-              .
-            </p>
-            <div class="pf__actions">
-              <a class="r-btn r-btn--ink" href="/contact/">
-                {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
-                <span class="r-arrow" aria-hidden="true">
-                  →
-                </span>
-              </a>
-              <a class="r-link" href="/services/">
-                See services and prices
-              </a>
-            </div>
+        {googleRatingFrom(siteSettings) && (
+          <div class="pf__proof">
+            <RatingTag settings={siteSettings} />
+          </div>
+        )}
+        <div>
+          <h2 id="portfolio-empty-heading" class="pf__empty-h">
+            Case studies are on the way.
+          </h2>
+          <p class="pf__empty-p">
+            The first projects are wrapping up now, with full write-ups to follow. Until then, here
+            is{' '}
+            <a href="/process/" class="r-link">
+              how Reid Design works
+            </a>
+            , or you can{' '}
+            <a href="/contact/" class="r-link">
+              start a conversation about your space
+            </a>
+            .
+          </p>
+          <div class="pf__actions">
+            <a class="r-btn r-btn--ink" href="/contact/">
+              {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
+              <span class="r-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+            <a class="r-link" href="/services/">
+              See services and prices
+            </a>
           </div>
         </div>
-      </section>
-    )
-  }
+      </div>
+    </section>
+  )}
 
   {/* Extra sections (optional, editor-added in Studio) */}
   <SectionRenderer sections={page?.additionalSections} idPrefix="portfolio-extra" />

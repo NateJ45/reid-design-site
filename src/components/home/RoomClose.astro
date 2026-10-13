@@ -52,35 +52,35 @@ const { line, cta, plain = false, paint = false } = Astro.props as Props;
       <span>{cta.label}</span>
       {cta.price && <span class="r-pricetag__price">{cta.price}</span>}
     </a>
-    <a href="/process/" class="r-link room__close-more">See the full process</a>
+    <a href="/process/" class="r-link room__close-more">
+      See the full process
+    </a>
   </div>
-  {
-    paint && !plain && (
-      <div
-        class="room__paint"
-        role="group"
-        aria-label="Color and finish guidance: try a wall color"
-        data-room-paint
-        hidden
-      >
-        <p class="room__paint-label" aria-hidden="true">
-          <span>Color and finish guidance</span> try a wall color
-        </p>
-        <div class="room__paint-row">
-          <button type="button" class="room__swatch" data-swatch="" aria-pressed="true">
-            <span class="room__dab room__dab--as" aria-hidden="true" />
-            <span class="room__swatch-name">As it is</span>
+  {paint && !plain && (
+    <div
+      class="room__paint"
+      role="group"
+      aria-label="Color and finish guidance: try a wall color"
+      data-room-paint
+      hidden
+    >
+      <p class="room__paint-label" aria-hidden="true">
+        <span>Color and finish guidance</span> try a wall color
+      </p>
+      <div class="room__paint-row">
+        <button type="button" class="room__swatch" data-swatch="" aria-pressed="true">
+          <span class="room__dab room__dab--as" aria-hidden="true" />
+          <span class="room__swatch-name">As it is</span>
+        </button>
+        {ROOM_SWATCHES.map((sw) => (
+          <button type="button" class="room__swatch" data-swatch={sw.hex} aria-pressed="false">
+            <span class="room__dab" style={`--dab:${sw.hex}`} aria-hidden="true" />
+            <span class="room__swatch-name">{sw.name}</span>
           </button>
-          {ROOM_SWATCHES.map((sw) => (
-            <button type="button" class="room__swatch" data-swatch={sw.hex} aria-pressed="false">
-              <span class="room__dab" style={`--dab:${sw.hex}`} aria-hidden="true" />
-              <span class="room__swatch-name">{sw.name}</span>
-            </button>
-          ))}
-        </div>
+        ))}
       </div>
-    )
-  }
+    </div>
+  )}
 </div>
 
 <style>

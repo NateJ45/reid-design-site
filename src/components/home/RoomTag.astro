@@ -47,8 +47,9 @@ const { note, index, beat } = Astro.props as Props;
 >
   <span class="rtag__hole" aria-hidden="true"></span>
   <span class="rtag__beat">{beat}</span>
-  <span class="rtag__check" style={`--tone: var(--color-chip-${note.tone})`}>{note.checkLabel}</span
-  >
+  <span class="rtag__check" style={`--tone: var(--color-chip-${note.tone})`}>
+    {note.checkLabel}
+  </span>
   <p class="rtag__text">{note.text}</p>
 </div>
 

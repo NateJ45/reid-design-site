@@ -82,35 +82,29 @@ const primaryHref = resolveCtaHref(primaryCta, '/services/');
 const secondaryHref = resolveCtaHref(secondaryCta, '/contact/');
 ---
 
-{
-  /* Preload the two faces the headline is set in (2026-10-03). On a phone the
+{/* Preload the two faces the headline is set in (2026-10-03). On a phone the
      subhead and buttons now sit above the fold, so a late font swap that
      re-wraps the headline shifted them (Lighthouse CLS 0.15 to 0.20 on a Linux
      runner, gate 0.1). The site-wide "no font preload" rule (BaseLayout.astro)
      was measured on a text-heavy Cormorant page where it delayed the hero photo;
      here only these two small files (~25 KB + 36 KB) are preloaded, on the home
      page only, and LCP is re-measured in CI. Revert by deleting these two
-     links if the home page's LCP regresses. */
-}
+     links if the home page's LCP regresses. */}
 <link rel="preload" href="/fonts/Zodiak-300.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href={waterfallUrl} as="font" type="font/woff2" crossorigin />
 
 <section class="home-hero" aria-labelledby={headingId}>
   <div class="home-hero__copy">
-    {
-      /* The top line: the eyebrow on the left, the Google rating tag hung
+    {/* The top line: the eyebrow on the left, the Google rating tag hung
         at the right (moved up from under the buttons, 2026-10-01: the top
-        corner was empty and the tag was crowding the foot). */
-    }
+        corner was empty and the tag was crowding the foot). */}
     <div class="home-hero__top">
       {eyebrow && <p class="home-hero__eyebrow">{eyebrow}</p>}
-      {
-        googleRatingFrom(ratingSettings) && (
-          <div class="home-hero__rating">
-            <RatingTag settings={ratingSettings} />
-          </div>
-        )
-      }
+      {googleRatingFrom(ratingSettings) && (
+        <div class="home-hero__rating">
+          <RatingTag settings={ratingSettings} />
+        </div>
+      )}
     </div>
     <RiseWords
       as="h1"
@@ -122,51 +116,45 @@ const secondaryHref = resolveCtaHref(secondaryCta, '/contact/');
     <div class="home-hero__foot">
       {subhead && <p class="home-hero__sub">{subhead}</p>}
       <div class="home-hero__ctas">
-        {
-          primaryCta?.label && (
-            <a
-              class="r-btn r-btn--ink"
-              href={primaryHref}
-              target={ctaOpensNewTab(primaryCta) ? '_blank' : undefined}
-              rel={ctaOpensNewTab(primaryCta) ? 'noopener noreferrer' : undefined}
-            >
-              {primaryCta.label}
-              <span class="r-arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-          )
-        }
-        {
-          secondaryCta?.label && (
-            <a
-              class="r-link home-hero__secondary"
-              href={secondaryHref}
-              target={ctaOpensNewTab(secondaryCta) ? '_blank' : undefined}
-              rel={ctaOpensNewTab(secondaryCta) ? 'noopener noreferrer' : undefined}
-            >
-              {secondaryCta.label}
-            </a>
-          )
-        }
+        {primaryCta?.label && (
+          <a
+            class="r-btn r-btn--ink"
+            href={primaryHref}
+            target={ctaOpensNewTab(primaryCta) ? '_blank' : undefined}
+            rel={ctaOpensNewTab(primaryCta) ? 'noopener noreferrer' : undefined}
+          >
+            {primaryCta.label}
+            <span class="r-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
+        )}
+        {secondaryCta?.label && (
+          <a
+            class="r-link home-hero__secondary"
+            href={secondaryHref}
+            target={ctaOpensNewTab(secondaryCta) ? '_blank' : undefined}
+            rel={ctaOpensNewTab(secondaryCta) ? 'noopener noreferrer' : undefined}
+          >
+            {secondaryCta.label}
+          </a>
+        )}
       </div>
     </div>
   </div>
 
   <div class="home-hero__photo">
-    {
-      photo?.asset && (
-        <SanityImage
-          source={photo}
-          width={1100}
-          sizes="(min-width: 1024px) 42vw, 100vw"
-          loading="eager"
-          fetchpriority="high"
-          quality={70}
-          class="home-hero__img"
-        />
-      )
-    }
+    {photo?.asset && (
+      <SanityImage
+        source={photo}
+        width={1100}
+        sizes="(min-width: 1024px) 42vw, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        quality={70}
+        class="home-hero__img"
+      />
+    )}
   </div>
 </section>
 

@@ -86,37 +86,35 @@ const tiles = pics.map((img, i) => {
 });
 ---
 
-{
-  pics.length > 0 && (
-    <section
-      class:list={['gal', surface === 'muted' ? 'gal--paper' : 'gal--linen']}
-      aria-labelledby={heading ? headingId : undefined}
-      aria-label={heading ? undefined : 'Photo gallery'}
-    >
-      <div class="r-wrap">
-        {heading && (
-          <div class="gal__head">
-            <SectionHeading headline={heading} headingId={headingId} />
-          </div>
-        )}
-        <div class:list={['gal__grid grid grid-cols-2', colClass]}>
-          {tiles.map(({ img, style, big, sizes, key }) => (
-            <figure class="gal__tile" style={style} data-key={key}>
-              <SanityImage
-                source={img}
-                width={big ? 1400 : 900}
-                sizes={sizes}
-                quality={75}
-                class="gal__img"
-              />
-              {img.caption && <figcaption class="r-tag gal__tag">{img.caption}</figcaption>}
-            </figure>
-          ))}
+{pics.length > 0 && (
+  <section
+    class:list={['gal', surface === 'muted' ? 'gal--paper' : 'gal--linen']}
+    aria-labelledby={heading ? headingId : undefined}
+    aria-label={heading ? undefined : 'Photo gallery'}
+  >
+    <div class="r-wrap">
+      {heading && (
+        <div class="gal__head">
+          <SectionHeading headline={heading} headingId={headingId} />
         </div>
+      )}
+      <div class:list={['gal__grid grid grid-cols-2', colClass]}>
+        {tiles.map(({ img, style, big, sizes, key }) => (
+          <figure class="gal__tile" style={style} data-key={key}>
+            <SanityImage
+              source={img}
+              width={big ? 1400 : 900}
+              sizes={sizes}
+              quality={75}
+              class="gal__img"
+            />
+            {img.caption && <figcaption class="r-tag gal__tag">{img.caption}</figcaption>}
+          </figure>
+        ))}
       </div>
-    </section>
-  )
-}
+    </div>
+  </section>
+)}
 
 <style>
   .gal {

@@ -59,85 +59,83 @@ const lineFor = (p?: ProjectLite) => [p?.location, p?.year].filter(Boolean).join
 const leadRoom = humanizeEnum(lead?.roomType);
 ---
 
-{
-  lead && (
-    <section class="fw" aria-labelledby={headingId}>
-      <div class="r-wrap">
-        <div class="fw__head">
-          <RiseWords as="h2" id={headingId} text={headline ?? ''} class="r-h2" />
-          {subhead && <p class="r-lede fw__sub">{subhead}</p>}
-        </div>
-
-        <div class:list={['fw__grid', more.length > 0 && 'fw__grid--split']}>
-          <a href={hrefFor(lead)} class="fw__lead">
-            <div class="fw__frame">
-              {lead.heroImage?.asset ? (
-                <SanityImage
-                  source={lead.heroImage}
-                  width={1100}
-                  height={1375}
-                  sizes="(min-width: 1024px) 55vw, 100vw"
-                  class="fw__img"
-                />
-              ) : (
-                <div class="fw__blank" aria-hidden="true" />
-              )}
-              {leadRoom && (
-                <span class="r-tag fw__tag">
-                  {lead.featured && <small>Featured</small>}
-                  <strong>{leadRoom}</strong>
-                </span>
-              )}
-            </div>
-            <h3 class="fw__title">
-              <span>{lead.title}</span>
-            </h3>
-            {lineFor(lead) && <p class="fw__line">{lineFor(lead)}</p>}
-            {lead.briefSummary && <p class="fw__brief">{lead.briefSummary}</p>}
-          </a>
-
-          {more.length > 0 && (
-            <ul class="fw__more">
-              {more.map((p) => (
-                <li>
-                  <a href={hrefFor(p)} class="fw__row">
-                    <div class="fw__thumb">
-                      {p.heroImage?.asset && (
-                        <SanityImage
-                          source={p.heroImage}
-                          width={400}
-                          height={400}
-                          sizes="(min-width: 1024px) 9rem, 7rem"
-                          class="fw__img"
-                        />
-                      )}
-                    </div>
-                    <div class="fw__row-copy">
-                      {p.roomType && <p class="fw__room">{humanizeEnum(p.roomType)}</p>}
-                      <h3 class="fw__row-title">
-                        <span>{p.title}</span>
-                      </h3>
-                      {lineFor(p) && <p class="fw__line">{lineFor(p)}</p>}
-                    </div>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div class="fw__foot">
-          <CtaLink
-            cta={cta}
-            variant="secondary"
-            fallbackHref="/portfolio/"
-            fallbackLabel="See all the work"
-          />
-        </div>
+{lead && (
+  <section class="fw" aria-labelledby={headingId}>
+    <div class="r-wrap">
+      <div class="fw__head">
+        <RiseWords as="h2" id={headingId} text={headline ?? ''} class="r-h2" />
+        {subhead && <p class="r-lede fw__sub">{subhead}</p>}
       </div>
-    </section>
-  )
-}
+
+      <div class:list={['fw__grid', more.length > 0 && 'fw__grid--split']}>
+        <a href={hrefFor(lead)} class="fw__lead">
+          <div class="fw__frame">
+            {lead.heroImage?.asset ? (
+              <SanityImage
+                source={lead.heroImage}
+                width={1100}
+                height={1375}
+                sizes="(min-width: 1024px) 55vw, 100vw"
+                class="fw__img"
+              />
+            ) : (
+              <div class="fw__blank" aria-hidden="true" />
+            )}
+            {leadRoom && (
+              <span class="r-tag fw__tag">
+                {lead.featured && <small>Featured</small>}
+                <strong>{leadRoom}</strong>
+              </span>
+            )}
+          </div>
+          <h3 class="fw__title">
+            <span>{lead.title}</span>
+          </h3>
+          {lineFor(lead) && <p class="fw__line">{lineFor(lead)}</p>}
+          {lead.briefSummary && <p class="fw__brief">{lead.briefSummary}</p>}
+        </a>
+
+        {more.length > 0 && (
+          <ul class="fw__more">
+            {more.map((p) => (
+              <li>
+                <a href={hrefFor(p)} class="fw__row">
+                  <div class="fw__thumb">
+                    {p.heroImage?.asset && (
+                      <SanityImage
+                        source={p.heroImage}
+                        width={400}
+                        height={400}
+                        sizes="(min-width: 1024px) 9rem, 7rem"
+                        class="fw__img"
+                      />
+                    )}
+                  </div>
+                  <div class="fw__row-copy">
+                    {p.roomType && <p class="fw__room">{humanizeEnum(p.roomType)}</p>}
+                    <h3 class="fw__row-title">
+                      <span>{p.title}</span>
+                    </h3>
+                    {lineFor(p) && <p class="fw__line">{lineFor(p)}</p>}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div class="fw__foot">
+        <CtaLink
+          cta={cta}
+          variant="secondary"
+          fallbackHref="/portfolio/"
+          fallbackLabel="See all the work"
+        />
+      </div>
+    </div>
+  </section>
+)}
 
 <style>
   .fw {

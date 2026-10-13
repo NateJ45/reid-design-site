@@ -45,29 +45,27 @@ const NOTES = [
 
 <svg class:list={['fp', className]} viewBox="0 0 560 390" aria-hidden="true" focusable="false">
   <g class="fp-ink">
-    {STROKES.map((d, i) => <path pathLength="1" style={`--i:${i}`} d={d} />)}
-    {
-      CIRCLES.map((c, i) => (
-        <circle pathLength="1" style={`--i:${STROKES.length + i}`} cx={c.cx} cy={c.cy} r={c.r} />
-      ))
-    }
+    {STROKES.map((d, i) => (
+      <path pathLength="1" style={`--i:${i}`} d={d} />
+    ))}
+    {CIRCLES.map((c, i) => (
+      <circle pathLength="1" style={`--i:${STROKES.length + i}`} cx={c.cx} cy={c.cy} r={c.r} />
+    ))}
   </g>
   {/* The rug, dashed, is laid down after the furniture outlines. */}
   <path class="fp-rug" d={PLAN.rug}></path>
   <g class="fp-notes">
-    {
-      NOTES.map((n, i) => (
-        <text
-          x={n.x}
-          y={n.y}
-          class={n.cls}
-          style={`--i:${i}`}
-          text-anchor={n.anchor}
-          transform={n.rotate ? `rotate(90 ${n.x} ${n.y})` : undefined}
-        >
-          {n.text}
-        </text>
-      ))
-    }
+    {NOTES.map((n, i) => (
+      <text
+        x={n.x}
+        y={n.y}
+        class={n.cls}
+        style={`--i:${i}`}
+        text-anchor={n.anchor}
+        transform={n.rotate ? `rotate(90 ${n.x} ${n.y})` : undefined}
+      >
+        {n.text}
+      </text>
+    ))}
   </g>
 </svg>

@@ -67,113 +67,107 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
 });
 ---
 
-{
-  show && (
-    <section id="service-area" class="sa" aria-labelledby="service-area-heading">
-      <div class="r-wrap">
-        <div class="sa__grid">
-          <h2 id="service-area-heading" class="r-h2 sa__h">
-            {areaSec?.headline ?? 'Travel for out-of-area projects'}
-          </h2>
-          <div class="sa__side">
-            {cityList.length > 0 && (
-              <p class="sa__towns">
-                <b>{home}</b>
-                {rest.map((c) => (
-                  <>
-                    {' '}
-                    <i aria-hidden="true">/</i> {c}
-                  </>
-                ))}
-              </p>
-            )}
-            {areaSec?.description && <p class="sa__desc">{areaSec.description}</p>}
-          </div>
+{show && (
+  <section id="service-area" class="sa" aria-labelledby="service-area-heading">
+    <div class="r-wrap">
+      <div class="sa__grid">
+        <h2 id="service-area-heading" class="r-h2 sa__h">
+          {areaSec?.headline ?? 'Travel for out-of-area projects'}
+        </h2>
+        <div class="sa__side">
+          {cityList.length > 0 && (
+            <p class="sa__towns">
+              <b>{home}</b>
+              {rest.map((c) => (
+                <>
+                  {' '}
+                  <i aria-hidden="true">/</i> {c}
+                </>
+              ))}
+            </p>
+          )}
+          {areaSec?.description && <p class="sa__desc">{areaSec.description}</p>}
         </div>
+      </div>
 
-        {travelFees.length > 0 && (
-          <div class="sa__fees">
-            <ul
-              class="sa__tiers"
-              role="list"
-              style={`--n:${travelFees.length}; --faces:${maxFaces}`}
-            >
-              {travelFees.map((tier: any, i: number) => {
-                // One face per hour of driving, up to the top of the window
-                // (30 -> [30], 75 -> [60, 15]). No number in the label: one
-                // blank face, so the row still lines up.
-                const faces = faceMinutes(windows[i] ?? null);
-                const shown = faces.length > 0 ? faces : [0];
-                return (
-                  <li class="sa__tier">
-                    <div class="sa__clocks" data-faces={shown.length}>
-                      {shown.map((minutes, f) => {
-                        // Every face keeps its hand; a full hour rests at 12.
-                        const last = f === shown.length - 1;
-                        // Timing: each face starts when the one before it
-                        // finishes; a face takes its share of an hour.
-                        const delay = f * HOUR_S + i * 0.15;
-                        const dur = Math.max(0.35, (minutes / DIAL_MINUTES) * HOUR_S);
-                        return (
-                          <svg
-                            class:list={['sa__clock', { 'is-full': !last }]}
-                            viewBox="0 0 100 112"
-                            aria-hidden="true"
-                            focusable="false"
-                            style={`--m:${minutes}; --delay:${delay}s; --dur:${dur}s`}
-                          >
-                            {/* Crown and side button: the stopwatch silhouette. */}
-                            <rect class="sa__crown" x="44" y="6" width="12" height="7" rx="1.5" />
-                            <path class="sa__line" d="M50 13v11" />
-                            <path class="sa__line" d="M77 30l5-5" />
-                            <circle class="sa__face" cx={CX} cy={CY} r={R} />
-                            {minutes > 0 && (
-                              /* The shaded minutes: a circle at half the
+      {travelFees.length > 0 && (
+        <div class="sa__fees">
+          <ul class="sa__tiers" role="list" style={`--n:${travelFees.length}; --faces:${maxFaces}`}>
+            {travelFees.map((tier: any, i: number) => {
+              // One face per hour of driving, up to the top of the window
+              // (30 -> [30], 75 -> [60, 15]). No number in the label: one
+              // blank face, so the row still lines up.
+              const faces = faceMinutes(windows[i] ?? null);
+              const shown = faces.length > 0 ? faces : [0];
+              return (
+                <li class="sa__tier">
+                  <div class="sa__clocks" data-faces={shown.length}>
+                    {shown.map((minutes, f) => {
+                      // Every face keeps its hand; a full hour rests at 12.
+                      const last = f === shown.length - 1;
+                      // Timing: each face starts when the one before it
+                      // finishes; a face takes its share of an hour.
+                      const delay = f * HOUR_S + i * 0.15;
+                      const dur = Math.max(0.35, (minutes / DIAL_MINUTES) * HOUR_S);
+                      return (
+                        <svg
+                          class:list={['sa__clock', { 'is-full': !last }]}
+                          viewBox="0 0 100 112"
+                          aria-hidden="true"
+                          focusable="false"
+                          style={`--m:${minutes}; --delay:${delay}s; --dur:${dur}s`}
+                        >
+                          {/* Crown and side button: the stopwatch silhouette. */}
+                          <rect class="sa__crown" x="44" y="6" width="12" height="7" rx="1.5" />
+                          <path class="sa__line" d="M50 13v11" />
+                          <path class="sa__line" d="M77 30l5-5" />
+                          <circle class="sa__face" cx={CX} cy={CY} r={R} />
+                          {minutes > 0 && (
+                            /* The shaded minutes: a circle at half the
                                  radius with a stroke as wide as the radius,
                                  dashed to --m of 60, starting at 12. */
-                              <circle
-                                class="sa__fill"
-                                cx={CX}
-                                cy={CY}
-                                r={(R - 1) / 2}
-                                stroke-width={R - 1}
-                                pathLength={DIAL_MINUTES}
-                                transform={`rotate(-90 ${CX} ${CY})`}
-                              />
-                            )}
-                            {ticks.map((t) => (
-                              <line
-                                class:list={['sa__tick', t.major && 'sa__tick--major']}
-                                x1={t.x1}
-                                y1={t.y1}
-                                x2={t.x2}
-                                y2={t.y2}
-                              />
-                            ))}
-                            {minutes > 0 && (
-                              /* Drawn at 12, turned to the minutes by CSS. */
-                              <line class="sa__hand" x1={CX} y1={CY} x2={CX} y2={CY - (R - 11)} />
-                            )}
-                            <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
-                          </svg>
-                        );
-                      })}
-                    </div>
-                    <div class="sa__words">
-                      <p class="sa__when">{tier.distanceLabel}</p>
-                      <p class="sa__fee">{tier.fee}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            <p class="sa__caption">Travel fee by drive time from {home || 'Plainfield'}</p>
-          </div>
-        )}
-      </div>
-    </section>
-  )
-}
+                            <circle
+                              class="sa__fill"
+                              cx={CX}
+                              cy={CY}
+                              r={(R - 1) / 2}
+                              stroke-width={R - 1}
+                              pathLength={DIAL_MINUTES}
+                              transform={`rotate(-90 ${CX} ${CY})`}
+                            />
+                          )}
+                          {ticks.map((t) => (
+                            <line
+                              class:list={['sa__tick', t.major && 'sa__tick--major']}
+                              x1={t.x1}
+                              y1={t.y1}
+                              x2={t.x2}
+                              y2={t.y2}
+                            />
+                          ))}
+                          {minutes > 0 && (
+                            /* Drawn at 12, turned to the minutes by CSS. */
+                            <line class="sa__hand" x1={CX} y1={CY} x2={CX} y2={CY - (R - 11)} />
+                          )}
+                          <circle class="sa__pin" cx={CX} cy={CY} r="2.4" />
+                        </svg>
+                      );
+                    })}
+                  </div>
+                  <div class="sa__words">
+                    <p class="sa__when">{tier.distanceLabel}</p>
+                    <p class="sa__fee">{tier.fee}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p class="sa__caption">Travel fee by drive time from {home || 'Plainfield'}</p>
+        </div>
+      )}
+    </div>
+  </section>
+)}
 
 <style>
   .sa {

@@ -93,99 +93,97 @@ const rows = placeMarker(withRoom, {
 });
 ---
 
-{
-  rows.map((s: any, i: number) => (
-    <Wrap {...wrapAttrs(s._key)}>
-      {s._type === 'homeSectionMarker' ? (
-        s.section === 'hero' ? (
-          <HomeHero
-            eyebrow={page?.heroEyebrow}
-            headline={page?.heroHeadline ?? 'Interior design for homes that feel completely yours.'}
-            accent={page?.heroScriptAccent}
-            subhead={page?.heroSubhead}
-            portrait={page?.heroPortrait}
-            fallbackImages={page?.heroImages}
-            fallbackImage={page?.heroImage}
-            primaryCta={page?.heroPrimaryCta}
-            secondaryCta={page?.heroSecondaryCta}
-            headingId="hero-heading"
-            ratingSettings={siteSettings}
-          />
-        ) : s.section === 'meetStaci' ? (
-          <HomeStaci
-            photo={page?.meetStaciPhoto}
-            eyebrow={page?.meetStaciEyebrow}
-            headline={page?.meetStaciHeadline}
-            content={page?.meetStaciContent}
-            cta={page?.meetStaciCta}
-          />
-        ) : s.section === 'featuredWork' ? (
-          visible.portfolio ? (
-            <FeaturedWork
-              projects={page?.featuredProjects ?? []}
-              eyebrow={page?.featuredWorkEyebrow ?? 'Recent Work'}
-              headline={page?.featuredWorkHeadline ?? 'Rooms that feel finished.'}
-              subhead={
-                page?.featuredWorkSubhead ??
-                'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.'
-              }
-              cta={page?.featuredWorkCta}
-            />
-          ) : null
-        ) : s.section === 'testimonials' ? (
-          <HomeWords
-            headline={page?.testimonialsHeadline}
-            scriptAccent={page?.testimonialsScriptAccent}
-            subhead={page?.testimonialsSubhead}
-            attribution={page?.testimonialsAttribution}
-            featuredQuote={page?.featuredTestimonial}
-            gridQuotes={page?.testimonialsToShow ?? []}
-            googleReviews={page?.googleReviews ?? []}
-            reviewsNote={siteSettings?.reviewsNote}
-            googleBusinessUrl={siteSettings?.googleBusinessUrl}
-            facebookUrl={siteSettings?.socialFacebook}
-            ratingSettings={siteSettings}
-          />
-        ) : s.section === 'processPreview' ? (
-          <TapeProcess
-            headline={page?.processPreviewHeadline}
-            subhead={page?.processPreviewSubhead}
-            steps={page?.processSteps ?? []}
-            cta={page?.processPreviewCta}
-          />
-        ) : s.section === 'roomStory' ? (
-          <RoomStory
-            headline={page?.roomStoryHeadline}
-            scriptAccent={page?.roomStoryScriptAccent}
-            intro={page?.roomStoryIntro}
-            siteSettings={siteSettings}
-          />
-        ) : s.section === 'services' ? (
-          <PaintChips
-            headline={page?.servicesGridHeadline}
-            scriptAccent={page?.servicesGridScriptAccent}
-            subhead={page?.servicesGridSubhead}
-            services={page?.services ?? []}
-            cta={page?.servicesGridCta}
-            footnote={page?.servicesGridFootnote}
-          />
-        ) : s.section === 'instagram' ? (
-          <InstagramFeed settings={siteSettings} headingId="home-instagram-heading" />
-        ) : s.section === 'serviceAreaCue' ? (
-          <ServiceAreaCue text={page?.serviceAreaCue} cities={siteSettings?.serviceAreas} />
-        ) : s.section === 'finalCta' ? (
-          <FinalCta
-            eyebrow={page?.finalCtaEyebrow}
-            headline={page?.finalCtaHeadline}
-            subhead={page?.finalCtaSubhead}
-            cta={page?.finalCta}
-            scriptAccent={page?.finalCtaScriptAccent}
-            backgroundImage={page?.finalCtaBackgroundImage}
+{rows.map((s: any, i: number) => (
+  <Wrap {...wrapAttrs(s._key)}>
+    {s._type === 'homeSectionMarker' ? (
+      s.section === 'hero' ? (
+        <HomeHero
+          eyebrow={page?.heroEyebrow}
+          headline={page?.heroHeadline ?? 'Interior design for homes that feel completely yours.'}
+          accent={page?.heroScriptAccent}
+          subhead={page?.heroSubhead}
+          portrait={page?.heroPortrait}
+          fallbackImages={page?.heroImages}
+          fallbackImage={page?.heroImage}
+          primaryCta={page?.heroPrimaryCta}
+          secondaryCta={page?.heroSecondaryCta}
+          headingId="hero-heading"
+          ratingSettings={siteSettings}
+        />
+      ) : s.section === 'meetStaci' ? (
+        <HomeStaci
+          photo={page?.meetStaciPhoto}
+          eyebrow={page?.meetStaciEyebrow}
+          headline={page?.meetStaciHeadline}
+          content={page?.meetStaciContent}
+          cta={page?.meetStaciCta}
+        />
+      ) : s.section === 'featuredWork' ? (
+        visible.portfolio ? (
+          <FeaturedWork
+            projects={page?.featuredProjects ?? []}
+            eyebrow={page?.featuredWorkEyebrow ?? 'Recent Work'}
+            headline={page?.featuredWorkHeadline ?? 'Rooms that feel finished.'}
+            subhead={
+              page?.featuredWorkSubhead ??
+              'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.'
+            }
+            cta={page?.featuredWorkCta}
           />
         ) : null
-      ) : (
-        <SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} coach={Boolean(editDoc)} />
-      )}
-    </Wrap>
-  ))
-}
+      ) : s.section === 'testimonials' ? (
+        <HomeWords
+          headline={page?.testimonialsHeadline}
+          scriptAccent={page?.testimonialsScriptAccent}
+          subhead={page?.testimonialsSubhead}
+          attribution={page?.testimonialsAttribution}
+          featuredQuote={page?.featuredTestimonial}
+          gridQuotes={page?.testimonialsToShow ?? []}
+          googleReviews={page?.googleReviews ?? []}
+          reviewsNote={siteSettings?.reviewsNote}
+          googleBusinessUrl={siteSettings?.googleBusinessUrl}
+          facebookUrl={siteSettings?.socialFacebook}
+          ratingSettings={siteSettings}
+        />
+      ) : s.section === 'processPreview' ? (
+        <TapeProcess
+          headline={page?.processPreviewHeadline}
+          subhead={page?.processPreviewSubhead}
+          steps={page?.processSteps ?? []}
+          cta={page?.processPreviewCta}
+        />
+      ) : s.section === 'roomStory' ? (
+        <RoomStory
+          headline={page?.roomStoryHeadline}
+          scriptAccent={page?.roomStoryScriptAccent}
+          intro={page?.roomStoryIntro}
+          siteSettings={siteSettings}
+        />
+      ) : s.section === 'services' ? (
+        <PaintChips
+          headline={page?.servicesGridHeadline}
+          scriptAccent={page?.servicesGridScriptAccent}
+          subhead={page?.servicesGridSubhead}
+          services={page?.services ?? []}
+          cta={page?.servicesGridCta}
+          footnote={page?.servicesGridFootnote}
+        />
+      ) : s.section === 'instagram' ? (
+        <InstagramFeed settings={siteSettings} headingId="home-instagram-heading" />
+      ) : s.section === 'serviceAreaCue' ? (
+        <ServiceAreaCue text={page?.serviceAreaCue} cities={siteSettings?.serviceAreas} />
+      ) : s.section === 'finalCta' ? (
+        <FinalCta
+          eyebrow={page?.finalCtaEyebrow}
+          headline={page?.finalCtaHeadline}
+          subhead={page?.finalCtaSubhead}
+          cta={page?.finalCta}
+          scriptAccent={page?.finalCtaScriptAccent}
+          backgroundImage={page?.finalCtaBackgroundImage}
+        />
+      ) : null
+    ) : (
+      <SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} coach={Boolean(editDoc)} />
+    )}
+  </Wrap>
+))}

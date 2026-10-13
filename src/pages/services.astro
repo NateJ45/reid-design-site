@@ -58,17 +58,13 @@ const schemas = [
     visible={visible}
   />
 
-  {
-    /* Sticky contextual CTA, appears past 50% scroll on this long page.
-      Label is Sanity-editable on servicesPage; clearing the field hides it. */
-  }
-  {
-    page?.stickyCtaLabel !== '' && (
-      <StickyCTAChip
-        client:idle
-        label={page?.stickyCtaLabel ?? 'Ready to talk it through?'}
-        href="/contact/"
-      />
-    )
-  }
+  {/* Sticky contextual CTA, appears past 50% scroll on this long page.
+      Label is Sanity-editable on servicesPage; clearing the field hides it. */}
+  {page?.stickyCtaLabel !== '' && (
+    <StickyCTAChip
+      client:idle
+      label={page?.stickyCtaLabel ?? 'Ready to talk it through?'}
+      href="/contact/"
+    />
+  )}
 </BaseLayout>

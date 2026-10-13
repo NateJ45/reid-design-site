@@ -49,17 +49,15 @@ const body = first?._type === 'block' ? rest : blocks;
 <section class="staci" aria-labelledby="meet-staci-heading">
   <div class="r-wrap staci__grid">
     <figure class="staci__photo r-frame">
-      {
-        photo?.asset && (
-          <SanityImage
-            source={photo}
-            width={900}
-            height={1125}
-            sizes="(min-width: 1024px) 35vw, min(calc(100vw - 3.2rem), 520px)"
-            class="staci__img"
-          />
-        )
-      }
+      {photo?.asset && (
+        <SanityImage
+          source={photo}
+          width={900}
+          height={1125}
+          sizes="(min-width: 1024px) 35vw, min(calc(100vw - 3.2rem), 520px)"
+          class="staci__img"
+        />
+      )}
       <figcaption class="r-tag staci__tag">
         <small>{eyebrow || 'Meet Staci'}</small>
         <strong>Staci Perkins, owner and designer</strong>
@@ -67,20 +65,18 @@ const body = first?._type === 'block' ? rest : blocks;
     </figure>
 
     <div class="staci__copy">
-      <h2 id="meet-staci-heading" class="r-h2">{headline}</h2>
+      <h2 id="meet-staci-heading" class="r-h2">
+        {headline}
+      </h2>
       {lede && <p class="staci__lede">{lede}</p>}
-      {
-        body.length > 0 && (
-          <div class="staci__body">
-            <PortableText value={body} />
-          </div>
-        )
-      }
-      {
-        cta?.label && (
-          <CtaLink cta={cta} variant="secondary" fallbackHref="/about/" class="staci__cta" />
-        )
-      }
+      {body.length > 0 && (
+        <div class="staci__body">
+          <PortableText value={body} />
+        </div>
+      )}
+      {cta?.label && (
+        <CtaLink cta={cta} variant="secondary" fallbackHref="/about/" class="staci__cta" />
+      )}
     </div>
   </div>
 </section>

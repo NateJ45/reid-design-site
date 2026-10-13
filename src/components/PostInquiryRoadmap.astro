@@ -46,28 +46,28 @@ if (validSteps.length === 0) return null;
   <div class="r-wrap road__grid">
     <div class="road__head">
       {eyebrow && <p class="road__eyebrow">{eyebrow}</p>}
-      <h2 id="roadmap-heading" class="r-h2 road__h">{headline}</h2>
+      <h2 id="roadmap-heading" class="r-h2 road__h">
+        {headline}
+      </h2>
     </div>
 
     <ol class="road__steps" role="list" style={`--steps:${validSteps.length}`}>
-      {
-        validSteps.map((step) => (
-          <li class="road__step">
-            <span class="road__pin" aria-hidden="true" />
-            <h3 class="road__title">{step.title}</h3>
-            {step.body && <p class="road__body">{step.body}</p>}
-            {step.timeEstimate && (
-              <p class="road__time">
-                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                  <circle cx="8" cy="8" r="6.25" />
-                  <path d="M8 4.75V8l2.25 1.5" />
-                </svg>
-                {step.timeEstimate}
-              </p>
-            )}
-          </li>
-        ))
-      }
+      {validSteps.map((step) => (
+        <li class="road__step">
+          <span class="road__pin" aria-hidden="true" />
+          <h3 class="road__title">{step.title}</h3>
+          {step.body && <p class="road__body">{step.body}</p>}
+          {step.timeEstimate && (
+            <p class="road__time">
+              <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <circle cx="8" cy="8" r="6.25" />
+                <path d="M8 4.75V8l2.25 1.5" />
+              </svg>
+              {step.timeEstimate}
+            </p>
+          )}
+        </li>
+      ))}
     </ol>
   </div>
 </section>

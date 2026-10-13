@@ -82,115 +82,113 @@ const hasAnything = hasMain || hasSide || rapid.length > 0;
 const CHIP_TONES = [2, 3, 6, 4];
 ---
 
-{
-  hasAnything && (
-    <section class="board" aria-labelledby="about-personal-heading">
-      <div class="r-wrap">
-        <AboutKicker text={eyebrow ?? 'Off the clock'} />
-        <SectionHeading
-          headline={headline ?? 'A little more about me.'}
-          subhead={intro}
-          headingId="about-personal-heading"
-        />
+{hasAnything && (
+  <section class="board" aria-labelledby="about-personal-heading">
+    <div class="r-wrap">
+      <AboutKicker text={eyebrow ?? 'Off the clock'} />
+      <SectionHeading
+        headline={headline ?? 'A little more about me.'}
+        subhead={intro}
+        headingId="about-personal-heading"
+      />
 
-        <div
-          class:list={['board__grid', hasMain && hasSide && 'board__grid--two']}
-          hidden={!(hasMain || hasSide)}
-        >
-          {hasMain && (
-            <div class="board__main">
-              {(hasPhoto || hasBeyondText) && (
-                <div class:list={['board__beyond', hasPhoto && 'board__beyond--photo']}>
-                  {hasPhoto && (
-                    <figure class="board__print board__piece">
-                      <span class="board__tape" aria-hidden="true" />
-                      <SanityImage
-                        source={candidPhoto}
-                        width={1000}
-                        height={750}
-                        sizes="(min-width: 1024px) 40vw, 92vw"
-                        quality={72}
-                        class="board__img"
-                      />
-                    </figure>
-                  )}
-                  {hasBeyondText && (
-                    <div class="board__note board__piece">
-                      <span class="board__pin" aria-hidden="true" />
-                      <h3 class="board__note-h">Beyond design</h3>
-                      <p class="board__note-p">{beyondDesign}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {hasSide && (
-            <div class="board__side">
-              {currently.length > 0 && (
-                <div class="board__currently">
-                  <h3 class="board__side-h">Currently</h3>
-                  <dl>
-                    {currently.map((row) => (
-                      <div class="board__row">
-                        <dt>{row.label}</dt>
-                        <dd>{row.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
-
-              {spots.length > 0 && (
-                <div class="board__map board__piece">
-                  <div class="board__map-head">
-                    <h3 class="board__side-h">Favorite local spots</h3>
-                    <svg class="board__compass" viewBox="0 0 24 32" aria-hidden="true">
-                      <path d="M12 2 L17 22 L12 18 L7 22 Z" />
-                      <text x="12" y="31" text-anchor="middle">
-                        N
-                      </text>
-                    </svg>
+      <div
+        class:list={['board__grid', hasMain && hasSide && 'board__grid--two']}
+        hidden={!(hasMain || hasSide)}
+      >
+        {hasMain && (
+          <div class="board__main">
+            {(hasPhoto || hasBeyondText) && (
+              <div class:list={['board__beyond', hasPhoto && 'board__beyond--photo']}>
+                {hasPhoto && (
+                  <figure class="board__print board__piece">
+                    <span class="board__tape" aria-hidden="true" />
+                    <SanityImage
+                      source={candidPhoto}
+                      width={1000}
+                      height={750}
+                      sizes="(min-width: 1024px) 40vw, 92vw"
+                      quality={72}
+                      class="board__img"
+                    />
+                  </figure>
+                )}
+                {hasBeyondText && (
+                  <div class="board__note board__piece">
+                    <span class="board__pin" aria-hidden="true" />
+                    <h3 class="board__note-h">Beyond design</h3>
+                    <p class="board__note-p">{beyondDesign}</p>
                   </div>
-                  <ul class="board__spots" role="list">
-                    {spots.map((row) => (
-                      <li class="board__spot">
-                        <span class="board__drop" aria-hidden="true" />
-                        <span class="board__spot-name">{row.name}</span>
-                        {row.note && <span class="board__spot-note">{row.note}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
-        {rapid.length > 0 && (
-          <div class:list={['board__rapid', !(hasMain || hasSide) && 'board__rapid--alone']}>
-            <h3 class="board__label">Rapid fire</h3>
-            <ul class="board__chips" role="list">
-              {rapid.map((row, i) => {
-                const tone = CHIP_TONES[i % CHIP_TONES.length];
-                return (
-                  <li
-                    class:list={['board__chip board__piece', tone >= 6 && 'board__chip--deep']}
-                    style={`--face: var(--color-chip-${tone})`}
-                  >
-                    <p class="board__face">{row.prompt}</p>
-                    <p class="board__answer">{row.answer}</p>
-                  </li>
-                );
-              })}
-            </ul>
+        {hasSide && (
+          <div class="board__side">
+            {currently.length > 0 && (
+              <div class="board__currently">
+                <h3 class="board__side-h">Currently</h3>
+                <dl>
+                  {currently.map((row) => (
+                    <div class="board__row">
+                      <dt>{row.label}</dt>
+                      <dd>{row.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
+
+            {spots.length > 0 && (
+              <div class="board__map board__piece">
+                <div class="board__map-head">
+                  <h3 class="board__side-h">Favorite local spots</h3>
+                  <svg class="board__compass" viewBox="0 0 24 32" aria-hidden="true">
+                    <path d="M12 2 L17 22 L12 18 L7 22 Z" />
+                    <text x="12" y="31" text-anchor="middle">
+                      N
+                    </text>
+                  </svg>
+                </div>
+                <ul class="board__spots" role="list">
+                  {spots.map((row) => (
+                    <li class="board__spot">
+                      <span class="board__drop" aria-hidden="true" />
+                      <span class="board__spot-name">{row.name}</span>
+                      {row.note && <span class="board__spot-note">{row.note}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </div>
-    </section>
-  )
-}
+
+      {rapid.length > 0 && (
+        <div class:list={['board__rapid', !(hasMain || hasSide) && 'board__rapid--alone']}>
+          <h3 class="board__label">Rapid fire</h3>
+          <ul class="board__chips" role="list">
+            {rapid.map((row, i) => {
+              const tone = CHIP_TONES[i % CHIP_TONES.length];
+              return (
+                <li
+                  class:list={['board__chip board__piece', tone >= 6 && 'board__chip--deep']}
+                  style={`--face: var(--color-chip-${tone})`}
+                >
+                  <p class="board__face">{row.prompt}</p>
+                  <p class="board__answer">{row.answer}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  </section>
+)}
 
 <style>
   .board {

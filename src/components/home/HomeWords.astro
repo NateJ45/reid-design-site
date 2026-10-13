@@ -122,86 +122,76 @@ const trim = (input = '') => {
   <div class="r-wrap">
     <div class:list={['words__head', { 'has-stamp': hasRating }]}>
       <h2 id="words-heading" class="words__h">
-        {
-          h.found ? (
-            <>
-              {h.before}
-              <span class="r-accent">{h.word}</span>
-              {h.after}
-              {head.encoded}
-            </>
-          ) : (
-            headline
-          )
-        }
+        {h.found ? (
+          <>
+            {h.before}
+            <span class="r-accent">{h.word}</span>
+            {h.after}
+            {head.encoded}
+          </>
+        ) : (
+          headline
+        )}
       </h2>
       {hasRating && <RatingTag variant="stamp" settings={ratingSettings} class="words__stamp" />}
     </div>
 
-    {
-      lead?.quote && (
-        <figure class="words__lead">
-          {isRatedGoogleReview(lead) && (
-            <p class="words__stars">
-              <Stars rating={reviewStars(lead) ?? 0} />
-              <span class="sr-only">{reviewStars(lead)} out of 5 stars on Google</span>
-            </p>
-          )}
-          <blockquote>
-            <p>{lead.quote}</p>
-          </blockquote>
-          {isRatedGoogleReview(lead) ? (
-            <GoogleCite review={lead} href={googleHref(lead)} />
-          ) : (
-            <figcaption>{cite(lead)}</figcaption>
-          )}
-        </figure>
-      )
-    }
+    {lead?.quote && (
+      <figure class="words__lead">
+        {isRatedGoogleReview(lead) && (
+          <p class="words__stars">
+            <Stars rating={reviewStars(lead) ?? 0} />
+            <span class="sr-only">{reviewStars(lead)} out of 5 stars on Google</span>
+          </p>
+        )}
+        <blockquote>
+          <p>{lead.quote}</p>
+        </blockquote>
+        {isRatedGoogleReview(lead) ? (
+          <GoogleCite review={lead} href={googleHref(lead)} />
+        ) : (
+          <figcaption>{cite(lead)}</figcaption>
+        )}
+      </figure>
+    )}
 
-    {
-      more.length > 0 && (
-        <div class="words__more">
-          {more.map((q) => (
-            <figure>
-              {isRatedGoogleReview(q) && (
-                <p class="words__stars">
-                  <Stars rating={reviewStars(q) ?? 0} />
-                  <span class="sr-only">{reviewStars(q)} out of 5 stars on Google</span>
-                </p>
-              )}
-              <blockquote>
-                <p>“{trim(q.quote ?? '')}”</p>
-              </blockquote>
-              {isRatedGoogleReview(q) ? (
-                <GoogleCite review={q} href={googleHref(q)} />
-              ) : (
-                <figcaption>{q.attribution}</figcaption>
-              )}
-            </figure>
-          ))}
-        </div>
-      )
-    }
+    {more.length > 0 && (
+      <div class="words__more">
+        {more.map((q) => (
+          <figure>
+            {isRatedGoogleReview(q) && (
+              <p class="words__stars">
+                <Stars rating={reviewStars(q) ?? 0} />
+                <span class="sr-only">{reviewStars(q)} out of 5 stars on Google</span>
+              </p>
+            )}
+            <blockquote>
+              <p>“{trim(q.quote ?? '')}”</p>
+            </blockquote>
+            {isRatedGoogleReview(q) ? (
+              <GoogleCite review={q} href={googleHref(q)} />
+            ) : (
+              <figcaption>{q.attribution}</figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
+    )}
 
     <p class="words__src">
       {attribution || reviewsNote}
-      {
-        googleBusinessUrl && (
-          <a class="r-link" href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
-            Read more reviews on Google
-            <span class="sr-only">, opens in a new tab</span>
-          </a>
-        )
-      }
-      {
-        fbReviews && (
-          <a class="r-link" href={fbReviews} target="_blank" rel="noopener noreferrer">
-            Read more reviews on Facebook
-            <span class="sr-only">, opens in a new tab</span>
-          </a>
-        )
-      }
+      {googleBusinessUrl && (
+        <a class="r-link" href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
+          Read more reviews on Google
+          <span class="sr-only">, opens in a new tab</span>
+        </a>
+      )}
+      {fbReviews && (
+        <a class="r-link" href={fbReviews} target="_blank" rel="noopener noreferrer">
+          Read more reviews on Facebook
+          <span class="sr-only">, opens in a new tab</span>
+        </a>
+      )}
     </p>
   </div>
 </section>

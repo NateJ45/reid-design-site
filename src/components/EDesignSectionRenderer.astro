@@ -54,38 +54,36 @@ const list = (sections ?? []).filter((s) => s && s._type);
 const rows = list.length > 0 ? list : DEFAULT_ORDER;
 ---
 
-{
-  rows.map((s: any, i: number) => (
-    <Wrap {...wrapAttrs(s._key)}>
-      {s._type === 'eDesignSectionMarker' ? (
-        s.section === 'intro' ? (
-          <EDesignIntro intro={page.intro} />
-        ) : s.section === 'howItWorks' ? (
-          <EDesignSteps steps={page.howItWorks} />
-        ) : s.section === 'whatsIncluded' ? (
-          <EDesignIncluded items={page.whatsIncluded} />
-        ) : s.section === 'tiers' ? (
-          <EDesignTiers tiers={page.tiers} href={CONTACT_HREF} />
-        ) : s.section === 'faq' ? (
-          page.faqRefs && page.faqRefs.length > 0 ? (
-            <section class="edf" aria-labelledby="edesign-faq-heading">
-              <div class="r-wrap edf__grid">
-                <div class="edf__head">
-                  <SectionHeading headline="E-Design questions" headingId="edesign-faq-heading" />
-                </div>
-                <div class="edf__list">
-                  <FaqAccordion client:visible faqs={page.faqRefs} idPrefix="edesign-faq" />
-                </div>
+{rows.map((s: any, i: number) => (
+  <Wrap {...wrapAttrs(s._key)}>
+    {s._type === 'eDesignSectionMarker' ? (
+      s.section === 'intro' ? (
+        <EDesignIntro intro={page.intro} />
+      ) : s.section === 'howItWorks' ? (
+        <EDesignSteps steps={page.howItWorks} />
+      ) : s.section === 'whatsIncluded' ? (
+        <EDesignIncluded items={page.whatsIncluded} />
+      ) : s.section === 'tiers' ? (
+        <EDesignTiers tiers={page.tiers} href={CONTACT_HREF} />
+      ) : s.section === 'faq' ? (
+        page.faqRefs && page.faqRefs.length > 0 ? (
+          <section class="edf" aria-labelledby="edesign-faq-heading">
+            <div class="r-wrap edf__grid">
+              <div class="edf__head">
+                <SectionHeading headline="E-Design questions" headingId="edesign-faq-heading" />
               </div>
-            </section>
-          ) : null
+              <div class="edf__list">
+                <FaqAccordion client:visible faqs={page.faqRefs} idPrefix="edesign-faq" />
+              </div>
+            </div>
+          </section>
         ) : null
-      ) : (
-        <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} coach={Boolean(editDoc)} />
-      )}
-    </Wrap>
-  ))
-}
+      ) : null
+    ) : (
+      <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} coach={Boolean(editDoc)} />
+    )}
+  </Wrap>
+))}
 
 <style>
   /* FAQ: the question list on paper, its heading held on the left while the

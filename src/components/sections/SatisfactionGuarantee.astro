@@ -29,35 +29,33 @@ const { text } = Astro.props as Props;
 const mark = await getImage({ src: markAsset, format: 'webp', width: 320 });
 ---
 
-{
-  text && (
-    <section class="gtee" aria-labelledby="guarantee-heading">
-      <div class="r-wrap gtee__grid">
-        <div>
-          <h2 id="guarantee-heading" class="gtee__h">
-            The <span class="r-accent">guarantee</span>
-          </h2>
-          <p class="gtee__text">{text}</p>
-        </div>
-        <div class="gtee__stamp" aria-hidden="true">
-          <svg class="gtee__ring-svg" viewBox="0 0 200 200" focusable="false">
-            <defs>
-              <path id="gtee-ring" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" />
-            </defs>
-            <circle cx="100" cy="100" r="96" class="gtee__o" />
-            <circle cx="100" cy="100" r="92" class="gtee__o gtee__o--fine" />
-            <text class="gtee__ring">
-              <textPath href="#gtee-ring" textLength="460" lengthAdjust="spacing">
-                Satisfaction guarantee · Reid Design · Plainfield, Indiana ·
-              </textPath>
-            </text>
-          </svg>
-          <span class="gtee__mark" style={`--mark: url(${mark.src})`} />
-        </div>
+{text && (
+  <section class="gtee" aria-labelledby="guarantee-heading">
+    <div class="r-wrap gtee__grid">
+      <div>
+        <h2 id="guarantee-heading" class="gtee__h">
+          The <span class="r-accent">guarantee</span>
+        </h2>
+        <p class="gtee__text">{text}</p>
       </div>
-    </section>
-  )
-}
+      <div class="gtee__stamp" aria-hidden="true">
+        <svg class="gtee__ring-svg" viewBox="0 0 200 200" focusable="false">
+          <defs>
+            <path id="gtee-ring" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" />
+          </defs>
+          <circle cx="100" cy="100" r="96" class="gtee__o" />
+          <circle cx="100" cy="100" r="92" class="gtee__o gtee__o--fine" />
+          <text class="gtee__ring">
+            <textPath href="#gtee-ring" textLength="460" lengthAdjust="spacing">
+              Satisfaction guarantee · Reid Design · Plainfield, Indiana ·
+            </textPath>
+          </text>
+        </svg>
+        <span class="gtee__mark" style={`--mark: url(${mark.src})`} />
+      </div>
+    </div>
+  </section>
+)}
 
 <style>
   .gtee {

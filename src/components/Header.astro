@@ -285,62 +285,58 @@ function isGroupActive(items: { href: string }[]) {
 <header class="site-header hdr" data-over-hero={onHero || undefined}>
   <div class="hdr__bar">
     <a href="/" class="hdr__logo" aria-label={`${brandName} home`}>
-      {
-        customLogo ? (
-          /* Editor-supplied logo (Site settings -> Logo). */
-          <SanityImage
-            source={customLogo}
-            width={244}
-            alt={customLogo.alt || brandName}
-            loading="eager"
-            class="hdr__logo-img"
-          />
-        ) : (
-          /* 122x129 matches the source's 378:400, so the box is reserved
+      {customLogo ? (
+        /* Editor-supplied logo (Site settings -> Logo). */
+        <SanityImage
+          source={customLogo}
+          width={244}
+          alt={customLogo.alt || brandName}
+          loading="eager"
+          class="hdr__logo-img"
+        />
+      ) : (
+        /* 122x129 matches the source's 378:400, so the box is reserved
              before the file arrives (no CLS). Light only since 2026-09-29. */
-          <>
+        <>
+          <img
+            src={logo.src}
+            srcset={logo.srcset}
+            sizes={LOGO_SIZES}
+            alt={brandName}
+            width={122}
+            height={129}
+            class="hdr__logo-img hdr__logo-img--ink"
+            loading="eager"
+            decoding="async"
+          />
+          {/* The cream logo, shown only while the header sits on the
+                hero (it is the same art the phone menu uses). Decorative:
+                the ink logo above carries the alt text. */}
+          {onHero && (
             <img
-              src={logo.src}
-              srcset={logo.srcset}
+              src={heroLogo.src}
+              srcset={heroLogo.srcset}
               sizes={LOGO_SIZES}
-              alt={brandName}
+              alt=""
               width={122}
               height={129}
-              class="hdr__logo-img hdr__logo-img--ink"
+              class="hdr__logo-img hdr__logo-img--cream"
               loading="eager"
               decoding="async"
             />
-            {/* The cream logo, shown only while the header sits on the
-                hero (it is the same art the phone menu uses). Decorative:
-                the ink logo above carries the alt text. */}
-            {onHero && (
-              <img
-                src={heroLogo.src}
-                srcset={heroLogo.srcset}
-                sizes={LOGO_SIZES}
-                alt=""
-                width={122}
-                height={129}
-                class="hdr__logo-img hdr__logo-img--cream"
-                loading="eager"
-                decoding="async"
-              />
-            )}
-          </>
-        )
-      }
-      {
-        /* Scrolled-strip wordmark. Hidden from assistive tech: the link's
-          aria-label already names it. */
-      }
-      <span class="hdr__word" aria-hidden="true">{wordmark}</span>
+          )}
+        </>
+      )}
+      {/* Scrolled-strip wordmark. Hidden from assistive tech: the link's
+          aria-label already names it. */}
+      <span class="hdr__word" aria-hidden="true">
+        {wordmark}
+      </span>
     </a>
-    {
-      /* The logo inks in on the first page of a visit. Inline and right
+    {/* The logo inks in on the first page of a visit. Inline and right
          after the logo, so the class lands before the first paint (no flash
          of a finished logo). Once per session; sessionStorage can throw in a
-         private window, which just means no animation. */
-    }
+         private window, which just means no animation. */}
     <script is:inline>
       try {
         if (!sessionStorage.getItem('rd-inked')) {
@@ -349,74 +345,65 @@ function isGroupActive(items: { href: string }[]) {
         }
       } catch {}
     </script>
-
     <nav class="site-nav hdr__nav" aria-label="Primary">
-      {
-        NAV_ITEMS.map((item, i) =>
-          item.kind === 'flat' ? (
-            <a
-              href={item.href}
-              class="hdr__link"
-              style={`--tone:${toneOf(i)}`}
-              aria-current={isActive(item.href) ? 'page' : undefined}
+      {NAV_ITEMS.map((item, i) =>
+        item.kind === 'flat' ? (
+          <a
+            href={item.href}
+            class="hdr__link"
+            style={`--tone:${toneOf(i)}`}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            <span class="hdr__label">
+              {item.label}
+              <Fragment set:html={PEN} />
+            </span>
+          </a>
+        ) : (
+          <details class="site-nav__group hdr__group" style={`--tone:${toneOf(i)}`}>
+            <summary
+              class="hdr__link hdr__summary"
+              aria-current={isGroupActive(item.items) ? 'page' : undefined}
             >
               <span class="hdr__label">
                 {item.label}
+                <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
                 <Fragment set:html={PEN} />
               </span>
-            </a>
-          ) : (
-            <details class="site-nav__group hdr__group" style={`--tone:${toneOf(i)}`}>
-              <summary
-                class="hdr__link hdr__summary"
-                aria-current={isGroupActive(item.items) ? 'page' : undefined}
-              >
-                <span class="hdr__label">
-                  {item.label}
-                  <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
-                  <Fragment set:html={PEN} />
-                </span>
-              </summary>
-              <div class="site-nav__menu hdr__menu">
-                {item.items.map((sub, j) => (
-                  <a
-                    href={sub.href}
-                    class="hdr__menu-link"
-                    style={`--tone:${toneOf(i + j + 1)}`}
-                    aria-current={isActive(sub.href) ? 'page' : undefined}
-                  >
-                    <span class="hdr__sw" aria-hidden="true" />
-                    {sub.label}
-                  </a>
-                ))}
-              </div>
-            </details>
-          ),
-        )
-      }
+            </summary>
+            <div class="site-nav__menu hdr__menu">
+              {item.items.map((sub, j) => (
+                <a
+                  href={sub.href}
+                  class="hdr__menu-link"
+                  style={`--tone:${toneOf(i + j + 1)}`}
+                  aria-current={isActive(sub.href) ? 'page' : undefined}
+                >
+                  <span class="hdr__sw" aria-hidden="true" />
+                  {sub.label}
+                </a>
+              ))}
+            </div>
+          </details>
+        ),
+      )}
     </nav>
 
-    {
-      /* Google rating beside the price tag (2026-09-30). RatingTag renders
+    {/* Google rating beside the price tag (2026-09-30). RatingTag renders
          nothing until Staci has entered BOTH the rating and the count in
          Site settings > Reviews, so the header is unchanged before then.
          Shown from 1200px up only: narrower, the nav would crowd it, and the
-         phone menu and the pages carry the rating instead. */
-    }
+         phone menu and the pages carry the rating instead. */}
     <RatingTag variant="compact" settings={siteSettings} class="hdr__rating" />
 
-    {
-      chrome.headerCta.show && (
-        <a href={ctaHref} class="r-pricetag hdr__cta">
-          <span>{ctaLabel}</span>
-        </a>
-      )
-    }
+    {chrome.headerCta.show && (
+      <a href={ctaHref} class="r-pricetag hdr__cta">
+        <span>{ctaLabel}</span>
+      </a>
+    )}
 
-    {
-      /* client:idle: the closed dialog server-renders its trigger, so the
-         "Menu" tag is in the HTML before React loads. See MobileNav.tsx. */
-    }
+    {/* client:idle: the closed dialog server-renders its trigger, so the
+         "Menu" tag is in the HTML before React loads. See MobileNav.tsx. */}
     <div class="hdr__burger">
       <MobileNav
         client:idle
@@ -839,13 +826,11 @@ function isGroupActive(items: { href: string }[]) {
   }
 </style>
 
-{
-  /* Progressive enhancement for the desktop dropdown nav. Everything still
+{/* Progressive enhancement for the desktop dropdown nav. Everything still
     works without this (native <details> toggles on click/Enter/Space, links
     are real <a> tags). This adds: open-on-hover with a small close delay,
     close-on-outside-click, close-on-Escape, and close-when-a-link-is-followed.
-    Re-binds on astro:page-load so it survives View Transitions navigations. */
-}
+    Re-binds on astro:page-load so it survives View Transitions navigations. */}
 <script>
   // Query groups fresh each call, the nav DOM is replaced on every View
   // Transitions navigation, so a captured list would go stale.

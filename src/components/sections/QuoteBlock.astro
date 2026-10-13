@@ -32,25 +32,23 @@ const scale = length > 260 ? 'long' : length > 130 ? 'mid' : 'short';
 const tone = surface === 'ink' ? 'ink' : surface === 'muted' ? 'paper' : 'linen';
 ---
 
-{
-  quote && (
-    <section class:list={['qb', `qb--${tone}`]}>
-      <div class="r-wrap">
-        <figure class:list={['qb__fig', `qb__fig--${scale}`]}>
-          <blockquote class="qb__quote">
-            <p>{quote}</p>
-          </blockquote>
-          {(attribution || detail) && (
-            <figcaption class="qb__cite">
-              {attribution && <span class="qb__who">{attribution}</span>}
-              {detail && <span class="qb__detail">{detail}</span>}
-            </figcaption>
-          )}
-        </figure>
-      </div>
-    </section>
-  )
-}
+{quote && (
+  <section class:list={['qb', `qb--${tone}`]}>
+    <div class="r-wrap">
+      <figure class:list={['qb__fig', `qb__fig--${scale}`]}>
+        <blockquote class="qb__quote">
+          <p>{quote}</p>
+        </blockquote>
+        {(attribution || detail) && (
+          <figcaption class="qb__cite">
+            {attribution && <span class="qb__who">{attribution}</span>}
+            {detail && <span class="qb__detail">{detail}</span>}
+          </figcaption>
+        )}
+      </figure>
+    </div>
+  </section>
+)}
 
 <style>
   .qb {

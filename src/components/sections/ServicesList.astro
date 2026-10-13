@@ -53,80 +53,74 @@ const showIndex = n >= 3;
   <div class="r-wrap">
     <SectionHeading headline={headline} subhead={subhead} headingId="services-list-heading" />
 
-    {
-      showIndex && (
-        <nav class="deck" aria-label="Services and prices on this page">
-          <ol class="deck__list">
-            {services.map((s: any, i: number) =>
-              s.slug?.current ? (
-                <li style={`--tone:${toneFor(i, n).bg}`}>
-                  <a class="deck__link" href={`#${s.slug.current}`}>
-                    <span class="deck__sw" aria-hidden="true" />
-                    <span class="deck__name">{s.name}</span>
-                    <span class="deck__dots" aria-hidden="true" />
-                    <span class="deck__price">{chipPrice(s.price).short}</span>
-                  </a>
-                </li>
-              ) : null,
-            )}
-          </ol>
-          {(hasBuilders || hasServiceArea) && (
-            <p class="deck__also">
-              <span>Also on this page</span>
-              {hasBuilders && (
-                <a class="r-link" href="#builders">
-                  Builders and realtors
+    {showIndex && (
+      <nav class="deck" aria-label="Services and prices on this page">
+        <ol class="deck__list">
+          {services.map((s: any, i: number) =>
+            s.slug?.current ? (
+              <li style={`--tone:${toneFor(i, n).bg}`}>
+                <a class="deck__link" href={`#${s.slug.current}`}>
+                  <span class="deck__sw" aria-hidden="true" />
+                  <span class="deck__name">{s.name}</span>
+                  <span class="deck__dots" aria-hidden="true" />
+                  <span class="deck__price">{chipPrice(s.price).short}</span>
                 </a>
-              )}
-              {hasServiceArea && (
-                <a class="r-link" href="#service-area">
-                  Service area and travel
-                </a>
-              )}
-            </p>
+              </li>
+            ) : null,
           )}
-        </nav>
-      )
-    }
+        </ol>
+        {(hasBuilders || hasServiceArea) && (
+          <p class="deck__also">
+            <span>Also on this page</span>
+            {hasBuilders && (
+              <a class="r-link" href="#builders">
+                Builders and realtors
+              </a>
+            )}
+            {hasServiceArea && (
+              <a class="r-link" href="#service-area">
+                Service area and travel
+              </a>
+            )}
+          </p>
+        )}
+      </nav>
+    )}
 
     {/* ---- Google reviews insertion (2026-09-30) ---- */}
-    {
-      googleRatingFrom(ratingSettings) && (
-        <div class:list={['svcs__rating', { 'is-under-deck': showIndex }]}>
-          <RatingTag settings={ratingSettings} />
-        </div>
-      )
-    }
+    {googleRatingFrom(ratingSettings) && (
+      <div class:list={['svcs__rating', { 'is-under-deck': showIndex }]}>
+        <RatingTag settings={ratingSettings} />
+      </div>
+    )}
 
-    {
-      n > 0 ? (
-        <ol class="strip">
-          {services.map((service: any, i: number) => (
-            <li>
-              <ServiceCard
-                service={service}
-                withAnchor={true}
-                index={i}
-                total={n}
-                secondary={
-                  visibleEDesign && service.slug?.current === 'e-design'
-                    ? { href: '/e-design/', label: 'See the full E-Design overview' }
-                    : null
-                }
-              />
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p class="svcs__empty">
-          Services are being updated.{' '}
-          <a class="r-link" href="/contact/">
-            Get in touch
-          </a>{' '}
-          and we'll talk through what you need.
-        </p>
-      )
-    }
+    {n > 0 ? (
+      <ol class="strip">
+        {services.map((service: any, i: number) => (
+          <li>
+            <ServiceCard
+              service={service}
+              withAnchor={true}
+              index={i}
+              total={n}
+              secondary={
+                visibleEDesign && service.slug?.current === 'e-design'
+                  ? { href: '/e-design/', label: 'See the full E-Design overview' }
+                  : null
+              }
+            />
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="svcs__empty">
+        Services are being updated.{' '}
+        <a class="r-link" href="/contact/">
+          Get in touch
+        </a>{' '}
+        and we'll talk through what you need.
+      </p>
+    )}
   </div>
 </section>
 

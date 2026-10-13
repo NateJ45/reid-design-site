@@ -63,69 +63,67 @@ const tone = (index % 4) + 1;
 const features = (step.features ?? []).filter(Boolean);
 ---
 
-{
-  variant === 'full' ? (
-    <article
-      class="pstep"
-      id={id}
-      aria-labelledby={id ? `${id}-title` : undefined}
-      style={timeline ? `view-timeline-name: ${timeline}` : undefined}
-    >
-      <div class="pstep__top">
-        <ProcessStepIllustration stepNumber={step.stepNumber} size={64} class="pstep__ill" />
-        {step.timeEstimate && (
-          <p class="pstep__when">
-            <span class="sr-only">How long: </span>
-            {step.timeEstimate}
-          </p>
+{variant === 'full' ? (
+  <article
+    class="pstep"
+    id={id}
+    aria-labelledby={id ? `${id}-title` : undefined}
+    style={timeline ? `view-timeline-name: ${timeline}` : undefined}
+  >
+    <div class="pstep__top">
+      <ProcessStepIllustration stepNumber={step.stepNumber} size={64} class="pstep__ill" />
+      {step.timeEstimate && (
+        <p class="pstep__when">
+          <span class="sr-only">How long: </span>
+          {step.timeEstimate}
+        </p>
+      )}
+    </div>
+
+    <h2 class="pstep__title" id={id ? `${id}-title` : undefined}>
+      <span class="sr-only">Step {n}: </span>
+      {step.title}
+    </h2>
+
+    <div class:list={['pstep__cols', features.length > 0 && 'pstep__cols--chip']}>
+      <div class="pstep__copy">
+        {step.shortDescription && <p class="pstep__lede">{step.shortDescription}</p>}
+        {step.fullDescription && (
+          <div class="pstep__body">
+            <PortableText value={step.fullDescription} />
+          </div>
         )}
       </div>
 
-      <h2 class="pstep__title" id={id ? `${id}-title` : undefined}>
-        <span class="sr-only">Step {n}: </span>
-        {step.title}
-      </h2>
-
-      <div class:list={['pstep__cols', features.length > 0 && 'pstep__cols--chip']}>
-        <div class="pstep__copy">
-          {step.shortDescription && <p class="pstep__lede">{step.shortDescription}</p>}
-          {step.fullDescription && (
-            <div class="pstep__body">
-              <PortableText value={step.fullDescription} />
+      {(features.length > 0 || step.tierNote) && (
+        <aside class="pstep__side" aria-label={`${step.title ?? 'Step'} at a glance`}>
+          {features.length > 0 && (
+            <div
+              class="pstep__chip r-backdrop-host"
+              style={`--chip: var(--color-chip-${tone}); --bd-opacity: 0.16`}
+            >
+              <RoomBackdrop index={index} start={4} ratio={1} />
+              <p class="pstep__chip-h">At a glance</p>
+              <ul class="pstep__feats" role="list">
+                {features.map((f) => (
+                  <li>{f}</li>
+                ))}
+              </ul>
             </div>
           )}
-        </div>
-
-        {(features.length > 0 || step.tierNote) && (
-          <aside class="pstep__side" aria-label={`${step.title ?? 'Step'} at a glance`}>
-            {features.length > 0 && (
-              <div
-                class="pstep__chip r-backdrop-host"
-                style={`--chip: var(--color-chip-${tone}); --bd-opacity: 0.16`}
-              >
-                <RoomBackdrop index={index} start={4} ratio={1} />
-                <p class="pstep__chip-h">At a glance</p>
-                <ul class="pstep__feats" role="list">
-                  {features.map((f) => (
-                    <li>{f}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {step.tierNote && <p class="pstep__tier">{step.tierNote}</p>}
-          </aside>
-        )}
-      </div>
-    </article>
-  ) : (
-    <article class="pstep-mini">
-      <h3 class="r-h3">{step.title}</h3>
-      {step.timeEstimate && <p class="pstep-mini__when">{step.timeEstimate}</p>}
-      {step.shortDescription && <p class="pstep-mini__desc">{step.shortDescription}</p>}
-      {step.tierNote && <p class="pstep-mini__desc">{step.tierNote}</p>}
-    </article>
-  )
-}
+          {step.tierNote && <p class="pstep__tier">{step.tierNote}</p>}
+        </aside>
+      )}
+    </div>
+  </article>
+) : (
+  <article class="pstep-mini">
+    <h3 class="r-h3">{step.title}</h3>
+    {step.timeEstimate && <p class="pstep-mini__when">{step.timeEstimate}</p>}
+    {step.shortDescription && <p class="pstep-mini__desc">{step.shortDescription}</p>}
+    {step.tierNote && <p class="pstep-mini__desc">{step.tierNote}</p>}
+  </article>
+)}
 
 <style>
   /* ---- Full step ---- */
