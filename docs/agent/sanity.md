@@ -147,6 +147,10 @@ styled-components on its own. That bump was audited and kept (peers satisfied,
 the two checks above each print exactly one line on a 6.5.3 / 19.2.8 build), but
 CI cannot tell a good bump of these from a bad one, so they move by hand now.
 
+Every npm semver-major is also ignored (a blanket `dependency-name: '*'` rule, starter PR #57), so no
+major opens a Dependabot PR. Majors wait for one planned, starter-first stack upgrade with a real deploy
+test. The github-actions ecosystem is exempt.
+
 **The rule is not "hold `@sanity/ui` at 3.3.5".** It is "`@sanity/ui` must be
 whatever the installed `sanity` core declares" (6.4.0 declared `^3.3.0`, 6.9.1
 declares `^3.5.1`). The worked example that taught it: pinning `@sanity/ui` to
