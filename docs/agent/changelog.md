@@ -6,6 +6,10 @@
 
 Every band that puts words beside a picture now sits on `.split` (`src/styles/globals.css`): words 7fr, picture 5fr, gutter `clamp(2rem, 5vw, 5rem)`, the ratio the page hero already used. Moved onto it: `Hero.astro`, `ProjectDetail` hero, `HomeStaci`, `AboutStory`, `ImageText` (flex 44% from md, now the split from lg; its `md:order-*` pair is now `lg:order-*`, test updated), `ServiceArea`, `ServiceAreaCue`, `ContactArea`, `CallBand`; `HomeHero` lays the same tracks out full-bleed (five tracks); the contact form band takes the tokens. `scripts/measure-columns.mjs` and `scripts/lib/column-alignment.mjs` copied from the starter (PORTABLE). At 1280 on `/`, `/about/`, `/contact/`: 7 misaligned before, 2 after (AboutPersonal, left alone on purpose, and the call band's heading capped at 14ch inside its track). Screenshots: `_vault/attachments/column-split-2026-10-13/reid/`.
 
+## 2026-10-13: Studio CSP allows Cloudflare's edge-injected analytics beacon
+
+`/studio/` logged a CSP violation for `static.cloudflareinsights.com/beacon.min.js` on every load. The beacon is not ours: Web Analytics automatic setup makes Cloudflare's edge inject it into every HTML response. The `/studio/*` policy in `public/_headers` now grants `https://static.cloudflareinsights.com` (script-src) and `https://cloudflareinsights.com` (connect-src), the same two the public policy already had.
+
 ## 2026-10-13: Weekly R2 backup copy takes a multipart path over 300 MiB
 
 The Monday full export is about 557 MiB and `wrangler r2 object put` caps at 300 MiB, so the weekly off-site copy failed every time. `sanity-backup.yml` now checks the size: up to 300 MiB still goes through wrangler, anything bigger through `aws s3 cp` against R2's S3 endpoint with new secrets `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. Same bucket and `sanity/<repo>/` key prefix. Without the secrets it warns once and the backup still succeeds. Setup in `docs/agent/deployment.md`; open item in `docs/PENDING.md`.
