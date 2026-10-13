@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: Studio CSP allows Cloudflare's edge-injected analytics beacon
+
+`/studio/` logged a CSP violation for `static.cloudflareinsights.com/beacon.min.js` on every load. The beacon is not ours: Web Analytics automatic setup makes Cloudflare's edge inject it into every HTML response. The `/studio/*` policy in `public/_headers` now grants `https://static.cloudflareinsights.com` (script-src) and `https://cloudflareinsights.com` (connect-src), the same two the public policy already had.
+
 ## 2026-10-13: Weekly R2 backup copy takes a multipart path over 300 MiB
 
 The Monday full export is about 557 MiB and `wrangler r2 object put` caps at 300 MiB, so the weekly off-site copy failed every time. `sanity-backup.yml` now checks the size: up to 300 MiB still goes through wrangler, anything bigger through `aws s3 cp` against R2's S3 endpoint with new secrets `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. Same bucket and `sanity/<repo>/` key prefix. Without the secrets it warns once and the backup still succeeds. Setup in `docs/agent/deployment.md`; open item in `docs/PENDING.md`.
