@@ -19,7 +19,8 @@ items to "Recently closed" with a date, and prune that section when it grows.
 The first run of the data audit (starter card 95) found 8 array items with no `_type` (`contactPage.postInquiryRoadmap[0..3]`, `eDesignPage.howItWorks[0..3]`); those were backfilled the same day (backup outside the repo, dry run, write, re-audit: 0 left), and `seed-conversion-content.mjs` now writes the `_type`. What is left is data with no schema, which only Nathan may remove, because unsetting or deleting it deletes data. The Studio shows an "Unknown fields" banner for the first; never click its "Remove field".
 
 - [ ] **Orphan field, left alone:** `eDesignPage.finalCta.internalPage` = `"/contact?type=e-design"` (beside `linkType: "internal"`, `label: "Start my E-Design"`). No current field carries this link: `ctaBlock`'s replacement is `internalLink`, a reference to a page document, which is unset on this CTA and cannot hold a query string. (`internalPage` was only ever a `navLink` field, a reference too; the seed wrote a string into the CTA by mistake.) `seed-conversion-content.mjs` still writes `internalPage`. Decide: set `internalLink` to the Contact page (losing `?type=e-design`), or switch the CTA to `linkType: "external"` with the full URL, then unset `internalPage` in an idempotent script, and fix the seed.
-- [ ] **24 documents of 12 types the schema dropped, exported, NOT deleted.** All 12 types left the schema in commit 0ce23f7 (2026-09-30, "Remove the eight never-launched sections and the newsletter"), which removed the sections from the site and the Studio with no dataset writes. Checked 2026-10-13: no drafts of any of them, and no document of a live type references any of them.
+- [x] **24 documents of 12 types the schema dropped: DELETED 2026-10-13 with Nathan's approval** (transaction `PVL5pks3vr142x6mf5REm5`, after the export and a full raw backup below; `audit:data` afterwards: 63 documents, only the `finalCta.internalPage` field left).
+  Originally exported, NOT deleted: All 12 types left the schema in commit 0ce23f7 (2026-09-30, "Remove the eight never-launched sections and the newsletter"), which removed the sections from the site and the Studio with no dataset writes. Checked 2026-10-13: no drafts of any of them, and no document of a live type references any of them.
 
   | Type               | Count | What it was                                                                 |
   | ------------------ | ----: | --------------------------------------------------------------------------- |
@@ -38,7 +39,7 @@ The first run of the data audit (starter card 95) found 8 array items with no `_
 
   Backups, outside the repo in `C:\Users\natha\Documents\Claude\Projects\_backups\reid-design-site-2026-10-13\`: `orphans-2026-10-13.ndjson` (exactly these 24 documents, ids included; count and ids checked against the script's list) and `production-raw-before-orphan-delete.tar.gz` (the whole dataset, `sanity dataset export --raw`, 379 documents). The dry run of the delete printed one transaction of 24 deletes and wrote nothing.
 
-  **The delete, once Nathan agrees, is one command** from the repo root (PowerShell):
+  **The delete (run 2026-10-13) was one command** from the repo root (PowerShell):
 
   ```powershell
   $env:NCS_PRODUCTION_WRITE='yes'; node scripts/retire-removed-type-docs.mjs --apply; Remove-Item Env:NCS_PRODUCTION_WRITE
