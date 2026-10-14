@@ -10,6 +10,7 @@ import { createClient } from '@sanity/client';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -36,7 +37,7 @@ if (!projectId || !token) {
 
 const PHONE = '(931) 539-5255';
 
-const client = createClient({ projectId, dataset, apiVersion, useCdn: false, token });
+const client = gateClient(createClient({ projectId, dataset, apiVersion, useCdn: false, token }));
 
 // Target the published siteSettings doc (ignore any draft copy).
 const doc = await client.fetch(

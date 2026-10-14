@@ -19,6 +19,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -43,7 +44,7 @@ if (!projectId || !token) {
   process.exit(1);
 }
 
-const client = createClient({ projectId, dataset, apiVersion, useCdn: false, token });
+const client = gateClient(createClient({ projectId, dataset, apiVersion, useCdn: false, token }));
 
 // Helper: build a single-paragraph Portable Text block from a string.
 function block(text) {

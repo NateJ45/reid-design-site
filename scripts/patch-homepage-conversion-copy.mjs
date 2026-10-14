@@ -21,6 +21,7 @@ import { createClient } from '@sanity/client';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -37,13 +38,15 @@ const env = Object.fromEntries(
 
 const apply = process.argv.includes('--apply');
 
-const client = createClient({
-  projectId: env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: env.PUBLIC_SANITY_DATASET ?? 'production',
-  apiVersion: env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01',
-  useCdn: false,
-  token: env.SANITY_API_WRITE_TOKEN,
-});
+const client = gateClient(
+  createClient({
+    projectId: env.PUBLIC_SANITY_PROJECT_ID,
+    dataset: env.PUBLIC_SANITY_DATASET ?? 'production',
+    apiVersion: env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01',
+    useCdn: false,
+    token: env.SANITY_API_WRITE_TOKEN,
+  }),
+);
 
 // Overwrite, thin existing copy we're deliberately enriching.
 const overwrite = {

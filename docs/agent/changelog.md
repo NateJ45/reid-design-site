@@ -2,6 +2,12 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: Every Sanity write script is dry by default, with a production second factor; data audit ported
+
+Starter cards 86 and 95. About 30 scripts in `scripts/` built their own Sanity client and most wrote the moment they ran (`patch-site-phone.mjs` called `.commit()` on a bare run). New `scripts/lib/write-gate.mjs` wraps a client so that without `--apply` every write (patch and transaction commits, `create*`, `delete`, `mutate`, `assets.upload`) only prints, and with `--apply` on `production` it exits 2 unless `NCS_PRODUCTION_WRITE=yes` is in the real process environment. 30 scripts now wrap their client with `gateClient`, `scripts/lib/sanity-script.mjs`'s `client()` does too (four more scripts), and the two `sanity dataset import` scripts only import under `--apply` plus the variable. `write-gate.test.mjs` tests the guard against `https://example.invalid`; `npm run test:scripts` runs it with the synced `sanity-lib.test.mjs` and card 95's tests, and `test:unit` now chains it so CI covers them.
+
+`npm run audit:data` (card 95's six PORTABLE files) found 8 array items without `_type` in `contactPage.postInquiryRoadmap` and `eDesignPage.howItWorks`; they were backfilled (backup, dry run, write, re-audit to 0), and `seed-conversion-content.mjs` now writes the `_type`. The orphan field and 24 documents of removed types it also found are in `docs/PENDING.md` for Nathan.
+
 ## 2026-10-13: One text/picture column split (starter card 91)
 
 Every band that puts words beside a picture now sits on `.split` (`src/styles/globals.css`): words 7fr, picture 5fr, gutter `clamp(2rem, 5vw, 5rem)`, the ratio the page hero already used. Moved onto it: `Hero.astro`, `ProjectDetail` hero, `HomeStaci`, `AboutStory`, `ImageText` (flex 44% from md, now the split from lg; its `md:order-*` pair is now `lg:order-*`, test updated), `ServiceArea`, `ServiceAreaCue`, `ContactArea`, `CallBand`; `HomeHero` lays the same tracks out full-bleed (five tracks); the contact form band takes the tokens. `scripts/measure-columns.mjs` and `scripts/lib/column-alignment.mjs` copied from the starter (PORTABLE). At 1280 on `/`, `/about/`, `/contact/`: 7 misaligned before, 2 after (AboutPersonal, left alone on purpose, and the call band's heading capped at 14ch inside its track). Screenshots: `_vault/attachments/column-split-2026-10-13/reid/`.

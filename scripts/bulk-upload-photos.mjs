@@ -24,6 +24,7 @@ import { readdirSync, statSync, readFileSync, writeFileSync, existsSync, mkdirSy
 import { dirname, resolve, join, basename, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 
@@ -48,13 +49,15 @@ if (!writeToken) {
   process.exit(1);
 }
 
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2025-02-19',
-  useCdn: false,
-  token: writeToken,
-});
+const client = gateClient(
+  createClient({
+    projectId,
+    dataset,
+    apiVersion: '2025-02-19',
+    useCdn: false,
+    token: writeToken,
+  }),
+);
 
 // ---- Collect every photo, excluding logos + the 7 already-wired files ----
 

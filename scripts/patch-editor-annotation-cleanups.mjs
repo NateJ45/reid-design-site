@@ -16,6 +16,7 @@
 
 import { createClient } from '@sanity/client';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 
@@ -28,13 +29,15 @@ if (!projectId || !writeToken) {
   process.exit(1);
 }
 
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2025-02-19',
-  useCdn: false,
-  token: writeToken,
-});
+const client = gateClient(
+  createClient({
+    projectId,
+    dataset,
+    apiVersion: '2025-02-19',
+    useCdn: false,
+    token: writeToken,
+  }),
+);
 
 // ---- 1. servicesPage prefix strip --------------------------------------
 

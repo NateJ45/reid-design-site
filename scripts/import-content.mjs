@@ -3,13 +3,15 @@
 // document, and writes a single NDJSON file. Then it kicks off
 // `sanity dataset import` against the configured project.
 //
-// Run via `node scripts/import-content.mjs`. Idempotent: passing `--replace`
+// Run via `node scripts/import-content.mjs` (dry: writes the NDJSON only), then
+// `NCS_PRODUCTION_WRITE=yes node scripts/import-content.mjs --apply` to import. Idempotent: passing `--replace`
 // to the underlying import overwrites existing documents with the same _id.
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { APPLY, assertWriteAllowed } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -62,13 +64,21 @@ console.log(`\nWrote ${total} documents to ${outPath}`);
 // because that is where sanity.cli.ts lived. The nested studio package was
 // folded into the root (PORTS.md card 10) and sanity.cli.ts moved with it, so
 // the root is now the only place the CLI finds its project id and dataset.
+// Dry by default (PORTS.md card 86): without --apply this only writes the
+// NDJSON above and prints the import command. With --apply the import targets
+// production, so it also needs NCS_PRODUCTION_WRITE=yes in the same command.
+const importArgs = ['sanity', 'dataset', 'import', outPath, 'production', '--replace'];
+if (!APPLY) {
+  console.log('\nDRY RUN: nothing imported. The write would be:');
+  console.log(`  npx ${importArgs.join(' ')}`);
+  console.log('Re-run with --apply (and NCS_PRODUCTION_WRITE=yes) to import.');
+  process.exit(0);
+}
+assertWriteAllowed({ dataset: 'production' });
+
 console.log('\nRunning sanity dataset import...\n');
-const result = spawnSync(
-  process.platform === 'win32' ? 'npx.cmd' : 'npx',
-  ['sanity', 'dataset', 'import', outPath, 'production', '--replace'],
-  {
-    cwd: root,
-    stdio: 'inherit',
-  },
-);
+const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', importArgs, {
+  cwd: root,
+  stdio: 'inherit',
+});
 process.exit(result.status ?? 0);

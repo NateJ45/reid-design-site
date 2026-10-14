@@ -2,7 +2,8 @@
 //
 // What it gives a script:
 //   - env(): reads .env (and the real environment), so `node scripts/x.mjs` just works
-//   - flags: DRY RUN is the default; pass --apply to write anything
+//   - flags: DRY RUN is the default; pass --apply to write anything, and on
+//     production also NCS_PRODUCTION_WRITE=yes in the same command (card 86)
 //   - client(): a Sanity client. Reads work with no token for the public page
 //     singletons; anything that writes (or reads a "project.xxx" style private
 //     document) needs SANITY_API_WRITE_TOKEN in .env
@@ -12,6 +13,7 @@ import { createClient } from '@sanity/client';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { APPLY, gateClient } from './write-gate.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -33,7 +35,7 @@ export function env() {
 }
 
 /** True when --apply was passed. Everything else is a dry run. */
-export const APPLY = process.argv.includes('--apply');
+export { APPLY };
 
 /**
  * A Sanity client for this project.
@@ -56,14 +58,18 @@ export function client({ write = false } = {}) {
   // default perspective is 'published', which hid every "drafts." document from
   // these scripts (found 2026-10-02: the em-dash sweep and the mid-market patch
   // both claimed to cover drafts and silently did not).
-  return createClient({
-    projectId,
-    dataset,
-    apiVersion,
-    useCdn: false,
-    token,
-    perspective: 'raw',
-  });
+  // gateClient: writes only print without --apply, and a production write also
+  // needs NCS_PRODUCTION_WRITE=yes in the real environment (write-gate.mjs).
+  return gateClient(
+    createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      useCdn: false,
+      token,
+      perspective: 'raw',
+    }),
+  );
 }
 
 /** Print the mode up front so nobody wonders whether a run wrote anything. */

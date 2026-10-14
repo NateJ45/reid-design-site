@@ -17,6 +17,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 
@@ -32,7 +33,9 @@ if (!projectId || !token) {
   process.exit(1);
 }
 
-const client = createClient({ projectId, dataset, apiVersion: '2026-05-01', useCdn: false, token });
+const client = gateClient(
+  createClient({ projectId, dataset, apiVersion: '2026-05-01', useCdn: false, token }),
+);
 
 function imageField(file, alt) {
   const m = manifest[file];

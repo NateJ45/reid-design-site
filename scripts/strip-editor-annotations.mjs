@@ -28,6 +28,7 @@
 
 import { createClient } from '@sanity/client';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 
@@ -55,7 +56,15 @@ const readClient = createClient({
   token: readToken,
 });
 const writeClient = APPLY
-  ? createClient({ projectId, dataset, apiVersion: '2025-02-19', useCdn: false, token: writeToken })
+  ? gateClient(
+      createClient({
+        projectId,
+        dataset,
+        apiVersion: '2025-02-19',
+        useCdn: false,
+        token: writeToken,
+      }),
+    )
   : null;
 
 // Regex matches the annotation forms we want to strip. \[ … \] with a known

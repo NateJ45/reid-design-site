@@ -18,6 +18,7 @@ import { createClient } from '@sanity/client';
 import { createRequire } from 'module';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -38,13 +39,15 @@ if (!PUBLIC_SANITY_PROJECT_ID || !SANITY_API_WRITE_TOKEN) {
   process.exit(1);
 }
 
-const client = createClient({
-  projectId: PUBLIC_SANITY_PROJECT_ID,
-  dataset: PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: PUBLIC_SANITY_API_VERSION || '2026-05-01',
-  token: SANITY_API_WRITE_TOKEN,
-  useCdn: false,
-});
+const client = gateClient(
+  createClient({
+    projectId: PUBLIC_SANITY_PROJECT_ID,
+    dataset: PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: PUBLIC_SANITY_API_VERSION || '2026-05-01',
+    token: SANITY_API_WRITE_TOKEN,
+    useCdn: false,
+  }),
+);
 
 // ── Query current headline values ────────────────────────────────────────────
 

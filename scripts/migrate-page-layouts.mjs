@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,13 +24,15 @@ const env = Object.fromEntries(
     }),
 );
 
-const client = createClient({
-  projectId: env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: env.PUBLIC_SANITY_DATASET ?? 'production',
-  apiVersion: env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01',
-  useCdn: false,
-  token: env.SANITY_API_WRITE_TOKEN,
-});
+const client = gateClient(
+  createClient({
+    projectId: env.PUBLIC_SANITY_PROJECT_ID,
+    dataset: env.PUBLIC_SANITY_DATASET ?? 'production',
+    apiVersion: env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01',
+    useCdn: false,
+    token: env.SANITY_API_WRITE_TOKEN,
+  }),
+);
 
 // docId -> { markerType, order: [section keys in default order] }
 const LAYOUTS = {

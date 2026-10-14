@@ -17,11 +17,12 @@ import { getCliClient } from 'sanity/cli';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ndjsonPath = resolve(__dirname, '..', '..', 'tmp', 'enrich-asset-patches.ndjson');
 
-const client = getCliClient({ apiVersion: '2025-02-19' });
+const client = gateClient(getCliClient({ apiVersion: '2025-02-19' }));
 
 const docs = readFileSync(ndjsonPath, 'utf-8')
   .trim()

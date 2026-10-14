@@ -155,6 +155,8 @@ The correct sequence after any schema edit:
 
 Seed scripts bootstrap document types with placeholder content. Run them any time you need to re-seed a blank dataset or reset a field group to starters.
 
+Every write script is dry by default (2026-10-13, starter card 86): a bare run prints what it would write and sends nothing. To write, add `--apply` AND set `NCS_PRODUCTION_WRITE=yes` in the same command (bash: `NCS_PRODUCTION_WRITE=yes node scripts/x.mjs --apply`; PowerShell: `$env:NCS_PRODUCTION_WRITE='yes'; node scripts/x.mjs --apply; Remove-Item Env:NCS_PRODUCTION_WRITE`). Only Nathan sets the variable. Detail: `.claude/rules/build-pipeline-and-scripts.md`, "Every write".
+
 ```bash
 # Seeds: eDesignPage, privacyPage, siteSettings reviews fields,
 #        contactPage.postInquiryRoadmap, testimonials
@@ -405,7 +407,7 @@ Sanity Canvas (AI-assisted drafting) sometimes lets prefix annotations like `[NE
 
 ```bash
 node scripts/strip-editor-annotations.mjs           # dry-run (default)
-node scripts/strip-editor-annotations.mjs --apply   # actually patch
+NCS_PRODUCTION_WRITE=yes node scripts/strip-editor-annotations.mjs --apply   # actually patch
 ```
 
 The script scans every doc for `[NEW …]`, `[per audit …]`, `[TODO …]`, `[DRAFT …]`, `[WIP …]`, `[v2 …]`, `[softer framing]`, `[audit: …]`, `[note: …]`. Re-run after large Canvas batches.

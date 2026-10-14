@@ -21,6 +21,7 @@ import { createClient } from '@sanity/client';
 import { createRequire } from 'module';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -42,13 +43,15 @@ if (!PUBLIC_SANITY_PROJECT_ID || !SANITY_API_WRITE_TOKEN) {
   process.exit(1);
 }
 
-const client = createClient({
-  projectId: PUBLIC_SANITY_PROJECT_ID,
-  dataset: PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: PUBLIC_SANITY_API_VERSION || '2026-05-01',
-  token: SANITY_API_WRITE_TOKEN,
-  useCdn: false,
-});
+const client = gateClient(
+  createClient({
+    projectId: PUBLIC_SANITY_PROJECT_ID,
+    dataset: PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: PUBLIC_SANITY_API_VERSION || '2026-05-01',
+    token: SANITY_API_WRITE_TOKEN,
+    useCdn: false,
+  }),
+);
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -124,24 +127,28 @@ async function patchContactPage() {
       postInquiryRoadmap: [
         {
           _key: 'road1',
+          _type: 'roadmapStep',
           title: 'I read it myself',
           body: 'Your note comes straight to me, not a team or an inbox bot. I read every one.',
           timeEstimate: 'Within a day',
         },
         {
           _key: 'road2',
+          _type: 'roadmapStep',
           title: 'A quick reply',
           body: 'I email back with a couple of questions and which service fits what you are after.',
           timeEstimate: '1 to 2 days',
         },
         {
           _key: 'road3',
+          _type: 'roadmapStep',
           title: 'We book the consultation',
           body: 'We pick a time for the in-home visit, or a short call first if you would rather.',
           timeEstimate: '',
         },
         {
           _key: 'road4',
+          _type: 'roadmapStep',
           title: 'You leave with a plan',
           body: 'Clear next steps and honest pricing. No pressure to keep going.',
           timeEstimate: '',
@@ -176,24 +183,28 @@ const eDesignPage = {
   howItWorks: [
     {
       _key: 'edhiw1',
+      _type: 'howItWorksStep',
       stepNumber: 1,
       title: 'Share photos and measurements',
       body: 'A few phone photos and rough measurements are enough to start. I will tell you exactly what I need.',
     },
     {
       _key: 'edhiw2',
+      _type: 'howItWorksStep',
       stepNumber: 2,
       title: 'We talk through how the room needs to work',
       body: 'A short video call so I understand how you live in the space, what is not working, and what kind of look you are after.',
     },
     {
       _key: 'edhiw3',
+      _type: 'howItWorksStep',
       stepNumber: 3,
       title: 'I build your plan and shopping list',
       body: 'A full design plan with mood board, 2D layout, paint direction, and clickable shopping links lands in your inbox.',
     },
     {
       _key: 'edhiw4',
+      _type: 'howItWorksStep',
       stepNumber: 4,
       title: 'You shop the links at your own pace',
       body: 'No install appointment, no timeline pressure. Buy as you go, in whatever order works for your budget.',
