@@ -17,6 +17,7 @@ import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 
@@ -35,13 +36,15 @@ if (!projectId || !writeToken) {
   process.exit(1);
 }
 
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2025-02-19',
-  useCdn: false,
-  token: writeToken,
-});
+const client = gateClient(
+  createClient({
+    projectId,
+    dataset,
+    apiVersion: '2025-02-19',
+    useCdn: false,
+    token: writeToken,
+  }),
+);
 
 if (!existsSync(headshotsDir)) {
   console.error('Headshots folder not found:', headshotsDir);

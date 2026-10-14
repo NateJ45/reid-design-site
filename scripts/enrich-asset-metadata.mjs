@@ -28,6 +28,7 @@ import { createClient } from '@sanity/client';
 import { readdirSync, statSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gateClient } from './lib/write-gate.mjs';
 import { randomBytes } from 'node:crypto';
 import { config as loadDotenv } from 'dotenv';
 
@@ -57,7 +58,15 @@ const readClient = createClient({
   token: readToken,
 });
 const writeClient = writeToken
-  ? createClient({ projectId, dataset, apiVersion: '2025-02-19', useCdn: false, token: writeToken })
+  ? gateClient(
+      createClient({
+        projectId,
+        dataset,
+        apiVersion: '2025-02-19',
+        useCdn: false,
+        token: writeToken,
+      }),
+    )
   : null;
 
 // ---------- 1. Tag taxonomy ----------

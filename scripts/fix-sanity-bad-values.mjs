@@ -27,6 +27,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { APPLY, assertWriteAllowed } from './lib/write-gate.mjs';
 import { config as loadDotenv } from 'dotenv';
 
 loadDotenv();
@@ -160,13 +161,21 @@ console.log(`\nWrote ${lines.length} patched docs to ${outPath} (${cleanups} cle
 
 // ---- Import via CLI (--replace overwrites the existing singletons) ----
 
+// Dry by default (PORTS.md card 86): without --apply this only writes the
+// NDJSON above and prints the import command. With --apply the import targets
+// production, so it also needs NCS_PRODUCTION_WRITE=yes in the same command.
+const importArgs = ['sanity', 'dataset', 'import', outPath, 'production', '--replace'];
+if (!APPLY) {
+  console.log('\nDRY RUN: nothing imported. The write would be:');
+  console.log(`  npx ${importArgs.join(' ')}`);
+  console.log('Re-run with --apply (and NCS_PRODUCTION_WRITE=yes) to import.');
+  process.exit(0);
+}
+assertWriteAllowed({ dataset: 'production' });
+
 console.log('\nRunning sanity dataset import...\n');
-const result = spawnSync(
-  process.platform === 'win32' ? 'npx.cmd' : 'npx',
-  ['sanity', 'dataset', 'import', outPath, 'production', '--replace'],
-  {
-    cwd: resolve(root, 'studio'),
-    stdio: 'inherit',
-  },
-);
+const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', importArgs, {
+  cwd: root,
+  stdio: 'inherit',
+});
 process.exit(result.status ?? 0);

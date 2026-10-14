@@ -8,18 +8,21 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 
-const client = createClient({
-  projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.PUBLIC_SANITY_DATASET ?? 'production',
-  apiVersion: '2026-05-01',
-  useCdn: false,
-  token: process.env.SANITY_API_WRITE_TOKEN,
-});
+const client = gateClient(
+  createClient({
+    projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.PUBLIC_SANITY_DATASET ?? 'production',
+    apiVersion: '2026-05-01',
+    useCdn: false,
+    token: process.env.SANITY_API_WRITE_TOKEN,
+  }),
+);
 
 const ID = 'demoStudioTour';
 

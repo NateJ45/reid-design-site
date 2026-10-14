@@ -14,6 +14,13 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-13: data in production that the schema no longer declares (`npm run audit:data`)
+
+The first run of the data audit (starter card 95) found 8 array items with no `_type` (`contactPage.postInquiryRoadmap[0..3]`, `eDesignPage.howItWorks[0..3]`); those were backfilled the same day (backup outside the repo, dry run, write, re-audit: 0 left), and `seed-conversion-content.mjs` now writes the `_type`. What is left is data with no schema, which only Nathan may remove, because unsetting or deleting it deletes data. The Studio shows an "Unknown fields" banner for the first; never click its "Remove field".
+
+- [ ] **Orphan field:** `eDesignPage.finalCta.internalPage` = `"/contact?type=e-design"` (beside `linkType: "internal"`, `label: "Start my E-Design"`). `ctaBlock` now uses `internalLink` (a reference), so this CTA has no target the schema knows. `seed-conversion-content.mjs` still writes `internalPage`. Decide: set `internalLink` (or switch the CTA to an external URL with the query string), then unset `internalPage` in an idempotent script, and fix the seed.
+- [ ] **Documents of types the schema dropped** (the sections removed 2026-09-30), 24 in all: `budgetCalculator`; `giftPage`; `journalCategory.behindTheScenes`, `.process`, `.projectStories`, `.sourceRoundups`, `.styleNotes`; `journalPage`; `seed.leadMagnet.consultPrep` ("How to Get the Most From Your Consultation"), `seed.leadMagnet.paint` ("5 Paint Colors I Come Back To"); `seed.pressItem.1` to `.3`; `pressPage`; `resourcesPage`; `seed.shopCollection.lighting` ("Lighting I reach for"), `seed.shopCollection.rugs` ("Rugs that hide real life"); `seed.shopItem.1` to `.5` (for example "Rejuvenation Vernon Pendant"); `shopPage`; `styleQuiz`. Decide: keep (harmless, invisible in the Studio) or retire with a backup-then-delete script, run dry first.
+
 ### From 2026-10-13: Cloudflare's edge injects the Web Analytics beacon
 
 Cloudflare Web Analytics is on for the zone with automatic setup, so the edge adds its beacon to every HTML page (including `/studio/`, whose CSP now allows it). The site's own `CloudflareBeacon.astro` is off (no `PUBLIC_CF_ANALYTICS_TOKEN`), so `/privacy` names only Google Analytics.

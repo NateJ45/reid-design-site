@@ -13,6 +13,7 @@
 
 import { createClient } from '@sanity/client';
 import { config as loadDotenv } from 'dotenv';
+import { gateClient } from './lib/write-gate.mjs';
 
 loadDotenv();
 
@@ -24,7 +25,9 @@ if (!projectId || !token) {
   process.exit(1);
 }
 
-const client = createClient({ projectId, dataset, apiVersion: '2026-05-01', useCdn: false, token });
+const client = gateClient(
+  createClient({ projectId, dataset, apiVersion: '2026-05-01', useCdn: false, token }),
+);
 
 // _id === type for these singletons.
 const SEO = {

@@ -2,6 +2,12 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: Every Sanity write script is dry by default, with a production second factor; data audit ported
+
+Starter cards 86 and 95. About 30 scripts in `scripts/` built their own Sanity client and most wrote the moment they ran (`patch-site-phone.mjs` called `.commit()` on a bare run). New `scripts/lib/write-gate.mjs` wraps a client so that without `--apply` every write (patch and transaction commits, `create*`, `delete`, `mutate`, `assets.upload`) only prints, and with `--apply` on `production` it exits 2 unless `NCS_PRODUCTION_WRITE=yes` is in the real process environment. 30 scripts now wrap their client with `gateClient`, `scripts/lib/sanity-script.mjs`'s `client()` does too (four more scripts), and the two `sanity dataset import` scripts only import under `--apply` plus the variable. `write-gate.test.mjs` tests the guard against `https://example.invalid`; `npm run test:scripts` runs it with the synced `sanity-lib.test.mjs` and card 95's tests, and `test:unit` now chains it so CI covers them.
+
+`npm run audit:data` (card 95's six PORTABLE files) found 8 array items without `_type` in `contactPage.postInquiryRoadmap` and `eDesignPage.howItWorks`; they were backfilled (backup, dry run, write, re-audit to 0), and `seed-conversion-content.mjs` now writes the `_type`. The orphan field and 24 documents of removed types it also found are in `docs/PENDING.md` for Nathan.
+
 ## 2026-10-13: Studio CSP allows Cloudflare's edge-injected analytics beacon
 
 `/studio/` logged a CSP violation for `static.cloudflareinsights.com/beacon.min.js` on every load. The beacon is not ours: Web Analytics automatic setup makes Cloudflare's edge inject it into every HTML response. The `/studio/*` policy in `public/_headers` now grants `https://static.cloudflareinsights.com` (script-src) and `https://cloudflareinsights.com` (connect-src), the same two the public policy already had.

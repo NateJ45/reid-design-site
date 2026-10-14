@@ -31,6 +31,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { gateClient } from './lib/write-gate.mjs';
 
 // ---------------------------------------------------------------------------
 // DECISIONS STACI STILL OWES US
@@ -122,14 +123,16 @@ const PUBLISH = process.argv.includes('--publish');
 // silently filters drafts out of every query, so the "is there already a
 // draft?" check would always miss, and the publish step would find nothing to
 // promote. Both failure modes are silent, not errors.
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token,
-  perspective: 'raw',
-});
+const client = gateClient(
+  createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    useCdn: false,
+    token,
+    perspective: 'raw',
+  }),
+);
 
 // Portable Text single paragraph. Matches the helper in patch-services-content.mjs.
 function block(text) {

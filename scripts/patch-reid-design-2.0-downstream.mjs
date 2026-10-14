@@ -20,6 +20,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { gateClient } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -50,14 +51,16 @@ const DISCARD = process.argv.includes('--discard');
 
 // perspective: 'raw' so drafts are visible to queries. Without it the publish
 // step silently finds nothing to promote.
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token,
-  perspective: 'raw',
-});
+const client = gateClient(
+  createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    useCdn: false,
+    token,
+    perspective: 'raw',
+  }),
+);
 
 function block(text) {
   const key = () => randomUUID().replace(/-/g, '').slice(0, 12);
