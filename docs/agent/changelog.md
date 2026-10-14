@@ -2,6 +2,12 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-13: /privacy names Cloudflare's edge beacon; the 24 removed-type documents are exported, delete prepared
+
+"How traffic is measured" on `/privacy` now renders the cookieless Cloudflare paragraph when the zone's Web Analytics automatic setup is on, not only when `PUBLIC_CF_ANALYTICS_TOKEN` is set, because Cloudflare's edge injects the beacon into every HTML page either way. That setting lives in the dashboard, so `src/pages/privacy.astro` carries it as `cfEdgeBeacon` (set it to `false` if automatic setup is switched off). The Google Analytics paragraph reads "also" after it. `seed-conversion-content.mjs` no longer seeds the old "There is no Google Analytics" sentence.
+
+New `scripts/retire-removed-type-docs.mjs` lists, exports (`--export <file>`) and, under `--apply` plus `NCS_PRODUCTION_WRITE=yes`, deletes the 24 documents whose types left the schema on 2026-09-30, by a fixed id list. They were exported to `_backups/reid-design-site-2026-10-13/` at the Projects root with a full raw dataset backup, and the delete was dry-run only; it waits for Nathan (`docs/PENDING.md`).
+
 ## 2026-10-13: Every Sanity write script is dry by default, with a production second factor; data audit ported
 
 Starter cards 86 and 95. About 30 scripts in `scripts/` built their own Sanity client and most wrote the moment they ran (`patch-site-phone.mjs` called `.commit()` on a bare run). New `scripts/lib/write-gate.mjs` wraps a client so that without `--apply` every write (patch and transaction commits, `create*`, `delete`, `mutate`, `assets.upload`) only prints, and with `--apply` on `production` it exits 2 unless `NCS_PRODUCTION_WRITE=yes` is in the real process environment. 30 scripts now wrap their client with `gateClient`, `scripts/lib/sanity-script.mjs`'s `client()` does too (four more scripts), and the two `sanity dataset import` scripts only import under `--apply` plus the variable. `write-gate.test.mjs` tests the guard against `https://example.invalid`; `npm run test:scripts` runs it with the synced `sanity-lib.test.mjs` and card 95's tests, and `test:unit` now chains it so CI covers them.

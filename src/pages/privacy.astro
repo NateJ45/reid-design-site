@@ -36,6 +36,16 @@ import { getPrivacyPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
+
+// Cloudflare's edge adds its Web Analytics beacon to every HTML page, because
+// the zone has Web Analytics on with automatic setup (dashboard > Web Analytics
+// > reiddesignllc.com). That is a dashboard setting, not a build variable, so
+// analytics-config.ts cannot see it, and hasCfAnalytics stays false while
+// PUBLIC_CF_ANALYTICS_TOKEN is unset. Checked live 2026-10-13
+// (static.cloudflareinsights.com/beacon.min.js in the served HTML). If automatic
+// setup is ever switched off, set this to false.
+const cfEdgeBeacon = true;
+const countsWithCloudflare = hasCfAnalytics || cfEdgeBeacon;
 import { docHeadings } from '@/components/contact/doc-anchors';
 
 const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSettings()]);
@@ -209,28 +219,28 @@ const toc = [
           <h2 id={MEASURED_ID} class="ptd-h2">
             How traffic is measured
           </h2>
-          {!hasGa && !hasCfAnalytics && (
+          {!hasGa && !countsWithCloudflare && (
             <p class="ptd-p">
               This site runs no analytics. Visits are not counted, and nothing is stored on your
               device for measurement.
             </p>
           )}
-          {hasCfAnalytics && (
+          {countsWithCloudflare && (
             <p class="ptd-p">
-              Page visits are counted with Cloudflare Web Analytics, which sets no cookies and does
-              not identify individual visitors.
+              Cloudflare, the company that hosts this site, counts page visits with its Web
+              Analytics, which sets no cookies and does not identify individual visitors.
             </p>
           )}
           {hasGa && (
             <p class="ptd-p">
               {/* "also" only reads right when the cookieless paragraph above rendered. */}
-              Visits are {hasCfAnalytics ? 'also ' : ''}measured with Google Analytics, which sets
-              cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by an
-              id) so a returning visit is recognized as the same visitor. It records which pages are
-              opened, roughly where the visit came from, and what kind of device was used. It is not
-              used for advertising, and the data is not sold. You can block these cookies in your
-              browser settings or with a tracker-blocking extension, and the site works exactly the
-              same.
+              Visits are {countsWithCloudflare ? 'also ' : ''}measured with Google Analytics, which
+              sets cookies on your device (named <code>_ga</code> and <code>_ga_</code> followed by
+              an id) so a returning visit is recognized as the same visitor. It records which pages
+              are opened, roughly where the visit came from, and what kind of device was used. It is
+              not used for advertising, and the data is not sold. You can block these cookies in
+              your browser settings or with a tracker-blocking extension, and the site works exactly
+              the same.
             </p>
           )}
         </div>
