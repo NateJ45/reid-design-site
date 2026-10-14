@@ -283,7 +283,7 @@ const privacyPage = {
     ptHeading('pp-h3', 'What I do not do', 'h2'),
     ptBlock(
       'pp-p3',
-      'I do not sell your information, share it with third parties, or run ad retargeting of any kind. There is no Google Analytics, no Facebook Pixel, no LinkedIn tag. Cloudflare Web Analytics provides basic traffic numbers without cookies or personal data.',
+      'I do not sell your information, share what you type into the form with anyone outside the form service that delivers it, or run ad retargeting of any kind. There is no Facebook Pixel and no LinkedIn tag. How visits to this site are measured is explained below.',
     ),
     ptHeading('pp-h4', 'Data requests', 'h2'),
     ptBlock(

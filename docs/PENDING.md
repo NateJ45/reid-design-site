@@ -18,14 +18,33 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 The first run of the data audit (starter card 95) found 8 array items with no `_type` (`contactPage.postInquiryRoadmap[0..3]`, `eDesignPage.howItWorks[0..3]`); those were backfilled the same day (backup outside the repo, dry run, write, re-audit: 0 left), and `seed-conversion-content.mjs` now writes the `_type`. What is left is data with no schema, which only Nathan may remove, because unsetting or deleting it deletes data. The Studio shows an "Unknown fields" banner for the first; never click its "Remove field".
 
-- [ ] **Orphan field:** `eDesignPage.finalCta.internalPage` = `"/contact?type=e-design"` (beside `linkType: "internal"`, `label: "Start my E-Design"`). `ctaBlock` now uses `internalLink` (a reference), so this CTA has no target the schema knows. `seed-conversion-content.mjs` still writes `internalPage`. Decide: set `internalLink` (or switch the CTA to an external URL with the query string), then unset `internalPage` in an idempotent script, and fix the seed.
-- [ ] **Documents of types the schema dropped** (the sections removed 2026-09-30), 24 in all: `budgetCalculator`; `giftPage`; `journalCategory.behindTheScenes`, `.process`, `.projectStories`, `.sourceRoundups`, `.styleNotes`; `journalPage`; `seed.leadMagnet.consultPrep` ("How to Get the Most From Your Consultation"), `seed.leadMagnet.paint` ("5 Paint Colors I Come Back To"); `seed.pressItem.1` to `.3`; `pressPage`; `resourcesPage`; `seed.shopCollection.lighting` ("Lighting I reach for"), `seed.shopCollection.rugs` ("Rugs that hide real life"); `seed.shopItem.1` to `.5` (for example "Rejuvenation Vernon Pendant"); `shopPage`; `styleQuiz`. Decide: keep (harmless, invisible in the Studio) or retire with a backup-then-delete script, run dry first.
+- [ ] **Orphan field, left alone:** `eDesignPage.finalCta.internalPage` = `"/contact?type=e-design"` (beside `linkType: "internal"`, `label: "Start my E-Design"`). No current field carries this link: `ctaBlock`'s replacement is `internalLink`, a reference to a page document, which is unset on this CTA and cannot hold a query string. (`internalPage` was only ever a `navLink` field, a reference too; the seed wrote a string into the CTA by mistake.) `seed-conversion-content.mjs` still writes `internalPage`. Decide: set `internalLink` to the Contact page (losing `?type=e-design`), or switch the CTA to `linkType: "external"` with the full URL, then unset `internalPage` in an idempotent script, and fix the seed.
+- [ ] **24 documents of 12 types the schema dropped, exported, NOT deleted.** All 12 types left the schema in commit 0ce23f7 (2026-09-30, "Remove the eight never-launched sections and the newsletter"), which removed the sections from the site and the Studio with no dataset writes. Checked 2026-10-13: no drafts of any of them, and no document of a live type references any of them.
 
-### From 2026-10-13: Cloudflare's edge injects the Web Analytics beacon
+  | Type               | Count | What it was                                                                 |
+  | ------------------ | ----: | --------------------------------------------------------------------------- |
+  | `budgetCalculator` |     1 | Singleton for the budget calculator tool page                               |
+  | `giftPage`         |     1 | Singleton for the gift certificates page                                    |
+  | `journalCategory`  |     5 | Journal (blog) categories: Behind the Scenes, Process, Project Stories, ... |
+  | `journalPage`      |     1 | Singleton for the journal index page                                        |
+  | `leadMagnet`       |     2 | Downloadable guides ("5 Paint Colors I Come Back To", consultation prep)    |
+  | `pressItem`        |     3 | Press mentions (seed placeholders) for the press page and home press strip  |
+  | `pressPage`        |     1 | Singleton for the press page                                                |
+  | `resourcesPage`    |     1 | Singleton for the resources hub                                             |
+  | `shopCollection`   |     2 | Shop collections ("Lighting I reach for", "Rugs that hide real life")       |
+  | `shopItem`         |     5 | Shop product picks (affiliate links, e.g. "Rejuvenation Vernon Pendant")    |
+  | `shopPage`         |     1 | Singleton for the shop page                                                 |
+  | `styleQuiz`        |     1 | Singleton for the style quiz page                                           |
 
-Cloudflare Web Analytics is on for the zone with automatic setup, so the edge adds its beacon to every HTML page (including `/studio/`, whose CSP now allows it). The site's own `CloudflareBeacon.astro` is off (no `PUBLIC_CF_ANALYTICS_TOKEN`), so `/privacy` names only Google Analytics.
+  Backups, outside the repo in `C:\Users\natha\Documents\Claude\Projects\_backups\reid-design-site-2026-10-13\`: `orphans-2026-10-13.ndjson` (exactly these 24 documents, ids included; count and ids checked against the script's list) and `production-raw-before-orphan-delete.tar.gz` (the whole dataset, `sanity dataset export --raw`, 379 documents). The dry run of the delete printed one transaction of 24 deletes and wrote nothing.
 
-- [ ] Nathan decides: keep the edge beacon and add a line about Cloudflare Web Analytics (cookieless) to the `privacyPage` copy, or switch automatic setup off in the dashboard (Web Analytics > site > Manage site). Either way, nothing breaks.
+  **The delete, once Nathan agrees, is one command** from the repo root (PowerShell):
+
+  ```powershell
+  $env:NCS_PRODUCTION_WRITE='yes'; node scripts/retire-removed-type-docs.mjs --apply; Remove-Item Env:NCS_PRODUCTION_WRITE
+  ```
+
+  The script touches only the 24 ids listed in it, and refuses if any has changed type, has a draft, or is referenced by a live document. Then run `npm run audit:data`: the removed-type findings should be gone, leaving only the `finalCta.internalPage` field above. Undo: `npx sanity dataset import C:\Users\natha\Documents\Claude\Projects\_backups\reid-design-site-2026-10-13\orphans-2026-10-13.ndjson production --missing`.
 
 ### From 2026-10-13: R2 API token for the weekly off-site backup
 
@@ -668,6 +687,13 @@ container API against SectionRenderer). Adding `views` is then a two-line edit t
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- **2026-10-13, /privacy names Cloudflare's edge beacon.** The zone's Web Analytics
+  automatic setup injects the beacon on every HTML page, so "How traffic is measured"
+  now says Cloudflare counts visits without cookies, beside the Google Analytics
+  paragraph. It is code, not Sanity copy (PORTS.md card 54): `cfEdgeBeacon` in
+  `src/pages/privacy.astro`, which needs setting to `false` if automatic setup is
+  ever switched off. The seed's stale "There is no Google Analytics" line is gone too.
 
 - **2026-10-02, Portfolio switched ON** (Site settings > Section visibility, set by
   script at Nathan's request; live about 2 minutes later via the publish webhook).
