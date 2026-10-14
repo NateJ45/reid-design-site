@@ -70,7 +70,7 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
 {show && (
   <section id="service-area" class="sa" aria-labelledby="service-area-heading">
     <div class="r-wrap">
-      <div class="sa__grid">
+      <div class="split split--media-first sa__grid">
         <h2 id="service-area-heading" class="r-h2 sa__h">
           {areaSec?.headline ?? 'Travel for out-of-area projects'}
         </h2>
@@ -175,19 +175,13 @@ const ticks = Array.from({ length: DIAL_MINUTES / 5 }, (_, i) => {
     padding-block: clamp(4.5rem, 9vw, 7.5rem);
     overflow-x: clip;
   }
-  .sa__grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 1.5rem;
-  }
+  /* The heading and the towns sit on the shared split (globals.css, PORTS.md
+     card 91), heading in the narrow track, so the seam lands where the picture
+     bands put theirs. It was a 12-column grid (1/6 and 6/13) until 2026-10-13. */
   .sa__h {
-    grid-column: 1 / 6;
     margin: 0;
     max-width: 11ch;
     font-size: clamp(2.2rem, 1.3rem + 2.8vw, 4rem);
-  }
-  .sa__side {
-    grid-column: 6 / 13;
   }
   .sa__towns {
     margin: 0;

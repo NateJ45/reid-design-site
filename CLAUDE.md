@@ -46,6 +46,7 @@ npm run test:unit      # vitest
 npm test               # Playwright: smoke, reduced-motion, axe, light-only guard, reflow, scroll-reset
 npm run check:links    # linkinator over dist/client, after a build
 npm run parity         # static-output parity gate (preview markup must never reach the static build)
+node scripts/measure-columns.mjs <baseUrl> --paths /,/about/   # seams of the shared .split (card 91); MSYS_NO_PATHCONV=1 in Git Bash
 node scripts/sync-check.mjs   # drift gate for PORTABLE files; NCS_STARTER_DIR=<clone> to point at a starter
 npm run og | og:cards | favicon | doodles | fonts:update   # generators, see .claude/rules/build-pipeline-and-scripts.md
 ```

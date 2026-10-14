@@ -8,6 +8,10 @@ Starter cards 86 and 95. About 30 scripts in `scripts/` built their own Sanity c
 
 `npm run audit:data` (card 95's six PORTABLE files) found 8 array items without `_type` in `contactPage.postInquiryRoadmap` and `eDesignPage.howItWorks`; they were backfilled (backup, dry run, write, re-audit to 0), and `seed-conversion-content.mjs` now writes the `_type`. The orphan field and 24 documents of removed types it also found are in `docs/PENDING.md` for Nathan.
 
+## 2026-10-13: One text/picture column split (starter card 91)
+
+Every band that puts words beside a picture now sits on `.split` (`src/styles/globals.css`): words 7fr, picture 5fr, gutter `clamp(2rem, 5vw, 5rem)`, the ratio the page hero already used. Moved onto it: `Hero.astro`, `ProjectDetail` hero, `HomeStaci`, `AboutStory`, `ImageText` (flex 44% from md, now the split from lg; its `md:order-*` pair is now `lg:order-*`, test updated), `ServiceArea`, `ServiceAreaCue`, `ContactArea`, `CallBand`; `HomeHero` lays the same tracks out full-bleed (five tracks); the contact form band takes the tokens. `scripts/measure-columns.mjs` and `scripts/lib/column-alignment.mjs` copied from the starter (PORTABLE). At 1280 on `/`, `/about/`, `/contact/`: 7 misaligned before, 2 after (AboutPersonal, left alone on purpose, and the call band's heading capped at 14ch inside its track). Screenshots: `_vault/attachments/column-split-2026-10-13/reid/`.
+
 ## 2026-10-13: Studio CSP allows Cloudflare's edge-injected analytics beacon
 
 `/studio/` logged a CSP violation for `static.cloudflareinsights.com/beacon.min.js` on every load. The beacon is not ours: Web Analytics automatic setup makes Cloudflare's edge inject it into every HTML response. The `/studio/*` policy in `public/_headers` now grants `https://static.cloudflareinsights.com` (script-src) and `https://cloudflareinsights.com` (connect-src), the same two the public policy already had.

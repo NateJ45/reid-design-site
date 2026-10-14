@@ -191,7 +191,7 @@ export const LAYOUT_FIELDS: Readonly<Record<string, readonly LayoutField[]>> = {
       name: 'imageSide',
       label: 'Image side',
       choices: [
-        // The renderer swaps `md:order-1` and `md:order-2` across TWO elements,
+        // The renderer swaps `lg:order-1` and `lg:order-2` across TWO elements,
         // so there is no single class list to hand the card.
         { value: 'left', title: 'Image on the left', hint: 'Text on the right.', className: '' },
         { value: 'right', title: 'Image on the right', hint: 'Text on the left.', className: '' },

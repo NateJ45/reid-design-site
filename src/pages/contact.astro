@@ -247,13 +247,17 @@ const schemas = [
   }
 
   @media (min-width: 1024px) {
+    /* The shared split's tokens (globals.css, PORTS.md card 91), so the form
+       and Staci's card meet on the same seam as the hero above them. Not the
+       `.split` class: this band places three boxes by grid areas. Until
+       2026-10-13 it was 7fr/4fr with a clamp(3rem, 7vw, 7rem) gutter. */
     .note__grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      grid-template-columns: minmax(0, var(--split-text)) minmax(0, var(--split-media));
       grid-template-areas:
         'head aside'
         'form aside';
       grid-template-rows: auto 1fr;
-      column-gap: clamp(3rem, 7vw, 7rem);
+      column-gap: var(--split-gutter);
       row-gap: 3rem;
     }
     .note__aside {

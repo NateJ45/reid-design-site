@@ -30,7 +30,7 @@ const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subu
 ---
 
 <section class="area" aria-labelledby="area-heading">
-  <div class="r-wrap area__grid">
+  <div class="r-wrap split split--media-first area__grid">
     <div class="area__copy">
       <h2 id="area-heading" class="r-h2 area__h">
         Based in {home || 'Plainfield'}. <span class="r-accent">Happy to drive.</span>
@@ -61,16 +61,16 @@ const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subu
     border-top: 1px solid var(--color-rule);
     overflow: clip;
   }
+  /* The columns are the shared split (globals.css, PORTS.md card 91) with the
+     narrow track first: the words take it and the map the wide one, so the
+     seam lands where "Meet Staci" puts hers. Until 2026-10-13 it was a
+     12-column grid (words 1/6, map 7/13). */
   .area__grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 1.5rem;
     align-items: center;
   }
   .area__copy {
     position: relative;
     z-index: 1;
-    grid-column: 1 / 6;
   }
   .area__h {
     margin: 0;
@@ -96,10 +96,6 @@ const note = text ?? 'Serving Plainfield, Indianapolis, and the surrounding subu
     margin: 1.5rem 0 0;
     max-width: 44ch;
     color: var(--color-ink-2);
-  }
-  /* The map: the right-hand seven columns, framed like a print. */
-  .area__map {
-    grid-column: 7 / 13;
   }
   @media (max-width: 1023px) {
     .area__grid {
