@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-15: GA4 skips automated browsers (starter card 96)
+
+`GoogleAnalytics.astro` is re-synced from the starter (rule 4): the tag does nothing when `navigator.webdriver` is true or the user agent matches `HeadlessChrome|Lighthouse|PTST|GTmetrix|Speed Insights`. Our own Playwright and Lighthouse runs against production were being counted as visitors (194 in one day on another site). Real browsers are unaffected. Starter PORTS card 96.
+
 ## 2026-10-13: /privacy names Cloudflare's edge beacon; the 24 removed-type documents are exported, delete prepared
 
 "How traffic is measured" on `/privacy` now renders the cookieless Cloudflare paragraph when the zone's Web Analytics automatic setup is on, not only when `PUBLIC_CF_ANALYTICS_TOKEN` is set, because Cloudflare's edge injects the beacon into every HTML page either way. That setting lives in the dashboard, so `src/pages/privacy.astro` carries it as `cfEdgeBeacon` (set it to `false` if automatic setup is switched off). The Google Analytics paragraph reads "also" after it. `seed-conversion-content.mjs` no longer seeds the old "There is no Google Analytics" sentence.
