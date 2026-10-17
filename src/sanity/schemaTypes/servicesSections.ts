@@ -1,7 +1,7 @@
 // Marker-based retrofit for the Services page (same approach as About + Home).
 
 import { defineType, defineField } from 'sanity';
-import { ComponentIcon } from '@sanity/icons';
+import { ComponentIcon } from '@sanity/icons/Component';
 import { SECTION_TYPES } from './sections';
 
 const SERVICES_SECTIONS = [

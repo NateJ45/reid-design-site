@@ -108,8 +108,8 @@ then `Cannot read properties of undefined (reading 'v2')`) while the login
 screen, which is core code only, renders fine. A sibling site in the family lost
 a day of production outage to exactly that. `astro.config.mjs` keeps a
 `resolve.dedupe` list as belt-and-braces. `@sanity/icons` is deliberately NOT
-deduped: sanity core wants v5, `@sanity/ui` v3 wants v3.8, icons are stateless,
-and deduping them broke the build elsewhere on a missing v5 `CogIcon`.
+deduped: icons are stateless, and deduping them broke the build elsewhere on a
+missing v5 `CogIcon` (history from phase 1, when two copies existed; phase 2 has one).
 
 **Verify after any Sanity dependency work, on DISK and in the bundle**, not from
 the npm install output:
@@ -123,16 +123,16 @@ Select-String -Path dist/client/_astro/*.js `
 
 Note the SECOND pattern is deliberately specific. The family's shorthand check is
 `grep -l "errors.md#"`, which reports TWO files here and looks like a failure: the
-extra hit is `polished` (a normal dependency of `sanity` 6.9.1) whose error
+extra hit is `polished` (a normal dependency of `sanity`) whose error
 messages happen to use the same URL shape. Match the styled-components path.
 
-**The version set is a set.** As of 2026-09-06 (phase 1 of the coordinated
-stack migration): `sanity` **6.9.1**, `@sanity/vision` 6.9.1, `@sanity/ui`
-**3.5.4**, `styled-components` 6.5.3, `@sanity/client` **7.26.2**,
-`@sanity/visual-editing` **5.7.3**, `@sanity/preview-url-secret` **4.1.5**,
-`react`/`react-dom`/`react-is` exactly 19.2.8 (styled-components and react took patch bumps in the same day's dependabot group, #32; lockfile re-checked 2026-09-29), `sanity-plugin-media` 5.0.11,
-`sanity-plugin-asset-source-unsplash` 7.0.15, and `overrides` for
-`sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.7.3. Those two need
+**The version set is a set.** As of 2026-10-17 (phase 2 of the coordinated
+stack migration, PORTS.md card 103): `sanity` **6.19.0**, `@sanity/vision` 6.19.0, `@sanity/ui`
+**4.4.9**, `@sanity/icons` **5.2.3**, `styled-components` 6.6.0, `@sanity/client` **8.9.0**,
+`@sanity/visual-editing` **6.1.3**, `@sanity/astro` 3.5.1, `@sanity/preview-url-secret` **4.1.5**,
+`react`/`react-dom`/`react-is` exactly 19.2.8 (styled-components and react took patch bumps in the same day's dependabot group, #32; lockfile re-checked 2026-09-29), `@sanity/orderable-document-list` 2.0.28, `sanity-plugin-media` 6.3.5,
+`sanity-plugin-asset-source-unsplash` 7.0.29, and `overrides` for
+`sanity-plugin-utils` 2.0.22 and `@sanity/visual-editing` 6.1.3. Those two need
 `overrides` rather than a plain dependency pin, because npm will happily nest a
 newer copy under a dependant and drag a second `@sanity/ui` in with it.
 `@sanity/visual-editing` appears BOTH as a dependency and in `overrides`, and
@@ -153,7 +153,7 @@ test. The github-actions ecosystem is exempt.
 
 **The rule is not "hold `@sanity/ui` at 3.3.5".** It is "`@sanity/ui` must be
 whatever the installed `sanity` core declares" (6.4.0 declared `^3.3.0`, 6.9.1
-declares `^3.5.1`). The worked example that taught it: pinning `@sanity/ui` to
+declared `^3.5.1`, 6.19.0 declares `^4.4.x`). The worked example that taught it: pinning `@sanity/ui` to
 3.5.3 while `sanity` stayed at 6.4.0 cleared error #18 and then failed
 differently, `TypeError: Cannot read properties of undefined (reading 'v2')`
 from inside styled-components, because 6.4.0 expects the 3.3.x theme shape.
@@ -161,14 +161,19 @@ Check a change against RESOLVED versions on disk, never against semver ranges,
 and never delete or regenerate the lockfile: move packages with targeted
 `npm install <pkg>@<version>` only.
 
-`sanity` **6.9.2 is the next wall**: that PATCH release moves to `@sanity/ui` 4,
-which is phase 2 and a real migration (ESM-only, a new required
-`@sanity/ui/styles.css`, heavy components moved to subpaths). The exact pins are
-what stop npm walking straight through it.
+`sanity` 6.9.2 was the phase-1 wall: that PATCH release moved to `@sanity/ui` 4.
+Phase 2 (2026-10-17, card 103) crossed it. Studio code now uses `gap` not `space`,
+`gridTemplateColumns` not `columns`, `Menu*` from `@sanity/ui/menu`, `useToast`
+from `@sanity/ui/toast`, and one import per icon from `@sanity/icons/<Name>` (the
+root exports none; only `astro build` catches a root icon import). `@sanity/ui/styles.css`
+is imported by `sanity` itself. `react/compiler-runtime` is in `optimizeDeps.include`
+because `@sanity/ui` is excluded from pre-bundling and 4.x is React Compiler output;
+without it the dev Studio does not hydrate. The exact pins are what stop npm
+walking past the set.
 
-`@sanity/ui` 3.5.4 nests its own `@sanity/icons` 5 where 3.3.5 used the hoisted
-3.8. Harmless: icons are stateless SVG with no React context. `@sanity/icons`
-stays on its 3.x pin here, deliberately.
+Since phase 2 there is ONE `@sanity/icons` on disk (5.2.3); check it with
+`find node_modules -path "*@sanity/icons/package.json"` (one line), next to the
+`@sanity/ui` check (one line, 4.4.9).
 
 **`sanity-plugin-iframe-pane` was dropped** with the fold. It depended on
 `@sanity/ui` by caret, which floats off the pinned 3.5.4, and the read-only iframe of the

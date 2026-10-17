@@ -12,18 +12,16 @@
 // defined so every builder offers the same library.
 
 import { defineType, defineField, defineArrayMember, type InsertMenuOptions } from 'sanity';
-import {
-  BlockElementIcon,
-  ImageIcon,
-  ImagesIcon,
-  BulbOutlineIcon,
-  StarIcon,
-  ComponentIcon,
-  RemoveIcon,
-  PlayIcon,
-  ThLargeIcon,
-  HeartIcon,
-} from '@sanity/icons';
+import { BlockElementIcon } from '@sanity/icons/BlockElement';
+import { ImageIcon } from '@sanity/icons/Image';
+import { ImagesIcon } from '@sanity/icons/Images';
+import { BulbOutlineIcon } from '@sanity/icons/BulbOutline';
+import { StarIcon } from '@sanity/icons/Star';
+import { ComponentIcon } from '@sanity/icons/Component';
+import { RemoveIcon } from '@sanity/icons/Remove';
+import { PlayIcon } from '@sanity/icons/Play';
+import { ThLargeIcon } from '@sanity/icons/ThLarge';
+import { HeartIcon } from '@sanity/icons/Heart';
 
 // Shared image field with required alt text (accessibility + SEO).
 const imageWithAlt = (name = 'image', title = 'Image') =>

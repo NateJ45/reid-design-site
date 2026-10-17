@@ -18,7 +18,9 @@
 import { useState } from 'react';
 import { useClient } from 'sanity';
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity';
-import { ArchiveIcon, RestoreIcon, TrashIcon } from '@sanity/icons';
+import { ArchiveIcon } from '@sanity/icons/Archive';
+import { RestoreIcon } from '@sanity/icons/Restore';
+import { TrashIcon } from '@sanity/icons/Trash';
 import { deserializeFromTrash, publishedId, serializeForTrash, trashTitle } from '../lib/trash';
 
 const API_VERSION = '2026-05-01';

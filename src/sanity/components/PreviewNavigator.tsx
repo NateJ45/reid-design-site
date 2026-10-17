@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useClient } from 'sanity';
 import { usePresentationNavigate, usePresentationParams } from 'sanity/presentation';
 import { Box, Button, Card, Flex, Spinner, Stack, Text } from '@sanity/ui';
-import { AddIcon, LaunchIcon, ShareIcon } from '@sanity/icons';
+import { AddIcon } from '@sanity/icons/Add';
+import { LaunchIcon } from '@sanity/icons/Launch';
+import { ShareIcon } from '@sanity/icons/Share';
 import { SINGLETON_PREVIEW_PATHS } from '../resolve';
 import { canPreviewPath } from '../preview-routes';
 import { startNav, stepNav, toPreviewPath, type PendingNav } from '../../lib/preview-navigation';
@@ -312,7 +314,7 @@ export function PreviewNavigator() {
         />
       )}
       <Box flex={1} padding={3} style={{ overflowY: 'auto' }}>
-        <Stack space={4}>
+        <Stack gap={4}>
           {grouped === null ? (
             <Flex align="center" gap={2} padding={2}>
               <Spinner muted />
@@ -322,11 +324,11 @@ export function PreviewNavigator() {
             </Flex>
           ) : (
             grouped.map((group) => (
-              <Stack key={group.title} space={2}>
+              <Stack key={group.title} gap={2}>
                 <Text size={1} weight="semibold" muted style={{ textTransform: 'uppercase' }}>
                   {group.title}
                 </Text>
-                <Stack space={1}>
+                <Stack gap={1}>
                   {group.rows.map((r) => {
                     const active = pending ? pending.href === r.href : current === r.href;
                     return (
@@ -409,7 +411,7 @@ export function PreviewNavigator() {
       {/* Pinned under the page list so "edit the settings" never needs a trip
           back to the Structure tool. */}
       <Box padding={3} style={{ borderTop: '1px solid var(--card-border-color, #e2e8f0)' }}>
-        <Stack space={1}>
+        <Stack gap={1}>
           <Card
             as="button"
             padding={2}

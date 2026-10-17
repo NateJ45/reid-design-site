@@ -4,7 +4,7 @@
 // conversion-tuned home page, so it renders identically out of the box.
 
 import { defineType, defineField } from 'sanity';
-import { ComponentIcon } from '@sanity/icons';
+import { ComponentIcon } from '@sanity/icons/Component';
 import { SECTION_TYPES } from './sections';
 
 const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [

@@ -53,7 +53,7 @@ function shortDay(iso: string): string {
 function BigNumber(props: { label: string; value: string; hint: string }) {
   return (
     <Card padding={4} radius={3} shadow={1} tone="primary">
-      <Stack space={3}>
+      <Stack gap={3}>
         <Text size={1} weight="medium">
           {props.label}
         </Text>
@@ -80,7 +80,7 @@ function Chart(props: { stats: SiteStats }) {
   const peak = days.reduce((m, d) => (d.pageViews > m ? d.pageViews : m), 0);
 
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Flex align="baseline" justify="space-between" wrap="wrap" gap={2}>
         <Text size={1} weight="medium">
           Page views, one bar per day
@@ -153,11 +153,11 @@ function ProblemCard(props: { problem: Problem; onRetry: () => void }) {
 
   const body =
     problem.reason === 'no-session' ? (
-      <Stack space={4}>
+      <Stack gap={4}>
         <Text size={1}>
           This panel needs to know it is really you. It learns that from the site preview.
         </Text>
-        <Stack space={2} as="ol">
+        <Stack gap={2} as="ol">
           <Text size={1}>1. Click Presentation at the top of the Studio.</Text>
           <Text size={1}>2. Wait for your website to appear beside the editor.</Text>
           <Text size={1}>3. Come back here and click Try again.</Text>
@@ -167,7 +167,7 @@ function ProblemCard(props: { problem: Problem; onRetry: () => void }) {
         </Text>
       </Stack>
     ) : problem.reason === 'unconfigured' ? (
-      <Stack space={4}>
+      <Stack gap={4}>
         <Text size={1}>{problem.message}</Text>
         <Text size={1} muted>
           Nothing is broken and there is nothing for you to do here. Once it is set up, this page
@@ -175,7 +175,7 @@ function ProblemCard(props: { problem: Problem; onRetry: () => void }) {
         </Text>
       </Stack>
     ) : (
-      <Stack space={4}>
+      <Stack gap={4}>
         <Text size={1}>{problem.message}</Text>
         <Text size={1} muted>
           If this keeps happening, tell Nathan.
@@ -185,7 +185,7 @@ function ProblemCard(props: { problem: Problem; onRetry: () => void }) {
 
   return (
     <Card padding={4} radius={3} shadow={1} tone="caution">
-      <Stack space={4}>
+      <Stack gap={4}>
         <Heading size={1}>
           {problem.reason === 'no-session'
             ? 'Open the site preview once, then come back'
@@ -263,8 +263,8 @@ export function StatsTool() {
   return (
     <Box padding={4} overflow="auto" height="fill">
       <Box style={{ maxWidth: 760, margin: '0 auto' }}>
-        <Stack space={5}>
-          <Stack space={3}>
+        <Stack gap={5}>
+          <Stack gap={3}>
             <Heading size={3}>Site stats</Heading>
             <Text size={1} muted>
               How many people have been looking at your website. Read only, and a few minutes
@@ -284,8 +284,8 @@ export function StatsTool() {
           ) : state.kind === 'problem' ? (
             <ProblemCard problem={state.problem} onRetry={() => void load()} />
           ) : (
-            <Stack space={5}>
-              <Grid columns={[1, 1, 3]} gap={3}>
+            <Stack gap={5}>
+              <Grid gridTemplateColumns={[1, 1, 3]} gap={3}>
                 <BigNumber
                   label="Last 7 days"
                   value={nf.format(state.stats.last7.pageViews)}
@@ -308,7 +308,7 @@ export function StatsTool() {
               </Card>
 
               <Card padding={4} radius={3} shadow={1} tone="transparent">
-                <Stack space={4}>
+                <Stack gap={4}>
                   <Heading size={1}>What these numbers mean</Heading>
                   <Text size={1}>
                     A page view is one page loading. A visitor is one device or household in a day,

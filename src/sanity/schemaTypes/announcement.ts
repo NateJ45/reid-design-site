@@ -19,7 +19,7 @@
 // src/lib/cms-preview.ts. Keep the two in step.
 
 import { defineType, defineField } from 'sanity';
-import { BellIcon } from '@sanity/icons';
+import { BellIcon } from '@sanity/icons/Bell';
 
 /** Same page targets the menus can link to (schemaTypes/navLink.ts). */
 const PAGE_TARGETS = [

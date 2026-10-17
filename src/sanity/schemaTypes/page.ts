@@ -8,7 +8,7 @@
 // SINGLETON_TYPES sets in sanity.config.ts and structure.ts.
 
 import { defineType, defineField } from 'sanity';
-import { DocumentsIcon } from '@sanity/icons';
+import { DocumentsIcon } from '@sanity/icons/Documents';
 import { SECTION_TYPES, SECTION_ARRAY_OPTIONS } from './sections';
 import { RESERVED_SLUGS } from '../preview-routes';
 

@@ -49,7 +49,7 @@ function SectionView({ section }: { section: PlaybookSection }) {
   const links = section.links ?? [];
 
   const inner = (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Heading as="h3" size={1}>
         {section.heading}
       </Heading>
@@ -59,7 +59,7 @@ function SectionView({ section }: { section: PlaybookSection }) {
         </Text>
       ))}
       {bullets.length > 0 && (
-        <Stack as="ul" space={2} style={{ margin: 0, paddingLeft: '1.15rem' }}>
+        <Stack as="ul" gap={2} style={{ margin: 0, paddingLeft: '1.15rem' }}>
           {bullets.map((b, i) => (
             <Text key={i} as="li" size={1}>
               {b}
@@ -68,7 +68,7 @@ function SectionView({ section }: { section: PlaybookSection }) {
         </Stack>
       )}
       {links.length > 0 && (
-        <Stack space={2}>
+        <Stack gap={2}>
           {links.map((l, i) => (
             <Text key={i} size={1}>
               <a
@@ -136,7 +136,7 @@ export default function StudioPlaybook() {
 
   return (
     <Container width={1} padding={4}>
-      <Stack space={5}>
+      <Stack gap={5}>
         <Box>
           <Heading as="h1" size={3}>
             {doc.title ?? 'Grow your studio'}
@@ -155,7 +155,7 @@ export default function StudioPlaybook() {
         </Box>
 
         {guides.length > 0 && (
-          <TabList space={2}>
+          <TabList gap={2}>
             {guides.map((g, i) => (
               <Tab
                 key={i}
@@ -171,10 +171,10 @@ export default function StudioPlaybook() {
 
         {activeGuide && (
           <Box id={`playbook-panel-${activeIndex}`} aria-labelledby={`playbook-tab-${activeIndex}`}>
-            <Stack space={5}>
+            <Stack gap={5}>
               {activeGuide.summary && (
                 <Card padding={4} radius={2} shadow={1} tone="primary">
-                  <Stack space={2}>
+                  <Stack gap={2}>
                     {paragraphs(activeGuide.summary).map((p, i) => (
                       <Text key={i} size={1}>
                         {p}

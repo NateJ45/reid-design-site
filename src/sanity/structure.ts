@@ -26,33 +26,31 @@ import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 // which made the desk structure and the config import each other. The URL map
 // now lives in its own module (src/sanity/urls.ts) and the cycle is gone; the
 // iframe preview pane is gone too (see singletonWithPreview below).
-import {
-  BellIcon,
-  CogIcon,
-  TrashIcon,
-  PinIcon,
-  HomeIcon,
-  UserIcon,
-  TrendUpwardIcon,
-  PackageIcon,
-  HelpCircleIcon,
-  InfoOutlineIcon,
-  EnvelopeIcon,
-  DocumentTextIcon,
-  StarIcon,
-  HeartIcon,
-  ImagesIcon,
-  ThListIcon,
-  TagIcon,
-  DesktopIcon,
-  LockIcon,
-  DocumentsIcon,
-  PresentationIcon,
-  ThumbsUpIcon,
-  ColorWheelIcon,
-  RocketIcon,
-  ArrowRightIcon,
-} from '@sanity/icons';
+import { BellIcon } from '@sanity/icons/Bell';
+import { CogIcon } from '@sanity/icons/Cog';
+import { TrashIcon } from '@sanity/icons/Trash';
+import { PinIcon } from '@sanity/icons/Pin';
+import { HomeIcon } from '@sanity/icons/Home';
+import { UserIcon } from '@sanity/icons/User';
+import { TrendUpwardIcon } from '@sanity/icons/TrendUpward';
+import { PackageIcon } from '@sanity/icons/Package';
+import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
+import { InfoOutlineIcon } from '@sanity/icons/InfoOutline';
+import { EnvelopeIcon } from '@sanity/icons/Envelope';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { StarIcon } from '@sanity/icons/Star';
+import { HeartIcon } from '@sanity/icons/Heart';
+import { ImagesIcon } from '@sanity/icons/Images';
+import { ThListIcon } from '@sanity/icons/ThList';
+import { TagIcon } from '@sanity/icons/Tag';
+import { DesktopIcon } from '@sanity/icons/Desktop';
+import { LockIcon } from '@sanity/icons/Lock';
+import { DocumentsIcon } from '@sanity/icons/Documents';
+import { PresentationIcon } from '@sanity/icons/Presentation';
+import { ThumbsUpIcon } from '@sanity/icons/ThumbsUp';
+import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
+import { RocketIcon } from '@sanity/icons/Rocket';
+import { ArrowRightIcon } from '@sanity/icons/ArrowRight';
 import StudioGuide from './components/StudioGuide';
 import BusinessOverview from './components/BusinessOverview';
 import BrandKit from './components/BrandKit';
