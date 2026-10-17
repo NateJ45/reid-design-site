@@ -28,7 +28,10 @@
 // (each block type exists, each key is unique, no em-dashes in the copy).
 // =============================================================================
 import type { Template } from 'sanity';
-import { DocumentsIcon, PinIcon, ImagesIcon, StarIcon } from '@sanity/icons';
+import { DocumentsIcon } from '@sanity/icons/Documents';
+import { PinIcon } from '@sanity/icons/Pin';
+import { ImagesIcon } from '@sanity/icons/Images';
+import { StarIcon } from '@sanity/icons/Star';
 
 /** One paragraph of Portable Text. */
 const para = (key: string, text: string) => ({

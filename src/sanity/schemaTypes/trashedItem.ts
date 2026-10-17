@@ -6,7 +6,7 @@
 // sanity.config.ts. The site never queries this type.
 
 import { defineType, defineField } from 'sanity';
-import { TrashIcon } from '@sanity/icons';
+import { TrashIcon } from '@sanity/icons/Trash';
 
 export const trashedItem = defineType({
   name: 'trashedItem',

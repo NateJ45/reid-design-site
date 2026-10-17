@@ -8,7 +8,7 @@
 // The default order matches today's About page, so it renders identically.
 
 import { defineType, defineField } from 'sanity';
-import { ComponentIcon } from '@sanity/icons';
+import { ComponentIcon } from '@sanity/icons/Component';
 import { SECTION_TYPES } from './sections';
 
 const ABOUT_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
