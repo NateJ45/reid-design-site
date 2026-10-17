@@ -20,7 +20,7 @@ import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
-import { TrendUpwardIcon } from '@sanity/icons';
+import { TrendUpwardIcon } from '@sanity/icons/TrendUpward';
 import { media } from 'sanity-plugin-media';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { schemaTypes } from './src/sanity/schemaTypes';
@@ -161,7 +161,7 @@ export default defineConfig({
     // not the same thing as a preview of what you are typing. The Presentation
     // tool below shows live draft content with click-to-edit, so keeping a
     // second, worse preview around was not worth holding a third package
-    // (@sanity/ui ^3.2.0 by caret) off the pinned 3.5.4.
+    // (@sanity/ui by caret) off the pinned 4.4.9.
     structureTool({
       structure: deskStructure,
     }),
@@ -179,7 +179,7 @@ export default defineConfig({
       resolve,
       previewUrl: {
         initial: '/preview',
-        previewMode: { enable: '/api/draft-mode/enable' },
+        previewMode: { enable: '/api/draft-mode/enable/' },
       },
       // The Squarespace-style page list beside the preview: click a page, the
       // preview jumps there and the edit panel follows.
@@ -195,8 +195,8 @@ export default defineConfig({
     // package's correct registration is via the plugins array (not
     // form.image.assetSources, that was my earlier bug). Picking a photo
     // uploads it to the Sanity library + attaches to the field in one shot.
-    // Held at 7.0.15: newer versions demand @sanity/ui ^3.4, which would drag
-    // the pinned 3.5.4 forward and break the theme context.
+    // Pinned at 7.0.29 (phase 2): it wants @sanity/ui ^4, matching the pinned
+    // 4.4.9; a version that wanted another major would break the theme context.
     unsplashImageAsset(),
     // Media browser, adds a top-level "Media" icon in the Studio sidebar
     // for browsing every uploaded image at once with tag + filter + bulk-edit.

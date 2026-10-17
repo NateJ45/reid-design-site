@@ -1,7 +1,7 @@
 // Marker-based retrofit for the Process page (same approach as the others).
 
 import { defineType, defineField } from 'sanity';
-import { ComponentIcon } from '@sanity/icons';
+import { ComponentIcon } from '@sanity/icons/Component';
 import { SECTION_TYPES } from './sections';
 
 const PROCESS_SECTIONS = [

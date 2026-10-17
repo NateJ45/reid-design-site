@@ -3,7 +3,7 @@
 // small factory stays so a future offering page can reuse it.
 
 import { defineType, defineField } from 'sanity';
-import { ComponentIcon } from '@sanity/icons';
+import { ComponentIcon } from '@sanity/icons/Component';
 import { SECTION_TYPES } from './sections';
 
 /** One selectable built-in section: the stored value and the label editors see. */

@@ -143,7 +143,7 @@ function Swatch({ color }: SwatchProps) {
         }}
       />
       {/* Name, hex, note */}
-      <Stack space={1} style={{ minWidth: 0 }}>
+      <Stack gap={1} style={{ minWidth: 0 }}>
         <Text size={1} weight="semibold">
           {color.name}
         </Text>
@@ -164,7 +164,7 @@ function Swatch({ color }: SwatchProps) {
 export default function BrandKit() {
   return (
     <Container width={1} padding={4}>
-      <Stack space={6}>
+      <Stack gap={6}>
         {/* Header */}
         <Box>
           <Heading as="h1" size={3}>
@@ -183,14 +183,14 @@ export default function BrandKit() {
           <Heading as="h2" size={1} style={{ marginBottom: '1rem' }}>
             Brand colors
           </Heading>
-          <Stack space={4}>
+          <Stack gap={4}>
             {colorGroups.map((group) => (
               <Card key={group.label} padding={4} radius={2} shadow={1} tone="default">
-                <Stack space={4}>
+                <Stack gap={4}>
                   <Text size={1} weight="semibold" muted>
                     {group.label.toUpperCase()}
                   </Text>
-                  <Stack space={4}>
+                  <Stack gap={4}>
                     {group.colors.map((color) => (
                       <Swatch key={color.hex} color={color} />
                     ))}
@@ -206,10 +206,10 @@ export default function BrandKit() {
           <Heading as="h2" size={1} style={{ marginBottom: '1rem' }}>
             Fonts
           </Heading>
-          <Stack space={3}>
+          <Stack gap={3}>
             {fonts.map((font) => (
               <Card key={font.name} padding={4} radius={2} shadow={1} tone="default">
-                <Stack space={2}>
+                <Stack gap={2}>
                   <Text size={1} weight="semibold">
                     {font.name}
                   </Text>
@@ -230,7 +230,7 @@ export default function BrandKit() {
 
         {/* ── Using this in Canva ───────────────────────────────────────── */}
         <Card padding={4} radius={2} shadow={1} tone="primary">
-          <Stack space={3}>
+          <Stack gap={3}>
             <Heading as="h2" size={1}>
               Using this in Canva
             </Heading>

@@ -184,8 +184,17 @@ export default defineConfig({
     // surfacing as "TypeError: Cannot read properties of undefined (reading
     // 'v2')" from inside styled-components' generateAndInjectStyles. Leave the
     // bundler's default chunking alone.
+    //
+    // `react/compiler-runtime` has to be INCLUDED because of that exclusion
+    // (Sanity phase 2, PORTS.md card 103). @sanity/ui 4 is compiled with the
+    // React Compiler and imports React's own CommonJS `react/compiler-runtime`.
+    // An excluded package's imports are served raw, so without this the dev
+    // Studio fails to hydrate with "react/compiler-runtime.js does not provide
+    // an export named 'c'". @sanity/astro only includes the older
+    // `react-compiler-runtime` package. Dev only; `astro build` is unaffected.
     optimizeDeps: {
       exclude: ['@sanity/ui', 'styled-components'],
+      include: ['react/compiler-runtime'],
     },
     // -----------------------------------------------------------------------
     // ONE module instance per package

@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-17: Sanity phase 2, the `@sanity/ui` 4 / `@sanity/icons` 5 set (starter card 103)
+
+Branch `deps/sanity-phase2`. `sanity` and `@sanity/vision` 6.19.0, `@sanity/ui` 4.4.9, `@sanity/icons` 5.2.3, `styled-components` 6.6.0, `@sanity/client` 8.9.0, `@sanity/visual-editing` 6.1.3 (dependency and override), `@sanity/astro` 3.5.1, `sanity-plugin-utils` override 2.0.22, `@sanity/orderable-document-list` 2.0.28, `sanity-plugin-media` 6.3.5, `sanity-plugin-asset-source-unsplash` 7.0.29. The seven PORTABLE Studio files this site has were re-copied from the starter; `astro.config.mjs` gained `optimizeDeps.include: ['react/compiler-runtime']`. Studio files were migrated by codemod (icon subpath imports, `@sanity/ui/menu` and `/toast` subpaths) plus `space` to `gap`, `Grid columns` to `gridTemplateColumns`, and the dropped `Badge mode`. No site-visible change.
+
 ## 2026-10-15: GA4 skips automated browsers (starter card 96)
 
 `GoogleAnalytics.astro` is re-synced from the starter (rule 4): the tag does nothing when `navigator.webdriver` is true or the user agent matches `HeadlessChrome|Lighthouse|PTST|GTmetrix|Speed Insights`. Our own Playwright and Lighthouse runs against production were being counted as visitors (194 in one day on another site). Real browsers are unaffected. Starter PORTS card 96.
