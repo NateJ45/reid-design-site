@@ -12,7 +12,8 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createClient } from '@sanity/client';
-import { gateClient, productionWriteRefusal } from './write-gate.mjs';
+import { fileURLToPath as toPath } from 'node:url';
+import { decideWrite, gateClient, productionWriteRefusal } from './write-gate.mjs';
 
 const GATE = new URL('./write-gate.mjs', import.meta.url).href;
 const SANITY_CLIENT = import.meta.resolve('@sanity/client');
@@ -130,4 +131,46 @@ test('--apply with NCS_PRODUCTION_WRITE=yes passes the guard and attempts the wr
   assert.notEqual(res.status, 0);
   assert.doesNotMatch(res.stderr, /Refusing to write/);
   assert.match(res.stderr, /example\.invalid|ENOTFOUND|EAI_AGAIN|fetch failed/i);
+});
+
+// --- writeGate(), for the starter's PORTABLE publish-due.mjs (card 114) -------
+
+test('decideWrite: dry by default, the factor on production, the CI allowance', () => {
+  const base = { processEnv: {}, dataset: 'production', factor: undefined };
+  assert.equal(decideWrite({ ...base, argv: [] }).write, false);
+  assert.match(decideWrite({ ...base, argv: ['--apply'] }).refusal, /Refusing to write/);
+  assert.equal(decideWrite({ ...base, argv: ['--apply'], factor: 'yes' }).via, 'flag+factor');
+  assert.match(
+    decideWrite({ ...base, argv: ['--apply'], factor: 'yes', envFileHasFactor: true }).refusal,
+    /\.env defines/,
+  );
+  assert.equal(
+    decideWrite({ ...base, argv: ['--apply'], processEnv: { GITHUB_ACTIONS: 'true' }, ci: true })
+      .via,
+    'ci',
+  );
+  assert.equal(
+    decideWrite({ ...base, argv: ['--apply'], processEnv: { GITHUB_ACTIONS: 'true' } }).write,
+    false,
+  );
+  assert.equal(decideWrite({ ...base, dataset: 'staging', argv: ['--apply'] }).write, true);
+});
+
+test('publish-due.mjs refuses --apply on production without the variable', () => {
+  const script = toPath(new URL('../publish-due.mjs', import.meta.url));
+  const env = {
+    ...process.env,
+    SANITY_AUTH_TOKEN: 'fake',
+    SANITY_PROJECT_ID: 'fake0000',
+    SANITY_DATASET: 'production',
+  };
+  delete env.NCS_PRODUCTION_WRITE;
+  delete env.GITHUB_ACTIONS;
+  const r = spawnSync(process.execPath, [script, '--apply'], {
+    env,
+    encoding: 'utf8',
+    timeout: 60_000,
+  });
+  assert.equal(r.status, 2, `${r.stdout}\n${r.stderr}`);
+  assert.match(r.stderr, /Refusing to write/);
 });

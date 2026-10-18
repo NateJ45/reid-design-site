@@ -1,0 +1,52 @@
+/* The site's font files, loaded into the Studio (PORTS.md card 116).
+   Written by hand on this site: the starter generates this file from
+   brand.config.json fonts.*.imports (@fontsource packages), but Reid Design's
+   faces are Fontshare files that scripts/fetch-fonts.mjs downloads into
+   public/fonts/ before every dev and build run (the licence forbids a copy in a
+   public repo). So the rules below point at the same /fonts/ files the site
+   uses (src/styles/globals.css), on the same origin as the embedded Studio.
+   sanity.config.ts imports this file; the family names are DISPLAY_STACK and
+   BODY_STACK there. Zodiak ships 300 and 400 only, so 400 covers every heavier
+   weight and the browser never fakes a bold. */
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-300.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-400.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-400i.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-400.woff2') format('woff2');
+  font-weight: 100 449;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-500.woff2') format('woff2');
+  font-weight: 450 549;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-600.woff2') format('woff2');
+  font-weight: 550 900;
+  font-style: normal;
+  font-display: swap;
+}

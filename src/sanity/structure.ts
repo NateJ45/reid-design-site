@@ -1,60 +1,44 @@
-// Studio Desk structure. Pins Site Settings at the top, then ALL page singletons
-// (one document each) under "Pages", then the reusable content collections under
-// "Content". Every document type is placed explicitly so nothing
-// floats loose at the desk root. The trailing default-list filter is a safety net
-// for any future type that hasn't been placed (and hides sanity-plugin-media's
-// media.tag type, which would otherwise show at the root).
+// Studio Desk structure (the "Content" tool). Room stories first, because the
+// portfolio is the job that books consultations; then the pages, then the
+// business data and reusable lists, then the Trash. Every document type is
+// placed explicitly so nothing floats loose at the desk root. The trailing
+// default-list filter is a safety net for any future type that has not been
+// placed (and keeps plugin types such as sanity-plugin-media's out).
 //
-// "Pages" is one list (so the rule for Staci is simple: every page lives here),
-// visually grouped with dividers: core pages, then offerings, then the
-// remaining pages. (The journal, shop, gift, resources, press, quiz,
-// calculator and guides types were removed on 2026-09-30; they were never
-// launched.)
+// 2026-10-18 (the Studio kit, PORTS.md cards 106 to 120):
+//   - The whole desk is wrapped in staffDesk() (kit/shared.tsx), so the staff
+//     view can hide panes and swap Delete for Move to Trash.
+//   - Every item a Home link or the Checkup can reach has an explicit, stable
+//     .id(): singletons use their document id ("aboutPage"), lists their type
+//     ("testimonial"), so kit.config.ts can link to "content;testimonial".
+//     A title-derived id would change with the wording and blank the pane.
+//   - Icons come from the brand registry by MEANING (typeIcon / brandIcon,
+//     src/sanity/brandIcons.tsx), so the desk, search and lists agree.
+//   - "Start Here > How the website works" (the studioGuide document) is gone
+//     from the desk: its how-tos now live in the Site Guide tool, rewritten in
+//     today's Studio words (src/sanity/guides/content.ts). The document and
+//     its schema stay, untouched.
+//   - Lists Staci fills herself explain themselves while empty
+//     (emptyAwareList), and the long ones have a table view beside them.
 //
 // Orderable lists: service / processStep / philosophyPoint / project use the
-// orderable-document-list plugin.
-// Editors drag rows to reorder; the plugin writes an `orderRank` string. GROQ
-// queries order by orderRank (with displayOrder fallback) so the site mirrors Studio.
-//
-// Preview pane: singletons explicitly attach a form + preview iframe view via the
-// singletonWithPreview helper. Other types pick up preview from defaultDocumentNode
-// in sanity.config.ts.
+// orderable-document-list plugin. Editors drag rows to reorder; the plugin
+// writes an `orderRank` string. GROQ queries order by orderRank (with
+// displayOrder fallback) so the site mirrors Studio.
 
 import type { StructureBuilder, StructureResolverContext } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
-// 2026-08-28: this used to be `import { Iframe, urlForDoc } from './sanity.config'`,
-// which made the desk structure and the config import each other. The URL map
-// now lives in its own module (src/sanity/urls.ts) and the cycle is gone; the
-// iframe preview pane is gone too (see singletonWithPreview below).
-import { BellIcon } from '@sanity/icons/Bell';
-import { CogIcon } from '@sanity/icons/Cog';
-import { TrashIcon } from '@sanity/icons/Trash';
-import { PinIcon } from '@sanity/icons/Pin';
-import { HomeIcon } from '@sanity/icons/Home';
-import { UserIcon } from '@sanity/icons/User';
-import { TrendUpwardIcon } from '@sanity/icons/TrendUpward';
-import { PackageIcon } from '@sanity/icons/Package';
-import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
-import { InfoOutlineIcon } from '@sanity/icons/InfoOutline';
-import { EnvelopeIcon } from '@sanity/icons/Envelope';
-import { DocumentTextIcon } from '@sanity/icons/DocumentText';
-import { StarIcon } from '@sanity/icons/Star';
-import { HeartIcon } from '@sanity/icons/Heart';
-import { ImagesIcon } from '@sanity/icons/Images';
-import { ThListIcon } from '@sanity/icons/ThList';
-import { TagIcon } from '@sanity/icons/Tag';
-import { DesktopIcon } from '@sanity/icons/Desktop';
-import { LockIcon } from '@sanity/icons/Lock';
-import { DocumentsIcon } from '@sanity/icons/Documents';
-import { PresentationIcon } from '@sanity/icons/Presentation';
-import { ThumbsUpIcon } from '@sanity/icons/ThumbsUp';
-import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
-import { RocketIcon } from '@sanity/icons/Rocket';
-import { ArrowRightIcon } from '@sanity/icons/ArrowRight';
-import StudioGuide from './components/StudioGuide';
 import BusinessOverview from './components/BusinessOverview';
 import BrandKit from './components/BrandKit';
 import StudioPlaybook from './components/StudioPlaybook';
+import { staffDesk } from './kit/shared';
+import { emptyAwareList } from './kit/emptyList';
+import { brandIcon, typeIcon, type BrandIcon } from './brandIcons';
+import { kitConfig } from './kit.config';
+import { TRASH_TYPE } from '../lib/studio-trash';
+import { WEEK_TYPE } from '../lib/studio-kit';
+import { tableListItem } from './workflow';
+import { TABLES } from './tables.config';
 
 const SINGLETON_TYPES = [
   'siteSettings',
@@ -68,9 +52,9 @@ const SINGLETON_TYPES = [
   'faqPage',
   'contactPage',
   'notFoundPage',
-  // Conversion-build page singletons
   'eDesignPage',
   'privacyPage',
+  // Start Here
   'studioGuide',
   'studioNotes',
   'studioPlaybook',
@@ -83,68 +67,281 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...ORDERABLE_TYPES,
   'testimonial',
   'faqItem',
-  'announcement', // placed explicitly, right under Site Settings
-  'page', // custom pages, placed explicitly under "Pages"
-  // sanity-plugin-media registers this tag type; keep it out of the desk root
-  // (the "Media" tool in the top sidebar is where tags belong).
-  'media.tag',
-  // Trash has its own explicit desk entry near the bottom.
-  'trashedItem',
-  // Placed explicitly at the end of "Pages" (PORTS.md card 22).
+  'announcement',
+  'page',
   'redirect',
+  TRASH_TYPE,
+  // The kit's weekly tick and the workflow's share links: plumbing, never listed.
+  WEEK_TYPE,
+  'previewShare',
 ]);
 
+/** The table views (tables.config.ts) for one type, placed beside its list. */
+const tablesFor = (S: StructureBuilder, type: string) =>
+  TABLES.filter((t) => t.type === type).map((t) => tableListItem(S, t));
+
 /**
- * Build a singleton list item pinned to its one fixed document id.
- *
- * NAME KEPT ON PURPOSE. It used to attach a second `sanity-plugin-iframe-pane`
- * "Preview" tab beside the form. That plugin was dropped on 2026-08-28 with the
- * Sanity 6.4 pin set: it depends on `@sanity/ui: ^3.2.0` by caret, which floats
- * to 3.5.x and breaks the one-@sanity/ui-instance invariant the whole Studio
- * theme context rests on (PORTS.md card 10). Overriding a third package to hold
- * a dead-end preview was the wrong trade, because the Presentation tool now in
- * sanity.config.ts replaces what it did and does it better: a live, click-to-
- * edit, draft-aware preview with a page navigator, instead of a read-only
- * iframe of the last deploy.
- *
+ * A singleton list item pinned to its one fixed document id. The id IS the
+ * document id, because an intent link from Home resolves to "pages;aboutPage".
+ * The name is historical (it used to attach an iframe preview view; the
+ * Presentation tool replaced it on 2026-08-28).
  */
-function singletonWithPreview(S: StructureBuilder, schemaType: string, title: string, icon: any) {
+function singletonWithPreview(
+  S: StructureBuilder,
+  schemaType: string,
+  title: string,
+  icon: BrandIcon = typeIcon(schemaType),
+) {
   return S.listItem()
+    .id(schemaType)
     .title(title)
     .icon(icon)
-    .child(S.document().schemaType(schemaType).documentId(schemaType).views([S.view.form()]));
+    .child(
+      S.document()
+        .schemaType(schemaType)
+        .documentId(schemaType)
+        .views([S.view.form().title('Edit')]),
+    );
 }
 
 export const deskStructure = (S: StructureBuilder, context: StructureResolverContext) =>
+  staffDesk(fullDesk(S, context), context, kitConfig);
+
+const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
   S.list()
-    .title('Reid Design')
+    .title('Content')
     .items([
-      // Start Here, three-panel handbook for Staci. First item so it is always visible.
-      // Panel 1: how the Studio works and step-by-step how-tos (static).
-      // Panel 2: live business overview (services + site settings fetched from Sanity).
-      // Panel 3: brand kit, colors + fonts for Canva (static).
+      // Room stories: the portfolio. First, because a finished room is what a
+      // client looks at before booking. The orderable list's own "Create new"
+      // makes a blank story, so the prompted Room story layout is offered
+      // beside it (src/sanity/templates.ts).
+      orderableDocumentListDeskItem({
+        type: 'project',
+        id: 'project',
+        title: 'Room stories',
+        icon: typeIcon('project'),
+        S,
+        context,
+        menuItems: [
+          S.menuItem()
+            .title('New room story (with writing prompts)')
+            .icon(typeIcon('project'))
+            .intent({
+              type: 'create',
+              params: { type: 'project', template: 'project-story' },
+            })
+            .serialize(),
+        ],
+      }),
+      ...tablesFor(S, 'project'),
+
+      S.divider(),
+
+      // Pages: every page lives here. Core pages, then offerings, then the rest.
       S.listItem()
-        .title('Start Here')
-        .icon(InfoOutlineIcon)
+        .id('pages')
+        .title('Pages')
+        .icon(brandIcon('pages'))
         .child(
           S.list()
+            .id('pages-list')
+            .title('Pages')
+            .items([
+              singletonWithPreview(S, 'homePage', 'Home'),
+              singletonWithPreview(S, 'aboutPage', 'About'),
+              singletonWithPreview(S, 'servicesPage', 'Services'),
+              singletonWithPreview(S, 'eDesignPage', 'E-Design'),
+              singletonWithPreview(S, 'processPage', 'Process'),
+              singletonWithPreview(S, 'portfolioPage', 'Portfolio (the list page)'),
+              singletonWithPreview(S, 'faqPage', 'Questions (FAQ)'),
+              singletonWithPreview(S, 'contactPage', 'Contact'),
+              singletonWithPreview(S, 'privacyPage', 'Privacy policy'),
+              singletonWithPreview(S, 'notFoundPage', 'Page not found (404)'),
+
+              S.divider(),
+
+              // Pages Staci builds herself from the section library.
+              emptyAwareList(S, context, {
+                id: 'page',
+                type: 'page',
+                title: 'Pages you build',
+                icon: typeIcon('page'),
+                explain:
+                  'Pages of your own: a service explained in full, a town you work in, a seasonal styling offer. Start from a ready-made layout and change the words.',
+              }),
+
+              S.divider(),
+
+              // Redirects: old address to new address (PORTS.md card 22). Most
+              // are filed automatically when a published page or room story
+              // gets a new web address; one can be added by hand for an old
+              // Squarespace link. Applied at build time by astro.config.mjs.
+              S.documentTypeListItem('redirect')
+                .id('redirect')
+                .title('Redirects (old links)')
+                .icon(typeIcon('redirect')),
+            ]),
+        ),
+
+      S.divider(),
+
+      // Content: the business data and the lists that fill many pages.
+      S.listItem()
+        .id('content')
+        .title('Prices, reviews and lists')
+        .icon(brandIcon('content'))
+        .child(
+          S.list()
+            .id('content-list')
+            .title('Prices, reviews and lists')
+            .items([
+              // Service areas, travel fees, availability, map position.
+              singletonWithPreview(
+                S,
+                'businessInfo',
+                'Business info (areas, travel, availability)',
+              ),
+
+              S.divider(),
+
+              // Every place a price lives, in one spot.
+              S.listItem()
+                .id('pricing')
+                .title('Services and prices')
+                .icon(typeIcon('service'))
+                .child(
+                  S.list()
+                    .id('pricing-list')
+                    .title('Services and prices')
+                    .items([
+                      orderableDocumentListDeskItem({
+                        type: 'service',
+                        id: 'service',
+                        title: 'Services and prices',
+                        icon: typeIcon('service'),
+                        S,
+                        context,
+                      }),
+                      ...tablesFor(S, 'service'),
+                      singletonWithPreview(S, 'eDesignPage', 'E-Design prices'),
+                    ]),
+                ),
+
+              S.divider(),
+
+              emptyAwareList(S, context, {
+                id: 'testimonial',
+                type: 'testimonial',
+                title: 'Reviews',
+                icon: typeIcon('testimonial'),
+                explain:
+                  'What clients say about working with you, from Google, Houzz, a text or an email. Paste their words exactly.',
+              }),
+              ...tablesFor(S, 'testimonial'),
+              // Google reviews (2026-09-30): one place for everything Google.
+              // The rating lives on Site settings (Reviews tab); the reviews
+              // themselves are reviews with Source "Google", newest first, and
+              // "+" starts one already set to Google ('testimonial-google').
+              S.listItem()
+                .id('google-reviews')
+                .title('Google reviews and rating')
+                .icon(brandIcon('testimonial'))
+                .child(
+                  S.list()
+                    .id('google-reviews-list')
+                    .title('Google reviews and rating')
+                    .items([
+                      S.listItem()
+                        .id('google-rating')
+                        .title('Star rating')
+                        .icon(brandIcon('testimonial'))
+                        .child(
+                          S.document()
+                            .schemaType('siteSettings')
+                            .documentId('siteSettings')
+                            .title('Site settings: open the Reviews tab')
+                            .views([S.view.form().title('Edit')]),
+                        ),
+                      S.listItem()
+                        .id('google-review-list')
+                        .title('Reviews from Google')
+                        .icon(typeIcon('testimonial'))
+                        .child(
+                          S.documentList()
+                            .id('google-review-documents')
+                            .title('Reviews from Google')
+                            .schemaType('testimonial')
+                            .filter(
+                              '_type == "testimonial" && (source == "Google" || sourceType == "Google")',
+                            )
+                            .defaultOrdering([{ field: 'date', direction: 'desc' }])
+                            .initialValueTemplates([
+                              S.initialValueTemplateItem('testimonial-google'),
+                            ]),
+                        ),
+                    ]),
+                ),
+
+              S.divider(),
+
+              emptyAwareList(S, context, {
+                id: 'faqItem',
+                type: 'faqItem',
+                title: 'Questions and answers',
+                icon: typeIcon('faqItem'),
+                explain:
+                  'The questions clients ask before booking, with your answers. They show on the Questions page in their groups.',
+              }),
+              orderableDocumentListDeskItem({
+                type: 'processStep',
+                id: 'processStep',
+                title: 'Process steps',
+                icon: typeIcon('processStep'),
+                S,
+                context,
+              }),
+              orderableDocumentListDeskItem({
+                type: 'philosophyPoint',
+                id: 'philosophyPoint',
+                title: 'Values (About page)',
+                icon: typeIcon('philosophyPoint'),
+                S,
+                context,
+              }),
+            ]),
+        ),
+
+      // Announcements: the bar or popup Staci posts herself. Top level, not
+      // buried, because she reaches for it the week she needs it.
+      emptyAwareList(S, context, {
+        id: 'announcement',
+        type: 'announcement',
+        title: 'Announcements',
+        icon: typeIcon('announcement'),
+        explain:
+          'A short line across the top of the website, or a popup, for a few days or weeks: "Booking consultations for March", "Studio closed Thanksgiving week".',
+      }),
+
+      S.divider(),
+
+      // Site settings: identity, menus, section switches, social, reviews,
+      // the Instagram feed.
+      singletonWithPreview(S, 'siteSettings', 'Site settings'),
+
+      // Start Here: Staci's handbooks (the how-tos are in the Site Guide tool).
+      S.listItem()
+        .id('start-here')
+        .title('Start Here')
+        .icon(brandIcon('guide'))
+        .child(
+          S.list()
+            .id('start-here-list')
             .title('Start Here')
             .items([
               S.listItem()
-                .title('How the website works')
-                .icon(PresentationIcon)
-                .child(
-                  S.document()
-                    .schemaType('studioGuide')
-                    .documentId('studioGuide')
-                    .views([
-                      S.view.component(StudioGuide).title('Guide'),
-                      S.view.form().title('Edit'),
-                    ]),
-                ),
-              S.listItem()
+                .id('studioNotes')
                 .title('Your business at a glance')
-                .icon(ThumbsUpIcon)
+                .icon(typeIcon('studioNotes'))
                 .child(
                   S.document()
                     .schemaType('studioNotes')
@@ -155,12 +352,14 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                     ]),
                 ),
               S.listItem()
+                .id('brand-kit')
                 .title('Brand kit')
-                .icon(ColorWheelIcon)
-                .child(S.component(BrandKit).title('Brand kit')),
+                .icon(brandIcon('brandKit'))
+                .child(S.component(BrandKit).id('brand-kit-view').title('Brand kit')),
               S.listItem()
+                .id('studioPlaybook')
                 .title('Grow your studio')
-                .icon(RocketIcon)
+                .icon(typeIcon('studioPlaybook'))
                 .child(
                   S.document()
                     .schemaType('studioPlaybook')
@@ -175,205 +374,24 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
 
       S.divider(),
 
-      // Site Settings, pinned singleton (no preview; not a page)
-      singletonWithPreview(S, 'siteSettings', 'Site Settings', CogIcon),
-
-      // Announcements: the top-of-site bar and popup Staci posts herself.
-      // Top level (not buried under Content) because she reaches for it the
-      // week she needs it, e.g. "Studio closed Thanksgiving week".
-      S.documentTypeListItem('announcement').title('Announcements').icon(BellIcon),
-
-      S.divider(),
-
-      // Pages, every page singleton lives here, grouped with dividers so the
-      // list stays scannable: core pages, offerings, other.
+      // Trash: anything removed with "Move to Trash", newest first, so the
+      // thing you just removed by accident is the first row you see. The id is
+      // load-bearing: the Checkup links to it.
       S.listItem()
-        .title('Pages')
-        .icon(DocumentTextIcon)
+        .id('trash')
+        .title('Trash (bring things back)')
+        .icon(brandIcon('trash'))
         .child(
-          S.list()
-            .title('Pages')
-            .items([
-              // Core pages
-              singletonWithPreview(S, 'homePage', 'Home', HomeIcon),
-              singletonWithPreview(S, 'aboutPage', 'About', UserIcon),
-              singletonWithPreview(S, 'processPage', 'Process', TrendUpwardIcon),
-              singletonWithPreview(S, 'servicesPage', 'Services', PackageIcon),
-              singletonWithPreview(S, 'portfolioPage', 'Portfolio (index page)', ImagesIcon),
-              singletonWithPreview(S, 'faqPage', 'FAQ', HelpCircleIcon),
-              singletonWithPreview(S, 'contactPage', 'Contact', EnvelopeIcon),
-              singletonWithPreview(S, 'notFoundPage', '404 Page', DocumentTextIcon),
-
-              S.divider(),
-
-              // Offerings
-              singletonWithPreview(S, 'eDesignPage', 'E-Design Page', DesktopIcon),
-
-              S.divider(),
-
-              // Other
-              singletonWithPreview(S, 'privacyPage', 'Privacy Policy Page', LockIcon),
-
-              S.divider(),
-
-              // Custom pages: Staci builds these herself from the section
-              // library. Multi-instance (not a singleton), so it is a normal
-              // document list she can add to.
-              S.documentTypeListItem('page')
-                .title('Custom pages (you build these)')
-                .icon(DocumentsIcon),
-
-              S.divider(),
-
-              // Redirects: old address -> new address (PORTS.md card 22). Most
-              // entries are filed automatically when a published page or
-              // project gets a new web address
-              // (src/sanity/components/slugRedirect.tsx); Staci adds one by hand
-              // for an address that never existed here, like an old Squarespace
-              // link. Applied at build time by astro.config.mjs.
-              S.documentTypeListItem('redirect')
-                .title('Redirects (old links)')
-                .icon(ArrowRightIcon),
-            ]),
-        ),
-
-      S.divider(),
-
-      // Content, the business data and reusable building blocks Staci edits.
-      // Leads with Business info (areas / travel / availability) and a single
-      // Pricing & rates group, so the things she changes that populate many
-      // pages are findable in one spot. Orderable types keep drag-and-drop.
-      S.listItem()
-        .title('Content')
-        .icon(ThListIcon)
-        .child(
-          S.list()
-            .title('Content')
-            .items([
-              // Business info, service areas, travel fees, availability, geo.
-              // Moved here from Site Settings so Settings is identity + infra only.
-              singletonWithPreview(S, 'businessInfo', 'Business info', PinIcon),
-
-              S.divider(),
-
-              // Pricing & rates, every place a price lives, in one spot. Services
-              // is the core list; the E-Design page keeps its own pricing shape
-              // but is linked here too so Staci never hunts for a number.
-              S.listItem()
-                .title('Pricing & rates')
-                .icon(TagIcon)
-                .child(
-                  S.list()
-                    .title('Pricing & rates')
-                    .items([
-                      orderableDocumentListDeskItem({
-                        type: 'service',
-                        title: 'Services + prices',
-                        icon: PackageIcon,
-                        S,
-                        context,
-                      }),
-                      singletonWithPreview(S, 'eDesignPage', 'E-Design pricing', DesktopIcon),
-                    ]),
-                ),
-
-              S.divider(),
-
-              // Projects, people, process, FAQ.
-              orderableDocumentListDeskItem({
-                type: 'project',
-                title: 'Projects',
-                icon: ImagesIcon,
-                S,
-                context,
-                // The "Room story" starting layout (src/sanity/templates.ts).
-                // The orderable list's own "Create new" makes a blank project,
-                // so the prompted one is offered beside it in the same menu.
-                menuItems: [
-                  S.menuItem()
-                    .title('New room story (with writing prompts)')
-                    .icon(ImagesIcon)
-                    .intent({
-                      type: 'create',
-                      params: { type: 'project', template: 'project-story' },
-                    })
-                    .serialize(),
-                ],
-              }),
-              orderableDocumentListDeskItem({
-                type: 'processStep',
-                title: 'Process Steps',
-                icon: TrendUpwardIcon,
-                S,
-                context,
-              }),
-              orderableDocumentListDeskItem({
-                type: 'philosophyPoint',
-                title: 'Philosophy Values',
-                icon: HeartIcon,
-                S,
-                context,
-              }),
-              S.documentTypeListItem('testimonial').title('Testimonials').icon(StarIcon),
-              // Google reviews (2026-09-30): one place for everything Google.
-              // The rating summary lives on Site Settings (Reviews tab); the
-              // reviews themselves are testimonials with Source "Google", listed
-              // here newest first, and "+" starts one already set to Google
-              // (the 'testimonial-google' template in templates.ts).
-              S.listItem()
-                .title('Google reviews')
-                .icon(ThumbsUpIcon)
-                .child(
-                  S.list()
-                    .title('Google reviews')
-                    .items([
-                      S.listItem()
-                        .title('Star rating')
-                        .icon(StarIcon)
-                        .child(
-                          S.document()
-                            .schemaType('siteSettings')
-                            .documentId('siteSettings')
-                            .title('Site Settings: open the Reviews tab')
-                            .views([S.view.form()]),
-                        ),
-                      S.listItem()
-                        .title('Reviews from Google')
-                        .icon(ThListIcon)
-                        .child(
-                          S.documentList()
-                            .title('Reviews from Google')
-                            .schemaType('testimonial')
-                            .filter(
-                              '_type == "testimonial" && (source == "Google" || sourceType == "Google")',
-                            )
-                            .defaultOrdering([{ field: 'date', direction: 'desc' }])
-                            .initialValueTemplates([
-                              S.initialValueTemplateItem('testimonial-google'),
-                            ]),
-                        ),
-                    ]),
-                ),
-              S.documentTypeListItem('faqItem').title('FAQ Items').icon(HelpCircleIcon),
-            ]),
-        ),
-
-      S.divider(),
-
-      // Trash, anything removed with "Move to Trash". Sorted newest first so the
-      // thing you just deleted by accident is the first row you see.
-      S.listItem()
-        .title('Trash')
-        .icon(TrashIcon)
-        .child(
-          S.documentTypeList('trashedItem')
+          S.documentTypeList(TRASH_TYPE)
+            .id('trash-list')
             .title('Trash')
             .defaultOrdering([{ field: 'deletedAt', direction: 'desc' }]),
         ),
 
-      // Safety net: surface any document type we have NOT explicitly placed above
-      // (and keep the hidden set, including media.tag, out of the desk root).
-      ...S.documentTypeListItems().filter(
-        (item) => !HIDDEN_FROM_DEFAULT.has(item.getId() as string),
-      ),
+      // Safety net: any document type not placed above. Plugin types
+      // (sanity-plugin-media's media.tag and media.folder) stay out.
+      ...S.documentTypeListItems().filter((item) => {
+        const id = item.getId() as string;
+        return !HIDDEN_FROM_DEFAULT.has(id) && !id.startsWith('media.');
+      }),
     ]);

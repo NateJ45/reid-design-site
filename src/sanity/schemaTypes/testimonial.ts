@@ -35,7 +35,7 @@ const isGoogleDoc = (doc: Record<string, unknown> | undefined) =>
 
 export const testimonial = defineType({
   name: 'testimonial',
-  title: 'Testimonial',
+  title: 'Review',
   type: 'document',
   // Studio search weights (PORTS.md card 34): what Staci types into the search
   // box is the words she sees on the page, so those fields rank first.
@@ -201,7 +201,7 @@ export const testimonial = defineType({
       return {
         title: quote ? (quote.length > 60 ? quote.slice(0, 60) + '…' : quote) : '(no quote)',
         subtitle: `${stars}${attribution ?? '?'} · ${date ?? ''}${tail}`,
-        media,
+        media: media?.asset ? media : undefined,
       };
     },
   },

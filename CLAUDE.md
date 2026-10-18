@@ -22,7 +22,7 @@ Build for a future Nathan who hasn't touched the code in three months, and for a
 
 Full text (every version, pin and reason): `docs/claude/stack-essentials.md`. Read it before touching a dependency, the adapter, wrangler, fonts, GA4 or the Instagram feed. The must-knows:
 
-- **Astro 7.3.x**, TypeScript strict, `output: 'static'` plus a few SSR routes (`/studio`, `/preview/**`, `/api/*`). Node 22.12+.
+- **Astro 7.3.x**, TypeScript strict, `output: 'static'` plus a few SSR routes (`/preview/**`, `/api/*`). `/studio/` is a prerendered page of the site's own (`src/pages/studio/index.astro`, card 120). Node 22.12+.
 - **`@astrojs/cloudflare` pinned EXACTLY at 14.3.4** (starter card 94, 2026-10-13) and **wrangler `~4.129.0`** are a MATCHED PAIR. Move them together, deliberately, and inspect the generated `dist/server/wrangler.json`. Dependabot ignores both, and `astro` too (the adapter imports Astro internals, so a lone astro bump can break the build; starter card 92).
 - **Sanity 6.19.0 (the family phase-2 set, PORTS.md card 103), one package, Studio embedded at `/studio`** (no nested `studio/`, no `studio:deploy`). The Sanity set (`sanity`, `@sanity/*`, `react`, `react-dom`, `react-is`, `styled-components`) is pinned to a combination known to work together; bumping one alone breaks the Studio at browser runtime, not build time. Dependabot ignores the whole set. Studio code is written against `@sanity/ui` 4: `gap` not `space`, `gridTemplateColumns` not `columns`, `Menu*` from `@sanity/ui/menu`, `useToast` from `@sanity/ui/toast`, and every icon from its own subpath (`import { BellIcon } from '@sanity/icons/Bell'`; `astro check` does NOT catch a root icon import, only `astro build` does). `react/compiler-runtime` stays in `optimizeDeps.include`.
 - **Tailwind 4 via `@tailwindcss/vite`**: no `tailwind.config.mjs`, tokens in `@theme` blocks in `src/styles/globals.css`. React 19 islands only where interactivity is required.
@@ -42,13 +42,15 @@ npm run typegen        # from repo root, after ANY schema change; commit src/lib
 npm run preview        # wrangler dev -c dist/server/wrangler.json (the only way to run the SSR routes locally)
 npm run check          # astro check + eslint; run before every push
 npm run format:check   # prettier (npm run format to fix)
-npm run test:unit      # vitest
+npm run test:unit      # vitest, then test:kit (the Studio kit's node:test files) and test:scripts
 npm test               # Playwright: smoke, reduced-motion, axe, light-only guard, reflow, scroll-reset
 npm run check:links    # linkinator over dist/client, after a build
 npm run parity         # static-output parity gate (preview markup must never reach the static build)
 node scripts/measure-columns.mjs <baseUrl> --paths /,/about/   # seams of the shared .split (card 91); MSYS_NO_PATHCONV=1 in Git Bash
 node scripts/sync-check.mjs   # drift gate for PORTABLE files; NCS_STARTER_DIR=<clone> to point at a starter
 npm run og | og:cards | favicon | doodles | fonts:update   # generators, see .claude/rules/build-pipeline-and-scripts.md
+npm run studio:banner  # the paint-chip strips on the Studio's Home banner
+npm run restore:doc -- <docId> [--from <date>]   # one document back from a nightly backup, as a draft (dry by default)
 ```
 
 Do NOT run `npx sanity deploy` (it would publish a second, drifting Studio; there is deliberately no `studioHost` in `sanity.cli.ts`).
@@ -84,6 +86,10 @@ One-line versions. The full text of each sits in the rules file named in bracket
 14. **Internal page links end in a slash** (`/about/`), matching `trailingSlash: 'always'`, the canonical tags and the sitemap. A bare `/about` 307s and Search Console reports "Page with redirect". Hand-written hrefs carry the slash; hrefs built from Sanity data go through `withTrailingSlash()` (`src/lib/href.ts`; `navHref` and `resolveCtaHref` already do). Files (`.pdf`, `.xml`), `#anchors`, `mailto:`/`tel:`, `/studio` and `/api` are left alone.
 
 ---
+
+## The Studio kit (2026-10-18)
+
+The Studio is the family's shared kit (PORTS.md cards 106 to 120): Home (the first tool: quick actions, This week, Fix-it list, Coming up, Visitors), Site Guide, Checkup, Quick update, Trash instead of Delete, the status line, Help for this page, Share a preview, table views, the walnut look with Reid Design's paint-chip icons, and its own `/studio/` page. `src/sanity/kit/` and `src/sanity/workflow/` are PORTABLE (never edit them here); this site's choices are `src/sanity/kit.config.ts`, `src/sanity/guides/content.ts` (the Site Guide), `tables.config.ts`, `studioEdges.config.ts`, `brandIconArt.tsx` and `brand/brand.config.json` `studio.*`. Every guide, template and example obeys the service scope (styling around the existing basics; never cabinets, tile, appliances or layout changes). Reference: `docs/agent/studio-kit.md`; switches and secrets: OPERATIONS.md, "The Studio kit: settings and switches".
 
 ## Family conventions
 

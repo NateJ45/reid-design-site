@@ -33,7 +33,6 @@ import { studioGuide } from './studioGuide';
 import { studioNotes } from './studioNotes';
 import { studioPlaybook } from './studioPlaybook';
 import { testimonial } from './testimonial';
-import { trashedItem } from './trashedItem';
 
 export const schemaTypes = [
   // Object types (embedded) first so they're defined before docs that reference them
@@ -79,8 +78,9 @@ export const schemaTypes = [
   // Custom pages Staci builds from the section library (multi-instance, not a singleton)
   page,
 
-  // Soft-delete receipts, created only by the Archive action.
-  trashedItem,
+  // The Trash (trashedItem) is registered by the Studio kit plugin since
+  // 2026-10-18 (src/sanity/kit/trash.tsx), with the same fields, so records
+  // the old Archive action made still come back.
 
   // Old address -> new address forwards. Mostly filed automatically when a
   // published page is renamed (PORTS.md card 22); applied at build time.

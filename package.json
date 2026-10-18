@@ -42,7 +42,7 @@
     "format:check": "prettier --check .",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:unit": "vitest run && npm run test:scripts",
+    "test:unit": "vitest run && npm run test:kit && npm run test:scripts",
     "test:scripts": "node --test scripts/lib/*.test.mjs",
     "test:unit:watch": "vitest",
     "serve:dist": "http-server dist/client -p 4321 -s -c-1 --silent",
@@ -51,7 +51,10 @@
     "sync-check": "node scripts/sync-check.mjs",
     "audit:data": "node scripts/audit-data-vs-schema.mjs",
     "fonts:update": "node scripts/fetch-fonts.mjs --update",
-    "instagram:fetch": "node scripts/fetch-instagram.mjs"
+    "instagram:fetch": "node scripts/fetch-instagram.mjs",
+    "test:kit": "node --experimental-strip-types --test src/lib/studio-*.test.ts src/lib/deploy-status.test.ts src/lib/preview-share.test.ts",
+    "restore:doc": "node scripts/restore-doc.mjs",
+    "studio:banner": "node scripts/gen-studio-banner.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.4",

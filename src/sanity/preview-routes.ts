@@ -98,6 +98,8 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   'sitemap-index.xml',
   'og',
   '_astro',
+  // The Studio's own page since 2026-10-18 (src/pages/studio/index.astro, card 120).
+  'studio',
 ]);
 
 /** Plumbing segments that are never a page and never previewed. */

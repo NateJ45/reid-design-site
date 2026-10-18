@@ -28,10 +28,9 @@
 // (each block type exists, each key is unique, no em-dashes in the copy).
 // =============================================================================
 import type { Template } from 'sanity';
-import { DocumentsIcon } from '@sanity/icons/Documents';
-import { PinIcon } from '@sanity/icons/Pin';
-import { ImagesIcon } from '@sanity/icons/Images';
-import { StarIcon } from '@sanity/icons/Star';
+// Icons by meaning from the brand registry (PORTS.md card 119), so a template
+// wears the same picture as its type everywhere else in the Studio.
+import { brandIcon, typeIcon } from './brandIcons';
 
 /** One paragraph of Portable Text. */
 const para = (key: string, text: string) => ({
@@ -67,7 +66,7 @@ export const STARTING_TEMPLATES: Template[] = [
     title: 'Service page',
     description: 'One service explained: what it is, what you get, how it works, the price.',
     schemaType: 'page',
-    icon: DocumentsIcon,
+    icon: typeIcon('page'),
     value: {
       title: '[Service name, like "Paint color consult"]',
       addToMainNav: false,
@@ -148,7 +147,7 @@ export const STARTING_TEMPLATES: Template[] = [
     title: 'Neighborhood page (e.g. Carmel)',
     description: 'A page for one town you work in: the homes there, recent rooms, a local client.',
     schemaType: 'page',
-    icon: PinIcon,
+    icon: brandIcon('place'),
     value: {
       title: '[Town name, like "Carmel"]',
       addToMainNav: false,
@@ -221,11 +220,11 @@ export const STARTING_TEMPLATES: Template[] = [
     title: 'Room story',
     description: 'A finished room: the brief, your design call, and the story in three parts.',
     schemaType: 'project',
-    icon: ImagesIcon,
+    icon: typeIcon('project'),
     // A function, so the year is the year the project is started, not the year
     // this file was written.
     value: () => ({
-      title: '[Room and town, like "Fishers kitchen refresh"]',
+      title: '[Room and town, like "Avon living room"]',
       location: '[Town, like "Fishers, IN"]',
       houseDescription: '[Era and kind of home, like "1990s colonial"]',
       scopeLine:
@@ -268,7 +267,7 @@ export const STARTING_TEMPLATES: Template[] = [
     title: 'Google review',
     description: 'A review copied from your Google profile, with its stars.',
     schemaType: 'testimonial',
-    icon: StarIcon,
+    icon: typeIcon('testimonial'),
     value: () => ({
       source: 'Google',
       sourceType: 'Google',
