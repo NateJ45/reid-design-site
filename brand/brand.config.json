@@ -1,10 +1,48 @@
 {
-  "_about": "Minimal brand config: ONLY the fields scripts/generate-favicons.mjs (PORTS.md card 47, canonical) reads. This repo predates the starter's brand system, so its real tokens live in src/styles/globals.css; keep --background in step with --color-bg there.",
-  "name": "Reid Design LLC",
+  "_about": "Minimal brand config: the fields scripts/generate-favicons.mjs (PORTS.md card 47, canonical) reads, plus the Studio's look (cards 110, 116, 119: studio.*). This repo predates the starter's brand system, so its real tokens live in src/styles/globals.css; keep --background in step with --color-bg there. The Studio's fonts are Fontshare files fetched at build time (never committed), so there are no fonts.*.imports: src/sanity/studioFonts.css points at /fonts/ by hand.",
+  "name": "Reid Design",
   "tagline": "Plainfield interior design for homes that feel completely yours.",
   "palette": {
     "light": {
-      "--background": "#FAF8F5"
+      "--background": "#FAF8F5",
+      "--primary": "#9C7661"
+    },
+    "dark": {
+      "--background": "#231E1B"
+    }
+  },
+  "radius": "0.375rem",
+  "studio": {
+    "accent": "#9C7661",
+    "chrome": "#5F4639",
+    "paper": "#FBF7F1",
+    "fonts": {
+      "display": "\"Zodiak\", Georgia, \"Times New Roman\", serif",
+      "body": "\"General Sans\", system-ui, -apple-system, sans-serif"
+    },
+    "icons": {
+      "types": {
+        "project": "image",
+        "portfolioPage": "image",
+        "eDesignPage": "service",
+        "studioPlaybook": "guide"
+      },
+      "groups": {
+        "identity": "settings",
+        "navigation": "link",
+        "visibility": "preview",
+        "social": "link",
+        "reviews": "testimonial",
+        "instagram": "image",
+        "menu": "link"
+      },
+      "tools": {
+        "structure": "pages",
+        "stats": "preview"
+      },
+      "tile": {
+        "dark": "#E2CFBD"
+      }
     }
   }
 }

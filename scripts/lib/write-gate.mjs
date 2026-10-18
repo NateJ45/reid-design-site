@@ -32,6 +32,10 @@
 // production. Not PORTABLE: the starter's equivalent is sanity-lib.mjs.
 // =============================================================================
 
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /** True when --apply was passed. Everything else is a dry run. */
 export const APPLY = process.argv.includes('--apply');
 
@@ -148,4 +152,92 @@ export function gateClient(
   if (apply) return client;
   announce(log);
   return dryClient(client, log);
+}
+
+// -----------------------------------------------------------------------------
+// writeGate(): the starter's call, for its PORTABLE scripts (2026-10-18)
+// -----------------------------------------------------------------------------
+// scripts/publish-due.mjs (PORTS.md card 114) is a byte-identical copy of the
+// starter's and imports `writeGate` from this path. The starter's write-gate.mjs
+// cannot replace this file (a dozen older scripts here use gateClient() and
+// assertWriteAllowed() above), so its writeGate() is added here with the same
+// rules: dry by default; on production the flag needs NCS_PRODUCTION_WRITE=yes
+// in the process environment AS IT WAS WHEN THIS MODULE LOADED, never from .env;
+// and a script that opts in with `ci: true` may write inside GitHub Actions on
+// its flag alone (the scheduled job has no person present, and its workflow
+// file is reviewed code). Tested in write-gate.test.mjs.
+const FACTOR_AT_LOAD = process.env.NCS_PRODUCTION_WRITE;
+const GATE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+/** True when the root .env names NCS_PRODUCTION_WRITE at all (refused). */
+export function envFileDefinesFactor(root = GATE_ROOT) {
+  const file = resolve(root, '.env');
+  if (!existsSync(file)) return false;
+  return /^\s*(export\s+)?NCS_PRODUCTION_WRITE\s*=/m.test(readFileSync(file, 'utf8'));
+}
+
+/** Pure: may this run write? `{ write, refusal, via }`, as the starter's. */
+export function decideWrite({
+  argv,
+  processEnv,
+  dataset,
+  factor,
+  flag = '--apply',
+  ci = false,
+  ciBare = false,
+  envFileHasFactor = false,
+}) {
+  if (argv.includes('--dry-run')) return { write: false, refusal: null };
+  const inCI = ci && processEnv.GITHUB_ACTIONS === 'true';
+  const asked = argv.includes(flag) || (inCI && ciBare);
+  if (!asked) return { write: false, refusal: null };
+  if (dataset !== 'production') return { write: true, refusal: null, via: 'non-production' };
+  if (inCI) return { write: true, refusal: null, via: 'ci' };
+  if (envFileHasFactor) {
+    return {
+      write: false,
+      refusal:
+        'Refusing to write: .env defines NCS_PRODUCTION_WRITE. Remove that line; the second factor must be set per command, never in .env.',
+    };
+  }
+  if (factor === 'yes') return { write: true, refusal: null, via: 'flag+factor' };
+  return {
+    write: false,
+    refusal: productionWriteRefusal({ apply: true, dataset, processEnv: {} }).replaceAll(
+      '--apply',
+      flag,
+    ),
+  };
+}
+
+/** Exits 2 on a refusal (before any request); else true to write, false for a dry run. */
+export function writeGate({
+  dataset,
+  flag = '--apply',
+  ci = false,
+  ciBare = false,
+  quiet = false,
+}) {
+  const decision = decideWrite({
+    argv: process.argv.slice(2),
+    processEnv: process.env,
+    dataset,
+    factor: FACTOR_AT_LOAD,
+    flag,
+    ci,
+    ciBare,
+    envFileHasFactor: envFileDefinesFactor(),
+  });
+  if (decision.refusal) {
+    console.error(decision.refusal);
+    process.exit(2);
+  }
+  if (!quiet) {
+    console.log(
+      decision.write
+        ? `WRITE to ${dataset} (${decision.via}).`
+        : `DRY RUN on ${dataset}: nothing will be written. To write: NCS_PRODUCTION_WRITE=yes node <script> ${flag}`,
+    );
+  }
+  return decision.write;
 }

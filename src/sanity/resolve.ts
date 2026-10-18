@@ -102,12 +102,28 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     philosophyPoint: { locations: [{ title: 'About', href: '/preview/about' }] },
     testimonial: { locations: [{ title: 'Home', href: '/preview' }] },
     faqItem: { locations: [{ title: 'FAQ', href: '/preview/faq' }] },
+    // Shared content (PORTS.md card 110): these change EVERY page (the bar,
+    // the header and footer, the contact details), so Presentation and the
+    // document's Used on list say so in amber before a phone number or a menu
+    // changes. Announcements are not drawn in this preview at all.
     announcement: {
       locations: [{ title: 'Home', href: '/preview' }],
       message:
-        'Announcements show on the live site after you publish and it rebuilds. They are not drawn in this preview.',
+        'Shown on every page. Announcements appear on the website after you publish and it rebuilds; this preview does not draw them.',
+      tone: 'caution' as const,
     },
-    siteSettings: { locations: [{ title: 'Home', href: '/preview' }] },
-    businessInfo: { locations: [{ title: 'Contact', href: '/preview/contact' }] },
+    siteSettings: {
+      locations: [{ title: 'Home', href: '/preview' }],
+      message: 'Shown on every page',
+      tone: 'caution' as const,
+    },
+    businessInfo: {
+      locations: [
+        { title: 'Home', href: '/preview' },
+        { title: 'Contact', href: '/preview/contact' },
+      ],
+      message: 'Shown on every page',
+      tone: 'caution' as const,
+    },
   },
 };

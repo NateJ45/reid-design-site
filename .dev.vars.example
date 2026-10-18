@@ -36,3 +36,15 @@ SANITY_TOKEN=
 # (The zone id is a constant in src/pages/api/stats.ts; set CF_ZONE_ID here or
 # as a Worker variable only if the site ever moves to a different zone.)
 CF_ANALYTICS_TOKEN=
+
+# The Studio kit (2026-10-18, PORTS.md cards 115 and 117). All optional; each
+# feature says "not set up yet" without its value.
+#
+# Signs "Share a preview" links (32+ random characters; rotating it stops every
+# link). Production: npx wrangler secret put SHARE_PREVIEW_SECRET
+SHARE_PREVIEW_SECRET=
+# Home's Visitors card: a Cloudflare API token with Account > Account Analytics
+# > Read (production: also Zone > Analytics > Read, for Site stats). The two
+# plain values go in wrangler.jsonc vars in production.
+# CF_ACCOUNT_ID=
+# CF_WEB_ANALYTICS_SITE_TAG=

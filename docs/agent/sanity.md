@@ -58,7 +58,7 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 
 **Studio guide singletons (3, protected):**
 
-- `studioGuide`, drives the "How the website works" panel (StudioGuide.tsx). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]` (with a tone enum). Plain text throughout (no Portable Text).
+- `studioGuide`, the old "How the website works" handbook. **Retired from the desk 2026-10-18**: its how-tos were rewritten into the Site Guide tool (`src/sanity/guides/content.ts`, the Studio kit). The schema and the document stay, untouched, so no data is orphaned; `seed-studio-guide.mjs` still writes it (and `studioNotes`). Fields: `guideTitle`, `guideIntro`, `studioMap[]`, `howTos[]`, `tips[]`.
 - `studioNotes`, drives the static notes in the "Your business at a glance" panel (BusinessOverview.tsx). Fields: `businessSummary`, `idealClient`, `voiceSummary`, `wordsToAvoid[]`. Plain text throughout.
 - `studioPlaybook`, drives the "Grow your studio" panel (StudioPlaybook.tsx). Fields: `title`, `intro`, `guides[]` (each `playbookGuide`: `title`, `summary`, `sections[]`; each `playbookSection`: `heading`, `tone` enum, `body`, `bullets[]`, `links[]` of label+url). Five professional-development guides (photography, portfolio and journal writing, software toolkit, e-design, trade sourcing), seeded by `scripts/seed-studio-playbook.mjs`. Plain text throughout. All three guide singletons are excluded from Canvas and protected in `SINGLETON_TYPES`.
 
@@ -71,17 +71,17 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 **One package, one Studio, embedded at `/studio`.** The nested `studio/` package
 is gone. Its contents moved into this one:
 
-| Was                                                                 | Is now                                   |
-| ------------------------------------------------------------------- | ---------------------------------------- |
-| `studio/sanity.config.ts`                                           | `sanity.config.ts` (repo root)           |
-| `studio/sanity.cli.ts`                                              | `sanity.cli.ts` (repo root)              |
-| `studio/schemaTypes/*`                                              | `src/sanity/schemaTypes/*`               |
-| `studio/components/*`                                               | `src/sanity/components/*`                |
-| `studio/actions/archive.tsx`, `studio/lib/trash.ts`                 | `src/sanity/actions/`, `src/sanity/lib/` |
-| `studio/structure.ts`, `studio/global.d.ts`, `studio/reid-logo.png` | `src/sanity/`                            |
-| `npm --prefix studio run typegen`                                   | `npm run typegen` from the root          |
-| `npm run studio:dev`                                                | `npm run dev`, then `/studio`            |
-| `npm run studio:deploy`                                             | nothing. The Studio ships with the site  |
+| Was                                                                 | Is now                                  |
+| ------------------------------------------------------------------- | --------------------------------------- |
+| `studio/sanity.config.ts`                                           | `sanity.config.ts` (repo root)          |
+| `studio/sanity.cli.ts`                                              | `sanity.cli.ts` (repo root)             |
+| `studio/schemaTypes/*`                                              | `src/sanity/schemaTypes/*`              |
+| `studio/components/*`                                               | `src/sanity/components/*`               |
+| `studio/actions/archive.tsx`, `studio/lib/trash.ts`                 | the Studio kit's Trash (2026-10-18)     |
+| `studio/structure.ts`, `studio/global.d.ts`, `studio/reid-logo.png` | `src/sanity/`                           |
+| `npm --prefix studio run typegen`                                   | `npm run typegen` from the root         |
+| `npm run studio:dev`                                                | `npm run dev`, then `/studio`           |
+| `npm run studio:deploy`                                             | nothing. The Studio ships with the site |
 
 **The Studio routes on the URL HASH, and path-style links are converted
 (2026-09-29).** Because the site is `output: 'static'`, `@sanity/astro` defaults to
@@ -369,9 +369,7 @@ lives, and the rule that makes it safe:
 
 **All-fields default.** The `default: true` property has been removed from every schema field group definition across all schemas. Without it, Sanity Studio opens documents on the "All fields" tab instead of a single group. This gives Staci a complete view of a document without needing to know which group a field lives in.
 
-**Studio branding.** The repo-root `sanity.config.ts` configures the Studio with `title: 'Reid Design'` (shown in the browser tab when editing), a `buildLegacyTheme` bronze theme that maps `--brand-primary` to Warm Bronze (`#9C7661`) and uses the Soft Linen background color, and a custom `StudioLogo` component (at `src/sanity/components/StudioLogo.tsx`, using `src/sanity/reid-logo.png`) wired via `studio.components.logo`. The Studio UI reads as the Reid Design brand rather than the default Sanity chrome.
-
-Worth knowing if the Studio's Dark appearance setting ever comes up: `buildLegacyTheme` is **light-only**. It hard-codes white component backgrounds, so flipping the Studio to Dark leaves every panel white. `@sanity/ui`'s `buildTheme` ships a real tested dark mode and costs the brand tinting of the Studio chrome, which is a reasonable trade if Staci ever asks for it. The bronze legacy theme was kept here deliberately: it is a brand decision, not an oversight.
+**Studio branding (the Studio kit, 2026-10-18; PORTS.md cards 110, 116, 118 to 120).** The Studio is built from `brand/brand.config.json` (`studio.*`): Warm Bronze as the accent (the theme solver deepens it to 4.5:1 where it carries text), a warm paper, the walnut-espresso top bar, Zodiak and General Sans (`src/sanity/studioFonts.css`, written by hand because the Fontshare files are fetched at build time), rich text in the site's type, the RD tile as the mark, icons by meaning with Reid Design's own paint-chip art (`src/sanity/brandIconArt.tsx`, files in `src/assets/brand/`), a walnut Home banner with a row of paint chips (`npm run studio:banner`), and its own `/studio/` page with a splash. The old `buildLegacyTheme` bronze theme and `StudioLogo` (never drawn by Sanity 6) are gone; the new theme has a real dark mode, though light is the default. Full detail: `docs/agent/studio-kit.md`.
 
 **SEO length warnings.** `.warning()` validations are applied to `seoTitle` (warns around 60 characters) and `seoDescription` (warns around 160 characters) across all page singletons and the `metaTitle`/`metaDescription` fields on `project`. Staci sees an amber warning in the editor if the text is getting too long for Google to show in full. The validation is a warning, not an error, so it does not block publishing.
 
@@ -475,7 +473,7 @@ Staci has a Google Business Profile ("Reid Design LLC", stable link `https://map
 
 **The reviews themselves** are `testimonial` documents, extended rather than a new type: Source "Google" (either `source` or the older `sourceType`; both are already in `NON_STEGA_FIELDS`, and `rating` was added there for form's sake), plus `rating` (1 to 5 radio, shown only for Google), `hideOnWebsite` (boolean; shown only for Google until 2026-09-30, now on EVERY testimonial because the About "Kind words" wall lists all of them), and `googleReviewId` (read-only, invisible until a sync writes it). The reviewer's name is `attribution`, the date `date`, the link `reviewUrl`. **A Google testimonial gets the Google treatment only once it has stars** (`isRatedGoogleReview`): the testimonials already marked Google before 2026-09-30 have none and render exactly as before. Rated, unhidden Google reviews are collected automatically by `getHomePage().googleReviews` (newest first, up to six) and ordered by `orderReviews()`: Staci's featured pick stays the big lead quote; then Google reviews newest first; then her other "Testimonials to show".
 
-**Where Staci finds it:** Content > Google reviews. "Star rating" opens Site Settings (Reviews tab); "Reviews from Google" lists them newest first, and + starts one from the `testimonial-google` template (both source fields on Google, 5 stars). The Studio guide how-to "Update your Google rating and reviews" is in `scripts/seed-studio-guide.mjs` (seed file only; re-run the seeder to publish it to the guide).
+**Where Staci finds it:** Content > Google reviews. "Star rating" opens Site Settings (Reviews tab); "Reviews from Google" lists them newest first, and + starts one from the `testimonial-google` template (both source fields on Google, 5 stars). The how-to is "Update your Google rating" in the Site Guide (`src/sanity/guides/content.ts`), and Home asks once a month ("This week").
 
 **The future sync (plan, not built).** A scheduled job (a Cloudflare cron Worker or a GitHub Action, then the publish webhook to rebuild) using the Google Business Profile API with OAuth for Staci's account:
 

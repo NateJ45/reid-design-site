@@ -30,8 +30,11 @@ describe('studioHashUrlFor', () => {
   });
 
   it('agrees with the mount point and the _redirects rule', () => {
-    const config = readFileSync('astro.config.mjs', 'utf8');
-    expect(config).toContain(`studioBasePath: '${STUDIO_BASE}'`);
+    // The Studio is the site's own page at /studio/ since 2026-10-18 (card 120:
+    // src/pages/studio/index.astro), so the mount point is that file, not a
+    // studioBasePath in astro.config.mjs.
+    expect(STUDIO_BASE).toBe('/studio');
+    expect(readFileSync('src/pages/studio/index.astro', 'utf8')).toContain('StudioComponentHash');
     const redirects = readFileSync('public/_redirects', 'utf8');
     expect(redirects).toMatch(/^\/studio\/\* \/studio\/ 200$/m);
   });

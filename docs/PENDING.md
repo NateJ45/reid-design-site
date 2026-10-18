@@ -14,6 +14,20 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-18: the Studio kit (PORTS.md cards 106 to 120)
+
+The Studio is now the shared kit, dressed as Reid Design (detail: `docs/agent/studio-kit.md`; switches: OPERATIONS.md, "The Studio kit: settings and switches"). Built, unit-tested and checked signed out; these need Nathan:
+
+- [ ] **Visitors on Home.** Give the `CF_ANALYTICS_TOKEN` Worker secret **Account > Account Analytics > Read** (it has Zone Analytics read only, for Site stats), and add `CF_ACCOUNT_ID` and `CF_WEB_ANALYTICS_SITE_TAG` to `wrangler.jsonc` `vars`. Then check the card against the Web Analytics dashboard once.
+- [ ] **Then retire Site stats**, the duplicate: `src/sanity/components/StatsTool.tsx`, `src/pages/api/stats.ts`, `src/lib/site-stats.ts` (+ test), the `tools:` entry in `sanity.config.ts`, `'stats'` in `kit.config.ts` and `brand.config.json`, and the docs that name them.
+- [ ] **Publish webhook filter**: add `"studioWeek", "previewShare"` to the deny-list (OPERATIONS.md, "Rebuild webhook filter"), or every hand tick on Home and every new preview link rebuilds the site.
+- [ ] **`SANITY_API_WRITE_TOKEN` repo secret** (a Sanity Editor token) for scheduled room stories. `publish-due.yml` runs every half hour and skips with a warning until it exists. Optionally `CF_DEPLOY_HOOK_URL` too (it also unblocks `weekly-rebuild.yml`, which has been skipping).
+- [ ] **Staci's Sanity user id** in `kitConfig.staff` (sanity.io/manage > Members), if she should get the staff view while being an administrator.
+- [ ] **`PUBLIC_STUDIO_HELP_EMAIL`** on the Workers Build, for the "Ask Nathan" button on Home.
+- [ ] **Morning change note**: uncomment the schedule in `.github/workflows/change-note.yml` and watch the repo, if Nathan wants a daily email of Staci's edits.
+- [ ] **The old `studioGuide` document** (Start Here > How the website works) is off the desk; the Site Guide replaced it. Its data is untouched. Decide whether to retire it under rule 16 (backup, dry run, delete) or leave it.
+- [ ] **Signed-in walkthrough** (not possible signed out): Home opens first with the walnut banner, paint chips and the four quick actions; This week's hand ticks stick; Fix-it list Edit buttons open the right field; "Start a room story" opens the prompted template; Quick update "Add a review" and "Post a notice" publish valid documents (then Trash them); Move to Trash and Bring it back on a review, and the 2026-10-02 trashed service still restores; Share a preview makes a link that opens logged out, shows the banner, and stops; the table views sort; Help for this page on a room story lists the room-story guides; the status line after a Publish; the paint-chip icons in lists, search and the create menu at 16 and 24px; the phone layout of Quick update at 375px; the console is clean.
+
 ### From 2026-10-13: data in production that the schema no longer declares (`npm run audit:data`)
 
 The first run of the data audit (starter card 95) found 8 array items with no `_type` (`contactPage.postInquiryRoadmap[0..3]`, `eDesignPage.howItWorks[0..3]`); those were backfilled the same day (backup outside the repo, dry run, write, re-audit: 0 left), and `seed-conversion-content.mjs` now writes the `_type`. What is left is data with no schema, which only Nathan may remove, because unsetting or deleting it deletes data. The Studio shows an "Unknown fields" banner for the first; never click its "Remove field".
@@ -307,11 +321,10 @@ signed in as an editor:
    Photo gallery shows a dashed "Nothing here yet, Photo gallery" note. Add one
    photo: the note turns into the gallery.
 8. **Releases off.** The top bar has no Releases tool.
-9. **Refresh the in-Studio guide.** `scripts/seed-studio-guide.mjs` gained four
-   how-tos (starting layouts, Check this page, Undo, share link) and an updated
-   "Build a brand-new page". It was NOT run (agents do not write production).
-   It uses `createOrReplace`, so any edits Staci made to the guide in the Studio
-   would be overwritten; check the live `studioGuide` first, then run it.
+9. ~~Refresh the in-Studio guide.~~ Superseded 2026-10-18: the how-tos moved
+   to the Site Guide tool (`src/sanity/guides/content.ts`), rewritten in the
+   current Studio's words; the `studioGuide` document is off the desk. Do not
+   run the seeder for this.
 
 ### From the 2026-09-29 site-features branch (announcements, search, stats, link health)
 

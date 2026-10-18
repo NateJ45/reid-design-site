@@ -73,10 +73,12 @@ If a content change isn't appearing on the live site after a few minutes:
 The webhook lives at manage.sanity.io → API → Webhooks → "Rebuild live site". The recommended GROQ filter is a deny-list:
 
 ```
-!(_id in path("drafts.**")) && !(_type in ["media.tag", "sanity.imageAsset", "sanity.fileAsset", "sanity.assetSourceData"])
+!(_id in path("drafts.**")) && !(_type in ["media.tag", "sanity.imageAsset", "sanity.fileAsset", "sanity.assetSourceData", "studioWeek", "previewShare"])
 ```
 
 This filter skips rebuilds triggered by draft saves and internal Sanity asset-management events (tagging an uploaded photo, rotating an image, etc.), which don't affect live HTML. **Critically, new content types are covered automatically** because the filter excludes only the named system types and lets everything else through. The old hand-maintained allow-list approach (explicitly listing every `_type` that should trigger a rebuild) silently dropped new types until a developer remembered to add them. The deny-list is safer: add a new schema type and it triggers rebuilds out of the box.
+
+`studioWeek` (a hand tick on Home's "This week") and `previewShare` (a private preview link) joined the list on 2026-10-18 with the Studio kit: neither changes the website, and without them every tick and every new link rebuilds the site.
 
 If the webhook currently has no filter or uses an allow-list, replace the filter with the deny-list above and save. No other webhook config changes are needed.
 
@@ -106,22 +108,14 @@ The site has a section visibility system that lets you launch now and finish sec
 
 ### Scheduled publishing (for Staci)
 
-Sanity supports scheduling a document to go live at a future date and time. Use this for projects you want to publish during business hours, or to line up content in advance.
+Since 2026-10-18 a room story can publish itself (PORTS.md cards 111 and 114; Releases are off on this Studio, so there is no "Schedule publish" action):
 
-**How to schedule a publish:**
+1. Finish the room story but do not click Publish.
+2. Open **Publishing** at the foot of the form and set **Publish automatically at**.
+3. It shows under **Coming up** on the Studio's Home until then.
+4. `.github/workflows/publish-due.yml` runs every half hour, publishes any draft whose time has passed (`scripts/publish-due.mjs`, PORTABLE), and the Sanity publish webhook rebuilds the site (the job also calls `CF_DEPLOY_HOOK_URL` when that secret exists).
 
-1. Open the project you want to schedule.
-2. Click the small arrow (chevron) to the right of the blue Publish button in the bottom bar.
-3. Choose "Schedule publish" from the menu that appears.
-4. Pick the date and time you want the document to go live. Times are local to your browser.
-5. Click "Schedule." The document moves to a "Scheduled" state and will publish automatically at the chosen time.
-
-You can see, edit, or cancel scheduled items by going back to that document before the time fires.
-
-**Notes:**
-
-- The live site rebuilds automatically when the scheduled publish fires. No manual action needed.
-- If the scheduled-publishing plugin is not active in this Studio version, the "Schedule publish" option will not appear. Contact Nathan. As of May 2026, the official `@sanity/scheduled-publishing` plugin is incompatible with this Studio's React 19 dependency, so the standard Sanity scheduling feature built into the document actions is the intended path until the plugin is updated.
+**Needs the `SANITY_API_WRITE_TOKEN` repo secret** (a Sanity token with the Editor role; not `SANITY_AUTH_TOKEN`, which is the backup's READ token). Until it exists the job warns and skips, and Coming up items wait. Only `project` carries the field; add `publishAtField()` (`src/sanity/schemaTypes/_publishAt.ts`) to another type to schedule it too. By hand: `node scripts/publish-due.mjs` prints the queue (dry); `--apply` on production also needs `NCS_PRODUCTION_WRITE=yes`. The script skips the Studio's validation, so a scheduled story still holding a [bracketed] prompt WOULD publish: the guide tells Staci to finish it first.
 
 ### Field comments
 
@@ -172,7 +166,8 @@ node scripts/seed-script-accents.mjs
 node scripts/seed-about-personal.mjs
 
 # Seeds: studioGuide + studioNotes singletons (uses createOrReplace).
-#        Run on a fresh dataset, or after updating the seed file with new how-tos/tips.
+#        studioGuide is retired from the desk (2026-10-18; the Site Guide is
+#        src/sanity/guides/content.ts). Run only on a fresh dataset.
 node scripts/seed-studio-guide.mjs
 ```
 
@@ -183,7 +178,7 @@ All four scripts are idempotent. `seed-conversion-content.mjs` and `seed-script-
 - E-Design pricing tiers and what's-included lists (fixed 2026-10-01: one "Starting at $695" package; applied by `scripts/patch-2026-10-01-midmarket.mjs`)
 - Testimonials tagged `sourceType: 'google'` in the seed, verify these are real reviews from Google
 - About personal section (`seed-about-personal.mjs`): placeholder text. Staci should fill in her real "Currently," rapid fire answers, local spots, and beyond-design paragraph in Studio
-- Start Here guide and business notes (`seed-studio-guide.mjs`): seeded from the original hardcoded content. Staci or Nathan can update them in Studio at any time without a code change
+- Business notes (`seed-studio-guide.mjs`): seeded from the original hardcoded content. Staci or Nathan can update them in Studio at any time without a code change. (The how-tos it also seeds are retired; the Site Guide replaced them.)
 
 ---
 
@@ -199,7 +194,21 @@ Dates are read at build time. If a start date has to land on an exact day and no
 
 ### Site stats
 
-Studio > top bar > **Site stats**. Needs the `CF_ANALYTICS_TOKEN` Worker secret (see docs/agent/deployment.md); until then it says it is not set up. It also needs the preview cookie, which Staci gets by opening Presentation once.
+Studio > top bar > **Site stats** (zone analytics through `/api/stats`). Needs the `CF_ANALYTICS_TOKEN` Worker secret (set; Zone > Analytics > Read) and the preview cookie, which Staci gets by opening Live preview once. It is the duplicate of Home's **Visitors** card and goes once that card shows numbers (docs/PENDING.md).
+
+## The Studio kit: settings and switches (2026-10-18)
+
+The Studio is the shared kit (PORTS.md cards 106 to 120): Home, Site Guide, Checkup, Quick update, Trash, the status line, Help for this page, Share a preview, table views, the walnut look and its own `/studio/` page. Site settings: `src/sanity/kit.config.ts`. Full reference: `docs/agent/studio-kit.md`. What each part needs:
+
+- **Visitors on Home** (card 115): Cloudflare Web Analytics is already on for the zone (automatic setup), so the data exists. The card needs three Worker settings: (1) the `CF_ANALYTICS_TOKEN` secret to carry **Account > Account Analytics > Read** as well as its Zone Analytics read (edit the existing token in Cloudflare > My Profile > API Tokens, or make a new one with both and `npx wrangler secret put CF_ANALYTICS_TOKEN`), (2) `CF_ACCOUNT_ID` and (3) `CF_WEB_ANALYTICS_SITE_TAG` as `vars` in `wrangler.jsonc` (both 32 hex; the site tag is in the Web Analytics address bar, `siteTag~in=...`, and is not the beacon token). Deploy, open `/studio`, check the card. "Could not load" means Cloudflare refused: check the token's permissions.
+- **Share a preview** (card 117): the `SHARE_PREVIEW_SECRET` Worker secret (48 random characters, set 2026-10-18). Rotating it stops every link. Links work on `/preview/<page>/?share=...` for 1 to 14 days; "Stop this link" revokes one.
+- **Staff view** (card 106): `kitConfig.staff` takes Staci's Sanity user id (sanity.io/manage > Members). Until it is set, anyone who is not an administrator gets the staff view; an administrator gets the full Studio.
+- **Ask Nathan button**: `PUBLIC_STUDIO_HELP_EMAIL` on the Workers Build (build-time). Unset, the Ask card shows words with no button.
+- **Failed deploy status** (card 111): not wired. This site builds with Workers Builds, not a GitHub `deploy.yml`, so `/api/studio/deploy-status/` answers "not configured" and the status line falls back to comparing `/build-info.json` with the last publish.
+- **Messages** (card 117): off. The contact form is Web3Forms (it emails Staci) and bookings are Calendly, so there is no D1 inbox.
+- **Morning change note** (card 117): `.github/workflows/change-note.yml`, schedule commented out. The secret and variables already exist; uncomment the schedule and watch the repo to get "What changed on <date>" issues by email.
+- **Restore one document** (card 111): `npm run restore:doc -- <docId> [--from <date>]` brings a page back from a nightly backup as a DRAFT (dry by default; `--apply` plus `NCS_PRODUCTION_WRITE=yes` on production). Needs `gh` and `BACKUP_PASSPHRASE`.
+- **Home banner art**: `npm run studio:banner` rewrites the paint-chip strips in `public/studio-banner/`; the mark is `logo-mark.png` (cream RD) copied to `public/studio-banner/mark-on-dark.png`.
 
 ### Outbound link report
 
@@ -247,7 +256,7 @@ Written as the pre-cutover gate. **DNS has since been cut over** (reiddesignllc.
 - [x] (2026-10-01) Fill `eDesignPage` pricing tiers with Staci's actual numbers and what's-included copy
 - [ ] Verify Google-tagged testimonials are pulled from Staci's real Google Business reviews
 - [ ] **About personal section**: Staci fills in her real content via Studio (currently list, rapid fire answers, local spots, beyond-design paragraph, candid photo). Section self-hides if left empty, so this is not a blocker, but it's a nice human touch early.
-- [ ] **Start Here guide + business notes**: review the seeded `studioGuide` and `studioNotes` content in Studio and update any copy that no longer matches the real site or Staci's current workflow. Nathan edits these directly in Studio. No code change needed.
+- [ ] **Business notes**: review the seeded `studioNotes` content in Studio (Start Here > Your business at a glance) and update any copy that no longer matches Staci's current workflow. The how-tos are the Site Guide now (code).
 
 **Wire external services:**
 

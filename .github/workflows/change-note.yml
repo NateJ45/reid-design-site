@@ -1,0 +1,76 @@
+name: Morning change note
+
+# PORTS.md card 117. Once a day, early morning US Eastern, this lists what
+# changed in the Studio in the last 24 hours (who, what, which page, with links
+# to the Studio and the live page) as a GitHub issue titled "What changed on
+# <date>". GitHub emails the repo's watchers about the new issue, which is the
+# whole delivery mechanism: no mail service, no secrets beyond a READ token.
+# Quiet days post nothing. A re-run on the same day updates that day's issue
+# instead of opening a second one.
+#
+# See scripts/change-note.mjs (the fetches) and scripts/lib/change-summary.mjs
+# (the pure summary builder, unit-tested by `npm run test:scripts`).
+#
+# ── WHY THIS JOB DOES NOT RUN `npm ci` ───────────────────────────────────────
+# Same reason as publish-due.yml: the script is dependency-free (global fetch),
+# so the job is checkout + setup-node + node, a few seconds.
+#
+# ── REID DESIGN (2026-10-18) ─────────────────────────────────────────────────
+# The SANITY_AUTH_TOKEN secret (the backup's READ token), the
+# PUBLIC_SANITY_PROJECT_ID variable and SITE_URL already exist in this repo, so
+# the only step left is Nathan's call: uncomment the schedule block below and WATCH
+# the repo (All Activity, or Custom with Issues) to get the email. The gate job
+# warns and skips if the secret or variable ever goes missing.
+# workflow_dispatch stays on for a manual run.
+#
+# ── TIMING ───────────────────────────────────────────────────────────────────
+# 10:00 UTC is 6 AM Eastern in summer and 5 AM in winter. GitHub's scheduler is
+# best-effort and can run late under load; the window is "the 24 hours before
+# the job started", so a late run never skips a change, it can only repeat one
+# that is also on yesterday's note.
+on:
+  # schedule:
+  #   - cron: '0 10 * * *'
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$PROJECT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SANITY_AUTH_TOKEN secret and/or PUBLIC_SANITY_PROJECT_ID variable not set; skipping the change note."
+          fi
+
+  note:
+    needs: gate
+    if: needs.gate.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write # to open or update "What changed on <date>"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # No install step on purpose. See the header.
+      - name: Write the note
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          SANITY_DATASET: production
+          SITE_URL: ${{ vars.SITE_URL }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node --experimental-strip-types scripts/change-note.mjs

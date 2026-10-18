@@ -62,6 +62,8 @@ import { getPreviewClient, previewConfig, previewUnconfiguredResponse } from '@/
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { BUILDER_SINGLETON_TYPES, previewTargetFor } from '@/sanity/preview-routes';
 import ProjectDetail from '@/components/detail/ProjectDetail.astro';
+import { SHARE_PARAM } from '@/lib/preview-share';
+import { sharedPreviewAccess } from '@/lib/preview-share-server';
 import {
   getSiteSettings,
   getHomePage,
@@ -91,6 +93,16 @@ if (!config.ok) {
 // A failed check shows published content, exactly as a missing cookie did.
 const draftMode = await isStudioPreview(Astro.cookies.get(perspectiveCookieName)?.value);
 
+// A private preview link (PORTS.md card 117): `?share=<signed token>` shows
+// THIS page's draft to someone with no login, until the link expires or Staci
+// stops it. It never turns on draftMode: no overlay, no live channel, no stega,
+// and everything else on the page (site settings, the header data) stays
+// published. src/lib/preview-share.ts is the tested half.
+const share = draftMode
+  ? null
+  : await sharedPreviewAccess(Astro.url.searchParams.get(SHARE_PARAM), Astro.url.pathname);
+if (share) Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+
 // Never let a browser cache a preview page (2026-08-28). These SSR responses
 // carried NO Cache-Control, so browsers applied heuristic caching - and the
 // Presentation iframe kept serving the PREVIOUS deploy's page (stale island
@@ -98,7 +110,10 @@ const draftMode = await isStudioPreview(Astro.cookies.get(perspectiveCookieName)
 // content is per-cookie anyway; caching it was never right.
 Astro.response.headers.set('Cache-Control', 'no-store');
 const slug = ((Astro.params.slug as string | undefined) || '').replace(/\/+$/, '');
-const client = getPreviewClient(draftMode);
+// A share link reads drafts WITHOUT stega (no edit markers in a reader's copy).
+let client = share
+  ? getPreviewClient(true).withConfig({ stega: false })
+  : getPreviewClient(draftMode);
 
 // What this path is: a singleton, a detail page, a custom page, or nothing
 // this route can draw (src/sanity/preview-routes.ts is the one map).
@@ -116,32 +131,54 @@ const isBuilderSingleton = BUILDER_SINGLETON_TYPES.has(singletonType ?? '');
 // documents (site settings), so an unpublished edit to a service
 // or a testimonial shows up in the page that renders it.
 // ---------------------------------------------------------------------------
-const siteSettings = await getSiteSettings(client).catch(() => null);
+const siteSettings = await getSiteSettings(share ? getPreviewClient(false) : client).catch(
+  () => null,
+);
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
-let page: any = null;
-
-if (singletonType) {
-  const loaders: Record<string, () => Promise<any>> = {
-    homePage: () => getHomePage(client),
-    aboutPage: () => getAboutPage(client),
-    processPage: () => getProcessPage(client),
-    servicesPage: () => getServicesPage(client),
-    eDesignPage: () => getEDesignPage(client),
-    faqPage: () => getFaqPage(client),
-    contactPage: () => getContactPage(client),
-    portfolioPage: () => getPortfolioPage(client),
-    privacyPage: () => getPrivacyPage(client),
-    notFoundPage: () => getNotFoundPage(client),
-  };
-  page = await loaders[singletonType]().catch(() => null);
-} else if (target?.kind === 'detail') {
-  if (detailType === 'project') {
-    page = await getProjectBySlug(target.slug, client).catch(() => null);
+async function loadPage(): Promise<any> {
+  if (singletonType) {
+    const loaders: Record<string, () => Promise<any>> = {
+      homePage: () => getHomePage(client),
+      aboutPage: () => getAboutPage(client),
+      processPage: () => getProcessPage(client),
+      servicesPage: () => getServicesPage(client),
+      eDesignPage: () => getEDesignPage(client),
+      faqPage: () => getFaqPage(client),
+      contactPage: () => getContactPage(client),
+      portfolioPage: () => getPortfolioPage(client),
+      privacyPage: () => getPrivacyPage(client),
+      notFoundPage: () => getNotFoundPage(client),
+    };
+    return loaders[singletonType]().catch(() => null);
   }
-} else if (target?.kind === 'page') {
-  page = await getPage(target.slug, client).catch(() => null);
+  if (target?.kind === 'detail' && detailType === 'project') {
+    return getProjectBySlug(target.slug, client).catch(() => null);
+  }
+  if (target?.kind === 'page') {
+    return getPage(target.slug, client).catch(() => null);
+  }
+  return null;
 }
+
+let page: any = await loadPage();
+
+// A share link shows ONE document's draft. If this path now resolves to a
+// different document (a web address moved), show the published page instead.
+if (
+  share &&
+  page &&
+  (singletonType ?? String(page._id ?? '').replace(/^drafts\./, '')) !== share.d
+) {
+  client = getPreviewClient(false);
+  page = await loadPage();
+}
+const sharedUntil = share
+  ? new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'long',
+      timeZone: 'America/Indiana/Indianapolis',
+    }).format(new Date(share.e * 1000))
+  : null;
 
 if (!page) {
   return new Response(
@@ -190,6 +227,14 @@ const title = `${label} - Preview`;
 ---
 
 <PreviewLayout {title} {draftMode} {pageId}>
+  {sharedUntil && (
+    <div class="mx-auto max-w-3xl px-4 pt-6" data-share-banner>
+      <p class="rounded-md border border-rule bg-bg-soft px-4 py-3 text-sm text-ink">
+        You are looking at a draft of this page that has not been published yet. This private link
+        works until {sharedUntil}.
+      </p>
+    </div>
+  )}
   {singletonType === 'homePage' && (
     <HomeSectionRenderer
       sections={page.pageBuilder}

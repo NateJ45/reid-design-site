@@ -164,14 +164,13 @@ export const service = defineType({
     select: {
       name: 'name',
       price: 'price',
-      order: 'displayOrder',
       media: 'featuredImage',
       badge: 'badge',
     },
-    prepare: ({ name, price, order, media, badge }) => ({
+    prepare: ({ name, price, media, badge }) => ({
       title: badge ? `${name}  (${badge})` : name,
-      subtitle: `${price ?? ''} · #${order ?? '?'}`,
-      media,
+      subtitle: price ?? '',
+      media: media?.asset ? media : undefined,
     }),
   },
   orderings: [

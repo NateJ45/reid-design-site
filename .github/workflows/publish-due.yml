@@ -1,0 +1,108 @@
+name: Publish scheduled room stories
+
+# Free-tier scheduled publishing (PORTS.md cards 111 and 114), added
+# 2026-10-18. Sanity's own Scheduled Drafts needs the Growth plan and Releases
+# are off on this Studio, so instead: Staci sets "Publish automatically at" on
+# a room story draft, and this job publishes it once the time has passed. Home's
+# "Coming up" card lists what is waiting. See scripts/publish-due.mjs (PORTABLE,
+# the starter's) and src/sanity/schemaTypes/_publishAt.ts.
+#
+# Only `project` carries the field today; the script publishes any draft with a
+# due publishAt, whatever its type, so adding the field to another type is the
+# whole job.
+#
+# ── NO `npm ci` ─────────────────────────────────────────────────────────────
+# At */30 this runs 48 times a day. publish-due.mjs is dependency-free (global
+# fetch against Sanity's HTTP API), so the job is checkout + setup-node + node,
+# a few seconds. Do NOT add an install step.
+#
+# ── SECRETS (this repo's convention: warn and skip until they exist) ─────────
+#   SANITY_API_WRITE_TOKEN  a Sanity token with the Editor role
+#                           (sanity.io/manage > API > Tokens). Not
+#                           SANITY_AUTH_TOKEN, which the backup uses and which
+#                           is a READ token.
+#   CF_DEPLOY_HOOK_URL      optional, the same Workers Builds deploy hook
+#                           weekly-rebuild.yml uses. The Sanity publish webhook
+#                           already rebuilds the site after any publish, this
+#                           one included; the hook is the belt to its braces.
+# Without the write token the gate job logs one warning and the publish job is
+# skipped, so the schedule is safe to leave on. PUBLIC_SANITY_PROJECT_ID is the
+# repository variable every workflow here reads.
+#
+# ── HONEST TIMING ────────────────────────────────────────────────────────────
+# */30 means "within about half an hour of the time Staci picked", and the
+# field's description in the Studio says so. GitHub's scheduler is best-effort.
+on:
+  schedule:
+    - cron: '*/30 * * * *' # every half hour
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+          PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$PROJECT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SANITY_API_WRITE_TOKEN secret not set; skipping scheduled publishing. See .github/workflows/publish-due.yml."
+          fi
+
+  publish:
+    needs: gate
+    if: needs.gate.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # No install step on purpose. See the header.
+      - name: Publish anything whose time has come
+        id: publish
+        shell: bash
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+          SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          SANITY_DATASET: production
+        # --apply turns the dry run into a publish (in Actions the write gate
+        # lets the flag through on its own: scripts/lib/write-gate.mjs). The
+        # log tells the next step whether anything went out; the script's own
+        # exit code is kept, so a failed publish still turns the run red.
+        run: |
+          set +e
+          node scripts/publish-due.mjs --apply | tee publish.log
+          code=${PIPESTATUS[0]}
+          if grep -qE '^publish-due: published [1-9]' publish.log; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+          exit $code
+
+      # Something went out, so ask Cloudflare for a build (the Sanity webhook
+      # should already have). always() so a run where one document failed still
+      # deploys the ones that succeeded.
+      - name: Rebuild the website
+        if: always() && steps.publish.outputs.published == 'true'
+        env:
+          HOOK: ${{ secrets.CF_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "CF_DEPLOY_HOOK_URL not set; relying on the Sanity publish webhook to rebuild."
+            exit 0
+          fi
+          CODE=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' -X POST "$HOOK")
+          echo "Cloudflare answered $CODE"
+          case "$CODE" in 2*) ;; *) echo "::error::The deploy hook answered $CODE"; exit 1 ;; esac

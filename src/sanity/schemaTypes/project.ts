@@ -3,6 +3,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
+import { publishAtField } from './_publishAt';
 
 // A "+ New room story" starts with [bracketed] writing prompts (src/sanity/
 // templates.ts). These checks stop a project publishing while one is still in
@@ -22,8 +23,19 @@ const noBracketStory = (blocks: unknown) => {
 
 export const project = defineType({
   name: 'project',
-  title: 'Project',
+  // 'Room story' (2026-10-18): the name the desk, Home and the Site Guide use.
+  title: 'Room story',
   type: 'document',
+  // The two dates sit together at the foot of the form. Scheduling a story
+  // (publishAt, PORTS.md cards 111 and 114) is the free-plan way to time one:
+  // releases are off on this Studio, so there is no Schedule action.
+  fieldsets: [
+    {
+      name: 'publishing',
+      title: 'Publishing',
+      options: { collapsible: true, collapsed: false },
+    },
+  ],
   // Studio search weights (PORTS.md card 34): what Staci types into the search
   // box is the words she sees on the page, so those fields rank first.
   __experimental_search: [
@@ -488,10 +500,19 @@ export const project = defineType({
       title: 'Published at',
       type: 'datetime',
       description:
-        'The date shown on the project, and the sort key for the portfolio (newest first). Setting it in the future does not delay go-live on its own. To publish a project later, use the Schedule publish action (the arrow beside the Publish button), which Sanity runs and rebuilds the site at that time.',
+        'The date shown on the room story, and the sort key for the portfolio (newest first). Setting it in the future does not delay go-live on its own: to publish the story later, use "Publish automatically at" below.',
+      fieldset: 'publishing',
       initialValue: () => new Date().toISOString(),
       validation: (Rule) => Rule.required(),
     }),
+    // "Publish automatically at": keep the story a draft and it publishes
+    // itself within the half hour (scripts/publish-due.mjs, run by
+    // .github/workflows/publish-due.yml). No group on this type, so the field
+    // takes the fieldset instead of publishAtField's default group.
+    (() => {
+      const { group: _group, ...field } = publishAtField();
+      return { ...field, fieldset: 'publishing' };
+    })(),
     // Hidden field managed by the orderable-document-list plugin.
     orderRankField({ type: 'project' }),
   ],
@@ -504,9 +525,10 @@ export const project = defineType({
       media: 'heroImage',
     },
     prepare: ({ title, location, year, featured, media }) => ({
-      title: title ?? 'Untitled project',
-      subtitle: `${featured ? '★ ' : ''}${location ?? ''} · ${year ?? ''}`,
-      media,
+      title: title ?? 'Untitled room story',
+      subtitle: [featured ? 'On Home' : '', location, year].filter(Boolean).join(' · '),
+      // The story's own photo, else the brand tile (card 119).
+      media: media?.asset ? media : undefined,
     }),
   },
   orderings: [

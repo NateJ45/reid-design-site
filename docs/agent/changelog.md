@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-18: The Studio kit, dressed as Reid Design (starter cards 106 to 120)
+
+The Studio became the family's shared kit: Home first (quick actions for a room story, a price, a review and the Google rating; a weekly list; Fix-it list; Coming up; Visitors), the Site Guide (the old seeded how-tos rewritten in today's words, 30 guides), Checkup with three Reid rules (no room story yet, a stale Google rating, ended announcements), Quick update for a review or a notice from the phone, Trash instead of the Archive action (same records), the status line, Help for this page, Share a preview (signed links, 1 to 14 days), table views, the walnut look with Zodiak and General Sans, paint-chip icons and a paint-chip Home banner, and its own /studio/ page. Room stories can publish themselves (publishAt + publish-due.yml). Site stats stays until Visitors is switched on. Detail: docs/agent/studio-kit.md, OPERATIONS.md.
+
 ## 2026-10-17: Sanity phase 2, the `@sanity/ui` 4 / `@sanity/icons` 5 set (starter card 103)
 
 Branch `deps/sanity-phase2`. `sanity` and `@sanity/vision` 6.19.0, `@sanity/ui` 4.4.9, `@sanity/icons` 5.2.3, `styled-components` 6.6.0, `@sanity/client` 8.9.0, `@sanity/visual-editing` 6.1.3 (dependency and override), `@sanity/astro` 3.5.1, `sanity-plugin-utils` override 2.0.22, `@sanity/orderable-document-list` 2.0.28, `sanity-plugin-media` 6.3.5, `sanity-plugin-asset-source-unsplash` 7.0.29. The seven PORTABLE Studio files this site has were re-copied from the starter; `astro.config.mjs` gained `optimizeDeps.include: ['react/compiler-runtime']`. Studio files were migrated by codemod (icon subpath imports, `@sanity/ui/menu` and `/toast` subpaths) plus `space` to `gap`, `Grid columns` to `gridTemplateColumns`, and the dropped `Badge mode`. No site-visible change.
