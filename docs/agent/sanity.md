@@ -130,7 +130,7 @@ messages happen to use the same URL shape. Match the styled-components path.
 stack migration, PORTS.md card 103): `sanity` **6.19.0**, `@sanity/vision` 6.19.0, `@sanity/ui`
 **4.4.9**, `@sanity/icons` **5.2.3**, `styled-components` 6.6.0, `@sanity/client` **8.9.0**,
 `@sanity/visual-editing` **6.1.3**, `@sanity/astro` 3.5.1, `@sanity/preview-url-secret` **4.1.5**,
-`react`/`react-dom`/`react-is` exactly 19.2.8 (styled-components and react took patch bumps in the same day's dependabot group, #32; lockfile re-checked 2026-09-29), `@sanity/orderable-document-list` 2.0.28, `sanity-plugin-media` 6.3.5,
+`react`/`react-dom`/`react-is` exactly 19.3.1 (since 2026-10-18, PORTS.md card 112; was 19.2.8 from the dependabot group #32), `@sanity/orderable-document-list` 2.0.28, `sanity-plugin-media` 6.3.5,
 `sanity-plugin-asset-source-unsplash` 7.0.29, and `overrides` for
 `sanity-plugin-utils` 2.0.22 and `@sanity/visual-editing` 6.1.3. Those two need
 `overrides` rather than a plain dependency pin, because npm will happily nest a
