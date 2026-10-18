@@ -19,7 +19,9 @@ import { privacyPage } from './privacyPage';
 import { processPage } from './processPage';
 import { processStep } from './processStep';
 import { project } from './project';
-import { pageSectionSchemas } from './sections';
+import { pageSectionSchemas, syncedSection } from './sections';
+import { sectionPreset } from './sectionPreset';
+import { pressMention } from './pressMention';
 import { aboutSectionMarker } from './aboutSections';
 import { homeSectionMarker } from './homeSections';
 import { servicesSectionMarker } from './servicesSections';
@@ -42,6 +44,9 @@ export const schemaTypes = [
   // Page-builder section blocks (objects). Registered before the documents
   // whose pageBuilder arrays reference them.
   ...pageSectionSchemas,
+  // Shows a saved section by reference (the authoring kit, card 109). Not a
+  // member of pageSectionSchemas, so a saved section can never hold one.
+  syncedSection,
   aboutSectionMarker,
   homeSectionMarker,
   servicesSectionMarker,
@@ -85,4 +90,9 @@ export const schemaTypes = [
   // Old address -> new address forwards. Mostly filed automatically when a
   // published page is renamed (PORTS.md card 22); applied at build time.
   redirect,
+
+  // Saved sections and patterns (the authoring kit, card 109, 2026-10-18).
+  sectionPreset,
+  // Press mentions, shown by the "Press mentions" section (2026-10-18).
+  pressMention,
 ];

@@ -5,6 +5,7 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { EDESIGN_SECTION_TYPES, EDESIGN_DEFAULT_ORDER } from './offeringSections';
 import { SECTION_ARRAY_OPTIONS } from './sections';
+import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
 
 export const eDesignPage = defineType({
   name: 'eDesignPage',
@@ -74,6 +75,8 @@ export const eDesignPage = defineType({
       of: EDESIGN_SECTION_TYPES,
       // The grouped "+ Add section" menu, shared by every builder (sections.ts).
       options: SECTION_ARRAY_OPTIONS,
+      // Insert a saved section, and the gentle page-builder warnings (card 109).
+      ...pageBuilderAuthoring,
       initialValue: EDESIGN_DEFAULT_ORDER,
     }),
 

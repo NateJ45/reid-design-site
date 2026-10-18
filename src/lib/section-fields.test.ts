@@ -121,7 +121,7 @@ function listFields(body: string): string[] {
 // =============================================================================
 
 describe('the drift gate parsed the schema at all', () => {
-  it('found the ten block types', () => {
+  it('found the twelve block types', () => {
     expect(SECTION_TYPES.map((t) => t.name)).toEqual([
       'heroSection',
       'richTextSection',
@@ -134,6 +134,10 @@ describe('the drift gate parsed the schema at all', () => {
       'spacerSection',
       // 2026-09-30: fills itself from Instagram, no layout choice, no accent.
       'instagramSection',
+      // 2026-10-18: fills itself from the Press list; a heading and a count.
+      'pressSection',
+      // 2026-10-18: shows a saved section by reference (card 109); no fields of its own.
+      'syncedSection',
     ]);
   });
 });

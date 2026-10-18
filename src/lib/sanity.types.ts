@@ -21,6 +21,50 @@ type ArrayOf<T> = Array<
 >;
 
 // Source: schema.json
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
+};
+
+export type PressMention = {
+  _id: string;
+  _type: 'pressMention';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  outlet?: string;
+  title?: string;
+  date?: string;
+  url?: string;
+  quote?: string;
+  logo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+};
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop';
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot';
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
 export type Redirect = {
   _id: string;
   _type: 'redirect';
@@ -74,13 +118,6 @@ export type ProcessStep = {
   orderRank?: string;
 };
 
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-};
-
 export type Service = {
   _id: string;
   _type: 'service';
@@ -121,22 +158,6 @@ export type Service = {
   ctaLabel?: string;
   badge?: string;
   orderRank?: string;
-};
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop';
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot';
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
 };
 
 export type Slug = {
@@ -592,6 +613,70 @@ export type AboutSectionMarker = {
     'hero' | 'story' | 'philosophy' | 'personal' | 'press' | 'stats' | 'kindWords' | 'finalCta';
 };
 
+export type SectionPresetReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'sectionPreset';
+};
+
+export type SyncedSection = {
+  _type: 'syncedSection';
+  preset?: SectionPresetReference;
+};
+
+export type SectionPreset = {
+  _id: string;
+  _type: 'sectionPreset';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  sectionType?: string;
+  section?: Array<
+    | ({
+        _key: string;
+      } & HeroSection)
+    | ({
+        _key: string;
+      } & RichTextSection)
+    | ({
+        _key: string;
+      } & ImageTextSection)
+    | ({
+        _key: string;
+      } & GallerySection)
+    | ({
+        _key: string;
+      } & QuoteSection)
+    | ({
+        _key: string;
+      } & StatSection)
+    | ({
+        _key: string;
+      } & CtaBandSection)
+    | ({
+        _key: string;
+      } & VideoSection)
+    | ({
+        _key: string;
+      } & SpacerSection)
+    | ({
+        _key: string;
+      } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+  >;
+  note?: string;
+};
+
+export type PressSection = {
+  _type: 'pressSection';
+  heading?: string;
+  count?: number;
+};
+
 export type InstagramSection = {
   _type: 'instagramSection';
   heading?: string;
@@ -821,6 +906,12 @@ export type PrivacyPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
 };
 
@@ -888,6 +979,12 @@ export type PortfolioPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
 };
 
@@ -948,6 +1045,12 @@ export type EDesignPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1069,6 +1172,12 @@ export type Page = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
   addToMainNav?: boolean;
   navGroup?: 'top' | 'services' | 'resources';
@@ -1178,6 +1287,12 @@ export type ContactPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
 };
 
@@ -1255,6 +1370,12 @@ export type FaqPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
 };
 
@@ -1308,6 +1429,12 @@ export type ServicesPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1417,6 +1544,12 @@ export type ProcessPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1497,6 +1630,12 @@ export type AboutPage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -1652,6 +1791,12 @@ export type HomePage = {
     | ({
         _key: string;
       } & InstagramSection)
+    | ({
+        _key: string;
+      } & PressSection)
+    | ({
+        _key: string;
+      } & SyncedSection)
   >;
   heroEyebrow?: string;
   heroHeadline?: string;
@@ -2085,13 +2230,14 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | SanityImageAssetReference
+  | PressMention
+  | SanityImageCrop
+  | SanityImageHotspot
   | Redirect
   | ServiceReference
   | ProcessStep
-  | SanityImageAssetReference
   | Service
-  | SanityImageCrop
-  | SanityImageHotspot
   | Slug
   | PhilosophyPoint
   | FaqItem
@@ -2119,6 +2265,10 @@ export type AllSanitySchemaTypes =
   | ServicesSectionMarker
   | HomeSectionMarker
   | AboutSectionMarker
+  | SectionPresetReference
+  | SyncedSection
+  | SectionPreset
+  | PressSection
   | InstagramSection
   | SpacerSection
   | VideoSection

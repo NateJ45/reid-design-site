@@ -20,7 +20,9 @@ import GalleryGrid from '@/components/sections/GalleryGrid.astro';
 import QuoteBlock from '@/components/sections/QuoteBlock.astro';
 import VideoEmbed from '@/components/sections/VideoEmbed.astro';
 import InstagramFeed from '@/components/InstagramFeed.astro';
-import { getSiteSettings } from '@/lib/queries';
+import PressMentions from '@/components/sections/PressMentions.astro';
+import { getPressMentions, getSiteSettings } from '@/lib/queries';
+import { expandSyncedSections } from '@/lib/authoring';
 import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
 import SectionCoach from '@/components/SectionCoach.astro';
@@ -57,7 +59,14 @@ interface Props {
   coach?: boolean;
 }
 
-const { sections = [], idPrefix = 'section', editDoc, coach = false } = Astro.props as Props;
+const { sections: given = [], idPrefix = 'section', editDoc, coach = false } = Astro.props as Props;
+
+// Synced sections (the authoring kit, PORTS.md card 109) become the saved
+// section's own blocks HERE, before the cadence below, so the background rhythm
+// runs across them exactly as if they were typed in. Each expanded block keeps
+// `_editKey`, the synced block's key, so preview controls act on the synced
+// block (one unit) rather than on blocks that do not exist in this page.
+const sections = expandSyncedSections(given ?? []);
 
 // The Instagram block's shared words live on siteSettings (2026-09-30). Read
 // only when a section list actually has one, and through the memoized build
@@ -65,6 +74,10 @@ const { sections = [], idPrefix = 'section', editDoc, coach = false } = Astro.pr
 const igSettings = (sections ?? []).some((s: any) => s?._type === 'instagramSection')
   ? await getSiteSettings()
   : null;
+// Press mentions (2026-10-18), fetched once per build and only when a page has the section.
+const press = (sections ?? []).some((s: any) => s?._type === 'pressSection')
+  ? await getPressMentions()
+  : [];
 
 // -------------------------------------------------------------------------
 // Empty-section coaching (PREVIEW ONLY, 2026-09-29)
@@ -119,7 +132,11 @@ const wrapAttrs = (key: string | undefined) =>
 // the same handle, which is its own change to eight files.
 const handleAttr = (section: any) => {
   const field = handleFieldFor(section?._type);
-  return editDoc && section?._key && field && layoutApplies(section._type, section)
+  return editDoc &&
+    section?._key &&
+    !section._editKey &&
+    field &&
+    layoutApplies(section._type, section)
     ? sectionFieldEditAttr(editDoc, section._key, field)
     : undefined;
 };
@@ -197,7 +214,7 @@ const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as con
 ---
 
 {rows.map(({ s, surface, ground, headingId, handle, coachInfo }) => (
-  <Wrap {...wrapAttrs(s._key)}>
+  <Wrap {...wrapAttrs(s._editKey ?? s._key)}>
     {coachInfo ? (
       <SectionCoach name={coachInfo.name} hint={coachInfo.hint} />
     ) : s._type === 'heroSection' ? (
@@ -240,6 +257,15 @@ const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as con
       <QuoteBlock {...s} surface={surface ?? 'background'} />
     ) : s._type === 'videoSection' ? (
       <VideoEmbed {...s} surface={surface} headingId={headingId} />
+    ) : s._type === 'pressSection' ? (
+      <PressMentions
+        mentions={(Array.isArray(s.mentions) ? s.mentions : press).slice(
+          0,
+          typeof s.count === 'number' ? s.count : 6,
+        )}
+        heading={s.heading}
+        headingId={headingId}
+      />
     ) : s._type === 'instagramSection' ? (
       <InstagramFeed
         settings={igSettings}

@@ -37,6 +37,7 @@ export async function getStaticPaths() {
     '404',
     'sitemap-index.xml',
     'studio', // the Studio's own page (card 120)
+    'styleguide', // the block wall (card 109)
   ]);
   const slugs = await getAllPageSlugs();
   return slugs.filter((slug) => !RESERVED.has(slug)).map((slug) => ({ params: { slug } }));

@@ -4,6 +4,7 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { SERVICES_SECTION_TYPES, SERVICES_DEFAULT_ORDER } from './servicesSections';
 import { SECTION_ARRAY_OPTIONS } from './sections';
+import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
 
 export const servicesPage = defineType({
   name: 'servicesPage',
@@ -70,6 +71,8 @@ export const servicesPage = defineType({
       of: SERVICES_SECTION_TYPES,
       // The grouped "+ Add section" menu, shared by every builder (sections.ts).
       options: SECTION_ARRAY_OPTIONS,
+      // Insert a saved section, and the gentle page-builder warnings (card 109).
+      ...pageBuilderAuthoring,
       initialValue: SERVICES_DEFAULT_ORDER,
     }),
 

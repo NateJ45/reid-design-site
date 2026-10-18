@@ -384,7 +384,7 @@ export const guides: Guide[] = [
         kind: 'steps',
         items: [
           'Open `Content`, then `Pages`, then `Pages you build`, and click `+`.',
-          'Pick a starting point: `Service page`, `Neighborhood page` or a blank page. A ready-made one arrives with its sections in place and every piece of text in [square brackets] saying what to write.',
+          'Pick a starting point: `Service page`, `Town page`, `Seasonal styling offer`, `What happens at a consultation`, `Simple page` or `Blank page`. A ready-made one arrives with its sections in place and every piece of text in [square brackets] saying what to write.',
           'Type the page title, then click `Generate` beside the web address.',
           'Replace every bracket, including the ones in the `SEO` tab, and add your photos.',
           'To put it in the menu, open the `Menu placement` tab and turn on `Show in the top menu`. Leave it off to keep the page unlisted and just share its link.',
@@ -397,7 +397,138 @@ export const guides: Guide[] = [
         title: 'Think about the web address before you publish.',
         text: 'Changing it later breaks links people have saved. If you have to, the Studio files a forward from the old address for you; see the guide on renaming.',
       },
-      { kind: 'seealso', items: ['Rename a page without breaking links'] },
+      {
+        kind: 'seealso',
+        items: ['Start a page from a ready-made layout', 'Rename a page without breaking links'],
+      },
+    ],
+  },
+  {
+    slug: 'page-templates',
+    category: 'Pages and words',
+    title: 'Start a page from a ready-made layout',
+    icon: 'blocks',
+    lead: 'Which layout to pick, and what each one gives you.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'bullets',
+        items: [
+          '**Service page**: one service explained in full. What they get, how the visit works, what it costs, a client quote.',
+          '**Town page**: for a town you work in, like Carmel or Avon. The homes there, recent rooms, a client from that town. Good for being found on Google.',
+          '**Seasonal styling offer**: holiday styling or a spring refresh, with what is included, the dates and how to book.',
+          '**What happens at a consultation**: for someone about to book and a little nervous. What you cover, how to get ready, what comes after.',
+          '**Simple page**: a banner, some words, photos and a way to get in touch.',
+          '**Blank page**: nothing yet; add sections yourself.',
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'caution',
+        title: 'Replace every [square bracket].',
+        text: 'Each one says what to write there. While any are left, a yellow note under the sections says so, and the page would show the brackets to clients.',
+      },
+      {
+        kind: 'callout',
+        tone: 'caution',
+        title: 'Keep to styling.',
+        text: 'Every layout talks about furniture, color and paint, decor, rugs, lighting, hardware and trim. Keep it that way: nothing about cabinets, tile, appliances or moving walls.',
+      },
+      { kind: 'seealso', items: ['Add a new page', 'Reuse a section on other pages'] },
+    ],
+  },
+  {
+    slug: 'reuse-sections',
+    category: 'Pages and words',
+    title: 'Reuse a section on other pages',
+    icon: 'copy',
+    lead: 'Save a band once, add it anywhere: as your own copy, or synced.',
+    diy: 'self',
+    body: [
+      { kind: 'h', text: 'Save a section' },
+      {
+        kind: 'steps',
+        items: [
+          'Open the page that has the section you like.',
+          'Click the small arrow beside `Publish` and choose `Save a section as preset...`.',
+          'Tick the section (or several that go together), give it a name, and save.',
+          'It is kept under `Content`, then `Pages`, then `Saved sections`.',
+        ],
+      },
+      { kind: 'h', text: 'Add it to another page' },
+      {
+        kind: 'steps',
+        items: [
+          'Open the other page and find its sections list.',
+          'Click `Insert a saved section` under the list and pick one.',
+          '`Add a copy` gives this page its own copy to change freely. `Add synced` shows the saved section itself, so it stays the same everywhere.',
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'positive',
+        title: 'A copy is yours to change.',
+        text: 'Changing a copy changes only that page. Changing the saved section later does not touch the copies.',
+      },
+      { kind: 'seealso', items: ['Keep a section the same on every page'] },
+    ],
+  },
+  {
+    slug: 'synced-sections',
+    category: 'Pages and words',
+    title: 'Keep a section the same on every page',
+    icon: 'sync',
+    lead: 'A synced section changes everywhere when you change it once.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'p',
+        text: 'Good for the things that should always match: your booking band, your service area line, a review you want on several pages.',
+      },
+      {
+        kind: 'steps',
+        items: [
+          'Add the saved section to each page with `Insert a saved section`, then `Add synced`.',
+          'To change it, open `Content`, then `Pages`, then `Saved sections`, change it, and click `Publish`.',
+          'Every page that shows it updates with the next website update.',
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'caution',
+        title: 'Changing it changes it everywhere.',
+        text: 'If one page needs different words, use `Add a copy` on that page instead.',
+      },
+    ],
+  },
+  {
+    slug: 'seasonal-patterns',
+    category: 'Pages and words',
+    title: 'Add a seasonal band to a page',
+    icon: 'clock',
+    lead: 'Holiday styling, a spring refresh, "booking for next season": ready to drop in.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'p',
+        text: 'A few saved sections come ready for the times of year clients think about their homes: holiday styling, a spring refresh, a fall "get ready for hosting" band, and "booking for next season" when your calendar fills.',
+      },
+      {
+        kind: 'steps',
+        items: [
+          'Open the page (Home works well), find its sections list, and click `Insert a saved section`.',
+          'Pick the one for the season and choose `Add a copy`.',
+          'Replace the [square brackets] with your dates and words, and move it where you want it.',
+          'Click `Publish`. Remove it again when the season is over.',
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'primary',
+        title: 'Use "Add a copy", not "Add synced", for these.',
+        text: 'Each season you will want different dates and words, so a copy you can change is the right fit.',
+      },
+      { kind: 'seealso', items: ['Post an announcement'] },
     ],
   },
   {
@@ -695,6 +826,29 @@ export const guides: Guide[] = [
     ],
   },
   {
+    slug: 'press',
+    category: 'Services, prices and reviews',
+    title: 'Add a press mention',
+    icon: 'add',
+    lead: 'Featured in a magazine, a blog or a podcast? Put it on the website.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'steps',
+        items: [
+          'Open `Content`, then `Prices, reviews and lists`, then `Press`, and click `+`.',
+          'Type where it appeared, like "Indianapolis Monthly", and the date it came out.',
+          'Paste the link if it is online, and a short line they wrote about you, exactly as written, if there is one.',
+          'Click `Publish`.',
+        ],
+      },
+      {
+        kind: 'p',
+        text: 'It shows wherever a `Press mentions` section sits, newest first. To add that section to a page, open the page, `Add item` in its sections, and pick `Press mentions` under "Reviews and press". Nothing shows until there is at least one mention.',
+      },
+    ],
+  },
+  {
     slug: 'availability',
     category: 'Services, prices and reviews',
     title: 'Availability, service areas and travel fees',
@@ -893,7 +1047,7 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   '*': ['edit-a-page', 'help-panel'],
   project: ['first-room-story', 'schedule-a-story', 'room-story-photos', 'images-and-alt'],
   portfolioPage: ['first-room-story', 'section-visibility'],
-  homePage: ['edit-a-page', 'extra-sections', 'home-hero', 'accent-word'],
+  homePage: ['edit-a-page', 'extra-sections', 'seasonal-patterns', 'home-hero', 'accent-word'],
   aboutPage: ['about-off-the-clock', 'extra-sections', 'accent-word'],
   servicesPage: ['prices', 'extra-sections'],
   eDesignPage: ['prices', 'extra-sections', 'section-visibility'],
@@ -901,7 +1055,9 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   service: ['prices'],
   testimonial: ['add-review', 'google-rating'],
   announcement: ['announcement'],
-  page: ['add-a-page', 'share-a-preview', 'rename-a-page', 'seo-fields'],
+  page: ['add-a-page', 'page-templates', 'reuse-sections', 'share-a-preview', 'rename-a-page'],
+  sectionPreset: ['reuse-sections', 'synced-sections', 'seasonal-patterns'],
+  pressMention: ['press'],
   siteSettings: ['menus-and-footer', 'google-rating', 'section-visibility', 'instagram'],
   businessInfo: ['availability'],
   redirect: ['rename-a-page'],

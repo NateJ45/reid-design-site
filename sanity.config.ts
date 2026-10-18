@@ -54,12 +54,13 @@ import { documentBadges } from './src/sanity/components/documentBadges';
 import { withEditorActions } from './src/sanity/editorActions';
 import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
 import { STARTING_TEMPLATES } from './src/sanity/templates';
+import { PAGE_TEMPLATES } from './src/sanity/pageTemplates';
 import { withSlugRedirect } from './src/sanity/components/slugRedirect';
 import { normalizeStudioDeepLink } from './src/sanity/lib/studio-deep-link';
 import { ncsStudioKit } from './src/sanity/kit';
 import { kitConfig } from './src/sanity/kit.config';
 import { ncsWorkflowTools } from './src/sanity/workflow';
-import { brandIcon, brandIcons, withBrandPreviews } from './src/sanity/brandIcons';
+import { brandIcon, brandIcons, typeIcon, withBrandPreviews } from './src/sanity/brandIcons';
 import { TRASH_TYPE } from './src/lib/studio-trash';
 import { StatsTool } from './src/sanity/components/StatsTool';
 
@@ -219,9 +220,24 @@ export default defineConfig({
     // Portable Text in the site's fonts (card 116); every document type gets
     // its icon and a picture in list rows (card 119).
     types: withBrandPreviews(withEditorTypography(schemaTypes, STUDIO_FONTS)),
-    // "+ New" starting layouts: Service page, Neighborhood page, Room story,
-    // Google review, offered beside the blank option. See src/sanity/templates.ts.
-    templates: (prev) => [...prev, ...STARTING_TEMPLATES],
+    // Starting layouts. Pages Staci builds start from a page template (the
+    // authoring kit, card 109: src/sanity/pageTemplates.ts); `sections` and
+    // `fields` are functions so every new page gets fresh _keys. A room story
+    // and a Google review have their own (src/sanity/templates.ts). The stock
+    // 'page' template stays registered (links and intents that name it keep
+    // working); newDocumentOptions below hides it behind "Blank page".
+    templates: (prev) => [
+      ...prev,
+      ...STARTING_TEMPLATES,
+      ...PAGE_TEMPLATES.map((t) => ({
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        schemaType: 'page',
+        icon: typeIcon('page'),
+        value: () => ({ ...(t.fields ? t.fields() : {}), pageBuilder: t.sections() }),
+      })),
+    ],
   },
 
   document: {
@@ -231,10 +247,13 @@ export default defineConfig({
     // Singleton enforcement: hide these from the global "+" create menu so
     // nobody makes a duplicate. (The kit hides the Trash and weekly types.)
     newDocumentOptions: (prev, { creationContext }) => {
+      // Pages start from a template; the bare stock one is hidden because
+      // "Blank page" is the same thing with a clearer name.
+      const options = prev.filter((option) => option.templateId !== 'page');
       if (creationContext.type === 'global') {
-        return prev.filter((option) => !SINGLETON_TYPES.has(option.templateId));
+        return options.filter((option) => !SINGLETON_TYPES.has(option.templateId));
       }
-      return prev;
+      return options;
     },
     actions: (prev, { schemaType }) => {
       // The Trash's own actions come from the kit (Bring it back, and Delete

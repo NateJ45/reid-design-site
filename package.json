@@ -54,7 +54,9 @@
     "instagram:fetch": "node scripts/fetch-instagram.mjs",
     "test:kit": "node --experimental-strip-types --test src/lib/studio-*.test.ts src/lib/deploy-status.test.ts src/lib/preview-share.test.ts",
     "restore:doc": "node scripts/restore-doc.mjs",
-    "studio:banner": "node scripts/gen-studio-banner.mjs"
+    "studio:banner": "node scripts/gen-studio-banner.mjs",
+    "thumbnails": "node scripts/shoot-section-thumbnails.mjs",
+    "seed:patterns": "node scripts/content/seed-section-patterns.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.4",

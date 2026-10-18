@@ -25,7 +25,8 @@
         "project": "image",
         "portfolioPage": "image",
         "eDesignPage": "service",
-        "studioPlaybook": "guide"
+        "studioPlaybook": "guide",
+        "pressMention": "post"
       },
       "groups": {
         "identity": "settings",

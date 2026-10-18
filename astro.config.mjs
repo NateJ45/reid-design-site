@@ -182,6 +182,7 @@ export default defineConfig({
         new URL(page).pathname.replace(/\/$/, '') !== '/search' &&
         !page.includes('/studio') &&
         !page.includes('/preview') &&
+        !page.includes('/styleguide/') &&
         !isHiddenSectionPath(new URL(page).pathname, sectionVisibility),
     }),
     react(),

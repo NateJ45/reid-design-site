@@ -2,9 +2,10 @@
 // =============================================================================
 // "+ New" starting layouts (initial-value templates)
 // =============================================================================
-// Clicking "+" to make a new Custom page or a new Project offers these ready-made
-// layouts beside the blank option, so Staci edits a real page instead of
-// composing one from nothing. Registered in sanity.config.ts through
+// Clicking "+" to make a new room story or a Google review offers these
+// ready-made starts beside the blank option, so Staci edits a real story
+// instead of composing one from nothing. (Page templates moved to
+// src/sanity/pageTemplates.ts with the authoring kit, 2026-10-18.) Registered in sanity.config.ts through
 // `schema.templates`. (Pattern from presacademy src/sanity/templates.ts and the
 // WCP site's pageTemplates.ts.)
 //
@@ -61,160 +62,6 @@ const contactButton = (label: string) => ({
 
 export const STARTING_TEMPLATES: Template[] = [
   // ------------------------------------------------------------ service page
-  {
-    id: 'page-service',
-    title: 'Service page',
-    description: 'One service explained: what it is, what you get, how it works, the price.',
-    schemaType: 'page',
-    icon: typeIcon('page'),
-    value: {
-      title: '[Service name, like "Paint color consult"]',
-      addToMainNav: false,
-      addToFooter: false,
-      pageBuilder: [
-        {
-          _type: 'heroSection',
-          _key: 'tpl-hero',
-          eyebrow: '[Short label, like "In-home service"]',
-          headline: '[Say what this service is in plain words]',
-          subhead:
-            '[Who it is for and what they walk away with. One or two sentences, like "For the room you walk past every day and still do not love."]',
-          size: 'short',
-          primaryCta: contactButton('Book a consultation'),
-        },
-        {
-          _type: 'richTextSection',
-          _key: 'tpl-included',
-          heading: 'What you get',
-          width: 'narrow',
-          align: 'left',
-          body: [
-            para(
-              'tpl-included-p1',
-              '[List what the client actually receives, in the order it happens. A written plan? A shopping list? A follow-up call? Say so.]',
-            ),
-          ],
-        },
-        {
-          _type: 'imageTextSection',
-          _key: 'tpl-how',
-          imageSide: 'right',
-          heading: 'How it works',
-          body: [
-            para(
-              'tpl-how-p1',
-              '[Walk through the visit in three or four short sentences. Say how long it takes and what they need to have ready.]',
-            ),
-          ],
-        },
-        {
-          _type: 'richTextSection',
-          _key: 'tpl-price',
-          heading: 'What it costs',
-          width: 'narrow',
-          align: 'left',
-          body: [
-            para(
-              'tpl-price-p1',
-              '[Say the price plainly, like "$225 for a 60 to 90 minute visit." Then say what happens if they want more help after that.]',
-            ),
-          ],
-        },
-        {
-          _type: 'quoteSection',
-          _key: 'tpl-quote',
-          quote: '[A client talking about this service, in their own words.]',
-          attribution: '[Their first name]',
-          detail: '[Their town and room, like "Plainfield, IN, living room"]',
-        },
-        {
-          _type: 'ctaBandSection',
-          _key: 'tpl-cta',
-          headline: '[A short invitation, like "Ready to talk about your room?"]',
-          subhead: '[One line on what happens after they get in touch.]',
-          cta: contactButton('Get in touch'),
-        },
-      ],
-      seoTitle: '[Service name in Plainfield, IN | Reid Design]',
-      seoDescription:
-        '[One sentence for Google: what this service is, who it helps, and what it costs. About 150 characters.]',
-    },
-  },
-
-  // ------------------------------------------------------- neighborhood page
-  {
-    id: 'page-neighborhood',
-    title: 'Neighborhood page (e.g. Carmel)',
-    description: 'A page for one town you work in: the homes there, recent rooms, a local client.',
-    schemaType: 'page',
-    icon: brandIcon('place'),
-    value: {
-      title: '[Town name, like "Carmel"]',
-      addToMainNav: false,
-      addToFooter: false,
-      pageBuilder: [
-        {
-          _type: 'heroSection',
-          _key: 'tpl-hero',
-          eyebrow: '[Town, state, like "Carmel, Indiana"]',
-          headline: '[Interior design for (town) homes]',
-          subhead:
-            '[One sentence about the houses you see there most, like "From the 1990s two-stories off 116th Street to the new builds in West Clay."]',
-          size: 'short',
-          primaryCta: contactButton('Book a consultation'),
-        },
-        {
-          _type: 'richTextSection',
-          _key: 'tpl-local',
-          heading: '[What (town) homeowners ask me for]',
-          width: 'narrow',
-          align: 'left',
-          body: [
-            para(
-              'tpl-local-p1',
-              '[Two or three short paragraphs. Be specific: the rooms, the floor plans, the problems you keep solving in this town.]',
-            ),
-            para(
-              'tpl-local-p2',
-              '[Say how far you travel and whether there is a travel fee, so nobody has to ask.]',
-            ),
-          ],
-        },
-        {
-          _type: 'gallerySection',
-          _key: 'tpl-gallery',
-          heading: '[Recent rooms in (town)]',
-          columns: 3,
-          images: [],
-        },
-        {
-          _type: 'quoteSection',
-          _key: 'tpl-quote',
-          quote: '[A client from this town, in their own words.]',
-          attribution: '[Their first name]',
-          detail: '[Their town and room, like "Carmel, IN, kitchen"]',
-        },
-        {
-          _type: 'ctaBandSection',
-          _key: 'tpl-cta',
-          headline: "[Live in (town)? Let's talk about your room.]",
-          subhead: '[One line on how the first visit works.]',
-          cta: contactButton('Book a consultation'),
-        },
-      ],
-      seoTitle: '[Interior Designer in (town), IN | Reid Design]',
-      seoDescription:
-        '[One sentence for Google: who you help in this town and how to get started. About 150 characters.]',
-    },
-  },
-
-  // ------------------------------------------------------------ project story
-  // Rebuilt 2026-10-01 as the "room story": the one case-study shape the whole
-  // portfolio uses, so every project reads the same way and takes Staci about
-  // twenty minutes to fill in. The order is the order a cautious buyer asks
-  // their questions: what was wrong, what did you decide and why, did it work.
-  // The spec sheet at the top of the page carries the town, the kind of house,
-  // and what was done at what price, so the writing never has to repeat them.
   {
     id: 'project-story',
     title: 'Room story',

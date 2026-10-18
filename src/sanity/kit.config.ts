@@ -145,6 +145,8 @@ export const kitConfig: KitConfig = {
     philosophyPoint: 'Value',
     // Pages Staci built herself; Bring it back restores the page at its address.
     page: 'Page',
+    sectionPreset: 'Saved section',
+    pressMention: 'Press mention',
   },
 
   weekStartsOn: 1,
@@ -327,12 +329,14 @@ export const kitConfig: KitConfig = {
       ],
     },
     { title: 'Pages you built', listType: 'page' },
+    { title: 'Saved sections', listType: 'sectionPreset' },
     {
       title: 'Room stories, prices and reviews',
       links: [
         { title: 'Room stories', target: { pane: 'project' } },
         { title: 'Services and prices', target: { pane: 'content;pricing;service' } },
         { title: 'Reviews', target: { pane: 'content;testimonial' } },
+        { title: 'Press', target: { pane: 'content;pressMention' } },
         { title: 'Questions and answers', target: { pane: 'content;faqItem' } },
         { title: 'Announcements', target: { pane: 'announcement' } },
       ],

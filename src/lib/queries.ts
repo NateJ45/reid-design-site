@@ -28,9 +28,10 @@ const CTA_PROJECTION = `{
 // video, spacer) pass through on the leading `...`. Parameterized by field name
 // so it serves both `pageBuilder` (custom pages) and `additionalSections` (the
 // flexible zone on core pages).
-function sectionsProjection(field = 'pageBuilder') {
-  return `${field}[]{
-    ...,
+// The per-type arms, shared by a page's own sections and by the sections inside
+// a synced section (the authoring kit, PORTS.md card 109), so a section reads
+// the same whichever way it arrived.
+const SECTION_ARMS = `
     _type == "heroSection" => {
       ...,
       backgroundImage${IMAGE_PROJECTION},
@@ -50,6 +51,19 @@ function sectionsProjection(field = 'pageBuilder') {
     _type == "gallerySection" => {
       ...,
       images[]${IMAGE_PROJECTION}
+    }`;
+
+function sectionsProjection(field = 'pageBuilder') {
+  return `${field}[]{
+    ...,
+    ${SECTION_ARMS},
+    _type == "syncedSection" => {
+      ...,
+      "presetTitle": preset->title,
+      "sections": preset->section[]{
+        ...,
+        ${SECTION_ARMS}
+      }
     }
   }`;
 }
@@ -695,4 +709,22 @@ export function getAnnouncements(): Promise<any[]> {
     [],
   ).then((rows) => rows ?? []);
   return _announcementsPromise;
+}
+
+// ---- Press mentions (2026-10-18) -------------------------------------------
+// For the "Press mentions" section (sections.ts pressSection), newest first.
+// Memoized: one request per build however many pages carry the section.
+let _pressPromise: Promise<any[]> | null = null;
+
+export function getPressMentions(): Promise<any[]> {
+  if (_pressPromise) return _pressPromise;
+  _pressPromise = sanityFetch<any[] | null>(
+    `*[_type == "pressMention" && defined(outlet)] | order(date desc){
+      _id, outlet, title, date, url, quote,
+      logo${IMAGE_PROJECTION}
+    }`,
+    {},
+    [],
+  ).then((rows) => rows ?? []);
+  return _pressPromise;
 }

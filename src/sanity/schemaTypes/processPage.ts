@@ -3,6 +3,7 @@
 import { defineType, defineField } from 'sanity';
 import { PROCESS_SECTION_TYPES, PROCESS_DEFAULT_ORDER } from './processSections';
 import { SECTION_ARRAY_OPTIONS } from './sections';
+import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
 
 export const processPage = defineType({
   name: 'processPage',
@@ -66,6 +67,8 @@ export const processPage = defineType({
       of: PROCESS_SECTION_TYPES,
       // The grouped "+ Add section" menu, shared by every builder (sections.ts).
       options: SECTION_ARRAY_OPTIONS,
+      // Insert a saved section, and the gentle page-builder warnings (card 109).
+      ...pageBuilderAuthoring,
       initialValue: PROCESS_DEFAULT_ORDER,
     }),
 

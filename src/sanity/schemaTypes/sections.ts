@@ -22,6 +22,9 @@ import { RemoveIcon } from '@sanity/icons/Remove';
 import { PlayIcon } from '@sanity/icons/Play';
 import { ThLargeIcon } from '@sanity/icons/ThLarge';
 import { HeartIcon } from '@sanity/icons/Heart';
+import { SyncIcon } from '@sanity/icons/Sync';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
 
 // Shared image field with required alt text (accessibility + SEO).
 const imageWithAlt = (name = 'image', title = 'Image') =>
@@ -455,6 +458,81 @@ export const instagramSection = defineType({
   },
 });
 
+// ── 11. Press mentions (2026-10-18) ──────────────────────────────────────────
+// "As featured in": the newest entries from the Press list (pressMention), set
+// as a row of sample tags with the outlet's name, and the newest pull quote
+// beside them. It FILLS ITSELF from the list, so a mention added once shows on
+// every page that has this section. Renders nothing while the list is empty.
+export const pressSection = defineType({
+  name: 'pressSection',
+  title: 'Press mentions',
+  type: 'object',
+  icon: DocumentTextIcon,
+  fields: [
+    defineField({
+      name: 'heading',
+      title: 'Heading (optional)',
+      type: 'string',
+      description: 'Leave blank for "As featured in".',
+    }),
+    defineField({
+      name: 'count',
+      title: 'How many to show',
+      type: 'number',
+      initialValue: 6,
+      description:
+        'The newest ones first. Add more in Content, then Prices, reviews and lists, then Press.',
+      validation: (Rule) => Rule.integer().min(1).max(12),
+    }),
+  ],
+  preview: {
+    select: { title: 'heading', count: 'count' },
+    prepare: ({ title, count }) => ({
+      title: title || 'As featured in',
+      subtitle: `Press mentions, newest ${count ?? 6}`,
+    }),
+  },
+});
+
+// ── Synced section (the authoring kit, PORTS.md card 109) ───────────────────
+// Shows a saved section (sectionPreset), the same everywhere it is used: edit
+// the saved section once and every page using it changes. sectionsProjection()
+// in src/lib/queries.ts resolves the reference, and SectionRenderer expands it
+// (expandSyncedSections) before the background cadence, so the cadence runs
+// across the expanded list as if the sections were typed in. No colour field
+// (rule 9 of the family). Deliberately NOT in pageSectionSchemas, so a saved
+// section can never hold a synced section, which makes a loop impossible.
+export const syncedSection = defineType({
+  name: 'syncedSection',
+  title: 'Synced section',
+  type: 'object',
+  icon: SyncIcon,
+  description:
+    'Shows a saved section. Edit the saved section once and every page using it changes.',
+  fields: [
+    defineField({
+      name: 'preset',
+      title: 'Saved section to show',
+      type: 'reference',
+      to: [{ type: 'sectionPreset' }],
+      description:
+        'Pick a saved section. To change what it says, open the saved section itself (Content, then Pages, then Saved sections) and publish it: every page that uses it updates together.',
+    }),
+  ],
+  preview: {
+    select: { title: 'preset.title', sections: 'preset.section' },
+    prepare: ({ title, sections }) => {
+      const count = Array.isArray(sections) ? sections.length : 0;
+      return {
+        title: title ? `Synced: ${title}` : 'Synced: nothing picked yet',
+        subtitle: title
+          ? `${count === 1 ? '1 section' : `${count} sections`}. Edit the saved section to change every page using it.`
+          : 'Pick a saved section to show here.',
+      };
+    },
+  },
+});
+
 // ── Exports ──────────────────────────────────────────────────────────────────
 
 // All section schema objects, to register in the schema index.
@@ -469,11 +547,28 @@ export const pageSectionSchemas = [
   videoSection,
   spacerSection,
   instagramSection,
+  pressSection,
 ];
 
+// The general blocks on their own. A saved section accepts these but NOT a
+// synced section; see syncedSection above.
+export const LIBRARY_SECTION_TYPES = pageSectionSchemas.map((s) => ({ type: s.name }));
+
 // The list a pageBuilder array uses for `of`. Single source of truth so every
-// builder offers the same blocks.
-export const SECTION_TYPES = pageSectionSchemas.map((s) => ({ type: s.name }));
+// builder offers the same blocks: the general library plus the synced section.
+export const SECTION_TYPES = [...LIBRARY_SECTION_TYPES, { type: syncedSection.name }];
+
+/**
+ * Where the insert menu's grid view finds a picture of each block (the
+ * authoring kit, card 109). Shot from /styleguide/sections/ by
+ * `npm run thumbnails` into public/section-thumbnails/ and served by the site,
+ * which is the Studio's own origin. The built-in markers and the synced section
+ * have no picture and fall back to their icon.
+ */
+export const sectionThumbnailUrl = (type: string): string | undefined =>
+  type === 'syncedSection' || type.endsWith('SectionMarker')
+    ? undefined
+    : `/section-thumbnails/${type}.jpg`;
 
 // ── The "+ Add section" menu (2026-09-29, PORTS.md card 17) ─────────────────
 // Every page-builder array shares this menu, in the Studio form AND in the
@@ -511,10 +606,17 @@ export const SECTION_INSERT_MENU: InsertMenuOptions = {
       title: 'Photos and video',
       of: ['imageTextSection', 'gallerySection', 'videoSection', 'instagramSection'],
     },
+    { name: 'proof', title: 'Reviews and press', of: ['pressSection'] },
     { name: 'spacing', title: 'Space between sections', of: ['spacerSection'] },
+    { name: 'saved', title: 'Saved and synced', of: ['syncedSection'] },
   ],
-  views: [{ name: 'list' }],
+  // Grid first, so the picker opens on pictures of each block in Reid
+  // Design's own look; the list view stays one click away with the search box.
+  views: [{ name: 'grid', previewImageUrl: sectionThumbnailUrl }, { name: 'list' }],
 };
+
+/** What a saved section's own array offers (no markers, no synced section). */
+export const sectionArrayOptions = { insertMenu: SECTION_INSERT_MENU };
 
 // Spread into every page-builder array field as `options`.
 export const SECTION_ARRAY_OPTIONS = { insertMenu: SECTION_INSERT_MENU };
@@ -533,4 +635,6 @@ export const additionalSectionsField = defineField({
     'Optional. Add blocks from the library to the bottom of this page (a banner, a gallery, a call to action, and so on). Leave empty to keep the page exactly as it is.',
   of: SECTION_TYPES,
   options: SECTION_ARRAY_OPTIONS,
+  // Insert a saved section, and the gentle page-builder warnings (card 109).
+  ...pageBuilderAuthoring,
 });

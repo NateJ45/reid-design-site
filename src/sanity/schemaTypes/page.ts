@@ -10,6 +10,7 @@
 import { defineType, defineField } from 'sanity';
 import { DocumentsIcon } from '@sanity/icons/Documents';
 import { SECTION_TYPES, SECTION_ARRAY_OPTIONS } from './sections';
+import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
 import { RESERVED_SLUGS } from '../preview-routes';
 
 // Every built-in route segment. A custom page slug may not match any of these.
@@ -73,6 +74,8 @@ export const page = defineType({
       of: SECTION_TYPES,
       // The grouped "+ Add section" menu, shared by every builder (sections.ts).
       options: SECTION_ARRAY_OPTIONS,
+      // Insert a saved section, and the gentle page-builder warnings (card 109).
+      ...pageBuilderAuthoring,
     }),
 
     // ── Menu placement ────────────────────────────────────────────────────────

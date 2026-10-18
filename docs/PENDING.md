@@ -26,6 +26,8 @@ The Studio is now the shared kit, dressed as Reid Design (detail: `docs/agent/st
 - [ ] **`PUBLIC_STUDIO_HELP_EMAIL`** on the Workers Build, for the "Ask Nathan" button on Home.
 - [ ] **Morning change note**: uncomment the schedule in `.github/workflows/change-note.yml` and watch the repo, if Nathan wants a daily email of Staci's edits.
 - [ ] **The old `studioGuide` document** (Start Here > How the website works) is off the desk; the Site Guide replaced it. Its data is untouched. Decide whether to retire it under rule 16 (backup, dry run, delete) or leave it.
+- [ ] **Seed the seasonal saved sections** (the authoring kit, 2026-10-18): `npm run seed:patterns` (dry) then, with `SANITY_API_WRITE_TOKEN` in `.env`, `$env:NCS_PRODUCTION_WRITE='yes'; npm run seed:patterns -- --apply; Remove-Item Env:NCS_PRODUCTION_WRITE`. Creates seven NEW saved sections only (createIfNotExists); nothing existing is touched.
+- [ ] **Authoring kit, signed in**: make a page from each template (Service, Town, Seasonal, Consultation, Simple, Blank) and Discard it; "+ Add item" opens on the picture grid; "Save a section as preset..." on Home; "Insert a saved section" as a copy and as synced on a custom page, and the synced one changes when the saved section is published; a page with a [bracket] left shows the yellow warning; add a Press mention and a Press mentions section and see it in Live preview.
 - [ ] **Signed-in walkthrough** (not possible signed out): Home opens first with the walnut banner, paint chips and the four quick actions; This week's hand ticks stick; Fix-it list Edit buttons open the right field; "Start a room story" opens the prompted template; Quick update "Add a review" and "Post a notice" publish valid documents (then Trash them); Move to Trash and Bring it back on a review, and the 2026-10-02 trashed service still restores; Share a preview makes a link that opens logged out, shows the banner, and stops; the table views sort; Help for this page on a room story lists the room-story guides; the status line after a Publish; the paint-chip icons in lists, search and the create menu at 16 and 24px; the phone layout of Quick update at 375px; the console is clean.
 
 ### From 2026-10-13: data in production that the schema no longer declares (`npm run audit:data`)
@@ -571,19 +573,6 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   rebuild by design. Recapture them from the merged build, after checking the
   static build still carries no `data-sanity` attributes (checked 2026-09-29:
   none).
-
-### Picture-grid "+ Add section" menu (deferred 2026-09-29)
-
-The grouped insert menu shipped with the list view only. The grid view
-(`views: [{ name: 'grid', previewImageUrl }]`, thumbnails in
-`public/studio-thumbs/`) needs one real screenshot per section type, and the
-presacademy/WCP `studio-thumbs.mjs` script captures them from PUBLISHED pages by
-position. On 2026-09-29 no published document anywhere uses a library block
-(every builder array is markers only, and there are no custom pages), so that
-script would produce nothing but placeholders. Unblocks when Staci has built one
-or two custom pages; or build a fixture-render harness instead (the Astro
-container API against SectionRenderer). Adding `views` is then a two-line edit to
-`SECTION_INSERT_MENU` in `src/sanity/schemaTypes/sections.ts`.
 
 ### From the 2026-09-29 site-features branch
 
