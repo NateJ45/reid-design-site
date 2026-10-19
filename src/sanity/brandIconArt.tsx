@@ -50,10 +50,15 @@ export const BRAND_ICON_ART: Partial<Record<BrandIconKey, BrandIcon>> = {
   // The questions page and its answers.
   question: QuestionChip,
   questionGroup: QuestionChip,
+  // The Site Guide and Help for this page (card 128 draws them on its banners).
+  guide: QuestionChip,
+  help: QuestionChip,
   // Where she works: the studio, the service area, travel.
   place: Pin,
   contact: Pin,
   // The process steps, and the weekly checklist.
   step: Tape,
   times: Tape,
+  // The Checkup measures the site, as the tape measures a room.
+  checkup: Tape,
 };
