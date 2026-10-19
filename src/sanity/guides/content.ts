@@ -575,6 +575,7 @@ export const guides: Guide[] = [
     icon: 'bolt',
     lead: 'A bar across the top of the website, or a popup, for a few days or weeks.',
     diy: 'self',
+    video: 'post-notice',
     body: [
       {
         kind: 'steps',
@@ -797,6 +798,7 @@ export const guides: Guide[] = [
     icon: 'check',
     lead: 'The stars on Home, Services, About and Contact.',
     diy: 'self',
+    video: 'update-rating',
     body: [
       {
         kind: 'steps',
@@ -823,6 +825,7 @@ export const guides: Guide[] = [
     icon: 'add',
     lead: 'A Google review, a kind text, an email: their words, on your website.',
     diy: 'self',
+    video: 'add-review',
     body: [
       {
         kind: 'steps',
@@ -854,6 +857,7 @@ export const guides: Guide[] = [
     icon: 'add',
     lead: 'Featured in a magazine, a blog or a podcast? Put it on the website.',
     diy: 'self',
+    video: 'add-press',
     body: [
       {
         kind: 'steps',
@@ -970,6 +974,7 @@ export const guides: Guide[] = [
     icon: 'question',
     lead: 'Asked the same thing twice this month? Answer it once on the website.',
     diy: 'self',
+    video: 'add-question',
     body: [
       {
         kind: 'steps',

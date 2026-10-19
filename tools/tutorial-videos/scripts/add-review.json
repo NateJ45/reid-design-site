@@ -54,5 +54,12 @@
       "caption": "Tap the button. It is on the website in minutes.",
       "ms": 2400
     }
-  ]
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
 }

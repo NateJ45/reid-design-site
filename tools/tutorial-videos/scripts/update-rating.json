@@ -61,5 +61,12 @@
       "caption": "Tap the button. The stars update on every page.",
       "ms": 2400
     }
-  ]
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
 }
