@@ -1,5 +1,5 @@
 /* Safe to edit by hand.
-   Reid Design's own touches on two PORTABLE Studio surfaces (card 128 round),
+   Reid Design's own touches on the PORTABLE Studio surfaces (card 128 round),
    kept here so the shared files stay byte-identical to the starter. Imported at
    the top of studioFonts.css, which both /studio (src/pages/studio/index.astro)
    and the Studio bundle (sanity.config.ts) already load.
@@ -11,10 +11,8 @@
       the background, Espresso on the paper ground and cream on the dark one.
       public/studio-art/monogram-espresso.png comes from npm run studio:banner.
 
-   2. "View the website" on Home's banner is the site's own button: the sample
-      tag (src/styles/reid.css .r-btn--cream): notched left edge, a real punched
-      hole, cream on the deep banner, paper on hover, the arrow nudging right.
-      No pill, no rounded rectangle (DESIGN.md "One button identity: the tag").
+   2. "View the website" on Home's banner is now the kit's own `tag` chip, set as data in
+      kit.config.ts (homeBanner.style.chip, card 135); no banner rules live here.
       The offline page's "Try again" gets the ink tag the same way (3, below). */
 
 html .ncs-sp__mark {
@@ -29,51 +27,6 @@ html[data-studio-scheme='dark'] .ncs-sp__mark {
 @media (prefers-color-scheme: dark) {
   html:not([data-studio-scheme='light']) .ncs-sp__mark {
     background-image: url('/studio-art/monogram-cream.png');
-  }
-}
-
-.ncs-hb__go > a[data-ui='Button'] {
-  --card-fg-color: #231e1b;
-  --card-muted-fg-color: #231e1b;
-  --card-icon-color: #231e1b;
-  position: relative;
-  isolation: isolate;
-  min-height: 46px;
-  padding-left: 1.1rem;
-  border-radius: 0 !important;
-  background: none !important;
-  box-shadow: none !important;
-  color: #231e1b !important;
-}
-.ncs-hb__go > a[data-ui='Button'] * {
-  color: inherit !important;
-  background: none !important;
-  box-shadow: none !important;
-}
-.ncs-hb__go > a[data-ui='Button']::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: #f5ede3;
-  clip-path: polygon(1rem 0, 100% 0, 100% 100%, 1rem 100%, 0 50%);
-  -webkit-mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
-  mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
-  transition: background-color 400ms;
-}
-.ncs-hb__go > a[data-ui='Button']:hover::before {
-  background: #fffdfa;
-}
-.ncs-hb__go > a[data-ui='Button']:focus-visible {
-  outline: 2px solid #f5ede3;
-  outline-offset: 3px;
-}
-.ncs-hb__go > a[data-ui='Button'] svg {
-  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .ncs-hb__go > a[data-ui='Button']:hover svg {
-    transform: translateX(4px);
   }
 }
 
