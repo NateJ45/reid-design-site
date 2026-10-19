@@ -33,7 +33,7 @@ once it is looked up), Nathan the full Studio.
 | Add a press mention                        | Quick update, "Add a press mention" (new 2026-10-19); Content, Press            | `press`         |
 | Answer a question clients keep asking      | Quick update, "Add a question" (new 2026-10-19); Content, Questions             | `add-question`  |
 | Feature a review, or hide one              | Content, Reviews                                                                | `add-review`    |
-| Change availability ("Booking for spring") | Home, Your pages, "Availability and service areas"                              | `availability`  |
+| Change availability ("Booking for spring") | Quick update, "Change your availability"; Home, Your pages                      | `availability`  |
 | Change the booking link or its words       | Contact page, Scheduling tab                                                    | `enquiries`     |
 
 ## Seasonal and yearly
@@ -53,27 +53,28 @@ once it is looked up), Nathan the full Studio.
 
 - **Home** opens first. The four big buttons are the jobs that move bookings (room story, price, review, rating).
   This week holds the four weekly checks above. Your pages is the map of everything.
-- **Quick update** is the phone. Four forms, each a few boxes and one button, each published straight away: a review,
-  a notice, a press mention, a question. A room story is not here on purpose: it needs a dozen photos and a laptop.
+- **Quick update** is the phone. Six forms, each a few boxes and one button, each published straight away: a review,
+  a notice, a press mention, a question, the Google rating and the availability line. A room story is not here on purpose: it needs a dozen photos and a laptop.
 - **Content** is the desk, in job order: Room stories first, then Pages, then Prices, reviews and lists, then
   Announcements, Start Here and the Trash. Lists Staci fills explain themselves while empty.
 - **Site Guide** has a guide for every job in the tables, with pictures of the real Studio where a step is about
   finding a button (`src/sanity/guides/shots.ts`), and "How to" chips beside the fields people get wrong.
-- **Tours** (card 137, data in `src/sanity/guides/tours.ts`): a short first-run tour, then one on-demand tour per big
-  job. Video scripts for the jobs that most need watching are in `docs/agent/studio-video-scripts.md`.
+- **Tours** (card 137, `src/sanity/studio-tours.ts`): a welcome, a first-run tour, "How this screen works" on Home
+  and Quick update, and a room story tour on demand. Video scripts for the jobs that most need watching are in `docs/agent/studio-video-scripts.md`.
 
-## Waiting on card 137 (shared kit, not built here)
+## Card 137 (landed 2026-10-19 while this was written)
 
-- **A job that edits one field of a page** ("edit a field" job type). The Google rating with its "last checked" date,
-  and Availability status, are a few taps of work, but Quick update can only create new things today. Until then Home's
-  big button and Your pages open the right field.
-- **A dropdown field in a Quick update form.** "Where it came from" on a review and "Which group" on a question are
-  typed today; the builders match loose words ("cost" finds Pricing & Cost) and fall back to a safe default.
-- **"Post a photo" into a room story.** Room story photos live in their own `gallery` list, not in a page-builder
-  gallery section, so the kit's Post a photo (which adds to a gallery section) cannot reach them. A gallery spec with
-  no page builder would let Staci add install-day photos from her phone.
-- Tours anchored to real Studio buttons, a welcome and what's-new modal, and the video pipeline: the steps and scripts
-  are written as data and notes, ready to wire.
+- **Edit jobs** now cover the two one-field changes: "Update your Google rating" (rating and the day it was checked, on
+  Site settings) and "Change your availability" (Business info). Both are on Quick update after the four create jobs.
+- **Dropdowns**: "Where it came from" and "Stars" on a review, and "Which group" on a question, are pick lists now.
+- **Tours, welcome and What's new** are wired from `src/sanity/studio-tours.ts` (first run, Home, Quick update, and a
+  room story tour on demand).
+- **Still open**: "Post a photo" into a room story. Room story photos live in their own `gallery` list, not in a
+  page-builder gallery section, so the kit's Post a photo (which adds to a gallery section) cannot reach them. An
+  `append` job onto a picked room story, or a gallery spec with no page builder, would let Staci add install-day
+  photos from her phone.
+- **Videos**: the seven scripts in `docs/agent/studio-video-scripts.md` are ready for the pipeline; no clip is recorded
+  yet, so no guide has a `video` and Home's "Watch how it is done" stays hidden.
 
 ## Bigger ideas (not built)
 

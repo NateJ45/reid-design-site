@@ -20,6 +20,7 @@ export default defineConfig({
       'src/lib/earlier-versions.test.ts',
       'src/lib/guide-shots.test.ts',
       'src/lib/google-auth.test.ts',
+      'src/lib/guide-videos.test.ts',
     ],
   },
 });

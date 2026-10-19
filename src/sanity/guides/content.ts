@@ -802,7 +802,7 @@ export const guides: Guide[] = [
         kind: 'steps',
         items: [
           'Look up "Reid Design" on Google and note the rating, the number beside the stars.',
-          'On Home, click `Update your Google rating`. It opens `Site settings` at the `Reviews` tab.',
+          'On your phone, use `Quick update`, then `Update your Google rating`, type the rating, and you are done. At your desk, on Home, click `Update your Google rating`. It opens `Site settings` at the `Reviews` tab.',
           'Type the rating into `Google star rating` and set `Rating last checked` to today.',
           'Paste the `"Leave a review" link` from your Google profile if it has changed: on Google, `Ask for reviews`, then `Copy link`.',
           'Click `Publish`.',
@@ -881,7 +881,8 @@ export const guides: Guide[] = [
       {
         kind: 'steps',
         items: [
-          'Open `Content`, then `Prices, reviews and lists`, then `Business info (areas, travel, availability)`.',
+          'Just the availability line? On your phone, use `Quick update`, then `Change your availability`.',
+          'For everything else, open `Content`, then `Prices, reviews and lists`, then `Business info (areas, travel, availability)`.',
           'Change `Availability status`, like "Booking for spring 2027".',
           'Add or remove a town under `Service areas`, or change a travel fee.',
           'Click `Publish`. Contact, Services, the footer and what Google reads all update together.',
@@ -1073,7 +1074,7 @@ export const guides: Guide[] = [
     category: 'Housekeeping',
     title: 'Quick update from your phone',
     icon: 'bolt',
-    lead: 'A review, a notice, a press mention or a question, in under a minute between clients.',
+    lead: 'Six small jobs, each under a minute between clients.',
     diy: 'self',
     body: [
       {
@@ -1094,6 +1095,8 @@ export const guides: Guide[] = [
           '**Post a notice**: a line across the top of every page that takes itself down after the day you pick.',
           '**Add a press mention**: where you were featured, when, and a link.',
           '**Add a question**: a question clients keep asking, with your answer, at the end of its group on the Questions page.',
+          '**Update your Google rating**: the rating and the day you checked it.',
+          '**Change your availability**: the line by the green dot on Contact.',
         ],
       },
       {
