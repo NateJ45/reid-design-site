@@ -29,9 +29,7 @@
   },
   // Visitors card (starter PORTS.md card 136): GA4 and Search Console read through
   // studio-status. SITE_DATA_KEY names this site there; ANALYTICS_PROVIDER picks ga4.
-  "services": [
-    { "binding": "SITE_DATA", "service": "studio-status", "entrypoint": "SiteData" }
-  ],
+  "services": [{ "binding": "SITE_DATA", "service": "studio-status", "entrypoint": "SiteData" }],
   "vars": {
     "SITE_DATA_KEY": "reid",
     "ANALYTICS_PROVIDER": "ga4",
