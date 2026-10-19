@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-19: Visitors card reads GA4 (starter card 136)
+
+Visitors card now reads GA4 and Search Console through studio-status (card 136).
+
 ## 2026-10-18: The authoring kit and press (starter card 109)
 
 Page templates for the pages a one-person studio keeps adding (Service, Town, Seasonal styling offer, What happens at a consultation, Simple, Blank), saved sections and synced sections, seven seasonal saved sections to seed, gentle page-builder warnings, a picture grid in "+ Add item" shot from a new /styleguide/sections/ wall, and a Press list with a Press mentions block. Detail: docs/agent/sanity.md, "The authoring kit".
