@@ -14,6 +14,14 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-18: Studio art pass and the phone app (PORTS.md card 125)
+
+The Studio's art now comes from the public site's own grammar: Home's banner foot is the home page's tape measure with paint chips hanging off it, the /studio splash is the Direction B fan deck fanning open, and the phone app icon is the cream monogram on Walnut (`public/icon-maskable-512.png`). Card 125 came in with the starter catch-up: the Studio installs as a phone app (`/studio/manifest.webmanifest`, `/studio/sw.js`, the "Put the Studio on your phone's home screen" guide). Still for Nathan:
+
+- [ ] **Signed in, on a phone**: open `/studio/`, add it to the home screen, check the icon, that it opens on Home, and the offline page with the network off. Look at the new banner foot at phone and desktop width.
+- [ ] **Earlier versions** (card 125) is switched off (`features.earlierVersions: false` in `src/sanity/kit.config.ts`): it needs the nightly backup running, `SANITY_API_WRITE_TOKEN` and `SANITY_PROJECT_ID` repo secrets, and the Worker's `GITHUB_DEPLOY_TOKEN` (Actions: Read and write). Switch it on, and add its guide back (`src/sanity/guides/content.ts`, the card 125 lines), once those exist.
+- [ ] **Post a photo** (card 125) is not set up (`kitConfig.postPhoto` unset): decide whether Staci wants it (room photos from her phone), then set it and add its guide.
+
 ### From 2026-10-18: the Studio kit (PORTS.md cards 106 to 120)
 
 The Studio is now the shared kit, dressed as Reid Design (detail: `docs/agent/studio-kit.md`; switches: OPERATIONS.md, "The Studio kit: settings and switches"). Built, unit-tested and checked signed out; these need Nathan:

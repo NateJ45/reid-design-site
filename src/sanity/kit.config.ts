@@ -418,13 +418,14 @@ export const kitConfig: KitConfig = {
 
   // Home's banner (card 118), dressed from the public site (public/studio-art/,
   // written by npm run studio:banner): the cream RD monogram from the header,
-  // bare on the walnut; a fan of paint chips along the foot, the services
-  // cards in miniature; Staci's name in Oat; and "Design" in Waterfall, the
+  // bare on the walnut; the home page's tape measure along the foot (case,
+  // paper blade, bronze ticks, italic inch figures) with paint chips hanging
+  // off it by bronze drop lines, the way the process steps hang off the tape; Staci's name in Oat; and "Design" in Waterfall, the
   // hand-lettered accent the site's headings use ("completely yours").
   homeBanner: {
     markOnDark: '/studio-art/monogram-cream.png',
-    motif: '/studio-art/paint-chips.svg',
-    motifNarrow: '/studio-art/paint-chips-phone.svg',
+    motif: '/studio-art/tape-chips.svg',
+    motifNarrow: '/studio-art/tape-chips-phone.svg',
     accent: '#E2CFBD',
     lettering: {
       text: 'Design',
@@ -441,6 +442,9 @@ export const kitConfig: KitConfig = {
     tour: true,
     trash: true,
     publishNote: true,
+    // Card 125's Earlier versions panel stays off until the nightly backup,
+    // SANITY_API_WRITE_TOKEN and the Worker's GITHUB_DEPLOY_TOKEN exist (Nathan).
+    earlierVersions: false,
     // Card 115: Cloudflare Web Analytics through /api/studio/visitors/. Web
     // Analytics is already on for the zone (automatic setup), so the numbers
     // exist; the card says "not set up yet" until the Worker has

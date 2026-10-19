@@ -49,7 +49,7 @@ npm run parity         # static-output parity gate (preview markup must never re
 node scripts/measure-columns.mjs <baseUrl> --paths /,/about/   # seams of the shared .split (card 91); MSYS_NO_PATHCONV=1 in Git Bash
 node scripts/sync-check.mjs   # drift gate for PORTABLE files; NCS_STARTER_DIR=<clone> to point at a starter
 npm run og | og:cards | favicon | doodles | fonts:update   # generators, see .claude/rules/build-pipeline-and-scripts.md
-npm run studio:banner  # the paint-chip strips on the Studio's Home banner
+npm run studio:banner  # the Studio art: banner tape and chips, splash fan deck
 npm run restore:doc -- <docId> [--from <date>]   # one document back from a nightly backup, as a draft (dry by default)
 ```
 
