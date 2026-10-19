@@ -21,6 +21,12 @@ import { studioConfigModule } from './src/lib/studio-route.ts';
 // src/lib/sanity.ts uses, so a clone with no .env still builds.
 const SANITY_PROJECT_ID = process.env.PUBLIC_SANITY_PROJECT_ID || 'placeholder-project-id';
 const SANITY_DATASET = process.env.PUBLIC_SANITY_DATASET || 'production';
+// Origin of the Sanity query API for the config-time reads below. CI points it at a
+// local server over the pinned content snapshot (PORTS.md card 138, scripts/snapshot.mjs
+// run); unset everywhere else, so deploys and local builds read the live API.
+const SANITY_API_ORIGIN =
+  (process.env.SANITY_SNAPSHOT_URL ?? '').trim().replace(/[/]+$/, '') ||
+  `https://${SANITY_PROJECT_ID}.api.sanity.io`;
 
 // Section visibility, read once at config time for the sitemap filter below.
 // A section switched off in Studio (siteSettings.sectionVisibility) still
@@ -35,7 +41,7 @@ const sectionVisibility = getSectionVisibility(await fetchSectionVisibility());
 async function fetchSectionVisibility() {
   if (SANITY_PROJECT_ID === 'placeholder-project-id') return null;
   const query = encodeURIComponent('*[_id == "siteSettings"][0].sectionVisibility');
-  const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${SANITY_DATASET}?query=${query}`;
+  const url = `${SANITY_API_ORIGIN}/v2024-01-01/data/query/${SANITY_DATASET}?query=${query}`;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -101,7 +107,7 @@ const cmsRedirects = guarded.redirects;
  */
 async function cmsQuery(query, fallback) {
   if (SANITY_PROJECT_ID === 'placeholder-project-id') return fallback;
-  const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
+  const url = `${SANITY_API_ORIGIN}/v2024-01-01/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

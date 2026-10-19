@@ -8,6 +8,8 @@ If you're a future Claude session and you can only read one doc, read CLAUDE.md.
 
 ## Deploy
 
+CI builds from a pinned content snapshot (`ci/sanity-snapshot.ndjson.gz`, PORTS.md card 138), never live Sanity; the deploy below builds LIVE. Refresh the snapshot with `node scripts/snapshot.mjs export`. `live-watch.yml` checks the real site daily.
+
 The site is `output: 'static'` + `@astrojs/cloudflare` adapter. Two paths:
 
 ### Auto-deploy via GitHub → Cloudflare

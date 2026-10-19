@@ -592,7 +592,7 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   else imports each (BaseLayout, BrandKit and FeaturedTestimonial mention
   Cormorant), then drop them and their `_headers` / globals.css comments in one
   commit.
-- **CI and Lighthouse build without a Sanity read token.** Anonymous reads
+- **CI and Lighthouse build without a Sanity read token** (still true after card 138: the committed snapshot is the anonymous view on purpose, so private documents are not committed to a public repo; a token-backed export would add them). Anonymous reads
   return only the page singletons (dotted _ids like `service.*` are private),
   so `ci.yml` and `lighthouse.yml` audit pages with no services, testimonials
   or process steps. Staging was fixed on `claude/redesign` (2026-09-29) by

@@ -165,6 +165,19 @@ content, so capture and compare must bracket one sitting; and compare only
 against a plain `npm run build`, never the tree left behind by
 `npx playwright test`, whose webServer runs its own build.
 
+## CI builds from a pinned content snapshot (PORTS.md card 138, 2026-10-19)
+
+`tests/routes.ts` and the `hiddenRoutes` split name pages and depend on which sections are switched on, so a live edit
+in the Studio could turn the e2e shards, the link check or Lighthouse red on an unrelated PR. They no longer read live
+content. `ci.yml`'s build and `lighthouse.yml`'s build run under `node scripts/snapshot.mjs run -- <cmd>`, which serves
+`ci/sanity-snapshot.ndjson.gz` (published documents, exported anonymously, so it is exactly the page singletons CI saw
+before) from a local groq-js server and sets `SANITY_SNAPSHOT_URL`. Playwright serves the `dist/client` the `site` job
+built from it. Refresh with `node scripts/snapshot.mjs export`, commit the file, and update `tests/routes.ts` in the same
+PR if a page moved. `scripts/lib/snapshot.test.mjs` is its unit test (`npm run test:scripts`). `deploy.yml` builds live.
+`live-watch.yml` (daily, not required, never on a PR) fetches the real sitemap and pages and mails the owner when the live
+site breaks. Not covered: images stay on cdn.sanity.io, and the `public-data-audit` step still reads the live dataset on
+purpose (it audits what strangers can read).
+
 ## The drift check
 
 `scripts/sync-check.mjs` (`npm run sync-check`) walks this repo for files
