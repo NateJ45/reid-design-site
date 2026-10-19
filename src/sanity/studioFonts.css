@@ -8,6 +8,9 @@
    sanity.config.ts imports this file; the family names are DISPLAY_STACK and
    BODY_STACK there. Zodiak ships 300 and 400 only, so 400 covers every heavier
    weight and the browser never fakes a bold. */
+/* Reid's own touches on the shared splash and Home banner (card 128 round). */
+@import './studioArt.css';
+
 @font-face {
   font-family: 'Zodiak';
   src: url('/fonts/Zodiak-300.woff2') format('woff2');

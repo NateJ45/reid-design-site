@@ -1,11 +1,13 @@
 {
-  "_about": "Minimal brand config: the fields scripts/generate-favicons.mjs (PORTS.md card 47, canonical) reads, plus the Studio's look (cards 110, 116, 119: studio.*). This repo predates the starter's brand system, so its real tokens live in src/styles/globals.css; keep --background in step with --color-bg there. The Studio's fonts are Fontshare files fetched at build time (never committed), so there are no fonts.*.imports: src/sanity/studioFonts.css points at /fonts/ by hand.",
+  "_about": "Minimal brand config: the fields scripts/generate-favicons.mjs (PORTS.md card 47, canonical) reads, plus the Studio's look (cards 110, 116, 119 and 128: studio.*; studio.look is the design language, drawn from the E-Design thread of paint-chip pins, see docs/agent/studio-kit.md). This repo predates the starter's brand system, so its real tokens live in src/styles/globals.css; keep --background in step with --color-bg there. The Studio's fonts are Fontshare files fetched at build time (never committed), so there are no fonts.*.imports: src/sanity/studioFonts.css points at /fonts/ by hand.",
   "name": "Reid Design",
   "tagline": "Plainfield interior design for homes that feel completely yours.",
   "palette": {
     "light": {
       "--background": "#FAF8F5",
-      "--primary": "#9C7661"
+      "--primary": "#9C7661",
+      "--foreground": "#231E1B",
+      "--muted-foreground": "#5A4E46"
     },
     "dark": {
       "--background": "#231E1B"
@@ -44,6 +46,30 @@
       "tile": {
         "dark": "#E2CFBD"
       }
+    },
+    "look": {
+      "marker": {
+        "src": "/studio-art/chip-pin.svg",
+        "width": 20,
+        "height": 20
+      },
+      "headingColor": "#231E1B",
+      "markColors": ["#B39079", "#80604F", "#5F4639"],
+      "stone": "square",
+      "connector": {
+        "kind": "line",
+        "color": "#9C7661"
+      },
+      "tones": {
+        "note": "#80604F",
+        "tip": "#A8B5A0",
+        "careful": "#9F2F1C"
+      },
+      "motif": "/studio-art/tape-chips.svg",
+      "motifNarrow": "/studio-art/tape-chips-phone.svg",
+      "texture": "/studio-art/ruled-note.svg",
+      "edgeColors": ["#F1E7DC", "#E2CFBD", "#CDB09A", "#B39079", "#9C7661", "#80604F", "#5F4639"],
+      "motion": "draw"
     }
   }
 }

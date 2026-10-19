@@ -27,11 +27,22 @@
 //   tag.svg
 //       The sample tag every button and caption on the site is cut from: the
 //       notched left edge with the punched hole.
+//   chip-pin.svg
+//       The Studio's section marker (brand.config.json studio.look.marker,
+//       card 128): the paint-chip swatch pinned on the E-Design "How it works"
+//       thread (EDesignSteps.astro .eds__pin), a Walnut chip in its paper collar.
+//   ruled-note.svg
+//       The ruled note card on /about (AboutPersonal.astro .board__note): a Rule
+//       hairline every 1.85rem, as a tile for a light ground (studio.look.texture).
+//   monogram-espresso.png
+//       The cream circular monogram (monogram-cream.png, the Home banner's mark)
+//       in Espresso, for the /studio splash on the paper ground.
 //
 // Deterministic (no randomness): re-running changes nothing unless this file
 // does. Run: npm run studio:banner
 // =============================================================================
 import { writeFileSync, mkdirSync } from 'node:fs';
+import sharp from 'sharp';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -329,6 +340,30 @@ function fanDeck() {
 }
 writeFileSync(resolve(out, 'fan-deck.svg'), fanDeck());
 
+// The section marker: the E-Design thread's paint-chip pin in its paper collar.
+writeFileSync(
+  resolve(out, 'chip-pin.svg'),
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="20" height="20"><title>Paint-chip pin (Reid Design)</title><rect x="0.5" y="0.5" width="19" height="19" rx="4.5" fill="#FFFDFA"/><rect x="4" y="4" width="12" height="12" rx="1.6" fill="#80604F"/></svg>
+`,
+);
+
+// The /about ruled note card's lines, as a 30px tile for a light ground.
+writeFileSync(
+  resolve(out, 'ruled-note.svg'),
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 30" width="64" height="30"><title>Ruled note paper (Reid Design)</title><path d="M0 29.5H64" stroke="#E2D8CC" stroke-width="1"/></svg>
+`,
+);
+
+// The circular monogram in Espresso: the cream file's own alpha, so the drawing
+// is the same one, only the ink changes.
+const cream = resolve(out, 'monogram-cream.png');
+const { width, height } = await sharp(cream).metadata();
+const alpha = await sharp(cream).extractChannel('alpha').toBuffer();
+await sharp({ create: { width, height, channels: 3, background: '#5F4639' } })
+  .joinChannel(alpha)
+  .png({ compressionLevel: 9 })
+  .toFile(resolve(out, 'monogram-espresso.png'));
+
 console.log(
-  'wrote public/studio-art/ (tape-chips, tape-chips-phone, fan-deck, paint-chips, paint-chips-phone, ruled, divider, tag)',
+  'wrote public/studio-art/ (tape-chips, tape-chips-phone, fan-deck, paint-chips, paint-chips-phone, ruled, divider, tag, chip-pin, ruled-note, monogram-espresso)',
 );

@@ -14,6 +14,11 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-19: the Studio design language and token sign-in (PORTS.md cards 128, 129)
+
+- [ ] Staci signs out (avatar menu) and back in once after this deploy: the Studio now holds a sign-in token, so Home's cards and the other kit routes stop answering "not signed in".
+- [ ] Signed-in look check: the Site Guide and its index, Help for this page, and "View the website" on Home's banner (now the cream sample tag) in the real Studio, light, at desktop and phone width.
+
 ### From 2026-10-18: Studio art pass and the phone app (PORTS.md card 125)
 
 The Studio's art now comes from the public site's own grammar: Home's banner foot is the home page's tape measure with paint chips hanging off it, the /studio splash is the Direction B fan deck fanning open, and the phone app icon is the cream monogram on Walnut (`public/icon-maskable-512.png`). Card 125 came in with the starter catch-up: the Studio installs as a phone app (`/studio/manifest.webmanifest`, `/studio/sw.js`, the "Put the Studio on your phone's home screen" guide). Still for Nathan:
