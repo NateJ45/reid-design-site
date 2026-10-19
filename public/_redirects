@@ -12,6 +12,14 @@
 # /studio/* Content-Security-Policy in _headers still applies). The shell then moves the
 # path into the hash before the Studio starts: src/sanity/lib/studio-deep-link.ts.
 # The unit test in that folder pins this exact line.
+#
+# The Studio phone app files (PORTS.md card 125) are real files under /studio/, and the
+# splat below would answer them with the Studio page (the service worker then failed
+# with "unsupported MIME type text/html" and the manifest was HTML). The first matching
+# rule wins, so these three point each one at itself, ahead of the splat.
+/studio/sw.js /studio/sw.js 200
+/studio/manifest.webmanifest /studio/manifest.webmanifest 200
+/studio/offline/ /studio/offline/ 200
 /studio/* /studio/ 200
 
 # Retired sections (2026-09-30). Eight sections that were built but never launched were

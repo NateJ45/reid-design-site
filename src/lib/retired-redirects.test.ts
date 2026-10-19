@@ -46,8 +46,15 @@ describe('retired-section redirects (public/_redirects)', () => {
     }
   });
 
-  it('keeps the Studio deep-link proxy as the first rule', () => {
-    expect(rules()[0]).toEqual(['/studio/*', '/studio/', '200']);
+  // The Studio phone app's own files (PORTS.md card 125) come first, each pointed
+  // at itself, so the deep-link splat does not answer them with the Studio page.
+  it('keeps the Studio app files, then the Studio deep-link proxy, first', () => {
+    expect(rules().slice(0, 4)).toEqual([
+      ['/studio/sw.js', '/studio/sw.js', '200'],
+      ['/studio/manifest.webmanifest', '/studio/manifest.webmanifest', '200'],
+      ['/studio/offline/', '/studio/offline/', '200'],
+      ['/studio/*', '/studio/', '200'],
+    ]);
   });
 
   it('lists each source once, so no rule is dead behind an earlier one', () => {
