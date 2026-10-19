@@ -29,7 +29,7 @@
 
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { existsSync, mkdirSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
@@ -41,9 +41,16 @@ const WIDTH = 1200;
 const HEIGHT = 800;
 
 /** What a video or embed frame shows in a thumbnail: a dark panel, a play mark. */
+// Reid Design: the stand-in is a paused video of one of her rooms (the fixture
+// photo, faintly darkened) with the site's own ink sample tag as the play
+// button, so the picture reads as "a video of a room" in her look rather than
+// a grey slab.
+const POSTER = `data:image/jpeg;base64,${readFileSync(FIXTURE).toString('base64')}`;
 const STAND_IN =
-  '<html><body style="margin:0;height:100vh;display:grid;place-items:center;background:#3a3f47">' +
-  '<svg width="96" height="96" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#e8e8e8"/></svg>' +
+  '<html><body style="margin:0;height:100vh;display:grid;place-items:center;' +
+  `background:linear-gradient(rgb(35 30 27 / 0.28),rgb(35 30 27 / 0.28)),url(${POSTER}) center/cover">` +
+  '<svg width="236" height="68" viewBox="0 0 160 46"><path fill-rule="evenodd" fill="#231E1B" d="M16 0H160V46H16L0 23Z M8.8 23a4 4 0 1 0 0.01 0Z"/>' +
+  '<path d="M60 14v18l15-9z" fill="#FFFDFA"/><text x="84" y="28.5" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#FFFDFA">Play</text></svg>' +
   '</body></html>';
 
 const argUrl = process.argv.includes('--url')
