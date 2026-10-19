@@ -53,8 +53,10 @@ once it is looked up), Nathan the full Studio.
 
 - **Home** opens first. The four big buttons are the jobs that move bookings (room story, price, review, rating).
   This week holds the four weekly checks above. Your pages is the map of everything.
-- **Quick update** is the phone. Six forms, each a few boxes and one button, each published straight away: a review,
-  a notice, a press mention, a question, the Google rating and the availability line. A room story is not here on purpose: it needs a dozen photos and a laptop.
+- **Quick update** is the phone. Seven forms, each a few boxes and one button: a review, a notice, a press mention, a
+  question, the Google rating and the availability line (each published straight away), and "Start a room story from
+  a photo" (a title, the town and a cover photo, saved as a DRAFT to finish on the laptop). A whole room story still
+  needs a dozen photos and a laptop.
 - **Content** is the desk, in job order: Room stories first, then Pages, then Prices, reviews and lists, then
   Announcements, Start Here and the Trash. Lists Staci fills explain themselves while empty.
 - **Site Guide** has a guide for every job in the tables, with pictures of the real Studio where a step is about
@@ -70,11 +72,16 @@ once it is looked up), Nathan the full Studio.
 - **Tours, welcome and What's new** are wired from `src/sanity/studio-tours.ts` (first run, Home, Quick update, and a
   room story tour on demand).
 - **Still open**: "Post a photo" into a room story. Room story photos live in their own `gallery` list, not in a
-  page-builder gallery section, so the kit's Post a photo (which adds to a gallery section) cannot reach them. An
-  `append` job onto a picked room story, or a gallery spec with no page builder, would let Staci add install-day
-  photos from her phone.
-- **Videos**: the seven scripts in `docs/agent/studio-video-scripts.md` are ready for the pipeline; no clip is recorded
-  yet, so no guide has a `video` and Home's "Watch how it is done" stays hidden.
+  page-builder gallery section, so the kit's Post a photo (which adds to a gallery section) cannot reach them, and card
+  137's `append` and `upload` jobs name ONE fixed document (no `pick`), so they cannot reach a chosen room story
+  either. Today's closest job is "Start a room story from a photo" (a `create` job, saved as a draft). Adding install-day
+  photos to an existing story from the phone needs a starter change: `append` or `upload` with a `pick`, or a gallery
+  spec with no page builder.
+- **Videos**: five phone scripts are in `tools/tutorial-videos/scripts/` (add a review, post a notice, add a press
+  mention, add a question, update the Google rating) and were recorded once, but not registered: the recording showed
+  Sanity's "What's new" toast and Astro's dev toolbar, so they need a re-record with those hidden (see PENDING). The desk
+  clips in `docs/agent/studio-video-scripts.md` (first room story, change a price, trash) need a signed-in Studio that
+  can publish. No guide has a `video` yet, so Home's "Watch how it is done" stays hidden.
 
 ## Bigger ideas (not built)
 

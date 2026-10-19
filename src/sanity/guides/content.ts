@@ -1074,7 +1074,7 @@ export const guides: Guide[] = [
     category: 'Housekeeping',
     title: 'Quick update from your phone',
     icon: 'bolt',
-    lead: 'Six small jobs, each under a minute between clients.',
+    lead: 'Seven small jobs, each under a minute between clients.',
     diy: 'self',
     body: [
       {
@@ -1097,11 +1097,12 @@ export const guides: Guide[] = [
           '**Add a question**: a question clients keep asking, with your answer, at the end of its group on the Questions page.',
           '**Update your Google rating**: the rating and the day you checked it.',
           '**Change your availability**: the line by the green dot on Contact.',
+          '**Start a room story from a photo**: a title, the town and a cover photo, saved as a draft you finish at your desk.',
         ],
       },
       {
         kind: 'p',
-        text: 'Room stories are not here on purpose: they need a dozen photos and a bigger screen. Start one from Home on your laptop.',
+        text: 'A whole room story needs a dozen photos and a bigger screen, so the phone only opens it. Finish it from Home on your laptop.',
       },
       {
         kind: 'seealso',

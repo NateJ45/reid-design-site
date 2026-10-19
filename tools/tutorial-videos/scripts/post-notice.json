@@ -1,0 +1,45 @@
+{
+  "slug": "post-notice",
+  "title": "Post a notice from your phone",
+  "start": "/quick-update/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "ready": "[data-tour=\"quick-list\"]",
+  "steps": [
+    {
+      "do": "caption",
+      "text": "On your phone, open Quick update.",
+      "ms": 2200,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"notice\"]",
+      "caption": "Tap Post a notice."
+    },
+    {
+      "do": "click",
+      "target": "[data-quick=\"notice\"]"
+    },
+    {
+      "do": "type",
+      "target": "#quick-message",
+      "text": "Booking consultations for March.",
+      "caption": "One or two short sentences."
+    },
+    {
+      "do": "ring",
+      "target": "#quick-lastDay",
+      "caption": "Pick the last day. It takes itself down after that.",
+      "ms": 2400
+    },
+    {
+      "do": "ring",
+      "target": "text:Put it on the website",
+      "caption": "Tap the button. Every page shows it at the top.",
+      "ms": 2400
+    }
+  ]
+}

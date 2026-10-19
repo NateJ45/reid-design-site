@@ -1,0 +1,58 @@
+{
+  "slug": "add-review",
+  "title": "Add a review from your phone",
+  "start": "/quick-update/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "ready": "[data-tour=\"quick-list\"]",
+  "steps": [
+    {
+      "do": "caption",
+      "text": "On your phone, open Quick update.",
+      "ms": 2200,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"review\"]",
+      "caption": "Tap Add a review."
+    },
+    {
+      "do": "click",
+      "target": "[data-quick=\"review\"]"
+    },
+    {
+      "do": "type",
+      "target": "#quick-quote",
+      "text": "She found a way to use our grandmother's dresser and the whole room fell into place.",
+      "delay": 25,
+      "caption": "Paste their words exactly. Do not tidy them up."
+    },
+    {
+      "do": "type",
+      "target": "#quick-name",
+      "text": "Sam P.",
+      "caption": "Their first name, the way they would like it shown."
+    },
+    {
+      "do": "type",
+      "target": "#quick-town",
+      "text": "Avon, IN",
+      "caption": "And their town."
+    },
+    {
+      "do": "scroll",
+      "target": "#quick-stars",
+      "caption": "Google reviews keep their stars.",
+      "ms": 2200
+    },
+    {
+      "do": "ring",
+      "target": "text:Put it on the website",
+      "caption": "Tap the button. It is on the website in minutes.",
+      "ms": 2400
+    }
+  ]
+}

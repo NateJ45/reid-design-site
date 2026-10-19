@@ -182,7 +182,7 @@ export const WHATS_NEW: WhatsNewEntry[] = [
     date: '2026-10-19',
     title: 'More from your phone, and a tour',
     items: [
-      'Quick update can now add a press mention or a question, update your Google rating and change your availability.',
+      'Quick update can now add a press mention or a question, update your Google rating, change your availability and start a room story from a photo.',
       'The Site Guide has pictures of the Studio for the jobs you do most.',
       'Show me around, on Home, walks you through the Studio.',
     ],
