@@ -90,6 +90,9 @@ const hasSanityBody = Array.isArray(page?.body) && page.body.length > 0;
 // The measurement section is printed by this page, so its id is reserved:
 // a Sanity heading with the same words gets "-2" instead of colliding.
 const MEASURED_ID = 'how-traffic-is-measured';
+// Also printed by this page (the outside services the site hands work to), so
+// its id is reserved for the same reason.
+const SERVICES_ID = 'other-services-on-this-site';
 
 // The fallback policy's sections, with fixed ids for the contents.
 const FALLBACK_SECTIONS = [
@@ -100,9 +103,10 @@ const FALLBACK_SECTIONS = [
 
 const toc = [
   ...(hasSanityBody
-    ? docHeadings(page!.body, [MEASURED_ID]).map(({ id, text }) => ({ id, text }))
+    ? docHeadings(page!.body, [MEASURED_ID, SERVICES_ID]).map(({ id, text }) => ({ id, text }))
     : FALLBACK_SECTIONS),
   { id: MEASURED_ID, text: 'How traffic is measured' },
+  { id: SERVICES_ID, text: 'Other services on this site' },
 ];
 ---
 
@@ -163,7 +167,7 @@ const toc = [
           <PortableTextStatic
             value={page!.body}
             variant="doc"
-            reservedIds={[MEASURED_ID]}
+            reservedIds={[MEASURED_ID, SERVICES_ID]}
             className="doc__prose"
           />
         ) : (
@@ -243,6 +247,33 @@ const toc = [
               the same.
             </p>
           )}
+        </div>
+
+        {/*
+          The outside services the site hands work to. Printed by the page, like
+          the measurement section above, because it describes what the code does
+          (ContactForm.tsx, CalendlyInline.tsx, InstagramFeed.astro), so an edit
+          in Studio cannot make it wrong. Change this text in the same commit as
+          any change to those three.
+        */}
+        <div class="doc__prose">
+          <h2 id={SERVICES_ID} class="ptd-h2">
+            Other services on this site
+          </h2>
+          <p class="ptd-p">
+            The contact form is delivered by Web3Forms. When you send it, your name, email address
+            and message go to Web3Forms, which passes them on to Reid Design by email.
+          </p>
+          <p class="ptd-p">
+            The call scheduler on the Contact page is Calendly. It loads only after you press the
+            button to open it, and from then on Calendly's own privacy policy applies to what you
+            enter there.
+          </p>
+          <p class="ptd-p">
+            The Instagram photos on this site are copies kept on the site itself, so showing them
+            sends nothing to Instagram. If you follow a link to Instagram, Instagram's own policy
+            applies from that point.
+          </p>
         </div>
       </article>
     </div>
