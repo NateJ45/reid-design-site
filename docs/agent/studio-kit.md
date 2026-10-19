@@ -434,9 +434,13 @@ Also outside the kit plugin; site choices in `src/sanity/studioEdges.config.ts`.
   `logoPaths` entry; `view` crops an SVG lockup to its words) beside the square icon, hidden under 600px. It is
   registered at the ROOT of sanity.config (`studio.components.navbar`), the innermost middleware, so it wraps only
   Sanity's bar and not the kit's status line. The page hands it the built URL in `#ncs-studio-boot`.
-- **Not done, on purpose:** a branded heading inside the sign-in card through a custom `auth` store. Sanity uses a
-  custom store as-is, which drops its own request handler (expired-session handling, the CORS and project-not-found
-  screens). Not worth that for a heading.
+- **Not done, on purpose:** a branded heading inside the sign-in card. Checked again against sanity 6.19 for card
+  134: `AuthConfig` (the `auth` object in sanity.config) has no `LoginComponent` key; only a full custom
+  `AuthStore` can bring one, and `getAuthStore()` uses such a store as-is, skipping the Studio's request handler
+  (signed-out handling for a dead session, the CORS and project-not-found screens, the request-failure diagnostics).
+  Wrapping the default store would mean rebuilding it with the deprecated, internal `createAuthStore` and losing
+  those screens. The supported levers stay the workspace `icon`, `title` and `subtitle` (all drawn on the card)
+  and the i18n words above. Revisit when `AuthConfig` gains a login component slot.
 
 ## The design language (card 128)
 
@@ -487,7 +491,28 @@ arrows, positioned in PERCENT of the picture so a recapture at another size keep
 label? } | { kind: 'arrow', x, y, toX, toY, label? }], caption? }`. `src` is a file in `public/guide-shots/` or an
 https address; anything else is not drawn. Capture at 1280 wide in the light appearance, under 300 KB. Labelled
 marks become a numbered key under the picture, which is what a screen reader hears beside the `alt`.
-`public/guide-shots/example-editor.svg` is a placeholder until real captures land.
+A guide does not write the picture out: it asks for one by key (below), and `public/guide-shots/example-editor.svg` is
+the wireframe shown when a site has no capture for that key.
+
+**Real captures in the guides (card 130).** A guide block is `{ kind: 'shot', key: 'publish-button' }`. The key is
+looked up in the site's own registry, `src/sanity/guides/shots.ts` (site-owned, not PORTABLE; the starter ships it empty),
+which holds a `GuideShotData` per key: the WebP in `public/guide-shots/`, its alt text, its size and its marks. So the
+guide text is the same on every site and only the pictures and coordinates are per site. `resolveShot()` in
+`studio-look.ts` does the lookup: a block with its own `src` and `alt` is drawn as written; a key with an entry is drawn
+from it (a `caption`, `alt` or `marks` on the block wins); a key with no entry draws `PLACEHOLDER_SHOT`, the wireframe,
+captioned as a drawing. `src/lib/guide-shots.test.ts` checks every entry (file present and under 200 KB, alt text, marks
+inside the picture, no em-dashes in labels).
+
+To add a capture: (1) sign in to the live Studio and capture at about 1500 px wide, light appearance. (2) Crop to the
+useful part. (3) Cover the account avatar (top right of the navbar, bottom left of an open editor) and any personal name,
+such as the greeting on Home; never ship a capture with either. Do the covering and cropping in one scratch script with
+`sharp` or Playwright, not by adding a dependency: composite the cover patches onto the full image FIRST, then crop
+(sharp's `extract` runs before `composite`, so doing both in one chain puts the patch in the wrong place). (4) Save as
+WebP, quality about 80, under about 150 KB. (5) Measure each control's box in the capture's pixels and convert to percent
+of the cropped picture (`x = (px - cropLeft) / cropWidth * 100`); a ring is the control's box grown by about 3 px, a stone
+sits just outside it or on a corner, never over the control's own words. (6) Write the entry, with one short label per
+stone in the site's plain voice. Stones are numbered in the order they appear in `marks`. (7) Look at the guide in the
+kit harness (`/kit-harness/guide/?view=page&g=<slug>`) at 1280 and 375.
 
 **The test bench** (`/kit-harness/studio/` and `/kit-harness/guide/`, dev server only; `getStaticPaths` returns
 nothing in a build). `studio` is the real Studio signed in as a pretend administrator through Sanity's
@@ -536,7 +561,8 @@ family site gets its own devices and the starter's neutral defaults stay tidy.
 piece with made-up data in light or dark (`&scheme=dark`), since the real screens need a signed-in Studio
 (`src/sanity/kit/harness/Surfaces.tsx`, dev only).
 
-**Still to do** (`docs/PENDING.md`): the field "How to" chip and the sign-in heading.
+**Still to do** (`docs/PENDING.md`): the sign-in heading (blocked in sanity 6.19; see "The edges" above). The field
+"How to" chip landed with card 134 (below).
 
 ### Part two (card 132)
 
@@ -547,7 +573,7 @@ piece with made-up data in light or dark (`&scheme=dark`), since the real screen
 | `Figure`    | a headline number in the display font with its words                                      | Visitors, newsletter subscribers, CollectionIntro |
 | `MarkBars`  | bars in the calm mark colours, each with its number in words                              | Visitors                                          |
 | `StepTrail` | named steps across: laid, ringed, waiting (`LiveSteps` with one column per word)          | Post a photo, the tour                            |
-| `TileCard`  | now takes `href` (a real link) as well as `onClick`                                       | Home's ways in, Quick update                      |
+| `TileCard`  | now takes `href` (a real link) as well as `onClick`; art top left, 52px (card 133)        | Home's ways in, Quick update                      |
 
 - **Done means calm.** `look.<scheme>.calm` lists the stones that may say "done": every mark colour except one within
   28 degrees of the careful hue (`calmStones()`, tested). `StateStone calm`, `LiveSteps`, `AllClear` and `MarkBars`
@@ -566,6 +592,43 @@ piece with made-up data in light or dark (`&scheme=dark`), since the real screen
   maps it in `brandIconArt.tsx`.
 - **Tour steps** may name a `short` word for the trail and a `meaning` for their art (`types.ts` `TourStep`).
 - **The bench** has `part=home` (every Home card with made-up data), `part=photo` and `part=tour`.
+
+## "How to" beside a field, and icons on every field group (card 134)
+
+**The chip.** `kit/FieldGuide.tsx` is a global `form.components.field` wrapper, registered by the kit plugin. A field
+named in `guide.forField` (kit.config.ts; the map is `GUIDE_FOR_FIELD` beside `GUIDES_FOR_TYPE` in
+`guides/content.ts`) gets a quiet "How to" chip after its description: the look's marker in small, the words, in the
+stone's shape (`--ui-tag-radius`) and the heading colour. It opens a dialog with that guide in its compact panel
+drawing, scrolled to the named heading, focus on it, the marker colour down its left. "See also" inside opens the next
+guide in the same dialog.
+
+```ts
+export const GUIDE_FOR_FIELD: FieldGuideMap = {
+  fields: {
+    seoTitle: { guide: 'seo-fields' },
+    alt: { guide: 'images-and-alt', section: 'What alt text is' },
+  },
+  types: {}, // schema type name -> section, for a type used in many places
+};
+```
+
+- A field's NAME wins over its TYPE chain (`schemaType`, then each `.type`). Name fields that mean one thing
+  everywhere: `seoTitle`, not `title`. Keep the list to the obvious ones (the gate stops at 16).
+- Every field passes through the wrapper, so it has no hooks and one cached lookup (`fieldGuideLookup` in
+  `src/lib/studio-kit.ts`; type chains are cached per schema type). An unmapped field gets `renderDefault(props)`
+  untouched. `features.fieldHelp: false` turns the wrapper off entirely.
+- The chip goes into the description slot, typed `string` in sanity 6.19 but drawn as a child of a Text. An upgrade
+  that stops drawing a node there loses the chip and nothing else.
+- `GuideViewProps.section` and `GuidePage`'s `section` carry the heading; each section heading now has a stable id,
+  `guideSectionId(slug, heading)`. A site's `GuideView` must pass `section` through.
+- Gates: `studio-guides.test.ts` (every mapped guide and heading exists; at most 16 entries), `studio-kit.test.ts`
+  (the lookup). Keyboard: a real button, the look's focus ring, Escape closes the dialog. No motion beyond a colour
+  change, off under reduced motion.
+
+**Field-group icons.** Config only: `brand/brand.config.json` `studio.icons.groups` names a meaning for every document
+field group the defaults in `studio-icons.ts` do not cover (`navigation`, `social`, `final`...). Object types'
+groups (a section's tabs) are not decorated. A site with art for a meaning (`brandIconArt.tsx`) gets its stone there;
+choose meanings the site has art for where one fits.
 
 ## Checkup rules
 
