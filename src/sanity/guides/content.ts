@@ -22,6 +22,8 @@
 //     existing basics (furniture, color and paint, decor, rugs, basic hardware
 //     and fixture swaps, light trim). Nothing here may suggest remodeling,
 //     cabinets, tile, appliances or moving walls.
+//   - { kind: 'shot', key } asks for a picture of the Studio from ./shots.ts
+//     (card 130); a key with no capture yet draws the wireframe.
 //   - src/lib/studio-guides.test.ts checks the structure (slugs, categories,
 //     "See also" titles, em-dashes).
 // =============================================================================
@@ -46,7 +48,11 @@ export type GuideBlock =
       title?: string;
       text: string;
     }
-  | { kind: 'seealso'; items: string[] };
+  | { kind: 'seealso'; items: string[] }
+  /** A picture of the Studio by key from ./shots.ts (PORTS.md card 130). */
+  | { kind: 'shot'; key: string; caption?: string }
+  /** A line to copy, like a message to send (card 128). */
+  | { kind: 'quote'; text: string; cite?: string };
 
 /** Names the prose refers to. */
 export const SITE = {
@@ -68,7 +74,7 @@ export interface Guide {
   slug: string;
   category: GuideCategory;
   title: string;
-  /** A name from GUIDE_ICONS in src/sanity/components/GuideView.tsx. */
+  /** A meaning from the icon registry, or an old guide icon name (the kit maps both). */
   icon: string;
   lead: string;
   diy: DiyLevel;
@@ -143,6 +149,7 @@ export const guides: Guide[] = [
           '**Your pages**: every page and list on the website, one click away.',
         ],
       },
+      { kind: 'shot', key: 'home-overview' },
       {
         kind: 'callout',
         tone: 'default',
@@ -192,6 +199,7 @@ export const guides: Guide[] = [
           'The panel shows anything worth a look on this page (a photo with no description, an empty section), then the guides that fit it.',
         ],
       },
+      { kind: 'shot', key: 'help-panel' },
       {
         kind: 'p',
         text: 'Nothing in the panel stops you publishing. It is a second pair of eyes.',
@@ -222,6 +230,7 @@ export const guides: Guide[] = [
         ],
       },
       { kind: 'h', text: 'Step by step' },
+      { kind: 'shot', key: 'room-story-start' },
       {
         kind: 'steps',
         items: [
@@ -235,6 +244,7 @@ export const guides: Guide[] = [
           'Click `Publish`. The story appears on the Portfolio page within a few minutes.',
         ],
       },
+      { kind: 'shot', key: 'publish-button' },
       {
         kind: 'callout',
         tone: 'caution',
@@ -332,6 +342,7 @@ export const guides: Guide[] = [
           'Click `Publish` when it reads right.',
         ],
       },
+      { kind: 'shot', key: 'publish-button' },
       {
         kind: 'p',
         text: 'You can also open a page from `Content`, then `Pages`, and edit the boxes directly. Every page has its own boxes in the order the page shows them.',
@@ -797,11 +808,12 @@ export const guides: Guide[] = [
           'Click `Publish`.',
         ],
       },
+      { kind: 'shot', key: 'google-rating-fields' },
       {
         kind: 'p',
         text: 'Home asks you once a month. The website never shows a review count, because a typed number goes out of date.',
       },
-      { kind: 'seealso', items: ['Add a client review'] },
+      { kind: 'seealso', items: ['Add a client review', 'Ask a client for a Google review'] },
     ],
   },
   {
@@ -822,10 +834,17 @@ export const guides: Guide[] = [
           'Click `Publish`. Google reviews with stars appear on the home page by themselves, newest first.',
         ],
       },
+      { kind: 'shot', key: 'quick-update-review' },
+      { kind: 'h', text: 'Feature one, or hide one' },
       {
-        kind: 'p',
-        text: 'To keep one off the website without deleting it, tick `Hide on the website`.',
+        kind: 'bullets',
+        items: [
+          'To put a favourite review forward, open it from `Content`, then `Prices, reviews and lists`, then `Reviews`, and tick `Featured`.',
+          'To keep one off the website without deleting it, tick `Hide on the website`.',
+          'A review added from your phone is not featured. Open it in the full editor to change that, or to add the link to the review on Google.',
+        ],
       },
+      { kind: 'seealso', items: ['Ask a client for a Google review', 'Update your Google rating'] },
     ],
   },
   {
@@ -839,10 +858,10 @@ export const guides: Guide[] = [
       {
         kind: 'steps',
         items: [
-          'Open `Content`, then `Prices, reviews and lists`, then `Press`, and click `+`.',
+          'On your phone, use `Quick update`, then `Add a press mention`. At your desk, open `Content`, then `Prices, reviews and lists`, then `Press`, and click `+`.',
           'Type where it appeared, like "Indianapolis Monthly", and the date it came out.',
           'Paste the link if it is online, and a short line they wrote about you, exactly as written, if there is one.',
-          'Click `Publish`.',
+          'Click `Publish` (on your phone, `Put it on the website`). Want to add their logo? Open it in the full editor on your laptop.',
         ],
       },
       {
@@ -872,6 +891,105 @@ export const guides: Guide[] = [
         kind: 'p',
         text: 'Your email and phone number are in `Site settings`, on the `Identity & contact` tab.',
       },
+    ],
+  },
+
+  {
+    slug: 'enquiries',
+    category: 'Services, prices and reviews',
+    title: 'Where enquiries and bookings go',
+    icon: 'contact',
+    lead: 'The contact form and your booking link, and the weekly tick on Home.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'p',
+        text: 'Enquiries do not arrive in the Studio. A message from the contact form comes to your email, and a discovery call booked through your scheduling link comes from Calendly. The Studio cannot see either, so This week on Home has a hand tick for them.',
+      },
+      { kind: 'h', text: 'Each week' },
+      {
+        kind: 'steps',
+        items: [
+          'Reply to every contact form message and new booking in your email.',
+          "On Home, under `This week`, tick `Answer this week's enquiries`. The list starts fresh every Monday.",
+        ],
+      },
+      { kind: 'h', text: 'Change the booking link or its words' },
+      {
+        kind: 'steps',
+        items: [
+          'Open `Content`, then `Pages`, then `Contact`, and click the `Scheduling` tab.',
+          'Paste the new link into `Scheduling link (Calendly)`, or change the words beside it in `Scheduling link label`.',
+          'Leave `Availability note override` empty unless Contact should say something different from the rest of the website.',
+          'Click `Publish`.',
+        ],
+      },
+      { kind: 'shot', key: 'contact-scheduling' },
+      {
+        kind: 'callout',
+        tone: 'caution',
+        title: 'Not getting form messages?',
+        text: 'Check your spam folder first. If they are not there either, ask Nathan: the form is set up outside the Studio.',
+      },
+      { kind: 'seealso', items: ['Availability, service areas and travel fees'] },
+    ],
+  },
+  {
+    slug: 'ask-for-review',
+    category: 'Services, prices and reviews',
+    title: 'Ask a client for a Google review',
+    icon: 'testimonial',
+    lead: 'One a week adds up fast. Here is the link and a line to send.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'steps',
+        items: [
+          'Open `Site settings` (Home, `Your pages`, `Google rating`) and copy your `"Leave a review" link`.',
+          'Text or email it to a client who is happy with their room, while it is still new to them.',
+          'On Home, under `This week`, tick `Ask a happy client for a Google review`.',
+          'When the review comes in, add it from your phone with `Quick update`, then `Add a review`.',
+        ],
+      },
+      {
+        kind: 'quote',
+        text: 'It was such a joy working on your living room. If you have a minute, a short Google review helps other families find me: [your link]',
+      },
+      {
+        kind: 'p',
+        text: 'Keep it personal and short. Ask once, and thank them either way.',
+      },
+      { kind: 'seealso', items: ['Add a client review', 'Update your Google rating'] },
+    ],
+  },
+  {
+    slug: 'add-question',
+    category: 'Services, prices and reviews',
+    title: 'Add a question to the Questions page',
+    icon: 'question',
+    lead: 'Asked the same thing twice this month? Answer it once on the website.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'steps',
+        items: [
+          'On your phone, use `Quick update`, then `Add a question`. At your desk, open `Content`, then `Prices, reviews and lists`, then `Questions and answers`, and click `+`.',
+          'Type the question the way a client would ask it.',
+          'Write the answer in a few short sentences. An empty line starts a new paragraph.',
+          'Pick its group: Getting Started, Pricing & Cost, The Process, Logistics or Service Area.',
+          'Put it on the website. It goes at the end of its group.',
+        ],
+      },
+      { kind: 'h', text: 'Move it, or show it on Process too' },
+      {
+        kind: 'bullets',
+        items: [
+          'Change `Display order` to move it within its group: lower numbers show first.',
+          'Tick `Also show on Process page` to add it to the questions at the bottom of Process.',
+          'Links and bold words are added in the full editor, not from your phone.',
+        ],
+      },
+      { kind: 'seealso', items: ['Quick update from your phone'] },
     ],
   },
 
@@ -955,7 +1073,7 @@ export const guides: Guide[] = [
     category: 'Housekeeping',
     title: 'Quick update from your phone',
     icon: 'bolt',
-    lead: 'Post a notice or add a review in under a minute, between clients.',
+    lead: 'A review, a notice, a press mention or a question, in under a minute between clients.',
     diy: 'self',
     body: [
       {
@@ -965,6 +1083,30 @@ export const guides: Guide[] = [
           'Tap `Quick update` in the menu.',
           'Pick a job, fill in the few boxes, and tap the button. It goes on the website straight away.',
           'Want to add more later? Open it in the full editor on your laptop.',
+        ],
+      },
+      { kind: 'shot', key: 'quick-update-tiles' },
+      { kind: 'h', text: 'What each one does' },
+      {
+        kind: 'bullets',
+        items: [
+          '**Add a review**: their words, name, town and stars. Google reviews with stars show on Home by themselves.',
+          '**Post a notice**: a line across the top of every page that takes itself down after the day you pick.',
+          '**Add a press mention**: where you were featured, when, and a link.',
+          '**Add a question**: a question clients keep asking, with your answer, at the end of its group on the Questions page.',
+        ],
+      },
+      {
+        kind: 'p',
+        text: 'Room stories are not here on purpose: they need a dozen photos and a bigger screen. Start one from Home on your laptop.',
+      },
+      {
+        kind: 'seealso',
+        items: [
+          'Add a client review',
+          'Post an announcement',
+          'Add a press mention',
+          'Add a question to the Questions page',
         ],
       },
     ],
@@ -1056,12 +1198,21 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   eDesignPage: ['prices', 'extra-sections', 'section-visibility'],
   processPage: ['extra-sections', 'edit-a-page'],
   service: ['prices'],
-  testimonial: ['add-review', 'google-rating'],
+  testimonial: ['add-review', 'ask-for-review', 'google-rating'],
+  faqItem: ['add-question'],
+  contactPage: ['enquiries', 'availability', 'extra-sections'],
+  faqPage: ['add-question', 'extra-sections'],
   announcement: ['announcement'],
   page: ['add-a-page', 'page-templates', 'reuse-sections', 'share-a-preview', 'rename-a-page'],
   sectionPreset: ['reuse-sections', 'synced-sections', 'seasonal-patterns'],
-  pressMention: ['press'],
-  siteSettings: ['menus-and-footer', 'google-rating', 'section-visibility', 'instagram'],
+  pressMention: ['press', 'quick-update'],
+  siteSettings: [
+    'menus-and-footer',
+    'google-rating',
+    'ask-for-review',
+    'section-visibility',
+    'instagram',
+  ],
   businessInfo: ['availability'],
   redirect: ['rename-a-page'],
   trashedItem: ['trash'],
@@ -1094,6 +1245,17 @@ export const GUIDE_FOR_FIELD: FieldGuideMap = {
     alt: { guide: 'images-and-alt' },
     pageBuilder: { guide: 'edit-a-page' },
     slug: { guide: 'rename-a-page' },
+    // 2026-10-19 (docs/agent/studio-plan.md): the fields people get wrong.
+    googleRating: { guide: 'google-rating' },
+    googleReviewsUpdatedAt: { guide: 'google-rating' },
+    googleWriteReviewUrl: { guide: 'ask-for-review' },
+    availabilityStatus: { guide: 'availability' },
+    schedulingLink: { guide: 'enquiries', section: 'Change the booking link or its words' },
+    alsoShowOnProcessPage: { guide: 'add-question', section: 'Move it, or show it on Process too' },
+    hideOnWebsite: { guide: 'add-review', section: 'Feature one, or hide one' },
+    gallery: { guide: 'room-story-photos' },
+    publishAt: { guide: 'schedule-a-story' },
+    showUntil: { guide: 'announcement' },
   },
   // Schema type name -> section, for a type used in many places (none yet).
   types: {},

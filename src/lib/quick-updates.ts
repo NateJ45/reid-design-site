@@ -96,3 +96,88 @@ export function buildReview(values: {
     hideOnWebsite: false,
   };
 }
+
+/** A press mention: where it appeared and when, with an optional link and line. */
+export function buildPressMention(values: {
+  outlet: string;
+  date: string;
+  title?: string;
+  url?: string;
+  quote?: string;
+}) {
+  const title = values.title?.trim();
+  const url = values.url?.trim();
+  const quote = values.quote?.trim();
+  return {
+    _type: 'pressMention',
+    outlet: values.outlet.trim(),
+    date: values.date,
+    ...(title ? { title } : {}),
+    ...(url ? { url } : {}),
+    ...(quote ? { quote } : {}),
+  };
+}
+
+/** The FAQ page's groups (faqItem.category's list), in the order they show. */
+export const FAQ_CATEGORIES = [
+  'Getting Started',
+  'Pricing & Cost',
+  'The Process',
+  'Logistics',
+  'Service Area',
+];
+
+/**
+ * The FAQ group a typed answer means. The form has no dropdown (Quick update
+ * fields are plain text), so "pricing", "cost" or "process" find their group,
+ * and anything else lands in Getting Started, where Staci can move it later.
+ */
+export function faqCategoryFrom(value: string | undefined): string {
+  const typed = (value ?? '').trim().toLowerCase();
+  if (!typed) return 'Getting Started';
+  const exact = FAQ_CATEGORIES.find((c) => c.toLowerCase() === typed);
+  if (exact) return exact;
+  if (/price|pricing|cost|fee|pay/.test(typed)) return 'Pricing & Cost';
+  if (/process|step|how it works/.test(typed)) return 'The Process';
+  if (/logistic|schedul|timing|when/.test(typed)) return 'Logistics';
+  if (/area|town|travel|where/.test(typed)) return 'Service Area';
+  return 'Getting Started';
+}
+
+/** A short random key for a Portable Text block or span. */
+function blockKey(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/** Plain text to Portable Text: one paragraph per blank-line-separated chunk. */
+export function paragraphsToBlocks(text: string) {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\s*\n\s*/g, ' ').trim())
+    .filter(Boolean)
+    .map((p) => ({
+      _type: 'block',
+      _key: blockKey(),
+      style: 'normal',
+      markDefs: [],
+      children: [{ _type: 'span', _key: blockKey(), text: p, marks: [] }],
+    }));
+}
+
+/**
+ * A question for the FAQ page, placed last in its group. `lastOrder` is the
+ * highest display order already in that group (null when the group is empty).
+ */
+export function buildQuestion(
+  values: { question: string; answer: string; category?: string },
+  lastOrder: number | null,
+) {
+  return {
+    _type: 'faqItem',
+    question: values.question.trim(),
+    answer: paragraphsToBlocks(values.answer),
+    category: faqCategoryFrom(values.category),
+    displayOrder: lastOrder === null ? 0 : Math.floor(lastOrder) + 1,
+    alsoShowOnProcessPage: false,
+  };
+}

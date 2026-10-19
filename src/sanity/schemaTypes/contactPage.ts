@@ -253,7 +253,8 @@ export const contactPage = defineType({
       title: 'Availability note override',
       type: 'string',
       group: 'scheduling',
-      description: 'Optional override of siteSettings.availabilityStatus. Usually leave blank.',
+      description:
+        'Usually leave this empty. Contact then shows your Availability status from Business info, like everywhere else. Fill it in only if Contact should say something different.',
     }),
 
     defineField({
