@@ -38,6 +38,7 @@
 import {
   Fragment,
   useEffect,
+  useInsertionEffect,
   useMemo,
   useRef,
   useState,
@@ -113,6 +114,24 @@ function toneVars(t: SchemeTokens, tone: Tone): CSSProperties {
   return { '--tone-bg': v.bg, '--tone-title': v.title, '--tone-mark': v.mark } as CSSProperties;
 }
 
+/**
+ * Card 131: the stylesheet goes into <head> ONCE, however many scopes a screen
+ * has (Home draws a dozen cards; each used to carry its own copy).
+ */
+function useKitStyles(css: string) {
+  useInsertionEffect(() => {
+    if (typeof document === 'undefined') return;
+    const id = 'ncs-ui-css';
+    const el =
+      (document.getElementById(id) as HTMLStyleElement | null) ?? document.createElement('style');
+    if (!el.id) {
+      el.id = id;
+      document.head.appendChild(el);
+    }
+    if (el.textContent !== css) el.textContent = css;
+  }, [css]);
+}
+
 /** The wrapper every primitive sits in. `as` defaults to a div. */
 export function KitScope({
   children,
@@ -131,12 +150,12 @@ export function KitScope({
   };
   const t = root.scheme === 'dark' ? LOOK.dark : LOOK.light;
   const face = LOOK.lettering ? fontFaceCss(LOOK.lettering.family, LOOK.lettering.src) : '';
+  useKitStyles(UI_CSS + (face ?? ''));
   return (
     <div
       className={['ncs-ui', className].filter(Boolean).join(' ')}
       style={{ ...vars(t, fonts), ...style }}
     >
-      <style>{UI_CSS + (face ?? '')}</style>
       {children}
     </div>
   );
@@ -335,7 +354,7 @@ export function Stone({
           d={d}
           fill={fill ?? s.fill}
           stroke={edge}
-          strokeWidth={edge ? 1.5 : undefined}
+          strokeWidth={edge ? Math.max(1.5, Math.min(2.25, size / 18)) : undefined}
           strokeLinejoin="round"
         />
       </svg>
@@ -713,7 +732,7 @@ export function KitCard({
 export function KitLoading({ label = 'Loading' }: { label?: string }) {
   const { ref, className } = useArrive<HTMLSpanElement>();
   return (
-    <span className="ui-loading" role="status">
+    <span className="ui-loading" role="status" aria-label={label ? undefined : 'Loading'}>
       <span ref={ref} className={['ui-loading__stones', className].join(' ').trim()}>
         {[0, 1, 2].map((i) => (
           <span key={i} style={{ '--i': i } as CSSProperties}>

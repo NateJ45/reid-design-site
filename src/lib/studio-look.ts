@@ -100,6 +100,8 @@ export interface ToneTokens {
   mark: string;
   /** Its title (AA on bg). */
   title: string;
+  /** Card 131: the hue as a card's left edge on the raised surface (3:1 on surface). */
+  edge: string;
 }
 
 export interface SchemeTokens {
@@ -115,6 +117,12 @@ export interface SchemeTokens {
   connector: string;
   /** Numbered stones, each with the number's colour on it. */
   stones: { fill: string; text: string }[];
+  /**
+   * Card 132: the stones that read as "good" (indexes into `stones`): every
+   * mark colour except one near the careful tone's hue. A finished state (Is it
+   * live, all clear) is laid in these, so brick never says "done".
+   */
+  calm: number[];
   tones: Record<'note' | 'tip' | 'careful' | 'plain', ToneTokens>;
   /** Studio button copies. */
   chip: { bg: string; fg: string; border: string };
@@ -170,7 +178,7 @@ const DARK_INK = '#eef0f4';
 /** Neutral starter hues for the three callouts when the brand names none. */
 export const DEFAULT_TONES = { tip: '#b7791f', careful: '#c2410c' };
 
-function tone(hue: string, bg0: string, ink: string, dark: boolean): ToneTokens {
+function tone(hue: string, bg0: string, ink: string, dark: boolean): Omit<ToneTokens, 'edge'> {
   // Light: a clear wash of the hue on white (a wash on a warm paper goes grey).
   const bg = dark ? mix(hue, bg0, 0.8) : mix(hue, '#ffffff', 0.87);
   return {
@@ -207,7 +215,13 @@ function scheme(
   // colour is kept as it is, as the site draws it: Auburn's gold on white.
   const connector = hex(input.connector?.color) ?? (input.connector?.kind ? marker : rule);
   const stones = marks.map((m) => {
-    const fill = ensure(m, paper, AA_NON_TEXT);
+    // Card 131: on the paper AND the raised surface (white cards), so either ground holds 3:1.
+    const fill = ensure(
+      ensure(m, paper, AA_NON_TEXT),
+      surface,
+      AA_NON_TEXT,
+      dark ? '#ffffff' : '#000000',
+    );
     // The number on the stone: white or ink, whichever reads; AA either way.
     const text =
       contrastRatio('#ffffff', fill) >= contrastRatio(LIGHT_INK, fill) ? '#ffffff' : LIGHT_INK;
@@ -218,15 +232,21 @@ function scheme(
     tip: hex(input.tones?.tip) ?? DEFAULT_TONES.tip,
     careful: hex(input.tones?.careful) ?? DEFAULT_TONES.careful,
   };
+  const calm = calmStones(
+    stones.map((x) => x.fill),
+    hues.careful,
+  );
+  const edgeOn = (hue: string) => ensure(hue, surface, AA_NON_TEXT, dark ? '#ffffff' : '#000000');
   const tones = {
-    note: tone(hues.note, paper, ink, dark),
-    tip: tone(hues.tip, paper, ink, dark),
-    careful: tone(hues.careful, paper, ink, dark),
+    note: { ...tone(hues.note, paper, ink, dark), edge: edgeOn(hues.note) },
+    tip: { ...tone(hues.tip, paper, ink, dark), edge: edgeOn(hues.tip) },
+    careful: { ...tone(hues.careful, paper, ink, dark), edge: edgeOn(hues.careful) },
     plain: {
       bg: surface,
       fill: ensure(muted, surface, AA_NON_TEXT),
       mark: ensure(muted, surface, AA_NON_TEXT),
       title: ink,
+      edge: ensure(muted, surface, AA_NON_TEXT),
     },
   };
   const chrome = base.chrome;
@@ -240,6 +260,7 @@ function scheme(
     marker,
     connector,
     stones,
+    calm,
     tones,
     chip: dark
       ? { bg: mix('#ffffff', paper, 0.88), fg: ink, border: mix('#ffffff', paper, 0.72) }
@@ -356,8 +377,69 @@ export function contrastPairs(
     pairs.push({ name: `${k} title`, fg: v.title, bg: v.bg, min: AA_BODY_TEXT });
     pairs.push({ name: `${k} text`, fg: t.ink, bg: v.bg, min: AA_BODY_TEXT });
     pairs.push({ name: `${k} marker outline`, fg: v.mark, bg: v.bg, min: AA_NON_TEXT });
+    pairs.push({ name: `${k} card edge on surface`, fg: v.edge, bg: t.surface, min: AA_NON_TEXT });
   }
+  // Card 131: the surfaces' white cards and the empty stone of a step not yet done.
+  pairs.push({ name: 'muted on surface', fg: t.muted, bg: t.surface, min: AA_BODY_TEXT });
+  pairs.push({ name: 'heading on surface', fg: t.heading, bg: t.surface, min: AA_BODY_TEXT });
+  t.stones.forEach((s, i) => {
+    pairs.push({ name: `stone ${i} on surface`, fg: s.fill, bg: t.surface, min: AA_NON_TEXT });
+  });
   return pairs;
+}
+
+// -----------------------------------------------------------------------------
+// Card 131: step states (the Sunday checklist, "Is it live?", the navbar line)
+// -----------------------------------------------------------------------------
+
+/** A stone on a path: laid (done), being laid (now), waiting (todo), or one that did not go down. */
+export type StepState = 'done' | 'now' | 'todo' | 'failed' | 'slow';
+
+/** The three steps of an update, Saved, Building, On the website, from the live state. */
+export function liveSteps(
+  state: 'live' | 'on-its-way' | 'slow' | 'unknown' | 'failed',
+): [StepState, StepState, StepState] {
+  switch (state) {
+    case 'live':
+      return ['done', 'done', 'done'];
+    case 'on-its-way':
+      return ['done', 'now', 'todo'];
+    case 'slow':
+      return ['done', 'slow', 'todo'];
+    case 'failed':
+      return ['done', 'failed', 'todo'];
+    default:
+      return ['todo', 'todo', 'todo'];
+  }
+}
+
+export const LIVE_STEP_WORDS = ['Saved', 'Building', 'On the website'] as const;
+
+/** A sentence for a screen reader: "Saved, done. Building, in progress. On the website, not yet." */
+export function stepsLabel(words: readonly string[], states: readonly StepState[]): string {
+  const say: Record<StepState, string> = {
+    done: 'done',
+    now: 'in progress',
+    todo: 'not yet',
+    failed: 'did not go through',
+    slow: 'taking longer than usual',
+  };
+  return words.map((w, i) => `${w}, ${say[states[i] ?? 'todo']}.`).join(' ');
+}
+
+/** How far along a checklist is, for the path's heading: "2 of 5 done". */
+export function pathProgress(done: readonly boolean[]): {
+  done: number;
+  total: number;
+  text: string;
+} {
+  const n = done.filter(Boolean).length;
+  const total = done.length;
+  return {
+    done: n,
+    total,
+    text: total === 0 ? '' : n === total ? 'All done' : `${n} of ${total} done`,
+  };
 }
 
 // -----------------------------------------------------------------------------
@@ -369,13 +451,50 @@ function lcg(seed: number) {
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32;
 }
 
+/** A colour's hue (0-360) and saturation (0-1). */
+function hueSat(c: string): { h: number; s: number } {
+  const n = parseInt(c.replace('#', '').slice(0, 6), 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  const l = (max + min) / 2;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let h = 0;
+  if (d) {
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+  }
+  return { h: (h * 60 + 360) % 360, s };
+}
+
+/**
+ * Card 132: which stones may stand for "done". A stone within 28 degrees of the
+ * careful (warning) hue, and saturated enough to read as it, is left out; if
+ * that leaves none, every stone is kept.
+ */
+export function calmStones(fills: readonly string[], careful: string): number[] {
+  const c = hueSat(careful);
+  const keep = fills
+    .map((f, i) => ({ i, ...hueSat(f) }))
+    .filter((x) => {
+      const dh = Math.min(Math.abs(x.h - c.h), 360 - Math.abs(x.h - c.h));
+      return !(dh < 28 && x.s > 0.3 && c.s > 0.3);
+    })
+    .map((x) => x.i);
+  return keep.length ? keep : fills.map((_, i) => i);
+}
+
 /** A hand-laid stone: a seeded irregular outline, smoothed (Chaikin), as an SVG path in a w x h box. */
-export function pebblePath(seed: number, w: number, h: number, sides = 7): string {
+export function pebblePath(seed: number, w: number, h: number, sides = 6): string {
   const r = lcg(seed * 7919 + 13);
   let pts: [number, number][] = [];
   for (let i = 0; i < sides; i++) {
     const a = (i / sides) * Math.PI * 2 + (r() - 0.5) * 0.5;
-    const k = 0.86 + r() * 0.14;
+    const k = 0.8 + r() * 0.2;
     pts.push([w / 2 + Math.cos(a) * (w / 2) * k, h / 2 + Math.sin(a) * (h / 2) * k]);
   }
   for (let pass = 0; pass < 3; pass++) {
@@ -432,7 +551,7 @@ export const GUIDE_ICON_MEANINGS: Record<string, BrandIconKey> = {
   activity: 'checkup',
   bulb: 'help',
   bolt: 'quickUpdate',
-  restore: 'trash',
+  restore: 'restore',
   mail: 'message',
   code: 'code',
 };

@@ -197,6 +197,8 @@ export const kitConfig: KitConfig = {
       title: 'Add a review',
       detail: 'Paste a client review from Google, a text or an email.',
       icon: brandIcon('testimonial'),
+      // Card 131: the tile draws Reid's quote chip (brandIconArt.tsx).
+      meaning: 'testimonial',
       fields: [
         {
           name: 'quote',
@@ -259,6 +261,8 @@ export const kitConfig: KitConfig = {
       title: 'Post a notice',
       detail: 'A short line across the top of every page, until the day you pick.',
       icon: brandIcon('notice'),
+      // Card 131: the tile draws Reid's sample tag (brandIconArt.tsx).
+      meaning: 'notice',
       fields: [
         {
           name: 'message',
@@ -394,22 +398,32 @@ export const kitConfig: KitConfig = {
   tourSteps: [
     {
       title: 'This is Home',
+      short: 'Home',
+      meaning: 'home',
       body: 'Home opens first every time. It shows your jobs for the week, whether your last change is on the website yet, and anything that needs fixing.',
     },
     {
       title: 'Content is where you edit',
+      short: 'Content',
+      meaning: 'pages',
       body: 'Click Content in the top bar to change any page, add a room story, change a price or add a review.',
     },
     {
       title: 'Live preview shows the real page',
+      short: 'Preview',
+      meaning: 'image',
       body: 'Live preview shows the website as clients will see it, with your unpublished changes in place. Click any words on it to edit them right there.',
     },
     {
       title: 'Nothing is public until you press Publish',
+      short: 'Publish',
+      meaning: 'step',
       body: 'Your changes are private until you press Publish. After that the website updates itself in a few minutes. Changed your mind? Use Undo, or move a thing to the Trash and bring it back later.',
     },
     {
       title: 'Help is always one click away',
+      short: 'Help',
+      meaning: 'help',
       body: 'Site Guide in the top bar has step-by-step help for every job, and you can print any of it. Stuck? Home has a card for asking Nathan.',
     },
   ],

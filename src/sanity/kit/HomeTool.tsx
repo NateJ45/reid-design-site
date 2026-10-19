@@ -10,9 +10,12 @@
 //   1. Welcome: the navy banner (HomeBanner.tsx, card 118): the date, a
 //      greeting by first name, the site's name in the display font, the one
 //      reassurance that matters most, and "View the website".
-//      Then this site's quick actions (kitConfig.quickActions, card 110).
-//   1b. Pick up where you left off: unpublished drafts with Open, Publish and
-//      Discard (card 110). Publish here is the stock publish operation, so it
+//      Then the ways in as job tiles (card 132, HomeCards.tsx QuickTiles):
+//      this site's quick actions (kitConfig.quickActions, card 110), then
+//      Edit the website, Quick update and How do I...?, each with its art.
+//   1b. Pick up where you left off: unpublished drafts as rows (the row opens
+//      it) with Publish and Discard (card 110; rows drawn by HomeCards.tsx
+//      DraftRowView, card 132). Publish here is the stock publish operation, so it
 //      is offered only when the draft is valid and its web address is
 //      unchanged; anything else opens the document, where the full Publish
 //      (with the safe-rename redirect) runs.
@@ -27,7 +30,8 @@
 //   4. Fix-it list (card 115, was Site health): the Checkup's findings by
 //      name, each with Edit, and "See the whole list".
 //   4b. Coming up (card 115): what will publish by itself, soonest first.
-//   5. Recent edits: the last few things changed, unpublished ones flagged.
+//   5. Recent edits: the last few things changed, each with its type's art,
+//      unpublished ones tagged (HomeCards.tsx RecentRows, card 132).
 //   6. Visitors (card 115): Cloudflare Web Analytics through the Worker route
 //      /api/studio/visitors/, or a calm "not set up yet".
 //   6b. Your pages (card 115, kitConfig.pages) and "Watch how it is done"
@@ -48,19 +52,7 @@ import {
   useValidationStatus,
   useWorkspace,
 } from 'sanity';
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Checkbox,
-  Dialog,
-  Flex,
-  Grid,
-  Spinner,
-  Stack,
-  Text,
-} from '@sanity/ui';
+import { Box, Button, Dialog, Flex, Grid, Stack, Text } from '@sanity/ui';
 import { useToast } from '@sanity/ui/toast';
 import {
   checklist,
@@ -73,7 +65,6 @@ import {
   weekKey,
   weekStart,
   WEEK_TYPE,
-  type LiveState,
 } from '../../lib/studio-kit';
 import { publishedIdOf, type CheckResult } from '../../lib/studio-checkup';
 import {
@@ -89,17 +80,27 @@ import {
 } from './shared';
 import {
   ComingUp,
+  DraftRowView,
   FixItList,
   PagesMap,
   Panel,
+  QuickTiles,
   Quiet,
+  RecentRows,
   useScheduledTypes,
   Visitors,
+  type QuickTile,
+  type RecentRow,
 } from './HomeCards';
 import { GuideVideos } from './GuideVideos';
+import { ArtRows, CheckPath, KitAction, KitLoading, KitScope, LiveSteps } from './ui';
+import { LIVE_STEP_WORDS, liveSteps, pathProgress } from '../../lib/studio-look';
 import { HomeBanner } from './HomeBanner';
 import { NewsletterCard, RsvpComingUp } from '../mail/MailHome';
 import type { KitConfig, QuickAction, ThisWeekTask } from './types';
+import { ICON_MAPS } from '../brandIcons';
+import type { StudioTarget } from '../../lib/studio-kit';
+import { recentEditsIgnore } from '../../lib/studio-signin';
 
 const NOT_SYSTEM = `!(_type match "sanity.*") && !(_type match "system.*") && !(_type match "media.*") && !(_id in path("versions.**")) && !(_id match "_.**")`;
 
@@ -177,55 +178,42 @@ function ThisWeek({
   const firstDayName = firstDay === 0 ? 'Sunday' : 'Monday';
 
   return (
-    <Panel title={title}>
+    <Panel
+      title={title}
+      edge
+      action={
+        rows ? (
+          <span className="ui-muted">{pathProgress(rows.map((r) => r.done)).text}</span>
+        ) : undefined
+      }
+    >
       {rows === null ? (
-        <Spinner muted />
+        <KitLoading />
       ) : (
         <Stack gap={4}>
-          {tasks.map((t, i) => {
-            const row = rows[i];
-            const link = t.target ? linkTo(t.target) : null;
-            return (
-              <Flex key={t.id} gap={3} align="flex-start">
-                <Box style={{ flexShrink: 0, paddingTop: 2 }}>
-                  {row.tickable ? (
-                    <Checkbox
-                      id={`week-${t.id}`}
-                      checked={row.done}
-                      disabled={saving === t.id}
-                      onChange={(e) => void toggle(t.id, e.currentTarget.checked)}
-                      style={{ width: 24, height: 24 }}
-                    />
-                  ) : (
-                    <Badge tone={row.done ? 'positive' : 'default'} fontSize={1} padding={2}>
-                      {row.done ? 'Done' : 'To do'}
-                    </Badge>
-                  )}
-                </Box>
-                <Stack gap={2} flex={1}>
-                  <Text size={2} weight="semibold">
-                    {row.tickable ? <label htmlFor={`week-${t.id}`}>{t.title}</label> : t.title}
-                  </Text>
-                  <Text size={1} muted style={{ lineHeight: 1.5 }}>
-                    {t.detail}
-                    {row.by === 'content' || row.by === 'checkup' ? ' Ticked for you.' : ''}
-                  </Text>
-                </Stack>
-                {!row.done && link && (
-                  <Button
-                    as="a"
-                    href={link.href}
-                    onClick={link.onClick}
-                    text={t.targetLabel ?? 'Do it'}
-                    mode="ghost"
-                    tone="primary"
-                    fontSize={1}
-                    padding={2}
-                  />
-                )}
-              </Flex>
-            );
-          })}
+          {/* Card 131: the list as a path; each stone is the tick and fills when done. */}
+          <CheckPath
+            idPrefix="week"
+            onToggle={(id, on) => void toggle(id, on)}
+            items={tasks.map((t, i) => {
+              const row = rows[i];
+              const link = t.target ? linkTo(t.target) : null;
+              return {
+                id: t.id,
+                title: t.title,
+                detail: t.detail,
+                done: row.done,
+                tickable: row.tickable,
+                busy: saving === t.id,
+                note: row.by === 'content' || row.by === 'checkup' ? 'Ticked for you.' : undefined,
+                action: link ? (
+                  <KitAction href={link.href} onClick={link.onClick}>
+                    {t.targetLabel ?? 'Do it'}
+                  </KitAction>
+                ) : undefined,
+              };
+            })}
+          />
           <Quiet>{`The list starts fresh every ${firstDayName}.`}</Quiet>
         </Stack>
       )}
@@ -234,19 +222,6 @@ function ThisWeek({
 }
 
 // -----------------------------------------------------------------------------
-
-const LIVE_TONE: Record<LiveState, 'positive' | 'primary' | 'caution' | 'default'> = {
-  live: 'positive',
-  'on-its-way': 'primary',
-  slow: 'caution',
-  unknown: 'default',
-};
-const LIVE_BADGE: Record<LiveState, string> = {
-  live: 'Up to date',
-  'on-its-way': 'Updating',
-  slow: 'Taking a while',
-  unknown: 'Not sure',
-};
 
 function IsItLive({ slowAfter, helperName }: { slowAfter: number; helperName: string }) {
   // Shared with the navbar line (NavbarStatus.tsx), so the two never disagree.
@@ -257,39 +232,27 @@ function IsItLive({ slowAfter, helperName }: { slowAfter: number; helperName: st
   const status = state ? liveStatus(state.builtAt, state.lastPublish, now, slowAfter) : null;
   const problem = state ? deployProblem(state.deploy, helperName) : null;
   return (
-    <Panel title="Is it live?">
+    <Panel title="Is it live?" meaning="publishing">
       {!status || !state ? (
-        <Spinner muted />
+        <KitLoading />
       ) : problem ? (
         // Card 111: the newest deploy failed. Nothing is on its way, so say so.
-        <Stack gap={3}>
-          <Flex>
-            <Badge tone="critical" fontSize={1} padding={2}>
-              Did not go through
-            </Badge>
-          </Flex>
+        // Card 131: the middle stone did not go down.
+        <Stack gap={4}>
+          <LiveSteps states={liveSteps('failed')} words={LIVE_STEP_WORDS} />
           <Text size={2} style={{ lineHeight: 1.6 }}>
             {problem.message}
           </Text>
           <Flex>
-            <Button
-              text="Try again"
-              tone="critical"
-              fontSize={1}
-              padding={2}
-              disabled={retry.busy}
-              onClick={() => void retry.tryAgain()}
-            />
+            <KitAction strong disabled={retry.busy} onClick={() => void retry.tryAgain()}>
+              Try again
+            </KitAction>
           </Flex>
           {retry.note && <Quiet>{retry.note}</Quiet>}
         </Stack>
       ) : (
-        <Stack gap={3}>
-          <Flex>
-            <Badge tone={LIVE_TONE[status.state]} fontSize={1} padding={2}>
-              {LIVE_BADGE[status.state]}
-            </Badge>
-          </Flex>
+        <Stack gap={4}>
+          <LiveSteps states={liveSteps(status.state)} words={LIVE_STEP_WORDS} />
           <Text size={2} style={{ lineHeight: 1.6 }}>
             {status.message}
           </Text>
@@ -302,12 +265,7 @@ function IsItLive({ slowAfter, helperName }: { slowAfter: number; helperName: st
 
 // -----------------------------------------------------------------------------
 
-interface Row {
-  _id: string;
-  _type: string;
-  _updatedAt: string;
-  name?: string;
-}
+type Row = RecentRow;
 
 function RecentEdits({ ignoreTypes }: { ignoreTypes: string[] }) {
   const client = useClient({ apiVersion: API_VERSION });
@@ -346,46 +304,15 @@ function RecentEdits({ ignoreTypes }: { ignoreTypes: string[] }) {
 
   const now = Date.now();
   return (
-    <Panel title="Recent edits">
+    <Panel title="Recent edits" meaning="document">
       {failed ? (
         <Quiet>The list could not load just now.</Quiet>
       ) : rows === null ? (
-        <Spinner muted />
+        <KitLoading />
       ) : rows.length === 0 ? (
         <Quiet>Nothing has been edited yet.</Quiet>
       ) : (
-        <Stack gap={1}>
-          {rows.map((r) => {
-            const link = linkTo({ doc: publishedIdOf(r._id), type: r._type });
-            const draft = r._id.startsWith('drafts.');
-            return (
-              <Card
-                key={r._id}
-                as="a"
-                href={link.href}
-                onClick={link.onClick}
-                padding={2}
-                radius={2}
-              >
-                <Flex align="center" gap={3}>
-                  <Stack gap={2} flex={1}>
-                    <Text size={2} textOverflow="ellipsis">
-                      {r.name || typeTitle(r._type)}
-                    </Text>
-                    <Text size={1} muted>
-                      {typeTitle(r._type)}, {timeAgo(r._updatedAt, now)}
-                    </Text>
-                  </Stack>
-                  {draft && (
-                    <Badge tone="caution" fontSize={0} padding={2}>
-                      Not published
-                    </Badge>
-                  )}
-                </Flex>
-              </Card>
-            );
-          })}
-        </Stack>
+        <RecentRows rows={rows} typeTitle={typeTitle} linkTo={linkTo} now={now} />
       )}
     </Panel>
   );
@@ -415,31 +342,25 @@ function Welcome({ config }: { config: KitConfig }) {
 // Quick actions (kitConfig.quickActions, card 110)
 // -----------------------------------------------------------------------------
 
-function QuickActionCard({ action }: { action: QuickAction }) {
-  const linkTo = useStudioLink();
-  const link = linkTo(action.target);
-  const Icon = action.icon;
-  return (
-    <Card as="a" href={link.href} onClick={link.onClick} padding={4} radius={3} border>
-      <Flex gap={3} align="flex-start">
-        {Icon && (
-          <Text size={3} muted>
-            <Icon />
-          </Text>
-        )}
-        <Stack gap={2} flex={1}>
-          <Text size={2} weight="semibold">
-            {action.title}
-          </Text>
-          {action.detail && (
-            <Text size={1} muted style={{ lineHeight: 1.5 }}>
-              {action.detail}
-            </Text>
-          )}
-        </Stack>
-      </Flex>
-    </Card>
-  );
+/** The meaning a quick action's target is drawn with, when the site maps one (else its icon). */
+function targetMeaning(target: StudioTarget) {
+  if ('doc' in target) return ICON_MAPS.types[target.type ?? target.doc];
+  if ('create' in target) return ICON_MAPS.types[target.create];
+  if ('tool' in target) return ICON_MAPS.tools[target.tool];
+  return undefined;
+}
+
+/** A config quick action as a job tile (card 132). */
+function quickTile(action: QuickAction, link: QuickTile['link']): QuickTile {
+  const meaning = targetMeaning(action.target);
+  return {
+    key: action.title,
+    title: action.title,
+    lead: action.detail,
+    meaning: meaning ?? (action.icon ? undefined : 'document'),
+    icon: action.icon,
+    link,
+  };
 }
 
 // -----------------------------------------------------------------------------
@@ -507,55 +428,20 @@ function DraftItem({ row, onDone }: { row: DraftRow; onDone: () => void }) {
   };
 
   return (
-    <Card padding={3} radius={2} border>
-      <Stack gap={3}>
-        <Stack gap={2}>
-          <Text size={2} weight="semibold" textOverflow="ellipsis">
-            {name}
-          </Text>
-          <Text size={1} muted>
-            {typeTitle(row._type)}, changed {timeAgo(row._updatedAt, Date.now())}
-            {row.hasPublished ? '' : ', never published'}
-          </Text>
-          {why && (
-            <Text size={1} muted style={{ lineHeight: 1.5 }}>
-              {why}
-            </Text>
-          )}
-        </Stack>
-        <Flex gap={2} wrap="wrap">
-          <Button
-            as="a"
-            href={link.href}
-            onClick={link.onClick}
-            text="Open"
-            mode="ghost"
-            fontSize={1}
-            padding={2}
-          />
-          {canPublish && (
-            <Button
-              text="Publish"
-              tone="positive"
-              fontSize={1}
-              padding={2}
-              disabled={busy}
-              onClick={publish}
-            />
-          )}
-          {canDiscard && (
-            <Button
-              text="Discard changes"
-              mode="bleed"
-              tone="critical"
-              fontSize={1}
-              padding={2}
-              disabled={busy}
-              onClick={() => setConfirming(true)}
-            />
-          )}
-        </Flex>
-      </Stack>
+    <>
+      <DraftRowView
+        type={row._type}
+        name={name}
+        meta={`${typeTitle(row._type)}, changed ${timeAgo(row._updatedAt, Date.now())}${row.hasPublished ? '' : ', never published'}`}
+        why={why}
+        link={link}
+        seed={name.length}
+        canPublish={canPublish}
+        canDiscard={canDiscard}
+        busy={busy}
+        onPublish={publish}
+        onDiscard={() => setConfirming(true)}
+      />
       {confirming && (
         <Dialog
           id={`discard-${id}`}
@@ -576,7 +462,7 @@ function DraftItem({ row, onDone }: { row: DraftRow; onDone: () => void }) {
           </Box>
         </Dialog>
       )}
-    </Card>
+    </>
   );
 }
 
@@ -617,20 +503,22 @@ function PickUp({ ignoreTypes }: { ignoreTypes: string[] }) {
   // Nothing waiting: say nothing. Home stays calm when there is nothing to do.
   if (!failed && rows && rows.length === 0) return null;
   return (
-    <Panel title="Pick up where you left off">
+    <Panel title="Pick up where you left off" meaning="step">
       {failed ? (
         <Quiet>The list of unpublished changes could not load just now.</Quiet>
       ) : rows === null ? (
-        <Spinner muted />
+        <KitLoading />
       ) : (
         <Stack gap={3}>
           <Quiet>
             These have changes that are saved but not on the website yet. Publish them, or open them
             to carry on.
           </Quiet>
-          {rows.map((r) => (
-            <DraftItem key={r._id} row={r} onDone={refresh} />
-          ))}
+          <ArtRows label="Unpublished changes">
+            {rows.map((r) => (
+              <DraftItem key={r._id} row={r} onDone={refresh} />
+            ))}
+          </ArtRows>
         </Stack>
       )}
     </Panel>
@@ -644,7 +532,10 @@ export function makeHomeTool(config: KitConfig) {
     const { staffView, switchTo, reset, overridden } = useStaffView(config);
     const quick = config.quickActions ?? [];
     // The kit's weekly tick documents (card 111) are bookkeeping, never an edit.
-    const ignore = useMemo(() => [...config.checkup.ignoreTypes, WEEK_TYPE], []); // config is fixed for the Studio's life
+    const ignore = useMemo(
+      () => recentEditsIgnore(config.checkup.ignoreTypes, config.recentIgnoreTypes, WEEK_TYPE),
+      [],
+    ); // config is fixed for the Studio's life
     const linkTo = useStudioLink();
     const guide = linkTo({ tool: 'site-guide' });
     const content = linkTo({ tool: 'structure' });
@@ -654,6 +545,38 @@ export function makeHomeTool(config: KitConfig) {
     // Coming up shows only where some type has "Publish automatically at" (card 115).
     const scheduledTypes = useScheduledTypes();
     const pages = config.pages ?? [];
+    const tiles: QuickTile[] = [
+      ...quick.map((a) => quickTile(a, linkTo(a.target))),
+      {
+        key: 'edit-the-website',
+        title: 'Edit the website',
+        lead: 'Every page, section and setting, in one place.',
+        meaning: 'pages',
+        link: content,
+      },
+      ...((config.quickUpdate?.length ?? 0) > 0
+        ? [
+            {
+              key: 'quick-update',
+              title: 'Quick update',
+              lead: 'The everyday jobs, a few taps each.',
+              meaning: 'quickUpdate',
+              link: quickUpdate,
+            } satisfies QuickTile,
+          ]
+        : []),
+      ...(config.features.guide
+        ? [
+            {
+              key: 'how-do-i',
+              title: 'How do I...?',
+              lead: 'Step-by-step help for every job on the website.',
+              meaning: 'guide',
+              link: guide,
+            } satisfies QuickTile,
+          ]
+        : []),
+    ];
 
     const ask = config.helper.email
       ? `mailto:${config.helper.email}?subject=${encodeURIComponent(`Help with ${config.siteName}`)}&body=${encodeURIComponent(
@@ -666,48 +589,8 @@ export function makeHomeTool(config: KitConfig) {
         <Stack gap={5} style={{ maxWidth: 1040, margin: '0 auto' }}>
           <Welcome config={config} />
 
-          {quick.length > 0 && (
-            <Grid gridTemplateColumns={[1, 2, Math.min(quick.length, 4)]} gap={3}>
-              {quick.map((a) => (
-                <QuickActionCard key={a.title} action={a} />
-              ))}
-            </Grid>
-          )}
-
-          <Flex gap={2} wrap="wrap">
-            <Button
-              as="a"
-              href={content.href}
-              onClick={content.onClick}
-              text="Edit the website"
-              tone="primary"
-              fontSize={2}
-              padding={3}
-            />
-            {(config.quickUpdate?.length ?? 0) > 0 && (
-              <Button
-                as="a"
-                href={quickUpdate.href}
-                onClick={quickUpdate.onClick}
-                text="Quick update"
-                mode="ghost"
-                tone="primary"
-                fontSize={2}
-                padding={3}
-              />
-            )}
-            {config.features.guide && (
-              <Button
-                as="a"
-                href={guide.href}
-                onClick={guide.onClick}
-                text="How do I...?"
-                mode="ghost"
-                fontSize={2}
-                padding={3}
-              />
-            )}
-          </Flex>
+          {/* Card 132: the quick actions and the ways in, as job tiles. */}
+          <QuickTiles tiles={tiles} />
 
           <PickUp ignoreTypes={ignore} />
 
@@ -729,21 +612,14 @@ export function makeHomeTool(config: KitConfig) {
             )}
             {config.features.mail && <NewsletterCard helperName={config.helper.name} />}
             <RecentEdits ignoreTypes={ignore} />
-            <Panel title={`Ask ${config.helper.name}`}>
+            <Panel title={`Ask ${config.helper.name}`} meaning="message">
               <Quiet>
                 Stuck, or something looks wrong? Say what you were trying to do and what happened.
                 Nothing is ever lost by asking.
               </Quiet>
               {ask && (
-                <Flex>
-                  <Button
-                    as="a"
-                    href={ask}
-                    text={`Email ${config.helper.name}`}
-                    mode="ghost"
-                    fontSize={1}
-                    padding={2}
-                  />
+                <Flex paddingTop={3}>
+                  <KitAction href={ask}>{`Email ${config.helper.name}`}</KitAction>
                 </Flex>
               )}
             </Panel>
@@ -754,22 +630,16 @@ export function makeHomeTool(config: KitConfig) {
           {pages.length > 0 && <PagesMap groups={pages} />}
 
           {config.features.guide && config.guide.guides.some((g) => g.video) && (
-            <Panel title="Watch how it is done">
+            <Panel title="Watch how it is done" meaning="preview">
               <GuideVideos
                 guides={config.guide.guides}
                 max={3}
                 footer={(hidden) =>
                   hidden > 0 ? (
                     <Flex>
-                      <Button
-                        as="a"
-                        href={guide.href}
-                        onClick={guide.onClick}
-                        text={`${hidden} more in the Site Guide`}
-                        mode="bleed"
-                        fontSize={1}
-                        padding={2}
-                      />
+                      <KitAction quiet href={guide.href} onClick={guide.onClick}>
+                        {`${hidden} more in the Site Guide`}
+                      </KitAction>
                     </Flex>
                   ) : null
                 }
@@ -777,70 +647,41 @@ export function makeHomeTool(config: KitConfig) {
             </Panel>
           )}
 
-          <Flex gap={2} align="center" wrap="wrap">
-            <Text size={2} muted>
-              Need help?
-            </Text>
-            {config.features.guide && (
-              <Button
-                as="a"
-                href={guide.href}
-                onClick={guide.onClick}
-                text="Site Guide"
-                mode="bleed"
-                tone="primary"
-                fontSize={2}
-                padding={2}
-              />
-            )}
-            {config.features.guide && (
-              <Text size={2} muted>
-                or
-              </Text>
-            )}
-            {ask ? (
-              <Button
-                as="a"
-                href={ask}
-                text={`Ask ${config.helper.name}`}
-                mode="bleed"
-                tone="primary"
-                fontSize={2}
-                padding={2}
-              />
-            ) : (
-              <Text size={2} muted>{`Ask ${config.helper.name}`}</Text>
-            )}
-          </Flex>
-
-          <Flex gap={2} wrap="wrap">
-            {config.features.tour && (
-              <Button
-                text="Take the tour again"
-                mode="bleed"
-                fontSize={1}
-                padding={2}
-                onClick={() => window.dispatchEvent(new Event(TOUR_OPEN_EVENT))}
-              />
-            )}
-            {staffView ? (
-              <Button
-                text="Show the full Studio"
-                mode="bleed"
-                fontSize={1}
-                padding={2}
-                onClick={() => (overridden ? reset() : switchTo('full'))}
-              />
-            ) : (
-              <Button
-                text="See the staff view"
-                mode="bleed"
-                fontSize={1}
-                padding={2}
-                onClick={() => (overridden ? reset() : switchTo('staff'))}
-              />
-            )}
-          </Flex>
+          {/* Card 132: the help line and the switches as the kit's quiet links. */}
+          <KitScope>
+            <div style={{ display: 'grid', gap: 14 }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <span className="ui-muted">Need help?</span>
+                {config.features.guide && (
+                  <KitAction href={guide.href} onClick={guide.onClick}>
+                    Site Guide
+                  </KitAction>
+                )}
+                {config.features.guide && <span className="ui-muted">or</span>}
+                {ask ? (
+                  <KitAction href={ask}>{`Ask ${config.helper.name}`}</KitAction>
+                ) : (
+                  <span className="ui-muted">{`Ask ${config.helper.name}`}</span>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+                {config.features.tour && (
+                  <KitAction quiet onClick={() => window.dispatchEvent(new Event(TOUR_OPEN_EVENT))}>
+                    Take the tour again
+                  </KitAction>
+                )}
+                {staffView ? (
+                  <KitAction quiet onClick={() => (overridden ? reset() : switchTo('full'))}>
+                    Show the full Studio
+                  </KitAction>
+                ) : (
+                  <KitAction quiet onClick={() => (overridden ? reset() : switchTo('staff'))}>
+                    See the staff view
+                  </KitAction>
+                )}
+              </div>
+            </div>
+          </KitScope>
         </Stack>
       </Box>
     );

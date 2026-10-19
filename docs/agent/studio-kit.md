@@ -20,36 +20,37 @@ are commented in that site's `src/sanity/kit.config.ts`.
 
 ## Where it lives
 
-| Piece                   | File                                                                                                                                                 | Notes                                                                                                                                                   |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The plugin              | `src/sanity/kit/index.tsx`                                                                                                                           | `ncsStudioKit(kitConfig)`, added **last** in `sanity.config.ts` plugins (its tools reducer must see every other tool)                                   |
-| Site settings           | `src/sanity/kit.config.ts`                                                                                                                           | The ONE site-specific file (NOT portable): staff list, This week jobs, checkup rules, trash types, tour words, feature switches                         |
-| Settings shape          | `src/sanity/kit/types.ts`                                                                                                                            | `KitConfig`                                                                                                                                             |
-| Home                    | `src/sanity/kit/HomeTool.tsx`                                                                                                                        | First tool, so the Studio opens on it                                                                                                                   |
-| Site Guide              | `src/sanity/kit/GuideTool.tsx`, `src/sanity/kit/guide/`                                                                                              | Reads the existing guides (`src/sanity/guides/content.ts`) and renders each with `GuideView`; search reads every word; Print prints only the open guide |
-| Checkup                 | `src/sanity/kit/CheckupTool.tsx`, `src/lib/studio-checkup.ts`                                                                                        | Pure rules over one fetch of every content document; tests in `studio-checkup.test.ts`                                                                  |
-| Trash                   | `src/sanity/kit/trash.tsx`, `src/lib/studio-trash.ts`                                                                                                | Snapshot-to-Trash in one transaction; `trashedItem` type; tests in `studio-trash.test.ts`                                                               |
-| Staff view, links, live | `src/sanity/kit/shared.tsx`, `src/lib/studio-kit.ts`                                                                                                 | Pure parts tested in `studio-kit.test.ts`                                                                                                               |
-| Status line             | `src/sanity/kit/NavbarStatus.tsx`                                                                                                                    | `studio.components.navbar` middleware; words from `navbarStatus()` in `src/lib/studio-kit.ts`                                                           |
-| Help for this page      | `src/sanity/kit/HelpPanel.tsx`                                                                                                                       | A document inspector: page check plus Checkup findings for the document, then its Site Guide entries                                                    |
-| Tour                    | `src/sanity/kit/StudioTour.tsx`                                                                                                                      | Mounted by the kit's layout; once per Sanity user per browser                                                                                           |
-| After-Publish note      | `src/sanity/kit/publishNote.tsx`                                                                                                                     | Wraps the stock Publish; keeps `action === 'publish'`                                                                                                   |
-| Build time              | `src/pages/build-info.json.ts`                                                                                                                       | Prerendered `{ builtAt, commit }` for Home's "Is it live?"; the commit comes from a Vite define in `astro.config.mjs`                                   |
-| Desk: Trash, staff, ids | `src/sanity/structure.ts`                                                                                                                            | Trash list (id `trash`), `staffDesk()` filter (in `kit/shared.tsx`), singleton items carry their document id as their id                                |
-| Deploy status (111)     | `src/pages/api/studio/deploy-status.ts`, `src/lib/deploy-status.ts`, `src/lib/studio-auth.ts`                                                        | GET the newest deploy run's outcome; POST "Try again" (same origin + Sanity session); tests in `deploy-status.test.ts`                                  |
-| Home cards (115)        | `src/sanity/kit/HomeCards.tsx`, `src/lib/studio-home.ts`                                                                                             | Coming up, Fix-it list, Visitors, Your pages, and the Panel frame; pure parts tested in `studio-home.test.ts`                                           |
-| Home banner (118)       | `src/sanity/kit/HomeBanner.tsx`, `src/lib/studio-banner.ts`                                                                                          | The navy welcome at the top of Home; `kitConfig.homeBanner`; pure parts tested in `studio-banner.test.ts`                                               |
-| Icons (119)             | `src/sanity/brandIcons.tsx`, `src/sanity/artIcon.tsx`, `src/lib/studio-icons.ts`                                                                     | Not the kit plugin: icons by meaning and list-row pictures; the site's art in `brandIconArt.tsx`; tests in `studio-icons.test.ts`                       |
-| Design language (128)   | `src/sanity/kit/ui/`, `src/lib/studio-look.ts`                                                                                                       | Shared primitives in the site's own devices (`brand.config.json` `studio.look`); tests in `studio-look.test.ts`                                         |
-| Guide videos (115)      | `src/sanity/kit/GuideVideos.tsx`                                                                                                                     | "Watch how it is done" on Home and in the Site Guide; `videoSource()` in `studio-home.ts`                                                               |
-| Visitors route (115)    | `src/pages/api/studio/visitors.ts`, `src/lib/studio-analytics.ts`                                                                                    | Cloudflare Web Analytics GraphQL through the Worker (same origin + Sanity session); tests in `studio-analytics.test.ts`                                 |
-| Weekly ticks (111)      | `src/sanity/kit/weekType.ts`                                                                                                                         | `studioWeek` document per week for hand-ticked jobs; `checklist()` and `weekKey()` in `studio-kit.ts`                                                   |
-| Quick update (111)      | `src/sanity/kit/QuickUpdateTool.tsx`                                                                                                                 | Tool `quick-update`, forms from `kitConfig.quickUpdate`; `quickFormErrors()` in `studio-kit.ts`                                                         |
-| Empty lists (111)       | `src/sanity/kit/emptyList.tsx`                                                                                                                       | `emptyAwareList()` for `structure.ts`, plus `EMPTY_LIST_BUNDLE` (the default empty words)                                                               |
-| Restore one document    | `scripts/restore-doc.mjs`, `scripts/lib/restore-doc.mjs`                                                                                             | One document from a nightly backup, written back as a draft; dry by default; tests in `restore-doc.test.mjs`                                            |
-| Post a photo (125)      | `src/sanity/kit/PostPhoto.tsx`, `src/lib/photo-post.ts`                                                                                              | Quick update's photo action, `kitConfig.postPhoto`; draft only; tests in `photo-post.test.ts`                                                           |
-| Earlier versions (125)  | `src/sanity/kit/EarlierVersions.tsx`, `src/pages/api/studio/earlier-versions.ts`, `src/lib/earlier-versions.ts`, `.github/workflows/restore-doc.yml` | Document inspector; nightly backups via CI; tests in `earlier-versions.test.ts`                                                                         |
-| Studio app (125)        | `src/lib/studio-app.ts`, `src/pages/studio/manifest.webmanifest.ts`, `src/pages/studio/offline.astro`, `public/studio/sw.js`                         | Manifest, offline page and service worker scoped to /studio/; tests in `studio-app.test.ts`, `tests/studio-app.spec.ts`                                 |
+| Piece                   | File                                                                                                                                                 | Notes                                                                                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The plugin              | `src/sanity/kit/index.tsx`                                                                                                                           | `ncsStudioKit(kitConfig)`, added **last** in `sanity.config.ts` plugins (its tools reducer must see every other tool)                                     |
+| Site settings           | `src/sanity/kit.config.ts`                                                                                                                           | The ONE site-specific file (NOT portable): staff list, This week jobs, checkup rules, trash types, tour words, feature switches                           |
+| Settings shape          | `src/sanity/kit/types.ts`                                                                                                                            | `KitConfig`                                                                                                                                               |
+| Home                    | `src/sanity/kit/HomeTool.tsx`                                                                                                                        | First tool, so the Studio opens on it                                                                                                                     |
+| Site Guide              | `src/sanity/kit/GuideTool.tsx`, `src/sanity/kit/guide/`                                                                                              | Reads the existing guides (`src/sanity/guides/content.ts`) and renders each with `GuideView`; search reads every word; Print prints only the open guide   |
+| Checkup                 | `src/sanity/kit/CheckupTool.tsx`, `src/lib/studio-checkup.ts`                                                                                        | Pure rules over one fetch of every content document; tests in `studio-checkup.test.ts`                                                                    |
+| Trash                   | `src/sanity/kit/trash.tsx`, `src/lib/studio-trash.ts`                                                                                                | Snapshot-to-Trash in one transaction; `trashedItem` type; tests in `studio-trash.test.ts`                                                                 |
+| Staff view, links, live | `src/sanity/kit/shared.tsx`, `src/lib/studio-kit.ts`                                                                                                 | Pure parts tested in `studio-kit.test.ts`                                                                                                                 |
+| Status line             | `src/sanity/kit/NavbarStatus.tsx`                                                                                                                    | `studio.components.navbar` middleware; words from `navbarStatus()` in `src/lib/studio-kit.ts`                                                             |
+| Help for this page      | `src/sanity/kit/HelpPanel.tsx`                                                                                                                       | A document inspector: page check plus Checkup findings for the document, then its Site Guide entries                                                      |
+| Tour                    | `src/sanity/kit/StudioTour.tsx`                                                                                                                      | Mounted by the kit's layout; once per Sanity user per browser                                                                                             |
+| After-Publish note      | `src/sanity/kit/publishNote.tsx`                                                                                                                     | Wraps the stock Publish; keeps `action === 'publish'`                                                                                                     |
+| Build time              | `src/pages/build-info.json.ts`                                                                                                                       | Prerendered `{ builtAt, commit }` for Home's "Is it live?"; the commit comes from a Vite define in `astro.config.mjs`                                     |
+| Desk: Trash, staff, ids | `src/sanity/structure.ts`                                                                                                                            | Trash list (id `trash`), `staffDesk()` filter (in `kit/shared.tsx`), singleton items carry their document id as their id                                  |
+| Deploy status (111)     | `src/pages/api/studio/deploy-status.ts`, `src/lib/deploy-status.ts`, `src/lib/studio-auth.ts`                                                        | GET the newest deploy run's outcome; POST "Try again" (same origin + Sanity session); tests in `deploy-status.test.ts`                                    |
+| Home cards (115)        | `src/sanity/kit/HomeCards.tsx`, `src/lib/studio-home.ts`                                                                                             | Coming up, Fix-it list, Visitors, Your pages, and the Panel frame; pure parts tested in `studio-home.test.ts`                                             |
+| Home banner (118)       | `src/sanity/kit/HomeBanner.tsx`, `src/lib/studio-banner.ts`                                                                                          | The navy welcome at the top of Home; `kitConfig.homeBanner`; pure parts tested in `studio-banner.test.ts`                                                 |
+| Icons (119)             | `src/sanity/brandIcons.tsx`, `src/sanity/artIcon.tsx`, `src/lib/studio-icons.ts`                                                                     | Not the kit plugin: icons by meaning and list-row pictures; the site's art in `brandIconArt.tsx`; tests in `studio-icons.test.ts`                         |
+| Design language (128)   | `src/sanity/kit/ui/`, `src/lib/studio-look.ts`                                                                                                       | Shared primitives in the site's own devices (`brand.config.json` `studio.look`); tests in `studio-look.test.ts`                                           |
+| Surfaces (131)          | `src/sanity/kit/ui/surfaces.tsx`, `src/sanity/kit/harness/Surfaces.tsx`                                                                              | Tool headings, Home cards, findings, the path checklist, Is it live, quick-update tiles, Home rows and figures (132); see "Every surface in the language" |
+| Guide videos (115)      | `src/sanity/kit/GuideVideos.tsx`                                                                                                                     | "Watch how it is done" on Home and in the Site Guide; `videoSource()` in `studio-home.ts`                                                                 |
+| Visitors route (115)    | `src/pages/api/studio/visitors.ts`, `src/lib/studio-analytics.ts`                                                                                    | Cloudflare Web Analytics GraphQL through the Worker (same origin + Sanity session); tests in `studio-analytics.test.ts`                                   |
+| Weekly ticks (111)      | `src/sanity/kit/weekType.ts`                                                                                                                         | `studioWeek` document per week for hand-ticked jobs; `checklist()` and `weekKey()` in `studio-kit.ts`                                                     |
+| Quick update (111)      | `src/sanity/kit/QuickUpdateTool.tsx`                                                                                                                 | Tool `quick-update`, forms from `kitConfig.quickUpdate`; `quickFormErrors()` in `studio-kit.ts`                                                           |
+| Empty lists (111)       | `src/sanity/kit/emptyList.tsx`                                                                                                                       | `emptyAwareList()` for `structure.ts`, plus `EMPTY_LIST_BUNDLE` (the default empty words)                                                                 |
+| Restore one document    | `scripts/restore-doc.mjs`, `scripts/lib/restore-doc.mjs`                                                                                             | One document from a nightly backup, written back as a draft; dry by default; tests in `restore-doc.test.mjs`                                              |
+| Post a photo (125)      | `src/sanity/kit/PostPhoto.tsx`, `src/lib/photo-post.ts`                                                                                              | Quick update's photo action, `kitConfig.postPhoto`; draft only; tests in `photo-post.test.ts`                                                             |
+| Earlier versions (125)  | `src/sanity/kit/EarlierVersions.tsx`, `src/pages/api/studio/earlier-versions.ts`, `src/lib/earlier-versions.ts`, `.github/workflows/restore-doc.yml` | Document inspector; nightly backups via CI; tests in `earlier-versions.test.ts`                                                                           |
+| Studio app (125)        | `src/lib/studio-app.ts`, `src/pages/studio/manifest.webmanifest.ts`, `src/pages/studio/offline.astro`, `public/studio/sw.js`                         | Manifest, offline page and service worker scoped to /studio/; tests in `studio-app.test.ts`, `tests/studio-app.spec.ts`                                   |
 
 Every file above except `kit.config.ts` and `structure.ts` carries the PORTABLE marker. Nothing in them names a site, a
 person or a document type; everything site-specific comes in through `kitConfig`.
@@ -122,6 +123,20 @@ from `typicalUpdateMinutes` (default 3, primary tone), and "The website update i
 live? card (`kit/shared.tsx`): on mount, every minute, on window focus, and four seconds after a Publish lands (the
 `PUBLISHED_EVENT` that `publishNote` and Home's Publish fire). With no `/build-info.json` it draws nothing.
 `features.navbarStatus: false` removes it.
+
+## Sign-in method (card 129)
+
+The kit's Worker routes (`/api/studio/*`) check a Bearer session token, which the Studio keeps in localStorage under
+`__studio_auth_token_<projectId>` (`studioToken()` in `kit/shared.tsx`). Sanity's default sign-in is `dual`: a cookie
+where the browser allows one, a token otherwise. A cookie session sends no Bearer header, so every kit route answers 401,
+and which editors got a cookie depended on when and how they last signed in. `sanity.config.ts` therefore sets
+`auth: { loginMethod: 'token' }`. After a site takes that line, each editor signs out and in once; when a browser still
+has no token the kit says so plainly (`SIGN_IN_ONCE_NOTE`, `signInNote()` in `src/lib/studio-signin.ts`) instead of "sign
+in again". The routes keep their own 401 words for a request that did carry a token.
+
+`recentIgnoreTypes` (kit config, optional) hides types from Home's Recent edits and Pick up only. `checkup.ignoreTypes`
+also drives the Checkup and the Before you publish panel; use `recentIgnoreTypes` for documents a script writes
+(nightly imports) that should still be checked.
 
 ## "The last update didn't go through" (card 111)
 
@@ -428,7 +443,7 @@ Also outside the kit plugin; site choices in `src/sanity/studioEdges.config.ts`.
 The kit's own look, so the Studio's middle reads like the site and not like a generic app. Shared, PORTABLE primitives
 in `src/sanity/kit/ui/` (import from `kit/ui`), the pure half in `src/lib/studio-look.ts` (tested in
 `studio-look.test.ts`, including a contrast gate over every token in both schemes). The Site Guide and its index are
-the first surfaces drawn in it; the next card moves the other kit surfaces over.
+the first surfaces drawn in it; card 131 (below) moves the other kit surfaces over.
 
 **The site's devices** are named in `brand/brand.config.json` `studio.look` (schema in `brand.config.schema.json`).
 Every family site should differ in FORM, not only colour. Unset keys take the starter's neutral defaults.
@@ -478,6 +493,79 @@ marks become a numbered key under the picture, which is what a screen reader hea
 nothing in a build). `studio` is the real Studio signed in as a pretend administrator through Sanity's
 `createMockAuthStore`: reads of a public dataset work, anything that needs a real session fails quietly. `guide`
 draws the guide pieces in the Studio theme: `?view=index|page|panel|ui&g=<slug>&scheme=light|dark`.
+
+## Every surface in the language (card 131)
+
+Card 128 drew the primitives and the Site Guide. Card 131 carries them onto the rest of the Studio, so the cards,
+panels, badges and checklists below Home's banner stop looking like a generic app. The pieces are in
+`src/sanity/kit/ui/surfaces.tsx` (PORTABLE, presentational, data in by props) and are drawn by the look, so each
+family site gets its own devices and the starter's neutral defaults stay tidy.
+
+| Piece           | What it is                                                                         | Where it is used                                |
+| --------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `ToolHead`      | the rule, the meaning's art on its stone, a display-font title, a lead             | `ToolHeading` (Checkup, Quick update)           |
+| `KitBox`        | a white card: the marker (or a meaning's art), a display-font title, an action     | Home's `Panel` (every Home card)                |
+| `KitAction`     | a pill link or button in the heading colour; `strong` fills it, `quiet` underlines | "Take me there", "Edit", "Do it", "Check again" |
+| `ResultCard`    | a finding: white card, severity along the left edge; `dense` for rows              | Checkup, Fix-it list, Before you publish, Help  |
+| `SeverityGroup` | "Needs doing / Worth a look / Good to know" over a group, with a count             | Checkup, Before you publish                     |
+| `AllClear`      | three laid stones, a display-font line, the motif sill (`compact` drops the sill)  | Checkup, Fix-it list, Before you publish        |
+| `CheckPath`     | a checklist as a path: the stone is the checkbox and fills when done               | Home's This week / This Sunday                  |
+| `LiveSteps`     | Saved, Building, On the website as three stones; `compact` for the navbar          | Home's "Is it live?", the navbar status line    |
+| `TileCard`      | a job tile: colour edge on top, art on a stone, display-font title                 | Quick update                                    |
+| `EmptyState`    | the type's art large, a display-font title, one strong button, the sill            | the desk's empty lists (`emptyList.tsx`)        |
+| `DoneCard`      | the path laid so far, a display-font line, the next buttons, the sill              | Quick update's done screen, Post a photo's      |
+
+**Rules.**
+
+- Wrap every piece in a `KitScope`. The stylesheet now goes into `<head>` once (id `ncs-ui-css`), however many scopes
+  a screen has. Its link and focus rules skip Sanity's own elements (`:not([data-ui])`), so a Sanity `Button` inside a
+  scope keeps its colours.
+- Severity is words plus colour, never colour alone: a group says "Needs doing", a dense row says its level in small
+  caps. The left edge is `tones.<tone>.edge`, guarded at 3:1 on the white card in both schemes.
+- A stone that is not done yet is an outline with its number in the muted colour (AA). Done stones take the site's mark
+  colours in order and a tick, also guarded at 3:1 on the card.
+- The step states are pure and tested in `studio-look.ts`: `liveSteps(state)`, `stepsLabel()` (the screen reader
+  sentence, "Saved, done. Building, in progress. On the website, not yet."), `pathProgress()` ("2 of 4 done").
+- Motion: a newly ticked stone is laid (`lay`) or its connector drawn (`draw`); the stone being built pulses a ring.
+  Both stop under reduced motion, and the stones already done when a card opens never animate.
+- A quick-update form can name a `meaning` (types.ts `QuickForm`) so its tile draws the site's art; the icon is the
+  fallback.
+- Prayer requests in Messages are a gentle `note` (sky) callout, never caution; statuses are stone tags.
+
+**The bench.** `/kit-harness/guide/?view=surfaces&part=<tool|checkup|clear|loading|failed|home|quick>` draws every
+piece with made-up data in light or dark (`&scheme=dark`), since the real screens need a signed-in Studio
+(`src/sanity/kit/harness/Surfaces.tsx`, dev only).
+
+**Still to do** (`docs/PENDING.md`): the field "How to" chip and the sign-in heading.
+
+### Part two (card 132)
+
+| Piece       | What it is                                                                                | Where it is used                                  |
+| ----------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `DateBlock` | the month in small caps over the day in the display font, inside a stone outline          | Home's Coming up and RSVP rows                    |
+| `ArtRow(s)` | a list row: the type's art on a small stone (or a `lead`), title, muted line, tag, action | Recent edits, Pick up, Coming up, the newsletter  |
+| `Figure`    | a headline number in the display font with its words                                      | Visitors, newsletter subscribers, CollectionIntro |
+| `MarkBars`  | bars in the calm mark colours, each with its number in words                              | Visitors                                          |
+| `StepTrail` | named steps across: laid, ringed, waiting (`LiveSteps` with one column per word)          | Post a photo, the tour                            |
+| `TileCard`  | now takes `href` (a real link) as well as `onClick`                                       | Home's ways in, Quick update                      |
+
+- **Done means calm.** `look.<scheme>.calm` lists the stones that may say "done": every mark colour except one within
+  28 degrees of the careful hue (`calmStones()`, tested). `StateStone calm`, `LiveSteps`, `AllClear` and `MarkBars`
+  use it, so a finished "On the website" is never the warning colour. A checklist (`CheckPath`) still lays its stones
+  in every mark colour in turn, like the Site Guide's steps.
+- **Waiting stones** are the same seeded outline drawn in the colour they will be laid in, with the number in the
+  muted colour (AA). The outline is held at 3:1 on the white card by the stone pairs in the gate.
+- **The splash and offline page** are one partial, `src/components/studio/StudioSplash.astro`
+  (`mode="loading" | "offline"`), worked out by `src/lib/studio-splash.ts`: the mark, the name (its last word in the
+  site's lettering when there is some, colours guarded at 3:1 on the page), five seeded stones along a gentle wave in
+  the look's shape and colours joined by its connector. Loading lays and lifts them in a loop; offline leaves the last
+  one unlaid (a dashed outline) and adds a "Try again" pill. `none` motion and reduced motion show the path laid and
+  still. `public/studio/sw.js` (cache `v2`) keeps the offline page and what it points at (stylesheet, fonts,
+  lettering, motifs).
+- **`restore`** is a meaning (Earlier versions, the "Undo a change" guide's `restore` icon). A site with restore art
+  maps it in `brandIconArt.tsx`.
+- **Tour steps** may name a `short` word for the trail and a `meaning` for their art (`types.ts` `TourStep`).
+- **The bench** has `part=home` (every Home card with made-up data), `part=photo` and `part=tour`.
 
 ## Checkup rules
 
@@ -564,6 +652,8 @@ Findings from the step 0 spike (2026-10-17), for the Worker half:
   fallback.
 
 ## Adopting it in a site
+
+Add `auth: { loginMethod: 'token' }` to `sanity.config.ts` (card 129) and tell each editor to sign out and in once.
 
 Copy the PORTABLE files listed above, write the site's `kit.config.ts` (start from the starter's), take the
 `structure.ts` changes (explicit singleton ids, `staffDesk` wrapper, Trash item, `media.*` filter) and the

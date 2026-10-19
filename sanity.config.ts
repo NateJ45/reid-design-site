@@ -105,6 +105,11 @@ export default defineConfig({
   // public/favicon.svg (the RD tile). The old StudioLogo was never drawn.
   title: brand.name,
   icon: StudioIcon,
+  // Sign in with a session TOKEN, not Sanity's default (a cookie where the
+  // browser allows one). The kit's Worker routes (/api/studio/*) check a Bearer
+  // token; a cookie session sends none and every route answers 401 (card 129).
+  // Staci signs out and in once after this deploys.
+  auth: { loginMethod: 'token' },
   subtitle: wording.subtitle,
   i18n: { bundles: wording.bundles },
   // The wordmark slot (none on this site, see studioEdges.config.ts). At the

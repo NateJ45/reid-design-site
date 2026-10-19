@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { studioColorInput, studioColors, TINTS, type Scale } from './studio-theme.ts';
 import { contrastRatio } from './contrast.ts';
 import {
+  calmStones,
   chipKind,
   contrastPairs,
   findGuide,
@@ -207,5 +208,50 @@ describe('guide helpers', () => {
     assert.equal(shotSrc('https://x.test/a.png'), 'https://x.test/a.png');
     assert.equal(shotSrc('javascript:alert(1)'), null);
     assert.equal(shotSrc('//x/a.png'), null);
+  });
+});
+
+// Card 131: the surfaces' step states.
+import { liveSteps, pathProgress, stepsLabel, LIVE_STEP_WORDS } from './studio-look.ts';
+
+describe('step states (card 131)', () => {
+  it('maps every live state to three stones', () => {
+    assert.deepEqual(liveSteps('live'), ['done', 'done', 'done']);
+    assert.deepEqual(liveSteps('on-its-way'), ['done', 'now', 'todo']);
+    assert.deepEqual(liveSteps('slow'), ['done', 'slow', 'todo']);
+    assert.deepEqual(liveSteps('failed'), ['done', 'failed', 'todo']);
+    assert.deepEqual(liveSteps('unknown'), ['todo', 'todo', 'todo']);
+  });
+  it('says the steps in words, with no dashes', () => {
+    const s = stepsLabel(LIVE_STEP_WORDS, liveSteps('on-its-way'));
+    assert.equal(s, 'Saved, done. Building, in progress. On the website, not yet.');
+    assert.doesNotMatch(s, /\u2014/);
+  });
+  it('counts a checklist', () => {
+    assert.equal(pathProgress([true, false, true]).text, '2 of 3 done');
+    assert.equal(pathProgress([true, true]).text, 'All done');
+    assert.equal(pathProgress([]).text, '');
+  });
+});
+
+describe('calm stones (card 132)', () => {
+  it('leaves the warning hue out of the colours that say done', () => {
+    // Auburn: green, blue, brick, sky; careful is the same brick.
+    assert.deepEqual(
+      calmStones(['#2c5b3a', '#235e93', '#c4401f', '#3b83aa'], '#c4401f'),
+      [0, 1, 3],
+    );
+  });
+  it('keeps every stone when none is near the warning hue, or all are', () => {
+    assert.deepEqual(calmStones(['#235e93', '#2c5b3a'], '#c2410c'), [0, 1]);
+    assert.deepEqual(calmStones(['#c4401f'], '#c4401f'), [0]);
+  });
+  it('is on every resolved scheme', () => {
+    const look = resolveLook(
+      { markColors: ['#2C5B3A', '#C4401F'], tones: { careful: '#C4401F' } },
+      lookBase(studioColors({}, stock), {}),
+    );
+    assert.deepEqual(look.light.calm, [0]);
+    assert.ok(look.dark.calm.length >= 1);
   });
 });
