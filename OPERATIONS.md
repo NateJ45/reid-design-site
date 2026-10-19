@@ -210,7 +210,7 @@ The Studio is the shared kit (PORTS.md cards 106 to 120): Home, Site Guide, Chec
 - **Restore one document** (card 111): `npm run restore:doc -- <docId> [--from <date>]` brings a page back from a nightly backup as a DRAFT (dry by default; `--apply` plus `NCS_PRODUCTION_WRITE=yes` on production). Needs `gh` and `BACKUP_PASSPHRASE`.
 - **Section pictures** (card 109): after `npm run build`, `npm run thumbnails` reshoots `public/section-thumbnails/` from `/styleguide/sections/`; commit the pictures. Run it after a block changes its look or a new block lands (with a fixture on the wall).
 - **Seasonal saved sections** (card 109): `npm run seed:patterns` (dry), then with the production factor and `--apply`. New documents only.
-- **Home banner art**: `npm run studio:banner` rewrites the paint-chip strips in `public/studio-banner/`; the mark is `logo-mark.png` (cream RD) copied to `public/studio-banner/mark-on-dark.png`.
+- **Studio art** (`public/studio-art/`, written by `npm run studio:banner`): the paint-chip strips for the Home banner, the ruled-line tile, the divider and the sample tag, all lifted from the public site; the banner mark is the cream RD monogram (`monogram-cream.png`, from `src/assets/logo-mark.png`) and the lettering is Waterfall (`Waterfall-400.woff2`, OFL, licence beside it).
 
 ### Outbound link report
 

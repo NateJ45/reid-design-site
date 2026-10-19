@@ -416,14 +416,22 @@ export const kitConfig: KitConfig = {
 
   liveSlowAfterMinutes: 15,
 
-  // Home's banner (card 118): the deep walnut welcome at the top of Home. The
-  // cream RD mark drawn bare on the walnut, a row of paint chips along the foot
-  // (scripts/gen-studio-banner.mjs writes both strips), and Staci's name in Oat.
+  // Home's banner (card 118), dressed from the public site (public/studio-art/,
+  // written by npm run studio:banner): the cream RD monogram from the header,
+  // bare on the walnut; a fan of paint chips along the foot, the services
+  // cards in miniature; Staci's name in Oat; and "Design" in Waterfall, the
+  // hand-lettered accent the site's headings use ("completely yours").
   homeBanner: {
-    markOnDark: '/studio-banner/mark-on-dark.png',
-    motif: '/studio-banner/chips.svg',
-    motifNarrow: '/studio-banner/chips-phone.svg',
+    markOnDark: '/studio-art/monogram-cream.png',
+    motif: '/studio-art/paint-chips.svg',
+    motifNarrow: '/studio-art/paint-chips-phone.svg',
     accent: '#E2CFBD',
+    lettering: {
+      text: 'Design',
+      family: 'Waterfall',
+      src: '/studio-art/Waterfall-400.woff2',
+      colors: ['#F5EDE3'],
+    },
   },
 
   features: {
