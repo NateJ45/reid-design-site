@@ -1,32 +1,20 @@
-# The family test standard's CI workflow (PORTS.md card 35, restructured for
-# speed by card 70). Deliberately NOT marked PORTABLE: it carries a per-site
-# `env:` block, so a byte-exact drift check would fail forever on every repo.
-# Copy the SHAPE from here, and keep the job ids, the step list, the
-# concurrency group and the linkinator skip identical.
+name: CI
+
+# SHAPE (PORTS.md card 70). Before card 70 this was two serial jobs and the
+# site was built twice per PR (the build job and Playwright's webServer), plus
+# a third time in Lighthouse. Now:
 #
-# This repo ships no Sanity project of its own, so there is nothing to pin and
-# the build takes the credential-less fallback path. A client repo sets its
-# PUBLIC_SANITY_* identifiers in an `env:` block here (they are public, they
-# appear in every GROQ request URL) so the build and the test job run against
-# the REAL content, which is what decides whether a page is a real render or a
-# hidden-section stub.
-#
-# ── SHAPE (why it looks like this) ──────────────────────────────────────────
-# Before card 70 this was two serial jobs and the site was built THREE times
-# per PR (the build job, Playwright's webServer, Lighthouse). Wall time was the
-# sum of every gate. Now:
-#
-#   static ─┐                      (typegen, types, check, lint, format, unit)
+#   static ─┐                      (sync-check, audit, typegen, types, check,
+#           │                       lint, format, unit)
 #   site ───┼─> build (aggregator)  (build once, link check, upload dist/client)
 #           └─> e2e x3 shards ─> test (aggregator)  (reuse the uploaded build)
 #
 # `build` and `test` are REQUIRED status checks in the "main: PR + green CI"
-# rulesets, so those two names must keep existing and must fail when anything
-# behind them fails. They are aggregators now; the work runs in `static`,
-# `site` and `e2e`. Do not rename them, and do not put a path filter on this
-# workflow: a required check that never reports blocks the merge forever.
-name: CI
-
+# ruleset (alongside `lighthouse`, see lighthouse.yml), so those two names must
+# keep existing and must fail when anything behind them fails. They are
+# aggregators now; the work runs in `static`, `site` and `e2e`. Do not rename
+# them, and do not put a path filter on this workflow: a required check that
+# never reports blocks the merge forever.
 on:
   push:
     branches: [main]
@@ -38,6 +26,23 @@ on:
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+# PUBLIC_SANITY_PROJECT_ID and PUBLIC_SANITY_DATASET are public identifiers
+# (they appear in every GROQ request URL and in the committed src/lib/sanity.ts).
+# They are inlined here so the build can fetch published content without any
+# secret. No token is needed: the dataset is public and CI only reads.
+#
+# They matter more for the e2e shards than they look. tests/routes.ts splits the
+# route list into `routes` (render real content, axe-scanned) and
+# `hiddenRoutes` (sections currently switched off in
+# siteSettings.sectionVisibility, so the page emits a meta-refresh stub that
+# fails five axe rules and is smoke-only). That split is calibrated against
+# the REAL dataset. Building with an empty project id would take the
+# credential-less fallback path, change which pages are stubs, and point the
+# a11y sweep at a site that does not exist.
+env:
+  PUBLIC_SANITY_PROJECT_ID: ba403vjc
+  PUBLIC_SANITY_DATASET: production
 
 jobs:
   # Everything that does not need a built site. Runs in parallel with `site`.
@@ -52,43 +57,94 @@ jobs:
           node-version: 22
           cache: npm
 
-      # ONE package since the Studio folded into the root on 2026-08-28, so
-      # there is no `npm ci --prefix studio` step and no separate Studio build.
+      # One package since 2026-08-28: the nested studio/ package was folded into
+      # the root (PORTS.md card 10), so there is no `npm ci --prefix studio`
+      # step any more and no second node_modules tree to keep in step.
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      # The library of record checks ITSELF: run from the starter, sync-check
-      # resolves the starter to this repo root, so site and library are the
-      # same tree and every marked file must report SAME. The site repos run
-      # the same script against a checkout of this repo (see any client ci.yml).
-      - name: Canonical files have not drifted (self-check)
+      # PORTS.md card 36. Every file here marked "PORTABLE: canonical copy" is
+      # diffed against ncs-astro-sanity-starter, the library of record. Both
+      # repos are public, so the checkout needs no token. CRLF is normalized to
+      # LF and one trailing newline ignored before comparing, so a Windows
+      # working tree and a Linux runner agree; everything else is byte-exact,
+      # marker line included. On DRIFT: either port the improvement up into the
+      # starter with a PORTS.md card in the same commit, or pull the starter's
+      # copy forward here. A file that is forked on purpose drops its marker and
+      # says so in its header instead.
+      #
+      # Every build (push to main and every PR) checks against the starter's
+      # `main`. The old staging branch, and the starter-staging check that went
+      # with it, were removed 2026-10-03.
+      - name: Check out the library of record
+        uses: actions/checkout@v7
+        with:
+          repository: NateJ45/ncs-astro-sanity-starter
+          ref: main
+          path: .ncs-starter
+
+      # The checkout is deleted again as soon as the check passes. It has to
+      # live INSIDE the workspace (actions/checkout refuses a path outside it),
+      # and every whole-tree tool further down this job would otherwise sweep
+      # it: `prettier --check .` tries to format the library using THIS repo's
+      # node_modules and dies resolving the starter's own imports, and `eslint .`
+      # does the same. Deleting it here beats adding .ncs-starter to a
+      # .prettierignore, a .gitignore and an eslint config in six repos, because
+      # that list has to be remembered again for the next whole-tree tool.
+      - name: Canonical files have not drifted
+        id: sync_check
+        continue-on-error: true
+        env:
+          NCS_STARTER_DIR: ${{ github.workspace }}/.ncs-starter
         run: node scripts/sync-check.mjs
 
+      # Drift is a judgement, not a diff: an improvement made here either
+      # belongs in the library or is site-specific. What was missing is that
+      # porting it up was an errand you had to remember to start, in another
+      # repo, after the build that blocked you. This opens the PR instead. It
+      # never merges, and it never turns a clear "drift" failure into a
+      # confusing "could not authenticate" one: it exits 0 whatever happens.
+      - name: Propose the drift to the library of record
+        if: steps.sync_check.outcome == 'failure'
+        env:
+          NCS_STARTER_DIR: ${{ github.workspace }}/.ncs-starter
+          GH_TOKEN: ${{ secrets.GH_ACTIONS_PAT }}
+        run: node scripts/propose-drift.mjs
+
+      # The checkout has to go before any whole-tree tool further down this
+      # job sweeps it, and the gate has to fail for real once it has.
+      - name: Enforce the drift check
+        env:
+          NCS_STARTER_DIR: ${{ github.workspace }}/.ncs-starter
+        run: |
+          rm -rf "$NCS_STARTER_DIR"
+          [ "${{ steps.sync_check.outcome }}" = "success" ] || exit 1
+
+      # NODE_OPTIONS raises the heap for this step only. `sanity schema extract`
+      # bundles the whole Studio config and its import graph, and on the hosted
+      # runners it intermittently dies with "Aborted (core dumped)" (exit 134)
+      # while the same command succeeds locally: the classic signature of a
+      # Linux CI box with less memory than the dev machine. It is runner flake,
+      # not a schema problem, so retry up to three times before calling it red.
       # What can a stranger read out of this site's dataset? Sanity's free plan
-      # is "2 datasets (public only)", so a public dataset is world readable
-      # over a plain URL with no token, and the project id ships in the page
-      # source. A login in front of a page does not protect the API behind it:
-      # on wcp-website that meant 37 family directory entries - children's
-      # names and home addresses - readable by anyone, behind a correctly built
-      # gate. Runs anonymously on purpose and needs no secrets, so it works on
-      # forks and PRs. Exceptions live in public-data-policy.json, each with a
-      # reason.
+      # is "2 datasets (public only)", so a public dataset is world readable over
+      # a plain URL with no token, and the project id ships in the page source.
+      # A login in front of a page does not protect the API behind it: on
+      # wcp-website that meant 37 family directory entries - children's names and
+      # home addresses - readable by anyone, behind a correctly built gate.
+      #
+      # Runs anonymously on purpose and needs no secrets, so it works on forks
+      # and PRs. Exceptions live in public-data-policy.json, each with a reason.
       - name: No personal data is publicly readable
-        # The project id is PUBLIC but it still has to be handed to this step:
-        # there is no .env on a runner, and the audit refuses to skip when it
-        # cannot find one - it would rather fail than report a pass it did not
-        # earn.
+        # The project id is PUBLIC (it ships in every image URL in the page
+        # source) but it still has to be handed to this step: there is no .env
+        # on a runner, and the audit refuses to skip when it cannot find one -
+        # it would rather fail than report a pass it did not earn.
         env:
           PUBLIC_SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
           PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
         run: node scripts/public-data-audit.mjs
 
-      # NODE_OPTIONS raises the heap for this step only. `sanity schema
-      # extract` bundles the whole Studio config and its import graph, and on
-      # the hosted runners it intermittently dies with "Aborted (core dumped)"
-      # (exit 134) while the same command succeeds locally: a Linux CI box with
-      # less memory than the dev machine. It is runner flake, not a schema
-      # problem, so retry up to three times before calling it red.
       - name: Generate Sanity types
         env:
           NODE_OPTIONS: --max-old-space-size=4096
@@ -102,11 +158,14 @@ jobs:
           exit 1
 
       - name: Fail if committed Sanity types are stale
-        # PORTS.md card 5. `npm run build` does NOT chain typegen: it consumes
-        # the already-committed src/lib/sanity.types.ts, and `astro build` does
-        # not run `astro check`, so stale types never fail a build. CI already
-        # regenerates the file in the step above, so the guard is four lines:
-        # if that regeneration produced a diff, the commit was stale.
+        # Added 2026-08-27 (PORTS.md card 5). `npm run build` does NOT chain
+        # typegen: it consumes the already-committed src/lib/sanity.types.ts,
+        # and `astro build` does not run `astro check`, so stale types never
+        # fail a build. They just drift silently until the types describe a
+        # schema that no longer exists. presacademy shipped exactly that on a
+        # green build (2026-06-14). CI already regenerates the file in the step
+        # above, so the guard is four lines: if that regeneration produced a
+        # diff, the commit was stale.
         run: |
           if ! git diff --quiet -- src/lib/sanity.types.ts; then
             echo "::error::src/lib/sanity.types.ts is out of date. Run 'npm run typegen' and commit the result."
@@ -123,11 +182,12 @@ jobs:
       - name: Format check (prettier)
         run: npm run format:check
 
-      # node --test over src/lib/*.test.ts. Three of these are GATES rather
-      # than ordinary suites: theme-tokens (contrast over the @theme palette),
-      # layout-variants and section-fields. Nothing else in this pipeline can
-      # catch a palette edit that pushes body text under threshold.
-      - name: Unit tests
+      # Vitest. Includes src/lib/theme-tokens.test.ts, the contrast gate added
+      # 2026-08-27: it reads the real hex tokens out of globals.css and asserts
+      # the text and focus-ring pairs the design system renders in both themes.
+      # Nothing else in this pipeline can catch a palette edit that pushes body
+      # text or a focus outline under threshold.
+      - name: Unit tests (vitest)
         run: npm run test:unit
 
   # Builds the site ONCE. Everything downstream reuses what this uploads.
@@ -152,17 +212,15 @@ jobs:
       - name: Build (site + embedded Studio)
         run: npm run build
 
-      # linkinator over dist/client. The skip pattern is
-      # `^https?://(?!(localhost|127[.]0[.]0[.]1)[:/])`, which excludes external
-      # links and NOTHING else. WCP's older `^(?!http://localhost)` also matched
-      # linkinator's own 127.0.0.1 seed, so every green run for months had
-      # scanned zero links. Read the log: it must say "scanned N links" with N
-      # greater than zero.
+      # linkinator over dist/client. The SSR-only routes (/studio, /preview/**,
+      # /api/draft-mode/*) are skipped in the script: they are not in
+      # dist/client and would report as broken for the wrong reason.
       - name: Check internal links
         run: npm run check:links
 
-      # Only dist/client: that is all the Playwright shards serve. dist/server
-      # (the SSR bundle) is never exercised by the static suite.
+      # Only dist/client: that is all the Playwright shards serve (and
+      # room-story.spec.ts reads dist/client/_astro). dist/server (the SSR
+      # bundle) is never exercised by the static suite.
       - uses: actions/upload-artifact@v7
         with:
           name: dist-client
@@ -182,8 +240,7 @@ jobs:
           [ "${{ needs.static.result }}" = "success" ] && [ "${{ needs.site.result }}" = "success" ]
 
   # The Playwright suite, sharded. fullyParallel is on in playwright.config.ts,
-  # so --shard splits at TEST granularity: even by COUNT, not by time (see
-  # PORTS.md card 70, "Weighted shards", when one project dominates the runtime).
+  # so --shard splits at TEST granularity and the shards come out even.
   e2e:
     name: e2e (shard ${{ matrix.shard }}/3)
     needs: [site]
