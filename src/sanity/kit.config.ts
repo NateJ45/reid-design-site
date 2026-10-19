@@ -197,6 +197,8 @@ export const kitConfig: KitConfig = {
       title: 'Add a review',
       detail: 'Paste a client review from Google, a text or an email.',
       icon: brandIcon('testimonial'),
+      // Card 131: the tile draws Reid's quote chip (brandIconArt.tsx).
+      meaning: 'testimonial',
       fields: [
         {
           name: 'quote',
@@ -259,6 +261,8 @@ export const kitConfig: KitConfig = {
       title: 'Post a notice',
       detail: 'A short line across the top of every page, until the day you pick.',
       icon: brandIcon('notice'),
+      // Card 131: the tile draws Reid's sample tag (brandIconArt.tsx).
+      meaning: 'notice',
       fields: [
         {
           name: 'message',
