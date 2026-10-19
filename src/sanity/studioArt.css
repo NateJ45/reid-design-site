@@ -14,7 +14,8 @@
    2. "View the website" on Home's banner is the site's own button: the sample
       tag (src/styles/reid.css .r-btn--cream): notched left edge, a real punched
       hole, cream on the deep banner, paper on hover, the arrow nudging right.
-      No pill, no rounded rectangle (DESIGN.md "One button identity: the tag"). */
+      No pill, no rounded rectangle (DESIGN.md "One button identity: the tag").
+      The offline page's "Try again" gets the ink tag the same way (3, below). */
 
 html .ncs-sp__mark {
   width: 104px;
@@ -74,4 +75,40 @@ html[data-studio-scheme='dark'] .ncs-sp__mark {
   .ncs-hb__go > a[data-ui='Button']:hover svg {
     transform: translateX(4px);
   }
+}
+
+/* 3. "Try again" on the offline page (card 132 draws a pill): the site's ink
+      sample tag, the same notch and punched hole as .r-btn. */
+html .ncs-sp__button {
+  position: relative;
+  isolation: isolate;
+  padding: 0 28px 0 2.35em;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #f5ede3;
+  font-weight: 500;
+}
+html .ncs-sp__button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #231e1b;
+  clip-path: polygon(1rem 0, 100% 0, 100% 100%, 1rem 100%, 0 50%);
+  -webkit-mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
+  mask: radial-gradient(circle at 0.8rem 50%, #0000 0.25rem, #000 calc(0.25rem + 0.6px));
+  transition: background-color 400ms;
+}
+html .ncs-sp__button:hover {
+  text-decoration: none;
+}
+html .ncs-sp__button:hover::before {
+  background: #5f4639;
+}
+html[data-studio-scheme='dark'] .ncs-sp__button {
+  color: #231e1b;
+}
+html[data-studio-scheme='dark'] .ncs-sp__button::before {
+  background: #f5ede3;
 }
