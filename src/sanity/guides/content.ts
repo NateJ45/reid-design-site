@@ -27,6 +27,7 @@
 // =============================================================================
 
 import { phoneGuides } from './phoneGuides.ts';
+import type { FieldGuideMap } from '../../lib/studio-kit';
 
 export type DiyLevel = 'self' | 'ask' | 'mixed';
 
@@ -1077,3 +1078,23 @@ guides.push(
     .filter((guide) => guide.slug === 'studio-on-your-phone')
     .map((guide) => ({ ...guide, body: guide.body.filter((b) => b.kind !== 'seealso') })),
 );
+
+/**
+ * Which guide explains a field (kit.config.ts guide.forField, PORTS.md card 134). A
+ * field named here gets a quiet "How to" chip after its description that opens the
+ * guide; add `section` (the text of one of the guide's `{ kind: 'h' }` blocks) to
+ * open at that heading. Name fields that mean one thing everywhere: `seoTitle`, not
+ * `title`. src/lib/studio-guides.test.ts checks every guide and heading exists.
+ */
+export const GUIDE_FOR_FIELD: FieldGuideMap = {
+  fields: {
+    seoTitle: { guide: 'seo-fields' },
+    seoDescription: { guide: 'seo-fields' },
+    seoImage: { guide: 'seo-fields' },
+    alt: { guide: 'images-and-alt' },
+    pageBuilder: { guide: 'edit-a-page' },
+    slug: { guide: 'rename-a-page' },
+  },
+  // Schema type name -> section, for a type used in many places (none yet).
+  types: {},
+};

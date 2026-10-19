@@ -18,6 +18,7 @@ export default defineConfig({
       'src/lib/custom-code.test.ts',
       'src/lib/photo-post.test.ts',
       'src/lib/earlier-versions.test.ts',
+      'src/lib/guide-shots.test.ts',
     ],
   },
 });

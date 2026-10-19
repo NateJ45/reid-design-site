@@ -14,6 +14,12 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-19: starter sync (PORTS.md cards 130, 133, 134)
+
+- [ ] Site Guide pictures: `src/sanity/guides/shots.ts` is an empty registry, so every `{ kind: 'shot', key }` block would show the wireframe drawing. No guide asks for a key yet. Real captures need a signed-in Studio (see studio-kit.md, "Real captures in the guides").
+- [ ] The "How to" chip beside fields (card 134) is wired in `GUIDE_FOR_FIELD` (`src/sanity/guides/content.ts`): it opens the guide at the top, because this site's `GuideView` is the older desk view and does not take a `section`. Check it signed in on a page's Google title, and move `GuideView` onto the kit's `GuidePage` if headings matter.
+- [x] `PreviewLayout.astro` now imports `starwind.css` after `globals.css`, in BaseLayout's order, so live draft preview gets the accordion keyframes and semantic tokens.
+
 ### From 2026-10-19: the Studio design language and token sign-in (PORTS.md cards 128, 129)
 
 - [ ] Staci signs out (avatar menu) and back in once after this deploy: the Studio now holds a sign-in token, so Home's cards and the other kit routes stop answering "not signed in".

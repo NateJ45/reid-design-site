@@ -18,6 +18,9 @@
    editable surface and a click opens Site settings in the edit panel.
    ============================================================================ */
 import '../styles/globals.css';
+// Same order as BaseLayout: starwind.css AFTER globals.css, so the brand :root wins
+// and the accordion keyframes and semantic tokens exist in the preview too.
+import '../styles/starwind.css';
 import VisualEditingOverlay from '@/components/preview/VisualEditingOverlay.tsx';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';

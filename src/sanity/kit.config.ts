@@ -20,7 +20,7 @@
 
 import type { KitConfig } from './kit/types';
 import { genericRules, plural, type CheckupRule } from '../lib/studio-checkup';
-import { guides, GUIDE_CATEGORIES, GUIDES_FOR_TYPE } from './guides/content';
+import { guides, GUIDE_CATEGORIES, GUIDE_FOR_FIELD, GUIDES_FOR_TYPE } from './guides/content';
 import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
 import { brandIcon } from './brandIcons';
@@ -313,6 +313,8 @@ export const kitConfig: KitConfig = {
     view: makeGuideView,
     // "Help for this page" (card 110): which guides each document type shows.
     forType: GUIDES_FOR_TYPE,
+    // The quiet "How to" chip after a field's description (card 134).
+    forField: GUIDE_FOR_FIELD,
   },
 
   // Home's "Your pages" card (card 115): every page Staci can change, in the
