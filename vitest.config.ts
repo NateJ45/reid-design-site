@@ -15,6 +15,7 @@ export default defineConfig({
       'src/lib/studio-*.test.ts',
       'src/lib/deploy-status.test.ts',
       'src/lib/preview-share.test.ts',
+      'src/lib/custom-code.test.ts',
     ],
   },
 });
