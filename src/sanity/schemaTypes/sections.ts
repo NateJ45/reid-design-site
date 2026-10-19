@@ -284,7 +284,7 @@ export const quoteSection = defineType({
       name: 'detail',
       title: 'Their detail (optional)',
       type: 'string',
-      description: 'Like "Fishers kitchen refresh" or "Plainfield, IN".',
+      description: 'Like "Fishers living room" or "Plainfield, IN".',
     }),
   ],
   preview: {

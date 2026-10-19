@@ -127,6 +127,12 @@ export default defineConfig({
   // still be timed: "Publish automatically at" (publish-due, card 114).
   releases: { enabled: false },
 
+  // SCHEDULED DRAFTS OFF (2026-10-19). Like Releases, Scheduled Drafts is a paid
+  // Sanity feature: on the free plan its navbar tool only shows "Upgrade to
+  // unlock". The site schedules with its own "Publish automatically at" field
+  // and publish-due, so the tool is hidden rather than left as a dead end.
+  scheduledDrafts: { enabled: false },
+
   // Global form customization. Registering the character-count input once here
   // applies it to every capped text field across all schemas. The component
   // falls through to the default input for anything that isn't a string/text

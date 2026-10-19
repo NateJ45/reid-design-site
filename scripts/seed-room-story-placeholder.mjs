@@ -49,7 +49,7 @@ const h2 = (key, text) => block(key, 'h2', text);
 const ROOM_STORY = {
   _id: NEW_ID,
   _type: 'project',
-  title: '[Room and town, like "Fishers kitchen refresh"]',
+  title: 'Example: Fishers living room',
   location: '[Town, like "Fishers, IN"]',
   houseDescription: '[Era and kind of home, like "1990s colonial"]',
   scopeLine:
