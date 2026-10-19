@@ -10,6 +10,7 @@
 // =============================================================================
 
 import type { StudioWordingInput } from './studioWording';
+import type { StudioStart } from '../lib/studio-app';
 
 export interface StudioEdgesConfig extends StudioWordingInput {
   wordmark: {
@@ -21,6 +22,17 @@ export interface StudioEdgesConfig extends StudioWordingInput {
      */
     view?: string | null;
   };
+  /**
+   * The Studio as a phone app (card 125): what the home-screen icon is called
+   * and where it opens. Optional; the default is the site's name, opening on
+   * Home. 'quick-update' needs the Quick update tool (kit.config.ts
+   * quickUpdate or postPhoto).
+   */
+  app?: {
+    /** Under the icon. About 12 characters fits every phone. */
+    shortName?: string;
+    start?: StudioStart;
+  };
 }
 
 export const studioEdges: StudioEdgesConfig = {
@@ -29,6 +41,9 @@ export const studioEdges: StudioEdgesConfig = {
   // can, and at top-bar height it would be unreadable. The RD tile beside the
   // site name already says whose Studio this is.
   wordmark: { logo: null },
+  // The phone app (card 125): 'Reid Design' under the walnut monogram icon
+  // (public/icon-maskable-512.png), opening on Home.
+  app: { start: 'home' },
   // Under "Reid Design" on the sign-in card.
   loginSubtitle: 'Sign in to update your website',
   words: {

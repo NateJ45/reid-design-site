@@ -26,6 +26,8 @@
 //     "See also" titles, em-dashes).
 // =============================================================================
 
+import { phoneGuides } from './phoneGuides.ts';
+
 export type DiyLevel = 'self' | 'ask' | 'mixed';
 
 /** Where a "Where in the Studio" breadcrumb can link to. */
@@ -1063,3 +1065,15 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   redirect: ['rename-a-page'],
   trashedItem: ['trash'],
 };
+
+// ── The Studio app (PORTS.md card 125) ───────────────────────────────────────
+// Shared by every site (src/sanity/guides/phoneGuides.ts, PORTABLE). Reid
+// Design takes only the home-screen guide for now: "Post a photo" and "Earlier
+// versions" are not switched on here (kit.config.ts), so their guides, and the
+// home-screen guide's See also line pointing at one, would promise something
+// the Studio does not do.
+guides.push(
+  ...phoneGuides(SITE.contactName)
+    .filter((guide) => guide.slug === 'studio-on-your-phone')
+    .map((guide) => ({ ...guide, body: guide.body.filter((b) => b.kind !== 'seealso') })),
+);

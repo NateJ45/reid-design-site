@@ -16,6 +16,8 @@ export default defineConfig({
       'src/lib/deploy-status.test.ts',
       'src/lib/preview-share.test.ts',
       'src/lib/custom-code.test.ts',
+      'src/lib/photo-post.test.ts',
+      'src/lib/earlier-versions.test.ts',
     ],
   },
 });
