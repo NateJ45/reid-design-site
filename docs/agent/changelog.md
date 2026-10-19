@@ -14,6 +14,10 @@ The Studio became the family's shared kit: Home first (quick actions for a room 
 
 Branch `deps/sanity-phase2`. `sanity` and `@sanity/vision` 6.19.0, `@sanity/ui` 4.4.9, `@sanity/icons` 5.2.3, `styled-components` 6.6.0, `@sanity/client` 8.9.0, `@sanity/visual-editing` 6.1.3 (dependency and override), `@sanity/astro` 3.5.1, `sanity-plugin-utils` override 2.0.22, `@sanity/orderable-document-list` 2.0.28, `sanity-plugin-media` 6.3.5, `sanity-plugin-asset-source-unsplash` 7.0.29. The seven PORTABLE Studio files this site has were re-copied from the starter; `astro.config.mjs` gained `optimizeDeps.include: ['react/compiler-runtime']`. Studio files were migrated by codemod (icon subpath imports, `@sanity/ui/menu` and `/toast` subpaths) plus `space` to `gap`, `Grid columns` to `gridTemplateColumns`, and the dropped `Badge mode`. No site-visible change.
 
+## 2026-10-19: /privacy lists the outside services (Studio rollout, visitor fixes)
+
+`/privacy` now prints a second derived section after "How traffic is measured": "Other services on this site" (Web3Forms delivers the contact form, Calendly loads only after the button is pressed, the Instagram photos are copies kept on the site). Like the measurement section it is page code, not Studio copy, so it cannot drift from the Sanity body; the id `other-services-on-this-site` is reserved against a Sanity heading with the same words. Change it in the same commit as any change to `ContactForm.tsx`, `CalendlyInline.tsx` or `InstagramFeed.astro`. The same audit found nothing else to fix: contact details identical on all nine pages and in the JSON-LD, an on-brand share card per route, no em-dashes or leftover words in page code, headings and alt text in order.
+
 ## 2026-10-15: GA4 skips automated browsers (starter card 96)
 
 `GoogleAnalytics.astro` is re-synced from the starter (rule 4): the tag does nothing when `navigator.webdriver` is true or the user agent matches `HeadlessChrome|Lighthouse|PTST|GTmetrix|Speed Insights`. Our own Playwright and Lighthouse runs against production were being counted as visitors (194 in one day on another site). Real browsers are unaffected. Starter PORTS card 96.
