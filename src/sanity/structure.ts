@@ -70,6 +70,8 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'announcement',
   'page',
   'redirect',
+  'sectionPreset',
+  'pressMention',
   TRASH_TYPE,
   // The kit's weekly tick and the workflow's share links: plumbing, never listed.
   WEEK_TYPE,
@@ -168,6 +170,17 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
                 icon: typeIcon('page'),
                 explain:
                   'Pages of your own: a service explained in full, a town you work in, a seasonal styling offer. Start from a ready-made layout and change the words.',
+              }),
+
+              // Saved sections and patterns (the authoring kit, card 109): a
+              // band or a group of bands kept for reuse, as a copy or synced.
+              emptyAwareList(S, context, {
+                id: 'sectionPreset',
+                type: 'sectionPreset',
+                title: 'Saved sections',
+                icon: typeIcon('sectionPreset'),
+                explain:
+                  'Sections you keep to use again: a booking band, a seasonal offer, a review with its stars. Save one from any page with "Save a section as preset..." in the menu beside Publish, then add it to another page with "Insert a saved section".',
               }),
 
               S.divider(),
@@ -281,6 +294,20 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
                         ),
                     ]),
                 ),
+
+              // Press mentions (2026-10-18): shown by the Press mentions section.
+              emptyAwareList(S, context, {
+                id: 'pressMention',
+                type: 'pressMention',
+                title: 'Press',
+                icon: typeIcon('pressMention'),
+                explain:
+                  'Each time Reid Design is featured: a magazine, a blog, a podcast, the local paper. Add it once and it shows wherever a Press mentions section sits, newest first.',
+                list: (S) =>
+                  S.documentTypeList('pressMention')
+                    .title('Press')
+                    .defaultOrdering([{ field: 'date', direction: 'desc' }]),
+              }),
 
               S.divider(),
 

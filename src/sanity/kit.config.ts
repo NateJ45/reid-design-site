@@ -145,6 +145,8 @@ export const kitConfig: KitConfig = {
     philosophyPoint: 'Value',
     // Pages Staci built herself; Bring it back restores the page at its address.
     page: 'Page',
+    sectionPreset: 'Saved section',
+    pressMention: 'Press mention',
   },
 
   weekStartsOn: 1,
@@ -327,12 +329,14 @@ export const kitConfig: KitConfig = {
       ],
     },
     { title: 'Pages you built', listType: 'page' },
+    { title: 'Saved sections', listType: 'sectionPreset' },
     {
       title: 'Room stories, prices and reviews',
       links: [
         { title: 'Room stories', target: { pane: 'project' } },
         { title: 'Services and prices', target: { pane: 'content;pricing;service' } },
         { title: 'Reviews', target: { pane: 'content;testimonial' } },
+        { title: 'Press', target: { pane: 'content;pressMention' } },
         { title: 'Questions and answers', target: { pane: 'content;faqItem' } },
         { title: 'Announcements', target: { pane: 'announcement' } },
       ],
@@ -412,14 +416,22 @@ export const kitConfig: KitConfig = {
 
   liveSlowAfterMinutes: 15,
 
-  // Home's banner (card 118): the deep walnut welcome at the top of Home. The
-  // cream RD mark drawn bare on the walnut, a row of paint chips along the foot
-  // (scripts/gen-studio-banner.mjs writes both strips), and Staci's name in Oat.
+  // Home's banner (card 118), dressed from the public site (public/studio-art/,
+  // written by npm run studio:banner): the cream RD monogram from the header,
+  // bare on the walnut; a fan of paint chips along the foot, the services
+  // cards in miniature; Staci's name in Oat; and "Design" in Waterfall, the
+  // hand-lettered accent the site's headings use ("completely yours").
   homeBanner: {
-    markOnDark: '/studio-banner/mark-on-dark.png',
-    motif: '/studio-banner/chips.svg',
-    motifNarrow: '/studio-banner/chips-phone.svg',
+    markOnDark: '/studio-art/monogram-cream.png',
+    motif: '/studio-art/paint-chips.svg',
+    motifNarrow: '/studio-art/paint-chips-phone.svg',
     accent: '#E2CFBD',
+    lettering: {
+      text: 'Design',
+      family: 'Waterfall',
+      src: '/studio-art/Waterfall-400.woff2',
+      colors: ['#F5EDE3'],
+    },
   },
 
   features: {

@@ -100,6 +100,8 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   '_astro',
   // The Studio's own page since 2026-10-18 (src/pages/studio/index.astro, card 120).
   'studio',
+  // The page-builder wall the Studio's block pictures are shot from (card 109).
+  'styleguide',
 ]);
 
 /** Plumbing segments that are never a page and never previewed. */

@@ -52,22 +52,10 @@ export const PAGE_BUILDER_TYPES = new Set<string>(Object.keys(SECTION_HOST_TYPES
  */
 export const EDITOR_HELPER_TYPES = new Set<string>([...PAGE_BUILDER_TYPES, 'project']);
 
-/**
- * Sections that fill THEMSELVES. The "Built-in section" markers are the big
- * one: a marker has no words because its words live in that page's own tabs,
- * so it must never read as "nothing typed here". `spacerSection` is wordless on
- * purpose. A name that drifts off this list only costs a false "worth a look".
- */
-export const SELF_FILLING_SECTIONS = [
-  'homeSectionMarker',
-  'aboutSectionMarker',
-  'processSectionMarker',
-  'servicesSectionMarker',
-  'eDesignSectionMarker',
-  'spacerSection',
-  // 2026-09-30: the latest Instagram posts, baked in at build time.
-  'instagramSection',
-] as const;
+// Sections that fill themselves: moved to the leaf module src/sanity/sectionChecks.ts
+// (2026-10-18) so the page-builder warnings can load without the schema.
+export { SELF_FILLING_SECTIONS } from './sectionChecks';
+import { EXTRA_SETTING_KEYS, SELF_FILLING_SECTIONS } from './sectionChecks';
 
 // -----------------------------------------------------------------------------
 // "Main content": every visible top-level field of the helper types
@@ -125,7 +113,7 @@ export const PAGE_CHECK_CONFIG: PageCheckConfig = {
   selfFillingSections: SELF_FILLING_SECTIONS,
   // Knob values with an initialValue, on top of the shared SETTING_KEYS list
   // in src/lib/page-checks.ts. `imageSide` is the Image + text knob.
-  extraSettingKeys: ['imageSide'],
+  extraSettingKeys: EXTRA_SETTING_KEYS,
   // Every built-in route (the same list the custom-page slug validation
   // refuses), the Studio and preview plumbing, and the files in public/.
   codeOwnedPaths: [

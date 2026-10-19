@@ -33,7 +33,8 @@ import { CheckPageAction } from './actions/checkPage';
 import { UndoAction, RedoAction } from './components/UndoRedo';
 import { previewPathFor, shareDraftLinkAction } from './components/shareDraftLink';
 import { canPreviewPath } from './preview-routes';
-import { EDITOR_HELPER_TYPES } from './pageBuilderConfig';
+import { EDITOR_HELPER_TYPES, PAGE_BUILDER_TYPES } from './pageBuilderConfig';
+import { SaveSectionPresetAction } from './actions/saveSectionPreset';
 
 /**
  * The canonical share action, shown only when its link would open a page.
@@ -56,5 +57,9 @@ export function withEditorActions(
   const helpers: DocumentActionComponent[] = EDITOR_HELPER_TYPES.has(schemaType)
     ? [CheckPageAction, UndoAction, RedoAction]
     : [];
+  // "Save a section as preset..." (card 24, with the authoring kit, card 109):
+  // keep one or more sections of this page as a saved section, on every type
+  // that has a section list.
+  if (PAGE_BUILDER_TYPES.has(schemaType)) helpers.unshift(SaveSectionPresetAction);
   return [...actions, ...helpers, shareWhenPreviewable];
 }

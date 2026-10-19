@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-18: The authoring kit and press (starter card 109)
+
+Page templates for the pages a one-person studio keeps adding (Service, Town, Seasonal styling offer, What happens at a consultation, Simple, Blank), saved sections and synced sections, seven seasonal saved sections to seed, gentle page-builder warnings, a picture grid in "+ Add item" shot from a new /styleguide/sections/ wall, and a Press list with a Press mentions block. Detail: docs/agent/sanity.md, "The authoring kit".
+
 ## 2026-10-18: The Studio kit, dressed as Reid Design (starter cards 106 to 120)
 
 The Studio became the family's shared kit: Home first (quick actions for a room story, a price, a review and the Google rating; a weekly list; Fix-it list; Coming up; Visitors), the Site Guide (the old seeded how-tos rewritten in today's words, 30 guides), Checkup with three Reid rules (no room story yet, a stale Google rating, ended announcements), Quick update for a review or a notice from the phone, Trash instead of the Archive action (same records), the status line, Help for this page, Share a preview (signed links, 1 to 14 days), table views, the walnut look with Zodiak and General Sans, paint-chip icons and a paint-chip Home banner, and its own /studio/ page. Room stories can publish themselves (publishAt + publish-due.yml). Site stats stays until Visitors is switched on. Detail: docs/agent/studio-kit.md, OPERATIONS.md.

@@ -5,6 +5,7 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { HOME_SECTION_TYPES, HOME_DEFAULT_ORDER } from './homeSections';
 import { SECTION_ARRAY_OPTIONS } from './sections';
+import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
 
 export const homePage = defineType({
   name: 'homePage',
@@ -76,6 +77,8 @@ export const homePage = defineType({
       of: HOME_SECTION_TYPES,
       // The grouped "+ Add section" menu, shared by every builder (sections.ts).
       options: SECTION_ARRAY_OPTIONS,
+      // Insert a saved section, and the gentle page-builder warnings (card 109).
+      ...pageBuilderAuthoring,
       initialValue: HOME_DEFAULT_ORDER,
     }),
 
