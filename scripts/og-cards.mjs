@@ -26,6 +26,7 @@ import sharp from 'sharp';
 import { createClient } from '@sanity/client';
 import { renderSpecs } from './lib/og-build.mjs';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { snapshotClientOptions } from './snapshot.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -100,6 +101,8 @@ if (mode === 'rerender') {
     useCdn: !token,
     perspective: 'published',
     ...(token ? { token } : {}),
+    // CI reads a pinned snapshot (PORTS.md card 138); empty unless SANITY_SNAPSHOT_URL is set.
+    ...snapshotClientOptions(process.env),
   });
   const img = `{ "src": asset->url, hotspot }`;
   const data = await client.fetch(`{

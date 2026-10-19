@@ -32,6 +32,7 @@ import { createRenderer, prepareCard, CARD } from './og-render.mjs';
 import { PORTRAITS, POOL } from '../../src/data/card-portraits.mjs';
 import { ROOMS, POOL as ROOM_POOL } from '../../src/data/card-rooms.mjs';
 import { loadEnv } from './loadEnv.mjs';
+import { snapshotClientOptions } from '../snapshot.mjs';
 
 // Another company's project photos (Midwest Cabinet Connection), uploaded to
 // the dataset 2026-09-29. Never on a Reid Design card, by filename or by tag.
@@ -78,6 +79,8 @@ async function sanityClient(root) {
     useCdn: !token,
     perspective: 'published',
     ...(token ? { token } : {}),
+    // CI reads a pinned snapshot (PORTS.md card 138); empty unless SANITY_SNAPSHOT_URL is set.
+    ...snapshotClientOptions(process.env),
   });
 }
 
