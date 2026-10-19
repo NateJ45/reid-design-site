@@ -4,9 +4,9 @@
    the top of studioFonts.css, which both /studio (src/pages/studio/index.astro)
    and the Studio bundle (sanity.config.ts) already load.
 
-   1. The /studio splash leads with the circular RD monogram with its olive
+   1. The /studio splash and the offline page lead with the circular RD monogram with its olive
       sprig (the logo's own drawing, as on the Home banner), not the rounded
-      favicon tile. The shared page draws <img src="/favicon.svg">; the tile is
+      favicon tile. The shared partial (src/components/studio/StudioSplash.astro, card 132) draws <img src="/favicon.svg">; the tile is
       pushed out of its box with object-position and the monogram is painted as
       the background, Espresso on the paper ground and cream on the dark one.
       public/studio-art/monogram-espresso.png comes from npm run studio:banner.
@@ -16,17 +16,17 @@
       hole, cream on the deep banner, paper on hover, the arrow nudging right.
       No pill, no rounded rectangle (DESIGN.md "One button identity: the tag"). */
 
-html .ncs-splash__mark {
+html .ncs-sp__mark {
   width: 104px;
   height: 105px;
   object-position: -9999px 0;
   background: url('/studio-art/monogram-espresso.png') center / contain no-repeat;
 }
-html[data-studio-scheme='dark'] .ncs-splash__mark {
+html[data-studio-scheme='dark'] .ncs-sp__mark {
   background-image: url('/studio-art/monogram-cream.png');
 }
 @media (prefers-color-scheme: dark) {
-  html:not([data-studio-scheme='light']) .ncs-splash__mark {
+  html:not([data-studio-scheme='light']) .ncs-sp__mark {
     background-image: url('/studio-art/monogram-cream.png');
   }
 }
