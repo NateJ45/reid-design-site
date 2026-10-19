@@ -24,9 +24,20 @@ import { guides, GUIDE_CATEGORIES, GUIDE_FOR_FIELD, GUIDES_FOR_TYPE } from './gu
 import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
 import { brandIcon } from './brandIcons';
-import { buildNotice, buildReview, inTwoWeeks, todayDate } from '../lib/quick-updates';
+import {
+  buildNotice,
+  buildPressMention,
+  buildQuestion,
+  buildReview,
+  FAQ_CATEGORIES,
+  faqCategoryFrom,
+  inTwoWeeks,
+  REVIEW_SOURCES,
+  todayDate,
+} from '../lib/quick-updates';
 import { runPageCheck } from './actions/checkPage';
 import { PAGE_BUILDER_TYPES } from './pageBuilderConfig';
+import { TOURS, WELCOME, WHATS_NEW } from './studio-tours';
 
 /** Page types with their own SEO description box. */
 const SEO_TYPES = [
@@ -188,8 +199,8 @@ export const kitConfig: KitConfig = {
     },
   ],
 
-  // Quick update (card 111): the two jobs Staci does from her phone between
-  // clients. Each form publishes straight away, so the builders in
+  // Quick update (card 111): the jobs Staci does from her phone between
+  // clients (the weekly list is docs/agent/studio-plan.md). Each form publishes straight away, so the builders in
   // src/lib/quick-updates.ts return whole, valid documents (tested).
   quickUpdate: [
     {
@@ -225,16 +236,16 @@ export const kitConfig: KitConfig = {
         {
           name: 'source',
           title: 'Where it came from',
-          kind: 'string',
+          kind: 'select',
+          options: REVIEW_SOURCES.map((value) => ({ title: value, value })),
           initial: () => 'Google',
-          description: 'Google, Facebook, Houzz, Direct (email or text) or Other.',
         },
         {
           name: 'stars',
           title: 'Stars (Google only)',
-          kind: 'string',
+          kind: 'select',
+          options: ['5', '4', '3', '2', '1'].map((value) => ({ title: value, value })),
           initial: () => '5',
-          description: 'A number from 1 to 5.',
         },
         {
           name: 'date',
@@ -290,6 +301,157 @@ export const kitConfig: KitConfig = {
         buildNotice({ message: v.message, lastDay: v.lastDay, link: v.link || undefined }),
       doneMessage:
         'The notice will be on the website in a few minutes, and it takes itself down after the day you picked.',
+    },
+    // 2026-10-19 (docs/agent/studio-plan.md): the two other things Staci adds
+    // between clients. A press mention as soon as a feature goes up, and a
+    // question once a client has asked it twice.
+    {
+      id: 'press',
+      title: 'Add a press mention',
+      detail: 'Featured in a magazine, a blog or a podcast? Put it on the website.',
+      icon: brandIcon('post'),
+      meaning: 'post',
+      fields: [
+        {
+          name: 'outlet',
+          title: 'Where it appeared',
+          kind: 'string',
+          required: true,
+          max: 60,
+          description: 'The magazine, blog or show, like "Indianapolis Monthly".',
+        },
+        {
+          name: 'date',
+          title: 'When it came out',
+          kind: 'date',
+          required: true,
+          initial: (now) => todayDate(now),
+        },
+        {
+          name: 'title',
+          title: 'Its headline',
+          kind: 'string',
+          max: 120,
+          description: 'Optional. The title of the article or episode.',
+        },
+        {
+          name: 'url',
+          title: 'A link to it',
+          kind: 'url',
+          description: 'Optional. A full web address starting with https://',
+        },
+        {
+          name: 'quote',
+          title: 'A line they wrote about you',
+          kind: 'text',
+          max: 220,
+          description: 'Optional. Copied exactly, and kept short.',
+        },
+      ],
+      build: (v) =>
+        buildPressMention({
+          outlet: v.outlet,
+          date: v.date,
+          title: v.title,
+          url: v.url,
+          quote: v.quote,
+        }),
+      doneMessage:
+        'The mention will be on the website in a few minutes, wherever a Press mentions section sits.',
+    },
+    {
+      id: 'question',
+      title: 'Add a question',
+      detail: 'A question clients keep asking, answered once on the Questions page.',
+      icon: brandIcon('question'),
+      meaning: 'question',
+      fields: [
+        {
+          name: 'question',
+          title: 'The question',
+          kind: 'string',
+          required: true,
+          max: 120,
+          description:
+            'In the words a client would use, like "Do you work with furniture I already own?"',
+        },
+        {
+          name: 'answer',
+          title: 'Your answer',
+          kind: 'text',
+          required: true,
+          description: 'A few short sentences. Leave an empty line to start a new paragraph.',
+        },
+        {
+          name: 'category',
+          title: 'Which group',
+          kind: 'select',
+          options: FAQ_CATEGORIES.map((value) => ({ title: value, value })),
+          initial: () => 'Getting Started',
+          description: 'Not sure? Leave it, and move it later.',
+        },
+      ],
+      build: async (v, { client }) => {
+        const category = faqCategoryFrom(v.category);
+        const last = await client.fetch<number | null>(
+          `*[_type == "faqItem" && category == $category && !(_id in path("drafts.**"))] | order(displayOrder desc)[0].displayOrder`,
+          { category },
+        );
+        return buildQuestion(
+          { question: v.question, answer: v.answer, category },
+          typeof last === 'number' ? last : null,
+        );
+      },
+      doneMessage:
+        'The question will be on the Questions page in a few minutes, at the end of its group. Open it in the full editor to add a link or bold words.',
+    },
+    // Card 137 edit jobs (config only, no builder): the two one-field changes
+    // Staci makes most, the Google rating with the day she checked it, and the
+    // availability line on Contact, Services and the footer.
+    {
+      id: 'rating',
+      title: 'Update your Google rating',
+      detail: 'The stars on Home, Services, About and Contact.',
+      icon: brandIcon('times'),
+      meaning: 'times',
+      job: { kind: 'edit', doc: 'siteSettings', type: 'siteSettings' },
+      fields: [
+        {
+          name: 'googleRating',
+          title: 'Google star rating',
+          kind: 'number',
+          required: true,
+          description: 'The number beside the stars on your Google profile, like 4.9 or 5.0.',
+        },
+        {
+          name: 'googleReviewsUpdatedAt',
+          title: 'Rating last checked',
+          kind: 'date',
+          required: true,
+          initial: (now) => todayDate(now),
+        },
+      ],
+      doneMessage:
+        'The new rating will be on the website in a few minutes. Home asks again in a month.',
+    },
+    {
+      id: 'availability',
+      title: 'Change your availability',
+      detail: 'The line by the green dot, like "Booking for spring 2027".',
+      icon: brandIcon('place'),
+      meaning: 'place',
+      job: { kind: 'edit', doc: 'businessInfo', type: 'businessInfo' },
+      fields: [
+        {
+          name: 'availabilityStatus',
+          title: 'Availability',
+          kind: 'string',
+          required: true,
+          max: 80,
+          description: 'One short line, like "Booking for spring 2027".',
+        },
+      ],
+      doneMessage: 'Contact, Services and the footer will show it in a few minutes.',
     },
   ],
 
@@ -396,6 +558,12 @@ export const kitConfig: KitConfig = {
   // The page check inside "Help for this page" (card 110): the same three
   // checks as the "Check this page..." action, on the page-builder types.
   pageCheck: { types: [...PAGE_BUILDER_TYPES], run: (doc, client) => runPageCheck(client, doc) },
+
+  // Card 137: spotlight tours, the welcome and What's new, as plain data in
+  // studio-tours.ts (unit-tested). tourSteps stays as the fallback.
+  tours: TOURS,
+  welcome: WELCOME,
+  whatsNew: WHATS_NEW,
 
   tourSteps: [
     {

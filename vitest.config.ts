@@ -19,6 +19,8 @@ export default defineConfig({
       'src/lib/photo-post.test.ts',
       'src/lib/earlier-versions.test.ts',
       'src/lib/guide-shots.test.ts',
+      'src/lib/google-auth.test.ts',
+      'src/lib/guide-videos.test.ts',
     ],
   },
 });

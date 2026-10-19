@@ -14,10 +14,19 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-19: the Studio made complete for Staci (phase A; plan in `docs/agent/studio-plan.md`)
+
+- [x] Card 137 wired (2026-10-19): tours, welcome and What's new from `src/sanity/studio-tours.ts`; Quick update edit jobs for the Google rating and availability; pick lists on the review and question forms.
+- [ ] **Videos**: record the seven clips in `docs/agent/studio-video-scripts.md` with the card 137 pipeline (sample data only), register them in `src/sanity/guides/videos.ts`, add each guide's `video`, and check every caption frame.
+- [ ] **Post a photo into a room story** (still open after 137): room story photos are a top-level `gallery` list, which the kit's Post a photo cannot reach. See the plan.
+- [ ] Signed in, take the first-run tour and "How this screen works" on Home and Quick update at desktop and phone width, and check every spotlight lands on its button.
+- [ ] **The `publish-button` picture** still shows the wireframe: the kit harness signs in as a pretend user who cannot publish, so its Publish button is greyed. Capture it signed in (studio-kit.md, "Real captures in the guides").
+- [ ] Look at the new guides and pictures in the real Studio, signed in, at desktop and phone width: Where enquiries and bookings go, Ask a client for a Google review, Add a question, Quick update.
+
 ### From 2026-10-19: starter sync (PORTS.md cards 130, 133, 134)
 
-- [ ] Site Guide pictures: `src/sanity/guides/shots.ts` is an empty registry, so every `{ kind: 'shot', key }` block would show the wireframe drawing. No guide asks for a key yet. Real captures need a signed-in Studio (see studio-kit.md, "Real captures in the guides").
-- [ ] The "How to" chip beside fields (card 134) is wired in `GUIDE_FOR_FIELD` (`src/sanity/guides/content.ts`): it opens the guide at the top, because this site's `GuideView` is the older desk view and does not take a `section`. Check it signed in on a page's Google title, and move `GuideView` onto the kit's `GuidePage` if headings matter.
+- [x] Site Guide pictures (2026-10-19): `src/sanity/guides/shots.ts` now holds captures from the kit harness for Home, Quick update, a room story, Site settings Reviews, Contact Scheduling and Help for this page.
+- [x] The "How to" chip beside fields (card 134) now opens at its heading: `GuideView` moved onto the kit's `GuidePage` (2026-10-19).
 - [x] `PreviewLayout.astro` now imports `starwind.css` after `globals.css`, in BaseLayout's order, so live draft preview gets the accordion keyframes and semantic tokens.
 
 ### From 2026-10-19: the Studio design language and token sign-in (PORTS.md cards 128, 129)
