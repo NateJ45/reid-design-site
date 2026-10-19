@@ -9,8 +9,10 @@
 // `schema.templates`. (Pattern from presacademy src/sanity/templates.ts and the
 // WCP site's pageTemplates.ts.)
 //
-// Placeholder copy is [in square brackets] so nothing reads as finished, and it
-// is written in the site's voice: plain, specific, no designer-speak. Every
+// Short values (title, town, house, price line) start "Example:", the kit's
+// convention, so a title never ends up as a bracketed prompt and the page
+// check warns until they are replaced. Longer prompts are [in square brackets],
+// which the same check also catches. All of it is written in the site's voice: plain, specific, no designer-speak. Every
 // prompt says WHAT to write, with a Reid-shaped example where one helps.
 //
 // Shapes matter more than words here:
@@ -71,11 +73,11 @@ export const STARTING_TEMPLATES: Template[] = [
     // A function, so the year is the year the project is started, not the year
     // this file was written.
     value: () => ({
-      title: '[Room and town, like "Avon living room"]',
-      location: '[Town, like "Fishers, IN"]',
-      houseDescription: '[Era and kind of home, like "1990s colonial"]',
+      title: 'Example: Avon living room',
+      location: 'Example: Fishers, IN',
+      houseDescription: 'Example: 1990s colonial',
       scopeLine:
-        '[What you did and the real price, like "Full room design, from $995". Delete this if the client would rather not show it.]',
+        'Example: Full room design, from $995. Replace it with the real figure, or clear this line if the client would rather not show it.',
       year: new Date().getFullYear(),
       briefSummary:
         '[One sentence for the portfolio card: the problem and your move. Between 60 and 200 characters.]',

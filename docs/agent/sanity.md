@@ -364,6 +364,9 @@ lives, and the rule that makes it safe:
   reads the sources to prove no live page can pass the signal.
 - **Releases off.** `releases: { enabled: false }` in `sanity.config.ts`. One editor,
   one publish model.
+- **Scheduled Drafts off.** `scheduledDrafts: { enabled: false }` beside it: on the
+  Sanity free plan that tool only shows "Upgrade to unlock". Timing is the site's own
+  "Publish automatically at" field (publish-due).
 
 ### The authoring kit: templates, saved and synced sections, press (added 2026-10-18)
 
