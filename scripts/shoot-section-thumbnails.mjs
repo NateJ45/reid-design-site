@@ -196,8 +196,14 @@ try {
   const gap = 24;
   const tile = await sharp(FIXTURE).resize(size, size, { fit: 'cover' }).toBuffer();
   const left = Math.round((WIDTH - (4 * size + 3 * gap)) / 2);
-  await sharp({ create: { width: WIDTH, height: 400, channels: 3, background: '#f7f3ee' } })
+  // Compose at full size first: sharp runs resize before composite in one pipeline.
+  const board = await sharp({
+    create: { width: WIDTH, height: 400, channels: 3, background: '#f7f3ee' },
+  })
     .composite([0, 1, 2, 3].map((i) => ({ input: tile, top: 80, left: left + i * (size + gap) })))
+    .png()
+    .toBuffer();
+  await sharp(board)
     .resize(WIDTH / 2, 200)
     .jpeg({ quality: 72 })
     .toFile(join(OUT, 'instagramSection.jpg'));
