@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+# The editor, its draft previews, the Studio plumbing and the page-builder
+# picture wall are not pages for visitors (each is noindex as well).
+Disallow: /studio/
+Disallow: /preview/
+Disallow: /api/
+Disallow: /styleguide/
 
 Sitemap: https://reiddesignllc.com/sitemap-index.xml
