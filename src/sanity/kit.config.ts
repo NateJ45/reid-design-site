@@ -449,6 +449,10 @@ export const kitConfig: KitConfig = {
       src: '/studio-art/Waterfall-400.woff2',
       colors: ['#F5EDE3'],
     },
+    // Card 135: the sample tag (notch and punched hole) is the slot's 'tag' chip.
+    style: {
+      chip: { shape: 'tag', bg: '#f5ede3', fg: '#231e1b', hoverBg: '#fffdfa' },
+    },
   },
 
   features: {
