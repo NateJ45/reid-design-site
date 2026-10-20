@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-20: The Checkup uses the whole pane (starter card 147)
+
+A count strip and the levels as columns. No config.
+
 ## 2026-10-20: Post a photo onto a room story (starter cards 143 and 144)
 
 Quick update's Post a photo tile now adds one photo, with alt text, to a room story that already exists. It lands on the story's draft and never publishes. Config is `postPhoto` in `src/sanity/kit.config.ts`; the Site Guide and What's new mention it.
