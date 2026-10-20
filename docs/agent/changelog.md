@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-20: Notice callouts in the harness (starter card 149)
+
+Card 149 touches the writing helper and the private-page password, which this site does not have; only the harness page and the kit doc came across.
+
 ## 2026-10-20: Quick update uses a wide pane (starter card 148)
 
 A tile grid, and a How this goes rail beside an open form from 860px; phones unchanged. No config.
