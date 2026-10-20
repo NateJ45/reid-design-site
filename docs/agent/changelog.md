@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-20: Quick update tiles keep their colour edge flush (starter card 150)
+
+A css fix in the kit; no config.
+
 ## 2026-10-20: Notice callouts in the harness (starter card 149)
 
 Card 149 touches the writing helper and the private-page password, which this site does not have; the harness page needs the helper's suggestion card, so `src/sanity/ai/` and `src/lib/studio-ai.ts` came across too (not switched on; their test reads a style guide this repo does not have, so it stays out).
