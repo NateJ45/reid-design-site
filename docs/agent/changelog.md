@@ -6,6 +6,10 @@
 
 Quick update's Post a photo tile now adds one photo, with alt text, to a room story that already exists. It lands on the story's draft and never publishes. Config is `postPhoto` in `src/sanity/kit.config.ts`; the Site Guide and What's new mention it.
 
+## 2026-10-20: Reid's Studio keeps its own character (studio.look)
+
+The paint-chip pin marker, square stones, tape-measure strip and ruled-note texture were already Reid's. This adds the missing devices: a dashed connector (tape-measure ticks) joining numbered steps, the script lettering (Waterfall) for banner titles, and `lay` motion (steps set down one by one, like chips laid on a board). `npm run check:look` prints the quiet line. Checked at 1280, 375 and 320 wide with no sideways scroll on Home, Site Guide and Quick update.
+
 ## 2026-10-20: Home as a full-width dashboard (starter card 145)
 
 Home uses the wide pane: a main column and a sticky status rail (Is it live, Checkup, This week, Ask). No config.
