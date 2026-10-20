@@ -90,7 +90,7 @@
       "markColors": ["#B39079", "#80604F", "#5F4639"],
       "stone": "square",
       "connector": {
-        "kind": "line",
+        "kind": "dashes",
         "color": "#9C7661"
       },
       "tones": {
@@ -102,7 +102,12 @@
       "motifNarrow": "/studio-art/tape-chips-phone.svg",
       "texture": "/studio-art/ruled-note.svg",
       "edgeColors": ["#F1E7DC", "#E2CFBD", "#CDB09A", "#B39079", "#9C7661", "#80604F", "#5F4639"],
-      "motion": "draw"
+      "lettering": {
+        "family": "Waterfall",
+        "src": "/studio-art/Waterfall-400.woff2",
+        "colors": ["#F5EDE3"]
+      },
+      "motion": "lay"
     }
   }
 }
