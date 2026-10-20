@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-20: Quick update uses a wide pane (starter card 148)
+
+A tile grid, and a How this goes rail beside an open form from 860px; phones unchanged. No config.
+
 ## 2026-10-20: The Checkup uses the whole pane (starter card 147)
 
 A count strip and the levels as columns. No config.
