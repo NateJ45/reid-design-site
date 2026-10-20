@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-19: Starter cards 139, 140 and 143 synced
+
+`npm run check:look` (card 139), toasts in the site voice (card 140) and `postPhoto.stories` (card 143, photos onto a room story's own list; not switched on here yet) come from the starter. Sync-check is all SAME.
+
 ## 2026-10-19: Visitors card reads GA4 (starter card 136)
 
 Visitors card now reads GA4 and Search Console through studio-status (card 136).
