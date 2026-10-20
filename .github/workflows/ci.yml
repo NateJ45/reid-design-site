@@ -209,8 +209,11 @@ jobs:
       # site, so there is no separate `sanity build` step. Do NOT add one back:
       # `sanity build` writes to ./dist by default and would clobber the Astro
       # output.
+      # Built from the PINNED content snapshot (ci/sanity-snapshot.ndjson.gz), never the
+      # live dataset (PORTS.md card 138), so a client edit in the Studio cannot turn this
+      # red. Refresh deliberately: node scripts/snapshot.mjs export.
       - name: Build (site + embedded Studio)
-        run: npm run build
+        run: node scripts/snapshot.mjs run -- npm run build
 
       # linkinator over dist/client. The SSR-only routes (/studio, /preview/**,
       # /api/draft-mode/*) are skipped in the script: they are not in
