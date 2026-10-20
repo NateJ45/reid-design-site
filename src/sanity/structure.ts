@@ -33,6 +33,7 @@ import BrandKit from './components/BrandKit';
 import StudioPlaybook from './components/StudioPlaybook';
 import { staffDesk } from './kit/shared';
 import { emptyAwareList } from './kit/emptyList';
+import { trashListItem } from './kit/trash';
 import { brandIcon, typeIcon, type BrandIcon } from './brandIcons';
 import { kitConfig } from './kit.config';
 import { TRASH_TYPE } from '../lib/studio-trash';
@@ -404,16 +405,7 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
       // Trash: anything removed with "Move to Trash", newest first, so the
       // thing you just removed by accident is the first row you see. The id is
       // load-bearing: the Checkup links to it.
-      S.listItem()
-        .id('trash')
-        .title('Trash (bring things back)')
-        .icon(brandIcon('trash'))
-        .child(
-          S.documentTypeList(TRASH_TYPE)
-            .id('trash-list')
-            .title('Trash')
-            .defaultOrdering([{ field: 'deletedAt', direction: 'desc' }]),
-        ),
+      trashListItem(S, context, brandIcon('trash')),
 
       // Safety net: any document type not placed above. Plugin types
       // (sanity-plugin-media's media.tag and media.folder) stay out.

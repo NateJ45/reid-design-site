@@ -6,6 +6,10 @@
 
 Quick update's Post a photo tile now adds one photo, with alt text, to a room story that already exists. It lands on the story's draft and never publishes. Config is `postPhoto` in `src/sanity/kit.config.ts`; the Site Guide and What's new mention it.
 
+## 2026-10-20: An empty Trash has a page of its own (starter card 146)
+
+`structure.ts` uses the kit's `trashListItem` (same id 'trash'), so an empty Trash shows greyed art and warmer words.
+
 ## 2026-10-19: Starter cards 139 to 143 synced
 
 `npm run check:look` (card 139), toasts in the site voice (card 140) and `postPhoto.stories` (card 143, photos onto a room story's own list; not switched on here yet) come from the starter, with the drawn Yes/No switch (card 141) and the How-to chip on date fields (card 142). Sync-check is all SAME.
