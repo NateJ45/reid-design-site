@@ -1,0 +1,59 @@
+{
+  "slug": "add-press",
+  "title": "Add a press mention from your phone",
+  "start": "/quick-update/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "ready": "[data-tour=\"quick-list\"]",
+  "steps": [
+    {
+      "do": "caption",
+      "text": "On your phone, open Quick update.",
+      "ms": 2200,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"press\"]",
+      "caption": "Tap Add a press mention."
+    },
+    {
+      "do": "click",
+      "target": "[data-quick=\"press\"]"
+    },
+    {
+      "do": "type",
+      "target": "#quick-outlet",
+      "text": "Sample Home Journal",
+      "caption": "Where it appeared."
+    },
+    {
+      "do": "type",
+      "target": "#quick-title",
+      "text": "Five calm living rooms",
+      "caption": "Its headline, as printed."
+    },
+    {
+      "do": "type",
+      "target": "#quick-url",
+      "text": "https://example.com/five-calm-rooms",
+      "delay": 20,
+      "caption": "Paste a link to it, if there is one."
+    },
+    {
+      "do": "ring",
+      "target": "text:Put it on the website",
+      "caption": "Tap the button. It joins the Press page.",
+      "ms": 2400
+    }
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
+}

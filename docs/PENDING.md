@@ -17,8 +17,9 @@ items to "Recently closed" with a date, and prune that section when it grows.
 ### From 2026-10-19: the Studio made complete for Staci (phase A; plan in `docs/agent/studio-plan.md`)
 
 - [x] Card 137 wired (2026-10-19): tours, welcome and What's new from `src/sanity/studio-tours.ts`; Quick update edit jobs for the Google rating and availability; pick lists on the review and question forms.
-- [ ] **Videos**: record the seven clips in `docs/agent/studio-video-scripts.md` with the card 137 pipeline (sample data only), register them in `src/sanity/guides/videos.ts`, add each guide's `video`, and check every caption frame.
-- [ ] **Post a photo into a room story** (still open after 137): room story photos are a top-level `gallery` list, which the kit's Post a photo cannot reach. See the plan.
+- [ ] **Videos, phone clips**: re-record the five scripts in `tools/tutorial-videos/scripts/` with Astro's dev toolbar and Sanity's "What's new" toast hidden (script `cover.selectors`), check every caption frame, register them in `src/sanity/guides/videos.ts` and add each guide's `video` (add-review, announcement, press, add-question, google-rating).
+- [ ] **Videos, desk clips**: first room story, change a price and trash from `docs/agent/studio-video-scripts.md`. They need a signed-in Studio that can publish (the kit harness refuses writes), then `videos.ts` entries and each guide's `video`.
+- [ ] **Post a photo into an existing room story** (still open after 137): room story photos are a top-level `gallery` list, which the kit's Post a photo and card 137's `append` / `upload` jobs cannot reach (no `pick`). "Start a room story from a photo" is the closest job today. See the plan.
 - [ ] Signed in, take the first-run tour and "How this screen works" on Home and Quick update at desktop and phone width, and check every spotlight lands on its button.
 - [ ] **The `publish-button` picture** still shows the wireframe: the kit harness signs in as a pretend user who cannot publish, so its Publish button is greyed. Capture it signed in (studio-kit.md, "Real captures in the guides").
 - [ ] Look at the new guides and pictures in the real Studio, signed in, at desktop and phone width: Where enquiries and bookings go, Ask a client for a Google review, Add a question, Quick update.

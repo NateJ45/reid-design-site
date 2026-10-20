@@ -453,6 +453,57 @@ export const kitConfig: KitConfig = {
       ],
       doneMessage: 'Contact, Services and the footer will show it in a few minutes.',
     },
+    // Card 137 create job with a picture: the start of a room story from the
+    // phone. A story is a long page, so this only opens it: the title, the town
+    // and the cover photo, saved as a DRAFT. Adding photos to the gallery of a
+    // story that already exists needs an append job that can pick its document
+    // (not in card 137; noted in docs/agent/studio-plan.md for the starter).
+    {
+      id: 'room-photo',
+      title: 'Start a room story from a photo',
+      detail: 'Snap the finished room, name it, and finish the story at your desk.',
+      icon: brandIcon('image'),
+      meaning: 'image',
+      job: { kind: 'create', type: 'project', slugFrom: 'title', draft: true },
+      submitLabel: 'Save it as a draft',
+      fields: [
+        {
+          name: 'title',
+          title: 'Room story title',
+          kind: 'string',
+          required: true,
+          max: 80,
+          description: 'Like "A calm living room in Avon".',
+        },
+        {
+          name: 'location',
+          title: 'Town',
+          kind: 'string',
+          max: 60,
+          description: 'Like "Avon, IN".',
+        },
+        {
+          name: 'heroImage',
+          title: 'Cover photo',
+          kind: 'image',
+          required: true,
+          accept: 'image/*',
+          description: 'Your best wide shot of the finished room.',
+        },
+        {
+          name: 'heroAlt',
+          title: 'Describe the photo',
+          kind: 'string',
+          required: true,
+          max: 140,
+          path: 'heroImage.alt',
+          description:
+            'One short line for people who cannot see it, like "Sage sofa under a gallery wall".',
+        },
+      ],
+      doneMessage:
+        'It is saved as a draft, not on the website yet. Open it at your desk to add the rest of the photos and the story, then Publish.',
+    },
   ],
 
   checkup: {

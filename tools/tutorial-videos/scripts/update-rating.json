@@ -1,0 +1,72 @@
+{
+  "slug": "update-rating",
+  "title": "Update your Google rating from your phone",
+  "start": "/quick-update/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "ready": "[data-tour=\"quick-list\"]",
+  "steps": [
+    {
+      "do": "caption",
+      "text": "On your phone, open Quick update.",
+      "ms": 2200,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"rating\"]",
+      "caption": "Tap Update your Google rating."
+    },
+    {
+      "do": "click",
+      "target": "[data-quick=\"rating\"]"
+    },
+    {
+      "do": "click",
+      "target": "#quick-googleRating",
+      "caption": "Type the rating Google shows.",
+      "ms": 600
+    },
+    {
+      "do": "press",
+      "key": "Control+a",
+      "ms": 300
+    },
+    {
+      "do": "press",
+      "key": "4",
+      "ms": 250
+    },
+    {
+      "do": "press",
+      "key": "Period",
+      "ms": 250
+    },
+    {
+      "do": "press",
+      "key": "9",
+      "ms": 1400
+    },
+    {
+      "do": "ring",
+      "target": "#quick-googleReviewsUpdatedAt",
+      "caption": "Set the day you looked. Home asks again in a month.",
+      "ms": 2600
+    },
+    {
+      "do": "ring",
+      "target": "text:Put it on the website",
+      "caption": "Tap the button. The stars update on every page.",
+      "ms": 2400
+    }
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
+}

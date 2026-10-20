@@ -575,6 +575,7 @@ export const guides: Guide[] = [
     icon: 'bolt',
     lead: 'A bar across the top of the website, or a popup, for a few days or weeks.',
     diy: 'self',
+    video: 'post-notice',
     body: [
       {
         kind: 'steps',
@@ -797,6 +798,7 @@ export const guides: Guide[] = [
     icon: 'check',
     lead: 'The stars on Home, Services, About and Contact.',
     diy: 'self',
+    video: 'update-rating',
     body: [
       {
         kind: 'steps',
@@ -823,6 +825,7 @@ export const guides: Guide[] = [
     icon: 'add',
     lead: 'A Google review, a kind text, an email: their words, on your website.',
     diy: 'self',
+    video: 'add-review',
     body: [
       {
         kind: 'steps',
@@ -854,6 +857,7 @@ export const guides: Guide[] = [
     icon: 'add',
     lead: 'Featured in a magazine, a blog or a podcast? Put it on the website.',
     diy: 'self',
+    video: 'add-press',
     body: [
       {
         kind: 'steps',
@@ -970,6 +974,7 @@ export const guides: Guide[] = [
     icon: 'question',
     lead: 'Asked the same thing twice this month? Answer it once on the website.',
     diy: 'self',
+    video: 'add-question',
     body: [
       {
         kind: 'steps',
@@ -1074,7 +1079,7 @@ export const guides: Guide[] = [
     category: 'Housekeeping',
     title: 'Quick update from your phone',
     icon: 'bolt',
-    lead: 'Six small jobs, each under a minute between clients.',
+    lead: 'Seven small jobs, each under a minute between clients.',
     diy: 'self',
     body: [
       {
@@ -1097,11 +1102,12 @@ export const guides: Guide[] = [
           '**Add a question**: a question clients keep asking, with your answer, at the end of its group on the Questions page.',
           '**Update your Google rating**: the rating and the day you checked it.',
           '**Change your availability**: the line by the green dot on Contact.',
+          '**Start a room story from a photo**: a title, the town and a cover photo, saved as a draft you finish at your desk.',
         ],
       },
       {
         kind: 'p',
-        text: 'Room stories are not here on purpose: they need a dozen photos and a bigger screen. Start one from Home on your laptop.',
+        text: 'A whole room story needs a dozen photos and a bigger screen, so the phone only opens it. Finish it from Home on your laptop.',
       },
       {
         kind: 'seealso',

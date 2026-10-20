@@ -1,0 +1,59 @@
+{
+  "slug": "add-question",
+  "title": "Add a question from your phone",
+  "start": "/quick-update/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "ready": "[data-tour=\"quick-list\"]",
+  "steps": [
+    {
+      "do": "caption",
+      "text": "On your phone, open Quick update.",
+      "ms": 2200,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"question\"]",
+      "caption": "Tap Add a question."
+    },
+    {
+      "do": "click",
+      "target": "[data-quick=\"question\"]"
+    },
+    {
+      "do": "type",
+      "target": "#quick-question",
+      "text": "Do you work with furniture I already own?",
+      "caption": "Ask it the way a client would."
+    },
+    {
+      "do": "type",
+      "target": "#quick-answer",
+      "text": "Always. We start with what you love and build around it.",
+      "delay": 30,
+      "caption": "Answer it simply."
+    },
+    {
+      "do": "ring",
+      "target": "#quick-category",
+      "caption": "Not sure of the group? Leave it, and move it later.",
+      "ms": 2600
+    },
+    {
+      "do": "ring",
+      "target": "text:Put it on the website",
+      "caption": "Tap the button. It goes at the end of its group.",
+      "ms": 2400
+    }
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
+}
