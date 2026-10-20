@@ -71,12 +71,7 @@ once it is looked up), Nathan the full Studio.
 - **Dropdowns**: "Where it came from" and "Stars" on a review, and "Which group" on a question, are pick lists now.
 - **Tours, welcome and What's new** are wired from `src/sanity/studio-tours.ts` (first run, Home, Quick update, and a
   room story tour on demand).
-- **Still open**: "Post a photo" into a room story. Room story photos live in their own `gallery` list, not in a
-  page-builder gallery section, so the kit's Post a photo (which adds to a gallery section) cannot reach them, and card
-  137's `append` and `upload` jobs name ONE fixed document (no `pick`), so they cannot reach a chosen room story
-  either. Today's closest job is "Start a room story from a photo" (a `create` job, saved as a draft). Adding install-day
-  photos to an existing story from the phone needs a starter change: `append` or `upload` with a `pick`, or a gallery
-  spec with no page builder.
+- **Post a photo** (starter card 143): `postPhoto.stories` in `kit.config.ts` offers each room story as a place for one photo, with alt text required. It is added to the story's DRAFT gallery (made from the published copy when there is none) and never publishes; Staci presses Publish at her desk. One photo per pass, "Post another photo" after each.
 - **Videos**: five phone scripts are in `tools/tutorial-videos/scripts/` (add a review, post a notice, add a press
   mention, add a question, update the Google rating) and were recorded once, but not registered: the recording showed
   Sanity's "What's new" toast and Astro's dev toolbar, so they need a re-record with those hidden (see PENDING). The desk

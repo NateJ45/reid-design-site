@@ -456,8 +456,7 @@ export const kitConfig: KitConfig = {
     // Card 137 create job with a picture: the start of a room story from the
     // phone. A story is a long page, so this only opens it: the title, the town
     // and the cover photo, saved as a DRAFT. Adding photos to the gallery of a
-    // story that already exists needs an append job that can pick its document
-    // (not in card 137; noted in docs/agent/studio-plan.md for the starter).
+    // story that already exists is the Post a photo tile (postPhoto.stories, card 143).
     {
       id: 'room-photo',
       title: 'Start a room story from a photo',
@@ -672,6 +671,20 @@ export const kitConfig: KitConfig = {
     style: {
       chip: { shape: 'tag', bg: '#f5ede3', fg: '#231e1b', hoverBg: '#fffdfa' },
     },
+  },
+
+  // Card 143: "Post a photo" onto a room story that already exists. Room story
+  // photos are the project's own `gallery` list (alt text required there), so no
+  // page-builder galleries are offered. Always a DRAFT: nothing goes live until
+  // Staci opens the story and presses Publish.
+  postPhoto: {
+    galleryTypes: [],
+    stories: { types: ['project'], field: 'gallery', noun: 'Room story' },
+    tileLead: 'Add a photo to a room story you have already started. Saved as a draft.',
+    draftNote:
+      'It is saved as a draft on that room story. Open it and press Publish when you are ready.',
+    altExample: 'The finished living room, with the walnut sideboard against the sage wall',
+    note: "Photos of finished rooms only, and only with the client's say-so.",
   },
 
   features: {
