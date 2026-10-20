@@ -6,6 +6,10 @@
 
 Quick update's Post a photo tile now adds one photo, with alt text, to a room story that already exists. It lands on the story's draft and never publishes. Config is `postPhoto` in `src/sanity/kit.config.ts`; the Site Guide and What's new mention it.
 
+## 2026-10-20: Home as a full-width dashboard (starter card 145)
+
+Home uses the wide pane: a main column and a sticky status rail (Is it live, Checkup, This week, Ask). No config.
+
 ## 2026-10-20: An empty Trash has a page of its own (starter card 146)
 
 `structure.ts` uses the kit's `trashListItem` (same id 'trash'), so an empty Trash shows greyed art and warmer words.
