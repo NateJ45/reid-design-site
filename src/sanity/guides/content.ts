@@ -140,7 +140,7 @@ export const guides: Guide[] = [
         kind: 'bullets',
         items: [
           '**The big buttons**: your most common jobs, one click each. Start a room story, change a price, add a review, update your Google rating.',
-          '**This week**: a short list of the jobs that keep enquiries coming. Some tick themselves when the Studio can see they are done; the rest you tick by hand, and the list starts fresh every Monday.',
+          '**This week**: a short list of the jobs that keep inquiries coming. Some check themselves when the Studio can see they are done; the rest you check by hand, and the list starts fresh every Monday.',
           '**Is it live?**: whether your last Publish has reached the website yet.',
           '**Fix-it list**: anything the Checkup found, by name, with an `Edit` button that opens the right box.',
           '**Coming up**: room stories set to publish themselves on a day you picked.',
@@ -226,7 +226,7 @@ export const guides: Guide[] = [
         items: [
           'Pick the room: one you are proud of, finished and styled.',
           'Have 8 to 12 photos ready on your computer: a wide shot, a before from the same spot if you have one, and close-ups of the details.',
-          'Ask the client if they are happy for you to show their home, and whether you can mention what it cost. You will tick their answers in the story.',
+          'Ask the client if they are happy for you to show their home, and whether you can mention what it cost. You will check their answers in the story.',
         ],
       },
       { kind: 'h', text: 'Step by step' },
@@ -238,7 +238,7 @@ export const guides: Guide[] = [
           'Replace each bracket with your own words. Each one says what goes there: the room and town, the brief in one sentence, your design call in one sentence, then the story in three short parts.',
           'Under `Hero image`, upload your best wide shot and type a short description of it in `Alt text`, like "Living room in Avon with a sage sofa and a jute rug".',
           'Add the rest under `Project photos`. Drag them into the order you want them seen. Before and after pairs go under `Before / after pairs`.',
-          'Under `Client OK to share`, tick what the client agreed to. Leave the price line out if they would rather it stayed private.',
+          'Under `Client OK to share`, check what the client agreed to. Leave the price line out if they would rather it stayed private.',
           'Click `Generate` beside `Slug` to make the web address, like /portfolio/avon-living-room/.',
           'Open `Live preview` from the top bar to see the page as clients will see it.',
           'Click `Publish`. The story appears on the Portfolio page within a few minutes.',
@@ -465,7 +465,7 @@ export const guides: Guide[] = [
         items: [
           'Open the page that has the section you like.',
           'Click the small arrow beside `Publish` and choose `Save a section as preset...`.',
-          'Tick the section (or several that go together), give it a name, and save.',
+          'Check the section (or several that go together), give it a name, and save.',
           'It is kept under `Content`, then `Pages`, then `Saved sections`.',
         ],
       },
@@ -842,8 +842,8 @@ export const guides: Guide[] = [
       {
         kind: 'bullets',
         items: [
-          'To put a favourite review forward, open it from `Content`, then `Prices, reviews and lists`, then `Reviews`, and tick `Featured`.',
-          'To keep one off the website without deleting it, tick `Hide on the website`.',
+          'To put a favorite review forward, open it from `Content`, then `Prices, reviews and lists`, then `Reviews`, and check `Featured`.',
+          'To keep one off the website without deleting it, check `Hide on the website`.',
           'A review added from your phone is not featured. Open it in the full editor to change that, or to add the link to the review on Google.',
         ],
       },
@@ -902,21 +902,21 @@ export const guides: Guide[] = [
   {
     slug: 'enquiries',
     category: 'Services, prices and reviews',
-    title: 'Where enquiries and bookings go',
+    title: 'Where inquiries and bookings go',
     icon: 'contact',
-    lead: 'The contact form and your booking link, and the weekly tick on Home.',
+    lead: 'The contact form and your booking link, and the weekly check on Home.',
     diy: 'self',
     body: [
       {
         kind: 'p',
-        text: 'Enquiries do not arrive in the Studio. A message from the contact form comes to your email, and a discovery call booked through your scheduling link comes from Calendly. The Studio cannot see either, so This week on Home has a hand tick for them.',
+        text: 'Inquiries do not arrive in the Studio. A message from the contact form comes to your email, and a discovery call booked through your scheduling link comes from Calendly. The Studio cannot see either, so This week on Home has a hand check for them.',
       },
       { kind: 'h', text: 'Each week' },
       {
         kind: 'steps',
         items: [
           'Reply to every contact form message and new booking in your email.',
-          "On Home, under `This week`, tick `Answer this week's enquiries`. The list starts fresh every Monday.",
+          "On Home, under `This week`, check `Answer this week's inquiries`. The list starts fresh every Monday.",
         ],
       },
       { kind: 'h', text: 'Change the booking link or its words' },
@@ -952,7 +952,7 @@ export const guides: Guide[] = [
         items: [
           'Open `Site settings` (Home, `Your pages`, `Google rating`) and copy your `"Leave a review" link`.',
           'Text or email it to a client who is happy with their room, while it is still new to them.',
-          'On Home, under `This week`, tick `Ask a happy client for a Google review`.',
+          'On Home, under `This week`, check `Ask a happy client for a Google review`.',
           'When the review comes in, add it from your phone with `Quick update`, then `Add a review`.',
         ],
       },
@@ -991,7 +991,7 @@ export const guides: Guide[] = [
         kind: 'bullets',
         items: [
           'Change `Display order` to move it within its group: lower numbers show first.',
-          'Tick `Also show on Process page` to add it to the questions at the bottom of Process.',
+          'Check `Also show on Process page` to add it to the questions at the bottom of Process.',
           'Links and bold words are added in the full editor, not from your phone.',
         ],
       },

@@ -74,7 +74,7 @@ const ROOM_STORY = {
     h2('rs-h2', 'The first decision'),
     para(
       'rs-p3',
-      '[The one choice everything else answered to, and why you made it. This is the paragraph a buyer remembers: "North light eats warm greys, so we went olive."]',
+      '[The one choice everything else answered to, and why you made it. This is the paragraph a buyer remembers: "North light eats warm grays, so we went olive."]',
     ),
     h2('rs-h3', 'How it came together'),
     para(

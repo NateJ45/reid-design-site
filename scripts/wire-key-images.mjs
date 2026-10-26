@@ -90,7 +90,7 @@ const wirings = [
     patches: {
       heroImage: imageField(
         resolve(photosRoot, '04-Portfolio-Grid', 'reid-design-living-room-grey-sectional-blue.jpg'),
-        'Plainfield family room with a low-profile grey sectional, blue accent pillows, and layered textures, a recent Reid Design project.',
+        'Plainfield family room with a low-profile gray sectional, blue accent pillows, and layered textures, a recent Reid Design project.',
       ),
     },
   },

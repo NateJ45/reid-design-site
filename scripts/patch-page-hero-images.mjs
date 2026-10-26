@@ -62,7 +62,7 @@ const PAIRINGS = [
   {
     docType: 'servicesPage',
     assetRef: 'image-e05a4e2d79c37f2c8271d095eb35e45abfd72513-5712x4284-jpg',
-    alt: 'Living room with grey sectional and blue accents designed by Reid Design.',
+    alt: 'Living room with gray sectional and blue accents designed by Reid Design.',
   },
   {
     docType: 'faqPage',

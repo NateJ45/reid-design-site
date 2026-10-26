@@ -60,7 +60,7 @@ export const PORTRAITS = {
     zoom: 1.7,
   },
   'e-design': {
-    note: 'Grey tee against white brick',
+    note: 'Gray tee against white brick',
     src: `${CDN}7e88f970ec026e6dff2ff08af91ce450a43215ac-2048x1365.jpg`,
     focus: { x: 0.32, y: 0.25 },
     zoom: 1,

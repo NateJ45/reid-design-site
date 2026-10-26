@@ -457,7 +457,7 @@ export const project = defineType({
       title: 'Client OK to share',
       type: 'object',
       description:
-        'Tick each one once the client has said yes (a text or email counts, a line in the contract is better). You cannot publish until the photos box is ticked.',
+        'Check each one once the client has said yes (a text or email counts, a line in the contract is better). You cannot publish until the photos box is checked.',
       options: { collapsible: true, collapsed: false },
       fields: [
         defineField({
@@ -469,7 +469,7 @@ export const project = defineType({
             Rule.custom((value) =>
               value === true
                 ? true
-                : 'Tick this once the client has agreed to photos of their home being shared.',
+                : 'Check this once the client has agreed to photos of their home being shared.',
             ),
         }),
         defineField({
