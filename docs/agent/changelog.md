@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-26: Playwright installs time out instead of hanging (starter card 70)
+
+Three docs-only PRs across the family sat 40 to 60 minutes in "Install Playwright system libraries" on 2026-10-26: the runner's Azure Ubuntu mirror fed a normal 30-second `install-deps` at 29 kB/s, and the workflows had no timeout, so a stuck apt could hold a required check for GitHub's 6-hour default. Each install attempt now runs under `timeout` (180s for `install-deps`, 360s for a full browser download), so a crawling first try is killed and the retry resumes the partial download; the step has `timeout-minutes` (8 and 15) and the Playwright job 30.
+
 ## 2026-10-26: American spelling everywhere (starter cards 163 and 164)
 
 Nathan's call: every family site is American English. Starter cards 163 and 164 copied byte-identical (164 moves the shared Studio and site text to American spelling, including "check" for a checkbox and "Website inquiry" as the contact email subject, and makes `build-csp.mjs` fail when the CSP line passes 2,000 characters). This site's own strings had the same pass: text only, no field name, option value, key, slug or CSS class renamed. The live Sanity content was checked the same day and fixed where needed.
