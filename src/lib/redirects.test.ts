@@ -13,7 +13,14 @@
 // =============================================================================
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { normalizeRedirectPath, isExternalTarget, buildRedirectMap } from './redirects.ts';
+import {
+  normalizeRedirectPath,
+  isExternalTarget,
+  buildRedirectMap,
+  isFileStyleSource,
+  fileStyleRedirectLines,
+  prependRedirectLines,
+} from './redirects.ts';
 
 test('normalizeRedirectPath adds the leading slash and drops the trailing one', () => {
   assert.equal(normalizeRedirectPath('old-page'), '/old-page');
@@ -93,4 +100,34 @@ test('buildRedirectMap lets a later entry win for the same source path', () => {
     ]),
     { '/a': { status: 301, destination: '/new' } },
   );
+});
+
+// ---- file-style sources (card 160) -----------------------------------------
+
+test('isFileStyleSource spots a file-looking last segment only', () => {
+  assert.equal(isFileStyleSource('/index.htm'), true);
+  assert.equal(isFileStyleSource('/index_files/Registration.htm/'), true);
+  assert.equal(isFileStyleSource('/about.php'), true);
+  assert.equal(isFileStyleSource('/old-page'), false);
+  assert.equal(isFileStyleSource('/v1.2/notes'), false);
+  assert.equal(isFileStyleSource('/'), false);
+});
+
+test('fileStyleRedirectLines writes slashless rules for file-style sources', () => {
+  const lines = fileStyleRedirectLines({
+    '/index.htm/': { status: 301, destination: '/' },
+    '/old.php': '/new/',
+    '/gone.html': { status: 302, destination: '/later/' },
+    '/old-page': { status: 301, destination: '/new-page/' },
+    '/[slug].htm': '/blog/',
+  });
+  assert.deepEqual(lines, ['/index.htm / 301', '/old.php /new/ 301', '/gone.html /later/ 302']);
+});
+
+test('prependRedirectLines puts new rules first and never doubles one', () => {
+  const existing = '# hand-written\n/index.htm / 301\n/old-page/ /new-page/ 301\n';
+  const out = prependRedirectLines(existing, ['/index.htm / 301', '/old.php /new/ 301']);
+  assert.equal(out, `/old.php /new/ 301\n${existing}`);
+  assert.equal(prependRedirectLines(out, ['/old.php /new/ 301']), out);
+  assert.equal(prependRedirectLines('', ['/a.htm / 301']), '/a.htm / 301\n');
 });
