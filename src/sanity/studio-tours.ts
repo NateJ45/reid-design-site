@@ -46,7 +46,7 @@ export const TOURS: TourDef[] = [
         title: 'This week',
         short: 'Week',
         meaning: 'step',
-        body: 'A short list that keeps enquiries coming. Some jobs tick themselves; the rest you tick by hand, and it starts fresh every Monday.',
+        body: 'A short list that keeps inquiries coming. Some jobs check themselves; the rest you check by hand, and it starts fresh every Monday.',
       },
       {
         anchor: 'tool:quick-update',
@@ -93,7 +93,7 @@ export const TOURS: TourDef[] = [
         anchor: 'home-this-week',
         title: 'This week',
         meaning: 'step',
-        body: 'Answer enquiries, ask for a review, check your rating, clear the Checkup. The list starts fresh every Monday.',
+        body: 'Answer inquiries, ask for a review, check your rating, clear the Checkup. The list starts fresh every Monday.',
       },
       {
         anchor: 'home-is-it-live',

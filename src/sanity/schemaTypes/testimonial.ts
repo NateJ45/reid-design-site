@@ -167,7 +167,7 @@ export const testimonial = defineType({
       title: 'Hide on the website',
       type: 'boolean',
       description:
-        'Every testimonial shows on the About page wall ("Kind words"), newest first, and rated Google reviews also show on the home page by themselves. Tick this to keep this one off the site everywhere (it stays here, and on Google or Facebook).',
+        'Every testimonial shows on the About page wall ("Kind words"), newest first, and rated Google reviews also show on the home page by themselves. Check this to keep this one off the site everywhere (it stays here, and on Google or Facebook).',
       // Shown for EVERY source since 2026-09-30: the About "Kind words" wall
       // lists every testimonial, so a Facebook one needs the switch too.
       initialValue: false,

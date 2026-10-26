@@ -169,9 +169,9 @@ export const kitConfig: KitConfig = {
   thisWeek: [
     {
       id: 'enquiries',
-      title: "Answer this week's enquiries",
+      title: "Answer this week's inquiries",
       detail:
-        'Contact form messages and Calendly bookings come to your email. Tick this once every one has a reply.',
+        'Contact form messages and Calendly bookings come to your email. Check this once every one has a reply.',
       manual: true,
     },
     {

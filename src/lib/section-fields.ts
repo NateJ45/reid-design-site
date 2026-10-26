@@ -179,8 +179,8 @@ export const LAYOUT_FIELDS: Readonly<Record<string, readonly LayoutField[]>> = {
         { value: 'left', title: 'Left', hint: 'The default.', className: '' },
         {
           value: 'center',
-          title: 'Centred',
-          hint: 'Heading and text both centred.',
+          title: 'Centered',
+          hint: 'Heading and text both centered.',
           className: 'text-center',
         },
       ],
@@ -226,7 +226,7 @@ export const LAYOUT_FIELDS: Readonly<Record<string, readonly LayoutField[]>> = {
       choices: [
         // Each value renders a DIFFERENT element, so nothing can be swapped in
         // place; the soft refresh a moment later draws the real one.
-        { value: 'ornament', title: 'Ornament', hint: 'A small centred mark.', className: '' },
+        { value: 'ornament', title: 'Ornament', hint: 'A small centered mark.', className: '' },
         { value: 'line', title: 'Line', hint: 'A hairline rule with a dot.', className: '' },
         { value: 'space', title: 'Blank space', hint: 'A gap and nothing else.', className: '' },
       ],

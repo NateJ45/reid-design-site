@@ -117,7 +117,7 @@ const studioGuideDoc = {
         'Type the rating into "Google star rating" and set "Rating last checked" to today. Click Publish. The rating shows on the home page, Services, About and Contact. You only need to come back if your Google rating changes.',
         'The "Leave a review" link on Contact comes from the "Leave a review" link field. On Google, click "Ask for reviews", then "Copy link", and paste it there (it looks like https://g.page/r/.../review).',
         'To add a review itself: "Content", then "Google reviews", then "Reviews from Google", then +. Paste their words exactly, copy their name as Google shows it, pick the day, pick the stars, and paste the link to the review if you have it. Publish.',
-        'Google reviews with stars show on the home page by themselves, newest first. To keep one off the site, tick "Hide on the website" on it.',
+        'Google reviews with stars show on the home page by themselves, newest first. To keep one off the site, check "Hide on the website" on it.',
       ],
     },
     {
