@@ -10,6 +10,18 @@
 // the core pages. The GROQ query that loads `sections` must project images with
 // the image projection and ctaBlocks with the CTA projection (see queries.ts
 // PAGE_BUILDER_PROJECTION).
+//
+// THE STARTER'S FOUNDATIONS (refoundation phase A, 2026-10-27). The renderer
+// now runs the starter's layer before it draws, with Reid's own rules, so the
+// page builder can take the starter's blocks later without a second renderer:
+//   - the cadence lives in src/lib/sectionCadence.ts (a Reid fit, unit-tested),
+//     not inline here; it decides exactly what this file used to decide;
+//   - named anchors (src/lib/section-anchors.ts, starter card 158) sit behind
+//     the `anchors` prop; 'numbered' (the default for now) keeps every id;
+//   - the accent budget (src/lib/cta-budget.ts, cards 158 and 187) sits behind
+//     the `budget` prop; off (the default for now) leaves every button as it is.
+// Everything below the frontmatter renders what it did before; the parity
+// harness (scripts/page-parity.mjs) holds that line.
 import Hero from '@/components/Hero.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import StatsRow from '@/components/StatsRow.astro';
@@ -27,6 +39,9 @@ import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/previ
 import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
 import SectionCoach from '@/components/SectionCoach.astro';
 import { sectionCoach } from '@/lib/section-coach';
+import { classifySections } from '@/lib/sectionCadence';
+import { sectionAnchors, sectionHeadingText } from '@/lib/section-anchors';
+import { primaryBudget, type CtaVariant } from '@/lib/cta-budget';
 
 interface Props {
   sections?: any[];
@@ -57,9 +72,29 @@ interface Props {
    * its own also switches coaching on. Neither is ever set on the live site.
    */
   coach?: boolean;
+  /**
+   * 'numbered' (the default for now): every heading id is `${idPrefix}-${i}`,
+   * exactly as before. 'named': a section with a heading takes an id made from
+   * it, so /services/#how-we-work links to it (starter card 158); a section
+   * with no heading keeps its numbered id.
+   */
+  anchors?: 'named' | 'numbered';
+  /**
+   * Off (the default for now): every hero and CTA band draws its filled button.
+   * On: only the first row with a filled main button keeps it; later ones draw
+   * the quieter variant (starter cards 158 and 187).
+   */
+  budget?: boolean;
 }
 
-const { sections: given = [], idPrefix = 'section', editDoc, coach = false } = Astro.props as Props;
+const {
+  sections: given = [],
+  idPrefix = 'section',
+  editDoc,
+  coach = false,
+  anchors = 'numbered',
+  budget = false,
+} = Astro.props as Props;
 
 // Synced sections (the authoring kit, PORTS.md card 109) become the saved
 // section's own blocks HERE, before the cadence below, so the background rhythm
@@ -145,75 +180,51 @@ const HANDLE_STYLE =
 
 // -------------------------------------------------------------------------
 // The background cadence (rebuilt 2026-09-30, phase 2 of the art-direction
-// rebuild; see DESIGN.md "Blocks and Portfolio")
+// rebuild; moved to src/lib/sectionCadence.ts in refoundation phase A)
 // -------------------------------------------------------------------------
-// Content blocks alternate between the two light grounds of the new palette:
-// `background` = linen (the page ground) and `muted` = paper (the ground the
-// home page uses for its services band). The prop names are the old ones so
-// the block components' Props did not have to change meaning.
-//
-// Two deliberate exceptions, both decided HERE so reordering can never break
-// the rhythm:
-//
-//   1. A quote takes the INK band (the site's one dark moment, as on the
-//      home page) unless that would put two dark bands together: the row
-//      before or after is another quote or a CTA band, or it is the LAST row,
-//      which on a custom page or an "Extra sections" zone can touch the ink
-//      footer. An ink quote does not advance the linen/paper alternation.
-//   2. A spacer or divider takes the ground of the row ABOVE it, so a break
-//      between two sections never shows up as a stripe of a third colour.
-//
-// Every interior Hero now sits on linen with a hairline under it (image or
-// not), so a page that opens with a hero starts its content on paper.
-const CONTENT_TYPES = new Set([
-  'richTextSection',
-  'imageTextSection',
-  'gallerySection',
-  'quoteSection',
-  'videoSection',
-]);
-type Surface = 'background' | 'muted' | 'ink';
-const DARK_TYPES = new Set(['quoteSection', 'ctaBandSection']);
+// Content blocks alternate linen (`background`) and paper (`muted`); a quote
+// takes the ink band unless it would touch another dark band or the footer; a
+// spacer or divider takes the ground of the row above it; a page that opens
+// with a hero starts its content on paper. The rules and their tests live in
+// sectionCadence.ts, so reordering can never break the rhythm.
+const classified = classifySections<any>(sections, idPrefix);
 
-const list = (sections ?? []).filter((s) => s && s._type);
+// Heading ids: numbered by default; named from the heading when asked.
+const ids =
+  anchors === 'named'
+    ? sectionAnchors(
+        classified.map((r) => ({
+          key: r.block._key,
+          heading: sectionHeadingText(r.block),
+          fallback: r.headingId,
+        })),
+      )
+    : classified.map((r) => r.headingId);
 
-const first = list[0];
-const opensWithHero = first?._type === 'heroSection';
-let contentIdx = opensWithHero ? 1 : 0;
-// What the previous row painted, for the spacer/divider to sit on.
-let lastGround: 'linen' | 'paper' | 'ink' = 'linen';
-const rows = list.map((s, i) => {
-  let surface: Surface | null = null;
-  const isQuote = s._type === 'quoteSection';
-  const inkQuote =
-    isQuote &&
-    i < list.length - 1 &&
-    !DARK_TYPES.has(list[i - 1]?._type) &&
-    !DARK_TYPES.has(list[i + 1]?._type);
-  if (inkQuote) {
-    surface = 'ink';
-  } else if (CONTENT_TYPES.has(s._type)) {
-    surface = contentIdx % 2 === 0 ? 'background' : 'muted';
-    contentIdx += 1;
-  }
-  const ground = lastGround;
-  // A spacer keeps the ground it sits on; a hero, CTA band or stats row
-  // (which own their surfaces) count as linen, the nearest light ground.
-  if (surface) lastGround = surface === 'ink' ? 'ink' : surface === 'muted' ? 'paper' : 'linen';
-  else if (s._type !== 'spacerSection') lastGround = 'linen';
-  return {
-    s,
-    surface,
-    ground,
-    headingId: `${idPrefix}-${i}`,
-    handle: handleAttr(s),
-    coachInfo: previewSignal ? sectionCoach(s) : null,
-  };
-});
+// The accent budget: which variant each row's main button draws. Only the hero
+// and the CTA band draw a filled button here.
+const drawsPrimary = (blk: any) =>
+  (blk?._type === 'heroSection' && Boolean(blk.primaryCta)) || blk?._type === 'ctaBandSection';
+const variantFor: (i: number) => CtaVariant = budget
+  ? primaryBudget(
+      classified.map((r) => r.block),
+      drawsPrimary,
+    )
+  : () => 'primary';
+
+const rows = classified.map(({ block: s, surface, ground }, i) => ({
+  s,
+  surface,
+  ground,
+  headingId: ids[i],
+  primaryVariant: variantFor(i),
+  handle: handleAttr(s),
+  coachInfo: previewSignal ? sectionCoach(s) : null,
+}));
 const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as const;
 ---
 
-{rows.map(({ s, surface, ground, headingId, handle, coachInfo }) => (
+{rows.map(({ s, surface, ground, headingId, primaryVariant, handle, coachInfo }) => (
   <Wrap {...wrapAttrs(s._editKey ?? s._key)}>
     {coachInfo ? (
       <SectionCoach name={coachInfo.name} hint={coachInfo.hint} />
@@ -232,6 +243,7 @@ const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as con
         glance={s.glance}
         backgroundVideo={s.backgroundVideo}
         backgroundVideoPhone={s.backgroundVideoPhone}
+        primaryVariant={primaryVariant}
       />
     ) : s._type === 'ctaBandSection' ? (
       <FinalCta
@@ -242,6 +254,7 @@ const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as con
         scriptAccent={s.scriptAccent}
         backgroundImage={s.backgroundImage}
         headingId={headingId}
+        primaryVariant={primaryVariant}
       />
     ) : s._type === 'statSection' ? (
       <StatsRow stats={(s.stats ?? []).filter((x: any) => typeof x?.number === 'number')} />

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Reid Design brand.config.json: the layout block",
+  "description": "A SUBSET of the starter's brand/brand.config.schema.json: only the layout block (starter card 72), which src/lib/site-layout.test.ts reads. Reid Design has no apply-brand, so the palette and fonts are not schema-checked here.",
+  "type": "object",
+  "properties": {
+    "layout": {
+      "type": "object",
+      "description": "Structure variants (the second axis beside palette and fonts). Each slot's FIRST value is the original layout. See src/lib/site-layout.ts.",
+      "properties": {
+        "header": {
+          "type": "string",
+          "enum": ["inline", "centered", "minimal"]
+        },
+        "hero": {
+          "type": "string",
+          "enum": ["bleed", "split", "editorial", "board"]
+        },
+        "density": {
+          "type": "string",
+          "enum": ["standard", "airy", "tight"]
+        },
+        "cards": {
+          "type": "string",
+          "enum": ["standard", "outline", "soft"]
+        },
+        "motion": {
+          "type": "string",
+          "enum": ["reveal", "flow", "fade", "none"]
+        }
+      }
+    }
+  }
+}

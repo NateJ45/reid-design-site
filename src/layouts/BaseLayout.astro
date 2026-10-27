@@ -26,6 +26,8 @@ import {
 } from '@/lib/og-card';
 import { resolveChromeFacts } from '@/lib/chrome-facts';
 import { doodlesForPage } from '@/lib/doodle-map';
+import { layout } from '@/data/layout';
+import { layoutAttrs } from '@/lib/site-layout';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Announcements from '@/components/Announcements.astro';
@@ -205,10 +207,16 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
 // not. PUBLIC_GA_ID is set ONLY on the production Workers Build; the component also
 // refuses to fire off the hostname of `site` in astro.config, which is what stops a
 // local .env from filing localhost sessions (it did: 470 of them, 2026-07/08).
+
+// Layout variants (starter card 72, refoundation phase A 2026-10-27): the
+// brand.config.json `layout` block as data-* attributes on <html>. Every slot
+// is at its default, and a default emits nothing, so this adds no attribute
+// until Reid picks a variant (src/lib/site-layout.ts).
+const htmlLayoutAttrs = layoutAttrs(layout);
 ---
 
 <!doctype html>
-<html lang={site.lang}>
+<html lang={site.lang} {...htmlLayoutAttrs}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

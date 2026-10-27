@@ -32,6 +32,9 @@ export default defineConfig({
       'src/lib/wayfinding.test.ts',
       'src/lib/business-hours.test.ts',
       'src/lib/business-facts.test.ts',
+      'src/lib/site-layout.test.ts',
+      'src/lib/section-anchors.test.ts',
+      'src/lib/cta-budget.test.ts',
     ],
   },
 });
