@@ -37,7 +37,7 @@ import { trashListItem } from './kit/trash';
 import { brandIcon, typeIcon, type BrandIcon } from './brandIcons';
 import { kitConfig } from './kit.config';
 import { TRASH_TYPE } from '../lib/studio-trash';
-import { WEEK_TYPE } from '../lib/studio-kit';
+import { STAFF_TYPE, WEEK_TYPE } from '../lib/studio-kit';
 import { tableListItem } from './workflow';
 import { TABLES } from './tables.config';
 
@@ -76,6 +76,8 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   TRASH_TYPE,
   // The kit's weekly tick and the workflow's share links: plumbing, never listed.
   WEEK_TYPE,
+  // The kit's "Simple view" marks (card 175): written by the People tool only.
+  STAFF_TYPE,
   'previewShare',
 ]);
 
