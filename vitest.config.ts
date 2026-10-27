@@ -21,6 +21,10 @@ export default defineConfig({
       'src/lib/guide-shots.test.ts',
       'src/lib/google-auth.test.ts',
       'src/lib/guide-videos.test.ts',
+      'src/lib/preview-structure.test.ts',
+      'src/lib/preview-posted-draft.test.ts',
+      'src/lib/preview-inline-edit.test.ts',
+      'src/lib/inline-rich-write.test.ts',
     ],
   },
 });

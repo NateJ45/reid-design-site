@@ -2,6 +2,10 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-26: Preview: instant structure, the Studio's own draft, typing on the page (starter cards 183 to 185)
+
+Card 183: section moves, removals, copies and picture swaps show at once (`preview-structure.ts`, `overlay/instantStructure.ts`). Card 184: a structural edit renders from the Studio's own copy of the draft, POSTed by the soft refresh, instead of waiting for the autosave and the query index; same one request per render. This site's route reads each page through its own loader in `src/lib/queries.ts`, so `withPostedDraft` (`src/lib/cms-preview.ts`) wraps the loader's client and answers only the page document's `<filter>[0]{...}` read from the posted draft, falling back to the stored draft when it is not this page's. Card 185: text fields can be typed straight onto the page (`overlay/InlineText.tsx`). It needed the starter's PORTABLE `inline-rich.ts` and `inline-rich-write.ts` (+ test), copied byte-identical although this site has no rich twins. New node:test files run under `test:kit`; the vitest copies of `preview-live-draft.test.ts` and `preview-morph.test.ts` took the starter's new cases.
+
 ## 2026-10-26: Playwright installs time out instead of hanging (starter card 70)
 
 Three docs-only PRs across the family sat 40 to 60 minutes in "Install Playwright system libraries" on 2026-10-26: the runner's Azure Ubuntu mirror fed a normal 30-second `install-deps` at 29 kB/s, and the workflows had no timeout, so a stuck apt could hold a required check for GitHub's 6-hour default. Each install attempt now runs under `timeout` (180s for `install-deps`, 360s for a full browser download), so a crawling first try is killed and the retry resumes the partial download; the step has `timeout-minutes` (8 and 15) and the Playwright job 30.

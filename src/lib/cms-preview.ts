@@ -29,6 +29,9 @@
 // =============================================================================
 import { createClient, type SanityClient } from '@sanity/client';
 import { env } from 'cloudflare:workers';
+import { stegaClean, stegaEncodeSourceMap } from '@sanity/client/stega';
+import type { LiveDraftDocument } from './preview-live-draft.ts';
+import { postedDraftMatchesPage, withPostedDraftMappings } from './preview-posted-draft.ts';
 
 export const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID as string;
 export const dataset = (import.meta.env.PUBLIC_SANITY_DATASET as string) || 'production';
@@ -195,4 +198,85 @@ export async function previewFetch<T>(
   params: Record<string, unknown> = {},
 ): Promise<T> {
   return getPreviewClient(draftMode).fetch<T>(query, params);
+}
+
+/**
+ * Render a page from the Studio's own copy of its draft (PORTS.md card 184).
+ *
+ * `pageFilter` is the page query's own filter for this path (`*[_type == "homePage"]`),
+ * `fields` its projection, and `draft` the body `readPostedDraft` accepted. ONE
+ * request, like `previewFetch`: the projection runs over `$postedDraft` (GROQ
+ * dereferences inside a parameter just as inside a stored document, so pictures
+ * and synced sections still resolve from the dataset), and the filter's `_id`
+ * comes back beside it for `postedDraftMatchesPage`. Stega is written here,
+ * from the API's source map plus the identity mappings for the posted strings,
+ * with this client's own filter, so the payloads are the ones a stored-draft
+ * fetch would carry. Null when the draft is not this path's document: the
+ * caller falls back to the stored draft.
+ */
+export async function previewFetchPostedDraft<T>(
+  pageFilter: string,
+  fields: string,
+  params: Record<string, unknown>,
+  draft: LiveDraftDocument,
+  expectedType: string,
+): Promise<T | null> {
+  const client = getPreviewClient(true);
+  const response = await client.fetch<{ id: unknown; doc: T | null }>(
+    `{"id": ${pageFilter}[0]._id, "doc": $postedDraft${fields}}`,
+    { ...params, postedDraft: draft },
+    { filterResponse: false, resultSourceMap: 'withKeyArraySelector', stega: false },
+  );
+  if (!postedDraftMatchesPage(draft, stegaClean(response.result?.id), expectedType)) return null;
+  const sourceMap = withPostedDraftMappings(response.result, response.resultSourceMap, draft, [
+    'doc',
+  ]);
+  const encoded = stegaEncodeSourceMap(response.result, sourceMap, {
+    ...client.config().stega,
+    enabled: true,
+  }) as { doc: T | null };
+  return encoded.doc;
+}
+
+// A page query this site writes as `<filter>[0]{projection}` (src/lib/queries.ts).
+const PAGE_QUERY = /^\s*(\*\[[^[\]]*\])\s*\[0\]\s*(\{[\s\S]*\})\s*$/;
+
+/**
+ * This site's glue for card 184. Its preview route does not hold one page
+ * query: each page has a loader in src/lib/queries.ts that takes a client. So
+ * the posted draft goes in through the client: the returned client answers the
+ * FIRST query shaped `<filter>[0]{projection}` (the page document's own read)
+ * from `previewFetchPostedDraft`, and every other query (and that one, when
+ * the draft is not this page's or the read fails) from `client` as before.
+ * Only the page document's own fields come from the post; the filter that
+ * proves which document this path is stays the loader's own.
+ */
+export function withPostedDraft(
+  client: SanityClient,
+  draft: LiveDraftDocument,
+  expectedType: string,
+): SanityClient {
+  let used = false;
+  const fetchPosted = async (query: string, params: Record<string, unknown> = {}) => {
+    const match = used ? null : PAGE_QUERY.exec(query);
+    if (match) {
+      used = true;
+      const doc = await previewFetchPostedDraft(
+        match[1],
+        match[2],
+        params,
+        draft,
+        expectedType,
+      ).catch(() => null);
+      if (doc) return doc;
+    }
+    return client.fetch(query, params);
+  };
+  return new Proxy(client, {
+    get(target, key) {
+      if (key === 'fetch') return fetchPosted;
+      const value: unknown = Reflect.get(target, key, target);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
 }
