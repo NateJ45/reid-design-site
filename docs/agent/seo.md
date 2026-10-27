@@ -171,3 +171,7 @@ only adds a trailing slash to extensionless paths, so the visitor would get a 40
 `fileStyleRedirects()` integration in `astro.config.mjs` puts an exact slashless rule for
 each one at the top of `dist/client/_redirects` after the build (the build log says
 `added N slashless rule(s)`). Check one with curl on `wrangler dev`, not a static server.
+
+### Business facts in the LocalBusiness data (2026-10-27, PORTS.md card 196, lean)
+
+Business info gained `street`, `zip`, `addressConfirmed`, `openingHours[]`, `hoursNote` and `hoursChanges[]` (Site settings gained `phoneConfirmed` and `emailConfirmed`), read through the PORTABLE `src/lib/business-facts.ts` and `business-hours.ts`. `localBusinessSchema()` adds `streetAddress` and `postalCode` only when the address is typed AND confirmed, `openingHoursSpecification` only from confirmed rows (plus dated changes still to come), and drops `telephone` / `email` when their flag is unticked. With nothing typed, the markup is exactly what it was. The studio works by appointment, so the "line under the hours" (`hoursNote`, e.g. "By appointment") can stand alone. The footer shows a Visit row and an Hours row only when those facts are set and confirmed; hours are the usual week built at build time (no live "open now": `business-live.ts` and the Hours and Map blocks were not ported, Reid has no builder-block kit). `site.timeZone` (America/Indiana/Indianapolis) is the studio's clock.

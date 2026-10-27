@@ -9,6 +9,15 @@
 // validates here without rework.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import {
+  DAY_NAMES,
+  HOURS_TIME_OPTIONS,
+  WEEKDAYS,
+  changeText,
+  resolveHoursChanges,
+  resolveHoursRows,
+  weekRows,
+} from '../../lib/business-hours';
 
 export const businessInfo = defineType({
   name: 'businessInfo',
@@ -20,6 +29,13 @@ export const businessInfo = defineType({
     // Home-base location. One source of truth for the city/state shown in the
     // footer AND fed into the LocalBusiness structured data search engines read.
     // Keep these matching your Google Business Profile exactly (NAP consistency).
+    defineField({
+      name: 'street',
+      title: 'Street address (optional)',
+      type: 'string',
+      description:
+        'Like "12 Main Street". With the city below it makes the footer shows the address. Leave blank if visitors do not come to you.',
+    }),
     defineField({
       name: 'city',
       title: 'Studio city',
@@ -38,6 +54,22 @@ export const businessInfo = defineType({
       initialValue: 'IN',
       validation: (Rule) =>
         Rule.required().length(2).warning('Use the 2-letter state code, like "IN".'),
+    }),
+    defineField({
+      name: 'zip',
+      title: 'ZIP code (optional)',
+      type: 'string',
+      validation: (Rule) =>
+        Rule.regex(/^\d{5}(-\d{4})?$/, { name: 'ZIP code' }).warning('Like 45013 or 45013-1234.'),
+    }),
+    defineField({
+      name: 'addressConfirmed',
+      title: 'The address is confirmed',
+      type: 'boolean',
+      description:
+        'Untick while the street address is still a guess: the footer hides the street and search engines do not get it until you tick it again.',
+      initialValue: true,
+      hidden: ({ document }) => !document?.street,
     }),
     defineField({
       name: 'serviceRegion',
@@ -110,6 +142,210 @@ export const businessInfo = defineType({
       description:
         'For local "near me" search. Plainfield center is about -86.3994. Pairs with the latitude above.',
     }),
+    // ── Opening hours (card 196) ──────────────────────────────────────────────
+    // Optional: a site with no rows here shows nothing new. Typed once and read
+    // everywhere through src/lib/business-hours.ts: the footer's address and
+    // hours line, the phone action bar's line and the LocalBusiness structured
+    // data (openingHoursSpecification). Dated changes
+    // never touch the usual week, and drop off by themselves after their last
+    // day (rule 15). `days`, `opens`, `closes` and `kind` are in NON_STEGA_FIELDS.
+    defineField({
+      name: 'openingHours',
+      title: 'Opening hours (optional)',
+      type: 'array',
+      fieldset: 'hours',
+      description:
+        'Your usual week. One row per set of days with the same hours; a day with no row shows as closed. Open twice in a day (9 to noon, then 1 to 5)? Add two rows. Leave empty if the studio works by appointment only: use the line under the hours instead.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'openingHoursRow',
+          title: 'Hours',
+          fields: [
+            defineField({
+              name: 'days',
+              title: 'Days',
+              type: 'array',
+              of: [defineArrayMember({ type: 'string' })],
+              options: {
+                list: WEEKDAYS.map((value, i) => ({ title: DAY_NAMES[i], value })),
+                layout: 'grid',
+              },
+              validation: (Rule) => Rule.required().min(1).warning('Tick at least one day.'),
+            }),
+            defineField({
+              name: 'opens',
+              title: 'Opens',
+              type: 'string',
+              options: { list: HOURS_TIME_OPTIONS },
+              validation: (Rule) => Rule.required().warning('Pick the opening time.'),
+            }),
+            defineField({
+              name: 'closes',
+              title: 'Closes',
+              type: 'string',
+              description:
+                'A closing time earlier than the opening time runs past midnight (6 pm to 2 am). The same time twice means open 24 hours.',
+              options: { list: HOURS_TIME_OPTIONS },
+              validation: (Rule) => Rule.required().warning('Pick the closing time.'),
+            }),
+            defineField({
+              name: 'label',
+              title: 'What is open (optional)',
+              type: 'string',
+              description:
+                'Only when parts of the business keep different hours, like "Kitchen" or "Front desk".',
+              validation: (Rule) => Rule.max(30),
+            }),
+            defineField({
+              name: 'confirmed',
+              title: 'These hours are confirmed',
+              type: 'boolean',
+              description:
+                'Untick while they are a guess: they stay off the site and out of search results until you tick this again.',
+              initialValue: true,
+            }),
+          ],
+          preview: {
+            select: { days: 'days', opens: 'opens', closes: 'closes', label: 'label' },
+            prepare: ({ days, opens, closes, label }) => {
+              const rows = resolveHoursRows([{ days, opens, closes }]);
+              const week = rows.length ? weekRows({ rows, changes: [] }) : [];
+              const open = week.find((w) => w.text !== 'Closed');
+              return {
+                title: open ? `${open.label}: ${open.text}` : 'Hours (not finished)',
+                subtitle: label || undefined,
+              };
+            },
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'hoursNote',
+      title: 'A line under the hours (optional)',
+      type: 'string',
+      fieldset: 'hours',
+      description:
+        'Like "By appointment" or "Consultations by appointment, booked on the Contact page." The studio works by appointment, so this one line can be all the hours there are. Leave blank to hide.',
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: 'hoursChanges',
+      title: 'Hours changes: holidays and closures',
+      type: 'array',
+      fieldset: 'hours',
+      description:
+        'A different day: closed for a holiday, a short day, a week away. The website shows it on those dates and goes back to your usual hours by itself afterward. Your usual hours above are never changed.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'hoursChange',
+          title: 'Hours change',
+          fields: [
+            defineField({
+              name: 'date',
+              title: 'Which day',
+              type: 'date',
+              validation: (Rule) => [
+                Rule.required(),
+                Rule.custom((value, ctx) => {
+                  const parent = ctx.parent as { endDate?: string } | undefined;
+                  const last =
+                    parent?.endDate && parent.endDate > (value ?? '') ? parent.endDate : value;
+                  const today = new Date().toISOString().slice(0, 10);
+                  return !last || last >= today
+                    ? true
+                    : 'This day has passed, so it no longer shows. You can remove it.';
+                }).warning(),
+              ],
+            }),
+            defineField({
+              name: 'endDate',
+              title: 'Last day (optional)',
+              type: 'date',
+              description: 'For more than one day in a row, like a week away.',
+              validation: (Rule) =>
+                Rule.custom((end, ctx) => {
+                  const start = (ctx.parent as { date?: string } | undefined)?.date;
+                  return !end || !start || end >= start || 'The last day is before the first day.';
+                }).warning(),
+            }),
+            defineField({
+              name: 'kind',
+              title: 'What is different',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Closed all day', value: 'closed' },
+                  { title: 'Different hours', value: 'hours' },
+                ],
+                layout: 'radio',
+                direction: 'horizontal',
+              },
+              initialValue: 'closed',
+            }),
+            defineField({
+              name: 'opens',
+              title: 'Opens',
+              type: 'string',
+              options: { list: HOURS_TIME_OPTIONS },
+              hidden: ({ parent }) => (parent as { kind?: string } | undefined)?.kind !== 'hours',
+              validation: (Rule) =>
+                Rule.custom((v, ctx) =>
+                  (ctx.parent as { kind?: string } | undefined)?.kind === 'hours' && !v
+                    ? 'Pick the opening time, or this change is skipped.'
+                    : true,
+                ).warning(),
+            }),
+            defineField({
+              name: 'closes',
+              title: 'Closes',
+              type: 'string',
+              options: { list: HOURS_TIME_OPTIONS },
+              hidden: ({ parent }) => (parent as { kind?: string } | undefined)?.kind !== 'hours',
+              validation: (Rule) =>
+                Rule.custom((v, ctx) =>
+                  (ctx.parent as { kind?: string } | undefined)?.kind === 'hours' && !v
+                    ? 'Pick the closing time, or this change is skipped.'
+                    : true,
+                ).warning(),
+            }),
+            defineField({
+              name: 'note',
+              title: 'Why (optional)',
+              type: 'string',
+              description: 'Shown beside the date, like "Thanksgiving" or "Staff training".',
+              validation: (Rule) => Rule.max(60),
+            }),
+          ],
+          preview: {
+            select: {
+              date: 'date',
+              endDate: 'endDate',
+              kind: 'kind',
+              opens: 'opens',
+              closes: 'closes',
+              note: 'note',
+            },
+            prepare: (c) => {
+              const [change] = resolveHoursChanges([c]);
+              return {
+                title: change ? changeText(change) : 'Hours change (not finished)',
+              };
+            },
+          },
+        }),
+      ],
+    }),
+  ],
+  fieldsets: [
+    {
+      name: 'hours',
+      title: 'Opening hours',
+      description: 'Optional. Leave empty and the website shows no hours anywhere.',
+      options: { collapsible: true, collapsed: false },
+    },
   ],
   preview: {
     prepare: () => ({ title: 'Business info' }),

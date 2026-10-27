@@ -114,7 +114,15 @@ const NON_STEGA_FIELDS = new Set([
   'align',
   'category',
   'columns',
+  // Card 196: opening-hours rows and hours changes (src/lib/business-hours.ts compares these).
+  'days',
+  'opens',
+  'closes',
+  'kind',
   'designStyle',
+  // Card 189: the opening banner's Style. Hero.astro compares it to 'photo'; an encoded value
+  // would draw the standard hero in the preview.
+  'heroStyle',
   'imageSide',
   'layout',
   'linkType',

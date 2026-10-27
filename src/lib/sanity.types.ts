@@ -21,6 +21,12 @@ type ArrayOf<T> = Array<
 >;
 
 // Source: schema.json
+export type Glance = {
+  title?: string;
+  lines?: Array<string>;
+  link?: CtaBlock;
+};
+
 export type SanityImageAssetReference = {
   _ref: string;
   _type: 'reference';
@@ -443,8 +449,11 @@ export type BusinessInfo = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  street?: string;
   city?: string;
   state?: string;
+  zip?: string;
+  addressConfirmed?: boolean;
   serviceRegion?: string;
   serviceAreas?: Array<string>;
   travelFees?: Array<{
@@ -456,6 +465,410 @@ export type BusinessInfo = {
   availabilityStatus?: string;
   geoLat?: number;
   geoLng?: number;
+  openingHours?: Array<{
+    days?: Array<string>;
+    opens?:
+      | '00:00'
+      | '00:15'
+      | '00:30'
+      | '00:45'
+      | '01:00'
+      | '01:15'
+      | '01:30'
+      | '01:45'
+      | '02:00'
+      | '02:15'
+      | '02:30'
+      | '02:45'
+      | '03:00'
+      | '03:15'
+      | '03:30'
+      | '03:45'
+      | '04:00'
+      | '04:15'
+      | '04:30'
+      | '04:45'
+      | '05:00'
+      | '05:15'
+      | '05:30'
+      | '05:45'
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    closes?:
+      | '00:00'
+      | '00:15'
+      | '00:30'
+      | '00:45'
+      | '01:00'
+      | '01:15'
+      | '01:30'
+      | '01:45'
+      | '02:00'
+      | '02:15'
+      | '02:30'
+      | '02:45'
+      | '03:00'
+      | '03:15'
+      | '03:30'
+      | '03:45'
+      | '04:00'
+      | '04:15'
+      | '04:30'
+      | '04:45'
+      | '05:00'
+      | '05:15'
+      | '05:30'
+      | '05:45'
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    label?: string;
+    confirmed?: boolean;
+    _type: 'openingHoursRow';
+    _key: string;
+  }>;
+  hoursNote?: string;
+  hoursChanges?: Array<{
+    date?: string;
+    endDate?: string;
+    kind?: 'closed' | 'hours';
+    opens?:
+      | '00:00'
+      | '00:15'
+      | '00:30'
+      | '00:45'
+      | '01:00'
+      | '01:15'
+      | '01:30'
+      | '01:45'
+      | '02:00'
+      | '02:15'
+      | '02:30'
+      | '02:45'
+      | '03:00'
+      | '03:15'
+      | '03:30'
+      | '03:45'
+      | '04:00'
+      | '04:15'
+      | '04:30'
+      | '04:45'
+      | '05:00'
+      | '05:15'
+      | '05:30'
+      | '05:45'
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    closes?:
+      | '00:00'
+      | '00:15'
+      | '00:30'
+      | '00:45'
+      | '01:00'
+      | '01:15'
+      | '01:30'
+      | '01:45'
+      | '02:00'
+      | '02:15'
+      | '02:30'
+      | '02:45'
+      | '03:00'
+      | '03:15'
+      | '03:30'
+      | '03:45'
+      | '04:00'
+      | '04:15'
+      | '04:30'
+      | '04:45'
+      | '05:00'
+      | '05:15'
+      | '05:30'
+      | '05:45'
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    note?: string;
+    _type: 'hoursChange';
+    _key: string;
+  }>;
 };
 
 export type SiteSettings = {
@@ -470,6 +883,8 @@ export type SiteSettings = {
   headerTagline?: string;
   email?: string;
   phone?: string;
+  phoneConfirmed?: boolean;
+  emailConfirmed?: boolean;
   logo?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -508,6 +923,29 @@ export type SiteSettings = {
       _key: string;
     } & NavLink
   >;
+  actionBars?: Array<{
+    everyPage?: boolean;
+    page?:
+      | HomePageReference
+      | AboutPageReference
+      | ServicesPageReference
+      | ProcessPageReference
+      | EDesignPageReference
+      | PortfolioPageReference
+      | FaqPageReference
+      | ContactPageReference
+      | PageReference;
+    text?: string;
+    action?: NavLink;
+    _type: 'actionBar';
+    _key: string;
+  }>;
+  whereNext?: Array<{
+    link?: NavLink;
+    note?: string;
+    _type: 'whereNextRow';
+    _key: string;
+  }>;
   headerCta?: {
     show?: boolean;
     label?: string;
@@ -808,6 +1246,13 @@ export type RichTextSection = {
   align?: 'left' | 'center';
 };
 
+export type SanityFileAssetReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset';
+};
+
 export type HeroSection = {
   _type: 'heroSection';
   eyebrow?: string;
@@ -821,6 +1266,18 @@ export type HeroSection = {
     crop?: SanityImageCrop;
     alt?: string;
     _type: 'image';
+  };
+  heroStyle?: 'standard' | 'photo';
+  glance?: Glance;
+  backgroundVideo?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: 'file';
+  };
+  backgroundVideoPhone?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: 'file';
   };
   primaryCta?: CtaBlock;
   secondaryCta?: CtaBlock;
@@ -2239,6 +2696,7 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | Glance
   | SanityImageAssetReference
   | PressMention
   | SanityImageCrop
@@ -2287,6 +2745,7 @@ export type AllSanitySchemaTypes =
   | GallerySection
   | ImageTextSection
   | RichTextSection
+  | SanityFileAssetReference
   | HeroSection
   | PrivacyPage
   | PortfolioPage

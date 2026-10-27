@@ -36,7 +36,11 @@ const SECTION_ARMS = `
       ...,
       backgroundImage${IMAGE_PROJECTION},
       primaryCta${CTA_PROJECTION},
-      secondaryCta${CTA_PROJECTION}
+      secondaryCta${CTA_PROJECTION},
+      // The photo hero (card 189): the clips as URL and type, the short-facts card's link resolved.
+      backgroundVideo{ "url": asset->url, "mimeType": asset->mimeType },
+      backgroundVideoPhone{ "url": asset->url, "mimeType": asset->mimeType },
+      glance{ ..., link${CTA_PROJECTION} }
     },
     _type == "ctaBandSection" => {
       ...,
@@ -110,6 +114,15 @@ export const SITE_SETTINGS_PROJECTION = `{
     "city": *[_type == "businessInfo"][0].city,
     "state": *[_type == "businessInfo"][0].state,
     "serviceRegion": *[_type == "businessInfo"][0].serviceRegion,
+    // Business facts (card 196, src/lib/business-facts.ts). All empty until the editor fills them.
+    "street": *[_type == "businessInfo"][0].street,
+    "zip": *[_type == "businessInfo"][0].zip,
+    "addressConfirmed": *[_type == "businessInfo"][0].addressConfirmed,
+    "openingHours": *[_type == "businessInfo"][0].openingHours[]{ days, opens, closes, label, confirmed },
+    "hoursNote": *[_type == "businessInfo"][0].hoursNote,
+    "hoursChanges": *[_type == "businessInfo"][0].hoursChanges[]{ date, endDate, kind, opens, closes, note },
+    phoneConfirmed,
+    emailConfirmed,
     socialInstagram,
     socialFacebook,
     // Instagram feed words + placements (2026-09-30), read by InstagramFeed.astro.
@@ -146,6 +159,15 @@ export const SITE_SETTINGS_PROJECTION = `{
     showEmail,
     showSocials,
     showFooterSocials,
+    // Wayfinding (card 191, src/lib/wayfinding.ts). Both empty on an untouched site.
+    whereNext[]{ _key, note, link${NAV_LINK_PROJECTION} },
+    actionBars[]{
+      _key,
+      everyPage,
+      text,
+      "page": page->{ "docType": _type, "slug": slug.current },
+      action${NAV_LINK_PROJECTION}
+    },
     sectionVisibility{
       showPortfolio,
       showEDesign

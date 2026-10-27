@@ -146,7 +146,7 @@ Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Process a
 **Contact page pieces:**
 
 - `ContactForm.tsx`: Name / Email / Phone / Location / Project type / Budget / Timeline / Message / Lead source. See Form section for full field list.
-- `CopyEmailButton.tsx`, mailto link + clipboard fallback. Used in Footer, Contact sidebar, and Contact-page failsafe paragraph.
+- `CopyEmailButton.astro`, mailto link + clipboard fallback (an Astro component with one delegated click script and a live region since 2026-10-27, starter card 187; no React, no toast). Used in the Contact sidebar.
 - `CalendlyInline.tsx`, click-to-load Calendly iframe placeholder. Heavy widget stays off the budget until visitor opts in.
 - `ServiceAreaMap.astro`, small map for the contact sidebar. Restyled 2026-09-30: hairline paper frame, tiles warmed by a CSS filter that lifts on hover or focus; props unchanged.
   Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Contact and Privacy"). Page order: Hero, the note (form + aside), the ink call band, the roadmap, the service area.
@@ -155,7 +155,7 @@ Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; `DESIGN.md` "Process a
 - `contact/ContactAside.astro`: Staci's portrait (home `meetStaciPhoto`, else `heroPortrait`), availability, the consultation price on a sample tag (read from the service whose slug or name contains "consult"; no match = no tag), email / phone / "book a call" rows. Sticky beside the form on desktop, above the form on phones.
 - `contact/CallBand.astro`, ink "Rather talk it through first?" band (`#book-a-call`) holding `CalendlyInline` plus a plain "Open in Calendly" link.
 - `contact/ContactArea.astro`, towns from Business info set large, with `ServiceAreaMap.astro` beside them.
-- `CopyEmailButton.tsx`, mailto link + clipboard fallback. Used in the Footer (`variant="link"`, unchanged) and the contact aside (`variant="note"`: `.r-link` address + 44px copy button).
+- `CopyEmailButton.astro`, mailto link + clipboard fallback (no React or Sonner since card 187). Variants `link`, `button` and `note`; the contact aside uses `note` (`.r-link` address + 44px copy button).
 - `CalendlyInline.tsx`, click-to-load Calendly iframe; the button is the cream `.r-btn`. Heavy widget stays off the budget until the visitor opts in.
 - `ServiceAreaMap.astro`: Google's keyless map embed (`google.com/maps?q=…&output=embed`, no API key) centred on home base, in the house photo frame, with a caption and "Open in Google Maps". The iframe ships without a src and a small script sets it within ~400px of the screen (the eager OpenStreetMap embed once pushed Contact's LCP to 4.6s). CSP: `frame-src https://www.google.com`. Replaced the OpenStreetMap iframe (2026-09-30 briefly the sketch map, 2026-10-01 Google). Also on the home `ServiceAreaCue` since 2026-10-01 (`caption={false}`); the sketch map (`AreaSketchMap.astro`, `src/lib/area-map.ts`) was deleted.
 - `RoomBackdrop.astro` + `src/data/room-backdrops.ts`, one of Staci's rooms faded into a card (see DESIGN.md "The 2026-09-30 design pass"). Host card takes `.r-backdrop-host`; `start` offsets each band so neighbouring bands open on different rooms.

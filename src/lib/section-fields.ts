@@ -150,6 +150,26 @@ export const LAYOUT_FIELDS: Readonly<Record<string, readonly LayoutField[]>> = {
         },
       ],
     },
+    // Card 189. Photo behind the words swaps the whole component (PhotoHero.astro), not a class
+    // list, so neither value carries a class and the card never recolours the page for it.
+    {
+      name: 'heroStyle',
+      label: 'Style',
+      choices: [
+        {
+          value: 'standard',
+          title: 'Standard',
+          hint: 'The words beside your photo in its frame.',
+          className: '',
+        },
+        {
+          value: 'photo',
+          title: 'Photo behind the words',
+          hint: 'A wide photo across the opening, the words over it in white.',
+          className: '',
+        },
+      ],
+    },
   ],
   richTextSection: [
     {

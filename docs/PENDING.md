@@ -14,6 +14,11 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-27: the Auburn port run (starter cards 186 to 198)
+
+- [ ] Decide whether to fill Site settings > Menus > Where next rows and the Phone action bar ("Book a consultation" to /contact/). Both render nothing while empty. If the bar goes on, `StickyCTAChip` hides while it shows.
+- [ ] Ask Staci whether the studio address and any set hours should show. Business info > street, ZIP, opening hours and the hours note ("By appointment") are all empty; the footer and Google's structured data use them only once set and ticked as confirmed.
+
 ### From 2026-10-19: the Studio made complete for Staci (phase A; plan in `docs/agent/studio-plan.md`)
 
 - [x] Card 137 wired (2026-10-19): tours, welcome and What's new from `src/sanity/studio-tours.ts`; Quick update edit jobs for the Google rating and availability; pick lists on the review and question forms.

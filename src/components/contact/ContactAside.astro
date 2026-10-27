@@ -21,7 +21,7 @@
 // Phones: the portrait shrinks to a small 4:5 print beside the "reads every note"
 // line so the form is still close to the top of the page.
 import SanityImage from '@/components/SanityImage.astro';
-import CopyEmailButton from '@/components/CopyEmailButton';
+import CopyEmailButton from '@/components/CopyEmailButton.astro';
 import { telHref } from '@/lib/phone';
 import { splitPrice } from '@/lib/split-copy';
 // Google reviews insertion (2026-09-30): rating tag + "Leave a review".
@@ -143,7 +143,7 @@ const writeReview = googleWriteReviewUrl(ratingSettings);
         <div class="cx__way">
           <dt>Email</dt>
           <dd>
-            <CopyEmailButton client:visible email={email} variant="note" />
+            <CopyEmailButton email={email} variant="note" />
           </dd>
         </div>
       )}
