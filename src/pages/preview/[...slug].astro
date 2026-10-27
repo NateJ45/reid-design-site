@@ -58,7 +58,13 @@ import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
 import ProcessSectionRenderer from '@/components/ProcessSectionRenderer.astro';
 import ServicesSectionRenderer from '@/components/ServicesSectionRenderer.astro';
 import EDesignSectionRenderer from '@/components/EDesignSectionRenderer.astro';
-import { getPreviewClient, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
+import {
+  getPreviewClient,
+  previewConfig,
+  previewUnconfiguredResponse,
+  withPostedDraft,
+} from '@/lib/cms-preview';
+import { readPostedDraft } from '@/lib/preview-posted-draft';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { BUILDER_SINGLETON_TYPES, previewTargetFor } from '@/sanity/preview-routes';
 import ProjectDetail from '@/components/detail/ProjectDetail.astro';
@@ -126,6 +132,19 @@ const detailType = target?.kind === 'detail' ? target.type : undefined;
 // there is no id to look up for those. A custom page's id comes off the doc.
 const isBuilderSingleton = BUILDER_SINGLETON_TYPES.has(singletonType ?? '');
 
+// THE STUDIO'S OWN COPY OF THE DRAFT (2026-10-26, PORTS.md card 184). The
+// soft refresh POSTs the newest draft the Studio holds, so a structural edit
+// (a new section, a toggle) renders without waiting for the autosave and the
+// query index. Same cookie gate (draftMode), same one request: the page
+// query's projection runs over the posted draft and resolves references from
+// the dataset. Used only when it is THIS path's document (the loader's own
+// filter names it); anything else reads the stored draft as before. Only the
+// page loader gets it (site settings never do). src/lib/preview-posted-draft.ts
+// has the checks and the stega; withPostedDraft in src/lib/cms-preview.ts is
+// this site's glue, because each page here has its own loader.
+const posted = draftMode ? await readPostedDraft(Astro.request, Astro.url.origin) : null;
+const postedType = singletonType ?? detailType ?? (target?.kind === 'page' ? 'page' : undefined);
+
 // ---------------------------------------------------------------------------
 // Load. Every fetch goes through the DRAFT-aware client, including the shared
 // documents (site settings), so an unpublished edit to a service
@@ -137,26 +156,27 @@ const siteSettings = await getSiteSettings(share ? getPreviewClient(false) : cli
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 async function loadPage(): Promise<any> {
+  const pc = posted && postedType ? withPostedDraft(client, posted, postedType) : client;
   if (singletonType) {
     const loaders: Record<string, () => Promise<any>> = {
-      homePage: () => getHomePage(client),
-      aboutPage: () => getAboutPage(client),
-      processPage: () => getProcessPage(client),
-      servicesPage: () => getServicesPage(client),
-      eDesignPage: () => getEDesignPage(client),
-      faqPage: () => getFaqPage(client),
-      contactPage: () => getContactPage(client),
-      portfolioPage: () => getPortfolioPage(client),
-      privacyPage: () => getPrivacyPage(client),
-      notFoundPage: () => getNotFoundPage(client),
+      homePage: () => getHomePage(pc),
+      aboutPage: () => getAboutPage(pc),
+      processPage: () => getProcessPage(pc),
+      servicesPage: () => getServicesPage(pc),
+      eDesignPage: () => getEDesignPage(pc),
+      faqPage: () => getFaqPage(pc),
+      contactPage: () => getContactPage(pc),
+      portfolioPage: () => getPortfolioPage(pc),
+      privacyPage: () => getPrivacyPage(pc),
+      notFoundPage: () => getNotFoundPage(pc),
     };
     return loaders[singletonType]().catch(() => null);
   }
   if (target?.kind === 'detail' && detailType === 'project') {
-    return getProjectBySlug(target.slug, client).catch(() => null);
+    return getProjectBySlug(target.slug, pc).catch(() => null);
   }
   if (target?.kind === 'page') {
-    return getPage(target.slug, client).catch(() => null);
+    return getPage(target.slug, pc).catch(() => null);
   }
   return null;
 }

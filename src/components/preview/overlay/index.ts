@@ -34,6 +34,8 @@
 //      a small preview-only handle inside each section carrying `data-sanity`
 //      for `...[_key=="x"].<layout field>`. See src/lib/preview-edit-attr.ts.
 //
+// Plus InlineText on every text field (card 185, typing on the page).
+//
 // TWO CONTROLS, NOT THREE. The sibling repos also put a band-colour swatch in
 // each section's corner and a bold-and-italic text card on their curated
 // support lines. Neither has anything to write to here: no block carries a
@@ -47,6 +49,8 @@
 // =============================================================================
 import type { OverlayComponent, OverlayComponentResolver } from '@sanity/visual-editing';
 import { overlayControlsForPath, type OverlayControl } from '@/lib/section-fields';
+import { classifyInlinePath } from '@/lib/preview-inline-edit';
+import InlineText from './InlineText.tsx';
 import ScriptAccentPicker from './ScriptAccentPicker.tsx';
 import SectionLayoutCard from './SectionLayoutCard.tsx';
 
@@ -57,12 +61,15 @@ const BY_CONTROL: Record<OverlayControl, OverlayComponent> = {
 
 /**
  * Hand every hovered element the control its path makes it a candidate for.
- * Returning undefined - the common case, for every element that is not a layout
- * handle or a headline - leaves the host's own overlay exactly as it was.
+ * Returning undefined leaves the host's own overlay exactly as it was.
+ *
+ * Card 185: every text field (a string, a text, or a span in portable text)
+ * also gets InlineText, which draws nothing and makes the words typeable in
+ * place once it has proved the element shows exactly the stored value.
  */
 export const inCanvasControls: OverlayComponentResolver = (context) => {
   const path = (context.node as { path?: string } | undefined)?.path;
-  const controls = overlayControlsForPath(path);
-  if (controls.length === 0) return undefined;
-  return controls.map((name) => BY_CONTROL[name]);
+  const controls: OverlayComponent[] = overlayControlsForPath(path).map((name) => BY_CONTROL[name]);
+  if (classifyInlinePath(path, context.type)) controls.push(InlineText as OverlayComponent);
+  return controls.length ? controls : undefined;
 };
