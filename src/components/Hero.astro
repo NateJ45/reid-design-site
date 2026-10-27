@@ -51,6 +51,11 @@ interface Props {
   glance?: PhotoHeroGlance | null;
   backgroundVideo?: PhotoHeroVideo | null;
   backgroundVideoPhone?: PhotoHeroVideo | null;
+  /**
+   * The main button's variant, from the page's accent budget (src/lib/cta-budget.ts,
+   * starter cards 158 and 187). Defaults to 'primary', the filled button, as before.
+   */
+  primaryVariant?: 'primary' | 'secondary';
 }
 
 const {
@@ -68,6 +73,7 @@ const {
   glance,
   backgroundVideo,
   backgroundVideoPhone,
+  primaryVariant = 'primary',
 } = Astro.props as Props;
 
 // The Studio layout card swaps these two classes in preview, so they are also
@@ -109,6 +115,7 @@ const usePhotoHero = heroStyle === 'photo' && !!image;
       glance={glance}
       video={backgroundVideo}
       videoPhone={backgroundVideoPhone}
+      primaryVariant={primaryVariant}
     />
   ) : (
 <section class:list={['phero', wrapperHeight, image && 'phero--image']} aria-labelledby={headingId}>
@@ -128,7 +135,7 @@ const usePhotoHero = heroStyle === 'photo' && !!image;
       {
         (primaryCta || secondaryCta) && (
           <div class="phero__ctas">
-            {primaryCta && <CtaLink cta={primaryCta} variant="primary" />}
+            {primaryCta && <CtaLink cta={primaryCta} variant={primaryVariant} />}
             {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" />}
           </div>
         )

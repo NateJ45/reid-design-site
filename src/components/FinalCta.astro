@@ -72,6 +72,11 @@ interface Props {
     hotspot?: { x: number; y: number; height: number; width: number };
     crop?: { top: number; bottom: number; left: number; right: number };
   } | null;
+  /**
+   * The main button's variant, from the page's accent budget (src/lib/cta-budget.ts,
+   * starter cards 158 and 187). Defaults to 'primary', the filled button, as before.
+   */
+  primaryVariant?: 'primary' | 'secondary';
 }
 
 const {
@@ -84,6 +89,7 @@ const {
   fallbackCtaLabel = 'Book a Consultation',
   scriptAccent,
   backgroundImage,
+  primaryVariant = 'primary',
 } = Astro.props as Props;
 
 // Only treat the background as present when a real asset is attached, so an
@@ -157,7 +163,7 @@ const {
       <div class="final__ctas">
         <CtaLink
           cta={cta}
-          variant="primary"
+          variant={primaryVariant}
           onDark
           fallbackHref="/contact/"
           fallbackLabel={fallbackCtaLabel}

@@ -53,7 +53,7 @@
     "audit:data": "node scripts/audit-data-vs-schema.mjs",
     "fonts:update": "node scripts/fetch-fonts.mjs --update",
     "instagram:fetch": "node scripts/fetch-instagram.mjs",
-    "test:kit": "node --experimental-strip-types --test src/lib/studio-*.test.ts src/lib/deploy-status.test.ts src/lib/preview-share.test.ts src/lib/custom-code.test.ts src/lib/photo-post.test.ts src/lib/earlier-versions.test.ts src/lib/guide-shots.test.ts src/lib/google-auth.test.ts src/lib/guide-videos.test.ts src/lib/preview-structure.test.ts src/lib/preview-posted-draft.test.ts src/lib/preview-inline-edit.test.ts src/lib/inline-rich-write.test.ts src/lib/page-path.test.ts src/lib/published-links.test.ts src/lib/wayfinding.test.ts src/lib/business-hours.test.ts src/lib/business-facts.test.ts src/lib/hero-video.test.ts src/lib/photo-hero.test.ts",
+    "test:kit": "node --experimental-strip-types --test src/lib/studio-*.test.ts src/lib/deploy-status.test.ts src/lib/preview-share.test.ts src/lib/custom-code.test.ts src/lib/photo-post.test.ts src/lib/earlier-versions.test.ts src/lib/guide-shots.test.ts src/lib/google-auth.test.ts src/lib/guide-videos.test.ts src/lib/preview-structure.test.ts src/lib/preview-posted-draft.test.ts src/lib/preview-inline-edit.test.ts src/lib/inline-rich-write.test.ts src/lib/page-path.test.ts src/lib/published-links.test.ts src/lib/wayfinding.test.ts src/lib/business-hours.test.ts src/lib/business-facts.test.ts src/lib/hero-video.test.ts src/lib/photo-hero.test.ts src/lib/site-layout.test.ts src/lib/section-anchors.test.ts src/lib/cta-budget.test.ts",
     "restore:doc": "node scripts/restore-doc.mjs",
     "studio:banner": "node scripts/gen-studio-banner.mjs",
     "thumbnails": "node scripts/shoot-section-thumbnails.mjs",

@@ -2,6 +2,14 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-27: Refoundation phase A, the starter's renderer layer (no visible change)
+
+- `SectionRenderer.astro` draws from `classifySections()` in `src/lib/sectionCadence.ts` (a Reid fit: linen and paper, the ink quote, spacer grounds, no dividers), pinned by `sectionCadence.test.ts`.
+- Named anchors (`section-anchors.ts`) and the accent budget (`cta-budget.ts`) arrive byte-identical from the starter behind `anchors` (default `'numbered'`) and `budget` (default off); `Hero` and `FinalCta` take `primaryVariant` (default `'primary'`).
+- Layout variants: `site-layout.ts` (+ test), `brand/brand.config.json` `layout` at defaults, `brand/brand.config.schema.json` (the layout block only), `src/data/layout.ts`, `layoutAttrs` on `<html>` (emits nothing).
+- `src/lib/pageBuilder.types.ts` is Reid's real block union. Closed the PENDING "Seed the seasonal saved sections" item (seeded 2026-10-19).
+- Proof: every built page normalized-identical to an origin/main build (parity 17/17 including the styleguide walls).
+
 ## 2026-10-27: The Auburn port run, fitted to Reid (starter cards 186 to 198)
 
 What came over, in Reid's own grammar, all empty or opt-in so the live pages are unchanged until an editor fills a field:
