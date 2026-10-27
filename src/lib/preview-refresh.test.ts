@@ -1,5 +1,5 @@
 // =============================================================================
-// preview-refresh, the scheduler that stopped the preview melting the Worker
+// preview-refresh — the scheduler that stopped the preview melting the Worker
 // =============================================================================
 // The editor-visible promises pinned down here: a burst of edits costs a
 // bounded number of server renders (not one per event), typed text never
@@ -15,6 +15,7 @@ import {
   createRefreshState,
   isSettled,
   onChange,
+  onKnownChange,
   onSettled,
   onStart,
   shouldStart,
@@ -175,7 +176,7 @@ test('the debounce measures from the FIRST event of a run, not the last', () => 
 });
 
 test('a long typing session cannot outrun the rate limit', () => {
-  // One event every 40ms for 12 seconds, an editor holding down a key.
+  // One event every 40ms for 12 seconds — an editor holding down a key.
   const events: Array<[number, number]> = Array.from({ length: 300 }, (_, i) => [T0 + i * 40, 1]);
   const { starts } = drive(events);
   const span = 300 * 40;
@@ -232,8 +233,8 @@ test('a slow render does not lose the change that arrived during it', () => {
 // applies the Studio's local draft in ~100ms. A render started inside that gap
 // landed looking current and was morphed in holding a HALF-TYPED sentence.
 //
-// The fix is upstream of this file, every document instant text applies now
-// calls `onChange` (VisualEditingOverlay), so what is pinned down here is that
+// The fix is upstream of this file — every document instant text applies now
+// calls `onChange` (VisualEditingOverlay) — so what is pinned down here is that
 // the scheduler does the right thing with those events, and that the extra ones
 // cost discards rather than renders.
 
@@ -335,11 +336,45 @@ test('a burst of instant-text documents converges without a discard loop', () =>
   assert.equal(settles.at(-1)?.accepted, true);
 });
 
+// --- known changes (card 182) ------------------------------------------------
+
+test('a known change starts nothing on its own', () => {
+  const state = onKnownChange(createRefreshState());
+  assert.equal(state.changeSeq, 1);
+  assert.deepEqual(shouldStart(state, T0), { start: false, waitMs: 0 });
+  assert.equal(isSettled(state), true);
+});
+
+test('one keystroke costs one render, started by the SSE change', () => {
+  // Measured 2026-10-26: the local channel knows at ~150ms, the actor again at
+  // ~600ms, the autosave's SSE change lands at ~1140ms (query visibility).
+  let state = onKnownChange(createRefreshState());
+  state = onKnownChange(state);
+  assert.equal(shouldStart(state, T0 + 600).start, false, 'no render on stale data');
+  state = onChange(state, T0 + 1140);
+  const wait = shouldStart(state, T0 + 1140).waitMs;
+  assert.equal(wait, REFRESH_DEBOUNCE_MS);
+  state = onStart(state, T0 + 1140 + wait);
+  const settled = onSettled(state, T0 + 1140 + wait + 400);
+  assert.equal(settled.accepted, true, 'the one render carries the edit');
+  assert.equal(isSettled(settled.state), true);
+});
+
+test('a known change still makes an in-flight render stale, and its follow-up runs', () => {
+  let state = onChange(createRefreshState(), T0);
+  state = onStart(state, T0);
+  state = onKnownChange(state);
+  const settled = onSettled(state, T0 + RENDER_MS);
+  assert.equal(settled.accepted, false);
+  assert.equal(settled.state.dirty, true, 'the follow-up is owed');
+  assert.equal(shouldStart(settled.state, T0 + REFRESH_MIN_INTERVAL_MS).start, true);
+});
+
 // --- awaiting callers --------------------------------------------------------
 
 /**
  * The overlay resolves a caller when a refresh that STARTED after it asked is
- * ACCEPTED. This models that bookkeeping to prove nobody waits forever, the
+ * ACCEPTED. This models that bookkeeping to prove nobody waits forever — the
  * comlink ⟳ button spins until its promise resolves.
  */
 test('every awaiting caller is resolved by the refresh that covers it', () => {
