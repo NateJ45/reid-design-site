@@ -30,7 +30,7 @@
 // address) returns undefined and the caller DROPS it. A dead <a> in a menu is
 // worse than a missing one.
 
-import { withTrailingSlash } from '@/lib/href';
+import { withTrailingSlash } from './href.ts';
 
 /** Live route per path-mapped singleton. Mirrors SINGLETON_PREVIEW_PATHS. */
 export const SINGLETON_LIVE_PATHS: Record<string, string> = {
@@ -69,6 +69,9 @@ export interface RawNavLink {
   slug?: string | null;
   /** internalPage->_type */
   docType?: string | null;
+  /** internalPage->archived (card 191's action bar passes it). Reid has no archive switch yet,
+   *  so nothing projects it; a true value drops the link like the starter's. */
+  pageArchived?: boolean | null;
 }
 
 /** A link that survived resolution: both halves present. */
@@ -113,6 +116,7 @@ function rawNavHref(link?: RawNavLink | null): string | undefined {
 
   const docType = plain(link.docType);
   if (!docType) return undefined;
+  if (link.pageArchived === true) return undefined;
   if (docType === 'page') {
     const slug = plain(link.slug);
     return slug ? `/${slug}` : undefined;

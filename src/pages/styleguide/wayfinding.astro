@@ -1,0 +1,71 @@
+---
+// Safe to edit by hand
+//
+// THE WAYFINDING FIXTURE (PORTS.md card 191, Reid's version): the real chrome with the where-next
+// rows and the phone action bar switched on from fixed Site settings, so tests/wayfinding.spec.ts
+// can check them without a dataset and their look can be checked at any width. Also carries a
+// fixed street address and week of hours so the footer's Visit and Hours rows show (card 196).
+// A long page, so the bar's "past the heading" rule can be met. noindex, out of the sitemap
+// (astro.config.mjs filters '/styleguide/') and under a reserved slug. The street and hours here
+// are made up, for the fixture only.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site } from '@/data/site';
+
+const settings = {
+  title: site.name,
+  tagline: 'Plainfield interior design for homes that feel completely yours.',
+  email: 'hello@example.com',
+  phone: '(555) 010-0100',
+  city: 'Plainfield',
+  state: 'IN',
+  street: '12 Sample Street',
+  zip: '46168',
+  addressConfirmed: true,
+  openingHours: [
+    {
+      days: ['mon', 'tue', 'wed', 'thu', 'fri'],
+      opens: '09:00',
+      closes: '17:00',
+      confirmed: true,
+    },
+  ],
+  hoursNote: 'Consultations by appointment.',
+  whereNext: [
+    { link: { label: 'Contact', href: '/contact/' }, note: 'Book a consultation' },
+    { link: { label: 'Services', href: '/services/' }, note: 'What is included' },
+    // A Studio page that is not published: never drawn.
+    { link: { label: 'Not published', href: '/not-a-real-page/' }, note: 'Never shown' },
+    { link: { label: 'About Staci', href: '/about/' }, note: 'Who is behind it' },
+  ],
+  actionBars: [
+    {
+      everyPage: true,
+      text: 'Accepting new clients',
+      action: { label: 'Book a consultation', href: '/contact/' },
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={`Wayfinding | ${site.name}`}
+  description="The where-next rows and the phone action bar with fixed settings, for checking. Not for visitors."
+  siteSettings={settings}
+  noindex
+>
+  <div class="r-wrap" style="min-height: 250vh; padding-block: 3rem">
+    <h1 style="font: 300 2.25rem/1.1 var(--font-display)">Wayfinding fixture</h1>
+    <p style="max-width: 40rem; margin-top: 1rem">
+      Scroll past this heading on a phone for the action bar; it hides again once the footer is on
+      screen. The where next rows sit just above the footer.
+    </p>
+    <p style="margin-top: 1rem">
+      <a href="#below" id="focus-link">
+        A link to focus
+      </a>
+    </p>
+    <p id="below" style="margin-top: 2rem">
+      The rest of the page.
+    </p>
+  </div>
+</BaseLayout>

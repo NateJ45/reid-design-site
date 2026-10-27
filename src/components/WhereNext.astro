@@ -1,0 +1,135 @@
+---
+// Foundation, edit with care
+// "Where next" (PORTS.md card 191, from FBC Auburn 2026-10-24), drawn in Reid's grammar: up to
+// three big Zodiak rows on the linen just above the footer's ink, so no page ends at a dead end.
+// Each row leads with a small paint-chip swatch (chips 3, 4, 5 in turn), then the page name, a
+// quiet line under it, and an arrow. Hover or keyboard focus draws the underline under the name
+// and nudges the arrow; focus is the house 2px ink outline.
+//
+// Rows come from Site settings > Where next rows, resolved by whereNextRows() in
+// src/lib/wayfinding.ts: the first three that are not the page you are on, and a row that points
+// at a Studio page only while that page is published. No rows = nothing at all, so a site that
+// never fills the box is unchanged. A page that ends on its own closing band (FinalCta.astro,
+// .final) does not also get these rows: one closing device per page.
+
+import type { WhereNextRow } from '@/lib/wayfinding';
+
+interface Props {
+  rows: WhereNextRow[];
+}
+const { rows } = Astro.props;
+---
+
+{rows.length > 0 && (
+  <nav class="wn" aria-label="Where next">
+    <div class="r-wrap">
+      <h2 class="wn__eyebrow">Where next</h2>
+      <ul role="list" class="wn__list">
+        {rows.map((r, i) => (
+          <li>
+            <a href={r.href} class="wn__row">
+              <span class={`wn__chip wn__chip--${(i % 3) + 3}`} aria-hidden="true" />
+              <span class="wn__text">
+                <span class="wn__label">{r.label}</span>
+                {r.note && <span class="wn__note">{r.note}</span>}
+              </span>
+              <span class="wn__arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+)}
+
+<style>
+  /* The page's own closing band already ends it: one closing device per page. */
+  :global(body:has(.final)) .wn {
+    display: none;
+  }
+  .wn {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .wn__eyebrow {
+    margin: 0 0 0.5rem;
+    font: 500 0.82rem/1.2 var(--font-body);
+    letter-spacing: 0.02em;
+    color: var(--color-ink-2);
+  }
+  .wn__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .wn__row {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.85rem, 2vw, 1.5rem);
+    min-height: 4rem;
+    padding-block: clamp(0.9rem, 1.8vw, 1.35rem);
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .wn__row:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .wn__chip {
+    flex: none;
+    width: 1.1rem;
+    height: 1.4rem;
+    border-radius: 2px;
+    background: var(--color-chip-3);
+    box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.08);
+  }
+  .wn__chip--4 {
+    background: var(--color-chip-4);
+  }
+  .wn__chip--5 {
+    background: var(--color-chip-5);
+  }
+  .wn__text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 0.25rem;
+  }
+  .wn__label {
+    justify-self: start;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font: 300 clamp(1.7rem, 1rem + 2.1vw, 3rem) / 1.08 var(--font-display);
+    letter-spacing: -0.025em;
+    background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+    transition: background-size 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wn__row:hover .wn__label,
+  .wn__row:focus-visible .wn__label {
+    background-size: 100% 1px;
+  }
+  .wn__note {
+    font: 400 0.95rem/1.4 var(--font-body);
+    color: var(--color-ink-2);
+  }
+  .wn__arrow {
+    flex: none;
+    font: 300 1.75rem/1 var(--font-display);
+    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wn__row:hover .wn__arrow,
+  .wn__row:focus-visible .wn__arrow {
+    transform: translateX(6px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wn__label,
+    .wn__arrow {
+      transition: none;
+    }
+  }
+</style>

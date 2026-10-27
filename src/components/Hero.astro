@@ -3,6 +3,10 @@
 // Interior page hero (rebuilt 2026-09-30, phase 2 of the art-direction
 // rebuild; see DESIGN.md). The HOME hero is home/HomeHero.astro, not this.
 //
+//   Photo style (card 189, OPT-IN): the block's Style set to "Photo behind the words" AND a
+//               photo draws PhotoHero.astro instead (wide photo under a token shade, white
+//               words, optional short-facts card and silent clip). Default stays the framed
+//               crop below; nothing changes until an editor picks it for a page.
 //   No image:   eyebrow line / HEADLINE (word rise) / subhead + CTAs, on linen.
 //   With image: the same copy on the left, the photo on the right as a framed
 //               crop (4:5), never full-bleed under a dark scrim. Wide phone
@@ -18,6 +22,7 @@
 import SanityImage from '@/components/SanityImage.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import RiseWords from '@/components/RiseWords.astro';
+import PhotoHero, { type PhotoHeroGlance, type PhotoHeroVideo } from '@/components/PhotoHero.astro';
 import type { CtaBlock } from '@/lib/cta';
 
 interface SanityImageObject {
@@ -41,6 +46,11 @@ interface Props {
   /** Accepted for compatibility; not used (home-only feature, retired). */
   rotatingWords?: string[];
   scriptAccent?: string;
+  /** The block's Style (card 189): 'photo' with a photo draws PhotoHero.astro; anything else is as before. */
+  heroStyle?: string | null;
+  glance?: PhotoHeroGlance | null;
+  backgroundVideo?: PhotoHeroVideo | null;
+  backgroundVideoPhone?: PhotoHeroVideo | null;
 }
 
 const {
@@ -54,6 +64,10 @@ const {
   headingId,
   scriptAccent,
   size = 'short',
+  heroStyle,
+  glance,
+  backgroundVideo,
+  backgroundVideoPhone,
 } = Astro.props as Props;
 
 // The Studio layout card swaps these two classes in preview, so they are also
@@ -78,8 +92,25 @@ function parseSubhead(s?: string): Array<{ type: 'text' | 'em'; value: string }>
     );
 }
 const subheadParts = parseSubhead(subhead);
+const usePhotoHero = heroStyle === 'photo' && !!image;
 ---
 
+{
+  usePhotoHero && image ? (
+    <PhotoHero
+      eyebrow={eyebrow}
+      headline={headline}
+      subhead={subhead}
+      image={image}
+      primaryCta={primaryCta}
+      secondaryCta={secondaryCta}
+      headingId={headingId}
+      size={size}
+      glance={glance}
+      video={backgroundVideo}
+      videoPhone={backgroundVideoPhone}
+    />
+  ) : (
 <section class:list={['phero', wrapperHeight, image && 'phero--image']} aria-labelledby={headingId}>
   <div class:list={['r-wrap phero__grid', image && 'split']}>
     <div class="phero__copy">
@@ -123,6 +154,7 @@ const subheadParts = parseSubhead(subhead);
     }
   </div>
 </section>
+)}
 
 <style>
   .phero {

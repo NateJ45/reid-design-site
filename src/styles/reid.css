@@ -422,3 +422,18 @@
     transform: translateY(108%);
   }
 }
+
+/* ---- The photo hero's tokens (card 189, opt-in "Photo behind the words").
+   photo-hero.css is PORTABLE and reads a small scale Reid does not have, so Reid supplies it here
+   on the hero's own root. The shade is Ink (--color-accent-dark, #231e1b, the walnut-black of the
+   dark band and footer); src/lib/photo-hero.test.ts proves white over a white photo under it is
+   4.5:1 or better. The short-facts card is the house paper card with square corners, like the
+   framed photos (.r-frame), never rounded. ---- */
+.ph-hero {
+  --fs-small: 0.95rem;
+  --fs-body: 1.0625rem;
+  --fs-lead: var(--text-lede);
+  --fs-title: var(--text-h4);
+  --pad-card: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  --radius-card: 0;
+}

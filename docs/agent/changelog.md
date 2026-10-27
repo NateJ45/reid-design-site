@@ -2,6 +2,20 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-27: The Auburn port run, fitted to Reid (starter cards 186 to 198)
+
+What came over, in Reid's own grammar, all empty or opt-in so the live pages are unchanged until an editor fills a field:
+
+- **186:** the new `scripts/sync-check.mjs` (finds the starter from an ancestor folder; refuses a silent self-check).
+- **187 (part):** `CopyEmailButton.astro` replaces the React island (with Reid's `note` variant for the contact aside), so React and the Sonner Toaster no longer load on every page; `Header.astro` reads `publicPath()` so the active link works in the preview; `page-path.ts` and `published-links.ts` came with it.
+- **189:** "Photo behind the words" is an extra hero style on the `heroSection` block (`heroStyle`, a glance card, an optional silent clip). The framed 4:5 crop stays the default (the 2026-09-30 art direction). Wall: `/styleguide/photo-hero/home/` and `/page/`.
+- **191 (part):** Site settings > Menus gains Where next rows (above the footer) and a Phone action bar (its line falls back to Business info > availability, e.g. "Accepting new clients"); the bar hides `StickyCTAChip` while it shows. Wall: `/styleguide/wayfinding/`.
+- **196 (lean) and 198 (bar line):** Business info gains street, ZIP, opening hours, an hours note ("By appointment") and dated hours changes, with confirmed flags; the footer and the LocalBusiness JSON-LD use them only when set and confirmed. `site.timeZone` is `America/Indiana/Indianapolis`.
+- **197 (part):** `tests/page-weight.spec.ts` with Reid's budgets in `tests/page-weight.config.json`, and `scripts/lib/svg-path-compact.mjs`.
+- **194 (PORTABLE copies only):** `studio-messages.ts`, `MessagesTool.tsx`, `studio-icons.ts`.
+
+Not taken, and why: 188's scale, shapes and board (Reid's DESIGN.md tokens already do this job, and its Zodiak fallbacks are already metric-matched; no layout slot), 190 (Contact is bespoke with the room and style picker; no journal), 192 (Reid has its own motion grammar), 193 (no builder-blocks kit; Process steps and the services list already cover the "how it works" and services hub), 194's form builder (no D1 or email backbone; Web3Forms), 195 (live site, client notes stay off), 197's video and documents blocks (no channel; no price sheet to publish).
+
 ## 2026-10-26: Preview: instant structure, the Studio's own draft, typing on the page (starter cards 183 to 185)
 
 Card 183: section moves, removals, copies and picture swaps show at once (`preview-structure.ts`, `overlay/instantStructure.ts`). Card 184: a structural edit renders from the Studio's own copy of the draft, POSTed by the soft refresh, instead of waiting for the autosave and the query index; same one request per render. This site's route reads each page through its own loader in `src/lib/queries.ts`, so `withPostedDraft` (`src/lib/cms-preview.ts`) wraps the loader's client and answers only the page document's `<filter>[0]{...}` read from the posted draft, falling back to the stored draft when it is not this page's. Card 185: text fields can be typed straight onto the page (`overlay/InlineText.tsx`). It needed the starter's PORTABLE `inline-rich.ts` and `inline-rich-write.ts` (+ test), copied byte-identical although this site has no rich twins. New node:test files run under `test:kit`; the vitest copies of `preview-live-draft.test.ts` and `preview-morph.test.ts` took the starter's new cases.

@@ -69,6 +69,26 @@ export const siteSettings = defineType({
           'That does not look like a phone number. Use digits, spaces, and the symbols + ( ) - only.',
         ),
     }),
+    // Card 196: a fact's confirmed flag (src/lib/business-facts.ts). Untick while
+    // it is still a guess: the site
+    // keeps it out of the data search engines read. Unset counts as confirmed.
+    defineField({
+      name: 'phoneConfirmed',
+      title: 'The phone number is confirmed',
+      type: 'boolean',
+      description:
+        'Untick while the number is still a guess: the site keeps it out of the data search engines read until you tick it again.',
+      initialValue: true,
+      hidden: ({ document }) => !document?.phone,
+    }),
+    defineField({
+      name: 'emailConfirmed',
+      title: 'The email address is confirmed',
+      type: 'boolean',
+      description:
+        'Untick while the address is still a guess: the site keeps it out of the data search engines read until you tick it again.',
+      initialValue: true,
+    }),
     defineField({
       name: 'logo',
       title: 'Logo (optional)',
@@ -186,6 +206,114 @@ export const siteSettings = defineType({
         'The little links beside the copyright line at the very bottom. Leave empty to keep the single "Privacy policy" link.',
       validation: (Rule) => Rule.max(6),
       of: [defineArrayMember({ type: 'navLink' })],
+    }),
+    defineField({
+      name: 'actionBars',
+      title: 'Phone action bar (optional)',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'A slim bar that sticks to the bottom of a phone screen once the visitor scrolls past the page heading: one short line and one button. Pick the page it belongs to, or tick "Every page". A page with no bar shows none.',
+      validation: (Rule) => Rule.max(12),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'actionBar',
+          title: 'Bar',
+          fields: [
+            defineField({
+              name: 'everyPage',
+              title: 'Every page',
+              type: 'boolean',
+              description:
+                'Show this bar on every page that has no bar of its own. Leave off to pick one page below.',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'page',
+              title: 'Page',
+              type: 'reference',
+              description: 'The page this bar shows on.',
+              to: [
+                { type: 'homePage' },
+                { type: 'aboutPage' },
+                { type: 'servicesPage' },
+                { type: 'processPage' },
+                { type: 'eDesignPage' },
+                { type: 'portfolioPage' },
+                { type: 'faqPage' },
+                { type: 'contactPage' },
+                { type: 'page' },
+              ],
+              hidden: ({ parent }) => parent?.everyPage === true,
+            }),
+            defineField({
+              name: 'text',
+              title: 'Short line',
+              type: 'string',
+              description:
+                'One short line beside the button, like "Open today until 5". Leave empty to show the hours for today from Business info when it has set hours, else the Availability status from Business info (like "Accepting new clients"). Keep it under about 30 characters so it fits a phone.',
+              validation: (Rule) => Rule.max(48),
+            }),
+            defineField({
+              name: 'action',
+              title: 'Button',
+              type: 'navLink',
+              description: 'The one button. The bar shows only when it has a label and a page.',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: {
+              everyPage: 'everyPage',
+              pageTitle: 'page.title',
+              label: 'action.label',
+              text: 'text',
+            },
+            prepare: ({ everyPage, pageTitle, label, text }) => ({
+              title: label || '(no button yet)',
+              subtitle: `${everyPage ? 'Every page' : pageTitle || 'No page picked'}${text ? ` · ${text}` : ''}`,
+            }),
+          },
+        }),
+      ],
+    }),
+
+    // Card 191: the footer's opening rows.
+    defineField({
+      name: 'whereNext',
+      title: 'Where next rows (optional)',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'Big links across the top of the footer so no page ends at a dead end. Add up to five in order of importance: each page shows the first three that are not the page itself. Leave empty for none.',
+      validation: (Rule) => Rule.max(5),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'whereNextRow',
+          title: 'Row',
+          fields: [
+            defineField({
+              name: 'link',
+              title: 'Link',
+              type: 'navLink',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'note',
+              title: 'Small line under it',
+              type: 'string',
+              description: 'Optional, a few words, like "Your first visit".',
+              validation: (Rule) => Rule.max(40),
+            }),
+          ],
+          preview: {
+            select: { title: 'link.label', subtitle: 'note' },
+            prepare: ({ title, subtitle }) => ({ title: title || '(no link yet)', subtitle }),
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'headerCta',

@@ -11,6 +11,9 @@ export const site = {
   domain: 'reiddesignllc.com',
   url: 'https://reiddesignllc.com',
   lang: 'en',
+  // The studio's clock (Plainfield, IN observes Eastern time). Read by src/lib/business-hours.ts
+  // for "today" in the hours line and the phone action bar.
+  timeZone: 'America/Indiana/Indianapolis',
   storageKeyPrefix: 'reid-design',
   themeStorageKey: 'reid-design-theme',
 

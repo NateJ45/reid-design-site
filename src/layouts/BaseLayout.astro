@@ -31,7 +31,6 @@ import Footer from '@/components/Footer.astro';
 import Announcements from '@/components/Announcements.astro';
 import BackToTop from '@/components/BackToTop';
 import Analytics from '@/components/Analytics.astro';
-import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
 // Starwind UI CSS, accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
@@ -380,18 +379,17 @@ const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas
     <Footer siteSettings={siteSettings} navPages={navPages} />
 
     {/*
-      Both islands were previously `client:load` which forced the JS to
-      execute before the first paint completed. Neither is interactive
-      until later in the page lifecycle (BackToTop only appears after the
-      visitor scrolls 600px; Toaster only mounts a region, the toast call
-      sites import it on demand). Hydrating with `client:idle` lets the
+      BackToTop was previously `client:load` which forced the JS to
+      execute before the first paint completed. It is not interactive
+      until later in the page lifecycle (it only appears after the
+      visitor scrolls 600px). Hydrating with `client:idle` lets the
       browser settle the main thread first and shifts ~10–20ms of TBT off
       the critical path on mobile.
     */}
     <BackToTop client:idle />
 
-    {/* Sonner toast region. Used by CopyEmailButton and ContactForm. Position bottom-right by default. */}
-    <Toaster client:idle position="bottom-right" />
+    {/* No Sonner toast region since 2026-10-27 (starter card 187): its only caller, the copy-email
+        island, is now CopyEmailButton.astro with its own live region. */}
 
     {/* No smooth-scroll library (Lenis was removed 2026-09-30: it replaced the
         visitor's own wheel and trackpad feel for no real gain, and none of the

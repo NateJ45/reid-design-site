@@ -69,6 +69,7 @@ import {
   type RawNavItem,
 } from '@/lib/siteSettings';
 import type { RawNavLink } from '@/lib/nav-href';
+import { publicPath } from '@/lib/page-path';
 
 // Logo renditions. The source is 378x400. The header shows it 84px tall at
 // rest (about 80px wide) from 1024px up and 58px tall (about 54px wide) below
@@ -272,7 +273,9 @@ const toneOf = (i: number) => `var(--color-chip-${TONES[i % TONES.length]})`;
 const PEN =
   '<svg class="hdr__pen" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 6.5C20 4.8 45 4.2 68 5.2S92 6.4 98 3.2" /></svg>';
 
-const pathname = Astro.url.pathname;
+// publicPath() drops a leading /preview (starter card 187), so the active link is
+// the same in the draft preview as on the live page.
+const pathname = publicPath(Astro.url.pathname);
 function isActive(href: string) {
   if (href === '/') return pathname === '/';
   return pathname === href || pathname.startsWith(href.endsWith('/') ? href : `${href}/`);

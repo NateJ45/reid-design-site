@@ -340,7 +340,7 @@ describe('the in-canvas handle in SectionRenderer', () => {
 describe('layoutFieldsFor and handleFieldFor', () => {
   it('names the fields each type actually carries', () => {
     expect(layoutFieldsFor('richTextSection').map((f) => f.name)).toEqual(['width', 'align']);
-    expect(layoutFieldsFor('heroSection').map((f) => f.name)).toEqual(['size']);
+    expect(layoutFieldsFor('heroSection').map((f) => f.name)).toEqual(['size', 'heroStyle']);
     expect(layoutFieldsFor('quoteSection')).toEqual([]);
     expect(layoutFieldsFor(undefined)).toEqual([]);
     expect(layoutFieldsFor(null)).toEqual([]);
