@@ -459,6 +459,12 @@
   background: var(--color-accent-dark);
   color: var(--color-cream);
 }
+/* A sample tag (a gallery caption) stays a paper tag pinned on the photo, so it keeps
+   its own ink text inside the band (phase D, 2026-10-28: axe caught cream on paper). */
+.r-inkband .r-tag {
+  --color-ink: #231e1b;
+  --color-ink-2: #5a4e46;
+}
 .r-inkband .r-btn {
   --tag-bg: var(--color-cream);
   --tag-bg-hover: var(--color-paper);

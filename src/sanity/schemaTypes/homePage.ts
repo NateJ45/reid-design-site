@@ -402,7 +402,7 @@ export const homePage = defineType({
       type: 'string',
       group: 'testimonials',
       description:
-        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Use whole words, spelled and capitalized as in the headline. Leave blank to skip. Use sparingly, one accent per heading.',
     }),
     defineField({
       name: 'testimonialsSubhead',
@@ -451,7 +451,7 @@ export const homePage = defineType({
       type: 'string',
       group: 'services',
       description:
-        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Use whole words, spelled and capitalized as in the headline. Leave blank to skip. Use sparingly, one accent per heading.',
     }),
     defineField({
       name: 'servicesGridSubhead',
@@ -503,7 +503,7 @@ export const homePage = defineType({
       type: 'string',
       group: 'final',
       description:
-        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Must match the headline text exactly (case-sensitive). Leave blank to skip. Use sparingly, one accent per heading.',
+        'Optional. One word or short phrase from the headline to render in handwritten Pinyon Script. Use whole words, spelled and capitalized as in the headline. Leave blank to skip. Use sparingly, one accent per heading.',
     }),
     defineField({
       name: 'finalCtaSubhead',

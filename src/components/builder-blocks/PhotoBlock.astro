@@ -8,6 +8,8 @@ import BuilderBand from './BuilderBand.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import LightboxLink from '@/components/LightboxLink.astro';
+import lightboxCss from '@/styles/lightbox.css?url';
+import { firstOnPage } from '@/lib/once-per-page';
 import type { CadenceSurface } from '@/lib/surfaces';
 import type { ProjectedPhotoSection } from '@/lib/builderBlocks.types';
 import type { SanityImageObject } from '@/lib/pageBuilder.types';
@@ -20,6 +22,8 @@ interface Props {
 }
 const { block, surface, headingId, isFirst = false } = Astro.props;
 const image = block.image?.asset ? (block.image as SanityImageObject) : null;
+// The viewer's stylesheet, once per page (shared key with GalleryGrid).
+const linkViewerCss = image !== null && firstOnPage(Astro.request, 'lightbox');
 ---
 
 {image && (
@@ -45,3 +49,4 @@ const image = block.image?.asset ? (block.image as SanityImageObject) : null;
     <Lightbox />
   </BuilderBand>
 )}
+{linkViewerCss && <link rel="stylesheet" href={lightboxCss} />}

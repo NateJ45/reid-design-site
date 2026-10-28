@@ -100,7 +100,7 @@ export const privacyPage = defineType({
       type: 'string',
       group: 'hero',
       description:
-        'A single word from the headline to render in Pinyon Script. Must match exactly. Leave blank to skip.',
+        'A single word from the headline to render in Pinyon Script. Use a whole word, spelled and capitalized as in the headline. Leave blank to skip.',
     }),
 
     // Content

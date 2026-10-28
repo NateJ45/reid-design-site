@@ -13,10 +13,9 @@
 // every page) imports this file. So the two sheets are imported as URLs and
 // written as one <link> each, the first time a builder block renders on a page
 // (firstOnPage); a page without a builder block (every live page today) gains
-// no weight. The photo viewer's styles (lightbox.css, PORTABLE, card 124) ride
-// along for the wide photo.
+// no weight. The photo viewer's styles (lightbox.css, PORTABLE, card 124) are
+// linked by PhotoBlock and GalleryGrid themselves, once per page (phase D).
 import builderCss from '@/styles/builder-blocks.css?url';
-import lightboxCss from '@/styles/lightbox.css?url';
 import { firstOnPage } from '@/lib/once-per-page';
 import type { BuilderPageBlock } from '@/lib/builderBlocks.types';
 import type { CadenceSurface } from '@/lib/surfaces';
@@ -55,12 +54,7 @@ const common = { surface, headingId };
 const linkSheets = firstOnPage(Astro.request, 'builder-blocks');
 ---
 
-{linkSheets && (
-  <>
-    <link rel="stylesheet" href={builderCss} />
-    <link rel="stylesheet" href={lightboxCss} />
-  </>
-)}
+{linkSheets && <link rel="stylesheet" href={builderCss} />}
 
 {b._type === 'columnsSection' ? (
   <ColumnsBlock block={b} {...common} />

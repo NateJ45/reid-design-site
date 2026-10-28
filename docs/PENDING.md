@@ -734,6 +734,8 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
 
 ## Recently closed
 
+- 2026-10-28, refoundation phase D PR 1: the gallery block opens the photo viewer (card 124; the wide photo already did), an empty optional button no longer blocks Publish (card 178), the script accent matches whole words (card 200).
+
 - **2026-10-13, /privacy names Cloudflare's edge beacon.** The zone's Web Analytics
   automatic setup injects the beacon on every HTML page, so "How traffic is measured"
   now says Cloudflare counts visits without cookies, beside the Google Analytics

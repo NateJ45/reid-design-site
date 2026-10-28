@@ -134,7 +134,7 @@ The case-study TOC (`CaseStudyTOC.tsx`) intercepts the click and calls `scrollIn
 
 The accent works in two places: hero headlines and section headings. The shared logic lives in `src/lib/scriptAccent.ts` (`splitScriptAccent(headline, accent)`), which splits a headline string around the matching accent word and returns the before/after fragments for the template to wrap in `<span class="font-script">`. The `.font-script` utility handles the accent styling (originally font-family + 1.25em scale + baseline tweak for Pinyon; now Zodiak italic). If the accent word is not found in the current headline, the heading renders plain: Staci can edit copy without breaking anything.
 
-**Discipline:** use at most one script accent per heading. Over-use dilutes the effect. The accent word must match the headline text exactly (case-sensitive). Think of it as an editorial signature, not decoration.
+**Discipline:** use at most one script accent per heading. Over-use dilutes the effect. The accent must be a whole word (or words) of the headline, capitals included: `room` does not match inside `Bedroom` (starter card 200). Think of it as an editorial signature, not decoration.
 
 #### Hero accents (three flourishes, pick at most one per hero)
 

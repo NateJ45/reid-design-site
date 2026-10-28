@@ -8,12 +8,25 @@
 // sees the neighbours exactly as a page would: Standard blocks alternate linen
 // and paper, a Feature block takes the ink band (and a second Feature beside it
 // falls back to Standard), a Quiet block stays on linen and restarts the
-// rhythm, and the builder kit's blocks sit on each ground. Used for the
+// rhythm, and the builder kit's blocks sit on each ground. Two galleries (one
+// Standard, one Feature) carry the photo viewer that tests/lightbox.spec.ts
+// drives (PORTABLE, starter card 124; phase D, 2026-10-28): their photos are
+// fake Sanity references the spec answers with a local picture. Used for the
 // screenshots in the PR and docs/agent/page-architecture.md. Not for visitors:
 // noindex, out of the sitemap, linked from nowhere.
 // =============================================================================
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const image = (alt: string, key: string, dims = '1600x1067') => ({
+  _type: 'image',
+  _key: key,
+  alt,
+  asset: {
+    _type: 'reference',
+    _ref: `image-0123456789abcdef0123456789abcdef01234567-${dims}-jpg`,
+  },
+});
 
 const para = (key: string, text: string) => ({
   _type: 'block',
@@ -36,6 +49,17 @@ const SECTIONS = [
     heading: 'Standard: the page rhythm',
     width: 'normal',
     body: [para('s1', 'Linen first, then paper, taking turns down the page.')],
+  },
+  {
+    _type: 'gallerySection',
+    _key: 'standard-gallery',
+    heading: 'A gallery on the page rhythm',
+    columns: 3,
+    images: [
+      { ...image('A reading chair by a sunny window', 'g1'), caption: 'Linen, oatmeal' },
+      { ...image('A table of food at the picnic', 'g2', '1200x1600'), caption: 'The picnic' },
+      image('A painted front door in sage green', 'g3'),
+    ],
   },
   {
     _type: 'columnsSection',
@@ -108,6 +132,17 @@ const SECTIONS = [
     attribution: 'A client',
   },
   {
+    _type: 'gallerySection',
+    _key: 'feature-gallery',
+    look: 'feature',
+    heading: 'A gallery on the ink band',
+    columns: 2,
+    images: [
+      { ...image('A living room after the refresh', 'f1'), caption: 'Choir, Easter morning' },
+      image('A bedroom with a navy accent wall', 'f2'),
+    ],
+  },
+  {
     _type: 'contactCardSection',
     _key: 'contact',
     heading: 'Contact details, Standard',
@@ -129,5 +164,6 @@ const SECTIONS = [
   description="The section looks through the real cadence. Not for visitors."
   noindex
 >
+  <h1 class="sr-only">Section looks</h1>
   <SectionRenderer sections={SECTIONS} idPrefix="looks" />
 </BaseLayout>

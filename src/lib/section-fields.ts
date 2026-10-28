@@ -327,7 +327,7 @@ export function swapsClasses(field: LayoutField): boolean {
 // -----------------------------------------------------------------------------
 // `scriptAccent` names one word inside a headline to re-draw in Pinyon Script.
 // `splitScriptAccent` (src/lib/scriptAccent.ts) matches it CASE-SENSITIVELY, as
-// an exact substring, first occurrence only - which is why the picker stores a
+// a whole word (card 200), first match only - which is why the picker stores a
 // slice of the headline rather than anything the editor typed.
 //
 // It lives in two places, under two naming conventions:

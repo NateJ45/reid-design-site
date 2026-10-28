@@ -150,7 +150,7 @@ export const heroSection = defineType({
       title: 'Handwritten accent word (optional)',
       type: 'string',
       description:
-        'One word from the headline to render in the script font. Must match exactly. Leave blank to skip.',
+        'One word from the headline to render in the script font. Use a whole word, spelled and capitalized as in the headline. Leave blank to skip.',
     }),
     defineField({ name: 'subhead', title: 'Subhead', type: 'text', rows: 2 }),
     imageWithAlt('backgroundImage', 'Background photo (optional)'),
@@ -247,7 +247,8 @@ export const richTextSection = defineType({
       name: 'scriptAccent',
       title: 'Handwritten accent word (optional)',
       type: 'string',
-      description: 'One word from the heading to render in the script font. Must match exactly.',
+      description:
+        'One word from the heading to render in the script font. Use a whole word, spelled and capitalized as in the heading.',
     }),
     proseBody('body', 'Text'),
     defineField({
@@ -464,7 +465,8 @@ export const ctaBandSection = defineType({
       name: 'scriptAccent',
       title: 'Handwritten accent word (optional)',
       type: 'string',
-      description: 'One word from the headline to render in the script font. Must match exactly.',
+      description:
+        'One word from the headline to render in the script font. Use a whole word, spelled and capitalized as in the headline.',
     }),
     defineField({ name: 'subhead', title: 'Subhead', type: 'text', rows: 2 }),
     defineField({ name: 'cta', title: 'Button', type: 'ctaBlock' }),

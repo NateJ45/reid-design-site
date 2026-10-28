@@ -22,8 +22,21 @@
 // row-height rules in the <style> key off the same classes so the swap looks
 // right before the preview refreshes.
 //
+// Every photo opens full screen in the photo viewer (LightboxLink + Lightbox,
+// starter card 124; refoundation phase D, 2026-10-28), stepping through this
+// gallery only (data-lightbox-group on the grid). With JavaScript off each
+// photo is a link to the full-size picture. The viewer's stylesheet is linked
+// once per page and only on a page that has a gallery or a wide photo
+// (firstOnPage), so other pages gain no weight. Room stories keep their own
+// viewer (ProjectGallery.tsx, YARL).
+//
 // Surface (background / muted) is assigned by SectionRenderer.
 import SanityImage from '@/components/SanityImage.astro';
+import Lightbox from '@/components/Lightbox.astro';
+import LightboxLink from '@/components/LightboxLink.astro';
+import lightboxCss from '@/styles/lightbox.css?url';
+import { firstOnPage } from '@/lib/once-per-page';
+import type { SanityImageObject } from '@/lib/pageBuilder.types';
 import SectionHeading from '@/components/SectionHeading.astro';
 import { mosaicSpans } from '@/components/blocks/mosaic';
 
@@ -67,6 +80,8 @@ const desktopCols = columns === 2 || columns === 4 ? columns : 3;
 const narrow = mosaicSpans(pics.length, 2);
 const wide = mosaicSpans(pics.length, desktopCols);
 
+const linkViewerCss = pics.length > 0 && firstOnPage(Astro.request, 'lightbox');
+
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const tiles = pics.map((img, i) => {
   const [c2, r2] = narrow[i] ?? [1, 1];
@@ -102,23 +117,27 @@ const tiles = pics.map((img, i) => {
           <SectionHeading headline={heading} headingId={headingId} />
         </div>
       )}
-      <div class:list={['gal__grid grid grid-cols-2', colClass]}>
+      <div class:list={['gal__grid grid grid-cols-2', colClass]} data-lightbox-group>
         {tiles.map(({ img, style, big, sizes, key }) => (
           <figure class="gal__tile" style={style} data-key={key}>
-            <SanityImage
-              source={img}
-              width={big ? 1400 : 900}
-              sizes={sizes}
-              quality={75}
-              class="gal__img"
-            />
+            <LightboxLink source={img as SanityImageObject} caption={img.caption}>
+              <SanityImage
+                source={img}
+                width={big ? 1400 : 900}
+                sizes={sizes}
+                quality={75}
+                class="gal__img"
+              />
+            </LightboxLink>
             {img.caption && <figcaption class="r-tag gal__tag">{img.caption}</figcaption>}
           </figure>
         ))}
       </div>
     </div>
+    <Lightbox />
   </section>
 )}
+{linkViewerCss && <link rel="stylesheet" href={lightboxCss} />}
 
 <style>
   .gal {
@@ -147,6 +166,9 @@ const tiles = pics.map((img, i) => {
     grid-column: span var(--c2);
     grid-row: span var(--r2);
   }
+  .gal__tile :global(.lightbox-link) {
+    height: 100%;
+  }
   .gal__tile :global(.gal__img) {
     display: block;
     width: 100%;
@@ -165,6 +187,8 @@ const tiles = pics.map((img, i) => {
     left: 0.6rem;
     bottom: 0.6rem;
     max-width: calc(100% - 1.2rem);
+    /* The tag sits on the photo; a tap on it still opens the viewer. */
+    pointer-events: none;
     padding: 0.5rem 0.8rem 0.55rem 1.7rem;
     font: 500 0.8rem/1.3 var(--font-body);
   }

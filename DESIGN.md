@@ -461,6 +461,12 @@ portfolio templates are ready for the day the first `project` exists.
   1 to 40 photos at 2, 3 and 4 columns); two columns on phones and tablets,
   Staci's `columns` on desktop, never a full-width letterbox at two columns.
   Crops follow the hotspot; captions are sample tags.
+  Every photo opens full screen in the photo viewer (phase D, 2026-10-28;
+  starter card 124): a native dialog with the caption and "2 of 3", arrows,
+  swipe and Escape, stepping through that gallery only; with JavaScript off a
+  photo is a link to the full-size picture. The wide photo block does the
+  same. Room stories keep their own viewer (YARL). On the Feature (ink) band
+  the caption tags stay paper tags with ink text.
 - `QuoteBlock`: one quote in Zodiak Light italic with the hung bronze
   open-quote, as on the home ink band; long quotes step down a size.
 - `VideoEmbed`: left-set heading, 16:9 on a thin ink keyline, caption led by
