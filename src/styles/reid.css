@@ -437,6 +437,20 @@
   --pad-card: clamp(1.25rem, 1rem + 1vw, 1.75rem);
   --radius-card: 0;
 }
+/* The headline's accent word over the photo (starter card 203): Staci's Waterfall hand, as in the
+   framed hero (.r-hand .r-accent), but WHITE like the rest of the words, so the shade's contrast
+   promise covers it (photo-hero.test.ts reads this rule too). Only the face changes here. */
+.ph-hero {
+  --ph-accent-font: var(--font-hand);
+  --ph-accent-style: normal;
+  --ph-accent-weight: 400;
+  --ph-accent-size: 1.24em;
+}
+.ph-hero .ph-accent {
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 0.68;
+}
 
 /* ---- The ink band (refoundation phase B, 2026-10-28): the Feature look.
    A content block an editor sets to Feature, and any builder block on the ink

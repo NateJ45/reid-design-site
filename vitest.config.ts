@@ -21,6 +21,7 @@ export default defineConfig({
       'src/lib/guide-shots.test.ts',
       'src/lib/hero-video.test.ts',
       'src/lib/photo-hero.test.ts',
+      'src/lib/heading-accent.test.ts',
       'src/lib/google-auth.test.ts',
       'src/lib/guide-videos.test.ts',
       'src/lib/preview-structure.test.ts',

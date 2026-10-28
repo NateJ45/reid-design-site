@@ -16,7 +16,8 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ### From 2026-10-28: refoundation phases D and E
 
-- [ ] **The photo style drops the script accent.** If Services or E-Design switches its opening banner to "Photo behind the words" (card 189, opt-in), `PhotoHero.astro` draws the headline without the script accent word. Decide with Staci whether that is fine for a photo banner, or teach `PhotoHero` the accent (a starter-side change: the file is shared with the family).
+- [x] **The photo style shows the script accent (2026-10-28).** "Photo behind the words" on Services or E-Design now draws the script accent word in white Waterfall over the photo (starter card 203: PhotoHero `accent`, `--ph-accent-*` tokens in `reid.css`, the same contrast unit test). The field help no longer says it is dropped.
+- [x] **Business facts confirmed (2026-10-28).** Phone and address (Plainfield, IN) ticked confirmed, hours note "By appointment" set (`scripts/patch-business-facts-confirmed.mjs`, backup, dry run, apply, verify). The studio is by appointment: no street, ZIP or weekly hours, so no opening hours in the structured data. The Contact details block now shows the hours note on its own where hours would go.
 - [ ] **`audit:data` (2026-10-28)** reports two things, both left alone: the `eDesignPage.finalCta.internalPage` orphan (item below, still to decide) and documents of type `trashedItem`, the Studio's own trash records (no schema type by design; nothing to fix unless the audit should learn to skip them).
 - [x] **Refoundation finished (phase E, 2026-10-28):** dead code deleted, four byte-identical starter files marked PORTABLE (sync-check 244 same, 0 drift), `scripts/.parity` recaptured (20 routes), CLAUDE.md rules 15 and 16, page-architecture and DESIGN.md "Blocks" updated.
 

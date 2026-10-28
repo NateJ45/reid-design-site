@@ -2,7 +2,7 @@
 // Safe to edit by hand
 // Contact details on one card (refoundation phase B, 2026-10-28; starter card
 // 193, drawn in Reid's look): phone, email, address with a directions link and
-// opening hours, a column each on a wide screen, set off by hairlines.
+// opening hours (or just the hours note, "By appointment"), a column each on a wide screen, set off by hairlines.
 //
 // The phone, email, address and hours default to the business's facts (Site
 // settings and Business info, card 196, read through resolveBusinessFacts), so
@@ -62,11 +62,12 @@ const hours =
     : loose.hasHours
       ? weekRows(loose.hours, { grouped: true }).map((r) => `${r.label}: ${r.text}`)
       : [];
-const hoursNote = ownHours.length === 0 && loose.hasHours ? loose.hoursNote : '';
+// The note shows on its own too (2026-10-28): the studio is by appointment, so "By appointment"
+// with no weekly hours is all the hours there are, and it stands where the hours would go.
+const hoursNote = ownHours.length === 0 ? loose.hoursNote : '';
+const hasHoursCell = hours.length > 0 || Boolean(hoursNote);
 
-const count = [Boolean(tel), Boolean(email), Boolean(place), hours.length > 0].filter(
-  Boolean,
-).length;
+const count = [Boolean(tel), Boolean(email), Boolean(place), hasHoursCell].filter(Boolean).length;
 const big = block.callButtons === true;
 ---
 
@@ -125,7 +126,7 @@ const big = block.callButtons === true;
           </dd>
         </div>
       )}
-      {hours.length > 0 && (
+      {hasHoursCell && (
         <div class="bb-board__cell">
           <dt>Hours</dt>
           <dd>
