@@ -15,7 +15,7 @@ import ServiceArea from '@/components/sections/ServiceArea.astro';
 import SatisfactionGuarantee from '@/components/sections/SatisfactionGuarantee.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { SECTION_DRAG_FLOW, sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 
 interface Props {
   sections?: any[];
@@ -42,7 +42,7 @@ const { sections = [], page, siteSettings, visible, editDoc } = Astro.props as P
 // element has none.
 const Wrap = editDoc ? 'div' : Fragment;
 const wrapAttrs = (key: string | undefined) =>
-  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
+  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key), ...SECTION_DRAG_FLOW } : {};
 
 const DEFAULT_ORDER = [
   'hero',

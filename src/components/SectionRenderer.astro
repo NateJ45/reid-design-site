@@ -40,7 +40,12 @@ import InstagramFeed from '@/components/InstagramFeed.astro';
 import PressMentions from '@/components/sections/PressMentions.astro';
 import { getPressMentions, getSiteSettings } from '@/lib/queries';
 import { expandSyncedSections } from '@/lib/authoring';
-import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import {
+  SECTION_DRAG_FLOW,
+  sectionEditAttr,
+  sectionFieldEditAttr,
+  type EditDoc,
+} from '@/lib/preview-edit-attr';
 import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
 import SectionCoach from '@/components/SectionCoach.astro';
 import { sectionCoach } from '@/lib/section-coach';
@@ -151,7 +156,11 @@ const previewSignal = Boolean(editDoc) || coach;
 const Wrap = editDoc ? 'div' : Fragment;
 const wrapAttrs = (key: string | undefined) =>
   editDoc && key
-    ? { 'data-sanity': sectionEditAttr(editDoc, key), style: 'position:relative' }
+    ? {
+        'data-sanity': sectionEditAttr(editDoc, key),
+        style: 'position:relative',
+        ...SECTION_DRAG_FLOW,
+      }
     : {};
 
 // -------------------------------------------------------------------------

@@ -2,6 +2,14 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-27: Presentation fixes, the layout card, Move and drag
+
+Three canvas bugs from the signed-in check after phase A2. None came from phases A or A2 (the overlay and the section wrappers were not touched there).
+
+- **The layout card never opened on a NEW section.** The overlay asks the Studio once which block type each keyed item is, and caches the question. A section just added shows in the frame before the Studio can read it (the frame renders the posted draft, card 184), so the answer is empty, its handle resolves to no field, and the card (and instant typing) never mount until the frame reloads. `overlay/useUnionTypeRetry.ts` (pure half in `src/lib/preview-union-retry.ts`, node test) adds a hidden throwaway keyed target 1.5s and 4.5s after a new one appears, which makes the library ask again.
+- **The Move submenu drew 8px wide.** Upstream (@sanity/visual-editing 6.1.3 with @sanity/ui 4.4.9): the submenu popover sits inside the scrolling parent menu and its size step writes `max-width: 0px`. Auburn shows the same. `overlay/submenuWidthFix.ts` lifts the cap with one preview-only rule.
+- **A canvas drag did nothing on Home and About.** A marker row that renders nothing (the retired `featuredJournal` and `press`, an empty stats row) is a zero-height box starting where the next section starts, so the overlay decided the sections run side by side and only tracked left and right. Every section wrapper now carries `data-sanity-drag-flow="vertical"` (`SECTION_DRAG_FLOW` in `preview-edit-attr.ts`). Preview only; the live pages are unchanged.
+
 ## 2026-10-27: Refoundation phase A2, named anchors and the accent budget on
 
 - `SectionRenderer` defaults to `anchors="named"` and `budget` on (library rows only; a repeat of the header button draws the quiet link; marker rows never demoted). The five marker renderers pass `context` so a library block between markers is classified with the whole layout (`sectionCadence.ts` knows marker rows).
