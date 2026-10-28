@@ -6,7 +6,11 @@
 // page has one h1:
 //   /styleguide/photo-hero/home/  a tall hero with the short-facts card and a silent clip (and a
 //                                 phone copy), the home-page shape (Reid draws its real Home with home/HomeHero.astro; this is the opt-in interior style, card 189);
-//   /styleguide/photo-hero/page/  a short hero with no card and no clip, the inner-page shape.
+//   /styleguide/photo-hero/page/  a short hero with no card and no clip, the inner-page shape;
+//   /styleguide/photo-hero/services/  the Services page's own hero marker (ServicesMarkers.astro)
+//                                 with Opening style set to Photo behind the words (phase D,
+//                                 2026-10-28): the editor choice on Services and E-Design, which
+//                                 pass the page's heroStyle to Hero.astro. Home keeps its framed crop.
 // Each is followed by a text block so the hero is seen against the page under it.
 //
 // It is the fixture tests/photo-hero.spec.ts drives. The image is a fake Sanity reference and the
@@ -16,10 +20,15 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import ServicesMarkers from '@/components/ServicesMarkers.astro';
 import { site } from '@/data/site';
 
 export function getStaticPaths() {
-  return [{ params: { variant: 'home' } }, { params: { variant: 'page' } }];
+  return [
+    { params: { variant: 'home' } },
+    { params: { variant: 'page' } },
+    { params: { variant: 'services' } },
+  ];
 }
 
 const { variant } = Astro.params;
@@ -72,8 +81,17 @@ const PAGE = {
   primaryCta: cta('Start your project'),
 };
 
+// The Services page document as the marker reads it: its hero fields with the photo style on.
+const SERVICES_PAGE = {
+  heroEyebrow: 'What we offer',
+  heroHeadline: 'Design services for every space and stage',
+  heroSubhead: 'Fixture words: the page hero itself, opened on a wide photograph.',
+  heroImage: image,
+  heroScriptAccent: 'every',
+  heroStyle: 'photo',
+};
 const SECTIONS: Record<string, unknown>[] = [
-  variant === 'home' ? HOME : PAGE,
+  ...(variant === 'services' ? [] : [variant === 'home' ? HOME : PAGE]),
   {
     _type: 'richTextSection',
     _key: 'after',
@@ -103,5 +121,6 @@ const SECTIONS: Record<string, unknown>[] = [
   description="Fixed-data wall of the photo hero. Not for visitors."
   noindex
 >
+  {variant === 'services' && <ServicesMarkers section="hero" page={SERVICES_PAGE} visible={{}} />}
   <SectionRenderer sections={SECTIONS} idPrefix="photo-hero" />
 </BaseLayout>

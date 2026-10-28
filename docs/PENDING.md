@@ -26,7 +26,7 @@ items to "Recently closed" with a date, and prune that section when it grows.
 ### From 2026-10-27: the Auburn port run (starter cards 186 to 198)
 
 - [ ] Decide whether to fill Site settings > Menus > Where next rows and the Phone action bar ("Book a consultation" to /contact/). Both render nothing while empty. If the bar goes on, `StickyCTAChip` hides while it shows.
-- [ ] Ask Staci whether the studio address and any set hours should show. Business info > street, ZIP, opening hours and the hours note ("By appointment") are all empty; the footer and Google's structured data use them only once set and ticked as confirmed.
+- [ ] Ask Staci whether the studio address and any set hours should show. Business info > street, ZIP, opening hours and the hours note ("By appointment") are all empty; the footer, the contact details block and Google's structured data use them only once set AND ticked as confirmed (strict since phase D, 2026-10-28; a new address or hours row starts unticked).
 
 ### From 2026-10-19: the Studio made complete for Staci (phase A; plan in `docs/agent/studio-plan.md`)
 
@@ -733,6 +733,8 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   scripts, and take the dry-run gate seriously.
 
 ## Recently closed
+
+- 2026-10-28, refoundation phase D PR 3: Services and E-Design offer the photo hero as an Opening style (card 189, opt-in, unset on both); the street and hours stay hidden until ticked (card 196 riders).
 
 - 2026-10-28, refoundation phase D PR 2: the one scale named on Reid's existing values (pixel-identical on every route), the shape contract on the builder blocks' pictures (card 188).
 

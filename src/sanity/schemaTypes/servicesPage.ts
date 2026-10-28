@@ -103,7 +103,7 @@ export const servicesPage = defineType({
       type: 'image',
       group: 'hero',
       description:
-        'Full-bleed photo behind the hero text. Pick a landscape shot; the page applies a dark gradient over the bottom for readability.',
+        'The photo beside the words, in its frame. With Opening style set to Photo behind the words, it runs wide behind them instead.',
       options: { hotspot: true },
       fields: [
         defineField({
@@ -113,6 +113,22 @@ export const servicesPage = defineType({
           validation: (R) => R.required(),
         }),
       ],
+    }),
+    // Card 189, opt-in (phase D, 2026-10-28): unset or Standard keeps the framed crop.
+    defineField({
+      name: 'heroStyle',
+      title: 'Opening style',
+      type: 'string',
+      group: 'hero',
+      description:
+        'Standard is the usual opening: the words beside your photo in its frame. Photo behind the words runs the hero photo across the whole opening with the words over it in white. Choose it only for a wide, sharp photo of a finished room; phone snapshots look better framed. Without a hero photo the opening shows as standard, and the script accent word is drawn only in the standard style.',
+      options: {
+        list: [
+          { title: 'Standard', value: 'standard' },
+          { title: 'Photo behind the words', value: 'photo' },
+        ],
+        layout: 'radio',
+      },
     }),
     defineField({
       name: 'heroScriptAccent',

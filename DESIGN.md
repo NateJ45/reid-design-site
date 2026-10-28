@@ -303,6 +303,12 @@ About rhythm: linen hero, linen story, ink beliefs, Linen chip board,
 Rebuilt 2026-09-30. Services is where visitors decide what to book, so the
 prices are the loudest thing on it.
 
+Both pages' heroes are the framed crop by default. Since phase D (2026-10-28)
+an editor can set **Opening style: Photo behind the words** for a wide, sharp
+photo of a finished room: the photo runs across the opening under the Ink
+shade with the words in white (card 189, 4.5:1 held by `photo-hero.test.ts`).
+The script accent shows only in the framed style. Home keeps its framed crop.
+
 - `sections/ServicesList.astro`: on paper. A **deck index** first (the back
   page of a fan deck): every service with a swatch of its tone, its name, a
   dotted leader and its price, each line a jump link; builders and service

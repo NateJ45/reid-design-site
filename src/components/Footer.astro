@@ -168,7 +168,11 @@ const here = publicPath(Astro.url.pathname);
 const whereNext = siteSettings?.whereNext?.length
   ? whereNextRows(siteSettings.whereNext, here, await getAllPageSlugs())
   : [];
-const bizFacts = resolveBusinessFacts(siteSettings as RawBusinessFacts | null | undefined);
+// Strict (phase D, 2026-10-28; card 196 riders): the street and the hours show only once their
+// box is ticked, so a fact typed in but not yet confirmed stays off the page.
+const bizFacts = resolveBusinessFacts(siteSettings as RawBusinessFacts | null | undefined, {
+  strict: true,
+});
 const visitAddress = bizFacts.address?.confirmed ? bizFacts.address : null;
 const hoursConfirmed = bizFacts.hasHours && bizFacts.hours.rows.every((r) => r.confirmed);
 const hoursRows = hoursConfirmed ? weekRows(bizFacts.hours) : [];
