@@ -1,7 +1,7 @@
 ---
 // Safe to edit by hand for copy + structure changes.
 // About page. Renders from the aboutPage `pageBuilder` layout array via
-// AboutSectionRenderer: each built-in section is a marker that reads the
+// MarkerPage (with AboutMarkers): each built-in section is a marker that reads the
 // aboutPage fields, so Staci can reorder or remove sections (and insert library
 // blocks) without any content moving. The words and photos are still edited in
 // the named field tabs (Story, Philosophy, Personal, Stats, Final CTA).
@@ -10,7 +10,7 @@
 // words (every review, added 2026-09-30), Final CTA. (The press strip was removed on 2026-09-30.)
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import AboutSectionRenderer from '@/components/AboutSectionRenderer.astro';
+import AboutMarkers from '@/components/AboutMarkers.astro';
 import { getAboutPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
@@ -41,7 +41,7 @@ const schemas = [
   seoImage={page?.seoImage}
   card={{ kind: 'about', role: roleFromAttribution(page?.staciAttribution) }}
 >
-  <AboutSectionRenderer
+  <AboutMarkers
     sections={page?.pageBuilder}
     page={page}
     philosophyPoints={philosophyPoints}

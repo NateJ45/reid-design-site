@@ -113,17 +113,17 @@ describe('preview-only wiring', () => {
     expect(src).toMatch(/coach = false/);
   });
 
-  it('the five marker renderers pass the signal only when they are in preview', () => {
+  it('the marker pages pass the signal only when they are in preview', () => {
+    // One loop for all five marker pages since phase C (2026-10-28): the old
+    // per-page *SectionRenderer.astro files are gone, and none may come back
+    // without this signal.
     const files = readdirSync(join(SRC, 'components')).filter(
       (f) => f.endsWith('SectionRenderer.astro') && f !== 'SectionRenderer.astro',
     );
-    // Five since 2026-09-30 (Home, About, Process, Services, E-Design); the
-    // Gift, Press and Resources renderers went with their pages.
-    expect(files).toHaveLength(5);
-    for (const f of files) {
-      const src = read(`components/${f}`);
-      expect(src, f).toMatch(/<SectionRenderer[^>]*coach=\{Boolean\(editDoc\)\}/);
-    }
+    expect(files).toEqual([]);
+    expect(read('components/MarkerPage.astro')).toMatch(
+      /<SectionRenderer[^>]*coach=\{Boolean\(editDoc\)\}/,
+    );
   });
 
   it('no live page passes the signal', () => {

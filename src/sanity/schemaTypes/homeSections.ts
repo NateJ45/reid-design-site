@@ -15,7 +15,7 @@ const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   { value: 'processPreview', title: 'How it works' },
   // Added 2026-09-30: the concept room (a labelled sample room that fills up
   // as the visitor scrolls, each piece tagged with why it is there). A layout
-  // saved before this existed has no row for it; HomeSectionRenderer then
+  // saved before this existed has no row for it; MarkerPage then
   // places it just after "How it works", and Home > Concept room > "Show on
   // the home page" turns it off. Renders nothing until the room's frames are
   // published into src/assets/room/.
@@ -24,12 +24,12 @@ const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   // Retired 2026-09-30 (journal and press were removed). The two values stay
   // in the list because Sanity turns options.list into a hard `valid()` rule:
   // dropping them would flag the rows already stored on the home page as
-  // errors and block Staci from publishing. HomeSectionRenderer renders
+  // errors and block Staci from publishing. HomeMarkers renders
   // nothing for either, and they are left out of HOME_DEFAULT_ORDER below.
   { value: 'featuredJournal', title: 'Journal (retired, renders nothing)', retired: true },
   { value: 'press', title: 'Press logos (retired, renders nothing)', retired: true },
   // Added 2026-09-30. A layout saved before this existed has no row for it;
-  // HomeSectionRenderer then places it just before the service-area line, and
+  // MarkerPage then places it just before the service-area line, and
   // Site settings > Instagram feed > "Show on the home page" turns it off.
   // Renders nothing until the INSTAGRAM_TOKEN build variable is set.
   { value: 'instagram', title: 'Instagram feed (latest posts)' },

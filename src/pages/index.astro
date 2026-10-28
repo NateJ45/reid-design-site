@@ -1,7 +1,7 @@
 ---
 // Safe to edit by hand for copy + structure changes.
 // Home page. Renders from the homePage `pageBuilder` layout array via
-// HomeSectionRenderer: each built-in section is a marker that reads the homePage
+// MarkerPage (HomeMarkers): each built-in section is a marker that reads the homePage
 // fields + collections, so Staci can reorder/hide sections and insert library
 // blocks. Content is still edited in each section's own tab.
 //
@@ -12,7 +12,7 @@
 // sections were removed on 2026-09-30.)
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import HomeSectionRenderer from '@/components/HomeSectionRenderer.astro';
+import HomeMarkers from '@/components/HomeMarkers.astro';
 import { getHomePage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { site } from '@/data/site';
@@ -24,7 +24,7 @@ const [page, siteSettings] = await Promise.all([getHomePage(), getSiteSettings()
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
 
 // The header sits on the Walnut hero in cream (Header.astro "On hero") only
-// when the hero really is the first section. Same rule HomeSectionRenderer
+// when the hero really is the first section. Same rule MarkerPage
 // uses: no saved layout means the built-in order, which starts with the hero.
 const homeRows = (page?.pageBuilder ?? []).filter((s: { _type?: string }) => s && s._type);
 const first = homeRows[0] as { _type?: string; section?: string } | undefined;
@@ -44,7 +44,7 @@ const description =
   card={{ kind: 'home' }}
   {headerOverHero}
 >
-  <HomeSectionRenderer
+  <HomeMarkers
     sections={page?.pageBuilder}
     page={page}
     siteSettings={siteSettings}

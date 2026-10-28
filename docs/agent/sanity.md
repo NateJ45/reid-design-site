@@ -216,8 +216,8 @@ roughly a kilobyte of invisible marker characters inside every string it
 encodes, so an encoded `'hero'` fails `=== 'hero'` and the component takes the
 wrong branch **in preview only**. Every enum that drives rendering must be
 excluded. The most load-bearing name on that list is `section`: it is
-`homeSectionMarker.section` and its siblings, the string every `*SectionRenderer`
-branches on, so encoding it would blank every built-in section of the home page
+`homeSectionMarker.section` and its siblings, the string every `*Markers.astro`
+marker map branches on, so encoding it would blank every built-in section of the home page
 in preview while the live site looked perfect.
 
 **In-canvas section controls.** Each rendered section carries a `data-sanity`
@@ -240,9 +240,11 @@ only two, because only two have a field behind them:
    swap. The handle exists because a custom overlay component only mounts on a
    node the Studio resolves to a FIELD - a bare array item resolves to none - so
    it carries `data-sanity` for `...[_key=="x"].<field>` via
-   `sectionFieldEditAttr`. **Known gap:** the five `*SectionRenderer.astro`
-   files wrap inserted library blocks themselves and pass no `editDoc` down, so
-   a block on a marker page keeps its array controls and gets no layout handle.
+   `sectionFieldEditAttr`. The handle lives in ONE file,
+   `src/components/preview/LayoutHandle.astro` (refoundation phase C,
+   2026-10-28): SectionRenderer draws it on custom pages and Extra sections, and
+   `MarkerPage.astro` draws it on a library block between the markers of Home,
+   About, Services, Process and E-Design (the old known gap, closed).
 2. **Script accent picker.** Click a headline, click a word, and that word is
    stored as the script accent (rendered in Zodiak italic since 2026-09-29, formerly Pinyon Script) - a slice of the headline by construction,
    so the renderer's exact-match `indexOf` cannot miss it. It refuses an
@@ -359,7 +361,7 @@ lives, and the rule that makes it safe:
 - **Empty-section coaching (preview only).** `src/lib/section-coach.ts` +
   `src/components/SectionCoach.astro`. SectionRenderer swaps an empty library block
   for a dashed "Nothing here yet" note only behind the preview signal (`editDoc`, or
-  the `coach` prop the five marker renderers pass as `Boolean(editDoc)`). Rule 8
+  the `coach` prop `MarkerPage.astro` passes as `Boolean(editDoc)`). Rule 8
   holds: parity 20/20 against a pristine snapshot, and `section-coach.test.ts`
   reads the sources to prove no live page can pass the signal.
 - **Releases off.** `releases: { enabled: false }` in `sanity.config.ts`. One editor,
@@ -510,7 +512,7 @@ Rules for the sync: patch with `setIfMissing` for `hideOnWebsite` and never touc
 
 The home band shows four quotes at most, Google first, so most of Staci's Facebook recommendations were on no page. `src/components/about/KindWords.astro` lists **every** testimonial with a quote and without "Hide on the website", any source, newest first, in full, as newspaper columns on a paper band (1, 2, then 3 across; each quote sized by its length). Data: `getAboutPage().kindWords` plus siteSettings for the rating tag, "Read them on Google" (`googleBusinessUrl`) and "Read them on Facebook" (`socialFacebook` + `/reviews`). Pure logic in `src/lib/kind-words.ts` (`kindWordsList`, `reviewSource`, `monthYear`, `quoteSize`, `facebookReviewsUrl`), unit tested. The source line: a RATED Google review gets its stars and "on Google" (linked to `reviewUrl`); otherwise `source` decides ("Recommends Reid Design on Facebook", "Review on Google", "Review on Houzz", "Sent to Staci"), and the old `sourceType` radio is read only when `source` is empty (two Facebook recommendations carry a stray "Google" there). No review JSON-LD, ever (docs/agent/seo.md).
 
-**Placement: a layout marker, plus a switch.** About already renders from its `pageBuilder` layout of `aboutSectionMarker` rows, so Kind words is a new marker value, `kindWords`. The layout stored in the dataset predates it, so `AboutSectionRenderer` runs `placeMarker()` (`src/lib/auto-marker.ts`, unit tested): a layout without the row gets it just before `finalCta`; a layout with the row is left alone. The catch is that deleting the row cannot hide it (it would come straight back), so the About **Kind words** tab has "Show on the About page" (`kindWordsShow`, unset = shown) beside the eyebrow, headline, accent and intro fields. No content write is needed for any of this.
+**Placement: a layout marker, plus a switch.** About already renders from its `pageBuilder` layout of `aboutSectionMarker` rows, so Kind words is a new marker value, `kindWords`. The layout stored in the dataset predates it, so the page runs `placeMarker()` (since phase C through `markerRows()` and `MARKER_PAGES.about`) (`src/lib/auto-marker.ts`, unit tested): a layout without the row gets it just before `finalCta`; a layout with the row is left alone. The catch is that deleting the row cannot hide it (it would come straight back), so the About **Kind words** tab has "Show on the About page" (`kindWordsShow`, unset = shown) beside the eyebrow, headline, accent and intro fields. No content write is needed for any of this.
 
 ### Instagram feed (added 2026-09-30)
 
@@ -524,7 +526,7 @@ The latest posts from @reiddesignin, baked in at build time; build side in docs/
 
 The home page's labelled sample room (`src/components/home/RoomStory.astro`, DESIGN.md "The concept room"). Sanity holds only its words and its switch, in the home page's **Concept room** tab: `roomStoryShow` (boolean, unset = shown; "Untick to hide it"), `roomStoryHeadline` (blank = "Every piece is chosen for a reason."), `roomStoryScriptAccent` (directly after the headline, in `DOC_ACCENT_PAIRS` and `NON_STEGA_FIELDS`; blank with a blank headline = "for a reason") and `roomStoryIntro` (blank = "Watch one empty room get built, and see why each piece is there."; the annotated room, 2026-10-03). `getHomePage()` projects all four.
 
-**Placement: a layout marker, plus a switch** (the Kind words / Instagram pattern, CLAUDE.md rule 13). `roomStory` is a `homeSectionMarker` value after `processPreview`; `HomeSectionRenderer` runs `placeMarker()` so a stored layout without the row gets it just after "How it works" (before whichever of services, instagram, serviceAreaCue, finalCta comes first), and `roomStoryShow === false` removes it. No content write is needed.
+**Placement: a layout marker, plus a switch** (the Kind words / Instagram pattern, CLAUDE.md rule 13). `roomStory` is a `homeSectionMarker` value after `processPreview`; the page runs `placeMarker()` (since phase C through `markerRows()` and `MARKER_PAGES.home`) so a stored layout without the row gets it just after "How it works" (before whichever of services, instagram, serviceAreaCue, finalCta comes first), and `roomStoryShow === false` removes it. No content write is needed.
 
 **What is NOT in Sanity:** the pictures (one complete frame per step of the build, a change mask per piece), the piece notes and pins, the beat labels and captions, the example brief, the plan, the closing line and the alt text. They live in `src/assets/room/rooms.json` (the room tabs) and each room's `src/assets/room/<slug>/manifest.json` (v5, with the finished frame's one wall mask for the paint swatches) and files, authored in `tools/room-lab/rooms/<slug>.json`, written by tools/room-lab's publish script (`room:publish`), and change only with a commit. The close's booking tag is the one thing tied to Sanity: the header button's label and link (Site settings) and the consultation service's price (Services). The component renders nothing until they exist, so the Show switch has no visible effect before then.
 

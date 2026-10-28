@@ -19,11 +19,11 @@ const ABOUT_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   // Retired 2026-09-30 (press was removed). The value stays because Sanity
   // turns options.list into a hard `valid()` rule: dropping it would flag the
   // row already stored on the About page as an error and block publishing.
-  // AboutSectionRenderer renders nothing for it; ABOUT_DEFAULT_ORDER skips it.
+  // AboutMarkers renders nothing for it; ABOUT_DEFAULT_ORDER skips it.
   { value: 'press', title: 'Press logos (retired, renders nothing)', retired: true },
   { value: 'stats', title: 'Numbers (stats)' },
   // Added 2026-09-30. A layout saved before this existed has no row for it;
-  // AboutSectionRenderer then places it just before the closing CTA, and the
+  // MarkerPage then places it just before the closing CTA, and the
   // "Show on the About page" switch in the Kind words tab turns it off.
   { value: 'kindWords', title: 'Kind words (every review)' },
   { value: 'finalCta', title: 'Closing call to action' },

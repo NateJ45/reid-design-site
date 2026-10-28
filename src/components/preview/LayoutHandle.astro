@@ -1,0 +1,60 @@
+---
+// Foundation, edit with care
+// The in-canvas layout handle (2026-08-28, card 28; its own file since
+// refoundation phase C, 2026-10-28, so the custom pages and the five marker
+// pages draw the SAME square from ONE place).
+//
+// PREVIEW ONLY. Without `editDoc` it renders nothing, so the live build never
+// sees it (`npm run parity compare` is the standing proof).
+//
+// The layout card needs a node the Studio schema resolves to a FIELD. The edit
+// wrapper around a section names a bare array item, which resolves to none, so
+// a custom overlay component can never mount on it (learned in a deployed
+// Studio; see `sectionFieldEditAttr`). This little square is that node: it
+// points at the section's own first layout field, so clicking it selects that
+// field and the overlay answers with the card.
+//
+// Exactly one per section, and only for sections that HAVE a layout choice:
+// `handleFieldFor` refuses the types with no radio (quote, stats, video, the
+// CTA band, the markers), and `layoutApplies` refuses any instance that renders
+// nothing at all, which today means a gallery with no pictures. A block that
+// came out of a synced section (`_editKey`) gets none: its fields live on the
+// saved section, not on this page.
+//
+// TOP-RIGHT, INSIDE the section. A section is often taller than the viewport,
+// so its bottom-right corner is below the fold exactly when the editor is
+// looking at the section; its top-right is on screen the moment the section is.
+// The caller renders it after the content so it paints above it, inside a
+// wrapper that is `position: relative` in preview. It carries its styles
+// inline because the preview loads no preview-only stylesheet.
+import { sectionFieldEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
+
+interface Props {
+  editDoc?: EditDoc;
+  section: any;
+}
+
+const { editDoc, section } = Astro.props as Props;
+
+const field = handleFieldFor(section?._type);
+const handle =
+  editDoc && section?._key && !section._editKey && field && layoutApplies(section._type, section)
+    ? sectionFieldEditAttr(editDoc, section._key, field)
+    : undefined;
+
+const HANDLE_STYLE =
+  'position:absolute;top:12px;right:12px;z-index:5;width:28px;height:28px;border-radius:999px;background:#ffffff;border:1px solid rgba(61,61,61,0.18);box-shadow:0 2px 8px rgba(61,61,61,0.22);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;';
+---
+
+{handle && (
+  <div
+    data-sanity={handle}
+    data-layout-handle
+    title="Layout"
+    aria-hidden="true"
+    style={HANDLE_STYLE}
+  >
+    &#9776;
+  </div>
+)}
