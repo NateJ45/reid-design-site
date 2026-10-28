@@ -467,6 +467,12 @@ portfolio templates are ready for the day the first `project` exists.
   photo is a link to the full-size picture. The wide photo block does the
   same. Room stories keep their own viewer (YARL). On the Feature (ink) band
   the caption tags stay paper tags with ink text.
+- Builder-kit pictures take the family's shape classes (phase D, 2026-10-28;
+  starter card 188): a photo in a card is `.shape-step` (square), and the
+  wide photo is `.shape-gable`, drawn here as the framed print (the
+  `.r-frame` paper mat, bronze keyline and shadow). Sizes, corners and
+  shadows have family names in "The one scale" (`globals.css`) set to the
+  values already drawn.
 - `QuoteBlock`: one quote in Zodiak Light italic with the hung bronze
   open-quote, as on the home ink band; long quotes step down a size.
 - `VideoEmbed`: left-set heading, 16:9 on a thin ink keyline, caption led by

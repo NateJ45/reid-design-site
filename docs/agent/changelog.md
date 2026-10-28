@@ -2,6 +2,11 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-28: Refoundation phase D, PR 2: the one scale and the shape contract
+
+- Starter card 188, partial: "The one scale" in `globals.css` names Reid's existing values (text, leading, figures, square corners, card and frame spacing, shadows, the tag button, the focus ring); `.r-btn`, `.r-h3`, `.r-lede`, `.r-frame__cap`, the heading base rule, `.card-lift:hover` and the gallery's gaps read them. Full-page screenshots of all 19 built routes at 375 and 1280, before and after: 0 pixels differ outside `/styleguide/sections/` (the wide photo's new frame). Parity 18/19, the same one page.
+- `shapes.css` (PORTABLE) imported by `builder-blocks.css`: `.shape-step` on card photos (cards with photos, hub, timeline), `.shape-gable` on the wide photo drawn as Reid's framed print. Not taken: `hero: board`, the font-fallback scripts (Reid's hand-set fallbacks already name Liberation Serif / Tinos and Liberation Sans / Arimo).
+
 ## 2026-10-28: Refoundation phase D, PR 1: photo viewer on the gallery, empty buttons, whole-word accent
 
 - Starter card 124: the gallery block (`GalleryGrid.astro`) wraps every photo in `LightboxLink` with `data-lightbox-group` on the grid and `<Lightbox />` once, so a photo opens the starter viewer and steps through that gallery only. `lightbox.css` is linked once per page by GalleryGrid or PhotoBlock (`firstOnPage` key `lightbox`), no longer by BuilderBlock for every block. Room stories keep YARL (`ProjectGallery.tsx`). The PORTABLE `tests/lightbox.spec.ts` runs on `/styleguide/looks/`, which gained a Standard and a Feature gallery and a hidden h1. On the ink band a caption tag keeps its ink text (`.r-inkband .r-tag` in `reid.css`; axe caught cream on paper).

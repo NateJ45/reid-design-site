@@ -34,16 +34,19 @@ const linkViewerCss = image !== null && firstOnPage(Astro.request, 'lightbox');
     label={block.caption || image.alt || 'Photo'}
   >
     <figure class="bb-photo" data-lightbox-group>
-      <LightboxLink source={image} caption={block.caption}>
-        <SanityImage
-          source={image}
-          width={1600}
-          sizes="(min-width: 82.5rem) 80rem, 95vw"
-          quality={72}
-          loading={isFirst ? 'eager' : 'lazy'}
-          fetchpriority={isFirst ? 'high' : undefined}
-        />
-      </LightboxLink>
+      {/* Reid's framed crop as the shape contract's standalone picture (.shape-gable, card 188). */}
+      <div class="shape-gable">
+        <LightboxLink source={image} caption={block.caption}>
+          <SanityImage
+            source={image}
+            width={1600}
+            sizes="(min-width: 82.5rem) 80rem, 95vw"
+            quality={72}
+            loading={isFirst ? 'eager' : 'lazy'}
+            fetchpriority={isFirst ? 'high' : undefined}
+          />
+        </LightboxLink>
+      </div>
       {block.caption && <figcaption>{block.caption}</figcaption>}
     </figure>
     <Lightbox />

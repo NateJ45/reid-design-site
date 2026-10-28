@@ -45,7 +45,7 @@ const sizes =
         const link = c.link?.label ? c.link : null;
         return (
           <li class:list={['bb-pcard', link && 'bb-stretch']}>
-            <div class="bb-pcard__pic">
+            <div class="bb-pcard__pic shape-step">
               {c.image?.asset ? (
                 <SanityImage
                   source={c.image as SanityImageObject}
