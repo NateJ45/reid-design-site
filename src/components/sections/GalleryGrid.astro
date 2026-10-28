@@ -150,11 +150,11 @@ const tiles = pics.map((img, i) => {
     background: var(--color-paper);
   }
   .gal__head {
-    margin-bottom: clamp(2.25rem, 4.5vw, 3.75rem);
+    margin-bottom: var(--gap-heading);
   }
 
   .gal__grid {
-    gap: clamp(0.5rem, 1.2vw, 1rem);
+    gap: var(--gap-grid);
     grid-auto-flow: dense;
     grid-auto-rows: clamp(7.5rem, 38vw, 12rem);
   }

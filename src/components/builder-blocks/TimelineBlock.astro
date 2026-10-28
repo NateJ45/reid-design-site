@@ -39,7 +39,7 @@ const Title = block.heading ? 'h3' : 'h2';
             {e.text && <p>{e.text}</p>}
           </div>
           {e.image?.asset && (
-            <div class="bb-moment__photo">
+            <div class="bb-moment__photo shape-step">
               <SanityImage
                 source={e.image as SanityImageObject}
                 width={720}

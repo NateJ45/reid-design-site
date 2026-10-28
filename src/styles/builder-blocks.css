@@ -17,7 +17,42 @@
    body-size text is ever Warm Bronze (#9c7661, rule 3). Class names start
    `bb-`; state a script sets is an attribute (`[data-bb-tabs-ready]`,
    `[hidden]`, `aria-current`), never a class built at run time.
+   Pictures take the family's shape classes (src/styles/shapes.css, PORTABLE,
+   starter card 188; phase D, 2026-10-28), imported here so only pages with a
+   builder block load them: .shape-step on a photo in a card (square, Reid's
+   --radius-inner is 0), .shape-gable on the one standalone picture (the wide
+   photo), which Reid draws as its framed print (the .r-frame mat, keyline and
+   shadow) rather than a cut.
    ========================================================================== */
+@import './shapes.css';
+
+/* ---- Reid's shapes: square, no cut; the standalone picture is the framed
+   print. Plain :root wins over shapes.css's :where(:root) defaults. ---- */
+:root {
+  --shape-feature-clip: none;
+  --shape-feature-radius: 0;
+  --shape-slab: var(--color-paper);
+  --shape-tile: var(--color-chip-1);
+  --shape-zoom: 1.03;
+}
+.shape-gable {
+  --frame-pad: clamp(0.55rem, 0.35rem + 0.8vw, 0.95rem);
+  position: relative;
+  overflow: visible;
+  padding: var(--frame-pad);
+  background: var(--color-paper);
+  box-shadow:
+    0 0 0 1px var(--color-rule),
+    0 1px 2px rgb(35 30 27 / 0.06),
+    0 34px 60px -38px rgb(35 30 27 / 0.55);
+}
+.shape-gable::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--frame-pad) * 0.45);
+  border: 1px solid rgb(156 118 97 / 0.45);
+  pointer-events: none;
+}
 
 /* ---- The band and the shared frame ---- */
 .bb-band {
@@ -157,8 +192,8 @@
   align-self: flex-start;
 }
 
-/* ---- One wide photo: square corners, the caption after a short rule (the
-   framed photo's caption, .r-frame__cap). ---- */
+/* ---- One wide photo: the framed print (.shape-gable above), the caption
+   after a short rule (the framed photo's caption, .r-frame__cap). ---- */
 .bb-photo {
   margin: 0;
 }
