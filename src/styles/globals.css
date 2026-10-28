@@ -900,56 +900,6 @@ html.motion [data-reveal].is-visible {
   }
 }
 
-/* ---- Home hero slideshow. HeroBackground.astro stacks 2+ .hero-slide images
-   inside [data-hero-slideshow] and cross-fades them via the .is-active toggle
-   (a small inline script advances the active slide every 4.5s). Each slide also
-   runs a subtle continuous Ken Burns zoom. Lives here (global), not in a scoped
-   component <style>, because the slides are rendered by the child SanityImage
-   component and would not carry HeroBackground's scope attribute. Reduced-motion
-   users keep the first slide static. ---- */
-.hero-slideshow {
-  position: absolute;
-  inset: 0;
-}
-.hero-slide {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1.5s ease;
-  transform-origin: center;
-  animation: hero-kb 16s ease-in-out infinite alternate;
-  will-change: opacity, transform;
-}
-.hero-slide.is-active {
-  opacity: 1;
-}
-.hero-slide:nth-child(3n + 2) {
-  transform-origin: top left;
-  animation-duration: 18s;
-}
-.hero-slide:nth-child(3n + 3) {
-  transform-origin: bottom right;
-  animation-duration: 20s;
-}
-@keyframes hero-kb {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.07);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-slide {
-    transition: none;
-    animation: none;
-    transform: none;
-  }
-}
-
 /* ---- Image zoom + warm tint hover treatment.
    Apply .img-zoom to the overflow:hidden image wrapper div.
    Add .img-tint (project cards) as a child div inside the wrapper. (The
@@ -1060,32 +1010,6 @@ html.motion .img-curtain {
 }
 html.motion .img-curtain.is-revealed {
   transform: scaleY(0);
-}
-
-/* ---- Process connector lines, a 2px bronze thread that draws downward
-   from each step number badge. Resting state is Light Gray; the ::after
-   fill animates to Warm Bronze when the step is in view.
-   Added inside ProcessStep.astro's existing left-column flex container. ---- */
-.step-connector {
-  flex: 1;
-  width: 2px;
-  min-height: 2rem;
-  background: var(--border);
-  position: relative;
-  overflow: hidden;
-  margin: 0 auto;
-}
-.step-connector::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--primary);
-  transform-origin: top;
-  transform: scaleY(0);
-  transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
-}
-.step-connector.is-visible::after {
-  transform: scaleY(1);
 }
 
 /* ---- View transitions (rewritten 2026-10-01) -----------------------------
@@ -1263,11 +1187,6 @@ body::before {
   /* Curtain: skip the reveal entirely, image always visible */
   .img-curtain {
     display: none !important;
-  }
-  /* Connector: skip the draw animation: Gray track always visible */
-  .step-connector::after {
-    transform: scaleY(1) !important;
-    transition: none !important;
   }
 }
 

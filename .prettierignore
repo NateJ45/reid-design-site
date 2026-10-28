@@ -45,7 +45,6 @@ docs/superpowers
 # feature is on), so they are formatted by hand. Revisit when the plugin
 # handles it.
 src/components/Hero.astro
-src/components/HeroBackground.astro
 src/layouts/BaseLayout.astro
 
 # Frozen decision artifacts from the 2026-09-29 art-direction rebuild: the

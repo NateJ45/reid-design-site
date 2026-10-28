@@ -482,29 +482,6 @@ const htmlLayoutAttrs = layoutAttrs(layout);
           }
         }
 
-        // ---- Process connector lines ----------------------------------------
-        // Adds .is-visible to each .step-connector when it enters the viewport,
-        // triggering the scaleY draw animation on the ::after fill.
-        const connectors = document.querySelectorAll<HTMLElement>('.step-connector:not(.is-visible)');
-        if (connectors.length > 0) {
-          if (reduceMotion || !('IntersectionObserver' in window)) {
-            connectors.forEach((el) => el.classList.add('is-visible'));
-          } else {
-            const connectorObserver = new IntersectionObserver(
-              (entries) => {
-                for (const entry of entries) {
-                  if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    connectorObserver.unobserve(entry.target);
-                  }
-                }
-              },
-              { rootMargin: '0px 0px -60px 0px', threshold: 0.05 },
-            );
-            connectors.forEach((el) => connectorObserver.observe(el));
-          }
-        }
-
         // ---- Sticky header: condense on scroll ---------------------------
         // The header (.site-header, position: sticky) rests as a bare row with
         // her logo, and condenses into a floating paper strip once the

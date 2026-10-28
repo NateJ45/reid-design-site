@@ -66,6 +66,8 @@ A Soft Linen panel (color = `--background`) scales away from the top edge to rev
 
 ### Process connector lines (`.step-connector`)
 
+Removed in refoundation phase E (2026-10-28): no component drew a `.step-connector` any more, so its CSS and the BaseLayout observer went. History:
+
 A 2px bronze thread draws downward from each step number badge toward the next step. `ProcessStep.astro` renders `<div class="step-connector">` in its left flex column when `!isLast`; the article grid is `items-stretch` so the connector's `flex: 1` fills the step height. The track rests in Light Gray and a `::after` fill animates to Warm Bronze (`scaleY` 0→1) when the BaseLayout observer adds `.is-visible`. Pass `isLast` on the final step in any sequence, both `process.astro` and the home process preview compute it. Reduced-motion users get the filled track instantly, no draw.
 
 ### Editorial typography (removed)
@@ -188,6 +190,6 @@ A bottom-center chevron button (`[data-scroll-cue]`) softly bobs and pulses (`sc
 
 ### Home hero slideshow (`HeroBackground.astro` + globals.css; old home hero, superseded 2026-09-29)
 
-**Superseded for the home page:** `HomeHero.astro` has a single `heroPortrait` image (a new `homePage` field, image with hotspot), not a slideshow. `HeroBackground.astro` is used only by `Hero.astro`. The description below is the old behaviour.
+**Deleted in refoundation phase E (2026-10-28)** with its slideshow CSS: nothing imported it. **Superseded for the home page:** `HomeHero.astro` has a single `heroPortrait` image (a new `homePage` field, image with hotspot), not a slideshow. `HeroBackground.astro` is used only by `Hero.astro`. The description below is the old behaviour.
 
 The home hero can be a single static image (default) or a slideshow. `homePage.heroImages` is an array: one image renders the static hero, two or more render a slow cross-fading slideshow with a subtle Ken Burns zoom. `HeroBackground.astro` owns the background markup (single `SanityImage` for 0-1 images, or stacked `.hero-slide` images for 2+) plus the two readability overlays. The slide CSS lives in `globals.css`, not a scoped component style, because the slides are rendered by the child `SanityImage` component and would not inherit a scoped style (the same reason `.img-zoom` and `.hero-entry-stagger` are global). Each slide is `position: absolute`, `opacity: 0` with a `1.5s` opacity transition; the active slide is `opacity: 1` and all slides run a gentle continuous `scale(1)` to `scale(1.07)` Ken Burns (alternating, varied origin/duration). A small `<script is:inline>` in HeroBackground advances the active slide every 4500ms (3s hold + 1.5s fade) using a single `window`-scoped timer that is cleared on every re-init, pauses while the tab is hidden, re-registers once on `astro:page-load` (guarded by `window.__reidHeroSlideshowBound`), and never starts under `prefers-reduced-motion`. The first slide stays the eager `fetchpriority="high"` LCP image; the rest lazy-load. Reduced-motion users always see the first slide, static. The first slide carries its alt; the additional slides use empty alt so they are decorative.
