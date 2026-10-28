@@ -35,6 +35,7 @@ export default defineConfig({
       'src/lib/site-layout.test.ts',
       'src/lib/section-anchors.test.ts',
       'src/lib/cta-budget.test.ts',
+      'src/lib/preview-union-retry.test.ts',
     ],
   },
 });

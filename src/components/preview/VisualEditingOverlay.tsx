@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef } from 'react';
 import { inCanvasControls } from './overlay/index.ts';
 import { SOFT_REFRESH_EVENT, useInstantText } from './overlay/useInstantText.ts';
 import { startTiming } from './overlay/timing.ts';
+import { useUnionTypeRetry } from './overlay/useUnionTypeRetry.ts';
+import { installSubmenuWidthFix } from './overlay/submenuWidthFix.ts';
 import {
   createRefreshState,
   onChange as onRefreshChange,
@@ -141,6 +143,11 @@ interface Props {
 }
 
 export default function VisualEditingOverlay({ pageId }: Props) {
+  // Two repairs to the host overlay (2026-10-27): re-ask the Studio about a
+  // section added since the frame loaded, so its layout card and instant typing
+  // mount; and give the section menu's Move submenu its width back. See each file.
+  useUnionTypeRetry();
+  useEffect(() => installSubmenuWidthFix(), []);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   /** The scheduler's state. A ref, not React state: no render depends on it. */
   const schedule = useRef(createRefreshState());

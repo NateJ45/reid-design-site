@@ -24,7 +24,7 @@ import StatsRow from '@/components/StatsRow.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import KindWords from '@/components/about/KindWords.astro';
-import { sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { SECTION_DRAG_FLOW, sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
 import { placeMarker } from '@/lib/auto-marker';
 
 interface Props {
@@ -53,7 +53,7 @@ const { sections = [], page, philosophyPoints = [], siteSettings, editDoc } = As
 // element has none.
 const Wrap = editDoc ? 'div' : Fragment;
 const wrapAttrs = (key: string | undefined) =>
-  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key) } : {};
+  editDoc && key ? { 'data-sanity': sectionEditAttr(editDoc, key), ...SECTION_DRAG_FLOW } : {};
 
 // Default order, matching the current About page. Used when the layout array
 // hasn't been set on the doc yet.
