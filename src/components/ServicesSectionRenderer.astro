@@ -108,7 +108,12 @@ const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
         />
       ) : null
     ) : (
-      <SectionRenderer sections={[s]} idPrefix={`services-extra-${i}`} coach={Boolean(editDoc)} />
+      <SectionRenderer
+        sections={[s]}
+        idPrefix={`services-extra-${i}`}
+        coach={Boolean(editDoc)}
+        context={{ list: rows, index: i }}
+      />
     )}
   </Wrap>
 ))}

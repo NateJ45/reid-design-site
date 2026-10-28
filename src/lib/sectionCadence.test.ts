@@ -3,7 +3,12 @@
 // the component (2026-10-27). A change here is a visible change on every page
 // built from the page builder, so it needs a reason in the commit.
 import { describe, expect, it } from 'vitest';
-import { classifySections, CONTENT_TYPES, SELF_CONTAINED_TYPES } from './sectionCadence';
+import {
+  classifySections,
+  CONTENT_TYPES,
+  isMarkerRow,
+  SELF_CONTAINED_TYPES,
+} from './sectionCadence';
 
 const b = (_type: string, extra: Record<string, unknown> = {}) => ({ _type, ...extra });
 const surfaces = (list: unknown[]) => classifySections(list).map((r) => r.surface);
@@ -113,5 +118,22 @@ describe('classifySections (Reid fit)', () => {
     expect(rows.every((r) => r.surface === null)).toBe(true);
     const all = classifySections([...CONTENT_TYPES, ...SELF_CONTAINED_TYPES].map((t) => b(t)));
     expect(all.every((r) => r.insertDividerBefore === false && r.look === 'standard')).toBe(true);
+  });
+
+  it('treats marker rows as self-contained, the hero marker as an opening hero, the closing marker as dark', () => {
+    const m = (section: string) => b('homeSectionMarker', { section });
+    expect(isMarkerRow(m('hero'))).toBe(true);
+    expect(isMarkerRow(b('richTextSection'))).toBe(false);
+    // Opens on paper after the hero marker; markers take no surface.
+    expect(
+      surfaces([m('hero'), b('richTextSection'), m('meetStaci'), b('imageTextSection')]),
+    ).toEqual([null, 'muted', null, 'background']);
+    // A quote between two ordinary markers takes ink; beside the closing CTA it does not.
+    expect(surfaces([m('hero'), b('quoteSection'), m('services')])).toEqual([null, 'ink', null]);
+    expect(surfaces([m('services'), b('quoteSection'), m('finalCta')])).toEqual([
+      null,
+      'background',
+      null,
+    ]);
   });
 });

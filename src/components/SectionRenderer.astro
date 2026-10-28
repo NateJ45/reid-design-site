@@ -16,12 +16,17 @@
 // page builder can take the starter's blocks later without a second renderer:
 //   - the cadence lives in src/lib/sectionCadence.ts (a Reid fit, unit-tested),
 //     not inline here; it decides exactly what this file used to decide;
-//   - named anchors (src/lib/section-anchors.ts, starter card 158) sit behind
-//     the `anchors` prop; 'numbered' (the default for now) keeps every id;
-//   - the accent budget (src/lib/cta-budget.ts, cards 158 and 187) sits behind
-//     the `budget` prop; off (the default for now) leaves every button as it is.
-// Everything below the frontmatter renders what it did before; the parity
-// harness (scripts/page-parity.mjs) holds that line.
+//   - named anchors (src/lib/section-anchors.ts, starter card 158): since
+//     phase A2 a section with a heading takes an id made from it (`anchors`,
+//     default 'named'); a section without one keeps its numbered id;
+//   - the accent budget (src/lib/cta-budget.ts, cards 158 and 187): since
+//     phase A2 only the first library hero or CTA band keeps the filled button,
+//     and one that goes where the header's button goes draws the quiet link
+//     (`budget`, default on). Marker rows (the built-in sections of the five
+//     marker pages) are never demoted and never counted;
+//   - `context` (phase A2): a marker page hands this renderer one row at a
+//     time, plus its whole layout, so the cadence, the anchors and the budget
+//     see the neighbours instead of a list of one.
 import Hero from '@/components/Hero.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import StatsRow from '@/components/StatsRow.astro';
@@ -39,9 +44,11 @@ import { sectionEditAttr, sectionFieldEditAttr, type EditDoc } from '@/lib/previ
 import { handleFieldFor, layoutApplies } from '@/lib/section-fields';
 import SectionCoach from '@/components/SectionCoach.astro';
 import { sectionCoach } from '@/lib/section-coach';
-import { classifySections } from '@/lib/sectionCadence';
+import { classifySections, isMarkerRow } from '@/lib/sectionCadence';
 import { sectionAnchors, sectionHeadingText } from '@/lib/section-anchors';
-import { primaryBudget, type CtaVariant } from '@/lib/cta-budget';
+import { primaryBudget, repeatsHeaderCta, type CtaVariant } from '@/lib/cta-budget';
+import { resolveCtaHref } from '@/lib/cta';
+import { resolveChrome } from '@/lib/siteSettings';
 
 interface Props {
   sections?: any[];
@@ -80,6 +87,13 @@ interface Props {
    */
   anchors?: 'named' | 'numbered';
   /**
+   * Marker pages only (phase A2). The page's WHOLE layout (markers and library
+   * blocks) and the index of the row in `sections`, so the classification runs
+   * over the page instead of a list of one. Numbered fallback ids stay
+   * `${idPrefix}-${i}` over `sections`, as before.
+   */
+  context?: { list: any[]; index: number };
+  /**
    * Off (the default for now): every hero and CTA band draws its filled button.
    * On: only the first row with a filled main button keeps it; later ones draw
    * the quieter variant (starter cards 158 and 187).
@@ -92,8 +106,9 @@ const {
   idPrefix = 'section',
   editDoc,
   coach = false,
-  anchors = 'numbered',
-  budget = false,
+  anchors = 'named',
+  budget = true,
+  context,
 } = Astro.props as Props;
 
 // Synced sections (the authoring kit, PORTS.md card 109) become the saved
@@ -187,40 +202,67 @@ const HANDLE_STYLE =
 // spacer or divider takes the ground of the row above it; a page that opens
 // with a hero starts its content on paper. The rules and their tests live in
 // sectionCadence.ts, so reordering can never break the rhythm.
-const classified = classifySections<any>(sections, idPrefix);
+// On a marker page, classify the whole layout and keep this row's slice.
+const before = context ? expandSyncedSections(context.list.slice(0, context.index)) : [];
+const after = context ? expandSyncedSections(context.list.slice(context.index + 1)) : [];
+const whole = classifySections<any>([...before, ...sections, ...after], idPrefix);
+const own = classifySections<any>(sections, idPrefix);
+// Where this renderer's own rows start in the whole page.
+const lo = classifySections(before).length;
+// Library rows of the whole page (markers draw their own headings and buttons).
+const library = whole.map((r, i) => ({ r, i })).filter(({ r }) => !isMarkerRow(r.block));
 
-// Heading ids: numbered by default; named from the heading when asked.
-const ids =
-  anchors === 'named'
-    ? sectionAnchors(
-        classified.map((r) => ({
-          key: r.block._key,
-          heading: sectionHeadingText(r.block),
-          fallback: r.headingId,
-        })),
-      )
-    : classified.map((r) => r.headingId);
+// Heading ids: named from the heading (starter card 158) unless asked for numbers.
+// Over the whole page, so two library sections on a marker page never share a name.
+const namedIds = new Map<number, string>();
+if (anchors === 'named') {
+  const lowFallback = (i: number) =>
+    i >= lo && i < lo + own.length ? own[i - lo].headingId : `${idPrefix}-p${i}`;
+  const names = sectionAnchors(
+    library.map(({ r, i }) => ({
+      key: r.block._key,
+      heading: sectionHeadingText(r.block),
+      fallback: lowFallback(i),
+    })),
+  );
+  library.forEach(({ i }, n) => namedIds.set(i, names[n]));
+}
 
-// The accent budget: which variant each row's main button draws. Only the hero
-// and the CTA band draw a filled button here.
+// The accent budget (cards 158 and 187): the first library hero or CTA band with
+// a filled button keeps it; later ones, and any whose button goes where the
+// header's button goes, draw the quiet link. Read only when a row could draw one.
+const MAY_DRAW = new Set(['heroSection', 'ctaBandSection']);
+const header =
+  budget && library.some(({ r }) => MAY_DRAW.has(r.block._type))
+    ? resolveChrome(await getSiteSettings()).headerCta
+    : null;
+const mainCta = (blk: any) => (blk?._type === 'heroSection' ? blk.primaryCta : blk?.cta);
 const drawsPrimary = (blk: any) =>
-  (blk?._type === 'heroSection' && Boolean(blk.primaryCta)) || blk?._type === 'ctaBandSection';
-const variantFor: (i: number) => CtaVariant = budget
+  ((blk?._type === 'heroSection' && Boolean(blk.primaryCta)) || blk?._type === 'ctaBandSection') &&
+  !repeatsHeaderCta(resolveCtaHref(mainCta(blk)), header);
+const libraryVariant = budget
   ? primaryBudget(
-      classified.map((r) => r.block),
+      library.map(({ r }) => r.block),
       drawsPrimary,
     )
-  : () => 'primary';
+  : () => 'primary' as CtaVariant;
+const variantAt = new Map<number, CtaVariant>();
+library.forEach(({ i }, n) => variantAt.set(i, libraryVariant(n)));
 
-const rows = classified.map(({ block: s, surface, ground }, i) => ({
-  s,
-  surface,
-  ground,
-  headingId: ids[i],
-  primaryVariant: variantFor(i),
-  handle: handleAttr(s),
-  coachInfo: previewSignal ? sectionCoach(s) : null,
-}));
+const rows = own.map((o, k) => {
+  const i = lo + k;
+  const w = whole[i];
+  const s = o.block;
+  return {
+    s,
+    surface: w.surface,
+    ground: w.ground,
+    headingId: namedIds.get(i) ?? o.headingId,
+    primaryVariant: variantAt.get(i) ?? ('primary' as CtaVariant),
+    handle: handleAttr(s),
+    coachInfo: previewSignal ? sectionCoach(s) : null,
+  };
+});
 const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as const;
 ---
 

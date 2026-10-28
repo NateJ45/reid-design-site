@@ -324,12 +324,16 @@ describe('the in-canvas handle in SectionRenderer', () => {
     // library block on a marker page gets its array controls from the marker
     // renderer and no layout handle. Closing that means giving all eight the
     // handle too, which is a change to eight files and its own card.
-    expect(read('../components/HomeSectionRenderer.astro')).toContain(
-      '<SectionRenderer sections={[s]}',
+    // Since phase A2 (2026-10-27) they also pass `context` (the whole layout),
+    // so the cadence, anchors and budget see the neighbours; still no editDoc.
+    const home = read('../components/HomeSectionRenderer.astro');
+    const call = home.slice(
+      home.indexOf('<SectionRenderer'),
+      home.indexOf('/>', home.indexOf('<SectionRenderer')),
     );
-    expect(read('../components/HomeSectionRenderer.astro')).not.toContain(
-      '<SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} editDoc',
-    );
+    expect(call).toContain('sections={[s]}');
+    expect(call).toContain('context={{ list: rows, index: i }}');
+    expect(call).not.toContain('editDoc=');
   });
 });
 

@@ -2,6 +2,12 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-27: Refoundation phase A2, named anchors and the accent budget on
+
+- `SectionRenderer` defaults to `anchors="named"` and `budget` on (library rows only; a repeat of the header button draws the quiet link; marker rows never demoted). The five marker renderers pass `context` so a library block between markers is classified with the whole layout (`sectionCadence.ts` knows marker rows).
+- New wall `/styleguide/page-builder/` and `tests/page-builder-wall.spec.ts`; the sections wall keeps numbered ids.
+- Live pages unchanged (no published library blocks): every built route normalized-identical except the styleguide walls, which change on purpose.
+
 ## 2026-10-27: Refoundation phase A, the starter's renderer layer (no visible change)
 
 - `SectionRenderer.astro` draws from `classifySections()` in `src/lib/sectionCadence.ts` (a Reid fit: linen and paper, the ink quote, spacer grounds, no dividers), pinned by `sectionCadence.test.ts`.

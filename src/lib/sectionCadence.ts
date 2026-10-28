@@ -27,6 +27,12 @@
 //   - No dividers between content blocks: `insertDividerBefore` is always
 //     false. The field is kept so the row shape matches the starter's.
 //   - No looks yet (phase B adds them): `look` is always 'standard'.
+//   - MARKER ROWS (phase A2, 2026-10-27). The five marker pages (Home, About,
+//     Services, Process, E-Design) classify their WHOLE layout, markers
+//     included, so a library block between markers sees its neighbours. A
+//     marker (`<page>SectionMarker`) is self-contained: it paints its own
+//     band. The `hero` marker opens the page like a hero; the `finalCta`
+//     marker is the dark closing band, so a quote beside it stays off ink.
 // =============================================================================
 
 /** The surface a content row paints: linen, paper, or the ink band. */
@@ -57,6 +63,25 @@ export const CONTENT_TYPES = new Set([
 
 /** Rows that paint a dark band, so an ink quote must not touch them. */
 export const DARK_TYPES = new Set(['quoteSection', 'ctaBandSection']);
+
+/** True for a marker row of a marker page (homeSectionMarker, aboutSectionMarker, ...). */
+export function isMarkerRow(block: unknown): boolean {
+  const t = (block as { _type?: unknown } | null)?._type;
+  return typeof t === 'string' && t.endsWith('SectionMarker');
+}
+
+/** The marker's `section` value, or undefined for a library block. */
+function markerSection(block: unknown): string | undefined {
+  if (!isMarkerRow(block)) return undefined;
+  const v = (block as { section?: unknown }).section;
+  return typeof v === 'string' ? v : undefined;
+}
+
+/** A row that paints a dark band: a quote, a CTA band, or the closing-CTA marker. */
+function isDarkRow(block: unknown): boolean {
+  const t = (block as { _type?: unknown } | null)?._type;
+  return (typeof t === 'string' && DARK_TYPES.has(t)) || markerSection(block) === 'finalCta';
+}
 
 export interface SectionBlock {
   _type: string;
@@ -95,7 +120,7 @@ export function classifySections<T extends { _type: string }>(
       !!(s as SectionBlock)._type,
   ) as (T & SectionBlock)[];
 
-  const opensWithHero = list[0]?._type === 'heroSection';
+  const opensWithHero = list[0]?._type === 'heroSection' || markerSection(list[0]) === 'hero';
   let contentIdx = opensWithHero ? 1 : 0;
   // What the previous row painted, for a spacer or divider to sit on.
   let lastGround: CadenceGround = 'linen';
@@ -105,8 +130,8 @@ export function classifySections<T extends { _type: string }>(
     const inkQuote =
       block._type === 'quoteSection' &&
       i < list.length - 1 &&
-      !DARK_TYPES.has(list[i - 1]?._type as string) &&
-      !DARK_TYPES.has(list[i + 1]?._type as string);
+      !isDarkRow(list[i - 1]) &&
+      !isDarkRow(list[i + 1]);
     if (inkQuote) {
       surface = 'ink';
     } else if (CONTENT_TYPES.has(block._type)) {

@@ -80,7 +80,12 @@ const rows = list.length > 0 ? list : DEFAULT_ORDER;
         ) : null
       ) : null
     ) : (
-      <SectionRenderer sections={[s]} idPrefix={`edesign-extra-${i}`} coach={Boolean(editDoc)} />
+      <SectionRenderer
+        sections={[s]}
+        idPrefix={`edesign-extra-${i}`}
+        coach={Boolean(editDoc)}
+        context={{ list: rows, index: i }}
+      />
     )}
   </Wrap>
 ))}
