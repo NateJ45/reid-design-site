@@ -1,4 +1,4 @@
-// Safe to edit by hand
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
 // submenuWidthFix - give the canvas section menu's submenus their width back
 // (2026-10-27)
@@ -11,8 +11,8 @@
 // `constrainSize` and no portal, so they render INSIDE the parent menu, whose
 // box scrolls (`overflow: auto`). The popover's size step then measures the
 // room left inside that parent menu, which beside it is none, and writes
-// `max-width: 0px` inline. The same frame on the sister sites shows the same
-// sliver; it is not this site's CSS.
+// `max-width: 0px` inline. Found on reid-design-site and first-baptist-auburn
+// alike (PORTS.md card 201); it is not a site's CSS.
 //
 // The menu items themselves are fine (they are in the DOM, four of them), so
 // lifting the inline cap is the whole fix. A stylesheet `!important` beats an
