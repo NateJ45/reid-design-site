@@ -5,7 +5,8 @@
 //
 //   Photo style (card 189, OPT-IN): the block's Style set to "Photo behind the words" AND a
 //               photo draws PhotoHero.astro instead (wide photo under a token shade, white
-//               words, optional short-facts card and silent clip). Default stays the framed
+//               words, optional short-facts card and silent clip; the script accent word is
+//               drawn there too, white, in Waterfall: card 203). Default stays the framed
 //               crop below; nothing changes until an editor picks it for a page.
 //   No image:   eyebrow line / HEADLINE (word rise) / subhead + CTAs, on linen.
 //   With image: the same copy on the left, the photo on the right as a framed
@@ -106,6 +107,7 @@ const usePhotoHero = heroStyle === 'photo' && !!image;
     <PhotoHero
       eyebrow={eyebrow}
       headline={headline}
+      accent={scriptAccent}
       subhead={subhead}
       image={image}
       primaryCta={primaryCta}

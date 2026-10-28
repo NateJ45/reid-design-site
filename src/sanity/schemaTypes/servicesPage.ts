@@ -121,7 +121,7 @@ export const servicesPage = defineType({
       type: 'string',
       group: 'hero',
       description:
-        'Standard is the usual opening: the words beside your photo in its frame. Photo behind the words runs the hero photo across the whole opening with the words over it in white. Choose it only for a wide, sharp photo of a finished room; phone snapshots look better framed. Without a hero photo the opening shows as standard, and the script accent word is drawn only in the standard style.',
+        'Standard is the usual opening: the words beside your photo in its frame. Photo behind the words runs the hero photo across the whole opening with the words over it in white. Choose it only for a wide, sharp photo of a finished room; phone snapshots look better framed. Without a hero photo the opening shows as standard. The script accent word shows in both styles.',
       options: {
         list: [
           { title: 'Standard', value: 'standard' },
