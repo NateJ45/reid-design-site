@@ -1,4 +1,4 @@
-// Safe to edit by hand
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
 // useUnionTypeRetry - make the overlay ask the Studio again about new sections
 // (2026-10-27)

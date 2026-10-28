@@ -1,4 +1,4 @@
-// Safe to edit by hand
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // Unit tests for the "ask the Studio again" nudge (preview-union-retry.ts).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

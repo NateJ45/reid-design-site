@@ -1,4 +1,4 @@
-// Safe to edit by hand
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // =============================================================================
 // preview-union-retry - the pure half of the "ask the Studio again" nudge
 // (2026-10-27)
