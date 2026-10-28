@@ -39,7 +39,8 @@ interface Props {
   heading?: string;
   body?: any;
   cta?: any;
-  surface?: 'background' | 'muted';
+  // 'ink' since phase B (2026-10-28): the Feature look, painted by .r-inkband (reid.css).
+  surface?: 'background' | 'muted' | 'ink';
   headingId: string;
 }
 
@@ -62,7 +63,10 @@ const note: string | undefined = image?.alt || undefined;
 ---
 
 <section
-  class:list={['imt', surface === 'muted' ? 'imt--paper' : 'imt--linen']}
+  class:list={[
+    'imt',
+    surface === 'ink' ? 'r-inkband' : surface === 'muted' ? 'imt--paper' : 'imt--linen',
+  ]}
   aria-labelledby={heading ? headingId : undefined}
 >
   <div class:list={['r-wrap split imt__row', imageFirst && 'split--media-first']}>

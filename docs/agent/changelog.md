@@ -2,6 +2,13 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-28: Refoundation phase B, looks and the builder kit in Reid's look
+
+- Looks (starter card 124, a Reid fit): Standard, Quiet (linen, the rhythm restarts on paper) and Feature (the ink band, `.r-inkband` re-pointing the page tokens) on rich text, image and text, gallery and video; the quote offers Standard and Quiet. Resolved in `sectionCadence.ts` with the neighbours in view; pairs measured in `surfaces.ts`; `look` and `urgency` in `NON_STEGA_FIELDS`; rule 9 and the look gate added to `section-fields.test.ts`.
+- Twelve builder-kit blocks (cards 173 and 193): text in columns, button row, wide photo (photo viewer, card 124 files), fold-outs, tabs, dated notice, timeline, letter, cards with photos, contact details (confirmed facts only; Call hidden until the phone is ticked as confirmed), steps on a path, hub. Reid tokens only; the stylesheet is linked by `BuilderBlock.astro` once per page that renders a block. Insert groups Rooms and photos, Notes and notices, Fold-outs and tabs, Contact and booking. Coach notes, fixtures and thumbnails for each.
+- Templates Project spotlight and Questions page; patterns as code (`src/sanity/sectionPatterns.ts`: seasonal booking notice, What a consultation includes, A note from Staci) seeded as DRAFT `pattern-*` saved sections. `authoring.test.ts` now checks patterns and the house rules and service scope on every template and pattern.
+- Live pages unchanged (no published library blocks): parity identical on every live page; the sections wall changes on purpose.
+
 ## 2026-10-27: Presentation fixes, the layout card, Move and drag
 
 Three canvas bugs from the signed-in check after phase A2. None came from phases A or A2 (the overlay and the section wrappers were not touched there).

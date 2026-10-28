@@ -18,6 +18,15 @@
 // (furniture, color and paint, decor, rugs, lighting, hardware, trim). Nothing
 // about cabinets, tile, appliances or moving walls.
 //
+// THE BUILDER-KIT PATTERNS (refoundation phase B, 2026-10-28). After the
+// seasonal sections, the script copies src/sanity/sectionPatterns.ts (a
+// seasonal booking notice, "What a consultation includes", "A note from
+// Staci") in as DRAFT saved sections, id `drafts.pattern-<id>`: Staci can add
+// a copy from a draft, but a synced section only shows a published one, so a
+// [Placeholder: ...] line can never go live by accident. One that exists as a
+// draft OR published is skipped, never overwritten. Needs Node 23.6+ (it
+// imports the .ts file directly).
+//
 // Dry by default (scripts/lib/write-gate.mjs). To write to production:
 //   NCS_PRODUCTION_WRITE=yes node scripts/content/seed-section-patterns.mjs --apply
 //   (PowerShell: $env:NCS_PRODUCTION_WRITE='yes'; node scripts/content/seed-section-patterns.mjs --apply; Remove-Item Env:NCS_PRODUCTION_WRITE)
@@ -27,6 +36,7 @@
 import { createClient } from '@sanity/client';
 import { config as loadDotenv } from 'dotenv';
 import { APPLY, assertWriteAllowed, gateClient } from '../lib/write-gate.mjs';
+import { SECTION_PATTERNS } from '../../src/sanity/sectionPatterns.ts';
 
 loadDotenv();
 const dataset = process.env.PUBLIC_SANITY_DATASET ?? 'production';
@@ -180,6 +190,32 @@ if (
     }
     await client.createIfNotExists(doc);
     console.log(`  ${APPLY ? 'created' : 'would create'} ${p._id}: ${p.title}`);
+  }
+  // The builder-kit patterns, as drafts (phase B).
+  const draftIds = SECTION_PATTERNS.map((p) => `pattern-${p.id}`);
+  const found = await client
+    .withConfig({ perspective: 'raw' })
+    .fetch('*[_id in $ids]._id', { ids: [...draftIds, ...draftIds.map((id) => `drafts.${id}`)] });
+  const there = new Set(found.map((id) => id.replace(/^drafts./, '')));
+  for (const pattern of SECTION_PATTERNS) {
+    const id = `pattern-${pattern.id}`;
+    if (there.has(id)) {
+      console.log(`  keep    ${id} (already there as a draft or published, not touched)`);
+      continue;
+    }
+    const section = pattern.sections();
+    const doc = {
+      _id: `drafts.${id}`,
+      _type: 'sectionPreset',
+      title: pattern.title,
+      note: pattern.note,
+      sectionType: section[0]?._type,
+      section,
+    };
+    await client.createIfNotExists(doc);
+    console.log(
+      `  ${APPLY ? 'created' : 'would create'} drafts.${id}: ${pattern.title} (${section.map((x) => x._type).join(', ')})`,
+    );
   }
   console.log(
     APPLY

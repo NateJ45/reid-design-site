@@ -1,0 +1,133 @@
+---
+// Safe to edit by hand
+// =============================================================================
+// /styleguide/looks/ - the section looks through the real cadence
+// (refoundation phase B, 2026-10-28; starter card 124)
+// =============================================================================
+// One SectionRenderer call over a stack of blocks with looks, so the cadence
+// sees the neighbours exactly as a page would: Standard blocks alternate linen
+// and paper, a Feature block takes the ink band (and a second Feature beside it
+// falls back to Standard), a Quiet block stays on linen and restarts the
+// rhythm, and the builder kit's blocks sit on each ground. Used for the
+// screenshots in the PR and docs/agent/page-architecture.md. Not for visitors:
+// noindex, out of the sitemap, linked from nowhere.
+// =============================================================================
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const para = (key: string, text: string) => ({
+  _type: 'block',
+  _key: key,
+  style: 'normal',
+  markDefs: [],
+  children: [{ _type: 'span', _key: `${key}-s`, marks: [], text }],
+});
+const cta = (label: string) => ({
+  _type: 'ctaBlock',
+  label,
+  linkType: 'external',
+  externalUrl: '#',
+});
+
+const SECTIONS = [
+  {
+    _type: 'richTextSection',
+    _key: 'standard',
+    heading: 'Standard: the page rhythm',
+    width: 'normal',
+    body: [para('s1', 'Linen first, then paper, taking turns down the page.')],
+  },
+  {
+    _type: 'columnsSection',
+    _key: 'feature',
+    look: 'feature',
+    heading: 'Feature: the ink band',
+    textColumns: [
+      {
+        _key: 'c1',
+        heading: 'Once a page',
+        body: [para('c1p', 'For the part that matters most, with a link to more.')],
+      },
+      {
+        _key: 'c2',
+        heading: 'Never twice in a row',
+        body: [para('c2p', 'Two dark bands side by side both fall back to Standard.')],
+      },
+    ],
+  },
+  {
+    _type: 'accordionSection',
+    _key: 'after',
+    heading: 'After the ink band, the rhythm carries on',
+    items: [
+      {
+        _key: 'a1',
+        question: 'Does the Feature look count as linen or paper?',
+        answer: [
+          para('a1p', 'Neither: the next Standard block picks up where the rhythm left off.'),
+        ],
+      },
+    ],
+  },
+  {
+    _type: 'tabsSection',
+    _key: 'quiet',
+    look: 'quiet',
+    heading: 'Quiet: always linen',
+    tabs: [
+      { _key: 't1', label: 'Quiet', body: [para('t1p', 'Plain linen, and the rhythm restarts.')] },
+      { _key: 't2', label: 'Next', body: [para('t2p', 'So the next Standard block is paper.')] },
+    ],
+  },
+  {
+    _type: 'stepsRailSection',
+    _key: 'steps',
+    heading: 'Standard after Quiet: paper',
+    steps: [
+      { _key: 's1', title: 'Consultation', body: 'A visit in your home.' },
+      { _key: 's2', title: 'Design plan', body: 'Colors, furniture and a shopping list.' },
+    ],
+    link: cta('Book a consultation'),
+  },
+  {
+    _type: 'buttonRowSection',
+    _key: 'buttons-feature',
+    look: 'feature',
+    heading: 'Buttons on the ink band',
+    layout: 'cards',
+    links: [
+      { _key: 'b1', note: 'The underline link turns cream.', link: cta('See the services') },
+      { _key: 'b2', note: 'Hairlines go light.', link: cta('How it works') },
+    ],
+  },
+  {
+    _type: 'quoteSection',
+    _key: 'quote-quiet',
+    look: 'quiet',
+    quote: 'A Quiet quote stays on linen instead of taking the ink band.',
+    attribution: 'A client',
+  },
+  {
+    _type: 'contactCardSection',
+    _key: 'contact',
+    heading: 'Contact details, Standard',
+    phone: '(317) 555-0142',
+    email: 'hello@example.com',
+    callButtons: true,
+  },
+  {
+    _type: 'ctaBandSection',
+    _key: 'band',
+    headline: 'The closing band stays the dark one',
+    cta: cta('Book a consultation'),
+  },
+];
+---
+
+<BaseLayout
+  title="Looks wall | Reid Design"
+  description="The section looks through the real cadence. Not for visitors."
+  noindex
+>
+  <SectionRenderer sections={SECTIONS} idPrefix="looks" />
+</BaseLayout>

@@ -248,6 +248,116 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
       '[One sentence for Google: what the visit covers and how to book. About 150 characters.]',
     ),
   },
+  // Refoundation phase B (2026-10-28): two templates on the builder kit's blocks.
+  {
+    id: 'page-project-spotlight',
+    title: 'Project spotlight',
+    description:
+      'One finished room on a page of its own: the big photo, what the client asked for, what changed, and their words.',
+    sections: sections(
+      hero(
+        '[The room and town, like "Living room, Avon"]',
+        '[One line on what the room became, like "A living room built around the sofa they already loved"]',
+        '[One sentence on who lives there and what they wanted.]',
+        'Talk about your room',
+      ),
+      { _type: 'photoSection', caption: '[A short caption for the big photo, or delete it]' },
+      {
+        _type: 'columnsSection',
+        heading: 'The room',
+        textColumns: [
+          {
+            _type: 'textColumn',
+            heading: 'What they asked for',
+            body: [
+              para('[In a sentence or two: how the room felt before, and what they hoped for.]'),
+            ],
+          },
+          {
+            _type: 'textColumn',
+            heading: 'What changed',
+            body: [
+              para(
+                '[The styling choices: paint, furniture, rugs, lighting, art and the finishing pieces.]',
+              ),
+            ],
+          },
+          {
+            _type: 'textColumn',
+            heading: 'What stayed',
+            body: [para('[The pieces they kept and how the new plan works around them.]')],
+          },
+        ],
+      },
+      {
+        _type: 'gallerySection',
+        heading: '[A heading for the photos, like "Around the room"]',
+        columns: 3,
+        images: [],
+      },
+      quote('[Their town and room, like "Avon, IN, living room"]'),
+      invitation(
+        '[A short invitation, like "Thinking about a room of your own?"]',
+        '[One line on how the first conversation works.]',
+      ),
+    ),
+    fields: fields(
+      '[Title, like "Living room, Avon"]',
+      '[The room and town | Reid Design]',
+      '[One sentence for Google: the room, the town and what changed. About 150 characters.]',
+    ),
+  },
+  {
+    id: 'page-questions',
+    title: 'Questions page',
+    description:
+      'The questions people ask before they book, as fold-outs, with your contact details under them.',
+    sections: sections(
+      hero(
+        '[Short label, like "Good to know"]',
+        '[The page title, like "Questions before you book"]',
+        '[One sentence, like "If yours is not here, ask me. There is no such thing as a silly question about your home."]',
+        'Ask a question',
+      ),
+      {
+        _type: 'accordionSection',
+        heading: 'Before you book',
+        items: [
+          {
+            _type: 'accordionItem',
+            question: '[A question people ask before they book]',
+            answer: [para('[Your answer, in two or three plain sentences.]')],
+          },
+          {
+            _type: 'accordionItem',
+            question: '[Another question, like "Do I have to replace my furniture?"]',
+            answer: [para('[Your answer.]')],
+          },
+        ],
+      },
+      {
+        _type: 'accordionSection',
+        heading: 'Once we start',
+        items: [
+          {
+            _type: 'accordionItem',
+            question: '[A question about the design plan or the shopping]',
+            answer: [para('[Your answer.]')],
+          },
+        ],
+      },
+      { _type: 'contactCardSection', heading: 'Still wondering?' },
+      invitation(
+        '[A short invitation, like "Ready when you are."]',
+        '[One line on how to pick a time.]',
+      ),
+    ),
+    fields: fields(
+      '[Title, like "Questions"]',
+      '[Interior design questions | Reid Design]',
+      '[One sentence for Google: the questions this page answers. About 150 characters.]',
+    ),
+  },
   {
     id: 'page-simple',
     title: 'Simple page',

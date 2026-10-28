@@ -20,10 +20,14 @@ const img = { _type: 'image', asset: { _type: 'reference', _ref: 'image-abc-600x
 const para = [{ _type: 'block', children: [{ _type: 'span', text: 'Hello' }] }];
 
 describe('the registry', () => {
-  it('covers every library block except the wordless spacer and the self-filling Instagram and press sections', () => {
-    const library = pageSectionSchemas
-      .map((s) => s.name)
-      .filter((n) => n !== 'spacerSection' && n !== 'instagramSection' && n !== 'pressSection');
+  it('covers every library block except the wordless spacer and the self-filling Instagram, press and contact sections', () => {
+    const SELF_FILLING = [
+      'spacerSection',
+      'instagramSection',
+      'pressSection',
+      'contactCardSection',
+    ];
+    const library = pageSectionSchemas.map((s) => s.name).filter((n) => !SELF_FILLING.includes(n));
     expect([...COACHED_SECTION_TYPES].sort()).toEqual([...library].sort());
     expect(sectionCoach({ _type: 'spacerSection', variant: 'space' })).toBeNull();
   });

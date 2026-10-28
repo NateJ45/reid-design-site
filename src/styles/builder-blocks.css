@@ -1,0 +1,847 @@
+/* Safe to edit by hand
+   =============================================================================
+   The builder kit in Reid Design's look (src/components/builder-blocks/,
+   starter cards 173 and 193; refoundation phase B, 2026-10-28)
+   =============================================================================
+   Imported by BuilderBlock.astro ONLY, so a page without a builder block gains
+   no weight from this file. Drawn from the rebuild's vocabulary (DESIGN.md,
+   src/styles/reid.css) and nothing else:
+     - square corners on every photo and card, like the framed photos (.r-frame);
+     - hairlines (--color-rule) instead of boxes and shadows;
+     - Zodiak Light for titles (--font-display), General Sans for the rest;
+     - the ink tag button (.r-btn via CtaLink) for the one main action, the
+       underline link (.r-link) for everything else;
+     - paint chips (--color-chip-*) as list markers, step badges and tiles.
+   Every colour is a page token, so a block on the ink band (.r-inkband, the
+   Feature look) needs nothing extra: the band re-points the tokens. No
+   body-size text is ever Warm Bronze (#9c7661, rule 3). Class names start
+   `bb-`; state a script sets is an attribute (`[data-bb-tabs-ready]`,
+   `[hidden]`, `aria-current`), never a class built at run time.
+   ========================================================================== */
+
+/* ---- The band and the shared frame ---- */
+.bb-band {
+  padding-block: clamp(4.5rem, 9vw, 8rem);
+  color: var(--color-ink);
+}
+.bb--linen {
+  background: var(--color-bg);
+}
+.bb--paper {
+  background: var(--color-paper);
+}
+.bb-head {
+  margin-bottom: clamp(2rem, 4vw, 3.25rem);
+}
+.bb-intro {
+  margin-top: 1.1rem;
+  max-width: 46ch;
+  font-size: var(--text-lede);
+  line-height: 1.5;
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+.bb-title {
+  margin: 0 0 0.6rem;
+  font: 300 var(--text-h4, 1.5rem) / 1.12 var(--font-display);
+  letter-spacing: -0.015em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+.bb-prose {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--color-ink);
+}
+.bb-prose > :first-child {
+  margin-top: 0;
+}
+.bb-prose > :last-child {
+  margin-bottom: 0;
+}
+/* Paint chips for bullets: a square swatch, keyed to the house bronze, with a
+   faint ring so the pale chips still read (as in the Services list). */
+.bb-prose ul {
+  list-style: none;
+  padding-left: 0;
+}
+.bb-prose ul > li {
+  position: relative;
+  padding-left: 1.4rem;
+}
+.bb-prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--color-chip-3);
+  box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.28);
+}
+.bb-prose ul > li:nth-child(3n + 2)::before {
+  background: var(--color-chip-5);
+}
+.bb-prose ul > li:nth-child(3n)::before {
+  background: var(--color-chip-2);
+}
+.bb-grid {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 3vw, 2.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (width >= 48rem) {
+  .bb-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bb-grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width >= 64rem) {
+  .bb-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+/* Columns of text: a hairline over each, the editorial way the site sets
+   facts side by side. */
+[data-builder-block='columnsSection'] .bb-grid > div {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-rule);
+}
+.bb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2.25rem;
+  margin: 0;
+}
+
+/* A card with one link whose hit area covers the whole card. The link's own
+   focus ring is drawn on the card, so a keyboard user sees what will open. */
+.bb-stretch {
+  position: relative;
+}
+.bb-stretch a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.bb-stretch:has(a:focus-visible) {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 4px;
+}
+.bb-stretch a:focus-visible {
+  outline: none;
+}
+.bb-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--color-rule);
+  transition: border-color 400ms;
+}
+.bb-card:hover {
+  border-top-color: var(--color-ink);
+}
+.bb-card__note {
+  margin: 0;
+  font: 300 1.3rem/1.35 var(--font-display);
+  color: var(--color-ink);
+}
+.bb-card > a {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* ---- One wide photo: square corners, the caption after a short rule (the
+   framed photo's caption, .r-frame__cap). ---- */
+.bb-photo {
+  margin: 0;
+}
+.bb-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.bb-photo figcaption {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  font: 500 0.92rem/1.4 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-photo figcaption::before {
+  content: '';
+  flex: none;
+  width: 2rem;
+  height: 1px;
+  background: currentColor;
+}
+
+/* ---- Fold-out questions: hairlines between, a plus that turns to a minus.
+   Native <details>, so they work with no script. ---- */
+.bb-accordion {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 56rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+.bb-accordion > li {
+  border-top: 1px solid var(--color-rule);
+}
+.bb-accordion summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 44px;
+  padding: 1.2rem 0;
+  font: 300 clamp(1.2rem, 1.05rem + 0.5vw, 1.5rem) / 1.25 var(--font-display);
+  color: var(--color-ink);
+  cursor: pointer;
+  list-style: none;
+}
+.bb-accordion summary::-webkit-details-marker {
+  display: none;
+}
+.bb-accordion summary::after {
+  content: '+';
+  flex: none;
+  font: 300 1.6rem/1 var(--font-display);
+  color: var(--color-ink-2);
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bb-accordion details[open] summary::after {
+  content: '\2212';
+}
+.bb-accordion summary:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+.bb-accordion__answer {
+  max-width: 64ch;
+  padding-bottom: 1.5rem;
+}
+
+/* ---- Tabs. Before the script runs every panel shows, each under its own
+   heading; with it, the tab list shows and the panel headings hide. The
+   chosen tab is underlined in ink, like the underline link. ---- */
+.bb-tablist {
+  display: none;
+}
+.bb-panel {
+  max-width: 64ch;
+}
+.bb-panel + .bb-panel {
+  margin-top: 2.5rem;
+}
+[data-bb-tabs-ready] .bb-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2rem;
+  border-bottom: 1px solid var(--color-rule);
+  margin-bottom: 2rem;
+}
+[data-bb-tabs-ready] .bb-panel + .bb-panel {
+  margin-top: 0;
+}
+[data-bb-tabs-ready] .bb-panel__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.bb-tab {
+  min-height: 44px;
+  padding: 0.6rem 0;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: 500 0.98rem/1.2 var(--font-body);
+  color: var(--color-ink-2);
+  cursor: pointer;
+  transition: color 300ms;
+}
+.bb-tab:hover {
+  color: var(--color-ink);
+}
+.bb-tab[aria-selected='true'] {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-ink);
+}
+.bb-tab:focus-visible,
+.bb-panel:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* ---- The dated notice: its own slim paper strip with hairlines, the label
+   as a small sample tag. Urgent is the ink strip. ---- */
+.bb-notice {
+  border-block: 1px solid var(--color-rule);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.bb-notice__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding-block: 1.1rem;
+}
+.bb-notice__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font: 500 0.85rem/1 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-notice__tag::before {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--color-chip-5);
+}
+.bb-notice__message {
+  flex: 1 1 22rem;
+  margin: 0;
+  font: 300 1.2rem/1.4 var(--font-display);
+}
+.bb-notice__tel {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.bb-notice--urgent {
+  border-color: transparent;
+  background: var(--color-accent-dark);
+  color: var(--color-cream);
+}
+.bb-notice--urgent .bb-notice__tag {
+  color: var(--color-chip-2);
+}
+.bb-notice--urgent .bb-notice__tag::before {
+  background: var(--color-chip-2);
+}
+
+/* ---- Timeline: the year in Zodiak, a hairline down the left, a paint chip
+   at each moment. ---- */
+.bb-timeline {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 62rem;
+}
+.bb-moment {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem 2rem;
+  padding: 0 0 2.5rem 2rem;
+  border-left: 1px solid var(--color-rule);
+}
+.bb-moment:last-child {
+  padding-bottom: 0;
+}
+.bb-moment__dot {
+  position: absolute;
+  left: -0.35rem;
+  top: 0.55rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  background: var(--color-chip-5);
+}
+.bb-moment__year {
+  font: 300 1.05rem/1.4 var(--font-display);
+  color: var(--color-ink-2);
+}
+.bb-moment__body p {
+  margin: 0;
+  max-width: 56ch;
+  line-height: 1.65;
+  color: var(--color-ink);
+}
+.bb-moment__photo img {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+}
+@media (width >= 48rem) {
+  .bb-moment {
+    grid-template-columns: 7rem minmax(0, 1fr);
+  }
+  .bb-moment__dot {
+    left: -0.35rem;
+  }
+  .bb-moment__photo {
+    grid-column: 2;
+  }
+}
+@media (width >= 64rem) {
+  .bb-moment--photo {
+    grid-template-columns: 7rem minmax(0, 1fr) minmax(0, 22rem);
+  }
+  .bb-moment--photo .bb-moment__photo {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
+/* ---- A letter: a sheet of paper with a hairline and square corners. ---- */
+.bb-letter {
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 3.75rem);
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink);
+}
+.bb--paper .bb-letter {
+  background: var(--color-bg);
+}
+.bb-letter__eyebrow {
+  margin: 0 0 1rem;
+  font: 500 0.92rem/1.4 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-letter__greeting {
+  margin: 0 0 1.5rem;
+  font: 300 clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem) / 1.1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.bb-letter__body {
+  font-size: 1.075rem;
+  line-height: 1.75;
+}
+.bb-letter__body p {
+  color: var(--color-ink);
+}
+.bb-letter__sign {
+  margin-top: 2rem;
+}
+.bb-letter__sign p {
+  margin: 0;
+}
+.bb-letter__off {
+  font-style: italic;
+  color: var(--color-ink-2);
+}
+.bb-letter__signature {
+  display: block;
+  width: 220px;
+  max-width: 60%;
+  height: auto;
+  margin-top: 0.75rem;
+  mix-blend-mode: multiply;
+}
+.bb-letter__name {
+  margin-top: 0.5rem !important;
+  font: 300 1.75rem/1.1 var(--font-display);
+}
+.bb-letter__role {
+  margin-top: 0.3rem !important;
+  font: 500 0.88rem/1.4 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-letter .bb-actions {
+  margin-top: 2rem;
+}
+
+/* ---- Cards with photos: square photos, a hairline under each, the title in
+   Zodiak. ---- */
+.bb-pcard {
+  display: flex;
+  flex-direction: column;
+}
+.bb-pcard__pic {
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  aspect-ratio: 4 / 3;
+  background: var(--color-chip-1);
+}
+.bb-pcard__pic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bb-pcard__blank {
+  width: 100%;
+  height: 100%;
+  background: var(--color-chip-2);
+}
+.bb-pcard__body {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--color-ink-2);
+}
+.bb-pcard__more {
+  margin-top: 1rem;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .bb-pcard.bb-stretch:hover .bb-pcard__pic img,
+  .bb-hcard.bb-stretch:hover .bb-hcard__photo img {
+    transform: scale(1.03);
+  }
+}
+
+/* ---- Contact details: a row of facts set off by hairlines. ---- */
+.bb-call {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2.25rem;
+  margin-bottom: 2.5rem;
+}
+.bb-board {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-rule);
+}
+.bb-board__cell {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.bb-board dt {
+  margin-bottom: 0.4rem;
+  font: 500 0.88rem/1.3 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-board dd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin: 0;
+  font: 300 1.2rem/1.4 var(--font-display);
+  color: var(--color-ink);
+}
+.bb-board dd a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.bb-board dd a[target] {
+  margin-top: 0.4rem;
+  font: 500 0.95rem/1.4 var(--font-body);
+}
+.bb-line {
+  display: block;
+}
+@media (width >= 48rem) {
+  .bb-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+@media (width >= 64rem) {
+  .bb-board[data-n='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .bb-board[data-n='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---- Steps on a path: a paint chip per step, numbered in Zodiak, joined by a
+   hairline. ---- */
+.bb-rail {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 56rem;
+}
+.bb-rail__step {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  gap: 1.25rem;
+}
+.bb-rail__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bb-rail__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+  background: var(--color-chip-2);
+  color: var(--color-accent-dark);
+  box-shadow: inset 0 0 0 1px rgb(35 30 27 / 0.18);
+}
+.bb-rail__step:nth-child(3n + 2) .bb-rail__badge {
+  background: var(--color-chip-3);
+}
+.bb-rail__step:nth-child(3n) .bb-rail__badge {
+  background: var(--color-chip-1);
+}
+.bb-rail__num {
+  font: 300 1.5rem/1 var(--font-display);
+}
+.bb-rail__trail {
+  flex: 1;
+  width: 1px;
+  min-height: 1.5rem;
+  margin-block: 0.5rem;
+  background: var(--color-rule);
+}
+.bb-rail__body {
+  padding-bottom: 2.5rem;
+}
+.bb-rail__step:last-child .bb-rail__body {
+  padding-bottom: 0;
+}
+.bb-rail__n {
+  margin: 0.15rem 0 0.35rem;
+  font: 500 0.85rem/1.3 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-rail__text {
+  margin: 0;
+  max-width: 56ch;
+  line-height: 1.65;
+  color: var(--color-ink);
+}
+.bb-rail__link {
+  margin: 0.9rem 0 0;
+}
+.bb-rail__step--card .bb-rail__body {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper);
+}
+.bb--paper .bb-rail__step--card .bb-rail__body {
+  background: var(--color-bg);
+}
+.r-inkband .bb-rail__step--card .bb-rail__body {
+  background: transparent;
+}
+.bb-rail__end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2.25rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-rule);
+}
+.bb-rail__endline {
+  margin: 0;
+  font: 300 clamp(1.35rem, 1.1rem + 0.8vw, 1.85rem) / 1.2 var(--font-display);
+  color: var(--color-ink);
+}
+
+/* ---- Groups of cards with an index. The index sits down the left on a wide
+   screen and is a sideways row of tags on a phone; the group in view is marked
+   (aria-current) with a paint chip and ink text. ---- */
+.bb-hub {
+  display: grid;
+  gap: 2rem;
+}
+@media (width >= 64rem) {
+  .bb-hub {
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: start;
+  }
+}
+.bb-hub__index {
+  position: sticky;
+  z-index: 5;
+  top: calc(var(--hub-header, 4.5rem) + 1rem);
+}
+.bb-hub__index ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bb-hub__jump {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  font: 500 0.95rem/1.2 var(--font-body);
+  color: var(--color-ink-2);
+  text-decoration: none;
+  transition: color 300ms;
+}
+.bb-hub__jump::before {
+  content: '';
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  box-shadow: inset 0 0 0 1px var(--color-rule);
+  transition: background-color 300ms;
+}
+.bb-hub__jump:hover,
+.bb-hub__jump[aria-current='true'] {
+  color: var(--color-ink);
+}
+.bb-hub__jump[aria-current='true']::before {
+  background: var(--color-chip-5);
+  box-shadow: none;
+}
+.bb-hub__jump:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+@media (width < 64rem) {
+  .bb-hub__index {
+    margin-inline: calc(clamp(1rem, 4vw, 3.5rem) * -1);
+    padding: 0.5rem clamp(1rem, 4vw, 3.5rem);
+    background: inherit;
+    border-block: 1px solid var(--color-rule);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .bb--linen .bb-hub__index {
+    background: var(--color-bg);
+  }
+  .bb--paper .bb-hub__index {
+    background: var(--color-paper);
+  }
+  .bb-hub__index::-webkit-scrollbar {
+    display: none;
+  }
+  .bb-hub__index ol {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+  }
+  .bb-hub__jump {
+    white-space: nowrap;
+  }
+}
+.bb-hub__groups {
+  display: grid;
+  gap: clamp(3rem, 6vw, 5rem);
+}
+.bb-hub__group {
+  scroll-margin-top: calc(var(--hub-header, 4.5rem) + 5rem);
+}
+.bb-hub__group-head {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+.bb-hub__group-title {
+  margin: 0;
+  font: 300 var(--text-h3) / 1.08 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+.bb-hub__group-line {
+  margin: 0.6rem 0 0;
+  max-width: 56ch;
+  color: var(--color-ink-2);
+}
+.bb-hub__cards {
+  display: grid;
+  gap: 2.5rem 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (width >= 40rem) {
+  .bb-hub__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width >= 80rem) {
+  .bb-hub__cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.bb-hcard {
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: calc(var(--hub-header, 4.5rem) + 5rem);
+}
+.bb-hcard__pic {
+  overflow: hidden;
+  aspect-ratio: 6 / 5;
+  margin-bottom: 1.1rem;
+}
+.bb-hcard__photo,
+.bb-hcard__tile {
+  width: 100%;
+  height: 100%;
+}
+.bb-hcard__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bb-hcard__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-chip-1);
+  color: var(--color-chip-7);
+}
+.bb-hcard:nth-child(3n + 2) .bb-hcard__tile {
+  background: var(--color-chip-2);
+}
+.bb-hcard:nth-child(3n) .bb-hcard__tile {
+  background: var(--color-chip-3);
+}
+.bb-hcard__text p {
+  margin: 0;
+}
+.bb-hcard__for {
+  margin-bottom: 0.35rem !important;
+  font: 500 0.85rem/1.3 var(--font-body);
+  color: var(--color-ink-2);
+}
+.bb-hcard__when {
+  margin-bottom: 0.5rem !important;
+  font-size: 0.95rem;
+  color: var(--color-ink-2);
+}
+.bb-hcard__body {
+  line-height: 1.6;
+  color: var(--color-ink);
+}
+.bb-hcard__more {
+  margin-top: 0.9rem !important;
+}
+.bb-hcard__more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.bb-hcard__arrow {
+  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bb-hcard:hover .bb-hcard__arrow {
+  transform: translateX(4px);
+}
+.bb-icon {
+  display: block;
+  flex: none;
+}

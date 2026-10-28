@@ -40,7 +40,8 @@ interface Props {
   heading?: string;
   images?: GalleryImage[];
   columns?: number;
-  surface?: 'background' | 'muted';
+  // 'ink' since phase B (2026-10-28): the Feature look, painted by .r-inkband (reid.css).
+  surface?: 'background' | 'muted' | 'ink';
   headingId: string;
 }
 
@@ -88,7 +89,10 @@ const tiles = pics.map((img, i) => {
 
 {pics.length > 0 && (
   <section
-    class:list={['gal', surface === 'muted' ? 'gal--paper' : 'gal--linen']}
+    class:list={[
+      'gal',
+      surface === 'ink' ? 'r-inkband' : surface === 'muted' ? 'gal--paper' : 'gal--linen',
+    ]}
     aria-labelledby={heading ? headingId : undefined}
     aria-label={heading ? undefined : 'Photo gallery'}
   >

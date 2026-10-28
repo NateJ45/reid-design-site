@@ -26,7 +26,15 @@
 //     starter only does that for a text hero.
 //   - No dividers between content blocks: `insertDividerBefore` is always
 //     false. The field is kept so the row shape matches the starter's.
-//   - No looks yet (phase B adds them): `look` is always 'standard'.
+//   - LOOKS (phase B, 2026-10-28; src/lib/section-looks.ts). A content block
+//     can ask for Standard (the rhythm; unset means this), Quiet (always
+//     linen, and the rhythm restarts after it, so the next Standard is paper)
+//     or Feature (the ink band). A Feature is drawn exactly like an ink quote:
+//     only when it is not the last row and neither neighbour is dark (a
+//     Standard quote, another Feature, a CTA band, the closing-CTA marker or a
+//     photo hero); otherwise it falls back to Standard. A Quiet quote stays on
+//     linen and counts as light for its neighbours. Each row carries the look
+//     it was actually drawn with.
 //   - MARKER ROWS (phase A2, 2026-10-27). The five marker pages (Home, About,
 //     Services, Process, E-Design) classify their WHOLE layout, markers
 //     included, so a library block between markers sees its neighbours. A
@@ -34,6 +42,8 @@
 //     band. The `hero` marker opens the page like a hero; the `finalCta`
 //     marker is the dark closing band, so a quote beside it stays off ink.
 // =============================================================================
+
+import { resolveLook, type SectionLook } from './section-looks.ts';
 
 /** The surface a content row paints: linen, paper, or the ink band. */
 export type CadenceSurface = 'background' | 'muted' | 'ink';
@@ -50,6 +60,8 @@ export const SELF_CONTAINED_TYPES = new Set([
   'instagramSection',
   // The press list (2026-10-18) draws its own band.
   'pressSection',
+  // The builder kit's dated notice (phase B) draws its own slim band.
+  'noticeSection',
 ]);
 
 /** Blocks that receive the alternating linen / paper surface (a quote may take ink). */
@@ -59,6 +71,18 @@ export const CONTENT_TYPES = new Set([
   'gallerySection',
   'quoteSection',
   'videoSection',
+  // The builder kit (phase B, 2026-10-28; builderSections.ts, cards 173 and 193).
+  'columnsSection',
+  'buttonRowSection',
+  'photoSection',
+  'accordionSection',
+  'tabsSection',
+  'timelineSection',
+  'letterSection',
+  'photoCardsSection',
+  'contactCardSection',
+  'stepsRailSection',
+  'hubSection',
 ]);
 
 /** Rows that paint a dark band, so an ink quote must not touch them. */
@@ -77,10 +101,25 @@ function markerSection(block: unknown): string | undefined {
   return typeof v === 'string' ? v : undefined;
 }
 
-/** A row that paints a dark band: a quote, a CTA band, or the closing-CTA marker. */
+/** The look a row asked for (Standard for anything that offers none). */
+function askedLook(block: unknown): SectionLook {
+  const b = block as { _type?: unknown; look?: unknown } | null;
+  return typeof b?._type === 'string' ? resolveLook(b._type, b.look) : 'standard';
+}
+
+/**
+ * A row that paints, or asks to paint, a dark band: a Standard quote, a CTA
+ * band, the closing-CTA marker, a block asking for the Feature look, or a hero
+ * with its photo behind the words.
+ */
 function isDarkRow(block: unknown): boolean {
-  const t = (block as { _type?: unknown } | null)?._type;
-  return (typeof t === 'string' && DARK_TYPES.has(t)) || markerSection(block) === 'finalCta';
+  const b = block as { _type?: unknown; heroStyle?: unknown } | null;
+  const t = b?._type;
+  if (typeof t !== 'string') return false;
+  if (t === 'quoteSection') return askedLook(block) !== 'quiet';
+  if (t === 'heroSection')
+    return typeof b?.heroStyle === 'string' && b.heroStyle.startsWith('photo');
+  return DARK_TYPES.has(t) || markerSection(block) === 'finalCta' || askedLook(block) === 'feature';
 }
 
 export interface SectionBlock {
@@ -94,8 +133,8 @@ export interface ClassifiedRow<T extends SectionBlock = SectionBlock> {
   surface: CadenceSurface | null;
   /** The ground of the row ABOVE this one (what a spacer or divider sits on). */
   ground: CadenceGround;
-  /** Always 'standard' until phase B brings looks. */
-  look: 'standard';
+  /** The look the row was drawn with ('feature' only when it really took the ink band). */
+  look: SectionLook;
   /** Always false: Reid draws no divider between content blocks. */
   insertDividerBefore: boolean;
   /** The numbered heading id, `${idPrefix}-${i}`. */
@@ -127,13 +166,21 @@ export function classifySections<T extends { _type: string }>(
 
   return list.map((block, i) => {
     let surface: CadenceSurface | null = null;
-    const inkQuote =
-      block._type === 'quoteSection' &&
-      i < list.length - 1 &&
-      !isDarkRow(list[i - 1]) &&
-      !isDarkRow(list[i + 1]);
-    if (inkQuote) {
+    let look: SectionLook = 'standard';
+    const asked = CONTENT_TYPES.has(block._type) ? askedLook(block) : 'standard';
+    // A Standard quote or a Feature block takes the ink band when it can.
+    const wantsInk =
+      (block._type === 'quoteSection' && asked === 'standard') || asked === 'feature';
+    const ink =
+      wantsInk && i < list.length - 1 && !isDarkRow(list[i - 1]) && !isDarkRow(list[i + 1]);
+    if (ink) {
       surface = 'ink';
+      look = asked;
+    } else if (CONTENT_TYPES.has(block._type) && asked === 'quiet') {
+      // Quiet: linen, and the rhythm restarts so the next Standard is paper.
+      surface = 'background';
+      look = 'quiet';
+      contentIdx = 1;
     } else if (CONTENT_TYPES.has(block._type)) {
       surface = contentIdx % 2 === 0 ? 'background' : 'muted';
       contentIdx += 1;
@@ -147,7 +194,7 @@ export function classifySections<T extends { _type: string }>(
       block,
       surface,
       ground,
-      look: 'standard' as const,
+      look,
       insertDividerBefore: false,
       headingId: `${idPrefix}-${i}`,
     };

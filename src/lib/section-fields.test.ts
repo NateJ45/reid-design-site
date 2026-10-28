@@ -40,6 +40,8 @@ import {
   storedLayout,
   swapsClasses,
 } from './section-fields';
+import { LOOKS_BY_TYPE, SECTION_LOOKS } from './section-looks';
+import { CONTENT_TYPES } from './sectionCadence';
 
 const read = (relative: string) =>
   readFileSync(fileURLToPath(new URL(relative, import.meta.url)), 'utf8');
@@ -51,6 +53,8 @@ const GALLERY = read('../components/sections/GalleryGrid.astro');
 const IMAGE_TEXT = read('../components/sections/ImageText.astro');
 const RENDERER = read('../components/SectionRenderer.astro');
 const HOME_PAGE = read('../sanity/schemaTypes/homePage.ts');
+// The builder kit (refoundation phase B): rule 9 and the look gate read it too.
+const BUILDER = read('../sanity/schemaTypes/builderSections.ts');
 
 // Sanity's stega payload is a run of invisible characters appended to a string.
 const STEGA_TAIL = '​‌‍﻿​‌';
@@ -588,5 +592,58 @@ describe('splitHeadingWords and isAccentedWord', () => {
     expect(isAccentedWord(word, encoded('Finished'))).toBe(true);
     expect(isAccentedWord(word, '')).toBe(false);
     expect(isAccentedWord(word, null)).toBe(false);
+  });
+});
+
+// =============================================================================
+// Rule 9 and the look gate (refoundation phase B, 2026-10-28; starter card 124)
+// =============================================================================
+// No block carries a colour, surface, tone or background field: the cadence in
+// sectionCadence.ts owns the page rhythm, so reordering cannot break it. The one
+// exception is `look`, an enum of designed looks (section-looks.ts) that the
+// cadence resolves, and it may only arrive through lookField().
+describe('rule 9: no colour field, and look only through lookField()', () => {
+  const LIBRARIES = { sections: SECTIONS, builderSections: BUILDER };
+
+  it('no page-builder block carries a surface or colour field', () => {
+    const forbidden = [
+      'tone',
+      'surface',
+      'background',
+      'accent',
+      'bandColor',
+      'color',
+      'backgroundColor',
+      'bgColor',
+    ];
+    for (const [file, source] of Object.entries(LIBRARIES)) {
+      for (const name of forbidden) {
+        expect(source.includes(`name: '${name}'`), `${file}.ts declares '${name}'`).toBe(false);
+      }
+      expect(/type:\s*'color'/.test(source), `${file}.ts declares a colour picker`).toBe(false);
+    }
+  });
+
+  it('a look is only ever the registered enum, on a block the cadence paints', () => {
+    const withLook = new Set<string>();
+    for (const source of Object.values(LIBRARIES)) {
+      for (const chunk of source.split('defineType({').slice(1)) {
+        const name = chunk.match(/name:\s*'([A-Za-z0-9_]+)'/)?.[1] ?? '';
+        const call = chunk.match(/lookField\('([A-Za-z0-9_]+)'\)/)?.[1];
+        if (call) {
+          expect(call, `${name} calls lookField('${call}')`).toBe(name);
+          withLook.add(name);
+        }
+        expect(chunk.includes(`name: 'look'`), `${name} writes its own look field`).toBe(false);
+      }
+    }
+    expect([...withLook].sort()).toEqual(Object.keys(LOOKS_BY_TYPE).sort());
+    for (const type of withLook) expect(CONTENT_TYPES.has(type), type).toBe(true);
+    const known = new Set(SECTION_LOOKS.map((l) => l.value));
+    for (const [type, offered] of Object.entries(LOOKS_BY_TYPE)) {
+      expect(offered.includes('standard'), `${type} offers Standard`).toBe(true);
+      for (const look of offered) expect(known.has(look), `${type}: ${look}`).toBe(true);
+      expect(offered.length >= 2 && offered.length <= 3, type).toBe(true);
+    }
   });
 });

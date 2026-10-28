@@ -18,6 +18,7 @@ import {
   typesNotAllowed,
 } from './authoring.ts';
 import { PAGE_TEMPLATES } from '../sanity/pageTemplates.ts';
+import { SECTION_PATTERNS } from '../sanity/sectionPatterns.ts';
 
 const counter = () => {
   let n = 0;
@@ -54,6 +55,9 @@ function declaredTypes(file: string): string[] {
   const src = readFileSync(new URL(`../sanity/schemaTypes/${file}`, import.meta.url), 'utf8');
   return [...src.matchAll(/defineType\(\{\s*name:\s*'([A-Za-z]+)'/g)].map((m) => m[1]);
 }
+
+/** Every page-builder block: the library and the builder kit (phase B, 2026-10-28). */
+const LIBRARY_TYPES = [...declaredTypes('sections.ts'), ...declaredTypes('builderSections.ts')];
 
 describe('freshKeys', () => {
   it('replaces every key at every depth and leaves the original alone', () => {
@@ -194,7 +198,7 @@ describe('example text', () => {
 });
 
 describe('page templates (src/sanity/pageTemplates.ts)', () => {
-  const allowed = new Set(declaredTypes('sections.ts'));
+  const allowed = new Set(LIBRARY_TYPES);
 
   it('has a blank page and unique ids', () => {
     const ids = PAGE_TEMPLATES.map((t) => t.id);
@@ -232,7 +236,7 @@ describe('page templates (src/sanity/pageTemplates.ts)', () => {
 });
 
 describe('section thumbnails (the grid view of the + Add menu)', () => {
-  const types = declaredTypes('sections.ts').filter((t) => t !== 'syncedSection');
+  const types = LIBRARY_TYPES.filter((t) => t !== 'syncedSection');
   const wall = readFileSync(new URL('../pages/styleguide/sections.astro', import.meta.url), 'utf8');
 
   for (const type of types) {
@@ -240,6 +244,72 @@ describe('section thumbnails (the grid view of the + Add menu)', () => {
       assert.ok(wall.includes(`_type: '${type}'`), `add a ${type} fixture to the sections wall`);
       const file = new URL(`../../public/section-thumbnails/${type}.jpg`, import.meta.url);
       assert.ok(existsSync(file), `run npm run thumbnails to shoot ${type}`);
+    });
+  }
+});
+
+// =============================================================================
+// Patterns as code and the service scope (refoundation phase B, 2026-10-28)
+// =============================================================================
+// The builder-kit patterns (src/sanity/sectionPatterns.ts) are checked like the
+// templates, and every template AND pattern holds the house rules: no
+// em-dashes, none of the banned words, American spelling, no price or fee
+// typed in, and the service scope (styling around the existing basics, never
+// cabinets, tile, appliances, remodeling or moving walls).
+describe('section patterns (src/sanity/sectionPatterns.ts)', () => {
+  const allowed = new Set(LIBRARY_TYPES);
+
+  it('has unique ids', () => {
+    const ids = SECTION_PATTERNS.map((p) => p.id);
+    assert.equal(new Set(ids).size, ids.length);
+  });
+
+  for (const pattern of SECTION_PATTERNS) {
+    it(`${pattern.id}: known blocks, fresh keys, example text`, () => {
+      const sections = pattern.sections();
+      assert.ok(sections.length > 0, `${pattern.id} is empty`);
+      for (const s of sections) assert.ok(allowed.has(String(s._type)), `${s._type}`);
+      for (const member of arrayMembers(sections)) {
+        assert.equal(typeof member._key, 'string', `${pattern.id}: a member has no _key`);
+      }
+      const keys = keysIn(sections);
+      assert.equal(new Set(keys).size, keys.length, `${pattern.id}: duplicate keys`);
+      assert.notDeepEqual(keys, keysIn(pattern.sections()), 'fresh keys every call');
+      assert.ok(hasExampleText(sections), `${pattern.id} has no [Placeholder: ...] line`);
+    });
+  }
+});
+
+describe('the house rules and the service scope (templates and patterns)', () => {
+  const written = [
+    ...PAGE_TEMPLATES.map((t) => ({
+      id: t.id,
+      value: [t.title, t.description, t.sections(), t.fields?.()],
+    })),
+    ...SECTION_PATTERNS.map((p) => ({ id: p.id, value: [p.title, p.note, p.sections()] })),
+  ];
+  const BANNED = [
+    'transformative',
+    'curated',
+    'investment in your space',
+    'elevated',
+    'tailored',
+    'seamless',
+    'delve',
+    'leverage',
+  ];
+  const OUT_OF_SCOPE =
+    /\b(cabinet|cabinets|tile|tiles|tiling|appliance|appliances|remodel|remodeling|renovation|knock(?:ing)? down|move (?:a|the)? ?walls?|moving walls)\b/i;
+  const UK = /\b(colour|favourite|neighbour|organise|centre|grey)\b/i;
+
+  for (const { id, value } of written) {
+    it(`${id}: no em-dash, banned word, UK spelling, price or out-of-scope job`, () => {
+      const text = JSON.stringify(value);
+      assert.ok(!text.includes('\u2014'), `${id} has an em-dash`);
+      for (const word of BANNED) assert.ok(!text.toLowerCase().includes(word), `${id}: "${word}"`);
+      assert.ok(!UK.test(text), `${id}: UK spelling ${text.match(UK)?.[0]}`);
+      assert.ok(!/\$\s?\d/.test(text), `${id} types a price`);
+      assert.ok(!OUT_OF_SCOPE.test(text), `${id}: out of scope (${text.match(OUT_OF_SCOPE)?.[0]})`);
     });
   }
 });

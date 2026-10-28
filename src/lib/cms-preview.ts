@@ -140,6 +140,10 @@ const NON_STEGA_FIELDS = new Set([
   'type',
   'variant',
   'width',
+  // Refoundation phase B (2026-10-28): a block's look (sectionCadence.ts resolves it), the
+  // dated notice's urgency. (The block-icon picker, `icon`, was already carried below.)
+  'look',
+  'urgency',
   // -- Not in this repo yet, but standard enum names across the site family.
   //    Carried so a block ported from a sibling repo is not a preview-only bug
   //    waiting to be found.

@@ -94,7 +94,7 @@ All empty or opt-in, so nothing shows until an editor fills it: the `heroSection
 
 ## The starter's foundations (refoundation, 2026-10-27)
 
-`SectionRenderer.astro` runs the starter's layer with Reid's rules: the cadence in `src/lib/sectionCadence.ts` (a Reid fit, not PORTABLE; blocks carry no colour field), named anchors and the accent budget (on since phase A2: `anchors` named, `budget` over library rows only, marker pages pass `context`; wall `/styleguide/page-builder/`), layout variants (`brand.config.json` `layout`, `src/data/layout.ts` by hand, `layoutAttrs` on `<html>`; a default emits nothing). Detail: `docs/agent/page-architecture.md`, "Page builder".
+`SectionRenderer.astro` runs the starter's layer with Reid's rules: the cadence in `src/lib/sectionCadence.ts` (a Reid fit, not PORTABLE; blocks carry no colour field), named anchors and the accent budget (on since phase A2: `anchors` named, `budget` over library rows only, marker pages pass `context`; wall `/styleguide/page-builder/`), layout variants (`brand.config.json` `layout`, `src/data/layout.ts` by hand, `layoutAttrs` on `<html>`; a default emits nothing). Phase B (2026-10-28): blocks carry no colour field EXCEPT `look` (Standard, Quiet, Feature = the ink band; `src/lib/section-looks.ts`, only through `lookField()`, in `NON_STEGA_FIELDS`, gated by `section-fields.test.ts`), and twelve builder-kit blocks (`builderSections.ts`, `src/components/builder-blocks/`, Reid-look CSS LINKED by `BuilderBlock.astro` only, so pages without a block gain no weight; walls `/styleguide/sections/` and `/styleguide/looks/`). Detail: `docs/agent/page-architecture.md`, "Page builder".
 
 ## The Studio kit (2026-10-18)
 

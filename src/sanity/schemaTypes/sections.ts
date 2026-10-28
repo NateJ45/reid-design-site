@@ -31,6 +31,9 @@ import { HeartIcon } from '@sanity/icons/Heart';
 import { SyncIcon } from '@sanity/icons/Sync';
 import { DocumentTextIcon } from '@sanity/icons/DocumentText';
 import { pageBuilderAuthoring } from '../pageBuilderAuthoring';
+import { lookField } from './_appearanceFields';
+import { BUILDER_INSERT_GROUPS, builderSectionSchemas } from './builderSections';
+import { withSiteGroups } from '../../lib/insert-groups';
 import {
   FAST_START_MESSAGE,
   HERO_VIDEO_ACCEPT,
@@ -273,6 +276,7 @@ export const richTextSection = defineType({
         layout: 'radio',
       },
     }),
+    lookField('richTextSection'),
   ],
   preview: {
     select: { title: 'heading', body: 'body' },
@@ -305,6 +309,7 @@ export const imageTextSection = defineType({
     defineField({ name: 'heading', title: 'Heading', type: 'string' }),
     proseBody('body', 'Text'),
     defineField({ name: 'cta', title: 'Button (optional)', type: 'ctaBlock' }),
+    lookField('imageTextSection'),
   ],
   preview: {
     select: { title: 'heading', media: 'image' },
@@ -352,6 +357,7 @@ export const gallerySection = defineType({
       initialValue: 3,
       options: { list: [2, 3, 4] },
     }),
+    lookField('gallerySection'),
   ],
   preview: {
     select: { images: 'images', heading: 'heading' },
@@ -384,6 +390,7 @@ export const quoteSection = defineType({
       type: 'string',
       description: 'Like "Fishers living room" or "Plainfield, IN".',
     }),
+    lookField('quoteSection'),
   ],
   preview: {
     select: { title: 'quote', subtitle: 'attribution' },
@@ -489,6 +496,7 @@ export const videoSection = defineType({
     }),
     defineField({ name: 'heading', title: 'Heading (optional)', type: 'string' }),
     defineField({ name: 'caption', title: 'Caption (optional)', type: 'string' }),
+    lookField('videoSection'),
   ],
   preview: {
     select: { title: 'heading', url: 'url' },
@@ -646,6 +654,8 @@ export const pageSectionSchemas = [
   spacerSection,
   instagramSection,
   pressSection,
+  // The builder kit (refoundation phase B, 2026-10-28; builderSections.ts).
+  ...builderSectionSchemas,
 ];
 
 // The general blocks on their own. A saved section accepts these but NOT a
@@ -689,25 +699,34 @@ export const SECTION_MARKER_TYPES = [
   'eDesignSectionMarker',
 ];
 
+// The builder kit (refoundation phase B, 2026-10-28) adds its blocks by name
+// through withSiteGroups(): BUILDER_INSERT_GROUPS in builderSections.ts puts
+// the small text blocks beside text, and brings four groups of its own (Rooms
+// and photos, Notes and notices, Fold-outs and tabs, Contact and booking). The
+// spacing and saved groups stay last.
+const BASE_INSERT_GROUPS = [
+  { name: 'built-in', title: 'Built-in sections', of: SECTION_MARKER_TYPES },
+  { name: 'banners', title: 'Banners and buttons', of: ['heroSection', 'ctaBandSection'] },
+  {
+    name: 'words',
+    title: 'Text, quotes and numbers',
+    of: ['richTextSection', 'quoteSection', 'statSection'],
+  },
+  {
+    name: 'photos',
+    title: 'Photos and video',
+    of: ['imageTextSection', 'gallerySection', 'videoSection', 'instagramSection'],
+  },
+  { name: 'proof', title: 'Reviews and press', of: ['pressSection'] },
+];
+const TAIL_INSERT_GROUPS = [
+  { name: 'spacing', title: 'Space between sections', of: ['spacerSection'] },
+  { name: 'saved', title: 'Saved and synced', of: ['syncedSection'] },
+];
+
 export const SECTION_INSERT_MENU: InsertMenuOptions = {
   filter: true,
-  groups: [
-    { name: 'built-in', title: 'Built-in sections', of: SECTION_MARKER_TYPES },
-    { name: 'banners', title: 'Banners and buttons', of: ['heroSection', 'ctaBandSection'] },
-    {
-      name: 'words',
-      title: 'Text, quotes and numbers',
-      of: ['richTextSection', 'quoteSection', 'statSection'],
-    },
-    {
-      name: 'photos',
-      title: 'Photos and video',
-      of: ['imageTextSection', 'gallerySection', 'videoSection', 'instagramSection'],
-    },
-    { name: 'proof', title: 'Reviews and press', of: ['pressSection'] },
-    { name: 'spacing', title: 'Space between sections', of: ['spacerSection'] },
-    { name: 'saved', title: 'Saved and synced', of: ['syncedSection'] },
-  ],
+  groups: [...withSiteGroups(BASE_INSERT_GROUPS, BUILDER_INSERT_GROUPS), ...TAIL_INSERT_GROUPS],
   // Grid first, so the picker opens on pictures of each block in Reid
   // Design's own look; the list view stays one click away with the search box.
   views: [{ name: 'grid', previewImageUrl: sectionThumbnailUrl }, { name: 'list' }],
