@@ -1976,6 +1976,7 @@ export type EDesignPage = {
     alt?: string;
     _type: 'image';
   };
+  heroStyle?: 'standard' | 'photo';
   heroScriptAccent?: string;
   intro?: Array<{
     children?: Array<{
@@ -2504,6 +2505,7 @@ export type ServicesPage = {
     alt?: string;
     _type: 'image';
   };
+  heroStyle?: 'standard' | 'photo';
   heroScriptAccent?: string;
   stickyCtaLabel?: string;
   servicesListEyebrow?: string;

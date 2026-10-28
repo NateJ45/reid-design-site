@@ -408,6 +408,7 @@ export async function getServicesPage(c: SanityClient = client) {
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
+    heroStyle,
     stickyCtaLabel,
     servicesListEyebrow, servicesListHeadline, servicesListSubhead,
     "services": *[_type == "service"] | order(orderRank asc, displayOrder asc),
@@ -581,6 +582,7 @@ export async function getEDesignPage(c: SanityClient = client) {
     heroEyebrow, heroHeadline, heroSubhead,
     heroImage${IMAGE_PROJECTION},
     heroScriptAccent,
+    heroStyle,
     intro,
     howItWorks[]{
       stepNumber, title, body

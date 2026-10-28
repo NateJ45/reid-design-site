@@ -59,6 +59,8 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
   // Card 196: street, ZIP and opening hours are published only when an editor has typed them AND
   // left them confirmed. Empty data adds nothing, so the markup is unchanged until then.
   const facts = resolveBusinessFacts(s);
+  // Street and hours need an explicit tick on Reid (phase D, 2026-10-28; card 196 riders).
+  const strictFacts = resolveBusinessFacts(s, { strict: true });
   const schema: Record<string, any> = {
     '@context': 'https://schema.org',
     '@type': 'InteriorDesigner',
@@ -73,8 +75,10 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
       // fallback so the NAP data is identical until/unless she changes it.
       addressLocality: s.city ?? 'Plainfield',
       addressRegion: s.state ?? 'IN',
-      ...(facts.address?.confirmed ? { streetAddress: facts.address.street } : {}),
-      ...(facts.address?.confirmed && facts.address.zip ? { postalCode: facts.address.zip } : {}),
+      ...(strictFacts.address?.confirmed ? { streetAddress: strictFacts.address.street } : {}),
+      ...(strictFacts.address?.confirmed && strictFacts.address.zip
+        ? { postalCode: strictFacts.address.zip }
+        : {}),
       addressCountry: 'US',
     },
     // Studio coordinates from businessInfo (Staci-editable). Falls back to the
@@ -105,7 +109,10 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
   if (s.phone && s.phoneConfirmed !== false) schema.telephone = s.phone;
   if (facts.email && !facts.email.confirmed) delete schema.email;
   // Opening hours: confirmed rows only, plus dated changes still to come. None typed, none emitted.
-  const hours = openingHoursSpecification(facts.hours, zonedClock(new Date(), site.timeZone).date);
+  const hours = openingHoursSpecification(
+    strictFacts.hours,
+    zonedClock(new Date(), site.timeZone).date,
+  );
   if (hours.length > 0) schema.openingHoursSpecification = hours;
   return JSON.stringify(schema);
 }

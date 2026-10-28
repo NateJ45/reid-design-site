@@ -49,8 +49,8 @@ const email = ownEmail || (loose.email?.confirmed ? loose.email.address : '');
 const ownPlace = eventPlace(block.address);
 const place =
   ownPlace ??
-  (loose.address?.confirmed
-    ? { lines: loose.address.lines, mapsUrl: loose.address.mapsUrl }
+  (strict.address?.confirmed
+    ? { lines: strict.address.lines, mapsUrl: strict.address.mapsUrl }
     : null);
 const ownHours = plain(block.hours)
   .split(/\r?\n/)

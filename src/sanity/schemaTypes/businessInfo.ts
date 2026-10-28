@@ -67,8 +67,8 @@ export const businessInfo = defineType({
       title: 'The address is confirmed',
       type: 'boolean',
       description:
-        'Untick while the street address is still a guess: the footer hides the street and search engines do not get it until you tick it again.',
-      initialValue: true,
+        'Tick once the street address is confirmed. Until it is ticked, the footer, the contact details block and search engines leave the street out.',
+      initialValue: false,
       hidden: ({ document }) => !document?.street,
     }),
     defineField({
@@ -202,8 +202,8 @@ export const businessInfo = defineType({
               title: 'These hours are confirmed',
               type: 'boolean',
               description:
-                'Untick while they are a guess: they stay off the site and out of search results until you tick this again.',
-              initialValue: true,
+                'Tick once these hours are confirmed. Until every row is ticked, the hours stay off the site and out of search results.',
+              initialValue: false,
             }),
           ],
           preview: {

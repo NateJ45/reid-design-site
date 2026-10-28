@@ -60,6 +60,7 @@ const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
     headingId="services-hero-heading"
     size="short"
     scriptAccent={page?.heroScriptAccent ?? 'reveal'}
+    heroStyle={page?.heroStyle}
   />
 ) : section === 'servicesList' ? (
   <ServicesList

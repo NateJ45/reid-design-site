@@ -2,6 +2,11 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-28: Refoundation phase D, PR 3: photo hero on Services and E-Design, facts held until ticked
+
+- Starter card 189, opt-in: `heroStyle` (Opening style: Standard or Photo behind the words) on `servicesPage` and `eDesignPage`, fetched by their queries and passed to `Hero.astro` from `ServicesMarkers.astro`, `e-design.astro` and the preview route. Unset on both live pages, so nothing moved (full-page screenshots of every route at 375 and 1280: 0 pixels; parity: Services differs only by a CSS chunk name, same CSS). Wall `/styleguide/photo-hero/services/` renders the real Services hero marker in the photo style. The accent word is not drawn in the photo style (PhotoHero has none); the field help says so.
+- Card 196 riders: the footer's Visit and Hours rows, the contact details block's address and the LocalBusiness street, ZIP and hours now resolve strictly (an explicit tick), and `addressConfirmed` and each hours row's `confirmed` start unticked. Phone and email keep the old rule (they are live). Business info is empty today, so nothing changed live.
+
 ## 2026-10-28: Refoundation phase D, PR 2: the one scale and the shape contract
 
 - Starter card 188, partial: "The one scale" in `globals.css` names Reid's existing values (text, leading, figures, square corners, card and frame spacing, shadows, the tag button, the focus ring); `.r-btn`, `.r-h3`, `.r-lede`, `.r-frame__cap`, the heading base rule, `.card-lift:hover` and the gallery's gaps read them. Full-page screenshots of all 19 built routes at 375 and 1280, before and after: 0 pixels differ outside `/styleguide/sections/` (the wide photo's new frame). Parity 18/19, the same one page.
