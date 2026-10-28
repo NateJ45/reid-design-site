@@ -20,7 +20,7 @@
 //
 // Both variants share generous padding, uppercase tracking, and a 44×44 minimum tap target.
 
-import { resolveCtaHref, ctaOpensNewTab, type CtaBlock } from '@/lib/cta';
+import { resolveCtaHref, ctaOpensNewTab, isEmptyCta, type CtaBlock } from '@/lib/cta';
 
 interface Props {
   cta?: CtaBlock | null;
@@ -47,6 +47,9 @@ const {
 const href = resolveCtaHref(cta, fallbackHref);
 const label = cta?.label ?? fallbackLabel;
 const newTab = ctaOpensNewTab(cta);
+// A button object with nothing filled in (an optional button left empty) draws nothing, rather
+// than the fallback label (starter card 178). No cta at all still takes the fallbacks.
+const isEmpty = isEmptyCta(cta);
 
 // Rebuilt 2026-09-29: every CMS button on the site is now one of the rebuild
 // primitives in src/styles/reid.css. Primary = the ink pill (cream pill on a
@@ -57,16 +60,18 @@ const variantClasses =
   variant === 'primary' ? (onDark ? 'r-btn r-btn--cream' : 'r-btn r-btn--ink') : 'r-link';
 ---
 
-<a
-  href={href}
-  class:list={[variantClasses, extraClass]}
-  target={newTab ? '_blank' : undefined}
-  rel={newTab ? 'noopener noreferrer' : undefined}
->
-  {label}
-  {variant === 'primary' && (
-    <span class="r-arrow" aria-hidden="true">
-      →
-    </span>
-  )}
-</a>
+{!isEmpty && (
+  <a
+    href={href}
+    class:list={[variantClasses, extraClass]}
+    target={newTab ? '_blank' : undefined}
+    rel={newTab ? 'noopener noreferrer' : undefined}
+  >
+    {label}
+    {variant === 'primary' && (
+      <span class="r-arrow" aria-hidden="true">
+        →
+      </span>
+    )}
+  </a>
+)}

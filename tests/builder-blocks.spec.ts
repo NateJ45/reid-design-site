@@ -64,7 +64,8 @@ test.describe('builder kit', () => {
   test('a Feature block is painted as the ink band', async ({ page }) => {
     await page.goto(LOOKS, { waitUntil: 'load' });
     const ink = page.locator('section.r-inkband');
-    await expect(ink).toHaveCount(2);
+    // The columns, the buttons and (phase D) the Feature gallery.
+    await expect(ink).toHaveCount(3);
     await expect(ink.first()).toHaveAttribute('data-builder-block', 'columnsSection');
     const bg = await ink.first().evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(bg).toBe('rgb(35, 30, 27)');

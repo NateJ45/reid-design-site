@@ -2,6 +2,13 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-28: Refoundation phase D, PR 1: photo viewer on the gallery, empty buttons, whole-word accent
+
+- Starter card 124: the gallery block (`GalleryGrid.astro`) wraps every photo in `LightboxLink` with `data-lightbox-group` on the grid and `<Lightbox />` once, so a photo opens the starter viewer and steps through that gallery only. `lightbox.css` is linked once per page by GalleryGrid or PhotoBlock (`firstOnPage` key `lightbox`), no longer by BuilderBlock for every block. Room stories keep YARL (`ProjectGallery.tsx`). The PORTABLE `tests/lightbox.spec.ts` runs on `/styleguide/looks/`, which gained a Standard and a Feature gallery and a hidden h1. On the ink band a caption tag keeps its ink text (`.r-inkband .r-tag` in `reid.css`; axe caught cream on paper).
+- Starter card 178: `ctaBlock` requires its words and link type only once any part of the button is filled in, and `openInNewTab` has no initial value, so a new block with an optional button (the steps rail's closing button) no longer blocks Publish. `CtaLink` draws nothing for an empty button object (`isEmptyCta` in `src/lib/cta.ts`); an empty hero or CTA band button no longer holds the page's filled button. Live data had no empty button objects.
+- Starter card 200: `splitScriptAccent` matches whole words only (letters and digits on either side end a match), still case-sensitive for the in-canvas picker. Help text on every accent field says so. No live heading changed (10 accent pairs scanned).
+- Parity: every live page PASS; `styleguide/looks` and `styleguide/sections` differ by the gallery viewer only.
+
 ## 2026-10-28: Refoundation phase C, one loop for the marker pages
 
 - `MarkerPage.astro` replaces the five per-page renderers (Home, About, Services, Process, E-Design). Each page keeps its marker components in a marker map, `src/components/<Page>Markers.astro`, and its default order, retired values (`featuredJournal`, `press`) and auto-placed markers (`roomStory`, `instagram`, `kindWords`) in `MARKER_PAGES` (`src/lib/marker-pages.ts`); `marker-pages.test.ts` holds those to the schemas and the maps.

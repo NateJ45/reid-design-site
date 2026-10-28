@@ -100,7 +100,7 @@ export const portfolioPage = defineType({
       type: 'string',
       group: 'hero',
       description:
-        'A single word from the headline to render in handwritten Pinyon Script. Must match exactly (case-sensitive). Leave blank to skip.',
+        'A single word from the headline to render in handwritten Pinyon Script. Use a whole word, spelled and capitalized as in the headline. Leave blank to skip.',
     }),
 
     // ── Before & After sub-page (/portfolio/before-after) ──────────────────

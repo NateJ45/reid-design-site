@@ -15,6 +15,15 @@ export interface CtaBlock {
   openInNewTab?: boolean | null;
 }
 
+/**
+ * True for a button OBJECT with nothing filled in (an optional button an editor left empty,
+ * starter card 178): it draws nothing and cannot hold the page's one filled button. No object
+ * at all (undefined / null) is NOT empty: CtaLink then still draws its fallbacks.
+ */
+export function isEmptyCta(c: CtaBlock | null | undefined): boolean {
+  return c != null && !c.label && !c.linkType;
+}
+
 const TYPE_TO_PATH: Record<string, string> = {
   homePage: '/',
   aboutPage: '/about/',

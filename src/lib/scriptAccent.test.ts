@@ -53,4 +53,26 @@ describe('splitScriptAccent', () => {
   it('is case-sensitive, so a differently-cased accent does not match', () => {
     expect(splitScriptAccent('Feels Right', 'feels right').found).toBe(false);
   });
+
+  // Starter card 200: whole words only.
+  describe('whole-word matching', () => {
+    it('misses an accent that is only part of a longer word', () => {
+      expect(splitScriptAccent('Bedroom ideas', 'room').found).toBe(false);
+      expect(splitScriptAccent('Roomy and bright', 'Room').found).toBe(false);
+    });
+    it('skips a partial hit and takes a later whole word', () => {
+      const r = splitScriptAccent('A bedroom, a room', 'room');
+      expect(r.found).toBe(true);
+      expect(r.before).toBe('A bedroom, a ');
+      expect(r.after).toBe('');
+    });
+    it('treats punctuation as a boundary', () => {
+      expect(splitScriptAccent('Come home.', 'home').after).toBe('.');
+      expect(splitScriptAccent("Staci's rooms", 'Staci').found).toBe(true);
+    });
+    it('matches a phrase as whole words only', () => {
+      expect(splitScriptAccent('Rooms that feel like yours', 'feel like').found).toBe(true);
+      expect(splitScriptAccent('Rooms that feel likely', 'feel like').found).toBe(false);
+    });
+  });
 });

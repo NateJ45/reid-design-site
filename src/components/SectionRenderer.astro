@@ -56,7 +56,7 @@ import { sectionCoach } from '@/lib/section-coach';
 import { classifySections, isMarkerRow } from '@/lib/sectionCadence';
 import { sectionAnchors, sectionHeadingText } from '@/lib/section-anchors';
 import { primaryBudget, repeatsHeaderCta, type CtaVariant } from '@/lib/cta-budget';
-import { resolveCtaHref } from '@/lib/cta';
+import { isEmptyCta, resolveCtaHref } from '@/lib/cta';
 import { resolveChrome } from '@/lib/siteSettings';
 
 interface Props {
@@ -233,8 +233,9 @@ const drawsPrimary = (blk: any) => {
   // The contact card's big Call button is a tel: link, never a repeat of the header's.
   if (blk?._type === 'contactCardSection') return blk.callButtons === true;
   const draws =
-    (blk?._type === 'heroSection' && Boolean(blk.primaryCta)) ||
-    blk?._type === 'ctaBandSection' ||
+    // An empty button object draws nothing (CtaLink, starter card 178), so it cannot hold the accent.
+    (blk?._type === 'heroSection' && Boolean(blk.primaryCta) && !isEmptyCta(blk.primaryCta)) ||
+    (blk?._type === 'ctaBandSection' && !isEmptyCta(blk.cta)) ||
     (blk?._type === 'stepsRailSection' && Boolean(blk.link?.label));
   return draws && !repeatsHeaderCta(resolveCtaHref(mainCta(blk)), header);
 };
