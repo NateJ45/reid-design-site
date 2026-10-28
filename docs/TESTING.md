@@ -27,8 +27,8 @@ failure does not hide a build failure, and vice versa. The Playwright config
 serves an already-built `dist/client` when `PLAYWRIGHT_SKIP_BUILD` is set (CI
 shards only); unset, every local run still builds first.
 
-Three files are deliberately outside prettier's reach (see `.prettierignore`):
-`Hero.astro`, `HeroBackground.astro` and `BaseLayout.astro` nest a
+Two files are deliberately outside prettier's reach (see `.prettierignore`):
+`Hero.astro` and `BaseLayout.astro` nest a
 `<script is:inline>` inside a template expression, which prettier-plugin-astro
 cannot parse. Format those by hand. `scripts/sync-check.mjs` used to be a fourth
 for a different reason (it must stay byte-exact with the starter, and prettier

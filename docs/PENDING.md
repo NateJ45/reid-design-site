@@ -14,6 +14,12 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-28: refoundation phases D and E
+
+- [ ] **The photo style drops the script accent.** If Services or E-Design switches its opening banner to "Photo behind the words" (card 189, opt-in), `PhotoHero.astro` draws the headline without the script accent word. Decide with Staci whether that is fine for a photo banner, or teach `PhotoHero` the accent (a starter-side change: the file is shared with the family).
+- [ ] **`audit:data` (2026-10-28)** reports two things, both left alone: the `eDesignPage.finalCta.internalPage` orphan (item below, still to decide) and documents of type `trashedItem`, the Studio's own trash records (no schema type by design; nothing to fix unless the audit should learn to skip them).
+- [x] **Refoundation finished (phase E, 2026-10-28):** dead code deleted, four byte-identical starter files marked PORTABLE (sync-check 244 same, 0 drift), `scripts/.parity` recaptured (20 routes), CLAUDE.md rules 15 and 16, page-architecture and DESIGN.md "Blocks" updated.
+
 ### From 2026-10-28: refoundation phase B (looks and the builder kit)
 
 - [ ] Three draft saved sections wait in the Studio (Saved sections: "Season: Booking notice with dates", "What a consultation includes", "A note from Staci"). Each holds [Placeholder: ...] lines only Staci can fill (her dates, what her visits include, her own letter). They stay drafts until she rewrites and publishes them.
@@ -595,11 +601,9 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   last section): the true E-Design price, the $225 visit length and written-plan
   promise, the 60-day credit, and a first room-story client. The fan-deck price
   ladder, the $225 page and the room story wait on them.
-- **Dead code after phase 2:** `HeroBackground.astro`,
-  `sections/ProcessPreview.astro`, `sections/MeetStaci.astro`,
-  `sections/HomeServices.astro`, `sections/HomeTestimonials.astro`,
-  `ui/accordion.tsx`, the `.step-connector` CSS + its BaseLayout observer.
-  Confirm nothing imports each, then delete in one commit.
+- **Dead code after phase 2: DONE 2026-10-28** (refoundation phase E): all of
+  it deleted in one commit, with the hero slideshow CSS that only
+  `HeroBackground.astro` used.
 - **Remove the unused @fontsource packages** (cormorant-garamond, pinyon-script,
   source-sans-3 variable, and now the static `@fontsource/source-sans-3` too: the
   share cards moved to Zodiak and General Sans on 2026-09-30). Check nothing
@@ -612,7 +616,8 @@ templates) went live 2026-09-30 via PR #58 (3c17ab8). Left:
   or process steps. Staging was fixed on `claude/redesign` (2026-09-29) by
   passing `SANITY_AUTH_TOKEN` as `SANITY_API_READ_TOKEN`; do the same for the
   CI build/Playwright job and the Lighthouse job so the gates see real pages.
-- **Parity baselines** (`scripts/.parity`) will differ everywhere after the
+- **Parity baselines: DONE 2026-10-28** (refoundation phase E, 20 routes
+  recaptured from the post-cleanup build). Was: (`scripts/.parity`) will differ everywhere after the
   rebuild by design. Recapture them from the merged build, after checking the
   static build still carries no `data-sanity` attributes (checked 2026-09-29:
   none).

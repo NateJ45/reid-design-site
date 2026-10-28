@@ -33,7 +33,7 @@
 import type { Template } from 'sanity';
 // Icons by meaning from the brand registry (PORTS.md card 119), so a template
 // wears the same picture as its type everywhere else in the Studio.
-import { brandIcon, typeIcon } from './brandIcons';
+import { typeIcon } from './brandIcons';
 
 /** One paragraph of Portable Text. */
 const para = (key: string, text: string) => ({
@@ -51,15 +51,6 @@ const heading = (key: string, text: string) => ({
   style: 'h2',
   markDefs: [],
   children: [{ _type: 'span', _key: `${key}-s`, marks: [], text }],
-});
-
-/** A button that goes to the Contact page. */
-const contactButton = (label: string) => ({
-  _type: 'ctaBlock',
-  label,
-  linkType: 'internal',
-  internalLink: { _type: 'reference', _ref: 'contactPage' },
-  openInNewTab: false,
 });
 
 export const STARTING_TEMPLATES: Template[] = [

@@ -367,12 +367,6 @@ export interface AccentTarget {
   accentPath: PathSegment[];
 }
 
-/** True when this value looks like an image object with something in it. */
-function hasImage(value: unknown): boolean {
-  if (Array.isArray(value)) return value.some((item) => hasImage(item));
-  return !!(value as { asset?: unknown } | null)?.asset;
-}
-
 /**
  * Would the hero this heading belongs to actually DRAW the accent?
  *

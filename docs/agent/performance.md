@@ -47,7 +47,7 @@ Use `<SanityImage />`'s `width` prop to drive these. **Never request larger than
 
 ### Hero slideshow (2026-09-29)
 
-> The slideshow bullet describes `Hero.astro` / `HeroBackground.astro`. The rebuilt home page uses `HomeHero.astro` (a single `heroPortrait` image) instead; the slideshow lever now applies only where `Hero.astro` is still used.
+> History only: `HeroBackground.astro` and the slideshow CSS were deleted in refoundation phase E (2026-10-28); nothing drew them. The slideshow bullet describes `Hero.astro` / `HeroBackground.astro`. The rebuilt home page uses `HomeHero.astro` (a single `heroPortrait` image) instead; the slideshow lever now applies only where `Hero.astro` is still used.
 
 - **Only the first hero slide loads before the page does.** With 2+ hero images, `HeroBackground.astro` renders every slide after the first with `SanityImage`'s `defer` prop: no `src`, URLs parked in `data-src` / `data-srcset`, moved across 800ms after the load event. `loading="lazy"` never held them back, because every slide is stacked inside the viewport; on the mobile Lighthouse run all six extra slides (about 225KB) downloaded next to the LCP photo and the fonts. The slideshow timer also refuses to fade to a slide whose image has not arrived, and reduced-motion visitors never fetch the extra slides at all.
 - **No Lenis (removed 2026-09-30).** It had been limited to wheel devices since 2026-09-29; now no device loads it, which also drops its ~10KB idle chunk.

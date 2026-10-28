@@ -2,6 +2,14 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-28: Refoundation phase E, cleanup
+
+- Deleted what nothing imported: `HeroBackground.astro` (and the hero slideshow CSS only it used), `sections/HomeServices`, `HomeTestimonials`, `MeetStaci`, `ProcessPreview`, `ui/accordion.tsx`, the `.step-connector` CSS and its BaseLayout observer, plus three unused locals (`hasImage` in `section-fields.ts`, `contactButton` and the `brandIcon` import in `templates.ts`). No inline cadence was left in `SectionRenderer.astro`.
+- PORTABLE markers on the four starter files Reid already carried byte for byte apart from the header line: `phone.ts`, `portable-text-headings.ts`, `slugify.ts`, `utils.ts`. `sync-check` against starter `main`: 244 same, 0 drift.
+- Parity: a build of `main` against the new baselines differs only in the BaseLayout module script (the observer that went); `scripts/.parity` recaptured from this build (20 routes, the styleguide walls included, was 13 and stale).
+- `audit:data`: the `eDesignPage.finalCta.internalPage` orphan stays a PENDING item; `trashedItem` documents are the Studio's own trash.
+- Docs: CLAUDE.md rules 15 (no colour field, `look` the one exception) and 16 (layout variants), the refoundation in five lines; page-architecture "Phases D and E"; DESIGN.md "Blocks" names the cadence file, looks, the builder kit and the opt-in photo hero.
+
 ## 2026-10-28: Refoundation phase D, PR 3: photo hero on Services and E-Design, facts held until ticked
 
 - Starter card 189, opt-in: `heroStyle` (Opening style: Standard or Photo behind the words) on `servicesPage` and `eDesignPage`, fetched by their queries and passed to `Hero.astro` from `ServicesMarkers.astro`, `e-design.astro` and the preview route. Unset on both live pages, so nothing moved (full-page screenshots of every route at 375 and 1280: 0 pixels; parity: Services differs only by a CSS chunk name, same CSS). Wall `/styleguide/photo-hero/services/` renders the real Services hero marker in the photo style. The accent word is not drawn in the photo style (PhotoHero has none); the field help says so.

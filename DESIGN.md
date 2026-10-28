@@ -454,7 +454,10 @@ portfolio templates are ready for the day the first `project` exists.
   (`muted`); a page that opens with a hero starts on paper. A quote takes the
   ink band unless a neighbour is another quote or a CTA band, or it is the last
   row (it could touch the ink footer). Spacers and dividers take the ground of
-  the row above. All decided in `SectionRenderer`, never by the block.
+  the row above. All decided by `src/lib/sectionCadence.ts` (called from
+  `SectionRenderer`), never by the block. The one choice an editor has is
+  `look` (refoundation phase B): Standard (the rhythm), Quiet (always linen)
+  or Feature (the ink band, only where no neighbour is already dark).
 - `RichTextSection`: normal width with a heading is an editorial split on
   desktop (heading left, sticky; body right at ~64ch, first paragraph as a
   Zodiak lede). Narrow is one column at a book measure; centred centres it.
@@ -486,6 +489,17 @@ portfolio templates are ready for the day the first `project` exists.
 - `SectionDivider`: `ornament` is the logo's leaf sprig in Warm Bronze
   (drawing itself in on scroll where supported); `line` is a hairline with a
   punched hole.
+- The builder kit (refoundation phase B, 2026-10-28; `src/components/builder-blocks/`):
+  text in columns, a row of buttons or link cards, one wide photo, fold-out
+  questions, tabs, a dated notice strip, a timeline, a letter, cards with
+  photos, contact details, steps on a path, and groups of cards with an index.
+  Reid's vocabulary only: square photo corners, hairlines, Zodiak titles, the
+  ink tag button and the underline link, paint-chip markers and badges. Their
+  CSS is linked only on a page that uses one. Walls: `/styleguide/sections/`
+  and `/styleguide/looks/`.
+- Opening styles: the hero block keeps the framed crop by default; Services and
+  E-Design may choose "Photo behind the words" (phase D, card 189), which an
+  editor switches on per page.
 - `PortableText` (every rich-text field): headings at body scale in Zodiak
   Light (h4 a General Sans label), ink links with a bronze underline, quotes
   in Zodiak italic off a bronze rule, square-cornered photos.
