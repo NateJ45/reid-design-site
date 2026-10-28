@@ -34,6 +34,33 @@ export type SanityImageAssetReference = {
   [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
 };
 
+export type TimelineEntryImage = {
+  asset?: SanityImageAssetReference;
+  media?: unknown; // Unable to locate the referenced type "timelineEntry.image.media" in schema
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  alt?: string;
+  _type: 'image';
+};
+
+export type PhotoCardImage = {
+  asset?: SanityImageAssetReference;
+  media?: unknown; // Unable to locate the referenced type "photoCard.image.media" in schema
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  alt?: string;
+  _type: 'image';
+};
+
+export type HubCardImage = {
+  asset?: SanityImageAssetReference;
+  media?: unknown; // Unable to locate the referenced type "hubCard.image.media" in schema
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  alt?: string;
+  _type: 'image';
+};
+
 export type PressMention = {
   _id: string;
   _type: 'pressMention';
@@ -1105,8 +1132,324 @@ export type SectionPreset = {
     | ({
         _key: string;
       } & PressSection)
+    | ({
+        _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
   >;
   note?: string;
+};
+
+export type HubSection = {
+  _type: 'hubSection';
+  heading?: string;
+  intro?: string;
+  groups?: Array<{
+    title?: string;
+    line?: string;
+    cards?: Array<{
+      image?: HubCardImage;
+      icon?:
+        | 'home'
+        | 'heart'
+        | 'star'
+        | 'calendar'
+        | 'clock'
+        | 'map-pin'
+        | 'phone'
+        | 'mail'
+        | 'chat'
+        | 'users'
+        | 'book'
+        | 'coffee'
+        | 'gift'
+        | 'leaf'
+        | 'tool'
+        | 'door'
+        | 'check';
+      title?: string;
+      label?: string;
+      when?: string;
+      place?: string;
+      body?: string;
+      link?: CtaBlock;
+      _type: 'hubCard';
+      _key: string;
+    }>;
+    _type: 'hubGroup';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet';
+};
+
+export type StepsRailSection = {
+  _type: 'stepsRailSection';
+  heading?: string;
+  intro?: string;
+  steps?: Array<{
+    icon?:
+      | 'home'
+      | 'heart'
+      | 'star'
+      | 'calendar'
+      | 'clock'
+      | 'map-pin'
+      | 'phone'
+      | 'mail'
+      | 'chat'
+      | 'users'
+      | 'book'
+      | 'coffee'
+      | 'gift'
+      | 'leaf'
+      | 'tool'
+      | 'door'
+      | 'check';
+    title?: string;
+    body?: string;
+    link?: CtaBlock;
+    _type: 'railStep';
+    _key: string;
+  }>;
+  firstStepCard?: boolean;
+  endHeading?: string;
+  link?: CtaBlock;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type ContactCardSection = {
+  _type: 'contactCardSection';
+  heading?: string;
+  intro?: string;
+  callButtons?: boolean;
+  phone?: string;
+  email?: string;
+  address?: string;
+  hours?: string;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type PhotoCardsSection = {
+  _type: 'photoCardsSection';
+  heading?: string;
+  intro?: string;
+  cards?: Array<{
+    image?: PhotoCardImage;
+    title?: string;
+    body?: string;
+    link?: CtaBlock;
+    _type: 'photoCard';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type LetterSection = {
+  _type: 'letterSection';
+  eyebrow?: string;
+  greeting?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: 'span';
+      _key: string;
+    }>;
+    style?: 'normal';
+    listItem?: never;
+    markDefs?: null;
+    level?: number;
+    _type: 'block';
+    _key: string;
+  }>;
+  signOff?: string;
+  signature?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  name?: string;
+  role?: string;
+  link?: CtaBlock;
+  look?: 'standard' | 'quiet';
+};
+
+export type TimelineSection = {
+  _type: 'timelineSection';
+  heading?: string;
+  intro?: string;
+  entries?: Array<{
+    year?: string;
+    title?: string;
+    text?: string;
+    image?: TimelineEntryImage;
+    _type: 'timelineEntry';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type NoticeSection = {
+  _type: 'noticeSection';
+  message?: string;
+  urgency?: 'info' | 'urgent';
+  label?: string;
+  link?: CtaBlock;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type TabsSection = {
+  _type: 'tabsSection';
+  heading?: string;
+  intro?: string;
+  tabs?: Array<{
+    label?: string;
+    body?: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: 'span';
+        _key: string;
+      }>;
+      style?: 'normal';
+      listItem?: 'bullet' | 'number';
+      markDefs?: Array<{
+        href?: string;
+        _type: 'link';
+        _key: string;
+      }>;
+      level?: number;
+      _type: 'block';
+      _key: string;
+    }>;
+    _type: 'tabPanel';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type AccordionSection = {
+  _type: 'accordionSection';
+  heading?: string;
+  intro?: string;
+  items?: Array<{
+    question?: string;
+    answer?: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: 'span';
+        _key: string;
+      }>;
+      style?: 'normal';
+      listItem?: 'bullet' | 'number';
+      markDefs?: Array<{
+        href?: string;
+        _type: 'link';
+        _key: string;
+      }>;
+      level?: number;
+      _type: 'block';
+      _key: string;
+    }>;
+    _type: 'accordionItem';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type PhotoSection = {
+  _type: 'photoSection';
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  caption?: string;
+  look?: 'standard' | 'quiet';
+};
+
+export type ButtonRowSection = {
+  _type: 'buttonRowSection';
+  heading?: string;
+  intro?: string;
+  layout?: 'buttons' | 'cards';
+  links?: Array<{
+    link?: CtaBlock;
+    note?: string;
+    _type: 'quickLink';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet' | 'feature';
+};
+
+export type ColumnsSection = {
+  _type: 'columnsSection';
+  heading?: string;
+  intro?: string;
+  textColumns?: Array<{
+    heading?: string;
+    body?: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: 'span';
+        _key: string;
+      }>;
+      style?: 'normal';
+      listItem?: 'bullet' | 'number';
+      markDefs?: Array<{
+        href?: string;
+        _type: 'link';
+        _key: string;
+      }>;
+      level?: number;
+      _type: 'block';
+      _key: string;
+    }>;
+    _type: 'textColumn';
+    _key: string;
+  }>;
+  look?: 'standard' | 'quiet' | 'feature';
 };
 
 export type PressSection = {
@@ -1131,6 +1474,7 @@ export type VideoSection = {
   url?: string;
   heading?: string;
   caption?: string;
+  look?: 'standard' | 'quiet' | 'feature';
 };
 
 export type CtaBandSection = {
@@ -1167,6 +1511,7 @@ export type QuoteSection = {
   quote?: string;
   attribution?: string;
   detail?: string;
+  look?: 'standard' | 'quiet';
 };
 
 export type GallerySection = {
@@ -1183,6 +1528,7 @@ export type GallerySection = {
     _key: string;
   }>;
   columns?: 2 | 3 | 4;
+  look?: 'standard' | 'quiet' | 'feature';
 };
 
 export type ImageTextSection = {
@@ -1217,6 +1563,7 @@ export type ImageTextSection = {
     _key: string;
   }>;
   cta?: CtaBlock;
+  look?: 'standard' | 'quiet' | 'feature';
 };
 
 export type RichTextSection = {
@@ -1244,6 +1591,7 @@ export type RichTextSection = {
   }>;
   width?: 'normal' | 'narrow';
   align?: 'left' | 'center';
+  look?: 'standard' | 'quiet' | 'feature';
 };
 
 export type SanityFileAssetReference = {
@@ -1368,6 +1716,42 @@ export type PrivacyPage = {
       } & PressSection)
     | ({
         _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
+    | ({
+        _key: string;
       } & SyncedSection)
   >;
 };
@@ -1441,6 +1825,42 @@ export type PortfolioPage = {
       } & PressSection)
     | ({
         _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
+    | ({
+        _key: string;
       } & SyncedSection)
   >;
 };
@@ -1505,6 +1925,42 @@ export type EDesignPage = {
     | ({
         _key: string;
       } & PressSection)
+    | ({
+        _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
     | ({
         _key: string;
       } & SyncedSection)
@@ -1634,6 +2090,42 @@ export type Page = {
       } & PressSection)
     | ({
         _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
+    | ({
+        _key: string;
       } & SyncedSection)
   >;
   addToMainNav?: boolean;
@@ -1749,6 +2241,42 @@ export type ContactPage = {
       } & PressSection)
     | ({
         _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
+    | ({
+        _key: string;
       } & SyncedSection)
   >;
 };
@@ -1832,6 +2360,42 @@ export type FaqPage = {
       } & PressSection)
     | ({
         _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
+    | ({
+        _key: string;
       } & SyncedSection)
   >;
 };
@@ -1889,6 +2453,42 @@ export type ServicesPage = {
     | ({
         _key: string;
       } & PressSection)
+    | ({
+        _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
     | ({
         _key: string;
       } & SyncedSection)
@@ -2006,6 +2606,42 @@ export type ProcessPage = {
       } & PressSection)
     | ({
         _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
+    | ({
+        _key: string;
       } & SyncedSection)
   >;
   heroEyebrow?: string;
@@ -2090,6 +2726,42 @@ export type AboutPage = {
     | ({
         _key: string;
       } & PressSection)
+    | ({
+        _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
     | ({
         _key: string;
       } & SyncedSection)
@@ -2251,6 +2923,42 @@ export type HomePage = {
     | ({
         _key: string;
       } & PressSection)
+    | ({
+        _key: string;
+      } & ColumnsSection)
+    | ({
+        _key: string;
+      } & ButtonRowSection)
+    | ({
+        _key: string;
+      } & PhotoSection)
+    | ({
+        _key: string;
+      } & AccordionSection)
+    | ({
+        _key: string;
+      } & TabsSection)
+    | ({
+        _key: string;
+      } & NoticeSection)
+    | ({
+        _key: string;
+      } & TimelineSection)
+    | ({
+        _key: string;
+      } & LetterSection)
+    | ({
+        _key: string;
+      } & PhotoCardsSection)
+    | ({
+        _key: string;
+      } & ContactCardSection)
+    | ({
+        _key: string;
+      } & StepsRailSection)
+    | ({
+        _key: string;
+      } & HubSection)
     | ({
         _key: string;
       } & SyncedSection)
@@ -2698,6 +3406,9 @@ export type Geopoint = {
 export type AllSanitySchemaTypes =
   | Glance
   | SanityImageAssetReference
+  | TimelineEntryImage
+  | PhotoCardImage
+  | HubCardImage
   | PressMention
   | SanityImageCrop
   | SanityImageHotspot
@@ -2735,6 +3446,18 @@ export type AllSanitySchemaTypes =
   | SectionPresetReference
   | SyncedSection
   | SectionPreset
+  | HubSection
+  | StepsRailSection
+  | ContactCardSection
+  | PhotoCardsSection
+  | LetterSection
+  | TimelineSection
+  | NoticeSection
+  | TabsSection
+  | AccordionSection
+  | PhotoSection
+  | ButtonRowSection
+  | ColumnsSection
   | PressSection
   | InstagramSection
   | SpacerSection

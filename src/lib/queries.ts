@@ -55,6 +55,26 @@ const SECTION_ARMS = `
     _type == "gallerySection" => {
       ...,
       images[]${IMAGE_PROJECTION}
+    },
+    // The builder kit (refoundation phase B, 2026-10-28): the blocks with pictures or
+    // buttons inside them. Columns, fold-outs, tabs and the contact card carry plain fields.
+    _type == "buttonRowSection" => { ..., links[]{ ..., link${CTA_PROJECTION} } },
+    _type == "photoSection" => { ..., image${IMAGE_PROJECTION} },
+    _type == "noticeSection" => { ..., link${CTA_PROJECTION} },
+    _type == "timelineSection" => { ..., entries[]{ ..., image${IMAGE_PROJECTION} } },
+    _type == "letterSection" => { ..., signature${IMAGE_PROJECTION}, link${CTA_PROJECTION} },
+    _type == "photoCardsSection" => {
+      ...,
+      cards[]{ ..., image${IMAGE_PROJECTION}, link${CTA_PROJECTION} }
+    },
+    _type == "stepsRailSection" => {
+      ...,
+      steps[]{ ..., link${CTA_PROJECTION} },
+      link${CTA_PROJECTION}
+    },
+    _type == "hubSection" => {
+      ...,
+      groups[]{ ..., cards[]{ ..., image${IMAGE_PROJECTION}, link${CTA_PROJECTION} } }
     }`;
 
 function sectionsProjection(field = 'pageBuilder') {

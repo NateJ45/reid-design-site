@@ -137,3 +137,98 @@ describe('classifySections (Reid fit)', () => {
     ]);
   });
 });
+
+// Phase B (2026-10-28): looks. Unset is Standard, so every case above is
+// unchanged; these pin what Quiet and Feature do with the neighbours in view.
+describe('looks (phase B)', () => {
+  const looks = (list: unknown[]) => classifySections(list).map((r) => r.look);
+
+  it('Feature takes the ink band without advancing the alternation', () => {
+    const list = [
+      b('richTextSection'),
+      b('columnsSection', { look: 'feature' }),
+      b('imageTextSection'),
+      b('gallerySection'),
+    ];
+    expect(surfaces(list)).toEqual(['background', 'ink', 'muted', 'background']);
+    expect(looks(list)).toEqual(['standard', 'feature', 'standard', 'standard']);
+  });
+
+  it('Feature falls back to Standard when last, or beside another dark band', () => {
+    expect(surfaces([b('richTextSection'), b('videoSection', { look: 'feature' })])).toEqual([
+      'background',
+      'muted',
+    ]);
+    const twin = [
+      b('richTextSection', { look: 'feature' }),
+      b('gallerySection', { look: 'feature' }),
+      b('richTextSection'),
+    ];
+    expect(surfaces(twin)).toEqual(['background', 'muted', 'background']);
+    expect(looks(twin)).toEqual(['standard', 'standard', 'standard']);
+    expect(surfaces([b('tabsSection', { look: 'feature' }), b('ctaBandSection')])).toEqual([
+      'background',
+      null,
+    ]);
+    expect(
+      surfaces([
+        b('heroSection', { heroStyle: 'photo' }),
+        b('accordionSection', { look: 'feature' }),
+        b('richTextSection'),
+      ]),
+    ).toEqual([null, 'muted', 'background']);
+  });
+
+  it('a Standard quote beside a Feature: neither takes ink', () => {
+    expect(
+      surfaces([b('quoteSection'), b('richTextSection', { look: 'feature' }), b('videoSection')]),
+    ).toEqual(['background', 'muted', 'background']);
+  });
+
+  it('Quiet is always linen and restarts the rhythm on paper', () => {
+    const list = [
+      b('richTextSection'),
+      b('imageTextSection', { look: 'quiet' }),
+      b('gallerySection'),
+      b('videoSection'),
+    ];
+    expect(surfaces(list)).toEqual(['background', 'background', 'muted', 'background']);
+    expect(looks(list)).toEqual(['standard', 'quiet', 'standard', 'standard']);
+  });
+
+  it('a Quiet quote stays on linen and counts as light for its neighbours', () => {
+    expect(
+      surfaces([
+        b('richTextSection'),
+        b('quoteSection', { look: 'quiet' }),
+        b('quoteSection'),
+        b('richTextSection'),
+      ]),
+    ).toEqual(['background', 'background', 'ink', 'muted']);
+  });
+
+  it('ignores a look a block does not offer, and stega on the value', () => {
+    expect(surfaces([b('quoteSection', { look: 'feature' }), b('richTextSection')])).toEqual([
+      'ink',
+      'background',
+    ]);
+    expect(
+      surfaces([
+        b('richTextSection'),
+        b('letterSection', { look: 'feature' }),
+        b('richTextSection'),
+      ]),
+    ).toEqual(['background', 'muted', 'background']);
+    expect(
+      surfaces([
+        b('richTextSection'),
+        b('columnsSection', { look: 'feature\u200b\u200c' }),
+        b('richTextSection'),
+      ]),
+    ).toEqual(['background', 'ink', 'muted']);
+  });
+
+  it('the dated notice is self-contained', () => {
+    expect(surfaces([b('noticeSection'), b('richTextSection')])).toEqual([null, 'background']);
+  });
+});

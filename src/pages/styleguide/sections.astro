@@ -138,6 +138,231 @@ const SECTIONS: Record<string, unknown>[] = [
     ],
   },
   { _type: 'instagramSection', _key: 'instagram' },
+  // The builder kit (refoundation phase B, 2026-10-28; builderSections.ts).
+  {
+    _type: 'columnsSection',
+    _key: 'columns',
+    heading: 'What a consultation covers',
+    textColumns: [
+      {
+        _key: 'c1',
+        heading: 'Color',
+        body: [para('c1p', 'Paint and fabric colors tried against your own light.')],
+      },
+      {
+        _key: 'c2',
+        heading: 'Furniture',
+        body: [para('c2p', 'What to keep, what to move, and what the room still needs.')],
+      },
+      {
+        _key: 'c3',
+        heading: 'Finishing',
+        body: [para('c3p', 'Rugs, lighting, art and the last few pieces.')],
+      },
+    ],
+  },
+  {
+    _type: 'buttonRowSection',
+    _key: 'buttons',
+    heading: 'Where to next',
+    layout: 'cards',
+    links: [
+      { _key: 'b1', note: 'Three ways to work together.', link: cta('See the services') },
+      { _key: 'b2', note: 'From the first visit to install day.', link: cta('How it works') },
+      { _key: 'b3', note: 'Rooms finished for clients.', link: cta('See the portfolio') },
+    ],
+  },
+  {
+    _type: 'photoSection',
+    _key: 'photo',
+    image: image('A finished living room with linen drapes'),
+    caption: 'A living room, finished.',
+  },
+  {
+    _type: 'accordionSection',
+    _key: 'accordion',
+    heading: 'Questions people ask',
+    items: [
+      {
+        _key: 'a1',
+        question: 'Do I have to buy everything new?',
+        answer: [para('a1p', 'No. Most plans work around the pieces you already love.')],
+      },
+      {
+        _key: 'a2',
+        question: 'How long does a visit take?',
+        answer: [para('a2p', 'About two hours in your home.')],
+      },
+      {
+        _key: 'a3',
+        question: 'Can we start with one room?',
+        answer: [para('a3p', 'Yes. One room is the usual start.')],
+      },
+    ],
+  },
+  {
+    _type: 'tabsSection',
+    _key: 'tabs',
+    heading: 'Ways to work together',
+    tabs: [
+      {
+        _key: 't1',
+        label: 'Consultation',
+        body: [
+          para('t1p', 'One visit, a written plan, and a shopping list you can follow on your own.'),
+        ],
+      },
+      {
+        _key: 't2',
+        label: 'Full design',
+        body: [
+          para('t2p', 'A plan for the room, the ordering, and the day it all comes together.'),
+        ],
+      },
+      {
+        _key: 't3',
+        label: 'E-Design',
+        body: [para('t3p', 'The same plan, worked out from your photos and measurements.')],
+      },
+    ],
+  },
+  {
+    _type: 'noticeSection',
+    _key: 'notice',
+    message: 'Spring consultations are booking now.',
+    link: cta('Book a consultation'),
+  },
+  {
+    _type: 'timelineSection',
+    _key: 'timeline',
+    heading: 'A room, start to finish',
+    entries: [
+      {
+        _key: 'e1',
+        year: 'Week 1',
+        title: 'The consultation',
+        text: 'A walk through the room and the way you use it.',
+      },
+      {
+        _key: 'e2',
+        year: 'Week 3',
+        title: 'The design plan',
+        text: 'Colors, furniture and the pieces to order.',
+        image: image('A design board'),
+      },
+      {
+        _key: 'e3',
+        year: 'Week 8',
+        title: 'Install day',
+        text: 'Everything placed, styled and finished.',
+      },
+    ],
+  },
+  {
+    _type: 'letterSection',
+    _key: 'letter',
+    eyebrow: 'A note from Staci',
+    greeting: 'Hello, and welcome,',
+    body: [
+      para(
+        'l1',
+        'A short note in your own words: why you love this work and what a client can expect.',
+      ),
+      para('l2', 'A second paragraph, if there is more to say.'),
+    ],
+    signOff: 'Warmly,',
+    name: 'Staci',
+    role: 'Owner and designer',
+  },
+  {
+    _type: 'photoCardsSection',
+    _key: 'photocards',
+    heading: 'Recent rooms',
+    cards: [
+      {
+        _key: 'p1',
+        image: image('A living room'),
+        title: 'Living room',
+        body: 'Linen, walnut and a lot of light.',
+        link: cta('See the room'),
+      },
+      {
+        _key: 'p2',
+        image: image('A dining room'),
+        title: 'Dining room',
+        body: 'A long table and softer lighting.',
+      },
+      {
+        _key: 'p3',
+        image: image('A bedroom'),
+        title: 'Bedroom',
+        body: 'Quiet colors and layered bedding.',
+      },
+    ],
+  },
+  {
+    _type: 'contactCardSection',
+    _key: 'contact',
+    heading: 'Get in touch',
+    // Fixture only: own words, so the wall never shows the live facts.
+    phone: '(317) 555-0142',
+    email: 'hello@example.com',
+    hours: 'Monday to Friday, by appointment',
+  },
+  {
+    _type: 'stepsRailSection',
+    _key: 'steps',
+    heading: 'How it works',
+    steps: [
+      { _key: 's1', title: 'Consultation', body: 'A visit in your home to talk through the room.' },
+      { _key: 's2', title: 'Design plan', body: 'Colors, furniture and a shopping list.' },
+      { _key: 's3', title: 'Ordering', body: 'The pieces ordered and tracked for you.' },
+      { _key: 's4', title: 'Install day', body: 'Everything placed and styled.' },
+    ],
+    endHeading: 'Ready when you are.',
+    link: cta('Book a consultation'),
+  },
+  {
+    _type: 'hubSection',
+    _key: 'hub',
+    heading: 'Ways to work together',
+    groups: [
+      {
+        _key: 'g1',
+        title: 'In your home',
+        line: 'Staci comes to you.',
+        cards: [
+          {
+            _key: 'h1',
+            image: image('A living room'),
+            title: 'Consultation',
+            label: 'One room',
+            body: 'A visit and a written plan.',
+          },
+          {
+            _key: 'h2',
+            icon: 'home',
+            title: 'Full design',
+            label: 'A room or more',
+            body: 'The plan, the ordering and install day.',
+          },
+        ],
+      },
+      {
+        _key: 'g2',
+        title: 'From anywhere',
+        cards: [
+          {
+            _key: 'h3',
+            icon: 'star',
+            title: 'E-Design',
+            label: 'Any room',
+            body: 'A plan from your photos and measurements.',
+          },
+        ],
+      },
+    ],
+  },
 ];
 ---
 

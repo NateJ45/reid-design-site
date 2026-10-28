@@ -437,3 +437,31 @@
   --pad-card: clamp(1.25rem, 1rem + 1vw, 1.75rem);
   --radius-card: 0;
 }
+
+/* ---- The ink band (refoundation phase B, 2026-10-28): the Feature look.
+   A content block an editor sets to Feature, and any builder block on the ink
+   surface, carries .r-inkband. It paints the band (Ink, --color-accent-dark,
+   the same walnut-black as the quote band and the footer) and RE-POINTS the
+   page tokens inside it, so a component draws it with no dark styles of its
+   own: ink text turns cream, secondary text and hairlines go light, links and
+   the accent word turn Oat, and the ink tag button turns cream. Every pair is
+   measured in src/lib/surfaces.ts (surfaces.test.ts, WCAG AA). ---- */
+.r-inkband {
+  --color-ink: var(--color-cream);
+  --color-ink-2: var(--color-chip-3);
+  --color-rule: color-mix(in oklab, var(--color-cream) 22%, transparent);
+  --color-primary-dark: var(--color-chip-2);
+  --accent-color: var(--color-chip-2);
+  /* Portable text draws with text-foreground; its numbered markers with Espresso. */
+  --foreground: var(--color-cream);
+  --color-foreground: var(--color-cream);
+  --color-chip-7: var(--color-chip-3);
+  background: var(--color-accent-dark);
+  color: var(--color-cream);
+}
+.r-inkband .r-btn {
+  --tag-bg: var(--color-cream);
+  --tag-bg-hover: var(--color-paper);
+  --tag-fg: var(--color-accent-dark);
+  --tag-ring: var(--color-cream);
+}

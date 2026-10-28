@@ -1,0 +1,48 @@
+---
+// Safe to edit by hand
+// The frame most builder-kit blocks share (builderSections.ts, PORTS.md cards
+// 173 and 193; Reid Design's own drawing, refoundation phase B, 2026-10-28):
+// the ground the cadence gave it (linen, paper, or the ink band a Feature look
+// asks for), Reid's page container (.r-wrap), and the optional heading and
+// intro line set from the left like every other section (SectionHeading, with
+// the inverse tone on ink). A block with no heading is named by `label`, so its
+// region still has a name for screen readers.
+import SectionHeading from '@/components/SectionHeading.astro';
+import { surfaceClass, type CadenceSurface } from '@/lib/surfaces';
+
+interface Props {
+  heading?: string | null;
+  intro?: string | null;
+  headingId: string;
+  surface?: CadenceSurface;
+  /** The region's name when there is no heading. */
+  label?: string;
+  /** The block's _type, for tests and the thumbnail script. */
+  type: string;
+}
+
+const { heading, intro, headingId, surface = 'background', label, type } = Astro.props;
+---
+
+<section
+  class={surfaceClass(surface)}
+  data-builder-block={type}
+  aria-labelledby={heading ? headingId : undefined}
+  aria-label={!heading ? label : undefined}
+>
+  <div class="r-wrap">
+    {(heading || intro) && (
+      <div class="bb-head">
+        {heading && (
+          <SectionHeading
+            headline={heading}
+            headingId={headingId}
+            tone={surface === 'ink' ? 'inverse' : 'default'}
+          />
+        )}
+        {intro && <p class="bb-intro">{intro}</p>}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>

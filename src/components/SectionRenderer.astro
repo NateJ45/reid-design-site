@@ -27,6 +27,13 @@
 //   - `context` (phase A2): a marker page hands this renderer one row at a
 //     time, plus its whole layout, so the cadence, the anchors and the budget
 //     see the neighbours instead of a list of one.
+//   - looks and the builder kit (phase B, 2026-10-28): a content block's
+//     `look` (Standard, Quiet, Feature) is resolved by the cadence into
+//     linen, paper or the ink band and handed down as `surface`; the twelve
+//     builder-kit blocks go to BuilderBlock.astro in ONE branch (it is the only
+//     file that imports their stylesheet, so a page without one gains no CSS).
+//     A steps-on-a-path closing button and the contact card's big Call button
+//     take part in the accent budget like a hero or a CTA band.
 import Hero from '@/components/Hero.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import StatsRow from '@/components/StatsRow.astro';
@@ -38,6 +45,8 @@ import QuoteBlock from '@/components/sections/QuoteBlock.astro';
 import VideoEmbed from '@/components/sections/VideoEmbed.astro';
 import InstagramFeed from '@/components/InstagramFeed.astro';
 import PressMentions from '@/components/sections/PressMentions.astro';
+import BuilderBlock from '@/components/builder-blocks/BuilderBlock.astro';
+import { isBuilderBlock } from '@/lib/builderBlocks.types';
 import { getPressMentions, getSiteSettings } from '@/lib/queries';
 import { expandSyncedSections } from '@/lib/authoring';
 import {
@@ -240,15 +249,31 @@ if (anchors === 'named') {
 // The accent budget (cards 158 and 187): the first library hero or CTA band with
 // a filled button keeps it; later ones, and any whose button goes where the
 // header's button goes, draw the quiet link. Read only when a row could draw one.
-const MAY_DRAW = new Set(['heroSection', 'ctaBandSection']);
+const MAY_DRAW = new Set([
+  'heroSection',
+  'ctaBandSection',
+  'stepsRailSection',
+  'contactCardSection',
+]);
 const header =
   budget && library.some(({ r }) => MAY_DRAW.has(r.block._type))
     ? resolveChrome(await getSiteSettings()).headerCta
     : null;
-const mainCta = (blk: any) => (blk?._type === 'heroSection' ? blk.primaryCta : blk?.cta);
-const drawsPrimary = (blk: any) =>
-  ((blk?._type === 'heroSection' && Boolean(blk.primaryCta)) || blk?._type === 'ctaBandSection') &&
-  !repeatsHeaderCta(resolveCtaHref(mainCta(blk)), header);
+const mainCta = (blk: any) =>
+  blk?._type === 'heroSection'
+    ? blk.primaryCta
+    : blk?._type === 'stepsRailSection'
+      ? blk.link
+      : blk?.cta;
+const drawsPrimary = (blk: any) => {
+  // The contact card's big Call button is a tel: link, never a repeat of the header's.
+  if (blk?._type === 'contactCardSection') return blk.callButtons === true;
+  const draws =
+    (blk?._type === 'heroSection' && Boolean(blk.primaryCta)) ||
+    blk?._type === 'ctaBandSection' ||
+    (blk?._type === 'stepsRailSection' && Boolean(blk.link?.label));
+  return draws && !repeatsHeaderCta(resolveCtaHref(mainCta(blk)), header);
+};
 const libraryVariant = budget
   ? primaryBudget(
       library.map(({ r }) => r.block),
@@ -269,13 +294,15 @@ const rows = own.map((o, k) => {
     headingId: namedIds.get(i) ?? o.headingId,
     primaryVariant: variantAt.get(i) ?? ('primary' as CtaVariant),
     handle: handleAttr(s),
+    // The first row of the whole page: a builder block's photo there loads first.
+    isFirst: i === 0,
     coachInfo: previewSignal ? sectionCoach(s) : null,
   };
 });
 const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as const;
 ---
 
-{rows.map(({ s, surface, ground, headingId, primaryVariant, handle, coachInfo }) => (
+{rows.map(({ s, surface, ground, headingId, primaryVariant, handle, coachInfo, isFirst }) => (
   <Wrap {...wrapAttrs(s._editKey ?? s._key)}>
     {coachInfo ? (
       <SectionCoach name={coachInfo.name} hint={coachInfo.hint} />
@@ -315,6 +342,14 @@ const GROUND_CLASS = { linen: 'bg-bg', paper: 'bg-paper', ink: 'bg-ink' } as con
       ) : (
         <SectionDivider variant={s.variant === 'line' ? 'line' : 'ornament'} tone={ground} />
       )
+    ) : isBuilderBlock(s) ? (
+      <BuilderBlock
+        block={s}
+        surface={surface ?? undefined}
+        headingId={headingId}
+        primaryVariant={primaryVariant}
+        isFirst={isFirst}
+      />
     ) : s._type === 'richTextSection' ? (
       <RichTextSection {...s} surface={surface} headingId={headingId} />
     ) : s._type === 'imageTextSection' ? (

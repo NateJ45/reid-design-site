@@ -36,6 +36,11 @@ export default defineConfig({
       'src/lib/section-anchors.test.ts',
       'src/lib/cta-budget.test.ts',
       'src/lib/preview-union-retry.test.ts',
+      // Refoundation phase B (2026-10-28): node:test files.
+      'src/lib/builder-blocks.test.ts',
+      'src/lib/surfaces.test.ts',
+      'src/lib/insert-groups.test.ts',
+      'src/lib/lightbox.test.ts',
     ],
   },
 });

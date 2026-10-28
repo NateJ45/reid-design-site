@@ -103,6 +103,64 @@ const COACH: Record<string, CoachEntry> = {
     hint: 'Paste the share link from YouTube or Vimeo.',
     isEmpty: (s) => noText(s.url),
   },
+  // The builder kit (refoundation phase B, 2026-10-28). The contact card has no
+  // entry: like the Instagram feed it fills itself (from Site settings and
+  // Business info), so there is nothing for Staci to add before it shows.
+  columnsSection: {
+    name: 'Text in columns',
+    hint: 'Add two or three columns, each with a few sentences and a heading if you like.',
+    isEmpty: (s) => noItems(s.textColumns),
+  },
+  buttonRowSection: {
+    name: 'Row of buttons',
+    hint: 'Add two to six links, each with the words for its button.',
+    isEmpty: (s) => noItems(s.links),
+  },
+  photoSection: {
+    name: 'Wide photo',
+    hint: 'Pick one photo and describe what it shows, like "Linen drapes in a Brownsburg dining room."',
+    isEmpty: (s) => noPick(s.image),
+  },
+  accordionSection: {
+    name: 'Fold-out questions',
+    hint: 'Add a question and its answer. Visitors tap the question to open the answer.',
+    isEmpty: (s) => noItems(s.items),
+  },
+  tabsSection: {
+    name: 'Tabs',
+    hint: 'Add two to five tabs, each with a short label and its own text.',
+    isEmpty: (s) => noItems(s.tabs),
+  },
+  noticeSection: {
+    name: 'Notice with dates',
+    hint: 'Type the message, like "Booking for spring is open," then the first and last day it shows.',
+    isEmpty: (s) => noText(s.message),
+  },
+  timelineSection: {
+    name: 'Timeline',
+    hint: 'Add the moments in order: a year, what happened, and a photo if you have one.',
+    isEmpty: (s) => noItems(s.entries),
+  },
+  letterSection: {
+    name: 'A letter',
+    hint: 'Write the letter in your own words, then your name at the bottom.',
+    isEmpty: (s) => noItems(s.body),
+  },
+  photoCardsSection: {
+    name: 'Cards with photos',
+    hint: 'Add two to six cards, each a photo, a short title and a few words.',
+    isEmpty: (s) => noItems(s.cards),
+  },
+  stepsRailSection: {
+    name: 'Steps on a path',
+    hint: 'Add the steps in order, like "Consultation," "Design plan," "Ordering," "Install day."',
+    isEmpty: (s) => noItems(s.steps),
+  },
+  hubSection: {
+    name: 'Groups of cards',
+    hint: 'Add a group with a short name, then the cards that belong in it.',
+    isEmpty: (s) => noItems(s.groups),
+  },
 };
 
 /**
