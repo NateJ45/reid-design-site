@@ -14,6 +14,10 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-10-27: refoundation phases A and A2 (signed-in Presentation check)
+
+- [ ] **The layout card did not open off its handle** in the deployed Studio (Contact > Extra sections, a new Text block): the round handle draws and clicking it selects the Width field in the form, but no card appears in the canvas. Phase A did not touch the handle or the overlay code (`SectionLayoutCard.tsx`), so this is probably older; check it against an older deploy before changing anything. Insert, duplicate, remove, the coach note, instant text and moving a Home marker from the form all worked; the canvas "Move" submenu draws zero-width and a synthetic drag in the canvas did nothing (try a real mouse drag).
+
 ### From 2026-10-27: the Auburn port run (starter cards 186 to 198)
 
 - [ ] Decide whether to fill Site settings > Menus > Where next rows and the Phone action bar ("Book a consultation" to /contact/). Both render nothing while empty. If the bar goes on, `StickyCTAChip` hides while it shows.

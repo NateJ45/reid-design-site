@@ -148,7 +148,11 @@ const SECTIONS: Record<string, unknown>[] = [
 >
   {SECTIONS.map((section) => (
     <div data-section-type={String(section._type)}>
-      <SectionRenderer sections={[section]} idPrefix={`fx-${String(section._key)}`} />
+      <SectionRenderer
+        sections={[section]}
+        idPrefix={`fx-${String(section._key)}`}
+        anchors="numbered"
+      />
     </div>
   ))}
 </BaseLayout>

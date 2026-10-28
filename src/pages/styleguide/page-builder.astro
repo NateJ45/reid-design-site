@@ -1,0 +1,105 @@
+---
+// Safe to edit by hand
+// =============================================================================
+// /styleguide/page-builder/ - one built page, to see the page-level rules
+// =============================================================================
+// Refoundation phase A2 (2026-10-27). /styleguide/sections/ draws each block on
+// its own, so it cannot show what the renderer decides ACROSS a page. This wall
+// sends one list through SectionRenderer, as a custom page would:
+//   - named anchors (src/lib/section-anchors.ts, starter card 158): each
+//     heading gives its section an id (#what-you-get, ...), a quote keeps a
+//     numbered one;
+//   - the accent budget (src/lib/cta-budget.ts, cards 158 and 187): the hero's
+//     button goes where the header's "Book a consultation" goes, so it draws
+//     the quiet link and does not spend the budget; the first CTA band keeps
+//     the filled button; the second draws the quiet link;
+//   - the cadence (src/lib/sectionCadence.ts): paper after the hero, the ink
+//     quote, linen and paper after it.
+// Not for visitors: noindex, out of the sitemap (astro.config.mjs) and robots,
+// linked from nowhere. tests/page-builder-wall.spec.ts drives it.
+// =============================================================================
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const image = (alt = 'A styled living room') => ({
+  _type: 'image',
+  alt,
+  asset: {
+    _type: 'reference',
+    _ref: 'image-0123456789abcdef0123456789abcdef01234567-1600x900-jpg',
+  },
+});
+const para = (key: string, text: string) => ({
+  _type: 'block',
+  _key: key,
+  style: 'normal',
+  markDefs: [],
+  children: [{ _type: 'span', _key: `${key}-s`, marks: [], text }],
+});
+/** A button to one of the site's own pages, the way the Studio stores it. */
+const toPage = (label: string, pageType: string) => ({
+  _type: 'ctaBlock',
+  label,
+  linkType: 'internal',
+  internalLink: { _type: pageType },
+});
+
+const SECTIONS: Record<string, unknown>[] = [
+  {
+    _type: 'heroSection',
+    _key: 'hero',
+    eyebrow: 'In-home service',
+    headline: 'A room that finally feels like yours',
+    subhead: 'Furniture, color and the finishing pieces, chosen around how you live.',
+    size: 'short',
+    backgroundImage: image(),
+    primaryCta: toPage('Book a consultation', 'contactPage'),
+  },
+  {
+    _type: 'richTextSection',
+    _key: 'text',
+    heading: 'What you get',
+    width: 'narrow',
+    align: 'left',
+    body: [
+      para('t1', 'A written plan for the room, a shopping list with links, and a follow-up call.'),
+    ],
+  },
+  {
+    _type: 'quoteSection',
+    _key: 'quote',
+    quote: 'A client in their own words, set large: what working together was like.',
+    attribution: 'A client',
+  },
+  {
+    _type: 'imageTextSection',
+    _key: 'imagetext',
+    imageSide: 'right',
+    heading: 'How the visit works',
+    body: [para('i1', 'We walk the room together and try paint samples against your light.')],
+    image: image(),
+  },
+  {
+    _type: 'ctaBandSection',
+    _key: 'band1',
+    headline: 'See the ways to work together',
+    subhead: 'From a single visit to a whole room.',
+    cta: toPage('See the services', 'servicesPage'),
+  },
+  {
+    _type: 'ctaBandSection',
+    _key: 'band2',
+    headline: 'Meet the designer',
+    subhead: 'How the studio started.',
+    cta: toPage('About Staci', 'aboutPage'),
+  },
+];
+---
+
+<BaseLayout
+  title="Page builder wall | Reid Design"
+  description="Fixed-data page through the page builder. Not for visitors."
+  noindex
+>
+  <SectionRenderer sections={SECTIONS} idPrefix="wall" />
+</BaseLayout>

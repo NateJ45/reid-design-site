@@ -94,7 +94,7 @@ All empty or opt-in, so nothing shows until an editor fills it: the `heroSection
 
 ## The starter's foundations (refoundation, 2026-10-27)
 
-`SectionRenderer.astro` runs the starter's layer with Reid's rules: the cadence in `src/lib/sectionCadence.ts` (a Reid fit, not PORTABLE; blocks carry no colour field), named anchors and the accent budget behind the `anchors` and `budget` props, layout variants (`brand.config.json` `layout`, `src/data/layout.ts` by hand, `layoutAttrs` on `<html>`; a default emits nothing). Detail: `docs/agent/page-architecture.md`, "Page builder".
+`SectionRenderer.astro` runs the starter's layer with Reid's rules: the cadence in `src/lib/sectionCadence.ts` (a Reid fit, not PORTABLE; blocks carry no colour field), named anchors and the accent budget (on since phase A2: `anchors` named, `budget` over library rows only, marker pages pass `context`; wall `/styleguide/page-builder/`), layout variants (`brand.config.json` `layout`, `src/data/layout.ts` by hand, `layoutAttrs` on `<html>`; a default emits nothing). Detail: `docs/agent/page-architecture.md`, "Page builder".
 
 ## The Studio kit (2026-10-18)
 

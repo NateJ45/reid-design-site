@@ -183,7 +183,12 @@ const rows = placeMarker(withRoom, {
         />
       ) : null
     ) : (
-      <SectionRenderer sections={[s]} idPrefix={`home-extra-${i}`} coach={Boolean(editDoc)} />
+      <SectionRenderer
+        sections={[s]}
+        idPrefix={`home-extra-${i}`}
+        coach={Boolean(editDoc)}
+        context={{ list: rows, index: i }}
+      />
     )}
   </Wrap>
 ))}

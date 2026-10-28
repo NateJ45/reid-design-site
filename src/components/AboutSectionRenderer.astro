@@ -142,7 +142,12 @@ const stats = (page?.stats ?? [])
         />
       ) : null
     ) : (
-      <SectionRenderer sections={[s]} idPrefix={`about-extra-${i}`} coach={Boolean(editDoc)} />
+      <SectionRenderer
+        sections={[s]}
+        idPrefix={`about-extra-${i}`}
+        coach={Boolean(editDoc)}
+        context={{ list: rows, index: i }}
+      />
     )}
   </Wrap>
 ))}
