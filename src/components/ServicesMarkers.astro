@@ -1,0 +1,90 @@
+---
+// Foundation, edit with care
+// Services's marker map and the page's entry (refoundation phase C, 2026-10-28).
+// Rendered WITHOUT `section` (as services.astro does) it draws the whole layout
+// through MarkerPage.astro, handing itself over as the marker map; rendered
+// WITH `section` (by MarkerPage) it draws that one built-in section, reading
+// the unchanged servicesPage fields. The order, the retired values and
+// the auto-placed markers are MARKER_PAGES.services in src/lib/marker-pages.ts.
+//
+// STYLESHEET ORDER. Astro orders a page's stylesheets by walking the import
+// graph (importers in path order, import positions summed), so three things
+// keep every marker page's stylesheets exactly where the old ServicesSectionRenderer
+// put them (`npm run parity compare`, phase C): this file sits in
+// src/components/ beside where that renderer sat, its imports keep that
+// renderer's order, and it imports SectionRenderer itself and hands it to
+// MarkerPage as `renderer` (MarkerPage imports no component with CSS).
+//
+// Phase 2 rebuild (2026-09-30): the sections themselves were redrawn (see
+// DESIGN.md "Services and E-Design"); ServiceArea takes `cities`
+// (businessInfo.serviceAreas, via siteSettings).
+import Hero from '@/components/Hero.astro';
+import ServicesList from '@/components/sections/ServicesList.astro';
+import BuildersRealtors from '@/components/sections/BuildersRealtors.astro';
+import ServiceArea from '@/components/sections/ServiceArea.astro';
+import SatisfactionGuarantee from '@/components/sections/SatisfactionGuarantee.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import MarkerPage from '@/components/MarkerPage.astro';
+import type { EditDoc } from '@/lib/preview-edit-attr';
+
+interface Props {
+  /** Unset: the whole layout (via MarkerPage). Set: that one built-in section. */
+  section?: string;
+  /** The page's `pageBuilder` layout array (whole-layout mode). */
+  sections?: any[];
+  /** PREVIEW ONLY: the document the layout belongs to (MarkerPage). */
+  editDoc?: EditDoc;
+  page: any;
+  siteSettings?: any;
+  visible: any;
+}
+
+const { section, page, siteSettings, visible } = Astro.props as Props;
+
+const builders = page?.builderRealtorSection;
+const areaSec = page?.serviceAreaSection;
+const travelFees = page?.travelFees ?? [];
+const hasBuilders = !!(builders && (builders.headline || builders.description));
+const hasServiceArea = !!(areaSec?.headline || travelFees.length > 0);
+---
+
+{section === undefined ? (
+  <MarkerPage kind="services" markers={Astro.self} renderer={SectionRenderer} {...Astro.props} />
+) : section === 'hero' ? (
+  <Hero
+    eyebrow={page?.heroEyebrow ?? 'What We Offer.'}
+    headline={page?.heroHeadline ?? 'Design Services for Every Space and Stage.'}
+    subhead={page?.heroSubhead ?? ''}
+    backgroundImage={page?.heroImage}
+    headingId="services-hero-heading"
+    size="short"
+    scriptAccent={page?.heroScriptAccent ?? 'reveal'}
+  />
+) : section === 'servicesList' ? (
+  <ServicesList
+    eyebrow={page?.servicesListEyebrow}
+    headline={page?.servicesListHeadline}
+    subhead={page?.servicesListSubhead}
+    services={page?.services ?? []}
+    hasBuilders={hasBuilders}
+    hasServiceArea={hasServiceArea}
+    visibleEDesign={visible.eDesign}
+    ratingSettings={siteSettings}
+  />
+) : section === 'builders' ? (
+  <BuildersRealtors builders={builders} />
+) : section === 'serviceArea' ? (
+  <ServiceArea areaSec={areaSec} travelFees={travelFees} cities={siteSettings?.serviceAreas} />
+) : section === 'guarantee' ? (
+  <SatisfactionGuarantee text={siteSettings?.satisfactionGuarantee} />
+) : section === 'finalCta' ? (
+  <FinalCta
+    eyebrow={page?.finalCtaEyebrow}
+    headline={page?.finalCtaHeadline}
+    subhead={page?.finalCtaSubhead}
+    cta={page?.finalCta}
+    scriptAccent={page?.finalCtaScriptAccent}
+    backgroundImage={page?.finalCtaBackgroundImage}
+  />
+) : null}

@@ -1,7 +1,7 @@
 ---
 // Safe to edit by hand for copy + structure changes.
 // Services page. Renders from the servicesPage `pageBuilder` layout array via
-// ServicesSectionRenderer: built-in sections are reorderable markers that read
+// MarkerPage (ServicesMarkers): built-in sections are reorderable markers that read
 // the servicesPage fields, so Staci can reorder/hide sections and insert library
 // blocks. Content stays in each section's own tab.
 //
@@ -10,7 +10,7 @@
 // ItemList JSON-LD (serviceListSchema) and the scroll-triggered sticky CTA chip.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ServicesSectionRenderer from '@/components/ServicesSectionRenderer.astro';
+import ServicesMarkers from '@/components/ServicesMarkers.astro';
 import { getServicesPage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema, serviceListSchema } from '@/lib/schemas';
@@ -51,7 +51,7 @@ const schemas = [
   seoImage={page?.seoImage}
   card={{ kind: 'services' }}
 >
-  <ServicesSectionRenderer
+  <ServicesMarkers
     sections={page?.pageBuilder}
     page={page}
     siteSettings={siteSettings}

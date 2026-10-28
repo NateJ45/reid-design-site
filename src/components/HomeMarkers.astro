@@ -1,0 +1,146 @@
+---
+// Foundation, edit with care
+// Home's marker map and the page's entry (refoundation phase C, 2026-10-28).
+// Rendered WITHOUT `section` (as index.astro does) it draws the whole layout
+// through MarkerPage.astro, handing itself over as the marker map; rendered
+// WITH `section` (by MarkerPage) it draws that one built-in section, reading
+// the unchanged homePage fields and collections. The order, the retired values and
+// the auto-placed markers are MARKER_PAGES.home in src/lib/marker-pages.ts.
+//
+// STYLESHEET ORDER. Astro orders a page's stylesheets by walking the import
+// graph (importers in path order, import positions summed), so three things
+// keep every marker page's stylesheets exactly where the old HomeSectionRenderer
+// put them (`npm run parity compare`, phase C): this file sits in
+// src/components/ beside where that renderer sat, its imports keep that
+// renderer's order, and it imports SectionRenderer itself and hands it to
+// MarkerPage as `renderer` (MarkerPage imports no component with CSS).
+//
+// Retired markers (2026-09-30): 'featuredJournal' and 'press' can still be
+// stored on the layout (their option values stay in the schema so those rows do
+// not fail validation and block publishing), but the journal and press were
+// removed, so both fall through to the final `null` and render nothing.
+//
+// Instagram feed (2026-09-30): placed automatically on layouts saved before its
+// marker existed; siteSettings.instagramFeedOnHome === false removes it. It
+// renders nothing until the build has a feed (INSTAGRAM_TOKEN).
+//
+// Concept room (2026-09-30): the same pattern (CLAUDE.md rule 13), just after
+// "How it works"; homePage.roomStoryShow === false removes it. RoomStory renders
+// nothing until src/assets/room/ holds a valid manifest and its frames.
+import HomeHero from '@/components/home/HomeHero.astro';
+import HomeStaci from '@/components/home/HomeStaci.astro';
+import HomeWords from '@/components/home/HomeWords.astro';
+import TapeProcess from '@/components/home/TapeProcess.astro';
+import PaintChips from '@/components/home/PaintChips.astro';
+import FeaturedWork from '@/components/FeaturedWork.astro';
+import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import InstagramFeed from '@/components/InstagramFeed.astro';
+import RoomStory from '@/components/home/RoomStory.astro';
+import MarkerPage from '@/components/MarkerPage.astro';
+import type { EditDoc } from '@/lib/preview-edit-attr';
+
+interface Props {
+  /** Unset: the whole layout (via MarkerPage). Set: that one built-in section. */
+  section?: string;
+  /** The page's `pageBuilder` layout array (whole-layout mode). */
+  sections?: any[];
+  /** PREVIEW ONLY: the document the layout belongs to (MarkerPage). */
+  editDoc?: EditDoc;
+  page: any;
+  siteSettings?: any;
+  visible: any;
+}
+
+const { section, page, siteSettings, visible } = Astro.props as Props;
+---
+
+{section === undefined ? (
+  <MarkerPage kind="home" markers={Astro.self} renderer={SectionRenderer} {...Astro.props} />
+) : section === 'hero' ? (
+  <HomeHero
+    eyebrow={page?.heroEyebrow}
+    headline={page?.heroHeadline ?? 'Interior design for homes that feel completely yours.'}
+    accent={page?.heroScriptAccent}
+    subhead={page?.heroSubhead}
+    portrait={page?.heroPortrait}
+    fallbackImages={page?.heroImages}
+    fallbackImage={page?.heroImage}
+    primaryCta={page?.heroPrimaryCta}
+    secondaryCta={page?.heroSecondaryCta}
+    headingId="hero-heading"
+    ratingSettings={siteSettings}
+  />
+) : section === 'meetStaci' ? (
+  <HomeStaci
+    photo={page?.meetStaciPhoto}
+    eyebrow={page?.meetStaciEyebrow}
+    headline={page?.meetStaciHeadline}
+    content={page?.meetStaciContent}
+    cta={page?.meetStaciCta}
+  />
+) : section === 'featuredWork' ? (
+  visible.portfolio ? (
+    <FeaturedWork
+      projects={page?.featuredProjects ?? []}
+      eyebrow={page?.featuredWorkEyebrow ?? 'Recent Work'}
+      headline={page?.featuredWorkHeadline ?? 'Rooms that feel finished.'}
+      subhead={
+        page?.featuredWorkSubhead ??
+        'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.'
+      }
+      cta={page?.featuredWorkCta}
+    />
+  ) : null
+) : section === 'testimonials' ? (
+  <HomeWords
+    headline={page?.testimonialsHeadline}
+    scriptAccent={page?.testimonialsScriptAccent}
+    subhead={page?.testimonialsSubhead}
+    attribution={page?.testimonialsAttribution}
+    featuredQuote={page?.featuredTestimonial}
+    gridQuotes={page?.testimonialsToShow ?? []}
+    googleReviews={page?.googleReviews ?? []}
+    reviewsNote={siteSettings?.reviewsNote}
+    googleBusinessUrl={siteSettings?.googleBusinessUrl}
+    facebookUrl={siteSettings?.socialFacebook}
+    ratingSettings={siteSettings}
+  />
+) : section === 'processPreview' ? (
+  <TapeProcess
+    headline={page?.processPreviewHeadline}
+    subhead={page?.processPreviewSubhead}
+    steps={page?.processSteps ?? []}
+    cta={page?.processPreviewCta}
+  />
+) : section === 'roomStory' ? (
+  <RoomStory
+    headline={page?.roomStoryHeadline}
+    scriptAccent={page?.roomStoryScriptAccent}
+    intro={page?.roomStoryIntro}
+    siteSettings={siteSettings}
+  />
+) : section === 'services' ? (
+  <PaintChips
+    headline={page?.servicesGridHeadline}
+    scriptAccent={page?.servicesGridScriptAccent}
+    subhead={page?.servicesGridSubhead}
+    services={page?.services ?? []}
+    cta={page?.servicesGridCta}
+    footnote={page?.servicesGridFootnote}
+  />
+) : section === 'instagram' ? (
+  <InstagramFeed settings={siteSettings} headingId="home-instagram-heading" />
+) : section === 'serviceAreaCue' ? (
+  <ServiceAreaCue text={page?.serviceAreaCue} cities={siteSettings?.serviceAreas} />
+) : section === 'finalCta' ? (
+  <FinalCta
+    eyebrow={page?.finalCtaEyebrow}
+    headline={page?.finalCtaHeadline}
+    subhead={page?.finalCtaSubhead}
+    cta={page?.finalCta}
+    scriptAccent={page?.finalCtaScriptAccent}
+    backgroundImage={page?.finalCtaBackgroundImage}
+  />
+) : null}

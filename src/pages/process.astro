@@ -1,14 +1,14 @@
 ---
 // Safe to edit by hand for copy + structure changes.
 // Process page. Renders from the processPage `pageBuilder` layout array via
-// ProcessSectionRenderer: built-in sections are reorderable markers reading the
+// MarkerPage (ProcessMarkers): built-in sections are reorderable markers reading the
 // processPage fields + collections. Content stays in each section's own tab.
 //
 // Default order: Hero, Process steps, FAQ block (faqItems flagged for the
 // process page), Final CTA.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ProcessSectionRenderer from '@/components/ProcessSectionRenderer.astro';
+import ProcessMarkers from '@/components/ProcessMarkers.astro';
 import { getProcessPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
@@ -36,5 +36,5 @@ const schemas = [
   seoImage={page?.seoImage}
   card={{ kind: 'process' }}
 >
-  <ProcessSectionRenderer sections={page?.pageBuilder} page={page} />
+  <ProcessMarkers sections={page?.pageBuilder} page={page} />
 </BaseLayout>

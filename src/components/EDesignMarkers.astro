@@ -1,0 +1,102 @@
+---
+// Foundation, edit with care
+// E-Design's marker map and the page's entry (refoundation phase C,
+// 2026-10-28). Rendered WITHOUT `section` (as e-design.astro does) it draws the
+// whole layout through MarkerPage.astro, handing itself over as the marker map;
+// rendered WITH `section` (by MarkerPage) it draws that one reorderable content
+// section. The hero, the coming-soon state and the closing CTA stay in
+// e-design.astro. The order is MARKER_PAGES.eDesign in src/lib/marker-pages.ts.
+//
+// STYLESHEET ORDER. Astro orders a page's stylesheets by walking the import
+// graph (importers in path order, import positions summed), so three things
+// keep every marker page's stylesheets exactly where the old EDesignSectionRenderer
+// put them (`npm run parity compare`, phase C): this file sits in
+// src/components/ beside where that renderer sat, its imports keep that
+// renderer's order, and it imports SectionRenderer itself and hands it to
+// MarkerPage as `renderer` (MarkerPage imports no component with CSS).
+//
+// Phase 2 rebuild (2026-09-30, DESIGN.md "Services and E-Design"): each marker
+// draws a component from src/components/edesign/ (intro as a Zodiak lede,
+// how-it-works as a thread of swatch pins, what's-included as sample tags on an
+// Oat board, the tiers as paint chips). The FAQ keeps its FaqAccordion island
+// exactly as it was called before; only the section around it changed.
+import SectionHeading from '@/components/SectionHeading.astro';
+import EDesignIntro from '@/components/edesign/EDesignIntro.astro';
+import EDesignSteps from '@/components/edesign/EDesignSteps.astro';
+import EDesignIncluded from '@/components/edesign/EDesignIncluded.astro';
+import EDesignTiers from '@/components/edesign/EDesignTiers.astro';
+import FaqAccordion from '@/components/FaqAccordion';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import MarkerPage from '@/components/MarkerPage.astro';
+import type { EditDoc } from '@/lib/preview-edit-attr';
+
+interface Props {
+  /** Unset: the whole layout (via MarkerPage). Set: that one content section. */
+  section?: string;
+  /** The page's `pageBuilder` layout array (whole-layout mode). */
+  sections?: any[];
+  page: any;
+  /** PREVIEW ONLY: the document the layout belongs to (MarkerPage). */
+  editDoc?: EditDoc;
+}
+
+const { section, page } = Astro.props as Props;
+const CONTACT_HREF = '/contact/?type=e-design';
+---
+
+{section === undefined ? (
+  <MarkerPage kind="eDesign" markers={Astro.self} renderer={SectionRenderer} {...Astro.props} />
+) : section === 'intro' ? (
+  <EDesignIntro intro={page.intro} />
+) : section === 'howItWorks' ? (
+  <EDesignSteps steps={page.howItWorks} />
+) : section === 'whatsIncluded' ? (
+  <EDesignIncluded items={page.whatsIncluded} />
+) : section === 'tiers' ? (
+  <EDesignTiers tiers={page.tiers} href={CONTACT_HREF} />
+) : section === 'faq' ? (
+  page.faqRefs && page.faqRefs.length > 0 ? (
+    <section class="edf" aria-labelledby="edesign-faq-heading">
+      <div class="r-wrap edf__grid">
+        <div class="edf__head">
+          <SectionHeading headline="E-Design questions" headingId="edesign-faq-heading" />
+        </div>
+        <div class="edf__list">
+          <FaqAccordion client:visible faqs={page.faqRefs} idPrefix="edesign-faq" />
+        </div>
+      </div>
+    </section>
+  ) : null
+) : null}
+
+<style>
+  /* FAQ: the question list on paper, its heading held on the left while the
+     answers open on the right. The accordion itself is FaqAccordion's. */
+  .edf {
+    background: var(--color-paper);
+    padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  }
+  .edf__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    align-items: start;
+  }
+  .edf__head {
+    grid-column: 1 / 5;
+    position: sticky;
+    top: 7rem;
+  }
+  .edf__list {
+    grid-column: 6 / 13;
+  }
+  @media (max-width: 1023px) {
+    .edf__grid {
+      display: block;
+    }
+    .edf__head {
+      position: static;
+      margin-bottom: 2rem;
+    }
+  }
+</style>

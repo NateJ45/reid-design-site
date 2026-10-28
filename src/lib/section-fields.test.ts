@@ -52,6 +52,9 @@ const RICH_TEXT = read('../components/sections/RichTextSection.astro');
 const GALLERY = read('../components/sections/GalleryGrid.astro');
 const IMAGE_TEXT = read('../components/sections/ImageText.astro');
 const RENDERER = read('../components/SectionRenderer.astro');
+// The five marker pages' one loop and the handle's one home (phase C).
+const MARKER_PAGE = read('../components/MarkerPage.astro');
+const HANDLE = read('../components/preview/LayoutHandle.astro');
 const HOME_PAGE = read('../sanity/schemaTypes/homePage.ts');
 // The builder kit (refoundation phase B): rule 9 and the look gate read it too.
 const BUILDER = read('../sanity/schemaTypes/builderSections.ts');
@@ -294,20 +297,30 @@ describe('the script accent', () => {
   });
 });
 
-describe('the in-canvas handle in SectionRenderer', () => {
+describe('the in-canvas layout handle', () => {
   // The handle is the only reason the layout card can mount at all, and it is
-  // the only markup this card adds to a rendered page. Three promises are worth
-  // a gate: it is PREVIEW ONLY, there is EXACTLY ONE per section, and it is
-  // drawn only for sections that have a layout choice to make.
+  // the only markup this card adds to a rendered page. The promises worth a
+  // gate: it is PREVIEW ONLY, it has ONE home (LayoutHandle.astro, phase C),
+  // there is EXACTLY ONE per section, and it is drawn only for sections that
+  // have a layout choice to make.
   it('is computed once, rendered once, and gated on editDoc plus the registry', () => {
-    expect([...RENDERER.matchAll(/const handleAttr =/g)]).toHaveLength(1);
-    expect([...RENDERER.matchAll(/data-sanity=\{handle\}/g)]).toHaveLength(1);
-    const gate = RENDERER.slice(
-      RENDERER.indexOf('const handleAttr ='),
-      RENDERER.indexOf('sectionFieldEditAttr(editDoc'),
+    expect(HANDLE.split('const handle =')).toHaveLength(2);
+    expect(HANDLE.split('data-sanity={handle}')).toHaveLength(2);
+    const gate = HANDLE.slice(
+      HANDLE.indexOf('const handle ='),
+      HANDLE.indexOf('const HANDLE_STYLE'),
     );
     expect(gate).toContain('editDoc &&');
     expect(gate).toContain('layoutApplies(');
+    expect(gate).toContain('!section._editKey');
+  });
+
+  it('has one home: both renderers draw it, once each, and nobody else styles one', () => {
+    for (const src of [RENDERER, MARKER_PAGE]) {
+      expect(src.split('<LayoutHandle editDoc={editDoc} section={s} />')).toHaveLength(2);
+      expect(src).not.toContain('HANDLE_STYLE');
+      expect(src).not.toContain('data-layout-handle');
+    }
   });
 
   it('names both of this repo’s section arrays, so neither zone is missed', () => {
@@ -320,20 +333,19 @@ describe('the in-canvas handle in SectionRenderer', () => {
     expect(RENDERER).toContain("const Wrap = editDoc ? 'div' : Fragment;");
     expect(RENDERER).toContain("'data-sanity': sectionEditAttr(editDoc, key)");
     expect(RENDERER).toContain("style: 'position:relative'");
+    expect(MARKER_PAGE).toContain("const Wrap = editDoc ? 'div' : Fragment;");
+    expect(MARKER_PAGE).toContain("'data-sanity': sectionEditAttr(editDoc, s._key)");
+    expect(MARKER_PAGE).toContain("style: 'position:relative'");
   });
 
-  it('the marker pages are a KNOWN GAP, recorded rather than half-fixed', () => {
-    // The eight *SectionRenderer.astro files wrap each item themselves and hand
-    // a one-element array to SectionRenderer with NO editDoc, so an inserted
-    // library block on a marker page gets its array controls from the marker
-    // renderer and no layout handle. Closing that means giving all eight the
-    // handle too, which is a change to eight files and its own card.
-    // Since phase A2 (2026-10-27) they also pass `context` (the whole layout),
-    // so the cadence, anchors and budget see the neighbours; still no editDoc.
-    const home = read('../components/HomeSectionRenderer.astro');
-    const call = home.slice(
-      home.indexOf('<SectionRenderer'),
-      home.indexOf('/>', home.indexOf('<SectionRenderer')),
+  it('a library block on a marker page gets the handle too (the old known gap, closed in phase C)', () => {
+    // MarkerPage wraps each row itself and hands a one-element array to
+    // SectionRenderer with NO editDoc (so it is not wrapped twice), plus the
+    // whole layout as `context` (phase A2) so the cadence, anchors and budget see
+    // the neighbours. The handle is drawn by MarkerPage beside it.
+    const call = MARKER_PAGE.slice(
+      MARKER_PAGE.indexOf('<SectionRenderer'),
+      MARKER_PAGE.indexOf('/>', MARKER_PAGE.indexOf('<SectionRenderer')),
     );
     expect(call).toContain('sections={[s]}');
     expect(call).toContain('context={{ list: rows, index: i }}');

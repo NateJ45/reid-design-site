@@ -355,7 +355,7 @@ prices are the loudest thing on it.
   embed, Nathan's pick 2026-10-01) centred on home base, in the house photo
   frame, loaded only as it nears the screen, with a caption and "Open in
   Google Maps". Stock Google colours: recolouring needs Google's paid APIs.
-- E-Design (`edesign/*.astro`, drawn by `EDesignSectionRenderer`): intro as a
+- E-Design (`edesign/*.astro`, drawn by `EDesignMarkers`): intro as a
   Zodiak lede beside "What is E-Design?"; how it works as paint-chip swatch
   pins on one thread that draws on scroll (vertical on phones; no numerals);
   what's included as square sample tags on an Oat board; the tiers as large paint chips (Oat and Espresso for

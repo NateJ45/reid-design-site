@@ -179,6 +179,17 @@ export const WELCOME: WelcomeConfig = {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    date: '2026-10-28',
+    title: 'New kinds of sections',
+    items: [
+      'Add item now offers columns of text, a row of buttons, one wide photo, fold-out questions, tabs, a dated notice, a timeline, a letter, cards with photos, your contact details and steps on a path.',
+      'Most sections have a Look: Standard, Quiet, or Feature for the dark band.',
+      'Two new page layouts, Project spotlight and Questions page, and three ready-made saved sections to fill in.',
+      'In Live preview, a section you added to Home, About, Services, Process or E-Design has the round layout button too.',
+      'The Site Guide has a new page: Choose a section and its look.',
+    ],
+  },
+  {
     date: '2026-10-19',
     title: 'More from your phone, and a tour',
     items: [

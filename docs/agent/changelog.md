@@ -2,6 +2,13 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-28: Refoundation phase C, one loop for the marker pages
+
+- `MarkerPage.astro` replaces the five per-page renderers (Home, About, Services, Process, E-Design). Each page keeps its marker components in a marker map, `src/components/<Page>Markers.astro`, and its default order, retired values (`featuredJournal`, `press`) and auto-placed markers (`roomStory`, `instagram`, `kindWords`) in `MARKER_PAGES` (`src/lib/marker-pages.ts`); `marker-pages.test.ts` holds those to the schemas and the maps.
+- The layout handle has one home, `src/components/preview/LayoutHandle.astro`, used by SectionRenderer and MarkerPage, so a library block between markers now gets the handle in Presentation (the old known gap). `section-fields.test.ts` and `section-coach.test.ts` now pin MarkerPage and LayoutHandle instead of the old files, keeping the same promises (preview only, one handle per section, no `editDoc` passed down, coach only in preview).
+- Render-neutral: parity 19/19 against a build of `main`, and every marker page's effective CSS identical. Astro orders stylesheets by the import graph (importers in path order), so the marker maps sit in `src/components/` with the old renderers' import order and import SectionRenderer themselves; a `markers/` subfolder reordered the `<link>` tags on all five pages.
+- Site Guide: a new guide, "Choose a section and its look" (every block by its insert-menu group, and Standard, Quiet and Feature); the main-page and template guides name the phase B blocks, templates and saved sections; Help for this page offers it on the page types. What's new has a 2026-10-28 entry. Quick update unchanged (no phase B block is a phone job); thumbnails unchanged (no block changed).
+
 ## 2026-10-28: Refoundation phase B, looks and the builder kit in Reid's look
 
 - Looks (starter card 124, a Reid fit): Standard, Quiet (linen, the rhythm restarts on paper) and Feature (the ink band, `.r-inkband` re-pointing the page tokens) on rich text, image and text, gallery and video; the quote offers Standard and Quiet. Resolved in `sectionCadence.ts` with the neighbours in view; pairs measured in `surfaces.ts`; `look` and `urgency` in `NON_STEGA_FIELDS`; rule 9 and the look gate added to `section-fields.test.ts`.

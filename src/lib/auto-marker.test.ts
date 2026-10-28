@@ -44,7 +44,7 @@ describe('placeMarker', () => {
   });
 
   it('places the Home concept room right after "How it works" (2026-09-30)', () => {
-    // Mirrors HomeSectionRenderer: `before` is every section that follows
+    // Mirrors MARKER_PAGES.home (marker-pages.ts): `before` is every section that follows
     // processPreview in its DEFAULT_ORDER, then Instagram is placed after it.
     const h = (section: string, _key?: string): MarkerRow => ({
       _type: 'homeSectionMarker',

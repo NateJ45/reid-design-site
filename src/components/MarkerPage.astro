@@ -1,0 +1,98 @@
+---
+// Foundation, edit with care
+// Renders one of the five MARKER pages (Home, About, Services, Process,
+// E-Design) from its `pageBuilder` layout array (refoundation phase C,
+// 2026-10-28; it replaced five per-page renderers that each repeated this loop).
+//
+// A layout row is either
+//   - a `<page>SectionMarker`: one built-in section reading the page's own
+//     fields (no content migration). The page's marker map draws it, a small
+//     component in src/components/ that takes `section` plus whatever
+//     data the page passes here (`page`, `siteSettings`, `visible`, ...). The
+//     page renders its marker map WITHOUT `section`, and the map renders this
+//     component with itself (`Astro.self`) as `markers`;
+//   - a library block: handed to SectionRenderer one row at a time with the
+//     WHOLE layout as `context`, so the cadence, the named anchors and the
+//     accent budget see its neighbours (phase A2).
+//
+// What each page is made of (its marker type, default order, retired values and
+// auto-placed markers) is `MARKER_PAGES` in src/lib/marker-pages.ts, and
+// `markerRows()` there turns the stored layout into the rows below.
+//
+// PREVIEW ONLY: `editDoc` (PORTS.md card 17). When the Studio preview route
+// passes the document this layout array belongs to, every row is wrapped in a
+// real block box carrying a `data-sanity` attribute, which gives the
+// Presentation overlay its in-canvas insert / duplicate / remove /
+// drag-to-reorder controls over the page's `pageBuilder` array. A library row
+// also gets the empty-section coach (`coach`) and, since phase C, the layout
+// handle (the same one SectionRenderer draws on a custom page). The live page
+// never passes it, and with it absent the wrapper is a `<Fragment>`, which
+// renders nothing. `npm run parity compare` is the gate.
+import LayoutHandle from '@/components/preview/LayoutHandle.astro';
+import { SECTION_DRAG_FLOW, sectionEditAttr, type EditDoc } from '@/lib/preview-edit-attr';
+import { MARKER_PAGES, markerRows, type MarkerPageKind } from '@/lib/marker-pages';
+
+interface Props {
+  /** Which marker page this is. */
+  kind: MarkerPageKind;
+  /** The page's marker map (src/components/<Page>Markers.astro). */
+  markers: any;
+  /**
+   * SectionRenderer, handed in by the marker map rather than imported here:
+   * Astro orders a page's stylesheets by the import graph, and importing it
+   * from the marker map, where the old per-page renderer imported it, keeps
+   * every page's stylesheets in the order they had (`npm run parity compare`).
+   */
+  renderer: any;
+  /** The page's `pageBuilder` layout array. */
+  sections?: any[];
+  /** PREVIEW ONLY, see above. */
+  editDoc?: EditDoc;
+  /** Everything else (`page`, `siteSettings`, ...) goes to the marker map. */
+  [data: string]: any;
+}
+
+const {
+  kind,
+  markers: Markers,
+  renderer: SectionRenderer,
+  sections,
+  editDoc,
+  ...data
+} = Astro.props as Props;
+const spec = MARKER_PAGES[kind];
+const rows = markerRows(kind, sections, { page: data.page, siteSettings: data.siteSettings });
+
+// A real element in preview, nothing at all on the live site. Must NOT be
+// `display: contents`: the overlay outlines the element's rect and a contents
+// element has none. A library row's wrapper is `position: relative` so the
+// layout handle can hang in its corner; a marker row's is left alone, so no
+// built-in section's own positioning changes.
+const Wrap = editDoc ? 'div' : Fragment;
+const wrapAttrs = (s: any) =>
+  editDoc && s._key
+    ? {
+        'data-sanity': sectionEditAttr(editDoc, s._key),
+        ...(s._type === spec.markerType ? {} : { style: 'position:relative' }),
+        ...SECTION_DRAG_FLOW,
+      }
+    : {};
+---
+
+{rows.map((s: any, i: number) => (
+  <Wrap {...wrapAttrs(s)}>
+    {s._type === spec.markerType ? (
+      <Markers {...data} section={s.section} />
+    ) : (
+      <>
+        <SectionRenderer
+          sections={[s]}
+          idPrefix={`${spec.idPrefix}-extra-${i}`}
+          coach={Boolean(editDoc)}
+          context={{ list: rows, index: i }}
+        />
+        <LayoutHandle editDoc={editDoc} section={s} />
+      </>
+    )}
+  </Wrap>
+))}

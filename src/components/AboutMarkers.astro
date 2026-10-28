@@ -1,0 +1,117 @@
+---
+// Foundation, edit with care
+// About's marker map and the page's entry (refoundation phase C, 2026-10-28).
+// Rendered WITHOUT `section` (as about.astro does) it draws the whole layout
+// through MarkerPage.astro, handing itself over as the marker map; rendered
+// WITH `section` (by MarkerPage) it draws that one built-in section, reading
+// the unchanged aboutPage fields. The order, the retired values and
+// the auto-placed markers are MARKER_PAGES.about in src/lib/marker-pages.ts.
+//
+// STYLESHEET ORDER. Astro orders a page's stylesheets by walking the import
+// graph (importers in path order, import positions summed), so three things
+// keep every marker page's stylesheets exactly where the old AboutSectionRenderer
+// put them (`npm run parity compare`, phase C): this file sits in
+// src/components/ beside where that renderer sat, its imports keep that
+// renderer's order, and it imports SectionRenderer itself and hands it to
+// MarkerPage as `renderer` (MarkerPage imports no component with CSS).
+//
+// Retired marker (2026-09-30): 'press' can still be stored on the layout (its
+// option value stays in the schema so the row does not fail validation and
+// block publishing), but press was removed, so it falls through to the final
+// `null` and renders nothing.
+//
+// Kind words (2026-09-30): the wall of every review, placed automatically just
+// before the closing CTA on layouts saved before its marker existed;
+// aboutPage.kindWordsShow === false removes it. Staci's own row, once she drags
+// one in, is left where she put it.
+import Hero from '@/components/Hero.astro';
+import AboutStory from '@/components/sections/AboutStory.astro';
+import AboutPhilosophy from '@/components/sections/AboutPhilosophy.astro';
+import AboutPersonal from '@/components/AboutPersonal.astro';
+import StatsRow from '@/components/StatsRow.astro';
+import FinalCta from '@/components/FinalCta.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import KindWords from '@/components/about/KindWords.astro';
+import MarkerPage from '@/components/MarkerPage.astro';
+import type { EditDoc } from '@/lib/preview-edit-attr';
+
+interface Props {
+  /** Unset: the whole layout (via MarkerPage). Set: that one built-in section. */
+  section?: string;
+  /** The page's `pageBuilder` layout array (whole-layout mode). */
+  sections?: any[];
+  /** PREVIEW ONLY: the document the layout belongs to (MarkerPage). */
+  editDoc?: EditDoc;
+  page: any;
+  philosophyPoints?: any[];
+  /** getSiteSettings(): the Kind words rating tag and review links. */
+  siteSettings?: any;
+}
+
+const { section, page, philosophyPoints = [], siteSettings } = Astro.props as Props;
+
+const stats = (page?.stats ?? [])
+  .filter((s: any) => typeof s?.number === 'number' && typeof s?.label === 'string')
+  .map(({ number, suffix, label }: any) => ({ number, suffix, label }));
+---
+
+{section === undefined ? (
+  <MarkerPage kind="about" markers={Astro.self} renderer={SectionRenderer} {...Astro.props} />
+) : section === 'hero' ? (
+  <Hero
+    eyebrow={page?.heroEyebrow ?? 'The Designer.'}
+    headline={page?.heroHeadline ?? 'The designer who comes to your home.'}
+    subhead={page?.heroSubhead ?? "Here's who you'd be working with."}
+    backgroundImage={page?.heroImage}
+    headingId="about-hero-heading"
+    size="short"
+    scriptAccent={page?.heroScriptAccent}
+  />
+) : section === 'story' ? (
+  <AboutStory
+    eyebrow={page?.storyEyebrow}
+    headline={page?.storyHeadline}
+    content={page?.storyContent}
+    photo={page?.staciPhoto}
+    attribution={page?.staciAttribution}
+    backgroundLine={page?.backgroundLine}
+    serviceAreaMention={page?.serviceAreaMention}
+  />
+) : section === 'philosophy' ? (
+  <AboutPhilosophy
+    eyebrow={page?.philosophyEyebrow}
+    headline={page?.philosophyHeadline}
+    points={philosophyPoints}
+  />
+) : section === 'personal' ? (
+  <AboutPersonal
+    eyebrow={page?.personalEyebrow}
+    headline={page?.personalHeadline}
+    intro={page?.personalIntro}
+    currentlyList={page?.currentlyList}
+    rapidFire={page?.rapidFire}
+    localSpots={page?.localSpots}
+    beyondDesign={page?.beyondDesign}
+    candidPhoto={page?.candidPhoto}
+  />
+) : section === 'stats' ? (
+  <StatsRow stats={stats} />
+) : section === 'kindWords' ? (
+  <KindWords
+    eyebrow={page?.kindWordsEyebrow}
+    headline={page?.kindWordsHeadline}
+    scriptAccent={page?.kindWordsScriptAccent}
+    subhead={page?.kindWordsSubhead}
+    reviews={page?.kindWords}
+    siteSettings={siteSettings}
+  />
+) : section === 'finalCta' ? (
+  <FinalCta
+    eyebrow={page?.finalCtaEyebrow}
+    headline={page?.finalCtaHeadline}
+    subhead={page?.finalCtaSubhead}
+    cta={page?.finalCta}
+    scriptAccent={page?.finalCtaScriptAccent}
+    backgroundImage={page?.finalCtaBackgroundImage}
+  />
+) : null}

@@ -369,10 +369,14 @@ export const guides: Guide[] = [
         items: [
           'Open the page, then the `Page layout` box near the top.',
           'Each built-in part of the page is a row. Drag a row to move that part up or down.',
-          'Click `Add item` between two rows to drop in an extra section: a banner, a photo gallery, a quote, a call to action and more.',
+          'Click `Add item` between two rows to drop in an extra section: words, photos, fold-out questions, a dated notice, your contact details and more. The guide on choosing a section says what each one is for.',
           'To hide a part, remove its row. Nothing is deleted: add the row back and the part returns with its words.',
           'Check it in `Live preview`, then click `Publish`.',
         ],
+      },
+      {
+        kind: 'p',
+        text: 'In `Live preview` you can do the same on the page itself: hover a section for its menu (add above or below, duplicate, move, remove) or drag it by its handle. An extra section you added also shows a small round button in its top corner; click it to change its layout, like the width of the text or which side the photo sits.',
       },
       {
         kind: 'p',
@@ -383,6 +387,101 @@ export const guides: Guide[] = [
         tone: 'positive',
         title: 'The design looks after itself.',
         text: 'Colors, spacing and fonts are set by where a section sits, so a page always looks like the rest of the website.',
+      },
+      { kind: 'seealso', items: ['Choose a section and its look'] },
+    ],
+  },
+  {
+    slug: 'section-kinds',
+    category: 'Pages and words',
+    title: 'Choose a section and its look',
+    icon: 'blocks',
+    lead: 'What each kind of section is for, and what Standard, Quiet and Feature do.',
+    diy: 'self',
+    body: [
+      {
+        kind: 'p',
+        text: 'Click `Add item` in a page’s sections list. The menu shows a small picture of each kind, in these groups.',
+      },
+      { kind: 'h', text: 'Banners and buttons' },
+      {
+        kind: 'bullets',
+        items: [
+          '`Hero (big page opener)` and `Call-to-action band`: a big opener, or a band that asks for the booking.',
+        ],
+      },
+      { kind: 'h', text: 'Text, quotes and numbers' },
+      {
+        kind: 'bullets',
+        items: [
+          '`Text block` and `Text in columns`: a few paragraphs, or two or three short columns side by side.',
+          '`Quote / testimonial` and `Numbers row (stats)`: one client’s words, or a few figures worth knowing.',
+          '`Row of buttons or link cards`: where to go next, as buttons or as cards with a line of text.',
+        ],
+      },
+      { kind: 'h', text: 'Photos and video' },
+      {
+        kind: 'bullets',
+        items: [
+          '`Image + text (side by side)`, `Photo gallery (grid)` and `Video` (a YouTube or Vimeo link).',
+        ],
+      },
+      { kind: 'h', text: 'Rooms and photos' },
+      {
+        kind: 'bullets',
+        items: [
+          '`One wide photo with a caption`: opens bigger when someone taps it.',
+          '`Cards with photos`: a few rooms or services side by side, each with a line of text and a link.',
+          '`Groups of cards with an index`: a longer set of cards in named groups, with a list of the groups beside them.',
+        ],
+      },
+      { kind: 'h', text: 'Notes and notices' },
+      {
+        kind: 'bullets',
+        items: [
+          '`A letter`: a short note in your own words, signed by you. Good on About or Contact.',
+          '`Notice with dates`: one slim line, like "Spring consultations are open". Give it a last day and it takes itself down.',
+          '`Timeline`: dated steps, like how a project went from first visit to reveal.',
+        ],
+      },
+      { kind: 'h', text: 'Fold-outs and tabs' },
+      {
+        kind: 'bullets',
+        items: [
+          '`Fold-out questions and answers`: the questions people ask, each opening on a tap.',
+          '`Tabs`: a few short panels a visitor switches between.',
+        ],
+      },
+      { kind: 'h', text: 'Contact and booking' },
+      {
+        kind: 'bullets',
+        items: [
+          '`Contact details`: fills itself from your business info, so it never needs retyping.',
+          '`Steps on a path`: from the first call to the reveal, with a button at the end.',
+        ],
+      },
+      { kind: 'h', text: 'Standard, Quiet or Feature' },
+      {
+        kind: 'p',
+        text: 'Most of the sections with words or photos have a `Look` choice. A few offer only Standard and Quiet.',
+      },
+      {
+        kind: 'bullets',
+        items: [
+          '**Standard**: the page’s usual rhythm of linen and paper. Leave it here most of the time.',
+          '**Quiet**: always on linen, for a section that should sit back.',
+          '**Feature**: the dark ink band, for the one section you want noticed. If it would sit right beside another dark band, or at the very end of the page, it stays Standard on its own.',
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'positive',
+        title: 'One Feature per page is plenty.',
+        text: 'The dark band works because it is rare. The website keeps two dark bands from touching, but it cannot tell you which one matters most.',
+      },
+      {
+        kind: 'seealso',
+        items: ['Add, move or hide a section on a main page', 'Reuse a section on other pages'],
       },
     ],
   },
@@ -398,7 +497,7 @@ export const guides: Guide[] = [
         kind: 'steps',
         items: [
           'Open `Content`, then `Pages`, then `Pages you build`, and click `+`.',
-          'Pick a starting point: `Service page`, `Town page`, `Seasonal styling offer`, `What happens at a consultation`, `Simple page` or `Blank page`. A ready-made one arrives with its sections in place and every piece of text in [square brackets] saying what to write.',
+          'Pick a starting point: `Service page`, `Town page`, `Seasonal styling offer`, `What happens at a consultation`, `Project spotlight`, `Questions page`, `Simple page` or `Blank page`. A ready-made one arrives with its sections in place and every piece of text in [square brackets] saying what to write.',
           'Type the page title, then click `Generate` beside the web address.',
           'Replace every bracket, including the ones in the `SEO` tab, and add your photos.',
           'To put it in the menu, open the `Menu placement` tab and turn on `Show in the top menu`. Leave it off to keep the page unlisted and just share its link.',
@@ -432,6 +531,8 @@ export const guides: Guide[] = [
           '**Town page**: for a town you work in, like Carmel or Avon. The homes there, recent rooms, a client from that town. Good for being found on Google.',
           '**Seasonal styling offer**: holiday styling or a spring refresh, with what is included, the dates and how to book.',
           '**What happens at a consultation**: for someone about to book and a little nervous. What you cover, how to get ready, what comes after.',
+          '**Project spotlight**: one finished room on a page of its own. The big photo, what the client asked for, what changed, and their words.',
+          '**Questions page**: the questions people ask before they book, as fold-outs, with your contact details under them.',
           '**Simple page**: a banner, some words, photos and a way to get in touch.',
           '**Blank page**: nothing yet; add sections yourself.',
         ],
@@ -526,6 +627,10 @@ export const guides: Guide[] = [
       {
         kind: 'p',
         text: 'A few saved sections come ready for the times of year clients think about their homes: holiday styling, a spring refresh, a fall "get ready for hosting" band, and "booking for next season" when your calendar fills.',
+      },
+      {
+        kind: 'p',
+        text: 'Three more sit with them, for any time of year: `Season: Booking notice with dates` (a slim notice that takes itself down after its last day), `What a consultation includes` (three short columns) and `A note from Staci` (a short letter you sign). Their [Placeholder: ...] lines say what to write; add them with `Add a copy`.',
       },
       {
         kind: 'steps',
@@ -1203,18 +1308,32 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   '*': ['edit-a-page', 'help-panel'],
   project: ['first-room-story', 'schedule-a-story', 'room-story-photos', 'images-and-alt'],
   portfolioPage: ['first-room-story', 'section-visibility'],
-  homePage: ['edit-a-page', 'extra-sections', 'seasonal-patterns', 'home-hero', 'accent-word'],
-  aboutPage: ['about-off-the-clock', 'extra-sections', 'accent-word'],
-  servicesPage: ['prices', 'extra-sections'],
-  eDesignPage: ['prices', 'extra-sections', 'section-visibility'],
-  processPage: ['extra-sections', 'edit-a-page'],
+  homePage: [
+    'edit-a-page',
+    'extra-sections',
+    'section-kinds',
+    'seasonal-patterns',
+    'home-hero',
+    'accent-word',
+  ],
+  aboutPage: ['about-off-the-clock', 'extra-sections', 'section-kinds', 'accent-word'],
+  servicesPage: ['prices', 'extra-sections', 'section-kinds'],
+  eDesignPage: ['prices', 'extra-sections', 'section-kinds', 'section-visibility'],
+  processPage: ['extra-sections', 'section-kinds', 'edit-a-page'],
   service: ['prices'],
   testimonial: ['add-review', 'ask-for-review', 'google-rating'],
   faqItem: ['add-question'],
   contactPage: ['enquiries', 'availability', 'extra-sections'],
   faqPage: ['add-question', 'extra-sections'],
   announcement: ['announcement'],
-  page: ['add-a-page', 'page-templates', 'reuse-sections', 'share-a-preview', 'rename-a-page'],
+  page: [
+    'add-a-page',
+    'page-templates',
+    'section-kinds',
+    'reuse-sections',
+    'share-a-preview',
+    'rename-a-page',
+  ],
   sectionPreset: ['reuse-sections', 'synced-sections', 'seasonal-patterns'],
   pressMention: ['press', 'quick-update'],
   siteSettings: [

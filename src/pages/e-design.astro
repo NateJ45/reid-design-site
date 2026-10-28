@@ -1,13 +1,13 @@
 ---
 // Safe to edit by hand for copy + structure changes.
 // E-Design landing page. The reorderable content sections (intro, how it works,
-// what's included, pricing tiers, FAQ) render via EDesignSectionRenderer from the
+// what's included, pricing tiers, FAQ) render via MarkerPage (EDesignMarkers) from the
 // eDesignPage `pageBuilder` layout array. The hero, the coming-soon state (when
 // the doc is unpublished), and the closing CTA stay here. Primary CTA always
 // routes to /contact?type=e-design.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import EDesignSectionRenderer from '@/components/EDesignSectionRenderer.astro';
+import EDesignMarkers from '@/components/EDesignMarkers.astro';
 import { getEDesignPage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
@@ -83,7 +83,7 @@ const CONTACT_HREF = '/contact/?type=e-design';
       </div>
     </section>
   ) : (
-    <EDesignSectionRenderer sections={page.pageBuilder} page={page} />
+    <EDesignMarkers sections={page.pageBuilder} page={page} />
   )}
 
   {/* ------- Final CTA ------------------------------------------------------- */}
