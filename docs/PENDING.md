@@ -14,6 +14,8 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+- **The `e2e` job is pinned to ubuntu-24.04 (2026-10-30).** `ubuntu-latest` moved to 26.04, where Playwright's WebKit will not launch, so every `[webkit-iphone]` test failed. `ci.yml` now says `runs-on: ubuntu-24.04` on that job only. Unpin it once a Playwright release supports 26.04 (try it on a branch first). Starter PORTS.md card and vault gotcha `playwright-webkit-ubuntu-26-04`.
+
 ### From 2026-10-28: refoundation phases D and E
 
 - [x] **The photo style shows the script accent (2026-10-28).** "Photo behind the words" on Services or E-Design now draws the script accent word in white Waterfall over the photo (starter card 203: PhotoHero `accent`, `--ph-accent-*` tokens in `reid.css`, the same contrast unit test). The field help no longer says it is dropped.
