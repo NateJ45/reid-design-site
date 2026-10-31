@@ -2,6 +2,11 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-10-30: CI reads Node from `.nvmrc` (starter card 209)
+
+- A repo-root `.nvmrc` pins 22.23.4, every `actions/setup-node` step reads it with `node-version-file: .nvmrc` instead of `node-version: 22` (which took whatever 22.x the runner image had cached; Astro 7.4.4 refuses anything below 22.23.4), and `engines.node` rises to match.
+- `docs/agent/studio-kit.md` resynced with the starter (card 210's Inbox section), so `sync-check` reads SAME.
+
 ## 2026-10-28: The photo hero's script accent, and the business facts confirmed
 
 - Starter card 203: `PhotoHero.astro`, `photo-hero.css`, `photo-hero.test.ts` and `tests/photo-hero.spec.ts` synced; `heading-accent.ts` (and its test) installed, which PhotoHero now imports. `Hero.astro` passes `scriptAccent` as `accent`; `reid.css` sets the `--ph-accent-*` tokens to Waterfall at 1.24em, white. The Services and E-Design Opening style help no longer says the accent is dropped. The photo hero wall's home variant sets `scriptAccent: 'promise'`.
