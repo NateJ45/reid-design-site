@@ -504,7 +504,7 @@ portfolio templates are ready for the day the first `project` exists.
   Light (h4 a General Sans label), ink links with a bronze underline, quotes
   in Zodiak italic off a bronze rule, square-cornered photos.
 
-**Portfolio (since 2026-11-04, Staci's call: photos, no commentary):** one Zodiak heading, then `portfolio/PhotoWall.astro`: rows of mixed shapes at one height, nothing cropped, a quiet gap, full-screen viewer on tap. The room story templates below are dormant.
+**Portfolio (since 2026-11-04, Staci's call: photos, no write-ups; captions added 2026-11-05):** one Zodiak heading, then `portfolio/PhotoWall.astro`: rows of mixed shapes at one height, one per row on a phone, nothing cropped, an optional small caption under a photo, full-screen viewer on tap. The room story templates below are dormant.
 
 - Index (`portfolio/ProjectBoard.astro`): paint-deck filter tabs (chips 1 to
   4 with a punched hole; the chosen one turns ink and lifts) and an

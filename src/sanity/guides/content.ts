@@ -221,7 +221,7 @@ export const guides: Guide[] = [
     body: [
       {
         kind: 'p',
-        text: 'The Portfolio page is your photos and nothing else. No captions, no write-ups. They show at their full shape, so nothing gets cropped.',
+        text: 'The Portfolio page is your photos, with a short caption under any photo you give one to. They show at their full shape, so nothing gets cropped.',
       },
       { kind: 'h', text: 'Add them' },
       { kind: 'shot', key: 'portfolio-photos' },
@@ -254,8 +254,8 @@ export const guides: Guide[] = [
       {
         kind: 'callout',
         tone: 'default',
-        title: 'Describing a photo is optional.',
-        text: 'Click a photo to add a few words about it. They never show on the page. People who cannot see the photo hear them, and Google reads them. Skip it if you are short on time.',
+        title: 'Captions are optional.',
+        text: 'Click a photo and type in `Caption`. The words show under the photo on the page, and people who cannot see the photo hear them, and Google reads them. Leave it empty and that photo shows no caption.',
       },
       {
         kind: 'seealso',

@@ -49,7 +49,7 @@ Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus 
 
 Now also live (built during placeholder-content phase):
 
-- Portfolio (`/portfolio`): since 2026-11-04 a heading and `portfolioPage.gallery`, no words. Project pages (`/portfolio/[slug]`) are dormant and build nothing
+- Portfolio (`/portfolio`): since 2026-11-04 a heading and `portfolioPage.gallery`, with optional captions since 2026-11-05. Project pages (`/portfolio/[slug]`) are dormant and build nothing
 - E-Design, seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
 
 ### Page builder + reusable section library
