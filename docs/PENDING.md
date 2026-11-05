@@ -19,7 +19,7 @@ items to "Recently closed" with a date, and prune that section when it grows.
 Staci wants a plain gallery with no commentary, so room stories are retired and the Portfolio is one list of photos (`portfolioPage.gallery`).
 
 - [ ] **Staci adds her photos**: Home, `Add portfolio photos`, `Choose photos`, Publish. Until then `/portfolio/` says "New photos are on the way." and the menu link is live.
-- [ ] **Signed in, once**: `Choose photos` with two photos, check both land on the draft, then discard. The kit harness refuses writes, so this was not exercised against the real dataset by the recorder.
+- [x] **Signed in, once (2026-11-04)**: `Choose photos` with two test images landed both on the draft at the right shape; the draft was discarded. The two test images stay in the Media library as unused assets (`upload-test-wide.jpg`, `upload-test-tall.jpg`), safe for Nathan to delete there.
 - [ ] **Dead-code candidate**: room story code is dormant, not deleted: `project` schema (kept for the stored draft `drafts.project.firstRoomStory` and references), `[slug].astro`, `detail/ProjectDetail.astro`, `ProjectBoard`, `ProjectCard`, `ProjectGallery`, `FeaturedWork`, `PortfolioCursor`, `PortfolioFilterChips`, `CaseStudyTOC`, `ProjectMetaBand`, `templates.ts` "project-story", `seed-room-story-placeholder.mjs`.
 
 - **The `e2e` job is pinned to ubuntu-24.04 (2026-10-30).** `ubuntu-latest` moved to 26.04, where Playwright's WebKit will not launch, so every `[webkit-iphone]` test failed. `ci.yml` now says `runs-on: ubuntu-24.04` on that job only. Unpin it once a Playwright release supports 26.04 (try it on a branch first). Starter PORTS.md card and vault gotcha `playwright-webkit-ubuntu-26-04`.
