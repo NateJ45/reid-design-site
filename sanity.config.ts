@@ -260,7 +260,10 @@ export default defineConfig({
     newDocumentOptions: (prev, { creationContext }) => {
       // Pages start from a template; the bare stock one is hidden because
       // "Blank page" is the same thing with a clearer name.
-      const options = prev.filter((option) => option.templateId !== 'page');
+      // Room stories were retired 2026-11-04, so nothing offers a new one.
+      const options = prev.filter(
+        (option) => !['page', 'project', 'project-story'].includes(option.templateId),
+      );
       if (creationContext.type === 'global') {
         return options.filter((option) => !SINGLETON_TYPES.has(option.templateId));
       }

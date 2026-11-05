@@ -1,30 +1,19 @@
 ---
 // Safe to edit by hand
-// Portfolio index. Grid of project cards, sorted by displayOrder then publishedAt.
-// Renders an empty state when no projects exist yet (launch state).
-//
-// Rebuilt 2026-09-30 (phase 2 of the art-direction rebuild; DESIGN.md "Blocks
-// and Portfolio"). The filter tabs and the varied, image-led grid live in
-// src/components/portfolio/ProjectBoard.astro; this page keeps the hero, the
-// empty state and the Extra sections zone.
+// Portfolio: a heading and Staci's photos, nothing else (2026-11-04, her call).
+// The photos are `portfolioPage.gallery`, added in the Studio. Room stories are
+// retired: src/pages/portfolio/[slug].astro stays but builds no pages, because
+// no `project` is published and the Studio no longer offers them.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getAllProjects, getPortfolioPage, getSiteSettings } from '@/lib/queries';
+import { getPortfolioPage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
-import Hero from '@/components/Hero.astro';
-import ProjectBoard from '@/components/portfolio/ProjectBoard.astro';
-import SectionRenderer from '@/components/SectionRenderer.astro';
-import RatingTag from '@/components/reviews/RatingTag.astro';
-import { googleRatingFrom } from '@/lib/reviews';
+import PhotoWall from '@/components/portfolio/PhotoWall.astro';
 import { DEFAULT_CTA_LABEL } from '@/lib/siteSettings';
 
-const [projects, page, siteSettings] = await Promise.all([
-  getAllProjects(),
-  getPortfolioPage(),
-  getSiteSettings(),
-]);
+const [page, siteSettings] = await Promise.all([getPortfolioPage(), getSiteSettings()]);
 
 // Section visibility guard. Redirect home when portfolio is explicitly off.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -35,12 +24,6 @@ const description =
   page?.seoDescription ??
   'A look at recent Reid Design projects across Plainfield and the Indianapolis area.';
 
-const heroEyebrow = page?.heroEyebrow ?? 'Recent work';
-const heroHeadline = page?.heroHeadline ?? 'Projects across Plainfield and Indianapolis.';
-const heroSubhead =
-  page?.heroSubhead ??
-  'A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there.';
-
 const schemas = [
   breadcrumbSchema([
     { name: 'Home', url: site.url },
@@ -48,17 +31,7 @@ const schemas = [
   ]),
 ];
 
-const hasProjects = Array.isArray(projects) && projects.length > 0;
-
-// Portfolio index now backed by the portfolioPage singleton. The fallback
-// asset _ref preserves the previous hero image for any environment where the
-// singleton hasn't been populated yet, defensive only; the patch script
-// backfills the field on launch.
-const fallbackHeroImage = {
-  asset: { _ref: 'image-95cf8e9cffed47a11f9f74386dc1659d3b45ffba-4736x4280-jpg' },
-  alt: 'Reid Design kitchen with island and woven counter stools.',
-};
-const heroBackground = page?.heroImage ?? fallbackHeroImage;
+const photos = (page?.gallery ?? []).filter((p: { asset?: unknown }) => p?.asset);
 ---
 
 <BaseLayout
@@ -67,103 +40,40 @@ const heroBackground = page?.heroImage ?? fallbackHeroImage;
   {schemas}
   {siteSettings}
   seoImage={page?.seoImage}
-  card={{ kind: 'portfolio', image: page?.heroImage }}
+  card={{ kind: 'portfolio', image: photos[0] ?? page?.heroImage }}
 >
-  <Hero
-    eyebrow={heroEyebrow}
-    headline={heroHeadline}
-    subhead={heroSubhead}
-    backgroundImage={heroBackground}
-    headingId="portfolio-hero-heading"
-    size="short"
-    scriptAccent={page?.heroScriptAccent ?? 'Plainfield'}
-  />
-
-  {hasProjects ? (
-    <ProjectBoard projects={projects} />
-  ) : (
-    <section class="pf pf--empty" aria-labelledby="portfolio-empty-heading">
-      <div class="r-wrap pf__empty">
-        {/* The blank swatch tags that used to sit here were decoration with
-              nothing in them (Impeccable audit, 2026-10-03). In their place:
-              the Google rating card that is already on the home page, which is
-              real proof, and renders nothing when no rating is set. */}
-        {googleRatingFrom(siteSettings) && (
-          <div class="pf__proof">
-            <RatingTag settings={siteSettings} />
-          </div>
-        )}
-        <div>
-          <h2 id="portfolio-empty-heading" class="pf__empty-h">
-            Case studies are on the way.
-          </h2>
-          <p class="pf__empty-p">
-            The first projects are wrapping up now, with full write-ups to follow. Until then, here
-            is{' '}
-            <a href="/process/" class="r-link">
-              how Reid Design works
-            </a>
-            , or you can{' '}
-            <a href="/contact/" class="r-link">
-              start a conversation about your space
-            </a>
-            .
-          </p>
-          <div class="pf__actions">
-            <a class="r-btn r-btn--ink" href="/contact/">
-              {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
-              <span class="r-arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-            <a class="r-link" href="/services/">
-              See services and prices
-            </a>
-          </div>
+  <section class="pf" aria-labelledby="portfolio-heading">
+    <div class="r-wrap">
+      <h1 id="portfolio-heading" class="r-display pf__h">
+        Portfolio
+      </h1>
+      {photos.length > 0 ? (
+        <PhotoWall photos={photos} />
+      ) : (
+        <div class="pf__empty">
+          <p class="pf__empty-p">New photos are on the way.</p>
+          <a class="r-btn r-btn--ink" href="/contact/">
+            {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
+            <span class="r-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
         </div>
-      </div>
-    </section>
-  )}
-
-  {/* Extra sections (optional, editor-added in Studio) */}
-  <SectionRenderer sections={page?.additionalSections} idPrefix="portfolio-extra" />
+      )}
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
   .pf {
-    padding-block: clamp(3rem, 6vw, 5rem) clamp(5rem, 10vw, 8.5rem);
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(4rem, 9vw, 7.5rem);
   }
-  /* ---- No projects yet ---- */
-  .pf__empty {
-    display: grid;
-    gap: 2.5rem;
-    align-items: center;
-  }
-  .pf__empty-h {
-    margin: 0;
-    font: 300 clamp(2rem, 1.3rem + 2.4vw, 3.4rem) / 1.02 var(--font-display);
-    letter-spacing: -0.03em;
+  .pf__h {
+    margin: 0 0 clamp(1.75rem, 4vw, 3rem);
     color: var(--color-ink);
   }
   .pf__empty-p {
-    margin: 1.25rem 0 0;
-    max-width: 48ch;
+    margin: 0 0 1.75rem;
     color: var(--color-ink-2);
-  }
-  .pf__empty-p .r-link {
-    color: var(--color-ink);
-  }
-  .pf__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.75rem;
-    margin-top: 1.75rem;
-  }
-  @media (min-width: 1024px) {
-    .pf__empty:has(.pf__proof) {
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: clamp(3rem, 7vw, 6rem);
-    }
   }
 </style>

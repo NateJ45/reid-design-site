@@ -61,7 +61,8 @@ The current component set, by role. All in `src/components/` unless noted.
 
 - `ServiceCard.astro`, service tier (price + features + best-for + CTA).
 - `ProjectCard.astro`, portfolio grid card, rebuilt 2026-09-30 (DESIGN.md "Blocks and Portfolio"): the photo cropped around its hotspot at the shape the grid hands it through `--pcard-ratio` (default 4:5), the room as a sample tag, the Zodiak title and one plain location · year line. No stripe, border or shadow. Optional `level` and `sizes` props.
-- `portfolio/ProjectBoard.astro`, the portfolio index body (2026-09-30): paint-deck filter tabs and the varied five-slot grid (`data-slot` 0-4, renumbered by the filter island after filtering). `portfolio/labels.ts` has `humanizeEnum` ("livingRoom" → "Living room") shared by the card, tabs and spec sheet.
+- `portfolio/PhotoWall.astro`, the Portfolio's gallery (2026-11-04): plain CSS rows (each photo's flex-grow and flex-basis are its width-to-height ratio) at the photo's true shape, nothing cropped, no script for the layout, opening in the site's photo viewer (`LightboxLink` + `Lightbox`).
+- `portfolio/ProjectBoard.astro`, the portfolio index body (2026-09-30): paint-deck filter tabs and the varied five-slot grid (`data-slot` 0-4, renumbered by the filter island after filtering). `portfolio/labels.ts` has `humanizeEnum` ("livingRoom" → "Living room") shared by the card, tabs and spec sheet. _(Retired 2026-11-04: the Portfolio is a page of photos (`portfolioPage.gallery`, `portfolio/PhotoWall.astro`). This code is dormant, because no `project` is published and the Studio no longer offers them.)_
 - `TestimonialCard.astro`, quote card with monogram fallback when no photo. Renders "See this project →" link when `relatedProject` reference is set.
 - `FeaturedTestimonial.astro`, large editorial pull-quote variant of TestimonialCard.
 
@@ -74,7 +75,7 @@ The current component set, by role. All in `src/components/` unless noted.
 
 **Home page Featured sections (auto-from-Sanity hero + companion panel):**
 
-- `FeaturedWork.astro`, rebuilt 2026-09-30 in the home grammar: a rising Zodiak headline with the subhead beside it, the lead project as a framed 4:5 crop with its room on a sample tag and the title, line and brief underneath (no overlay), and up to three more as a ruled list with square thumbnails. Renders nothing until a project exists.
+- `FeaturedWork.astro`, rebuilt 2026-09-30 in the home grammar: a rising Zodiak headline with the subhead beside it, the lead project as a framed 4:5 crop with its room on a sample tag and the title, line and brief underneath (no overlay), and up to three more as a ruled list with square thumbnails. Renders nothing until a project exists. _(Retired 2026-11-04: the Portfolio is a page of photos (`portfolioPage.gallery`, `portfolio/PhotoWall.astro`). This code is dormant, because no `project` is published and the Studio no longer offers them.)_
 
 The section feeds off the `featured: boolean` on `project`. The query (`getHomePage()` → `featuredProjects`) orders `featured desc, publishedAt desc` capped at `[0..3]`. The pattern: default = newest 4, override = Staci toggles `featured` to pin a specific piece to the hero slot. The overlay text reserves a right corridor (`pr-28 md:pr-36`) so a long title never wraps under the ★ Featured pill at top-right.
 

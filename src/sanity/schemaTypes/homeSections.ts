@@ -10,7 +10,6 @@ import { SECTION_TYPES } from './sections';
 const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   { value: 'hero', title: 'Hero' },
   { value: 'meetStaci', title: 'Meet Staci' },
-  { value: 'featuredWork', title: 'Featured work' },
   { value: 'testimonials', title: 'Kind words (testimonials)' },
   { value: 'processPreview', title: 'How it works' },
   // Added 2026-09-30: the concept room (a labelled sample room that fills up
@@ -28,6 +27,7 @@ const HOME_SECTIONS: { value: string; title: string; retired?: boolean }[] = [
   // nothing for either, and they are left out of HOME_DEFAULT_ORDER below.
   { value: 'featuredJournal', title: 'Journal (retired, renders nothing)', retired: true },
   { value: 'press', title: 'Press logos (retired, renders nothing)', retired: true },
+  { value: 'featuredWork', title: 'Featured work (retired, renders nothing)', retired: true },
   // Added 2026-09-30. A layout saved before this existed has no row for it;
   // MarkerPage then places it just before the service-area line, and
   // Site settings > Instagram feed > "Show on the home page" turns it off.

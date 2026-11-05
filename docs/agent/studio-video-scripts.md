@@ -38,6 +38,8 @@ Sample data used across the scripts (made up, safe for a public repo):
 
 ## 3. Publish your first room story (`first-room-story`, 1280 wide, about 1 min 50 s)
 
+_Retired 2026-11-04 with room stories: recorded instead as `tools/tutorial-videos/scripts/add-portfolio-photos.json`. Kept as a record._
+
 | Shot | Action                                                                   | Caption                                           |
 | ---- | ------------------------------------------------------------------------ | ------------------------------------------------- |
 | 1    | Home; click `Start a room story`                                         | On Home, click Start a room story.                |

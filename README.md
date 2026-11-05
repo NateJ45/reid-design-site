@@ -57,13 +57,13 @@ The goal was a site that sells the way a designer sells: show the transformation
 
 ### The work
 
-**A portfolio built around the reveal.** Every project page opens with a before/after slider, then a full gallery, and a table of contents for longer write-ups. The project grid filters by Room and Style at the same time, so a visitor looking for "kitchen, modern" finds it in one move.
+**A portfolio that is just the photos.** Staci picks them in the Studio, on her phone or her computer, and puts them in order. They show at their full shape, each opening in a full-screen viewer, with no words beside them.
 
 **A service ladder, not a single price.** The site presents tiered services and a productized **E-Design** offering for clients who want the plan without the full engagement, Contact pairs a form with a Calendly embed so booking is one click, not an email thread.
 
 ### The result
 
-Staci edits every word, price, photo, and project in Sanity; the site rebuilds itself. The portfolio leads with transformations, and the whole thing loads fast and reads clearly on a phone.
+Staci edits every word, price and photo in Sanity; the site rebuilds itself. The portfolio is a simple gallery, and the whole thing loads fast and reads clearly on a phone.
 
 ---
 
@@ -78,7 +78,7 @@ Staci edits every word, price, photo, and project in Sanity; the site rebuilds i
 
 ### Pages
 
-Home · About · Process · Services · FAQ · Contact · Portfolio (+ project detail) · E-Design · Privacy · Search, plus custom pages Staci builds herself.
+Home · About · Process · Services · FAQ · Contact · Portfolio · E-Design · Privacy · Search, plus custom pages Staci builds herself.
 
 Removed 2026-09-30, never launched: the journal, shop, style quiz, budget calculator, guides, press, gift certificates and resources pages, and the newsletter signup. Their old addresses forward permanently (`public/_redirects`); their documents are still in the dataset, untouched.
 

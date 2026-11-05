@@ -1,0 +1,49 @@
+{
+  "slug": "add-portfolio-photos",
+  "title": "Add photos to your portfolio",
+  "start": "/structure/portfolioPage",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "ready": "button:has-text(\"Choose photos\")",
+  "steps": [
+    {
+      "do": "caption",
+      "text": "On Home, click Add portfolio photos. This box opens.",
+      "ms": 2600,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "text:Choose photos",
+      "caption": "Click Choose photos and pick as many as you like.",
+      "ms": 3000
+    },
+    {
+      "do": "scroll",
+      "target": "text:No items",
+      "caption": "Or drag a batch from a folder onto this box.",
+      "ms": 2800
+    },
+    {
+      "do": "caption",
+      "text": "Drag any photo to change its place. Lead with your favorites.",
+      "ms": 3000
+    },
+    {
+      "do": "ring",
+      "target": "[data-testid=\"action-publish\"]",
+      "caption": "Press Publish. They are on the website in minutes.",
+      "ms": 2800
+    }
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])",
+      "[data-testid=\"permission-check-banner\"]"
+    ]
+  }
+}

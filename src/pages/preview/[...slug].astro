@@ -53,6 +53,7 @@ import PreviewLayout from '@/layouts/PreviewLayout.astro';
 import Hero from '@/components/Hero.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import PhotoWall from '@/components/portfolio/PhotoWall.astro';
 import HomeMarkers from '@/components/HomeMarkers.astro';
 import AboutMarkers from '@/components/AboutMarkers.astro';
 import ProcessMarkers from '@/components/ProcessMarkers.astro';
@@ -237,7 +238,10 @@ const extraEditDoc = { id: pageId, type: docType, field: 'additionalSections' as
 // The bespoke pages carry hero fields; the 404 page names them differently.
 const heroHeadline = page.heroHeadline || page.headline || '';
 const heroEyebrow = page.heroEyebrow || page.eyebrow || '';
-const isBespoke = Boolean(singletonType) && !isBuilderSingleton;
+// The Portfolio previews as what it is, the heading and the photos, so it joins
+// neither the bespoke note nor the retired hero below.
+const isPortfolio = singletonType === 'portfolioPage';
+const isBespoke = Boolean(singletonType) && !isBuilderSingleton && !isPortfolio;
 const showHero = isBespoke && Boolean(heroHeadline);
 const hasFinalCta = isBespoke && Boolean(page.finalCtaHeadline || page.finalCta);
 const extraSections = page.additionalSections ?? [];
@@ -287,6 +291,15 @@ const title = `${label} - Preview`;
   )}
   {singletonType === 'eDesignPage' && (
     <EDesignMarkers sections={page.pageBuilder} page={page} editDoc={builderEditDoc} />
+  )}
+
+  {isPortfolio && (
+    <section class="r-wrap py-m" aria-labelledby="preview-portfolio-heading">
+      <h1 id="preview-portfolio-heading" class="r-display mb-m">
+        Portfolio
+      </h1>
+      <PhotoWall photos={page.gallery} />
+    </section>
   )}
 
   {/* Detail pages: the same body component the live page renders. */}

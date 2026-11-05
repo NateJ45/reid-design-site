@@ -18,7 +18,8 @@
 // Retired markers (2026-09-30): 'featuredJournal' and 'press' can still be
 // stored on the layout (their option values stay in the schema so those rows do
 // not fail validation and block publishing), but the journal and press were
-// removed, so both fall through to the final `null` and render nothing.
+// removed, so both fall through to the final `null` and render nothing. The same
+// goes for 'featuredWork' since 2026-11-04: room stories were retired.
 //
 // Instagram feed (2026-09-30): placed automatically on layouts saved before its
 // marker existed; siteSettings.instagramFeedOnHome === false removes it. It
@@ -32,7 +33,6 @@ import HomeStaci from '@/components/home/HomeStaci.astro';
 import HomeWords from '@/components/home/HomeWords.astro';
 import TapeProcess from '@/components/home/TapeProcess.astro';
 import PaintChips from '@/components/home/PaintChips.astro';
-import FeaturedWork from '@/components/FeaturedWork.astro';
 import ServiceAreaCue from '@/components/ServiceAreaCue.astro';
 import FinalCta from '@/components/FinalCta.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
@@ -53,7 +53,7 @@ interface Props {
   visible: any;
 }
 
-const { section, page, siteSettings, visible } = Astro.props as Props;
+const { section, page, siteSettings } = Astro.props as Props;
 ---
 
 {section === undefined ? (
@@ -80,19 +80,6 @@ const { section, page, siteSettings, visible } = Astro.props as Props;
     content={page?.meetStaciContent}
     cta={page?.meetStaciCta}
   />
-) : section === 'featuredWork' ? (
-  visible.portfolio ? (
-    <FeaturedWork
-      projects={page?.featuredProjects ?? []}
-      eyebrow={page?.featuredWorkEyebrow ?? 'Recent Work'}
-      headline={page?.featuredWorkHeadline ?? 'Rooms that feel finished.'}
-      subhead={
-        page?.featuredWorkSubhead ??
-        'A look at recent projects across Plainfield and the Indianapolis suburbs. Each one starts with a conversation about how the space actually needs to function, then the design follows from there. Open any project to see the brief, the design call, and exactly how the room came together.'
-      }
-      cta={page?.featuredWorkCta}
-    />
-  ) : null
 ) : section === 'testimonials' ? (
   <HomeWords
     headline={page?.testimonialsHeadline}

@@ -115,7 +115,9 @@ export const testimonial = defineType({
       title: 'Related project',
       type: 'reference',
       to: [{ type: 'project' }],
-      description: 'If this testimonial is about a specific project, link it here.',
+      description: 'Retired with room stories (2026-11-04). Kept hidden, never deleted.',
+      hidden: true,
+      readOnly: true,
     }),
     defineField({
       name: 'sourceType',

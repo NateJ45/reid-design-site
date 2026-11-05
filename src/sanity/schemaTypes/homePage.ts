@@ -18,7 +18,6 @@ export const homePage = defineType({
     { name: 'layout', title: 'Layout & order' },
     { name: 'hero', title: 'Hero' },
     { name: 'meetStaci', title: 'Meet Staci' },
-    { name: 'featuredWork', title: 'Featured Work' },
     { name: 'process', title: 'Process preview' },
     { name: 'roomStory', title: 'Concept room' },
     { name: 'testimonials', title: 'Testimonials' },
@@ -226,27 +225,31 @@ export const homePage = defineType({
       group: 'meetStaci',
     }),
 
-    // Featured Work (auto-populates with featured-then-newest projects from the Project collection)
+    // Featured Work: retired with room stories (2026-11-04). Hidden, read-only, never
+    // deleted, and the group has no visible fields left so its tab does not show.
     defineField({
       name: 'featuredWorkEyebrow',
+      hidden: true,
+      readOnly: true,
       title: 'Eyebrow',
       type: 'string',
-      group: 'featuredWork',
       initialValue: 'Recent Work.',
     }),
     defineField({
       name: 'featuredWorkHeadline',
+      hidden: true,
+      readOnly: true,
       title: 'Headline',
       type: 'string',
-      group: 'featuredWork',
       initialValue: 'Rooms that feel finished.',
     }),
     defineField({
       name: 'featuredWorkSubhead',
+      hidden: true,
+      readOnly: true,
       title: 'Subhead',
       type: 'text',
       rows: 3,
-      group: 'featuredWork',
       description:
         'Conversion-oriented paragraph under the headline. Tell visitors what a click reveals: the brief, the design thinking, the result. That sells the case-study depth, not just the photos.',
       initialValue:
@@ -254,9 +257,10 @@ export const homePage = defineType({
     }),
     defineField({
       name: 'featuredWorkCta',
+      hidden: true,
+      readOnly: true,
       title: '"See all work" CTA',
       type: 'ctaBlock',
-      group: 'featuredWork',
     }),
 
     // Featured Journal: retired 2026-09-30, removed sections; kept so data is

@@ -2,6 +2,14 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-11-04: The Portfolio is a gallery
+
+- Staci's call: photos, no commentary. `/portfolio/` is one heading and `portfolioPage.gallery` through `portfolio/PhotoWall.astro` (true shape, nothing cropped, the site's photo viewer, no layout script). The switch went back on after the code landed.
+- Studio: `Portfolio photos` is first in Content, Home's first button is `Add portfolio photos`, and `PortfolioPhotosInput.tsx` adds a `Choose photos` button that takes many at once on a phone or a computer. Sanity's own array input only batches by drag and drop, which a phone cannot do. Descriptions are optional and exempt from the Checkup; the page words its own for a screen reader.
+- Retired, not deleted: room stories (out of the menu, the + menu, tables, Quick update, tours and Home's lists), Home's Featured Work (the stored layout row draws nothing), the Portfolio's hero and Before & After fields (hidden, read-only). `docs/PENDING.md` lists the dormant code.
+- Quick update's Post a photo now posts to the Portfolio, with no caption box. The footer's Portfolio fact counts photos.
+- Site Guide: two new Portfolio guides, three room story guides gone, a new tour, What's new, four new screenshots, two new clips, and the five phone clips re-recorded because their opening shot showed the old tile list. Handbook guide 5 rewritten in the dataset and in `seed-studio-playbook.mjs`.
+
 ## 2026-10-30: CI reads Node from `.nvmrc` (starter card 209)
 
 - A repo-root `.nvmrc` pins 22.23.4, every `actions/setup-node` step reads it with `node-version-file: .nvmrc` instead of `node-version: 22` (which took whatever 22.x the runner image had cached; Astro 7.4.4 refuses anything below 22.23.4), and `engines.node` rises to match.

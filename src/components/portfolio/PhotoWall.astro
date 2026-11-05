@@ -1,0 +1,109 @@
+---
+// Safe to edit by hand
+// The Portfolio gallery (2026-11-04): every photo in `portfolioPage.gallery`, in
+// Staci's order, at its TRUE shape, with no words. Nothing is cropped, so she
+// never has to set a hotspot.
+//
+// The rows are plain CSS, no script: each photo's flex-grow and flex-basis are
+// its width-to-height ratio, so a row of mixed shapes fills the width at one
+// height. The empty ::after soaks up the spare room on the last row, so a lone
+// photo there keeps its shape instead of stretching across the page.
+//
+// Each photo opens in the site's photo viewer (LightboxLink + Lightbox), and with
+// JavaScript off it is a link to the full-size picture.
+import SanityImage from '@/components/SanityImage.astro';
+import Lightbox from '@/components/Lightbox.astro';
+import LightboxLink from '@/components/LightboxLink.astro';
+import lightboxCss from '@/styles/lightbox.css?url';
+import { firstOnPage } from '@/lib/once-per-page';
+import { parseSanityAssetDimensions } from '@/lib/sanity';
+import type { SanityImageObject } from '@/lib/pageBuilder.types';
+
+interface Props {
+  photos?: Array<{ _key?: string; asset?: { _ref?: string; _id?: string }; alt?: string }> | null;
+}
+
+const { photos } = Astro.props as Props;
+
+const tiles = (photos ?? [])
+  .filter((p) => p?.asset)
+  .map((p, i) => {
+    const dims = parseSanityAssetDimensions(p);
+    const ratio = dims?.width && dims?.height ? dims.width / dims.height : 1.5;
+    return {
+      key: p._key ?? String(i),
+      ratio: ratio.toFixed(3),
+      // The description is optional in the Studio, so a photo without one still
+      // gets words a screen reader can say.
+      source: { ...p, alt: p.alt?.trim() || `Reid Design room, photo ${i + 1}` },
+    };
+  });
+
+const linkViewerCss = tiles.length > 0 && firstOnPage(Astro.request, 'lightbox');
+---
+
+{tiles.length > 0 && (
+  <div class="wall" data-lightbox-group>
+    {tiles.map(({ key, ratio, source }, i) => (
+      <figure class="wall__photo" style={`--ratio:${ratio}`} data-key={key}>
+        <LightboxLink source={source as SanityImageObject}>
+          <SanityImage
+            source={source}
+            width={1400}
+            sizes="(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 90vw"
+            quality={75}
+            loading={i < 3 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+            class="wall__img"
+          />
+        </LightboxLink>
+      </figure>
+    ))}
+    <Lightbox />
+  </div>
+)}
+{linkViewerCss && <link rel="stylesheet" href={lightboxCss} />}
+
+<style>
+  .wall {
+    --row: 9.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .wall::after {
+    content: '';
+    flex-grow: 999;
+  }
+  .wall__photo {
+    flex: var(--ratio) 1 calc(var(--ratio) * var(--row));
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    aspect-ratio: var(--ratio);
+    overflow: clip;
+    background: var(--color-chip-1);
+  }
+  .wall__photo :global(.lightbox-link) {
+    display: block;
+    height: 100%;
+  }
+  .wall__photo :global(.wall__img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media (min-width: 640px) {
+    .wall {
+      --row: 14rem;
+      gap: 0.75rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .wall {
+      --row: 19rem;
+      gap: 0.875rem;
+    }
+  }
+</style>

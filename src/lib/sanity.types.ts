@@ -1762,6 +1762,15 @@ export type PortfolioPage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  gallery?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+    _key: string;
+  }>;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {

@@ -497,11 +497,8 @@ export async function getPortfolioPage(c: SanityClient = client) {
     seoTitle,
     seoDescription,
     seoImage${IMAGE_PROJECTION},
-    heroEyebrow, heroHeadline, heroSubhead,
+    gallery[]${IMAGE_PROJECTION},
     heroImage${IMAGE_PROJECTION},
-    heroScriptAccent,
-    beforeAfterSeoTitle, beforeAfterSeoDescription,
-    beforeAfterEyebrow, beforeAfterHeadline, beforeAfterSubhead,
     ${sectionsProjection('additionalSections')}
   }`,
     {},
@@ -712,7 +709,7 @@ export function getChromeFacts(): Promise<RawChromeFacts | null> {
     "eDesignTiers": *[_type == "eDesignPage"][0].tiers[]{ price, priceNumeric },
     "faqCount": count(*[_type == "faqItem"]),
     "processStepCount": count(*[_type == "processStep"]),
-    "projectCount": count(*[_type == "project"])
+    "portfolioPhotoCount": count(*[_type == "portfolioPage"][0].gallery)
   }`,
     {},
     null,

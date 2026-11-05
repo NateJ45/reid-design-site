@@ -11,21 +11,6 @@ import type { TableConfig } from '../lib/studio-table';
 
 export const TABLES: TableConfig[] = [
   {
-    id: 'project-table',
-    title: 'Room stories as a table',
-    type: 'project',
-    projection: 'title, location, roomType, year, featured, "photos": count(gallery)',
-    columns: [
-      { key: 'title', label: 'Room story' },
-      { key: 'location', label: 'Town' },
-      { key: 'roomType', label: 'Room' },
-      { key: 'year', label: 'Year' },
-      { key: 'photos', label: 'Photos' },
-      { key: 'featured', label: 'On Home', kind: 'bool' },
-    ],
-    defaultSort: { key: 'year', dir: 'desc' },
-  },
-  {
     id: 'service-table',
     title: 'Services as a table',
     type: 'service',

@@ -1,23 +1,56 @@
-// Portfolio index page singleton. Drives the hero copy + background image
-// on /portfolio. The project grid itself is auto-populated from project
-// documents (ordered via the orderable-document-list plugin).
+// Foundation, edit with care
+// Portfolio page singleton. Since 2026-11-04 the page is one thing: a gallery of
+// photos, in the order they sit in `gallery`, with no words beside them (Staci's
+// call). Room stories (`project`) are retired and no longer feed this page.
+//
+// The old hero and Before & After fields are hidden and read-only, never deleted:
+// removing a field would turn its stored values into "Unknown field" boxes, and
+// the one button on those boxes deletes data (CLAUDE.md rule 1). `heroImage` is
+// still the fallback picture for the page's share card.
 
-import { defineType, defineField } from 'sanity';
+import { defineType, defineField, defineArrayMember } from 'sanity';
 import { additionalSectionsField } from './sections';
+import { PortfolioPhotosInput } from '../components/PortfolioPhotosInput';
+
+const RETIRED = { hidden: true, readOnly: true } as const;
 
 export const portfolioPage = defineType({
   name: 'portfolioPage',
-  title: 'Portfolio Page',
+  // The word Post a photo shows on the phone: "Portfolio (12 photos)".
+  title: 'Portfolio',
   type: 'document',
   // Page singleton, structural copy, not free-form drafting.
   options: { canvasApp: { exclude: true } },
   groups: [
+    { name: 'photos', title: 'Photos', default: true },
     { name: 'seo', title: 'SEO' },
-    { name: 'hero', title: 'Hero' },
-    { name: 'beforeAfter', title: 'Before & After page' },
-    { name: 'extra', title: 'Extra sections' },
   ],
   fields: [
+    defineField({
+      name: 'gallery',
+      title: 'Portfolio photos',
+      type: 'array',
+      group: 'photos',
+      description:
+        'Click Choose photos and pick as many as you like, or drag them onto the box below. Drag a photo to change its place. Then press Publish.',
+      options: { layout: 'grid' },
+      components: { input: PortfolioPhotosInput },
+      of: [
+        defineArrayMember({
+          type: 'image',
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Describe the photo (optional)',
+              type: 'string',
+              description:
+                'Never shown on the page. People who cannot see the photo hear these words, and Google reads them. Like "Living room with a sage sofa and a jute rug".',
+            }),
+          ],
+        }),
+      ],
+    }),
+
     defineField({
       name: 'seoTitle',
       title: 'SEO title',
@@ -54,105 +87,56 @@ export const portfolioPage = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
     }),
 
-    defineField({
-      name: 'heroEyebrow',
-      title: 'Hero eyebrow',
-      type: 'string',
-      group: 'hero',
-      initialValue: 'Recent work',
-    }),
-    defineField({
-      name: 'heroHeadline',
-      title: 'Hero headline',
-      type: 'string',
-      group: 'hero',
-      initialValue: 'Projects across Plainfield and Indianapolis.',
-    }),
-    defineField({
-      name: 'heroSubhead',
-      title: 'Hero subhead',
-      type: 'text',
-      rows: 2,
-      group: 'hero',
-      initialValue:
-        'A look at how rooms come together. Each project starts with a conversation about how the space needs to function, then works back from there.',
-    }),
+    // ── Retired 2026-11-04: hidden, read-only, stored values kept ───────────
+    defineField({ name: 'heroEyebrow', title: 'Hero eyebrow', type: 'string', ...RETIRED }),
+    defineField({ name: 'heroHeadline', title: 'Hero headline', type: 'string', ...RETIRED }),
+    defineField({ name: 'heroSubhead', title: 'Hero subhead', type: 'text', ...RETIRED }),
     defineField({
       name: 'heroImage',
       title: 'Hero background image',
       type: 'image',
-      group: 'hero',
-      description:
-        'Full-bleed photo behind the hero text. Pick a landscape shot; the page applies a dark gradient over the bottom for readability.',
       options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Alt text',
-          type: 'string',
-          validation: (R) => R.required(),
-        }),
-      ],
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
+      ...RETIRED,
     }),
     defineField({
       name: 'heroScriptAccent',
-      title: 'Script-font accent word (optional)',
+      title: 'Script-font accent word',
       type: 'string',
-      group: 'hero',
-      description:
-        'A single word from the headline to render in handwritten Pinyon Script. Use a whole word, spelled and capitalized as in the headline. Leave blank to skip.',
+      ...RETIRED,
     }),
-
-    // ── Before & After sub-page (/portfolio/before-after) ──────────────────
-    // The heading and SEO copy for the side-by-side reveal page. Previously
-    // hardcoded in before-after.astro; now editable here.
     defineField({
       name: 'beforeAfterSeoTitle',
       title: 'Before & After: SEO title',
       type: 'string',
-      group: 'beforeAfter',
-      description: 'Browser tab and Google result title for the Before & After page.',
-      validation: (Rule) =>
-        Rule.max(60).warning(
-          'Titles longer than about 60 characters get cut off in Google search results.',
-        ),
+      ...RETIRED,
     }),
     defineField({
       name: 'beforeAfterSeoDescription',
       title: 'Before & After: SEO description',
       type: 'text',
-      rows: 3,
-      group: 'beforeAfter',
-      validation: (Rule) =>
-        Rule.max(160).warning(
-          'Descriptions longer than about 160 characters get cut off in Google search results.',
-        ),
+      ...RETIRED,
     }),
     defineField({
       name: 'beforeAfterEyebrow',
       title: 'Before & After: eyebrow',
       type: 'string',
-      group: 'beforeAfter',
-      initialValue: 'Before & After.',
+      ...RETIRED,
     }),
     defineField({
       name: 'beforeAfterHeadline',
       title: 'Before & After: headline',
       type: 'string',
-      group: 'beforeAfter',
-      initialValue: 'See the difference.',
+      ...RETIRED,
     }),
     defineField({
       name: 'beforeAfterSubhead',
       title: 'Before & After: subhead',
       type: 'text',
-      rows: 2,
-      group: 'beforeAfter',
-      initialValue:
-        'Drag the slider to reveal what changed. Each pair is from a real project, same room, same angle.',
+      ...RETIRED,
     }),
 
-    additionalSectionsField,
+    { ...additionalSectionsField, ...RETIRED, group: undefined },
   ],
-  preview: { prepare: () => ({ title: 'Portfolio Page' }) },
+  preview: { prepare: () => ({ title: 'Portfolio' }) },
 });

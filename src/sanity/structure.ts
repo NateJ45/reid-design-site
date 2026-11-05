@@ -61,11 +61,13 @@ const SINGLETON_TYPES = [
   'studioPlaybook',
 ] as const;
 
-const ORDERABLE_TYPES = ['service', 'processStep', 'philosophyPoint', 'project'] as const;
+const ORDERABLE_TYPES = ['service', 'processStep', 'philosophyPoint'] as const;
 
 const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...SINGLETON_TYPES,
   ...ORDERABLE_TYPES,
+  // Retired 2026-11-04: no room stories in the menu, the type stays for its data.
+  'project',
   'testimonial',
   'faqItem',
   'announcement',
@@ -116,29 +118,10 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
   S.list()
     .title('Content')
     .items([
-      // Room stories: the portfolio. First, because a finished room is what a
-      // client looks at before booking. The orderable list's own "Create new"
-      // makes a blank story, so the prompted Room story layout is offered
-      // beside it (src/sanity/templates.ts).
-      orderableDocumentListDeskItem({
-        type: 'project',
-        id: 'project',
-        title: 'Room stories',
-        icon: typeIcon('project'),
-        S,
-        context,
-        menuItems: [
-          S.menuItem()
-            .title('New room story (with writing prompts)')
-            .icon(typeIcon('project'))
-            .intent({
-              type: 'create',
-              params: { type: 'project', template: 'project-story' },
-            })
-            .serialize(),
-        ],
-      }),
-      ...tablesFor(S, 'project'),
+      // The portfolio: one list of photos, first because it is the job Staci
+      // comes back for most. Room stories (`project`) were retired 2026-11-04;
+      // the type stays in the schema, out of this menu, for the stored draft.
+      singletonWithPreview(S, 'portfolioPage', 'Portfolio photos'),
 
       S.divider(),
 
@@ -157,7 +140,7 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
               singletonWithPreview(S, 'servicesPage', 'Services'),
               singletonWithPreview(S, 'eDesignPage', 'E-Design'),
               singletonWithPreview(S, 'processPage', 'Process'),
-              singletonWithPreview(S, 'portfolioPage', 'Portfolio (the list page)'),
+              singletonWithPreview(S, 'portfolioPage', 'Portfolio'),
               singletonWithPreview(S, 'faqPage', 'Questions (FAQ)'),
               singletonWithPreview(S, 'contactPage', 'Contact'),
               singletonWithPreview(S, 'privacyPage', 'Privacy policy'),
@@ -189,7 +172,7 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
               S.divider(),
 
               // Redirects: old address to new address (PORTS.md card 22). Most
-              // are filed automatically when a published page or room story
+              // are filed automatically when a published page
               // gets a new web address; one can be added by hand for an old
               // Squarespace link. Applied at build time by astro.config.mjs.
               S.documentTypeListItem('redirect')

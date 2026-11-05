@@ -43,7 +43,7 @@ describe('chrome facts', () => {
       eDesignTiers: [{ price: '$425' }, { price: '$250' }],
       faqCount: 19,
       processStepCount: 4,
-      projectCount: 0,
+      portfolioPhotoCount: 0,
     });
     expect(f).toEqual({
       consultPrice: '$225',

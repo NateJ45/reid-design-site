@@ -110,9 +110,9 @@ The site has a section visibility system that lets you launch now and finish sec
 
 ### Scheduled publishing (for Staci)
 
-Since 2026-10-18 a room story can publish itself (PORTS.md cards 111 and 114; Releases are off on this Studio, so there is no "Schedule publish" action):
+Since 2026-10-18 a document with a `publishAt` field can publish itself (PORTS.md cards 111 and 114; Releases are off on this Studio, so there is no "Schedule publish" action): (Room stories, the first user, were retired 2026-11-04.)
 
-1. Finish the room story but do not click Publish.
+1. Finish the document but do not click Publish.
 2. Open **Publishing** at the foot of the form and set **Publish automatically at**.
 3. It shows under **Coming up** on the Studio's Home until then.
 4. `.github/workflows/publish-due.yml` runs every half hour, publishes any draft whose time has passed (`scripts/publish-due.mjs`, PORTABLE), and the Sanity publish webhook rebuilds the site (the job also calls `CF_DEPLOY_HOOK_URL` when that secret exists).
@@ -232,8 +232,8 @@ Prerendered public routes (refreshed 2026-10-03; custom pages Staci builds herse
 | `/services`          | Services listing                                                   |
 | `/faq`               | FAQ grouped by category                                            |
 | `/contact`           | Contact form + Calendly + post-inquiry roadmap                     |
-| `/portfolio`         | Project grid with Room x Style filter chips                        |
-| `/portfolio/[slug]`  | Project detail                                                     |
+| `/portfolio`         | Staci's photos, no words (`portfolioPage.gallery`)                 |
+| `/portfolio/[slug]`  | Dormant: room stories retired 2026-11-04, builds no pages          |
 | `/e-design`          | E-Design offering page                                             |
 | `/privacy`           | Privacy policy                                                     |
 | `/search`            | Site search (Pagefind index, noindex, footer base row + 404 entry) |

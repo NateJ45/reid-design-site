@@ -20,6 +20,26 @@
 import type { GuideVideoData } from '../../lib/guide-videos.ts';
 
 export const GUIDE_VIDEOS: Record<string, GuideVideoData> = {
+  'add-portfolio-photos': {
+    title: 'Add photos to your portfolio',
+    src: '/guide-videos/add-portfolio-photos.mp4',
+    webm: '/guide-videos/add-portfolio-photos.webm',
+    poster: '/guide-videos/add-portfolio-photos.jpg',
+    captions: '/guide-videos/add-portfolio-photos.vtt',
+    duration: 17,
+    width: 1280,
+    height: 800,
+  },
+  'post-portfolio-photo': {
+    title: 'Add a portfolio photo from your phone',
+    src: '/guide-videos/post-portfolio-photo.mp4',
+    webm: '/guide-videos/post-portfolio-photo.webm',
+    poster: '/guide-videos/post-portfolio-photo.jpg',
+    captions: '/guide-videos/post-portfolio-photo.vtt',
+    duration: 20,
+    width: 390,
+    height: 844,
+  },
   'add-review': {
     title: 'Add a review from your phone',
     src: '/guide-videos/add-review.mp4',

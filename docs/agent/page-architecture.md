@@ -10,7 +10,7 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 
 1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
 2. Meet Staci (photo, intro copy, CTA to About)
-3. Featured Work (auto-populated, hero project + companion panel; visual proof, the hook)
+3. Featured Work: retired 2026-11-04 with room stories. The stored layout row stays and draws nothing
 4. Kind Words (1 featured testimonial + 6 grid testimonials; social proof, early)
 5. How It Works (4-step process preview, CTA to Process)
 6. The concept room (2026-09-30: a labelled, AI-generated sample room that fills up piece by piece as you scroll (whole AI frames, each new piece revealed in place; since 2026-10-02 the build follows the scroll position both ways in a pinned 300svh track (900svh on a phone since 2026-10-03), the scrub; since 2026-10-03 the ANNOTATED room: an example brief at the start, a sample tag on a string for every piece saying why it is there, the plan lighting up by beat and the booking tag at the end; four wall-paint swatches (Sage, Clay, Lake, Espresso) appear under the booking tag on the FINISHED frame only, through one wall mask per room, manifest v5, 2026-10-03); the `roomStory` marker, auto-placed here; several rooms behind tabs above the room since the same day; renders nothing until `src/assets/room/rooms.json` lists a room whose files exist)
@@ -25,7 +25,7 @@ The home page section order is conversion-tuned (reordered 2026-05): visual proo
 
 **Background cadence**: sections alternate `bg-background` / `bg-muted` so no two adjacent sections share a surface. Featured Work is `surface-warm bg-muted`. If you reorder, re-check the cadence, the `bg-background` on the Services section exists specifically to keep the alternation clean after Kind Words moved above How It Works.
 
-**Featured Work** pulls the most-relevant 4 projects from Sanity, ordered featured-first (`featured: true` pinned to the top) then by publish date. It suppresses entirely when the collection is empty, and degrade to a centered single-hero spread (`max-w-4xl`, wide `16/10` aspect) when there's only one item. With companions they render as a two-column grid: a full-bleed hero card (image fills via `lg:h-full` + a `min-h` floor so it's always flush with the right column, never leaving a `bg-card` strip) beside a single **cohesive companion panel** one card, one bronze stripe, one shadow, with each project as a row split by hairline dividers and a per-row hover tint. The panel fills the column (`lg:h-full`) and distributes rows with `flex-1` so its bottom lines up with the hero. Editor controls eyebrow / headline / subhead / CTA via the `homePage` singleton's `featuredWork*` fields (the `featuredJournal*` fields are hidden, read-only and retired since 2026-09-30); section headings are center-aligned to match the rest of the page.
+**Featured Work** pulls the most-relevant 4 projects from Sanity, ordered featured-first (`featured: true` pinned to the top) then by publish date. It suppresses entirely when the collection is empty, and degrade to a centered single-hero spread (`max-w-4xl`, wide `16/10` aspect) when there's only one item. With companions they render as a two-column grid: a full-bleed hero card (image fills via `lg:h-full` + a `min-h` floor so it's always flush with the right column, never leaving a `bg-card` strip) beside a single **cohesive companion panel** one card, one bronze stripe, one shadow, with each project as a row split by hairline dividers and a per-row hover tint. The panel fills the column (`lg:h-full`) and distributes rows with `flex-1` so its bottom lines up with the hero. Editor controls eyebrow / headline / subhead / CTA via the `homePage` singleton's `featuredWork*` fields (the `featuredJournal*` fields are hidden, read-only and retired since 2026-09-30); section headings are center-aligned to match the rest of the page. _(Retired 2026-11-04: the Portfolio is a page of photos (`portfolioPage.gallery`, `portfolio/PhotoWall.astro`). This code is dormant, because no `project` is published and the Studio no longer offers them.)_
 
 **Site-wide pages** (6 total, all linked from the primary nav):
 
@@ -49,7 +49,7 @@ Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus 
 
 Now also live (built during placeholder-content phase):
 
-- Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`), schema + 3 placeholder projects (now prefixed `[SAMPLE: delete before launch]` in the seeder, no photos; delete or replace before cutover). Real projects require at least 3 photos.
+- Portfolio (`/portfolio`): since 2026-11-04 a heading and `portfolioPage.gallery`, no words. Project pages (`/portfolio/[slug]`) are dormant and build nothing
 - E-Design, seeded as a 6th `service` document with `showOnHomepage: false`; appears on `/services` only
 
 ### Page builder + reusable section library
@@ -92,7 +92,7 @@ Optional sections of the site can be turned on or off without touching code. The
 
 - Removed from the desktop nav (`Header.astro`) and the phone menu (`MobileNav.tsx`)
 - Removed from the footer page index (`Footer.astro`), facts and all.
-- Removed from the homepage: Featured Work block (portfolio)
+- Removed from the menu and footer: the section's link
 - The section's own index page (`/portfolio`, `/e-design`) redirects home via `return Astro.redirect('/')` at the top of the page
 - Dynamic detail routes (`/portfolio/[slug]`) return an empty array from `getStaticPaths()` so they build zero pages and 404
 

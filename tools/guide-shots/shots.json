@@ -1,13 +1,50 @@
 {
   "base": "http://localhost:4321/kit-harness/studio",
-  "viewport": { "width": 1280, "height": 800 },
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
   "shots": [
     {
       "key": "quick-update-list",
       "path": "/quick-update",
       "waitFor": "[data-tour=\"quick-list\"]",
       "clip": "[data-tour=\"quick-list\"]",
-      "measure": { "Pick the job you want to do.": "[data-quick=\"banner-message\"]" }
+      "measure": {
+        "Pick the job you want to do.": "[data-quick=\"banner-message\"]"
+      }
+    },
+    {
+      "key": "portfolio-photos",
+      "path": "/structure/portfolioPage",
+      "waitFor": "text:Choose photos",
+      "clip": {
+        "x": 500,
+        "y": 500,
+        "width": 640,
+        "height": 300
+      },
+      "measure": {
+        "Pick as many as you like.": "text:Choose photos"
+      }
+    },
+    {
+      "key": "home-overview",
+      "path": "/",
+      "waitFor": "[data-tour=\"home-quick-actions\"]",
+      "clip": {
+        "x": 32,
+        "y": 110,
+        "width": 792,
+        "height": 620
+      }
     }
-  ]
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
 }

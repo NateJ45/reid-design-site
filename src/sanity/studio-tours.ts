@@ -39,7 +39,7 @@ export const TOURS: TourDef[] = [
         title: 'Your big jobs',
         short: 'Jobs',
         meaning: 'image',
-        body: 'Start a room story, change a price, add a review or update your Google rating, one click each.',
+        body: 'Add portfolio photos, change a price, add a review or update your Google rating, one click each.',
       },
       {
         anchor: 'home-this-week',
@@ -60,7 +60,7 @@ export const TOURS: TourDef[] = [
         title: 'Content is where you edit',
         short: 'Content',
         meaning: 'content',
-        body: 'Every page, room story, price and review lives in Content, room stories first.',
+        body: 'Every page, price and review lives in Content, with your portfolio photos first.',
       },
       {
         anchor: 'tool:presentation',
@@ -135,33 +135,27 @@ export const TOURS: TourDef[] = [
     ],
   },
   {
-    id: 'room-story',
-    title: 'Publish a room story',
+    id: 'portfolio-photos',
+    title: 'Add portfolio photos',
     steps: [
       {
         anchor: 'home-quick-actions',
         title: 'Start here',
         meaning: 'image',
-        body: 'Start a room story opens a new one with its parts in place and every piece of text in square brackets.',
+        body: 'Add portfolio photos opens the list of photos on your Portfolio page.',
       },
       {
         anchor: 'document-form',
-        title: 'Replace each bracket',
-        meaning: 'text',
-        goTo: { create: 'project', template: 'project-story' },
-        body: 'Each one says what goes there: the room and town, the brief, your design call, then the story in three short parts.',
-      },
-      {
-        anchor: 'document-form',
-        title: 'Photos',
+        title: 'Choose your photos',
         meaning: 'image',
-        body: 'Your best wide shot goes under Hero image with a short description. Add 8 to 12 more and drag them into order.',
+        goTo: { doc: 'portfolioPage', field: 'gallery' },
+        body: 'Click Choose photos and pick as many as you like, or drop a batch from a folder onto the box. Drag any photo to change its place.',
       },
       {
         anchor: 'publish',
-        title: 'Publish when it reads right',
+        title: 'Publish when they look right',
         meaning: 'publishing',
-        body: 'It appears on the Portfolio within a few minutes. You can change any word or photo later.',
+        body: 'They appear on the Portfolio within a few minutes. There is nothing to write.',
       },
     ],
   },
@@ -178,6 +172,15 @@ export const WELCOME: WelcomeConfig = {
 };
 
 export const WHATS_NEW: WhatsNewEntry[] = [
+  {
+    date: '2026-11-04',
+    title: 'Your Portfolio is now just your photos',
+    items: [
+      'Add portfolio photos, on Home, opens one list of photos. Choose them, put them in order and press Publish. There is nothing to write.',
+      'Room stories are gone, so ignore anything older here that mentions them.',
+      'Post a photo, on Quick update, now adds a photo to your Portfolio.',
+    ],
+  },
   {
     date: '2026-10-28',
     title: 'New kinds of sections',

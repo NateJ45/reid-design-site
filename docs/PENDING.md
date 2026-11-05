@@ -14,6 +14,14 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 ## Open, needs a human (Nathan)
 
+### From 2026-11-04: the Portfolio is a gallery
+
+Staci wants a plain gallery with no commentary, so room stories are retired and the Portfolio is one list of photos (`portfolioPage.gallery`).
+
+- [ ] **Staci adds her photos**: Home, `Add portfolio photos`, `Choose photos`, Publish. Until then `/portfolio/` says "New photos are on the way." and the menu link is live.
+- [ ] **Signed in, once**: `Choose photos` with two photos, check both land on the draft, then discard. The kit harness refuses writes, so this was not exercised against the real dataset by the recorder.
+- [ ] **Dead-code candidate**: room story code is dormant, not deleted: `project` schema (kept for the stored draft `drafts.project.firstRoomStory` and references), `[slug].astro`, `detail/ProjectDetail.astro`, `ProjectBoard`, `ProjectCard`, `ProjectGallery`, `FeaturedWork`, `PortfolioCursor`, `PortfolioFilterChips`, `CaseStudyTOC`, `ProjectMetaBand`, `templates.ts` "project-story", `seed-room-story-placeholder.mjs`.
+
 - **The `e2e` job is pinned to ubuntu-24.04 (2026-10-30).** `ubuntu-latest` moved to 26.04, where Playwright's WebKit will not launch, so every `[webkit-iphone]` test failed. `ci.yml` now says `runs-on: ubuntu-24.04` on that job only. Unpin it once a Playwright release supports 26.04 (try it on a branch first). Starter PORTS.md card and vault gotcha `playwright-webkit-ubuntu-26-04`.
 
 ### From 2026-10-28: refoundation phases D and E
@@ -41,8 +49,8 @@ items to "Recently closed" with a date, and prune that section when it grows.
 
 - [x] Card 137 wired (2026-10-19): tours, welcome and What's new from `src/sanity/studio-tours.ts`; Quick update edit jobs for the Google rating and availability; pick lists on the review and question forms.
 - [ ] **Videos, phone clips**: re-record the five scripts in `tools/tutorial-videos/scripts/` with Astro's dev toolbar and Sanity's "What's new" toast hidden (script `cover.selectors`), check every caption frame, register them in `src/sanity/guides/videos.ts` and add each guide's `video` (add-review, announcement, press, add-question, google-rating).
-- [ ] **Videos, desk clips**: first room story, change a price and trash from `docs/agent/studio-video-scripts.md`. They need a signed-in Studio that can publish (the kit harness refuses writes), then `videos.ts` entries and each guide's `video`.
-- [ ] **Post a photo onto a room story** (starter card 143, `postPhoto.stories`, 2026-10-20): built and unit-tested; signed in, pick a room story, add one photo with alt text, check it lands on the story's DRAFT gallery and nothing publishes, then Trash the test photo. No phone clip: it needs a real story, so it was not recorded.
+- [x] **Videos, desk clips**: first room story, change a price and trash from `docs/agent/studio-video-scripts.md`. They need a signed-in Studio that can publish (the kit harness refuses writes), then `videos.ts` entries and each guide's `video`. _(room stories retired 2026-11-04; change a price and trash remain unrecorded, and the desk clip add-portfolio-photos exists)_
+- [x] **Post a photo onto a room story** (starter card 143, `postPhoto.stories`, 2026-10-20): built and unit-tested; signed in, pick a room story, add one photo with alt text, check it lands on the story's DRAFT gallery and nothing publishes, then Trash the test photo. No phone clip: it needs a real story, so it was not recorded. _(now posts onto the Portfolio, see the top of this file)_
 - [ ] Signed in, take the first-run tour and "How this screen works" on Home and Quick update at desktop and phone width, and check every spotlight lands on its button.
 - [ ] **The `publish-button` picture** still shows the wireframe: the kit harness signs in as a pretend user who cannot publish, so its Publish button is greyed. Capture it signed in (studio-kit.md, "Real captures in the guides").
 - [ ] Look at the new guides and pictures in the real Studio, signed in, at desktop and phone width: Where enquiries and bookings go, Ask a client for a Google review, Add a question, Quick update.
@@ -64,7 +72,7 @@ The Studio's art now comes from the public site's own grammar: Home's banner foo
 
 - [ ] **Signed in, on a phone**: open `/studio/`, add it to the home screen, check the icon, that it opens on Home, and the offline page with the network off. Look at the new banner foot at phone and desktop width.
 - [ ] **Earlier versions** (card 125) is switched off (`features.earlierVersions: false` in `src/sanity/kit.config.ts`): it needs the nightly backup running, `SANITY_API_WRITE_TOKEN` and `SANITY_PROJECT_ID` repo secrets, and the Worker's `GITHUB_DEPLOY_TOKEN` (Actions: Read and write). Switch it on, and add its guide back (`src/sanity/guides/content.ts`, the card 125 lines), once those exist.
-- [ ] **Post a photo** (card 125) is not set up (`kitConfig.postPhoto` unset): decide whether Staci wants it (room photos from her phone), then set it and add its guide.
+- [x] **Post a photo** (card 125) is not set up (`kitConfig.postPhoto` unset): decide whether Staci wants it (room photos from her phone), then set it and add its guide. _(set up, posting to the Portfolio since 2026-11-04)_
 
 ### From 2026-10-18: the Studio kit (PORTS.md cards 106 to 120)
 
@@ -125,8 +133,8 @@ The Monday full Sanity export is about 557 MiB, over `wrangler r2 object put`'s 
 
 `/portfolio` is the one real gap the audit found, and it is content, not code. The empty state is now honest and has a next step (rating card, booking button, services link), but a buyer deciding on thousands of dollars of furniture still has no finished room to look at, and the lead photo is a client kitchen with "Party of 3" decor.
 
-- [ ] Staci supplies 1 or 2 finished rooms (8 to 12 photos each, tier and price, client OK to share) for Sanity `project` documents (Projects > room story; fields as in the first-room-story item below). Optionally a stronger lead photo in `portfolioPage.heroImage`.
-- [ ] Until then, Nathan decides whether the Portfolio nav link stays (the audit suggested hiding it; the switch is Site settings > Section visibility).
+- [x] Staci supplies 1 or 2 finished rooms (8 to 12 photos each, tier and price, client OK to share) for Sanity `project` documents (Projects > room story; fields as in the first-room-story item below). Optionally a stronger lead photo in `portfolioPage.heroImage`. _(replaced 2026-11-04 by the gallery, see the top of this file)_
+- [x] Until then, Nathan decides whether the Portfolio nav link stays (the audit suggested hiding it; the switch is Site settings > Section visibility). _(decided 2026-11-04: the link is on)_
 - [ ] Observation, not fixed: the floating "Ready to talk it through?" chip on `/services` is translucent enough that page text shows through its lower edge at 390px. Cosmetic; see `StickyCTAChip.tsx`.
 
 ### From 2026-10-03: the annotated concept room (MERGED to main: #93 the room, #94 swatches + phone track, #95 chip look, #98 wall touch-ups)
@@ -167,14 +175,7 @@ Still to do: look at Home, Services, E-Design and About on a phone once this dep
 
 What only Staci can do:
 
-- **Fill in the room story** she just finished. Open Projects > First room
-  story, work top to bottom (the writing prompts say what to put in each
-  box), add 8 to 12 photos, tick "Client OK to share" for the photos, click
-  Generate on the address, pick the room type and style, and publish. The
-  Publish button stays blocked while a [bracketed] prompt or a required photo
-  is missing. The Portfolio switch is already ON (2026-10-02, Nathan's call): until
-  her first room story is published, `/portfolio` shows its deliberate empty
-  state and the nav carries a Portfolio link.
+- ~~Fill in the room story~~ Retired 2026-11-04: the Portfolio is a gallery, see the top of this file.
 - **About > Off the clock.** The step-1 script removes the lists the seeder
   invented (oat latte, 70s soul, brass lamps, Mass Ave). The paragraph about
   growing up in central Georgia stays; it was edited by a person. Ask her for
