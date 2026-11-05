@@ -1060,13 +1060,13 @@ export type HomeSectionMarker = {
   section?:
     | 'hero'
     | 'meetStaci'
-    | 'featuredWork'
     | 'testimonials'
     | 'processPreview'
     | 'roomStory'
     | 'services'
     | 'featuredJournal'
     | 'press'
+    | 'featuredWork'
     | 'instagram'
     | 'serviceAreaCue'
     | 'finalCta';
