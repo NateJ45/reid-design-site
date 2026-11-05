@@ -268,10 +268,10 @@ const NAV_ITEMS = chrome.navItems ?? BUILT_IN_NAV_ITEMS;
 const TONES = [2, 3];
 const toneOf = (i: number) => `var(--color-chip-${TONES[i % TONES.length]})`;
 
-// Her hand (2026-10-01): the fine pen stroke drawn under a link, the same
-// hairline as the hero's script. One path, pathLength=1, so CSS draws it.
+// The fine line drawn under a link: straight since 2026-11-04 (Nathan's call; it
+// was a curved pen stroke). One path, pathLength=1, so CSS draws it from the left.
 const PEN =
-  '<svg class="hdr__pen" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 6.5C20 4.8 45 4.2 68 5.2S92 6.4 98 3.2" /></svg>';
+  '<svg class="hdr__pen" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="1" d="M0 5H100" /></svg>';
 
 // publicPath() drops a leading /preview (starter card 187), so the active link is
 // the same in the draft preview as on the live page.
@@ -544,7 +544,7 @@ function isGroupActive(items: { href: string }[]) {
     align-items: center;
     gap: 0.2rem;
   }
-  /* ---- Her hand (2026-10-01): a fine pen stroke under the word, drawn on
+  /* ---- A fine straight line under the word (2026-11-04), drawn on
      hover or keyboard focus, drawn already under the page you are on and
      under an open group. pathLength=1 makes it one unit long, so the dash
      rules draw it from the left. It replaced the paint chip that rose

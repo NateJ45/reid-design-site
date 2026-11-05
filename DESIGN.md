@@ -157,9 +157,9 @@ no decorative numbering.
     of text shadow, so cream reads over the bright window. Off when Staci
     uploads her own logo (it cannot be recoloured). Every other page keeps
     the ink-on-linen row.
-  - **Her hand.** Hover, keyboard focus, the current page or an open group
-    draws a fine pen stroke under the label (an SVG path, `pathLength=1`,
-    the same hairline as the hero's Waterfall script). It replaced the
+  - **The underline.** Hover, keyboard focus, the current page or an open group
+    draws a fine straight line under the label, from the left (an SVG path,
+    `pathLength=1`; straight since 2026-11-04, it was a curved pen stroke). It replaced the
     paint chip that rose behind the label. Appears without drawing under
     reduced motion.
   - **Ink in.** On the first page of a visit an inline script (right after
