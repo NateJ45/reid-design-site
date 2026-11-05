@@ -28,7 +28,7 @@ furniture decisions, so the site has to answer "can I trust her with this?"
 before it answers anything else. That means: prices posted and consistent on
 every page (a mismatch between two pages reads as carelessness), a defined
 deliverable for every service, real proof (reviews that name a room or a town,
-finished room stories with the tier and price shown), and nothing that reads as
+photos of finished rooms), and nothing that reads as
 template or placeholder. Copy states facts Staci can stand behind and never
 invents personal detail. Decided 2026-10-01.
 

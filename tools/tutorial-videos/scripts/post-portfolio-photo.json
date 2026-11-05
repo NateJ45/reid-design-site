@@ -1,0 +1,17 @@
+{
+  "slug": "post-portfolio-photo",
+  "title": "Add a portfolio photo from your phone",
+  "start": "/quick-update/",
+  "viewport": { "width": 390, "height": 844 },
+  "ready": "[data-tour=\"quick-list\"]",
+  "steps": [
+    { "do": "caption", "text": "On your phone, open Quick update.", "ms": 2200, "poster": true },
+    { "do": "ring", "target": "[data-quick=\"post-photo\"]", "caption": "Tap Post a photo." },
+    { "do": "click", "target": "[data-quick=\"post-photo\"]" },
+    { "do": "ring", "target": "text:Take a photo", "caption": "Take a photo, or choose one from your phone.", "ms": 2600 },
+    { "do": "type", "target": "#photo-alt", "text": "Living room with a sage sofa and a jute rug", "delay": 25, "caption": "Add a few words. They never show on the page." },
+    { "do": "scroll", "target": "text:Where should it go?", "caption": "Choose Portfolio.", "ms": 2400 },
+    { "do": "ring", "target": "text:Save as a draft", "caption": "Save it, then press Publish on the Portfolio.", "ms": 2600 }
+  ],
+  "cover": { "selectors": ["astro-dev-toolbar", "[data-ui=\"whats-new-card\"]", "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"] }
+}

@@ -33,7 +33,7 @@ export interface RawChromeFacts {
   eDesignTiers?: (TierFact | null)[] | null;
   faqCount?: number | null;
   processStepCount?: number | null;
-  projectCount?: number | null;
+  portfolioPhotoCount?: number | null;
 }
 
 export interface ChromeFacts {
@@ -47,7 +47,7 @@ export interface ChromeFacts {
   faqFact: string | null;
   /** "4 steps" for the Process line, or null. */
   processFact: string | null;
-  /** "3 projects" for the Portfolio line, or null. */
+  /** "24 photos" for the Portfolio line, or null. */
   portfolioFact: string | null;
 }
 
@@ -116,6 +116,6 @@ export function resolveChromeFacts(raw: RawChromeFacts | null | undefined): Chro
     eDesignFact: eDesignFrom ? `from ${eDesignFrom}` : null,
     faqFact: count(r.faqCount, 'answer', 'answers'),
     processFact: count(r.processStepCount, 'step', 'steps'),
-    portfolioFact: count(r.projectCount, 'project', 'projects'),
+    portfolioFact: count(r.portfolioPhotoCount, 'photo', 'photos'),
   };
 }

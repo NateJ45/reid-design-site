@@ -7,8 +7,8 @@
 // that is about THIS studio lives here. Detail: docs/agent/studio-kit.md.
 //
 // What Home is for, on this site: visitors come to book a consultation, so
-// Home points at what moves bookings. The first room story (the portfolio is
-// the one real gap), starting prices, reviews and the Google rating. Enquiries
+// Home points at what moves bookings. Portfolio photos (the one real gap),
+// starting prices, reviews and the Google rating. Enquiries
 // themselves go to Staci's email (the contact form is Web3Forms and bookings
 // are Calendly), so the Messages inbox is off and "This week" has a hand tick
 // for answering them.
@@ -53,18 +53,20 @@ const SEO_TYPES = [
   'page',
 ];
 
-/** Site rule: the portfolio has no published room story yet (the audit's P1 gap). */
-const noRoomStory: CheckupRule = {
-  id: 'no-room-story',
+/** Site rule: the Portfolio page has no photos on it yet. */
+const noPortfolioPhotos: CheckupRule = {
+  id: 'no-portfolio-photos',
   run: ({ published }) => {
-    if (published.some((d) => d._type === 'project')) return null;
+    const page = published.find((d) => d._type === 'portfolioPage') as
+      { gallery?: unknown[] } | undefined;
+    if (page?.gallery?.length) return null;
     return {
       severity: 'Needs doing',
-      label: 'The Portfolio has no room story yet',
+      label: 'The Portfolio has no photos yet',
       detail:
-        'A finished room is what a client looks at before booking. Start one from the Room story layout: the brief, your design call and 8 to 12 photos.',
-      target: { create: 'project', template: 'project-story' },
-      targetLabel: 'Start a room story',
+        'Finished rooms are what a client looks at before booking. Choose your photos on the Portfolio page and press Publish.',
+      target: { doc: 'portfolioPage', field: 'gallery' },
+      targetLabel: 'Add photos',
     };
   },
 };
@@ -453,65 +455,16 @@ export const kitConfig: KitConfig = {
       ],
       doneMessage: 'Contact, Services and the footer will show it in a few minutes.',
     },
-    // Card 137 create job with a picture: the start of a room story from the
-    // phone. A story is a long page, so this only opens it: the title, the town
-    // and the cover photo, saved as a DRAFT. Adding photos to the gallery of a
-    // story that already exists is the Post a photo tile (postPhoto.stories, card 143).
-    {
-      id: 'room-photo',
-      title: 'Start a room story from a photo',
-      detail: 'Snap the finished room, name it, and finish the story at your desk.',
-      icon: brandIcon('image'),
-      meaning: 'image',
-      job: { kind: 'create', type: 'project', slugFrom: 'title', draft: true },
-      submitLabel: 'Save it as a draft',
-      fields: [
-        {
-          name: 'title',
-          title: 'Room story title',
-          kind: 'string',
-          required: true,
-          max: 80,
-          description: 'Like "A calm living room in Avon".',
-        },
-        {
-          name: 'location',
-          title: 'Town',
-          kind: 'string',
-          max: 60,
-          description: 'Like "Avon, IN".',
-        },
-        {
-          name: 'heroImage',
-          title: 'Cover photo',
-          kind: 'image',
-          required: true,
-          accept: 'image/*',
-          description: 'Your best wide shot of the finished room.',
-        },
-        {
-          name: 'heroAlt',
-          title: 'Describe the photo',
-          kind: 'string',
-          required: true,
-          max: 140,
-          path: 'heroImage.alt',
-          description:
-            'One short line for people who cannot see it, like "Sage sofa under a gallery wall".',
-        },
-      ],
-      doneMessage:
-        'It is saved as a draft, not on the website yet. Open it at your desk to add the rest of the photos and the story, then Publish.',
-    },
   ],
 
   checkup: {
     rules: [
       ...genericRules({
         seoTypes: SEO_TYPES,
-        altExemptFields: ['logo', 'favicon', 'icon', 'logoImage', 'seoImage'],
+        // `gallery`: the Portfolio's descriptions are optional; the page words its own.
+        altExemptFields: ['logo', 'favicon', 'icon', 'logoImage', 'seoImage', 'gallery'],
       }),
-      noRoomStory,
+      noPortfolioPhotos,
       staleRating,
       endedAnnouncements,
     ],
@@ -540,7 +493,7 @@ export const kitConfig: KitConfig = {
         { title: 'Services', target: { doc: 'servicesPage' } },
         { title: 'E-Design', target: { doc: 'eDesignPage' } },
         { title: 'Process', target: { doc: 'processPage' } },
-        { title: 'Portfolio', detail: 'The list page', target: { doc: 'portfolioPage' } },
+        { title: 'Portfolio', detail: 'Your photos', target: { doc: 'portfolioPage' } },
         { title: 'Questions', target: { doc: 'faqPage' } },
         { title: 'Contact', target: { doc: 'contactPage' } },
         { title: 'Privacy policy', target: { doc: 'privacyPage' } },
@@ -549,9 +502,8 @@ export const kitConfig: KitConfig = {
     { title: 'Pages you built', listType: 'page' },
     { title: 'Saved sections', listType: 'sectionPreset' },
     {
-      title: 'Room stories, prices and reviews',
+      title: 'Prices and reviews',
       links: [
-        { title: 'Room stories', target: { pane: 'project' } },
         { title: 'Services and prices', target: { pane: 'content;pricing;service' } },
         { title: 'Reviews', target: { pane: 'content;testimonial' } },
         { title: 'Press', target: { pane: 'content;pressMention' } },
@@ -580,9 +532,9 @@ export const kitConfig: KitConfig = {
   // Home's big buttons (card 110): the jobs that move bookings, one click each.
   quickActions: [
     {
-      title: 'Start a room story',
-      detail: 'A finished room with writing prompts in place. The Portfolio is waiting for it.',
-      target: { create: 'project', template: 'project-story' },
+      title: 'Add portfolio photos',
+      detail: 'Choose your photos, put them in order, press Publish.',
+      target: { doc: 'portfolioPage', field: 'gallery' },
       icon: brandIcon('image'),
     },
     {
@@ -626,7 +578,7 @@ export const kitConfig: KitConfig = {
       title: 'Content is where you edit',
       short: 'Content',
       meaning: 'pages',
-      body: 'Click Content in the top bar to change any page, add a room story, change a price or add a review.',
+      body: 'Click Content in the top bar to change any page, add portfolio photos, change a price or add a review.',
     },
     {
       title: 'Live preview shows the real page',
@@ -673,16 +625,16 @@ export const kitConfig: KitConfig = {
     },
   },
 
-  // Card 143: "Post a photo" onto a room story that already exists. Room story
-  // photos are the project's own `gallery` list (alt text required there), so no
-  // page-builder galleries are offered. Always a DRAFT: nothing goes live until
-  // Staci opens the story and presses Publish.
+  // Card 143: "Post a photo" onto the Portfolio's own `gallery` list, so no
+  // page-builder galleries are offered and no caption is asked for. Always a
+  // DRAFT: nothing goes live until Staci opens the page and presses Publish.
   postPhoto: {
     galleryTypes: [],
-    stories: { types: ['project'], field: 'gallery', noun: 'Room story' },
-    tileLead: 'Add a photo to a room story you have already started. Saved as a draft.',
+    gallery: { captionField: null },
+    stories: { types: ['portfolioPage'], field: 'gallery', captionField: null },
+    tileLead: 'Add a photo to your portfolio. Saved as a draft.',
     draftNote:
-      'It is saved as a draft on that room story. Open it and press Publish when you are ready.',
+      'It is saved as a draft on the Portfolio. Open it and press Publish when you are ready.',
     altExample: 'The finished living room, with the walnut sideboard against the sage wall',
     note: "Photos of finished rooms only, and only with the client's say-so.",
   },

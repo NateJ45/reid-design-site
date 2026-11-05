@@ -60,7 +60,6 @@ export const MARKER_PAGES: Record<MarkerPageKind, MarkerPageSpec> = {
     defaultOrder: [
       'hero',
       'meetStaci',
-      'featuredWork',
       'testimonials',
       'processPreview',
       'roomStory',
@@ -70,7 +69,7 @@ export const MARKER_PAGES: Record<MarkerPageKind, MarkerPageSpec> = {
       'finalCta',
     ],
     // The journal and the press strip were removed on 2026-09-30.
-    retired: ['featuredJournal', 'press'],
+    retired: ['featuredJournal', 'press', 'featuredWork'],
     autoPlace: [
       {
         // The concept room (2026-09-30): just after "How it works", i.e. before

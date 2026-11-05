@@ -51,6 +51,8 @@ export type GuideBlock =
   | { kind: 'seealso'; items: string[] }
   /** A picture of the Studio by key from ./shots.ts (PORTS.md card 130). */
   | { kind: 'shot'; key: string; caption?: string }
+  /** A clip by key from ./videos.ts (PORTS.md card 137). */
+  | { kind: 'video'; key: string; caption?: string }
   /** A line to copy, like a message to send (card 128). */
   | { kind: 'quote'; text: string; cite?: string };
 
@@ -62,7 +64,7 @@ export const SITE = {
 
 export const GUIDE_CATEGORIES = [
   'Start here',
-  'Room stories',
+  'Portfolio',
   'Pages and words',
   'Services, prices and reviews',
   'Pictures',
@@ -139,11 +141,11 @@ export const guides: Guide[] = [
       {
         kind: 'bullets',
         items: [
-          '**The big buttons**: your most common jobs, one click each. Start a room story, change a price, add a review, update your Google rating.',
+          '**The big buttons**: your most common jobs, one click each. Add portfolio photos, change a price, add a review, update your Google rating.',
           '**This week**: a short list of the jobs that keep inquiries coming. Some check themselves when the Studio can see they are done; the rest you check by hand, and the list starts fresh every Monday.',
           '**Is it live?**: whether your last Publish has reached the website yet.',
           '**Fix-it list**: anything the Checkup found, by name, with an `Edit` button that opens the right box.',
-          '**Coming up**: room stories set to publish themselves on a day you picked.',
+          '**Coming up**: anything set to publish itself on a day you picked.',
           '**Pick up where you left off**: drafts you started and have not published.',
           '**Visitors**: how many people came to the website this week, which pages they read, and how they found you.',
           '**Your pages**: every page and list on the website, one click away.',
@@ -194,7 +196,7 @@ export const guides: Guide[] = [
       {
         kind: 'steps',
         items: [
-          'Open any page, room story or list item.',
+          'Open any page or list item.',
           'Click `Help for this page` at the top right of the form.',
           'The panel shows anything worth a look on this page (a photo with no description, an empty section), then the guides that fit it.',
         ],
@@ -207,107 +209,72 @@ export const guides: Guide[] = [
     ],
   },
 
-  // -------------------------------------------------------------- Room stories
+  // ----------------------------------------------------------------- Portfolio
   {
-    slug: 'first-room-story',
-    category: 'Room stories',
-    title: 'Publish your first room story',
+    slug: 'portfolio-photos',
+    category: 'Portfolio',
+    title: 'Add photos to your portfolio',
     icon: 'image',
-    lead: 'One finished room, told in a few short paragraphs and 8 to 12 photos.',
+    lead: 'Pick them, put them in order, press Publish. No writing needed.',
     diy: 'self',
+    video: 'add-portfolio-photos',
     body: [
       {
         kind: 'p',
-        text: 'A room story is the page a client reads before they decide to book. It does not need to be long. It needs real photos, the problem you solved, and the one decision everything else followed.',
+        text: 'The Portfolio page is your photos and nothing else. No captions, no write-ups. They show at their full shape, so nothing gets cropped.',
       },
-      { kind: 'h', text: 'Before you start' },
-      {
-        kind: 'bullets',
-        items: [
-          'Pick the room: one you are proud of, finished and styled.',
-          'Have 8 to 12 photos ready on your computer: a wide shot, a before from the same spot if you have one, and close-ups of the details.',
-          'Ask the client if they are happy for you to show their home, and whether you can mention what it cost. You will check their answers in the story.',
-        ],
-      },
-      { kind: 'h', text: 'Step by step' },
-      { kind: 'shot', key: 'room-story-start' },
+      { kind: 'h', text: 'Add them' },
+      { kind: 'shot', key: 'portfolio-photos' },
       {
         kind: 'steps',
         items: [
-          'On Home, click `Start a room story`. A new story opens with its parts already in place and every piece of text in [square brackets].',
-          'Replace each bracket with your own words. Each one says what goes there: the room and town, the brief in one sentence, your design call in one sentence, then the story in three short parts.',
-          'Under `Hero image`, upload your best wide shot and type a short description of it in `Alt text`, like "Living room in Avon with a sage sofa and a jute rug".',
-          'Add the rest under `Project photos`. Drag them into the order you want them seen. Before and after pairs go under `Before / after pairs`.',
-          'Under `Client OK to share`, check what the client agreed to. Leave the price line out if they would rather it stayed private.',
-          'Click `Generate` beside `Slug` to make the web address, like /portfolio/avon-living-room/.',
-          'Open `Live preview` from the top bar to see the page as clients will see it.',
-          'Click `Publish`. The story appears on the Portfolio page within a few minutes.',
+          'On Home, click `Add portfolio photos`.',
+          'Click `Choose photos` and pick as many as you like. On a computer you can also drag a batch from a folder onto the box. This works the same on your phone.',
+          'Drag any photo to change its place. The first photos are the first thing clients see, so lead with your favorites.',
+          'Click `Publish`. They are on the website within a few minutes.',
         ],
       },
-      { kind: 'shot', key: 'publish-button' },
+      { kind: 'h', text: 'To take one off' },
+      {
+        kind: 'steps',
+        items: ['Click the three dots on the photo and choose `Remove`.', 'Click `Publish`.'],
+      },
+      { kind: 'h', text: 'One photo from your phone, on the go' },
+      { kind: 'video', key: 'post-portfolio-photo' },
+      {
+        kind: 'p',
+        text: 'Open `Quick update` and tap `Post a photo`. Pick the photo, add a few words about it, choose `Portfolio` and save. It waits as a draft until you open the Portfolio and press `Publish`.',
+      },
       {
         kind: 'callout',
         tone: 'caution',
-        title: 'Keep to what you did in the room.',
-        text: 'Describe the furniture, color and paint, rugs, lighting, art, hardware swaps and trim you chose. Do not describe new cabinets, tile, appliances or moved walls, even in passing: the website promises styling around what a home already has.',
-      },
-      {
-        kind: 'callout',
-        tone: 'positive',
-        title: 'It does not have to be perfect.',
-        text: 'You can come back and change any word or photo later, and the story stays at the same address.',
-      },
-      {
-        kind: 'seealso',
-        items: [
-          'Publish a room story on a day you pick',
-          'Add or change a picture',
-          'Show a draft to someone before it goes live',
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'schedule-a-story',
-    category: 'Room stories',
-    title: 'Publish a room story on a day you pick',
-    icon: 'clock',
-    lead: 'Finish it tonight, have it appear on Tuesday morning.',
-    diy: 'self',
-    body: [
-      {
-        kind: 'steps',
-        items: [
-          'Finish the room story, but do not click Publish.',
-          'Open the `Publishing` box at the bottom of the story and set `Publish automatically at` to the day and time you want.',
-          'Leave the Studio. Your story shows under **Coming up** on Home until then.',
-          'At that time the website publishes it for you and rebuilds. Give it half an hour either side.',
-        ],
-      },
-      {
-        kind: 'p',
-        text: 'Changed your mind? Clear the date, or just click `Publish` yourself whenever you like.',
+        title: 'Ask first.',
+        text: "Only show a client's home if they are happy for you to. It is worth asking before you take the photos.",
       },
       {
         kind: 'callout',
         tone: 'default',
-        title: 'Good for timing a story with a post.',
-        text: 'Pick the morning you plan to share the room on Instagram, so the link in your post goes straight to the full story.',
+        title: 'Describing a photo is optional.',
+        text: 'Click a photo to add a few words about it. They never show on the page. People who cannot see the photo hear them, and Google reads them. Skip it if you are short on time.',
+      },
+      {
+        kind: 'seealso',
+        items: ['Photos that look good on your portfolio', 'Turn a part of the website on or off'],
       },
     ],
   },
   {
-    slug: 'room-story-photos',
-    category: 'Room stories',
-    title: 'Photos that make a room story work',
+    slug: 'portfolio-photo-tips',
+    category: 'Portfolio',
+    title: 'Photos that look good on your portfolio',
     icon: 'image',
-    lead: 'Three kinds of shot, and the order to show them.',
+    lead: 'Three kinds of shot, and how to take them.',
     diy: 'self',
     body: [
       {
         kind: 'bullets',
         items: [
-          '**The wide shot**: the whole room and how it works. This is your hero image.',
+          '**The wide shot**: the whole room and how it works. These make the best first photos.',
           '**The before**: from the exact spot of the after, same height and zoom, so the two line up. It is allowed to look messy.',
           '**The details**: the throw on the sofa arm, the new hardware, the lamp you hunted for. These are the easiest shots to make look designed.',
         ],
@@ -380,7 +347,7 @@ export const guides: Guide[] = [
       },
       {
         kind: 'p',
-        text: 'The FAQ, Contact, Portfolio and Privacy pages have an `Extra sections` box near the bottom instead. Whatever you add there shows at the foot of that page.',
+        text: 'The FAQ, Contact and Privacy pages have an `Extra sections` box near the bottom instead. Whatever you add there shows at the foot of that page.',
       },
       {
         kind: 'callout',
@@ -754,7 +721,7 @@ export const guides: Guide[] = [
       {
         kind: 'steps',
         items: [
-          'Change the web address (the slug) of a published page or room story.',
+          'Change the web address (the slug) of a published page.',
           'Click `Publish`. The Studio files a forward from the old address to the new one before it publishes.',
           'Anyone using an old link lands on the new page.',
         ],
@@ -1207,14 +1174,13 @@ export const guides: Guide[] = [
           '**Add a question**: a question clients keep asking, with your answer, at the end of its group on the Questions page.',
           '**Update your Google rating**: the rating and the day you checked it.',
           '**Change your availability**: the line by the green dot on Contact.',
-          '**Start a room story from a photo**: a title, the town and a cover photo, saved as a draft you finish at your desk.',
-          '**Post a photo**: one photo for a room story you already started. Pick the story, take or choose the photo, say what it shows, and it is added to that story as a draft. Press Publish on your laptop when you are ready.',
+          '**Post a photo**: one photo for your Portfolio. Take or choose the photo, say what it shows, and it is added as a draft. Open the Portfolio and press Publish when you are ready.',
         ],
       },
       { kind: 'shot', key: 'quick-update-photo' },
       {
         kind: 'p',
-        text: 'A whole room story needs a dozen photos and a bigger screen, so the phone opens it and adds photos one at a time. Finish it from Home on your laptop.',
+        text: 'The phone adds photos one at a time. To add a big batch, drag them in on your laptop: Home, then `Add portfolio photos`.',
       },
       {
         kind: 'seealso',
@@ -1238,14 +1204,14 @@ export const guides: Guide[] = [
       {
         kind: 'steps',
         items: [
-          'In a service, review, question or room story, click the small arrow beside `Publish` and choose `Move to Trash`.',
+          'In a service, review or question, click the small arrow beside `Publish` and choose `Move to Trash`.',
           'It leaves the website at the next update.',
           'Changed your mind? Open `Content`, then `Trash (bring things back)`, click it, and choose `Bring it back`.',
         ],
       },
       {
         kind: 'p',
-        text: 'If something else still uses it (a review linked to a room story, say), the Studio asks you to change that first, so nothing on the website is left with a gap.',
+        text: 'If something else still uses it (a service linked from a menu, say), the Studio asks you to change that first, so nothing on the website is left with a gap.',
       },
     ],
   },
@@ -1306,8 +1272,7 @@ export const guides: Guide[] = [
  */
 export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   '*': ['edit-a-page', 'help-panel'],
-  project: ['first-room-story', 'schedule-a-story', 'room-story-photos', 'images-and-alt'],
-  portfolioPage: ['first-room-story', 'section-visibility'],
+  portfolioPage: ['portfolio-photos', 'portfolio-photo-tips', 'section-visibility'],
   homePage: [
     'edit-a-page',
     'extra-sections',
@@ -1383,8 +1348,7 @@ export const GUIDE_FOR_FIELD: FieldGuideMap = {
     schedulingLink: { guide: 'enquiries', section: 'Change the booking link or its words' },
     alsoShowOnProcessPage: { guide: 'add-question', section: 'Move it, or show it on Process too' },
     hideOnWebsite: { guide: 'add-review', section: 'Feature one, or hide one' },
-    gallery: { guide: 'room-story-photos' },
-    publishAt: { guide: 'schedule-a-story' },
+    gallery: { guide: 'portfolio-photos' },
     showUntil: { guide: 'announcement' },
   },
   // Schema type name -> section, for a type used in many places (none yet).

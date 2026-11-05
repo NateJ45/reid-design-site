@@ -1,0 +1,47 @@
+{
+  "base": "http://localhost:4321/kit-harness/studio",
+  "viewport": {
+    "width": 390,
+    "height": 1500
+  },
+  "shots": [
+    {
+      "key": "quick-update-tiles",
+      "path": "/quick-update",
+      "waitFor": "[data-tour=\"quick-list\"]",
+      "clip": "[data-tour=\"quick-list\"]",
+      "measure": {
+        "Add a photo to your portfolio.": "[data-quick=\"post-photo\"]",
+        "A client's review, with their stars.": "[data-quick=\"review\"]",
+        "A line across the top of every page.": "[data-quick=\"notice\"]",
+        "Where you were featured.": "[data-quick=\"press\"]",
+        "A question clients keep asking.": "[data-quick=\"question\"]",
+        "Your Google rating and review count.": "[data-quick=\"rating\"]",
+        "Whether you are taking on new projects.": "[data-quick=\"availability\"]"
+      }
+    },
+    {
+      "key": "quick-update-photo",
+      "path": "/quick-update",
+      "waitFor": "text:Where should it go?",
+      "steps": [
+        {
+          "do": "click",
+          "target": "[data-quick=\"post-photo\"]"
+        }
+      ],
+      "measure": {
+        "Take a photo or choose one from your phone.": "text:Take a photo",
+        "Say what is in it, for someone who cannot see it.": "#photo-alt",
+        "Pick Portfolio. Nothing goes live until you publish it.": "text:Where should it go?"
+      }
+    }
+  ],
+  "cover": {
+    "selectors": [
+      "astro-dev-toolbar",
+      "[data-ui=\"whats-new-card\"]",
+      "[data-ui=\"Popover\"]:has([data-ui=\"whats-new-card\"])"
+    ]
+  }
+}
