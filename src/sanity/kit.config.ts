@@ -469,7 +469,9 @@ export const kitConfig: KitConfig = {
       endedAnnouncements,
     ],
     // The old in-Studio handbooks are reference, not website content.
-    ignoreTypes: ['studioGuide', 'studioNotes', 'studioPlaybook', 'redirect'],
+    // `project`: room stories were retired 2026-11-04, so the stored blank draft
+    // is not a job for Staci. Home's Pick up and Recent edits read this list too.
+    ignoreTypes: ['studioGuide', 'studioNotes', 'studioPlaybook', 'redirect', 'project'],
   },
 
   guide: {
