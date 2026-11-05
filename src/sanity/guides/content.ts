@@ -221,7 +221,7 @@ export const guides: Guide[] = [
     body: [
       {
         kind: 'p',
-        text: 'The Portfolio page is your photos, with a short caption under any photo you give one to. They show at their full shape, so nothing gets cropped.',
+        text: 'The Portfolio page is your photos, with a short caption under any photo you give one to. They show at their full shape, so nothing gets cropped. Now and then a wide photo with a caption shows larger; the website picks those for you.',
       },
       { kind: 'h', text: 'Add them' },
       { kind: 'shot', key: 'portfolio-photos' },
