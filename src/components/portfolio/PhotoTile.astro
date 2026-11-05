@@ -1,0 +1,140 @@
+---
+// Safe to edit by hand
+// One photo in the Portfolio gallery: the photo at its true shape, opening in the
+// photo viewer, with Staci's caption under it. A `feature` tile (PhotoWall chooses
+// which) is larger with the caption set beside it on wider screens.
+//
+// The link's label already says the caption, so the visible line is hidden from
+// screen readers to stop them hearing it twice.
+//
+// Motion, only when the reader has not asked for less: the photo rises a little as
+// it scrolls in (browsers without scroll-driven animation just show it), and eases
+// in 4% on hover, the same as the Instagram prints. The rise is scroll-linked, so a
+// photo is never hidden while it waits for a timer.
+import SanityImage from '@/components/SanityImage.astro';
+import LightboxLink from '@/components/LightboxLink.astro';
+import type { SanityImageObject } from '@/lib/pageBuilder.types';
+
+interface Props {
+  tile: {
+    key: string;
+    ratio: string;
+    caption: string | null;
+    source: SanityImageObject;
+    index: number;
+  };
+  feature?: boolean;
+  /** A feature's caption goes on the left instead of the right. */
+  flip?: boolean;
+}
+
+const { tile, feature = false, flip = false } = Astro.props as Props;
+const { key, ratio, caption, source, index } = tile;
+---
+
+<figure
+  class:list={['tile', { 'tile--feature': feature, 'tile--flip': flip }]}
+  style={`--ratio:${ratio}`}
+  data-key={key}
+>
+  <LightboxLink source={source} caption={caption}>
+    <SanityImage
+      source={source}
+      width={1400}
+      sizes={
+        feature
+          ? '(min-width: 768px) 62vw, 90vw'
+          : '(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 90vw'
+      }
+      quality={75}
+      loading={index < 3 ? 'eager' : 'lazy'}
+      fetchpriority={index === 0 ? 'high' : undefined}
+      class="tile__img"
+    />
+  </LightboxLink>
+  {caption && (
+    <figcaption class="tile__caption" aria-hidden="true">
+      {caption}
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .tile {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+  .tile :global(.lightbox-link) {
+    display: block;
+    aspect-ratio: var(--ratio);
+    overflow: clip;
+    background: var(--color-chip-1);
+  }
+  .tile :global(.tile__img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tile__caption {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
+  }
+  @media (min-width: 640px) {
+    .tile {
+      flex: var(--ratio) 1 calc(var(--ratio) * var(--row));
+    }
+    .tile--feature {
+      flex: 1 1 100%;
+    }
+  }
+  @media (min-width: 768px) {
+    .tile--feature {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      align-items: end;
+      gap: clamp(1.5rem, 4vw, 3.5rem);
+    }
+    .tile--flip {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    }
+    .tile--flip :global(.lightbox-link) {
+      order: 2;
+    }
+    .tile--feature .tile__caption {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.25rem, 2.1vw, 1.75rem);
+      line-height: 1.25;
+      color: var(--color-ink);
+      text-wrap: balance;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) {
+      .tile :global(.tile__img) {
+        transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .tile :global(.lightbox-link:hover .tile__img),
+      .tile :global(.lightbox-link:focus-visible .tile__img) {
+        transform: scale(1.04);
+      }
+    }
+    @supports (animation-timeline: view()) {
+      .tile {
+        animation: tile-settle linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 45%;
+      }
+    }
+  }
+  @keyframes tile-settle {
+    from {
+      translate: 0 1.25rem;
+    }
+  }
+</style>

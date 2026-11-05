@@ -2,6 +2,12 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-11-05: Portfolio design pass (starter card 216)
+
+- The viewer's photo grows out of the gallery and shrinks back (`Lightbox.astro`, PORTABLE, card 216). Web Animations on purpose: a view transition over the modal crashed WebKit.
+- `PhotoWall.astro` splits into runs with larger feature photos, `PhotoTile.astro` is new, and `/portfolio/` ends on a paint-chip closing card with the consultation price, read from the `service` document through `getChromeFacts`.
+- Local builds without `SANITY_API_READ_TOKEN` show no price on that card, as the service documents need the token. Production has it.
+
 ## 2026-11-05: Portfolio captions show
 
 - Nathan's call after Staci typed captions and could not see them. The words on a photo (`portfolioPage.gallery[].alt`, same field, no data change) now show under it and in the viewer. The Studio label is `Caption (optional)`, and a photo with none shows none.

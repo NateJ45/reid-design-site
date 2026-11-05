@@ -1,19 +1,24 @@
 ---
 // Safe to edit by hand
-// Portfolio: a heading and Staci's photos, nothing else (2026-11-04, her call).
+// Portfolio: a heading, Staci's photos and a closing card (2026-11-04, her call on
+// the photos; the card 2026-11-05).
 // The photos are `portfolioPage.gallery`, added in the Studio. Room stories are
 // retired: src/pages/portfolio/[slug].astro stays but builds no pages, because
 // no `project` is published and the Studio no longer offers them.
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getPortfolioPage, getSiteSettings } from '@/lib/queries';
+import { getChromeFacts, getPortfolioPage, getSiteSettings } from '@/lib/queries';
 import { getSectionVisibility } from '@/lib/sectionVisibility';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import PhotoWall from '@/components/portfolio/PhotoWall.astro';
-import { DEFAULT_CTA_LABEL } from '@/lib/siteSettings';
+import { DEFAULT_CTA_HREF, DEFAULT_CTA_LABEL } from '@/lib/siteSettings';
 
-const [page, siteSettings] = await Promise.all([getPortfolioPage(), getSiteSettings()]);
+const [page, siteSettings, facts] = await Promise.all([
+  getPortfolioPage(),
+  getSiteSettings(),
+  getChromeFacts(),
+]);
 
 // Section visibility guard. Redirect home when portfolio is explicitly off.
 const visible = getSectionVisibility(siteSettings?.sectionVisibility);
@@ -32,6 +37,14 @@ const schemas = [
 ];
 
 const photos = (page?.gallery ?? []).filter((p: { asset?: unknown }) => p?.asset);
+
+// The consultation price on the closing card, from the service itself so it is never
+// typed twice. Found by slug or name, so a renamed service still matches. No match or
+// no price = no price line.
+const consult = (facts?.services ?? []).find(
+  (s) => /consult/i.test(s?.slug ?? '') || /consult/i.test(s?.name ?? ''),
+);
+const ctaLabel = siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL;
 ---
 
 <BaseLayout
@@ -48,12 +61,32 @@ const photos = (page?.gallery ?? []).filter((p: { asset?: unknown }) => p?.asset
         Portfolio
       </h1>
       {photos.length > 0 ? (
-        <PhotoWall photos={photos} />
+        <PhotoWall photos={photos}>
+          <aside class="pf__end" aria-label="Book a consultation">
+            <div class="pf__end-in">
+              <p class="pf__end-h">Your room next?</p>
+              <div class="pf__end-foot">
+                {consult?.price && (
+                  <p class="pf__end-price">
+                    <span class="pf__end-name">{consult.name}</span>
+                    <span class="pf__end-amount">{consult.price}</span>
+                  </p>
+                )}
+                <a class="r-btn r-btn--ink" href={DEFAULT_CTA_HREF}>
+                  {ctaLabel}
+                  <span class="r-arrow" aria-hidden="true">
+                    →
+                  </span>
+                </a>
+              </div>
+            </div>
+          </aside>
+        </PhotoWall>
       ) : (
         <div class="pf__empty">
           <p class="pf__empty-p">New photos are on the way.</p>
           <a class="r-btn r-btn--ink" href="/contact/">
-            {siteSettings?.primaryCtaLabel ?? DEFAULT_CTA_LABEL}
+            {ctaLabel}
             <span class="r-arrow" aria-hidden="true">
               →
             </span>
@@ -71,6 +104,74 @@ const photos = (page?.gallery ?? []).filter((p: { asset?: unknown }) => p?.asset
   .pf__h {
     margin: 0 0 clamp(1.75rem, 4vw, 3rem);
     color: var(--color-ink);
+  }
+  /* The closing card: a paint chip, with the hole it hangs from, that takes what
+     the last row leaves. Ink on Oat is well past AA. */
+  .pf__end {
+    position: relative;
+    container-type: inline-size;
+    flex: 1.5 1 calc(1.5 * var(--row));
+    min-width: 0;
+    padding: 2.75rem 1.5rem 1.5rem;
+    background: var(--color-chip-2);
+    color: var(--color-ink);
+  }
+  .pf__end-in {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    height: 100%;
+    min-height: 11rem;
+  }
+  /* Alone on a wide row: one line, so the card has no empty middle. */
+  @container (min-width: 40rem) {
+    .pf__end-in {
+      flex-direction: row;
+      align-items: flex-end;
+      min-height: 0;
+    }
+    .pf__end-foot {
+      flex-wrap: nowrap;
+      gap: 2.5rem;
+    }
+  }
+  .pf__end::before {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 1.5rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--background);
+  }
+  .pf__end-h {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+  .pf__end-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+  }
+  .pf__end-price {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0;
+  }
+  .pf__end-name {
+    font-size: 0.875rem;
+  }
+  .pf__end-amount {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.1;
   }
   .pf__empty-p {
     margin: 0 0 1.75rem;

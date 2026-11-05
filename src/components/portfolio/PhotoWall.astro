@@ -1,26 +1,26 @@
 ---
 // Safe to edit by hand
 // The Portfolio gallery (2026-11-04): every photo in `portfolioPage.gallery`, in
-// Staci's order, at its TRUE shape. Nothing is cropped, so she never has to set a
-// hotspot.
+// Staci's order, at its TRUE shape, with her captions (2026-11-05). Nothing is
+// cropped, so she never has to set a hotspot.
 //
-// Captions (2026-11-05): the words Staci types on a photo (the `alt` field) show
-// under it and in the viewer. A photo without any shows no caption. The link's
-// label already says the same words, so the visible line is hidden from screen
-// readers to stop them hearing it twice.
+// The rows are plain CSS, no script: each tile's flex-grow and flex-basis are its
+// width-to-height ratio, so a row of mixed shapes fills the width at one height.
+// On a phone each photo gets its own row, so a caption is not squeezed.
 //
-// The rows are plain CSS, no script: each photo's flex-grow and flex-basis are
-// its width-to-height ratio, so a row of mixed shapes fills the width at one
-// height (captions sit below and do not change a photo's shape). On a phone each
-// photo gets its own row, so a caption is not squeezed into a narrow tile. The
-// empty ::after soaks up the spare room on the last row, so a lone photo there
-// keeps its shape instead of stretching across the page.
+// Pacing (2026-11-05): so the page has high points, some landscape photos become a
+// feature, larger with the caption beside them. Chosen here from the photo's own
+// facts, so Staci has nothing to set: see `isFeature`. The photos between features
+// are a `run`, its own row container. A feature only lands where the desktop row
+// before it is mostly full (`rowFill`), so it never strands one photo above it.
+//
+// The default slot is the closing card. It joins the last run and takes whatever
+// room the last row has left, so the gallery never ends on a stranded photo.
 //
 // Each photo opens in the site's photo viewer (LightboxLink + Lightbox), and with
 // JavaScript off it is a link to the full-size picture.
-import SanityImage from '@/components/SanityImage.astro';
 import Lightbox from '@/components/Lightbox.astro';
-import LightboxLink from '@/components/LightboxLink.astro';
+import PhotoTile from '@/components/portfolio/PhotoTile.astro';
 import lightboxCss from '@/styles/lightbox.css?url';
 import { firstOnPage } from '@/lib/once-per-page';
 import { parseSanityAssetDimensions } from '@/lib/sanity';
@@ -32,6 +32,14 @@ interface Props {
 
 const { photos } = Astro.props as Props;
 
+/** Photos between features, and how few may follow the last one. */
+const MIN_RUN = 6;
+const MIN_AFTER = 3;
+/** Desktop row width in row heights: about 1150px of container over a 19rem row. */
+const ROW_UNITS = 3.8;
+const TILE_GAP = 0.05;
+const MIN_ROW_FILL = 0.7;
+
 const tiles = (photos ?? [])
   .filter((p) => p?.asset)
   .map((p, i) => {
@@ -40,38 +48,66 @@ const tiles = (photos ?? [])
     return {
       key: p._key ?? String(i),
       ratio: ratio.toFixed(3),
+      width: dims?.width ?? 0,
       caption: p.alt?.trim() || null,
       // The caption is optional in the Studio, so a photo without one still gets
       // words a screen reader can say.
-      source: { ...p, alt: p.alt?.trim() || `Reid Design room, photo ${i + 1}` },
+      source: {
+        ...p,
+        alt: p.alt?.trim() || `Reid Design room, photo ${i + 1}`,
+      } as SanityImageObject,
+      index: i,
     };
   });
 
+type Tile = (typeof tiles)[number];
+
+// Wide enough to look right large, sharp enough to hold it, and with words to sit
+// beside it.
+const isFeature = (t: Tile) => Number(t.ratio) >= 1.25 && t.width >= 1000 && Boolean(t.caption);
+
+const blocks: Array<{ run: Tile[] } | { feature: Tile; flip: boolean }> = [];
+let run: Tile[] = [];
+let flip = false;
+let rowUsed = 0;
+const rowFill = () => rowUsed / ROW_UNITS;
+tiles.forEach((t, i) => {
+  if (
+    run.length >= MIN_RUN &&
+    tiles.length - i - 1 >= MIN_AFTER &&
+    isFeature(t) &&
+    rowFill() >= MIN_ROW_FILL
+  ) {
+    blocks.push({ run }, { feature: t, flip });
+    run = [];
+    rowUsed = 0;
+    flip = !flip;
+  } else {
+    run.push(t);
+    const r = Number(t.ratio);
+    rowUsed = rowUsed + TILE_GAP + r > ROW_UNITS ? r : rowUsed + (rowUsed ? TILE_GAP : 0) + r;
+  }
+});
+if (run.length > 0) blocks.push({ run });
+
 const linkViewerCss = tiles.length > 0 && firstOnPage(Astro.request, 'lightbox');
+const hasEnd = Astro.slots.has('default');
 ---
 
 {tiles.length > 0 && (
   <div class="wall" data-lightbox-group>
-    {tiles.map(({ key, ratio, caption, source }, i) => (
-      <figure class="wall__photo" style={`--ratio:${ratio}`} data-key={key}>
-        <LightboxLink source={source as SanityImageObject} caption={caption}>
-          <SanityImage
-            source={source}
-            width={1400}
-            sizes="(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 90vw"
-            quality={75}
-            loading={i < 3 ? 'eager' : 'lazy'}
-            fetchpriority={i === 0 ? 'high' : undefined}
-            class="wall__img"
-          />
-        </LightboxLink>
-        {caption && (
-          <figcaption class="wall__caption" aria-hidden="true">
-            {caption}
-          </figcaption>
-        )}
-      </figure>
-    ))}
+    {blocks.map((block, b) =>
+      'feature' in block ? (
+        <PhotoTile tile={block.feature} feature flip={block.flip} />
+      ) : (
+        <div class:list={['wall__run', { 'wall__run--end': hasEnd && b === blocks.length - 1 }]}>
+          {block.run.map((tile) => (
+            <PhotoTile tile={tile} />
+          ))}
+          {b === blocks.length - 1 && <slot />}
+        </div>
+      ),
+    )}
     <Lightbox />
   </div>
 )}
@@ -80,49 +116,33 @@ const linkViewerCss = tiles.length > 0 && firstOnPage(Astro.request, 'lightbox')
 <style>
   .wall {
     display: flex;
+    flex-direction: column;
+    gap: clamp(1.75rem, 5vw, 4rem);
+    --row: 14rem;
+  }
+  .wall__run {
+    display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
   }
-  .wall::after {
+  /* Soaks up most of the spare room on a run's last row. */
+  .wall__run::after {
     content: '';
-    flex-grow: 999;
+    flex-grow: 3;
   }
-  .wall__photo {
-    flex: 1 1 100%;
-    min-width: 0;
-    max-width: 100%;
-    margin: 0;
-  }
-  .wall__photo :global(.lightbox-link) {
-    display: block;
-    aspect-ratio: var(--ratio);
-    overflow: clip;
-    background: var(--color-chip-1);
-  }
-  .wall__photo :global(.wall__img) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .wall__caption {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.45;
-    color: var(--color-ink-2);
+  .wall__run--end::after {
+    content: none;
   }
   @media (min-width: 640px) {
-    .wall {
-      --row: 14rem;
+    .wall__run {
       gap: 1.5rem 0.75rem;
-    }
-    .wall__photo {
-      flex: var(--ratio) 1 calc(var(--ratio) * var(--row));
     }
   }
   @media (min-width: 1024px) {
     .wall {
       --row: 19rem;
+    }
+    .wall__run {
       gap: 1.75rem 0.875rem;
     }
   }
