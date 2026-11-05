@@ -5,6 +5,7 @@
 ## 2026-11-04: Every link shares a picture, and a straight nav underline
 
 - `scripts/finish-share-cards.mjs` runs in `postbuild`: recompresses the share cards losslessly (they were 400 to 700 KB, some previews drop a picture over about 600 KB), adds share tags to `/studio/` (its page is PORTABLE, so the built copy gets them here), and warns about any page without a share picture.
+- `scripts/finish-share-cards.mjs` is now the starter's PORTABLE copy (PORTS.md card 215). The `/studio/` share tags moved into the PORTABLE Studio page itself, so the step that injected them here is gone.
 - The nav link underline is a straight line, drawn from the left as before. It was a curved pen stroke.
 
 ## 2026-11-04: The Portfolio is a gallery

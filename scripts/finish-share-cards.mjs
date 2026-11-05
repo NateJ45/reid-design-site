@@ -1,23 +1,25 @@
-// Safe to edit by hand
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
+// Foundation, edit with care (PORTS.md card 215)
 // =============================================================================
-// Runs after every build, so any link to the site shows a picture when shared.
+// The last word on share pictures, run at the end of `npm run build`.
 // =============================================================================
-//   1. Recompresses the share cards losslessly. They came out at 400 to 700 KB,
-//      and some link previews (WhatsApp is the usual one) drop a picture over
-//      about 600 KB. Same pixels, about a quarter of the size.
-//   2. Adds share tags to /studio/. That page is PORTABLE (the starter owns it),
-//      so its copy here cannot gain them without a family-wide change, and it
-//      was the one page a text message showed with no picture.
-//   3. Lists any built page whose share picture is missing or still too big.
+//   1. Recompresses every PNG share card losslessly: dist/client/og/ and
+//      og-default.png. Some came out at 400 to 700 KB, and some link previews
+//      (WhatsApp is the usual one) drop a picture over about 600 KB. Same pixels,
+//      often a quarter of the size. JPEG cards are left alone: re-encoding one
+//      would lose quality, and the check below still sees them.
+//   2. Lists any built page whose share picture is missing or still too big.
 //      A warning, never a failure: a share picture must not stop a deploy, or
-//      block Staci's Publish from reaching the website.
+//      block an editor's Publish from reaching the website.
+//
+// Standalone on purpose (sharp and node only). The family draws its cards several
+// different ways, and this works on what they all leave in dist/client. Optional
+// argument: the folder to work on, for a test.
 // =============================================================================
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import sharp from 'sharp';
 
 const dist = resolve(process.argv[2] ?? 'dist/client');
-const site = 'https://reiddesignllc.com';
 const TOO_BIG = 600 * 1024;
 
 if (!existsSync(dist)) {
@@ -35,54 +37,46 @@ function walk(dir, test, out = []) {
   return out;
 }
 
-// 1. Lossless recompression. A card that does not get smaller is left alone.
-const cards = [
-  ...(existsSync(join(dist, 'og')) ? walk(join(dist, 'og'), (n) => n.endsWith('.png')) : []),
-  join(dist, 'og-default.png'),
-].filter((p) => existsSync(p));
-let saved = 0;
-for (const card of cards) {
-  const before = readFileSync(card);
-  const after = await sharp(before)
-    .png({ compressionLevel: 9, adaptiveFiltering: true, effort: 10 })
-    .toBuffer();
-  if (after.length < before.length) {
-    writeFileSync(card, after);
-    saved += before.length - after.length;
-  }
-}
-console.log(`[share-cards] ${cards.length} cards, ${Math.round(saved / 1024)} KB saved.`);
-
-// 2. The Studio's share tags.
-const studio = join(dist, 'studio', 'index.html');
-if (existsSync(studio)) {
-  const html = readFileSync(studio, 'utf8');
-  if (!html.includes('property="og:image"') && html.includes('</head>')) {
-    const title = 'Reid Design Studio';
-    const description = 'Where the Reid Design website gets edited. Sign in to make a change.';
-    const image = `${site}/og-default.png`;
-    const tags = [
-      `<meta property="og:type" content="website">`,
-      `<meta property="og:site_name" content="Reid Design">`,
-      `<meta property="og:title" content="${title}">`,
-      `<meta property="og:description" content="${description}">`,
-      `<meta property="og:url" content="${site}/studio/">`,
-      `<meta property="og:image" content="${image}">`,
-      `<meta property="og:image:width" content="1200">`,
-      `<meta property="og:image:height" content="630">`,
-      `<meta property="og:image:alt" content="Reid Design interior design, Plainfield, Indiana">`,
-      `<meta name="twitter:card" content="summary_large_image">`,
-      `<meta name="twitter:title" content="${title}">`,
-      `<meta name="twitter:description" content="${description}">`,
-      `<meta name="twitter:image" content="${image}">`,
-    ].join('');
-    writeFileSync(studio, html.replace('</head>', `${tags}</head>`));
-    console.log('[share-cards] share tags added to /studio/.');
-  }
+/** One attribute of the first <meta> whose property is exactly `property`. */
+function metaContent(html, property) {
+  const tag = html.match(new RegExp(`<meta[^>]+property="${property}"[^>]*>`))?.[0];
+  return tag?.match(/content="([^"]+)"/)?.[1];
 }
 
-// 3. The check. Redirect stubs (a section switched off) and Studio plumbing other
-// than the page itself have nothing to share.
+// 1. Lossless recompression. A card that does not get smaller is left alone. No
+// sharp on the machine costs the saving and nothing else.
+const sharp = await import('sharp').then(
+  (m) => m.default,
+  () => null,
+);
+if (sharp) {
+  const cards = [
+    ...(existsSync(join(dist, 'og')) ? walk(join(dist, 'og'), (n) => n.endsWith('.png')) : []),
+    join(dist, 'og-default.png'),
+  ].filter((p) => existsSync(p));
+  let saved = 0;
+  for (const card of cards) {
+    try {
+      const before = readFileSync(card);
+      const after = await sharp(before)
+        .png({ compressionLevel: 9, adaptiveFiltering: true, effort: 10 })
+        .toBuffer();
+      if (after.length < before.length) {
+        writeFileSync(card, after);
+        saved += before.length - after.length;
+      }
+    } catch (err) {
+      console.warn(`[share-cards] ${relative(dist, card)} left as it was: ${err.message}`);
+    }
+  }
+  console.log(`[share-cards] ${cards.length} PNG cards, ${Math.round(saved / 1024)} KB saved.`);
+} else {
+  console.warn('[share-cards] sharp is not available, cards left as they were.');
+}
+
+// 2. The check. Redirect stubs (a section switched off) and Studio plumbing other
+// than the page itself have nothing to share. A picture on another host (a Sanity
+// image) cannot be looked at from here, so it is taken on trust.
 const problems = [];
 for (const page of walk(dist, (n) => n.endsWith('.html'))) {
   const rel = relative(dist, page).replace(/\\/g, '/');
@@ -90,17 +84,25 @@ for (const page of walk(dist, (n) => n.endsWith('.html'))) {
   if (rel.startsWith('pagefind/') || rel.startsWith('kit-harness/')) continue;
   const html = readFileSync(page, 'utf8');
   if (html.includes('http-equiv="refresh"')) continue;
-  const tag = html.match(/<meta[^>]+property="og:image"[^>]*>/)?.[0];
-  const url = tag?.match(/content="([^"]+)"/)?.[1];
-  if (!url) {
+  const content = metaContent(html, 'og:image');
+  if (!content) {
     problems.push(`${rel}: no og:image`);
     continue;
   }
-  if (!url.startsWith(`${site}/`)) continue;
-  const file = join(dist, url.slice(site.length).split('?')[0]);
-  if (!existsSync(file)) problems.push(`${rel}: ${url} is not in the build`);
+  let image;
+  let origin;
+  try {
+    image = new URL(content, metaContent(html, 'og:url') ?? 'https://site.invalid');
+    origin = new URL(metaContent(html, 'og:url') ?? image.href).origin;
+  } catch {
+    problems.push(`${rel}: og:image ${content} is not a URL`);
+    continue;
+  }
+  if (image.origin !== origin) continue;
+  const file = join(dist, image.pathname);
+  if (!existsSync(file)) problems.push(`${rel}: ${content} is not in the build`);
   else if (statSync(file).size > TOO_BIG) {
-    problems.push(`${rel}: ${url} is ${Math.round(statSync(file).size / 1024)} KB`);
+    problems.push(`${rel}: ${content} is ${Math.round(statSync(file).size / 1024)} KB`);
   }
 }
 if (problems.length) {
