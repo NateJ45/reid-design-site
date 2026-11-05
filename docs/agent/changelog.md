@@ -2,6 +2,11 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-11-04: Every link shares a picture, and a straight nav underline
+
+- `scripts/finish-share-cards.mjs` runs in `postbuild`: recompresses the share cards losslessly (they were 400 to 700 KB, some previews drop a picture over about 600 KB), adds share tags to `/studio/` (its page is PORTABLE, so the built copy gets them here), and warns about any page without a share picture.
+- The nav link underline is a straight line, drawn from the left as before. It was a curved pen stroke.
+
 ## 2026-11-04: The Portfolio is a gallery
 
 - Staci's call: photos, no commentary. `/portfolio/` is one heading and `portfolioPage.gallery` through `portfolio/PhotoWall.astro` (true shape, nothing cropped, the site's photo viewer, no layout script). The switch went back on after the code landed.

@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "prebuild": "node scripts/free-dist.mjs && node scripts/fetch-fonts.mjs && node scripts/fetch-instagram.mjs",
     "build": "node scripts/with-workerd.mjs astro build",
-    "postbuild": "pagefind --site dist/client",
+    "postbuild": "pagefind --site dist/client && node scripts/finish-share-cards.mjs",
     "free-dist": "node scripts/free-dist.mjs",
     "build:full": "npm run typegen && npm run build",
     "preview": "wrangler dev -c dist/server/wrangler.json",
