@@ -2,6 +2,11 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-11-05: Portfolio captions show
+
+- Nathan's call after Staci typed captions and could not see them. The words on a photo (`portfolioPage.gallery[].alt`, same field, no data change) now show under it and in the viewer. The Studio label is `Caption (optional)`, and a photo with none shows none.
+- `PhotoWall.astro`: the shape moved from the figure to the link so the caption sits below the photo, and phones get one photo per row. Quick update's Post a photo has no separate caption box, so its required description shows as the caption too.
+
 ## 2026-11-04: Every link shares a picture, and a straight nav underline
 
 - `scripts/finish-share-cards.mjs` runs in `postbuild`: recompresses the share cards losslessly (they were 400 to 700 KB, some previews drop a picture over about 600 KB), adds share tags to `/studio/` (its page is PORTABLE, so the built copy gets them here), and warns about any page without a share picture.

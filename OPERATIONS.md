@@ -232,7 +232,7 @@ Prerendered public routes (refreshed 2026-10-03; custom pages Staci builds herse
 | `/services`          | Services listing                                                   |
 | `/faq`               | FAQ grouped by category                                            |
 | `/contact`           | Contact form + Calendly + post-inquiry roadmap                     |
-| `/portfolio`         | Staci's photos, no words (`portfolioPage.gallery`)                 |
+| `/portfolio`         | Staci's photos and captions (`portfolioPage.gallery`)              |
 | `/portfolio/[slug]`  | Dormant: room stories retired 2026-11-04, builds no pages          |
 | `/e-design`          | E-Design offering page                                             |
 | `/privacy`           | Privacy policy                                                     |

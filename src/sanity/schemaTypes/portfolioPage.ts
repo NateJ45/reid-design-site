@@ -41,10 +41,10 @@ export const portfolioPage = defineType({
           fields: [
             defineField({
               name: 'alt',
-              title: 'Describe the photo (optional)',
+              title: 'Caption (optional)',
               type: 'string',
               description:
-                'Never shown on the page. People who cannot see the photo hear these words, and Google reads them. Like "Living room with a sage sofa and a jute rug".',
+                'Shown under the photo on the page. People who cannot see the photo hear these words too, and Google reads them. Like "Living room with a sage sofa and a jute rug".',
             }),
           ],
         }),

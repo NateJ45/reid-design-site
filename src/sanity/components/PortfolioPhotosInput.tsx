@@ -7,7 +7,7 @@
 // other edit: nothing is public until Publish.
 //
 // The grid below is Sanity's, unchanged: drag to reorder, the menu on a photo to
-// remove it, click a photo to describe it.
+// remove it, click a photo to give it a caption.
 
 import { useRef, useState, type ChangeEvent } from 'react';
 import { Button, Stack, Text } from '@sanity/ui';
