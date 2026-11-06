@@ -17,7 +17,9 @@
 //   - the current section is marked in the contents while reading (a small
 //     IntersectionObserver; without JS the contents are plain links).
 //
-// "How traffic is measured" is NOT editable copy, on purpose (PORTS.md card 54).
+// "How traffic is measured" is NOT editable copy, on purpose (PORTS.md card 54). Since
+// 2026-11-06 it also names the kinds of click and form action the site counts, derived
+// from src/config/events.ts by src/lib/event-kinds.ts (card 217).
 // It renders after either body and is derived from src/lib/analytics-config.ts,
 // the same booleans that decide whether Analytics.astro ships a tag, so this page
 // can never deny a cookie the site is setting. Until 2026-09-28 it did: GA4 was
@@ -36,6 +38,8 @@ import { getPrivacyPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
+import { eventsSentence } from '@/lib/event-kinds';
+import { eventsConfig } from '@/config/events';
 
 // Cloudflare's edge adds its Web Analytics beacon to every HTML page, because
 // the zone has Web Analytics on with automatic setup (dashboard > Web Analytics
@@ -46,6 +50,10 @@ import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
 // setup is ever switched off, set this to false.
 const cfEdgeBeacon = true;
 const countsWithCloudflare = hasCfAnalytics || cfEdgeBeacon;
+// What clicks and form actions the site's own GA4 events count (PORTS.md card 217), worked out
+// from src/config/events.ts at build time, like the booleans above. Nothing is stored in Sanity
+// for it, so it cannot go stale. Shown only with GA4 on: the events travel through that tag.
+const eventsText = hasGa ? eventsSentence(eventsConfig) : '';
 import { docHeadings } from '@/components/contact/doc-anchors';
 
 const [page, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSettings()]);
@@ -247,6 +255,7 @@ const toc = [
               the same.
             </p>
           )}
+          {eventsText && <p class="ptd-p">{eventsText}</p>}
         </div>
 
         {/*

@@ -42,6 +42,9 @@ export default defineConfig({
       'src/lib/surfaces.test.ts',
       'src/lib/insert-groups.test.ts',
       'src/lib/lightbox.test.ts',
+      'src/lib/track.test.ts',
+      'src/lib/event-kinds.test.ts',
+      'src/lib/events-map.test.ts',
     ],
   },
 });

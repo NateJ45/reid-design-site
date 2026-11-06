@@ -23,6 +23,7 @@ import { genericRules, plural, type CheckupRule } from '../lib/studio-checkup';
 import { guides, GUIDE_CATEGORIES, GUIDE_FOR_FIELD, GUIDES_FOR_TYPE } from './guides/content';
 import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
+import { boardConfig } from '../config/board';
 import { brandIcon } from './brandIcons';
 import {
   buildNotice,
@@ -128,9 +129,15 @@ export const kitConfig: KitConfig = {
   // Sanity administrator gets the staff view.
   staff: [],
 
+  // The Report's parts and words (PORTS.md card 218).
+  board: boardConfig,
+
+  // The Report is left out of staffTools on purpose: only administrators see it until
+  // Staci is shown it (add 'report' here then).
   staffTools: ['home', 'quick-update', 'structure', 'presentation', 'site-guide', 'checkup'],
   toolOrder: [
     'home',
+    'report',
     'quick-update',
     'structure',
     'presentation',
@@ -657,6 +664,10 @@ export const kitConfig: KitConfig = {
     // CF_ANALYTICS_TOKEN, CF_ACCOUNT_ID and CF_WEB_ANALYTICS_SITE_TAG
     // (OPERATIONS.md, "Visitor numbers"). It replaced the "Site stats" tool.
     visitors: true,
+    // The Report (card 218). ON in code, not by a build variable: this site deploys through
+    // Cloudflare Workers Builds from main, which has no deploy.yml to pass PUBLIC_BOARD_REPORT.
+    // Turning it off is a one-line commit (set this to false).
+    report: true,
     navbarStatus: true,
     helpPanel: true,
   },

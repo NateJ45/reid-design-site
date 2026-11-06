@@ -33,6 +33,7 @@ import Footer from '@/components/Footer.astro';
 import Announcements from '@/components/Announcements.astro';
 import BackToTop from '@/components/BackToTop';
 import Analytics from '@/components/Analytics.astro';
+import SiteEvents from '@/components/analytics/SiteEvents.astro';
 import '@/styles/globals.css';
 // Starwind UI CSS, accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
@@ -367,6 +368,10 @@ const htmlLayoutAttrs = layoutAttrs(layout);
 
     {/* GA4 + Cloudflare Web Analytics. See Analytics.astro. */}
     <Analytics />
+    {/* The shared GA4 event layer (starter card 217): one delegated listener in a bundled
+        script that does nothing unless the tag above defined window.gtag. This site's map is
+        src/config/events.ts. */}
+    <SiteEvents />
 
     <ClientRouter />
   </head>

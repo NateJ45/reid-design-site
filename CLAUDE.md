@@ -28,7 +28,7 @@ Full text (every version, pin and reason): `docs/claude/stack-essentials.md`. Re
 - **Tailwind 4 via `@tailwindcss/vite`**: no `tailwind.config.mjs`, tokens in `@theme` blocks in `src/styles/globals.css`. React 19 islands only where interactivity is required.
 - **Cloudflare Workers, not Pages.** Deploy: `wrangler deploy -c dist/server/wrangler.json` (the `-c` is load-bearing).
 - **Brand fonts are fetched, never committed** (Fontshare licence forbids a public repo copy): never `git add public/fonts` or `scripts/.og-fonts`. Visual system: `DESIGN.md`; brief: `PRODUCT.md`.
-- Web3Forms contact form, Calendly, GA4 (`PUBLIC_GA_ID`, production Workers Build ONLY), Instagram feed (`INSTAGRAM_TOKEN`; no token = empty feed, never a failed build).
+- Web3Forms contact form, Calendly, GA4 (`PUBLIC_GA_ID`, production Workers Build ONLY), Instagram feed (`INSTAGRAM_TOKEN`; no token = empty feed, never a failed build). Own GA4 events (starter card 217: `generate_lead` on a sent contact form, `form_view`, `booking_click`, `site_search`) and the administrator-only Studio Report (card 218, `features.report`, `src/config/board.ts`): `docs/agent/analytics.md`.
 
 ---
 

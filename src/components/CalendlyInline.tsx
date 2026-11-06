@@ -15,6 +15,7 @@
 // gliding; the iframe still loads when clicked).
 
 import { useEffect, useRef, useState } from 'react';
+import { track } from '@/lib/track';
 
 interface Props {
   /** Full Calendly URL, e.g. https://calendly.com/your-handle/discovery-call */
@@ -61,7 +62,12 @@ export default function CalendlyInline({ url, loadLabel = 'Open the scheduler' }
       {!loaded ? (
         <button
           type="button"
-          onClick={() => setLoaded(true)}
+          onClick={() => {
+            // GA4 booking_click (PORTS.md card 217): the button that opens the scheduler. The "Open in
+            // Calendly" link beside it is counted by the same name from src/config/events.ts.
+            track('booking_click', { destination: 'calendly', location: 'scheduler_button' });
+            setLoaded(true);
+          }}
           className="r-btn r-btn--cream"
           style={{ cursor: 'pointer' }}
         >
