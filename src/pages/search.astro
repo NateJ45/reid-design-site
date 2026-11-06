@@ -258,6 +258,10 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
       if (res === null || current !== q.trim()) return;
       clearResults();
       hits = res.results;
+      // Tell the bundled script below how the search ended (GA4, card 217).
+      document.dispatchEvent(
+        new CustomEvent('reid:search-done', { detail: { term: current, results: hits.length } }),
+      );
       if (hits.length === 0) {
         say('Nothing found for “' + current + '”. Try a shorter word, or ');
         const a = document.createElement('a');
@@ -294,6 +298,23 @@ const suggestions = ['consultation', 'pricing', 'e-design', 'kitchen', 'process'
       // does not cover the page the moment it opens.
       input.focus();
     }
+  }
+</script>
+
+{/* GA4 site_search and search_no_results (PORTS.md card 217). The script above is inline, so
+    it cannot import the shared sender; it announces each finished search as a document event
+    and this bundled script passes it to trackSearch(), which waits for a pause in typing and
+    sends one event per finished term. Search words that look like an email address or phone
+    number are withheld inside trackSearch(). Sends nothing unless the GA4 tag loaded. */}
+<script>
+  import { trackSearch } from '@/lib/track';
+
+  if (!(window as unknown as { __reidSearchTrack?: boolean }).__reidSearchTrack) {
+    (window as unknown as { __reidSearchTrack?: boolean }).__reidSearchTrack = true;
+    document.addEventListener('reid:search-done', (e) => {
+      const d = (e as CustomEvent<{ term: string; results: number }>).detail;
+      trackSearch(d.term, d.results);
+    });
   }
 </script>
 

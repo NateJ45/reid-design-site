@@ -2,6 +2,13 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-11-06: Visitor actions in GA4 and the Report (starter cards 217 and 218)
+
+- The shared event layer (`SiteEvents.astro`, `track.ts`, `event-kinds.ts`) is in `BaseLayout.astro`, with this site's map in `src/config/events.ts`. New events only; the site sent no custom events before: `generate_lead` (contact form, after Web3Forms confirms), `form_view` (marker on the form's first question), `booking_click` (Calendly button and link), `social_click`, `site_search` / `search_no_results` (search page, through a document event), `page_not_found`, plus the built-in `contact_click`, `directions_click`, `js_error`. `outbound_click` and `download_click` are off (Enhanced Measurement is on).
+- The Studio Report (`features.report: true`, `/studio/#/report`, administrators only: in `toolOrder`, not `staffTools`), configured in `src/config/board.ts`. Needs the events in studio-status `src/site-series-config.ts` under `reid`.
+- The privacy page's "How traffic is measured" section now names the kinds of action counted, derived from the map.
+- "Site stats" is kept: Home's Visitors card is not set up yet. Detail: `docs/agent/analytics.md`.
+
 ## 2026-11-05: Portfolio design pass (starter card 216)
 
 - The viewer's photo grows out of the gallery and shrinks back (`Lightbox.astro`, PORTABLE, card 216). Web Animations on purpose: a view transition over the modal crashed WebKit.

@@ -26,6 +26,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { site } from '@/data/site';
+import { track } from '@/lib/track';
 import {
   ROOM_OPTIONS,
   STYLE_OPTIONS,
@@ -383,6 +384,10 @@ export default function ContactForm({
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.success !== false) {
+        // GA4 generate_lead (PORTS.md card 217): once, only here, after Web3Forms confirmed the
+        // message. Not on submit, not for the honeypot above. The form's name only, never what
+        // was typed.
+        track('generate_lead', { form_name: 'contact' });
         setStatus('success');
         try {
           localStorage.removeItem(DRAFT_KEY);
@@ -490,7 +495,9 @@ export default function ContactForm({
           About you
         </legend>
 
-        <div className="cf-field">
+        {/* data-track-form: GA4 form_view needs 40% of the marked element in view, and this form is
+            several screens tall, so the first question carries the marker (events.ts formSelector). */}
+        <div className="cf-field" data-track-form="contact">
           <label htmlFor="name" className="cf-label">
             Name
           </label>
