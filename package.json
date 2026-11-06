@@ -100,7 +100,7 @@
     "react-photo-album": "^3.6.2",
     "sanity": "6.19.0",
     "sanity-plugin-asset-source-unsplash": "7.0.29",
-    "sanity-plugin-media": "6.3.5",
+    "sanity-plugin-media": "6.6.2",
     "satori": "0.63.2",
     "shadcn": "^4.23.0",
     "sharp": "^0.35.5",
@@ -139,7 +139,12 @@
     "satori": {
       "fflate": "0.7.5"
     },
-    "tmp": "0.2.6"
+    "tmp": "0.2.7",
+    "chromium-bidi": {
+      "zod": "4.6.7"
+    },
+    "@puppeteer/browsers": "3.2.6",
+    "minimatch@>=7 <11.0.1": "11.0.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
