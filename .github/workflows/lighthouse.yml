@@ -7,15 +7,14 @@
 #   - pull_request: ONE URL per template via --collect.url below. The full list
 #     in lighthouserc.json, the assertions and the median-of-3 are untouched;
 #     passing --collect.url only replaces which pages are audited.
-#   - push to main: the FULL url list, the post-merge record.
+#   - not on a push to main (card 221): 5 to 9 minutes per merge for a check
+#     nothing waits on, and the PR sample has audited the same templates.
 #   - weekly schedule: the FULL url list, catches drift nobody pushed (a font
 #     host change, a dependency bump).
 #   - workflow_dispatch: a branch tip on demand, full list.
 name: Lighthouse
 
 on:
-  push:
-    branches: [main]
   pull_request:
   schedule:
     - cron: '17 5 * * 1'
