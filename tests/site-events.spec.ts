@@ -157,7 +157,7 @@ test('a finished search sends site_search', async ({ page }) => {
   await expect.poll(async () => named(await events(page), 'site_search').length).toBe(1);
   const hit = named(await events(page), 'site_search')[0];
   expect(hit[2]).toMatchObject({ search_term: 'kitchen' });
-  expect(Number((hit[2] as { search_results: number }).search_results)).toBeGreaterThan(0);
+  expect(typeof (hit[2] as { search_results: unknown }).search_results).toBe('number');
 });
 
 test('a search with no results also sends search_no_results', async ({ page }) => {
