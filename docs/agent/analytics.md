@@ -126,7 +126,4 @@ Cloudflare Workers Builds from `main` (no `deploy.yml`, so no `PUBLIC_BOARD_REPO
 one-line commit. It is in `toolOrder` and not in `staffTools`, so only administrators see it; the Site Guide does not
 mention it. Studio address: `/studio/#/report`.
 
-**"Site stats" stays for now.** `StatsTool`, `/api/stats` and `site-stats.ts` are still Staci's only traffic numbers: Home's
-Visitors card needs `CF_ACCOUNT_ID` and `CF_WEB_ANALYTICS_SITE_TAG` in `wrangler.jsonc` and a token with Account
-Analytics read, and none is set, so the card cannot show numbers yet (`docs/PENDING.md`). The Report is administrators
-only. Retire the three when the Visitors card shows the same numbers.
+**"Site stats" stays for now.** `StatsTool`, `/api/stats` and `site-stats.ts` are Staci's only view longer than a week: Home's Visitors card works (it reads Google Analytics, `ANALYTICS_PROVIDER: "ga4"`) but shows the last 7 days, and the Report is administrators only for now. Retire Site stats when `'report'` goes into `staffTools` (`docs/PENDING.md`).
