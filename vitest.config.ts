@@ -45,6 +45,7 @@ export default defineConfig({
       'src/lib/track.test.ts',
       'src/lib/event-kinds.test.ts',
       'src/lib/events-map.test.ts',
+      'src/lib/video-ranges.test.ts',
     ],
   },
 });
