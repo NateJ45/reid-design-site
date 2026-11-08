@@ -65,10 +65,11 @@ That file splits the list in three, and the split is load-bearing:
   and bites on a local run whose `.env` carries `PUBLIC_GA_ID` (formerly `PUBLIC_GA_MEASUREMENT_ID`),
   which is how 470 fake sessions reached the live property. Proven 2026-09-28:
   it fails against the pre-guard layout with the id built in.
-- **`tests/a11y.spec.ts`** axe-core's **default** rule set on every content
-  route, zero violations. Deliberately not narrowed with `.withTags([...])`:
-  filtering to `wcag2a` alone quietly drops the AA rules, which is a mistake
-  this family has made before.
+- **`tests/a11y.spec.ts`** axe-core tagged WCAG 2.0, 2.1 and 2.2 A/AA plus
+  `best-practice` on every content route, zero violations. A plain `analyze()`
+  skips `target-size` (SC 2.5.8), so the tags are what make the 2.2 rule run.
+  Keep every tag: filtering to `wcag2a` alone quietly drops the AA rules, a
+  mistake this family has made before.
 - **`tests/a11y-dark.spec.ts`** since 2026-09-29 a **light-only guard**, not a dark sweep. The site is light
   only, so the file seeds `localStorage['reid-design-theme']` = `'dark'` through
   `addInitScript` (before BaseLayout's inline bootstrap runs) and asserts the

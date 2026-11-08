@@ -4,7 +4,7 @@
 
 ## Accessibility
 
-Target: WCAG 2.1 AA. **The site is light only since 2026-09-29** (dark tokens are dormant; see theme-and-color.md), so the light theme is the audited surface; if dark returns it needs its own axe sweep. Aim for 100 Lighthouse Accessibility on every page and preserve that bar after edits.
+Target: WCAG 2.2 AA. **The site is light only since 2026-09-29** (dark tokens are dormant; see theme-and-color.md), so the light theme is the audited surface; if dark returns it needs its own axe sweep. Aim for 100 Lighthouse Accessibility on every page and preserve that bar after edits.
 
 ### Required patterns
 

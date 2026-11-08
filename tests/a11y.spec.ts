@@ -8,9 +8,12 @@ for (const route of routes) {
     await page.goto(route);
     await settle(page);
 
-    // Default axe rule set (no .withTags) so we get whatever axe-core ships
-    // as its standard set, not a hand-picked subset.
-    const results = await new AxeBuilder({ page }).analyze();
+    // WCAG 2.0, 2.1 and 2.2 A/AA plus best-practice. A plain analyze() skips
+    // target-size (WCAG 2.2, SC 2.5.8), so the tags are what make it run
+    // (found 2026-11-08, starter card 223). Never drop best-practice.
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
+      .analyze();
 
     if (results.violations.length > 0) {
       const report = results.violations
