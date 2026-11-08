@@ -2,6 +2,11 @@
 
 > Running change log, moved out of CLAUDE.md so it does not load on every task.
 
+## 2026-11-08: Sticky chip above the footer (starter card 224)
+
+- `StickyCTAChip.tsx` now renders into `<body>` through a React portal. `<main>` and the footer both carry a `view-transition-name`, so each is a stacking context, and at the foot of /services/ and project pages the footer painted over the chip even though it reported itself visible (WCAG 2.4.11). It also stays showing while one of its links has keyboard focus.
+- `tests/sticky-chip.spec.ts` hit-tests the chip at the foot of /services/ and checks it stays while focused; it fails on the old component.
+
 ## 2026-11-06: Visitor actions in GA4 and the Report (starter cards 217 and 218)
 
 - The shared event layer (`SiteEvents.astro`, `track.ts`, `event-kinds.ts`) is in `BaseLayout.astro`, with this site's map in `src/config/events.ts`. New events only; the site sent no custom events before: `generate_lead` (contact form, after Web3Forms confirms), `form_view` (marker on the form's first question), `booking_click` (Calendly button and link), `social_click`, `site_search` / `search_no_results` (search page, through a document event), `page_not_found`, plus the built-in `contact_click`, `directions_click`, `js_error`. `outbound_click` and `download_click` are off (Enhanced Measurement is on).

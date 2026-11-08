@@ -209,7 +209,7 @@ Audit basis: a 390×844 walk found exactly four "orphan-left" CTAs that benefit 
 
 ### Sticky CTA chip behavior
 
-`StickyCTAChip.tsx` is a bottom-floating ink pill that appears past 50% scroll on long pages (portfolio detail, services). Behavior is now simple threshold-based visibility with a 2% hysteresis band, past 50% it shows, above 48% it hides. **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
+`StickyCTAChip.tsx` is a bottom-floating ink pill that appears past 50% scroll on long pages (portfolio detail, services). Behavior is now simple threshold-based visibility with a 2% hysteresis band, past 50% it shows, above 48% it hides, except while one of its links has keyboard focus. It renders into `<body>` through a portal so the footer, a separate view-transition stacking context, cannot paint over it (card 224). **No scroll-direction toggling** (that produced a flicker when visitors paused-then-resumed scrolling).
 
 Positioning: always `bottom-[5.5rem]` (above the BackToTop button which lives at `bottom-6`). On mobile centered via `left-1/2 -translate-x-1/2`; on `sm+` returns to right-aligned via `sm:left-auto sm:translate-x-0 sm:right-m` so it doesn't dominate the reading column on wider viewports.
 

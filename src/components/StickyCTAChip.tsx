@@ -9,6 +9,7 @@
 // CTA is already enough.
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   /** Visible label. Should read as conversational, not pushy. */
@@ -22,8 +23,19 @@ interface Props {
 const SESSION_KEY = 'reid-design-sticky-cta-dismissed';
 
 export default function StickyCTAChip({ label, href = '/contact/', threshold = 0.5 }: Props) {
-  const [visible, setVisible] = useState(false);
+  const [scrolledIn, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  // Keyboard focus keeps the chip showing: scrolling past the threshold while a chip link holds
+  // focus must not fade it out from under the focus ring (WCAG 2.4.7 and 2.4.11, starter card 224).
+  const [focusInside, setFocusInside] = useState(false);
+  const visible = scrolledIn || focusInside;
+  // Rendered into <body>, not where the island sits. <main> and the footer both carry a
+  // view-transition-name, which makes each a stacking context, so inside <main> this fixed chip
+  // could rise no higher than <main> and the footer painted over it, hiding the chip at the foot
+  // of the page even while it held keyboard focus (starter card 224, 2026-11-08). The server
+  // renders nothing; the chip only ever shows after hydration and a scroll anyway.
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => setHost(document.body), []);
 
   useEffect(() => {
     // Respect session-level dismissal so re-visiting the page in the same
@@ -86,9 +98,9 @@ export default function StickyCTAChip({ label, href = '/contact/', threshold = 0
     setDismissed(true);
   }
 
-  if (dismissed) return null;
+  if (dismissed || !host) return null;
 
-  return (
+  return createPortal(
     <div
       // A11y note: keep pointer-events on ONE state path only, never include
       // both `pointer-events-none` and `pointer-events-auto` in the same
@@ -119,6 +131,12 @@ export default function StickyCTAChip({ label, href = '/contact/', threshold = 0
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0',
       ].join(' ')}
       aria-hidden={!visible}
+      data-sticky-chip
+      data-chip-visible={visible ? '' : undefined}
+      onFocus={() => setFocusInside(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusInside(false);
+      }}
     >
       {/* Width sizing:
            - mobile: cap at 92vw so the chip never blows past the viewport
@@ -159,6 +177,7 @@ export default function StickyCTAChip({ label, href = '/contact/', threshold = 0
           </svg>
         </button>
       </div>
-    </div>
+    </div>,
+    host,
   );
 }
