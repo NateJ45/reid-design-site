@@ -76,6 +76,8 @@ test.describe('builder kit', () => {
       await page.goto(route, { waitUntil: 'load' });
       const results = await new AxeBuilder({ page })
         .include('main')
+        // YouTube's own player markup (aria-label on a bare div) is not ours to fix.
+        .exclude('iframe[src*="youtube"]')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();
       expect(results.violations, route).toEqual([]);
