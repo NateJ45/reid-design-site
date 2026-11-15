@@ -1,3 +1,7 @@
+<a href="https://nixoncreativestudio.com/work/reid-design/"><img src="https://raw.githubusercontent.com/NateJ45/NateJ45/main/assets/cards/reid-design-site.png" alt="Reid Design, case study by Nixon Creative Studio" width="100%"></a>
+
+<p align="center"><a href="https://nixoncreativestudio.com/work/reid-design/">Read the case study</a> · <a href="https://reiddesignllc.com">Visit reiddesignllc.com</a></p>
+
 # Reid Design
 
 **A site where the plan and the price come before anything is ordered: the marketing site for an interior design studio in Plainfield, Indiana.**
