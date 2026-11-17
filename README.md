@@ -90,6 +90,10 @@ Also live: a dated announcement bar / popup Staci posts from the Studio (Announc
 
 Automatic jobs in `.github/workflows/`: `ci.yml` (parallel `static` and `site` jobs aggregated into the required `build` check, then Playwright in 3 shards against the uploaded build, aggregated into `test`) and `lighthouse.yml` on every PR (a 4-page sample) and every Monday (all pages); `sanity-backup.yml` (nightly dataset export), `uptime.yml` (hourly, needs the `SITE_URL` repo variable), `link-health.yml` (Mondays), `refresh-instagram-token.yml` + `weekly-rebuild.yml` (Mondays, keep the Instagram feed fresh), and `dependabot-auto-merge.yml` (merges green minor/patch Dependabot PRs).
 
+`dependabot-lockfile.yml` runs only on Dependabot's PRs. When Dependabot's npm writes a
+lockfile that CI's npm rejects (`Missing: ... from lock file`), it rebuilds the lock with
+CI's npm, commits it to the PR and re-runs `ci.yml` (starter PORTS.md card 226).
+
 ### Running it locally
 
 ```sh
