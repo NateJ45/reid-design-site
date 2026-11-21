@@ -46,6 +46,8 @@ export default defineConfig({
       'src/lib/event-kinds.test.ts',
       'src/lib/events-map.test.ts',
       'src/lib/video-ranges.test.ts',
+      // Card 98 (2026-11-20): node:test file.
+      'src/lib/format-date.test.ts',
     ],
   },
 });

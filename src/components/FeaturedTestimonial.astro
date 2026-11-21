@@ -6,6 +6,7 @@
 // Optional photo + location render when present (location is a local-trust signal).
 
 import SanityImage from '@/components/SanityImage.astro';
+import { formatDate, LONG_MONTH_YEAR } from '@/lib/format-date';
 
 interface SanityImageObject {
   asset?: { _ref?: string; _id?: string };
@@ -40,14 +41,7 @@ const { testimonial } = Astro.props as Props;
 
 if (!testimonial?.quote) return null;
 
-function formatDate(d?: string): string {
-  if (!d) return '';
-  const date = new Date(d);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-}
-
-const dateLabel = formatDate(testimonial.date);
+const dateLabel = formatDate(testimonial.date, LONG_MONTH_YEAR);
 const sourceLabel = testimonial.source && testimonial.source !== 'Other' ? testimonial.source : '';
 const attributionMeta = [testimonial.location, dateLabel, sourceLabel].filter(Boolean).join(' · ');
 const hasPhoto = !!testimonial.photo?.asset;
