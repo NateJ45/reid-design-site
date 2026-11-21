@@ -58,3 +58,6 @@ tools
 # pinned by a hash in src/lib/studio-board.test.ts. Prettier must never rewrite them.
 src/sanity/kit/board/ncs-charts.js
 src/sanity/kit/board/ncs-charts.css
+
+# Pre-repo planning history, kept verbatim
+docs/history/
