@@ -13,6 +13,7 @@
 **Scope note:** This is Phase 1. Phase 2 (module-library polish: enable docs + seeds per module) and Phase 3 (full `docs/agent` genericization + `NEW-PROJECT.md` runbook) are separate plans, written when Phase 1 lands.
 
 **Source paths (read-only reference during the build):**
+
 - Reid repo: `C:\Users\natha\Documents\Claude\Projects\ReidDesignAstro\reid-design-site\`
 - Approved spec: `C:\Users\natha\Documents\Claude\Projects\ReidDesignAstro\docs\superpowers\specs\2026-05-30-astro-sanity-starter-design.md`
 
@@ -23,6 +24,7 @@
 ### Task 1: Create the new repo from a copy and confirm it builds untouched
 
 **Files:**
+
 - Create: the new repo directory `ncs-astro-sanity-starter/` (sibling of `reid-design-site`)
 
 - [ ] **Step 1: Copy the Reid repo, excluding build/install artifacts**
@@ -70,6 +72,7 @@ The goal of this stage is a lean core that builds without the specialized surfac
 ### Task 2: Create the module library structure and move schemas out of the Studio
 
 **Files:**
+
 - Create: `modules/<name>/studio/` for each module
 - Modify: `studio/schemaTypes/index.ts`
 - Move: the schema files listed below out of `studio/schemaTypes/`
@@ -113,6 +116,7 @@ Expected: PASS. If it fails with a missing-type reference, a core schema still p
 - [ ] **Step 5: Remove cross-references from core schemas to moved types**
 
 For each dangling reference typegen reported, open the core schema and delete the field that targets a moved type. Likely spots:
+
 - `homePage.ts`: a `featuredProjects` / portfolio reference field — remove it.
 - `siteSettings.ts`: nav items or a footer link that hardcodes a moved route — remove those entries.
 
@@ -128,6 +132,7 @@ git commit -m "refactor: move specialized schemas into modules/, de-register fro
 ### Task 3: Strip the moved types from the desk structure
 
 **Files:**
+
 - Modify: `studio/structure.ts`
 
 - [ ] **Step 1: Trim the type arrays**
@@ -157,12 +162,14 @@ git commit -m "refactor: remove moved types from Studio desk structure"
 ### Task 4: Move the specialized pages and islands out of the Astro app
 
 **Files:**
+
 - Move (into `modules/<name>/src/`): the page and component files below
 - Modify: `src/components/Header.astro` (nav), any `src/lib/queries.ts` GROQ for moved pages
 
 - [ ] **Step 1: Move pages**
 
 From `src/pages/` into the matching `modules/<name>/src/pages/`:
+
 - `portfolio/` (the whole folder: `index.astro`, `[slug].astro`, `before-after.astro`) → `portfolio`
 - `process.astro` → `process`
 - `guides/` → `lead-magnets`
@@ -177,6 +184,7 @@ From `src/pages/` into the matching `modules/<name>/src/pages/`:
 - [ ] **Step 2: Move the islands/components each moved page owns**
 
 From `src/components/` into the matching `modules/<name>/src/components/`:
+
 - `portfolio`: `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `PortfolioCursor.tsx`, `PortfolioFilterChips.tsx`, `CaseStudyTOC.tsx`, `StickyCTAChip.tsx`, `ProjectMetaBand.astro`
 - `process`: `ProcessStepIllustration.astro`
 - `lead-magnets`: `LeadMagnetForm.tsx`
@@ -230,6 +238,7 @@ git commit -m "refactor: move specialized pages + islands into modules/, trim na
 ### Task 5: Swap the brand palette to a neutral default
 
 **Files:**
+
 - Modify: `src/styles/globals.css` (the `@theme` palette block, `:root`, `.dark`)
 
 - [ ] **Step 1: Replace the `@theme` brand palette block**
@@ -279,6 +288,7 @@ git commit -m "feat: neutral Slate default palette (light + dark)"
 ### Task 6: De-hardcode brand color from the polish layer
 
 **Files:**
+
 - Modify: `src/styles/globals.css` (polish-layer rules with literal brand rgba)
 
 - [ ] **Step 1: Introduce a tint variable**
@@ -311,6 +321,7 @@ git commit -m "refactor: drive polish-layer tints from --tint-rgb token, drop br
 ### Task 7: Swap typefaces to a neutral default and make the script accent opt-in
 
 **Files:**
+
 - Modify: `src/styles/globals.css` (font imports + `--font-*` tokens)
 - Modify: `package.json` (fontsource deps)
 
@@ -358,6 +369,7 @@ git commit -m "feat: neutral Libre Baskerville + Inter default type, script acce
 ### Task 8: Neutralize identity constants, logo, favicon, and OG inputs
 
 **Files:**
+
 - Modify: `src/data/site.ts`
 - Modify: `scripts/generate-og-default.mjs` (inputs block)
 - Replace: `public/favicon.svg`, the logo assets in `src/assets/`, `public/og-default.png`
@@ -400,6 +412,7 @@ git commit -m "feat: neutral identity, logo, favicon, and OG defaults (Studio St
 ### Task 9: Replace Reid business copy in the core pages with neutral placeholder copy
 
 **Files:**
+
 - Modify: `src/pages/index.astro`, `about.astro`, `services.astro`, `faq.astro`, `contact.astro`, `journal/index.astro`, `404.astro`, `privacy.astro`
 - Modify: any static fallback copy inside core components (`Hero.astro`, `FinalCta.astro`, `SectionHeading.astro` defaults)
 
@@ -433,6 +446,7 @@ git commit -m "content: neutral placeholder copy across core pages"
 ### Task 10: Remove Reid content seeders and confirm the core builds empty
 
 **Files:**
+
 - Delete: the Reid content seed scripts (the core relies on static fallbacks / coming-soon states, so it builds with an empty dataset)
 
 - [ ] **Step 1: Confirm core pages have empty-state fallbacks**
@@ -464,6 +478,7 @@ git commit -m "chore: core builds against an empty dataset via static fallbacks"
 ### Task 11: Delete the Reid-specific scripts, keep the reusable generators
 
 **Files:**
+
 - Delete from `scripts/`: the one-off Reid scripts
 - Keep in `scripts/`: `generate-og-default.mjs`, `generate-og-pages.mjs`, `generate-llms-full.mjs`, `generate-logo-variants.mjs`, `optimize-logo-files.mjs`, `import-content.mjs`, `lib/`
 
@@ -496,6 +511,7 @@ git commit -m "chore: remove Reid one-off scripts, keep reusable generators"
 ### Task 12: Genericize `CLAUDE.md` into the stack constitution
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 - Modify: `OPERATIONS.md` (light pass; full docs/agent genericization is Phase 3)
 
@@ -533,6 +549,7 @@ git commit -m "docs: genericize CLAUDE.md into the stack constitution"
 ### Task 13: Configure the starter for its own Sanity + domain placeholders
 
 **Files:**
+
 - Modify: `src/lib/sanity.ts` (projectId/dataset via env), `astro.config.mjs` (`site`), `wrangler.jsonc` (name), `studio/sanity.config.ts` + `studio/sanity.cli.ts` (projectId)
 
 - [ ] **Step 1: Move the Sanity projectId/dataset to env with placeholders**
@@ -563,6 +580,7 @@ git commit -m "chore: env-driven Sanity config + neutral site/worker placeholder
 ### Task 14: Full verification gate and bring the spec into the repo
 
 **Files:**
+
 - Create: `docs/superpowers/specs/2026-05-30-astro-sanity-starter-design.md` (copy the approved spec into the new repo)
 - Create: `README.md` quickstart (light pass; full bootstrap docs are Phase 3)
 
@@ -613,5 +631,6 @@ If a throwaway Cloudflare Workers target is available, run `npm run deploy` and 
 ## Execution arc
 
 Phase 1 (this plan) yields a brand-neutral, building, deployable core with the specialized surfaces staged in `modules/`. Then:
+
 - **Phase 2 plan:** module-library polish — per module, finalize its self-contained folder, write `docs/modules/<name>.md` enable guide, genericize its seed, verify it enables into the core without breaking the build and shows a coming-soon state unconfigured.
 - **Phase 3 plan:** genericize the 15 `docs/agent/` topic docs (split out `animation.md`), write `docs/bootstrap/NEW-PROJECT.md` + `setup-checklist.md` + `docs/brand/voice.md`, add a generic core seed, and dry-run the full new-project runbook end to end.

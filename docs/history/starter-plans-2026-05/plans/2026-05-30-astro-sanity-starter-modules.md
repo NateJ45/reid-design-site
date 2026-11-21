@@ -19,6 +19,7 @@
 ### Task 1: Define the module folder shape, the enable-doc template, and the verify recipe
 
 **Files:**
+
 - Create: `modules/README.md`
 - Create: `docs/modules/_TEMPLATE.md`
 - Create: `docs/modules/README.md` (index)
@@ -61,9 +62,11 @@ Rule: a module owns only files unique to it. Anything shared with the core stays
 7. `npm run typegen && npm run build` — expect PASS.
 
 ## Desk + nav snippets
+
 <exact structure.ts list item and Header.astro entry to paste>
 
 ## Verify
+
 - Route `<path>` renders in light + dark at 375px and 1280px.
 - With the seed removed, `<path>` shows its coming-soon empty state, not a crash.
 ```
@@ -102,6 +105,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 2: portfolio
 
 **Module specifics:**
+
 - Schemas: `portfolioPage` (singleton), `project` (orderable collection).
 - Routes: `/portfolio`, `/portfolio/[slug]`, `/portfolio/before-after`.
 - Components owned: `BeforeAfterSlider.tsx`, `ProjectGallery.tsx`, `PortfolioCursor.tsx`, `PortfolioFilterChips.tsx`, `CaseStudyTOC.tsx`, `StickyCTAChip.tsx`, `ProjectMetaBand.astro`.
@@ -120,6 +124,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 3: process
 
 **Module specifics:**
+
 - Schemas: `processPage` (singleton), `processStep` (orderable collection).
 - Route: `/process`.
 - Components owned: `ProcessStepIllustration.astro`; the `.step-connector` polish utility stays in core CSS (list under Depends on).
@@ -132,6 +137,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 4: newsletter
 
 **Module specifics (special — mostly core plumbing):**
+
 - Schema: none new; it toggles fields already on `siteSettings.newsletter` (formActionUrl, enabled) which stay in core.
 - Components owned: the global `NewsletterSignup` component + its placement in `Footer.astro`/`BaseLayout.astro`.
 - Depends on (core): `src/lib/subscribe.ts` (ESP + Web3Forms fallback) stays in core, dormant until `PUBLIC_NEWSLETTER_FORM_ACTION` is set.
@@ -143,6 +149,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 5: lead-magnets
 
 **Module specifics:**
+
 - Schema: `leadMagnet` (orderable collection).
 - Routes: `/guides`, `/guides/[slug]`.
 - Components owned: `LeadMagnetForm.tsx`.
@@ -155,6 +162,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 6: style-quiz
 
 **Module specifics:**
+
 - Schema: `styleQuiz` (singleton config: questions + archetypes).
 - Route: `/quiz`.
 - Components owned: `StyleQuiz.tsx` island.
@@ -165,6 +173,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 7: budget-calculator
 
 **Module specifics:**
+
 - Schema: `budgetCalculator` (singleton config: rooms + ranges).
 - Route: `/calculator`.
 - Components owned: `BudgetCalculator.tsx` island.
@@ -175,6 +184,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 8: shop
 
 **Module specifics:**
+
 - Schemas: `shopPage` (singleton), `shopCollection` + `shopItem` (orderable collections).
 - Route: `/shop`.
 - Components owned: `ShopGrid.tsx`, `ShopItemCard.tsx`.
@@ -186,6 +196,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 9: e-design
 
 **Module specifics:**
+
 - Schema: `eDesignPage` (singleton: intro + how-it-works + tiers + FAQ refs + final CTA).
 - Route: `/e-design`. CTAs route to `/contact?type=e-design`.
 - Coming-soon: coming-soon state when `eDesignPage` doc absent.
@@ -195,6 +206,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 10: gift-certificates
 
 **Module specifics:**
+
 - Schema: `giftPage` (singleton; inquire-only, no payment integration).
 - Route: `/gift-certificates`. CTAs route to `/contact?type=gift-certificate`.
 - Coming-soon: static fallback when doc absent.
@@ -204,6 +216,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 11: press
 
 **Module specifics:**
+
 - Schemas: `pressPage` (singleton), `pressItem` (orderable collection).
 - Route: `/press`.
 - Components owned: `PressStrip.astro` logo row.
@@ -214,6 +227,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 12: resources
 
 **Module specifics (the capture hub):**
+
 - Schema: `resourcesPage` (singleton: ordered card grid linking to quiz, calculator, guides, FAQ, journal).
 - Route: `/resources`.
 - Depends on: links degrade gracefully to whichever capture modules are enabled; falls back to hardcoded nav-style cards when `resourcesPage.cards` empty.
@@ -228,6 +242,7 @@ Each task below: (a) finalize the module folder to the contract shape, (b) write
 ### Task 13: Verify a representative multi-module enable, then confirm the starter ships OFF
 
 **Files:**
+
 - Temporary working changes only; the commit records docs/index updates, not enabled modules.
 
 - [ ] **Step 1: Enable a realistic preset together**

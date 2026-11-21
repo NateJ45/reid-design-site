@@ -11,13 +11,13 @@ This folder is the bridge between the migration planning project (a Claude deskt
 
 These planning docs live at `C:\Users\natha\Documents\Claude\Projects\clients\ReidDesignAstro\Astro Sanity Migration\` and should be copied into the new code project as `migration-docs/`:
 
-| File | Purpose |
-|---|---|
-| `01-strategy-and-audit.md` | Locked positioning, voice manifesto, canonical services, per-page audit verdicts, decisions log |
-| `02-sanity-schemas.md` | Full spec for all 14 Sanity content types — fields, descriptions, relationships, Studio config |
-| `03-migration-plan.md` | Five-stage migration sequence from Squarespace to live on the new stack, including DNS cutover and rollback |
-| `04-content-extraction-plan.md` | How content moves from Squarespace into Sanity, import order, image checklist |
-| `content/` | 12 JSON files plus an image checklist — ready-to-load Sanity content extracted from the live Squarespace site |
+| File                            | Purpose                                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `01-strategy-and-audit.md`      | Locked positioning, voice manifesto, canonical services, per-page audit verdicts, decisions log               |
+| `02-sanity-schemas.md`          | Full spec for all 14 Sanity content types — fields, descriptions, relationships, Studio config                |
+| `03-migration-plan.md`          | Five-stage migration sequence from Squarespace to live on the new stack, including DNS cutover and rollback   |
+| `04-content-extraction-plan.md` | How content moves from Squarespace into Sanity, import order, image checklist                                 |
+| `content/`                      | 12 JSON files plus an image checklist — ready-to-load Sanity content extracted from the live Squarespace site |
 
 Together, the four planning docs + the content folder + these two handoff files = everything a fresh Claude Code session needs to build the new site without re-doing strategy work.
 
@@ -69,4 +69,4 @@ These don't block the build. They're items to track separately during Stage 2 of
 
 ---
 
-*Last updated: May 26, 2026*
+_Last updated: May 26, 2026_

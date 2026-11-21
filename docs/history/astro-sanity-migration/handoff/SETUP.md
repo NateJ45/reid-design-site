@@ -52,14 +52,8 @@ Open `tsconfig.json` and replace it with:
 ```json
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [
-    ".astro/types.d.ts",
-    "**/*",
-    "./worker-configuration.d.ts"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": [".astro/types.d.ts", "**/*", "./worker-configuration.d.ts"],
+  "exclude": ["dist"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
@@ -262,7 +256,7 @@ export const testimonial = defineType({
       name: 'quote',
       title: 'Quote',
       type: 'text',
-      description: "What the client said. Keep their punctuation.",
+      description: 'What the client said. Keep their punctuation.',
       validation: (Rule) => Rule.required(),
     }),
     // ... rest of fields from the spec
@@ -276,7 +270,7 @@ Then register each schema in `studio/schemaTypes/index.ts`:
 import { siteSettings } from './siteSettings';
 import { testimonial } from './testimonial';
 // ... etc
-export const schemaTypes = [siteSettings, testimonial, /* ... */];
+export const schemaTypes = [siteSettings, testimonial /* ... */];
 ```
 
 And wire that into `studio/sanity.config.ts` schema property.
@@ -458,14 +452,14 @@ Create `src/data/site.ts`:
 // Anything Staci edits goes through Sanity instead.
 
 export const site = {
-  name: "Reid Design LLC",
-  studio: "Reid Design LLC",
-  domain: "reiddesignllc.com",
-  storageKeyPrefix: "reid-design",
+  name: 'Reid Design LLC',
+  studio: 'Reid Design LLC',
+  domain: 'reiddesignllc.com',
+  storageKeyPrefix: 'reid-design',
   brandColors: {
-    primary: "#9C7661",
-    accent: "#3D3D3D",
-    bg: "#FAF8F5",
+    primary: '#9C7661',
+    accent: '#3D3D3D',
+    bg: '#FAF8F5',
   },
 } as const;
 ```
@@ -555,8 +549,8 @@ Create `wrangler.jsonc` at the root:
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "404-page"
-  }
+    "not_found_handling": "404-page",
+  },
 }
 ```
 
@@ -656,4 +650,4 @@ If you hit a piece that wasn't covered above, the NCS source repo is the closest
 
 ---
 
-*Last updated: May 26, 2026*
+_Last updated: May 26, 2026_

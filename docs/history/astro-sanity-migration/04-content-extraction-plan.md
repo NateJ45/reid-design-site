@@ -42,6 +42,7 @@ Projects (case studies) come later, post-launch, written from scratch as Staci c
 ## What's extracted vs what's authored fresh
 
 **Extracted verbatim from the live site:**
+
 - Site settings (email, social links, service areas, travel fees, availability)
 - All 7 testimonials with attribution and dates
 - All 4 services with prices and features
@@ -51,6 +52,7 @@ Projects (case studies) come later, post-launch, written from scratch as Staci c
 - All page hero copy, "what to expect" copy, story copy, intro copy
 
 **Authored fresh per the audit (marked `[NEW]` in the files):**
+
 - Plainfield-first homepage eyebrow
 - Service-area cue line for homepage
 - Tightened service-card "best for" lines (where current copy is too generic)
@@ -66,21 +68,21 @@ These are noted in the relevant files with `[NEW — see strategy doc]` markers.
 
 ## Files produced
 
-| File | Maps to Sanity type | Notes |
-|---|---|---|
-| `content/site-settings.json` | `siteSettings` (singleton) | One object |
-| `content/testimonials.json` | `testimonial` | Array of 7 objects |
-| `content/services.json` | `service` | Array of 5 objects (4 active + builder/realtor) |
-| `content/process-steps.json` | `processStep` | Array of 4 objects |
-| `content/faq-items.json` | `faqItem` | Array of ~14 objects after dedupe |
-| `content/philosophy-points.json` | `philosophyPoint` | Array of 3 objects |
-| `content/home-page.json` | `homePage` (singleton) | One object |
-| `content/about-page.json` | `aboutPage` (singleton) | One object |
-| `content/process-page.json` | `processPage` (singleton) | One object |
-| `content/services-page.json` | `servicesPage` (singleton) | One object |
-| `content/faq-page.json` | `faqPage` (singleton) | One object |
-| `content/contact-page.json` | `contactPage` (singleton) | One object |
-| `content/images-checklist.md` | (not a Sanity type) | Image URLs and download notes |
+| File                             | Maps to Sanity type        | Notes                                           |
+| -------------------------------- | -------------------------- | ----------------------------------------------- |
+| `content/site-settings.json`     | `siteSettings` (singleton) | One object                                      |
+| `content/testimonials.json`      | `testimonial`              | Array of 7 objects                              |
+| `content/services.json`          | `service`                  | Array of 5 objects (4 active + builder/realtor) |
+| `content/process-steps.json`     | `processStep`              | Array of 4 objects                              |
+| `content/faq-items.json`         | `faqItem`                  | Array of ~14 objects after dedupe               |
+| `content/philosophy-points.json` | `philosophyPoint`          | Array of 3 objects                              |
+| `content/home-page.json`         | `homePage` (singleton)     | One object                                      |
+| `content/about-page.json`        | `aboutPage` (singleton)    | One object                                      |
+| `content/process-page.json`      | `processPage` (singleton)  | One object                                      |
+| `content/services-page.json`     | `servicesPage` (singleton) | One object                                      |
+| `content/faq-page.json`          | `faqPage` (singleton)      | One object                                      |
+| `content/contact-page.json`      | `contactPage` (singleton)  | One object                                      |
+| `content/images-checklist.md`    | (not a Sanity type)        | Image URLs and download notes                   |
 
 ---
 
@@ -89,11 +91,13 @@ These are noted in the relevant files with `[NEW — see strategy doc]` markers.
 Images are listed in `content/images-checklist.md` with their current Squarespace CDN URLs and target Sanity field references.
 
 **How to download:**
+
 1. Open each URL in a browser and save to `content/images/` (folder gets created when first image lands)
 2. OR run a simple script Nathan writes locally (this environment doesn't allow direct binary downloads)
 3. Upload to Sanity via the Studio when populating the matching document
 
 **Image quality notes** to verify during download:
+
 - Staci's headshot: confirm resolution is adequate for retina display (target 1000px+ on shortest side). If not, plan a re-shoot per the audit.
 - Homepage hero photo: same standard, ideally 2500px+ wide for full-width hero use.
 
@@ -126,4 +130,4 @@ These can't be filled in by extraction alone:
 
 ---
 
-*Last updated: May 26, 2026*
+_Last updated: May 26, 2026_

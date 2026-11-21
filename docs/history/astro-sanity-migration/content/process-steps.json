@@ -38,16 +38,9 @@
         ]
       }
     ],
-    "features": [
-      "60 to 90 minutes",
-      "In your home",
-      "Layout assessment",
-      "Clear next steps"
-    ],
+    "features": ["60 to 90 minutes", "In your home", "Layout assessment", "Clear next steps"],
     "tierNote": null,
-    "relatedServices": [
-      { "_type": "reference", "_ref": "service.inHomeConsultation" }
-    ]
+    "relatedServices": [{ "_type": "reference", "_ref": "service.inHomeConsultation" }]
   },
   {
     "_type": "processStep",
@@ -78,12 +71,7 @@
         ]
       }
     ],
-    "features": [
-      "Mood board",
-      "Layout plan",
-      "Sourcing list",
-      "Revision round"
-    ],
+    "features": ["Mood board", "Layout plan", "Sourcing list", "Revision round"],
     "tierNote": null,
     "relatedServices": [
       { "_type": "reference", "_ref": "service.fullRoomDesign" },
@@ -119,11 +107,7 @@
         ]
       }
     ],
-    "features": [
-      "Shopping list with links",
-      "Trade vendor access",
-      "Order management*"
-    ],
+    "features": ["Shopping list with links", "Trade vendor access", "Order management*"],
     "tierNote": "*Included with Full Room Design + Styling",
     "relatedServices": [
       { "_type": "reference", "_ref": "service.fullRoomDesign" },
@@ -160,14 +144,8 @@
         ]
       }
     ],
-    "features": [
-      "Surfaces styled",
-      "Accessories placed",
-      "Final walkthrough"
-    ],
+    "features": ["Surfaces styled", "Accessories placed", "Final walkthrough"],
     "tierNote": "Included with Full Room Design + Styling",
-    "relatedServices": [
-      { "_type": "reference", "_ref": "service.fullRoomDesignPlusStyling" }
-    ]
+    "relatedServices": [{ "_type": "reference", "_ref": "service.fullRoomDesignPlusStyling" }]
   }
 ]

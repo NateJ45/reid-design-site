@@ -30,45 +30,45 @@ A homeowner in Plainfield, Indianapolis, or the northern suburbs (Carmel, Fisher
 
 Source of truth: the live homepage. Any inconsistency elsewhere on the current site is a stale draft.
 
-| Service | Price | Description |
-|---|---|---|
-| In-home consultation | $150 | 60 to 90 minute in-home visit. Walk the space, talk through what's not working, leave with a clear plan. Includes color and finish direction (merged from former standalone Color & Finish Guidance service). |
-| Full room design | starting at $650 | Custom design plan with mood direction, layout, furniture and decor selections, and sourcing list with direct shopping links. Client shops at their own pace. |
-| Full room design + styling | starting at $850 | Everything in Full Room Design plus hands-on shopping and sourcing, paint color selections, and in-home styling and final reveal. |
-| Shopping & sourcing | $75 per hour | Hands-on help finding the right pieces. Trade vendor access included. No minimum. |
-| Builder & realtor partnerships | Custom | Aspirational track. Reid Design is open to these partnerships but does not yet have an established book. Copy should read as invitation, not claim. |
+| Service                        | Price            | Description                                                                                                                                                                                                   |
+| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| In-home consultation           | $150             | 60 to 90 minute in-home visit. Walk the space, talk through what's not working, leave with a clear plan. Includes color and finish direction (merged from former standalone Color & Finish Guidance service). |
+| Full room design               | starting at $650 | Custom design plan with mood direction, layout, furniture and decor selections, and sourcing list with direct shopping links. Client shops at their own pace.                                                 |
+| Full room design + styling     | starting at $850 | Everything in Full Room Design plus hands-on shopping and sourcing, paint color selections, and in-home styling and final reveal.                                                                             |
+| Shopping & sourcing            | $75 per hour     | Hands-on help finding the right pieces. Trade vendor access included. No minimum.                                                                                                                             |
+| Builder & realtor partnerships | Custom           | Aspirational track. Reid Design is open to these partnerships but does not yet have an established book. Copy should read as invitation, not claim.                                                           |
 
 Travel fee structure (published):
 
-| Distance from Plainfield | Travel fee |
-|---|---|
-| Within 30 minutes | None |
-| 45 to 75 minutes | $50 |
-| 75 to 120 minutes | $75 to $100 |
+| Distance from Plainfield | Travel fee  |
+| ------------------------ | ----------- |
+| Within 30 minutes        | None        |
+| 45 to 75 minutes         | $50         |
+| 75 to 120 minutes        | $75 to $100 |
 
 ## Voice manifesto
 
 Five do-this-not-that pairs. The yardstick for any new copy.
 
 **1. Say it plainly. Especially about money.**
-Do: *"My in-home consultation is $150 for 60 to 90 minutes. We walk the space, talk about color and layout, and you leave with a plan."*
-Don't: *"Our initial consultation experience starts at $150 and offers an opportunity to explore your vision together."*
+Do: _"My in-home consultation is $150 for 60 to 90 minutes. We walk the space, talk about color and layout, and you leave with a plan."_
+Don't: _"Our initial consultation experience starts at $150 and offers an opportunity to explore your vision together."_
 
 **2. Sound like a smart friend, not a brochure.**
-Do: *"Your dining room probably doesn't need a renovation. It might just need a different rug."*
-Don't: *"We craft transformative experiences that elevate your home."*
+Do: _"Your dining room probably doesn't need a renovation. It might just need a different rug."_
+Don't: _"We craft transformative experiences that elevate your home."_
 
 **3. Show the thinking, not the credentials.**
-Do: *"I usually start with a paint sample, because the wall color sets what every other choice has to answer to."*
-Don't: *"With years of experience and an eye for detail, I bring proven expertise to every project."*
+Do: _"I usually start with a paint sample, because the wall color sets what every other choice has to answer to."_
+Don't: _"With years of experience and an eye for detail, I bring proven expertise to every project."_
 
 **4. Stop talking when you're done.**
 Do: End the paragraph. Trust the reader.
 Don't: Add a closing line that restates the point, hedges the previous sentence, or tacks on "if that works for you."
 
 **5. Be specific. One real room in Fishers beats "modern luxury home."**
-Do: *"A 1970s ranch in Fishers we brought up to feel current without erasing what made it good."*
-Don't: *"Timeless residential design for the discerning Indianapolis homeowner."*
+Do: _"A 1970s ranch in Fishers we brought up to feel current without erasing what made it good."_
+Don't: _"Timeless residential design for the discerning Indianapolis homeowner."_
 
 Banned vocabulary: no "transformative," no "curated experience," no "investment in your space," no "elevated living," no "tailored solutions." Plain English wins every time.
 
@@ -98,95 +98,95 @@ More case studies (the migration should make adding new projects fast enough tha
 
 Six pages live in the homepage navigation: Home, Process, Services, FAQ, Contact, About. The site is internally consistent on pricing and services (caveat: Contact form dropdown is the one exception, see Contact audit). Confirmed via Chrome integration on the live rendered DOM, not via static HTML fetch.
 
-| Page | What it does well | What it's missing |
-|---|---|---|
-| Home | Real tagline, real testimonials, real prices, clear CTA | No portfolio teaser (no portfolio exists), no service area cue |
-| Process | Four steps, plain language, integrated FAQ, pricing reinforced | No photos of actual project moments |
-| Services | All four services + builder/realtor track + travel fees | No portfolio cross-link, no service-specific case examples |
-| FAQ | Thorough, honest, well-organized into four sections | Some Q&A repeats Process page content |
-| Contact | Form works, email visible, service area listed | Project Type dropdown is wrong (real live bug) |
-| About | Clean story, clear philosophy | No photo confirmation, no credentials, no project highlights |
+| Page     | What it does well                                              | What it's missing                                              |
+| -------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| Home     | Real tagline, real testimonials, real prices, clear CTA        | No portfolio teaser (no portfolio exists), no service area cue |
+| Process  | Four steps, plain language, integrated FAQ, pricing reinforced | No photos of actual project moments                            |
+| Services | All four services + builder/realtor track + travel fees        | No portfolio cross-link, no service-specific case examples     |
+| FAQ      | Thorough, honest, well-organized into four sections            | Some Q&A repeats Process page content                          |
+| Contact  | Form works, email visible, service area listed                 | Project Type dropdown is wrong (real live bug)                 |
+| About    | Clean story, clear philosophy                                  | No photo confirmation, no credentials, no project highlights   |
 
 ## Per-page audits
 
 ### Home
 
-| Section | Verdict | Notes for new site |
-|---|---|---|
-| Hero (eyebrow + headline + sub + 2 CTAs) | Rewrite (eyebrow only) | Change eyebrow to "Plainfield Interior Design · Serving Greater Indianapolis." Headline and CTAs stay verbatim. |
-| Meet Staci (photo + intro + CTA) | Keep | Carry over as-is. Verify portrait resolution. |
-| How It Works (4-step preview) | Keep | Carry over. Add per-step photos post-launch when available. |
-| Kind Words (1 featured + 6 grid testimonials) | Keep | Carry over verbatim. Real Facebook recs with attribution. |
-| How Reid Design Can Help (4 services + prices) | Keep structure, rewrite micro-copy | Keep prices. Tighten card descriptions toward voice manifesto rules 1 and 5. |
-| Final CTA | Keep | Carry over verbatim. |
+| Section                                        | Verdict                            | Notes for new site                                                                                              |
+| ---------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Hero (eyebrow + headline + sub + 2 CTAs)       | Rewrite (eyebrow only)             | Change eyebrow to "Plainfield Interior Design · Serving Greater Indianapolis." Headline and CTAs stay verbatim. |
+| Meet Staci (photo + intro + CTA)               | Keep                               | Carry over as-is. Verify portrait resolution.                                                                   |
+| How It Works (4-step preview)                  | Keep                               | Carry over. Add per-step photos post-launch when available.                                                     |
+| Kind Words (1 featured + 6 grid testimonials)  | Keep                               | Carry over verbatim. Real Facebook recs with attribution.                                                       |
+| How Reid Design Can Help (4 services + prices) | Keep structure, rewrite micro-copy | Keep prices. Tighten card descriptions toward voice manifesto rules 1 and 5.                                    |
+| Final CTA                                      | Keep                               | Carry over verbatim.                                                                                            |
 
 **Add to Home:** Featured-projects block (3-up grid, once portfolio exists). Slim service-area cue line above or below testimonials. Optional quiet builder/realtor cross-link in footer or after services.
 
 ### Process
 
-| Section | Verdict | Notes for new site |
-|---|---|---|
-| Page hero | Keep | Carry over verbatim. |
-| Step 01 — In-Home Consultation | Keep | Carry over. Wire to matching service card. |
-| Step 02 — Design Plan Created | Keep | Carry over. |
-| Step 03 — Shopping + Selections | Keep | Carry over. Preserve the tier-conditional logic in schema. |
-| Step 04 — Styling + Final Reveal | Keep | Carry over. |
-| Common Questions (8 FAQs) | Keep with light dedupe | Decide rule: FAQ page covers everything, Process page covers only process-specific. |
-| Final CTA | Keep | Carry over. |
+| Section                          | Verdict                | Notes for new site                                                                  |
+| -------------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| Page hero                        | Keep                   | Carry over verbatim.                                                                |
+| Step 01 — In-Home Consultation   | Keep                   | Carry over. Wire to matching service card.                                          |
+| Step 02 — Design Plan Created    | Keep                   | Carry over.                                                                         |
+| Step 03 — Shopping + Selections  | Keep                   | Carry over. Preserve the tier-conditional logic in schema.                          |
+| Step 04 — Styling + Final Reveal | Keep                   | Carry over.                                                                         |
+| Common Questions (8 FAQs)        | Keep with light dedupe | Decide rule: FAQ page covers everything, Process page covers only process-specific. |
+| Final CTA                        | Keep                   | Carry over.                                                                         |
 
 **Add to Process:** Visual timeline summary block. In-process photos post-launch. Step indicator UI.
 
 ### Services
 
-| Section | Verdict | Notes for new site |
-|---|---|---|
-| Page hero | Keep | Carry over verbatim. |
-| 4 service cards | Keep structure, light rewrite on "best for" lines | Tighten generic ones. |
-| Full Room Design detail block | Keep | Carry over. |
-| Color & Finish Guidance detail block | **Merge into consultation** | Per Nathan's call: this isn't a standalone product. Roll the color guidance language into the consultation card and detail. |
-| Shopping & Sourcing detail | Keep | Carry over. |
-| Builder & Realtor Partnerships | Keep, reframe softer | Per Nathan: aspirational not claim. Rewrite as invitation. |
-| Service Area & Travel Fees | Keep | Carry over. Plainfield-anchored. |
-| Final CTA | Keep | Carry over. |
+| Section                              | Verdict                                           | Notes for new site                                                                                                          |
+| ------------------------------------ | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Page hero                            | Keep                                              | Carry over verbatim.                                                                                                        |
+| 4 service cards                      | Keep structure, light rewrite on "best for" lines | Tighten generic ones.                                                                                                       |
+| Full Room Design detail block        | Keep                                              | Carry over.                                                                                                                 |
+| Color & Finish Guidance detail block | **Merge into consultation**                       | Per Nathan's call: this isn't a standalone product. Roll the color guidance language into the consultation card and detail. |
+| Shopping & Sourcing detail           | Keep                                              | Carry over.                                                                                                                 |
+| Builder & Realtor Partnerships       | Keep, reframe softer                              | Per Nathan: aspirational not claim. Rewrite as invitation.                                                                  |
+| Service Area & Travel Fees           | Keep                                              | Carry over. Plainfield-anchored.                                                                                            |
+| Final CTA                            | Keep                                              | Carry over.                                                                                                                 |
 
 **Add to Services:** Per-service mini case examples once portfolio exists. Short payment-structure note (1 line, pointing to FAQ for detail).
 
 ### About
 
-| Section | Verdict | Notes for new site |
-|---|---|---|
-| Page hero | Keep | "People Hire People." Best headline on site. |
-| My Story (origin) | Keep with light trim | Carry over with tightening pass. Grandmother detail confirmed by Nathan as a keeper. |
-| Attribution + photo | Keep | Verify photo quality with screenshot. |
-| Three philosophy values | Keep | Carry over verbatim. Model as repeatable content type. |
-| Final CTA | Keep | Carry over. |
+| Section                 | Verdict              | Notes for new site                                                                   |
+| ----------------------- | -------------------- | ------------------------------------------------------------------------------------ |
+| Page hero               | Keep                 | "People Hire People." Best headline on site.                                         |
+| My Story (origin)       | Keep with light trim | Carry over with tightening pass. Grandmother detail confirmed by Nathan as a keeper. |
+| Attribution + photo     | Keep                 | Verify photo quality with screenshot.                                                |
+| Three philosophy values | Keep                 | Carry over verbatim. Model as repeatable content type.                               |
+| Final CTA               | Keep                 | Carry over.                                                                          |
 
 **Add to About:** One-sentence credentials/background line (Staci's real info, not aspirational). Service area mention. Optional personal details (family, hobbies, what she loves about Plainfield). Cross-link to portfolio once it exists.
 
 ### FAQ
 
-| Section | Verdict | Notes for new site |
-|---|---|---|
-| Page hero | Keep | Carry over. |
-| Pricing & Cost (3 Qs) | Keep | This is the canonical full pricing breakdown. Worth duplicating into Services page footer. |
-| The Process (3 Qs) | Keep with dedupe | Don't repeat answers across Process and FAQ pages. |
-| Logistics (3 Qs) | Keep | Carry over. |
-| Service Area (3 Qs) | Keep | Carry over. Already Plainfield-anchored. |
-| Final CTA | Keep | Carry over. |
+| Section               | Verdict          | Notes for new site                                                                         |
+| --------------------- | ---------------- | ------------------------------------------------------------------------------------------ |
+| Page hero             | Keep             | Carry over.                                                                                |
+| Pricing & Cost (3 Qs) | Keep             | This is the canonical full pricing breakdown. Worth duplicating into Services page footer. |
+| The Process (3 Qs)    | Keep with dedupe | Don't repeat answers across Process and FAQ pages.                                         |
+| Logistics (3 Qs)      | Keep             | Carry over.                                                                                |
+| Service Area (3 Qs)   | Keep             | Carry over. Already Plainfield-anchored.                                                   |
+| Final CTA             | Keep             | Carry over.                                                                                |
 
 **Add to FAQ:** "Who's a good fit / not a good fit?" question (per Nathan's approval). Experience/background question (sources same info as About credentials line). What to prepare before the consultation question.
 
 ### Contact
 
-| Section | Verdict | Notes for new site |
-|---|---|---|
-| Page hero | Keep | Carry over verbatim. |
-| Form | Rewrite dropdown, keep rest | New dropdown options: In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder / Realtor Inquiry, Not Sure Yet. |
-| What to Expect | Keep | Carry over. |
-| Email display | Keep | Plan email forwarding through DNS cutover. |
-| Social links | Keep | Carry over. |
-| Service Area | Rewrite order | Plainfield first, then Indianapolis, Carmel, Fishers, Westfield, Zionsville, Noblesville, surrounding areas. |
-| Availability indicator | Keep | Model as single editable field in Sanity. |
+| Section                | Verdict                     | Notes for new site                                                                                                                                      |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page hero              | Keep                        | Carry over verbatim.                                                                                                                                    |
+| Form                   | Rewrite dropdown, keep rest | New dropdown options: In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder / Realtor Inquiry, Not Sure Yet. |
+| What to Expect         | Keep                        | Carry over.                                                                                                                                             |
+| Email display          | Keep                        | Plan email forwarding through DNS cutover.                                                                                                              |
+| Social links           | Keep                        | Carry over.                                                                                                                                             |
+| Service Area           | Rewrite order               | Plainfield first, then Indianapolis, Carmel, Fishers, Westfield, Zionsville, Noblesville, surrounding areas.                                            |
+| Availability indicator | Keep                        | Model as single editable field in Sanity.                                                                                                               |
 
 **Add to Contact:** Pre-form expectation note (one line). Calendly or similar scheduling link for the 20-min discovery call (per Nathan's approval). Optional service-zone map.
 
@@ -196,55 +196,55 @@ Six pages live in the homepage navigation: Home, Process, Services, FAQ, Contact
 
 ## A. Content to extract from the live Squarespace site
 
-| Source page | What to pull | Format |
-|---|---|---|
-| Home | Hero copy + photo. Meet Staci copy + portrait. 4-step process preview. 7 Facebook testimonials. Service card copy and prices. Final CTA. | Markdown + image folder |
-| Process | Page hero. 4 step descriptions with bullets. 8 FAQs. Final CTA. | Markdown + structured FAQ data |
-| Services | Page hero. 4 service cards. Full Room Design + Shopping detail blocks. Travel fee structure. Final CTA. | Markdown + structured services data |
-| FAQ | Page hero. 11 FAQs across 4 categories. Final CTA. | Structured FAQ data |
-| Contact | Page hero. Form structure. What to Expect. Email, socials, service area, availability. | Markdown + form schema |
-| About | Page hero. Full origin story. 3 philosophy values. Attribution + portrait. Final CTA. | Markdown + image |
+| Source page | What to pull                                                                                                                             | Format                              |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Home        | Hero copy + photo. Meet Staci copy + portrait. 4-step process preview. 7 Facebook testimonials. Service card copy and prices. Final CTA. | Markdown + image folder             |
+| Process     | Page hero. 4 step descriptions with bullets. 8 FAQs. Final CTA.                                                                          | Markdown + structured FAQ data      |
+| Services    | Page hero. 4 service cards. Full Room Design + Shopping detail blocks. Travel fee structure. Final CTA.                                  | Markdown + structured services data |
+| FAQ         | Page hero. 11 FAQs across 4 categories. Final CTA.                                                                                       | Structured FAQ data                 |
+| Contact     | Page hero. Form structure. What to Expect. Email, socials, service area, availability.                                                   | Markdown + form schema              |
+| About       | Page hero. Full origin story. 3 philosophy values. Attribution + portrait. Final CTA.                                                    | Markdown + image                    |
 
 Plus: Reid Design logo (homepage + footer variants), favicon.
 
 ## B. New copy to write or update before launch
 
-| Item | Owner |
-|---|---|
-| Plainfield-first eyebrow on homepage hero | Nathan drafts, Staci approves |
-| Service-area cue line for homepage | Nathan drafts |
-| Tightened service-card micro-copy | Claude drafts, Staci approves |
-| Color & Finish merged into consultation description | Claude drafts |
-| Builder/realtor section rewrite (aspirational) | Claude drafts |
-| About credentials/background line (1 sentence, accurate) | Staci writes raw, Claude tightens |
-| About service area reference | Claude drafts |
-| New FAQ: Who's a good fit? | Claude drafts, Staci approves |
-| New FAQ: experience/background | Same source as About credentials |
-| New FAQ: what to prepare before consultation | Claude drafts |
-| Contact form pre-submit expectation note | Claude drafts |
-| Reordered service area listings (Plainfield first, everywhere) | Find-and-replace in extraction |
+| Item                                                           | Owner                             |
+| -------------------------------------------------------------- | --------------------------------- |
+| Plainfield-first eyebrow on homepage hero                      | Nathan drafts, Staci approves     |
+| Service-area cue line for homepage                             | Nathan drafts                     |
+| Tightened service-card micro-copy                              | Claude drafts, Staci approves     |
+| Color & Finish merged into consultation description            | Claude drafts                     |
+| Builder/realtor section rewrite (aspirational)                 | Claude drafts                     |
+| About credentials/background line (1 sentence, accurate)       | Staci writes raw, Claude tightens |
+| About service area reference                                   | Claude drafts                     |
+| New FAQ: Who's a good fit?                                     | Claude drafts, Staci approves     |
+| New FAQ: experience/background                                 | Same source as About credentials  |
+| New FAQ: what to prepare before consultation                   | Claude drafts                     |
+| Contact form pre-submit expectation note                       | Claude drafts                     |
+| Reordered service area listings (Plainfield first, everywhere) | Find-and-replace in extraction    |
 
 ## C. Visual assets needed
 
-| Asset | Status | Priority |
-|---|---|---|
-| Updated Staci headshot | Screenshot live About to verify current quality | Soft launch blocker |
-| 1 to 2 real project case studies (photos, ideally before/after) | Doesn't exist | Hard launch requirement |
-| Process step photos (consult, mood board, install) | Don't exist | Post-launch |
-| Trade vendor logo accuracy | Need Staci to confirm what's actually true before any logos appear | Soft launch blocker |
+| Asset                                                           | Status                                                             | Priority                |
+| --------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------- |
+| Updated Staci headshot                                          | Screenshot live About to verify current quality                    | Soft launch blocker     |
+| 1 to 2 real project case studies (photos, ideally before/after) | Doesn't exist                                                      | Hard launch requirement |
+| Process step photos (consult, mood board, install)              | Don't exist                                                        | Post-launch             |
+| Trade vendor logo accuracy                                      | Need Staci to confirm what's actually true before any logos appear | Soft launch blocker     |
 
 ## D. Sanity content types (early signal for Phase 5)
 
-| Content type | Purpose | Approximate count at launch |
-|---|---|---|
-| Page | One-off pages (Home, About, Process, FAQ, Contact) with flexible section composition | 5 |
-| Service | The paid offerings: title, price, features, "best for," long detail | 4 (5 with builder/realtor) |
-| Process Step | Number, title, time estimate, description, tier note | 4 |
-| Testimonial | Quote, attribution, source, date, optional project link | ~10 at launch, growing |
-| FAQ Item | Question, answer, category, display order | ~15 to 20 |
-| Project (Case Study) | Title, location, room type, year, intro story, hero, gallery, before/after, services used, optional testimonial ref | 1 to 2 at launch, growing |
-| Philosophy Point | Title + description (currently 3, designed for easy add) | 3 |
-| Site Settings (singleton) | Service area, travel fees, availability, email, socials, footer text | 1 |
+| Content type              | Purpose                                                                                                             | Approximate count at launch |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| Page                      | One-off pages (Home, About, Process, FAQ, Contact) with flexible section composition                                | 5                           |
+| Service                   | The paid offerings: title, price, features, "best for," long detail                                                 | 4 (5 with builder/realtor)  |
+| Process Step              | Number, title, time estimate, description, tier note                                                                | 4                           |
+| Testimonial               | Quote, attribution, source, date, optional project link                                                             | ~10 at launch, growing      |
+| FAQ Item                  | Question, answer, category, display order                                                                           | ~15 to 20                   |
+| Project (Case Study)      | Title, location, room type, year, intro story, hero, gallery, before/after, services used, optional testimonial ref | 1 to 2 at launch, growing   |
+| Philosophy Point          | Title + description (currently 3, designed for easy add)                                                            | 3                           |
+| Site Settings (singleton) | Service area, travel fees, availability, email, socials, footer text                                                | 1                           |
 
 Schema design priority: editing comfort for Staci. Short field names, helpful descriptions, sensible defaults, no fields she shouldn't touch.
 
@@ -263,19 +263,19 @@ Both get fixed as part of the new build.
 
 For future-Nathan and future-Claude to trace why we made the calls we made.
 
-| Decision | Locked by Nathan |
-|---|---|
-| Plainfield-first positioning, not Indianapolis-first | Yes |
-| Builder/realtor track is aspirational, kept off homepage primary services grid | Yes |
-| Color & Finish Guidance merged into consultation (not a standalone product) | Yes |
-| Keep grandmother story on About | Yes |
-| Soften builder/realtor copy to "I'd love to hear from you" framing | Yes |
-| Add "Who's a good fit?" FAQ | Yes |
-| Include Calendly or similar scheduling link on Contact | Yes |
-| Use homepage live-site pricing as canonical, not the older pricing doc | Yes |
-| Launch with 1 to 2 case studies, add more over time, don't wait | Yes |
-| Move Phase 5 (Sanity schemas) before Phase 3 (extraction) | Yes |
-| Skip the two live Squarespace bugs and let the migration fix them | Yes |
+| Decision                                                                       | Locked by Nathan |
+| ------------------------------------------------------------------------------ | ---------------- |
+| Plainfield-first positioning, not Indianapolis-first                           | Yes              |
+| Builder/realtor track is aspirational, kept off homepage primary services grid | Yes              |
+| Color & Finish Guidance merged into consultation (not a standalone product)    | Yes              |
+| Keep grandmother story on About                                                | Yes              |
+| Soften builder/realtor copy to "I'd love to hear from you" framing             | Yes              |
+| Add "Who's a good fit?" FAQ                                                    | Yes              |
+| Include Calendly or similar scheduling link on Contact                         | Yes              |
+| Use homepage live-site pricing as canonical, not the older pricing doc         | Yes              |
+| Launch with 1 to 2 case studies, add more over time, don't wait                | Yes              |
+| Move Phase 5 (Sanity schemas) before Phase 3 (extraction)                      | Yes              |
+| Skip the two live Squarespace bugs and let the migration fix them              | Yes              |
 
 ---
 
@@ -292,4 +292,4 @@ These don't block schema design but should be settled before launch:
 
 ---
 
-*Last updated: May 26, 2026*
+_Last updated: May 26, 2026_

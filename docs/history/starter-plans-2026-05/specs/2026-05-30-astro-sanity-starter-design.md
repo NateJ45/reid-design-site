@@ -53,7 +53,7 @@ prose:
 - The customized `accordion.tsx` (the radix height lock and trigger text
   classes were removed; reinstalling via `npx shadcn add` reverts it).
 - The build chain: `npm run typegen` (Sanity typegen) runs before `astro
-  build` so generated types exist when the prerender worker imports them;
+build` so generated types exist when the prerender worker imports them;
   `sanity.types.ts` is committed.
 
 Fork-and-strip keeps all of that for free. A rebuild risks dropping exactly the
@@ -94,11 +94,12 @@ ncs-astro-sanity-starter/
 ### Core (always present, runs out of the box)
 
 Schemas: `siteSettings`, `homePage`, `aboutPage`, `contactPage`, `servicesPage`
-+ `service`, `faqPage` + `faqItem`, `journalPage` + `journalEntry` +
-`journalCategory`, `testimonial`, `philosophyPoint`, `ctaBlock`,
-`notFoundPage`, `privacyPage`, and the in-Studio editor-guidance singletons
-(`studioGuide`, `studioNotes`, `studioPlaybook`) genericized with placeholder
-content.
+
+- `service`, `faqPage` + `faqItem`, `journalPage` + `journalEntry` +
+  `journalCategory`, `testimonial`, `philosophyPoint`, `ctaBlock`,
+  `notFoundPage`, `privacyPage`, and the in-Studio editor-guidance singletons
+  (`studioGuide`, `studioNotes`, `studioPlaybook`) genericized with placeholder
+  content.
 
 Note: blog (`journalPage`/`journalEntry`) and `testimonial` stay core because
 content marketing and social proof are near-universal. `portfolio` and
@@ -121,18 +122,18 @@ present but dormant until configured.
 Each module is self-contained: its schema(s), page(s), island(s), seed, and a
 one-page enable guide in `docs/modules/<name>.md`.
 
-| Module | Brings |
-|---|---|
-| `portfolio` | `portfolioPage` + `project`, `/portfolio` + `/portfolio/[slug]`, Room x Style filter chips, before/after slider, gallery |
-| `process` | `processPage` + `processStep`, `/process`, step illustrations |
-| `newsletter` | global signup wiring on `siteSettings` + signup component (plumbing `subscribe.ts` stays in core) |
-| `lead-magnets` | `leadMagnet` schema, `/guides` + `/guides/[slug]`, `LeadMagnetForm`, resources-hub entry |
-| `style-quiz` | `styleQuiz` schema, `/quiz`, `StyleQuiz` island |
-| `budget-calculator` | `budgetCalculator` schema, `/calculator`, `BudgetCalculator` island |
-| `shop` | `shopPage`/`shopCollection`/`shopItem`, `/shop`, FTC disclosure, affiliate `rel` handling |
-| `e-design` | `eDesignPage`, `/e-design`, pricing tiers |
-| `gift-certificates` | `giftPage`, `/gift-certificates` (inquire-only, no payment integration) |
-| `press` | `pressPage`/`pressItem`, `/press`, `PressStrip` |
+| Module              | Brings                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `portfolio`         | `portfolioPage` + `project`, `/portfolio` + `/portfolio/[slug]`, Room x Style filter chips, before/after slider, gallery |
+| `process`           | `processPage` + `processStep`, `/process`, step illustrations                                                            |
+| `newsletter`        | global signup wiring on `siteSettings` + signup component (plumbing `subscribe.ts` stays in core)                        |
+| `lead-magnets`      | `leadMagnet` schema, `/guides` + `/guides/[slug]`, `LeadMagnetForm`, resources-hub entry                                 |
+| `style-quiz`        | `styleQuiz` schema, `/quiz`, `StyleQuiz` island                                                                          |
+| `budget-calculator` | `budgetCalculator` schema, `/calculator`, `BudgetCalculator` island                                                      |
+| `shop`              | `shopPage`/`shopCollection`/`shopItem`, `/shop`, FTC disclosure, affiliate `rel` handling                                |
+| `e-design`          | `eDesignPage`, `/e-design`, pricing tiers                                                                                |
+| `gift-certificates` | `giftPage`, `/gift-certificates` (inquire-only, no payment integration)                                                  |
+| `press`             | `pressPage`/`pressItem`, `/press`, `PressStrip`                                                                          |
 
 The `resourcesPage` hub ships with whichever capture modules are enabled, since
 it only makes sense once at least one is on.

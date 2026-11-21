@@ -47,6 +47,7 @@ Pinned versions reflect what's known to work together as of May 2026. Bump delib
 Lock in the home page sections in render order. Don't reorder. Don't drop. If a section's content isn't ready yet, build a placeholder block in the right slot.
 
 **Home page** (in render order):
+
 1. Hero (Plainfield-first eyebrow, headline, two CTAs, background image)
 2. Meet Staci (photo, intro copy, CTA to About)
 3. How It Works (4-step process preview, CTA to Process)
@@ -57,6 +58,7 @@ Lock in the home page sections in render order. Don't reorder. Don't drop. If a 
 8. Footer
 
 **Site-wide pages** (6 total, all linked from the primary nav):
+
 - Home (`/`)
 - Process (`/process`)
 - Services (`/services`)
@@ -67,6 +69,7 @@ Lock in the home page sections in render order. Don't reorder. Don't drop. If a 
 Each page is a Sanity singleton document (`homePage`, `processPage`, etc.) plus auto-populated content from reusable collections (services, testimonials, FAQs, process steps, philosophy points). The structure of each page is fixed in code; the content within each section is editable in Sanity.
 
 Future additions (deferred per strategy, not at launch):
+
 - Portfolio index (`/portfolio`) and individual project pages (`/portfolio/[slug]`)
 - Journal/blog (`/journal`)
 - E-Design (a virtual service tier, not currently active on the live site)
@@ -77,18 +80,18 @@ Future additions (deferred per strategy, not at launch):
 
 Declared in the `@theme` block inside `src/styles/globals.css`. Reference via utility classes (`bg-primary`, `text-accent`, `border-secondary`) rather than hardcoded hex anywhere in component code.
 
-| Role | Hex | Notes |
-|---|---|---|
-| Primary (action) | `#9C7661` | Warm Bronze — buttons, primary CTAs, focus rings |
-| Primary Dark | `#7A5D4C` | Bronze Dark — button hover, body-size link text where Bronze fails contrast |
-| Accent (heading + text) | `#3D3D3D` | Charcoal — primary text and headings on light surfaces |
-| Accent Dark | `#2A2A2A` | Charcoal Dark — dark section backgrounds (Footer, occasional CTA banner) |
-| Secondary | `#B8A99A` | Warm Taupe — borders, dividers, muted text, eyebrow labels |
-| Tertiary | `#A8B5A0` | Soft Sage — sparingly, for process icons or tag accents |
-| Background | `#FAF8F5` | Soft Linen — primary surface |
-| Background Soft | `#F5F0EB` | Cream — alternating section surface |
-| Border (subtle) | `#E8E4E0` | Light Gray — input underlines, faint dividers |
-| White | `#FFFFFF` | Hero text overlays, contrast against dark sections |
+| Role                    | Hex       | Notes                                                                       |
+| ----------------------- | --------- | --------------------------------------------------------------------------- |
+| Primary (action)        | `#9C7661` | Warm Bronze — buttons, primary CTAs, focus rings                            |
+| Primary Dark            | `#7A5D4C` | Bronze Dark — button hover, body-size link text where Bronze fails contrast |
+| Accent (heading + text) | `#3D3D3D` | Charcoal — primary text and headings on light surfaces                      |
+| Accent Dark             | `#2A2A2A` | Charcoal Dark — dark section backgrounds (Footer, occasional CTA banner)    |
+| Secondary               | `#B8A99A` | Warm Taupe — borders, dividers, muted text, eyebrow labels                  |
+| Tertiary                | `#A8B5A0` | Soft Sage — sparingly, for process icons or tag accents                     |
+| Background              | `#FAF8F5` | Soft Linen — primary surface                                                |
+| Background Soft         | `#F5F0EB` | Cream — alternating section surface                                         |
+| Border (subtle)         | `#E8E4E0` | Light Gray — input underlines, faint dividers                               |
+| White                   | `#FFFFFF` | Hero text overlays, contrast against dark sections                          |
 
 Every token must clear WCAG AA against every surface it appears on. Body text needs 4.5:1, large text and UI components need 3:1. Run the math in both light and dark before introducing a new token. Bronze (`#9C7661`) is borderline for body text on Soft Linen; use Bronze Dark (`#7A5D4C`) for anchor-style text in prose. Bronze is fine on backgrounds where the foreground is white at large size (buttons, CTA banners).
 
@@ -241,17 +244,20 @@ Target: WCAG 2.1 AA in both light and dark modes. Aim for 100 Lighthouse Accessi
 **Forms.** Every input gets an associated `<label for="...">`. Use native input types (`email`, `tel`, `url`) and `autocomplete` hints so browsers and password managers help. Required fields get `required`. Error containers get `role="alert"`.
 
 **Images.**
+
 - Sanity content images: alt text comes from the Sanity field. Editors are responsible for writing meaningful alt text.
 - Image immediately adjacent to a heading that names the same thing (testimonial photo with attribution, hero photo below an h1): `alt=""`. Empty alt explicitly marks the image decorative so screen readers skip it instead of announcing the title twice.
 - Decorative gradients, shapes, or pseudo-elements: `aria-hidden="true"` on the wrapper.
 
 **Interactive elements.**
+
 - Icon-only buttons and links require `aria-label`. SVG icons carry no accessible name on their own; the label lives on the wrapper.
 - Hover and focus states must not be color-only. Pair color changes with underline, motion, or icon swap.
 - Stick to native interactive elements (`<button>`, `<a>`, `<details>`, `<summary>`) whenever possible.
 - The before/after slider needs keyboard support: arrow keys move the divider, the handle is focusable, and the focus indicator is visible.
 
 **Color tokens by responsibility** (definitions and contrast math in `globals.css`):
+
 - `--primary` (Warm Bronze): buttons, focus rings, CTA backgrounds at large size. Paired with white foreground.
 - `--primary-dark` (Bronze Dark): anchor-style body-size text in prose, where Warm Bronze fails contrast.
 - `--accent` (Charcoal): headings and body text on light surfaces.
@@ -292,10 +298,10 @@ Hardcoded constants that don't change between deploys: domain name, GitHub repo 
 
 ```ts
 export const site = {
-  name: "Reid Design LLC",
-  studio: "Reid Design LLC",
-  domain: "reiddesignllc.com",
-  storageKeyPrefix: "reid-design",
+  name: 'Reid Design LLC',
+  studio: 'Reid Design LLC',
+  domain: 'reiddesignllc.com',
+  storageKeyPrefix: 'reid-design',
   // ... etc
 } as const;
 ```
@@ -307,9 +313,11 @@ All publicly-visible content lives in Sanity, not in code or markdown files. Thi
 Sanity content types (full spec in `02-sanity-schemas.md` from the migration planning docs):
 
 **Settings & globals (1):**
+
 - `siteSettings` (singleton) — email, social links, service areas, travel fees, availability status, footer tagline. Most user-visible identity text comes from here.
 
 **Reusable content collections (6):**
+
 - `service` — In-Home Consultation, Full Room Design, Full Room Design + Styling, Shopping & Sourcing, Builder & Realtor Partnerships
 - `testimonial` — Client testimonials with attribution, source, date
 - `faqItem` — FAQ questions with category, displayed on both FAQ page and (selectively) Process page
@@ -318,9 +326,11 @@ Sanity content types (full spec in `02-sanity-schemas.md` from the migration pla
 - `project` — Case studies (launches with 1-2, grows over time)
 
 **Page singletons (6):**
+
 - `homePage`, `aboutPage`, `processPage`, `servicesPage`, `faqPage`, `contactPage` — One document per page, with the structured fields each page needs. Hero copy, section headlines, CTAs, etc.
 
 **Reusable object types (embedded, not standalone documents):**
+
 - `ctaBlock` — label + linkType (Internal page / External URL / Email / Phone) + the relevant target field
 
 ### Where queries live
@@ -332,6 +342,7 @@ The Sanity client is at `src/lib/sanity.ts`. It exports both `client` (for queri
 ### Auto-populated lists
 
 Several pages pull their content from collections automatically rather than requiring per-page configuration. Examples:
+
 - Services on the Services page: all `service` documents in `displayOrder`.
 - Services in the homepage grid: `service` documents where `showOnHomepage` is true, in `displayOrder`.
 - Process steps everywhere: all `processStep` documents in `stepNumber` order.
@@ -349,18 +360,18 @@ The contact form posts to Web3Forms (see Deployment section for env vars). On su
 
 ## Routes summary
 
-| Path | Source | Notes |
-|---|---|---|
-| `/` | `src/pages/index.astro` | Home page singleton from Sanity |
-| `/about` | `src/pages/about.astro` | About page singleton |
-| `/process` | `src/pages/process.astro` | Process page + steps + filtered FAQs |
-| `/services` | `src/pages/services.astro` | Services page + service collection |
-| `/faq` | `src/pages/faq.astro` | FAQ page + faqItem collection grouped by category |
-| `/contact` | `src/pages/contact.astro` | Contact page + Web3Forms form + Calendly embed |
-| `/portfolio` | `src/pages/portfolio.astro` (post-launch) | Index of `project` collection |
-| `/portfolio/[slug]` | `src/pages/portfolio/[slug].astro` (post-launch) | Individual case study |
-| `/sitemap-index.xml` | `@astrojs/sitemap` (auto) | Production sitemap |
-| `/404` | `src/pages/404.astro` | Custom 404 |
+| Path                 | Source                                           | Notes                                             |
+| -------------------- | ------------------------------------------------ | ------------------------------------------------- |
+| `/`                  | `src/pages/index.astro`                          | Home page singleton from Sanity                   |
+| `/about`             | `src/pages/about.astro`                          | About page singleton                              |
+| `/process`           | `src/pages/process.astro`                        | Process page + steps + filtered FAQs              |
+| `/services`          | `src/pages/services.astro`                       | Services page + service collection                |
+| `/faq`               | `src/pages/faq.astro`                            | FAQ page + faqItem collection grouped by category |
+| `/contact`           | `src/pages/contact.astro`                        | Contact page + Web3Forms form + Calendly embed    |
+| `/portfolio`         | `src/pages/portfolio.astro` (post-launch)        | Index of `project` collection                     |
+| `/portfolio/[slug]`  | `src/pages/portfolio/[slug].astro` (post-launch) | Individual case study                             |
+| `/sitemap-index.xml` | `@astrojs/sitemap` (auto)                        | Production sitemap                                |
+| `/404`               | `src/pages/404.astro`                            | Custom 404                                        |
 
 ---
 
@@ -538,4 +549,4 @@ Things to configure before or during the public launch. Everything below should 
 
 ---
 
-*Last updated: May 26, 2026*
+_Last updated: May 26, 2026_

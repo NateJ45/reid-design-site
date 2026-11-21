@@ -21,6 +21,7 @@
 ### Task 1: Stack, config, and deployment cluster
 
 **Files:**
+
 - Modify: `docs/agent/stack-and-config.md`, `docs/agent/deployment.md`, `docs/agent/performance.md`
 
 - [ ] **Step 1: Strip Reid specifics, keep stack truths**
@@ -40,6 +41,7 @@ Expected: zero hits (a single provenance line is allowed).
 ### Task 2: Theme, tokens, polish, and animation cluster
 
 **Files:**
+
 - Modify: `docs/agent/theme-and-color.md`, `docs/agent/design-tokens.md`, `docs/agent/polish-layer.md`
 - Create: `docs/agent/animation.md`
 
@@ -62,6 +64,7 @@ Expected: zero hits. Commit `git commit -m "docs(agent): genericize theme/tokens
 ### Task 3: Sanity, images, and SEO cluster
 
 **Files:**
+
 - Modify: `docs/agent/sanity.md`, `docs/agent/images.md`, `docs/agent/seo.md`
 
 - [ ] **Step 1: Genericize**
@@ -79,6 +82,7 @@ Expected: zero hits. Commit `git commit -m "docs(agent): genericize sanity/image
 ### Task 4: Components, architecture, a11y, error-states, editor-vs-hardcoded; reset changelog
 
 **Files:**
+
 - Modify: `docs/agent/components.md`, `page-architecture.md`, `accessibility.md`, `error-states.md`, `editor-vs-hardcoded.md`, `changelog.md`
 - Delete: `docs/agent/setup-checklist.md` (replaced by `docs/bootstrap/setup-checklist.md` in Stage B)
 
@@ -109,6 +113,7 @@ Expected: zero hits (provenance lines excepted). Commit `git commit -m "docs(age
 ### Task 5: Write `docs/bootstrap/NEW-PROJECT.md`, the setup runbook
 
 **Files:**
+
 - Create: `docs/bootstrap/NEW-PROJECT.md`
 
 - [ ] **Step 1: Write the runbook as an ordered, copy-pasteable procedure**
@@ -135,6 +140,7 @@ Point at the Foundation-vs-Safe-to-edit taxonomy in `CLAUDE.md` so a setup sessi
 ### Task 6: Write `docs/bootstrap/setup-checklist.md` and `docs/brand/voice.md`
 
 **Files:**
+
 - Create: `docs/bootstrap/setup-checklist.md`, `docs/brand/voice.md`
 
 - [ ] **Step 1: Pre-launch checklist**
@@ -154,6 +160,7 @@ Write `docs/brand/voice.md` as a fill-in template: tone in one line, five do-thi
 ### Task 7: Write `scripts/seed-core.mjs`
 
 **Files:**
+
 - Create: `scripts/seed-core.mjs`
 
 - [ ] **Step 1: Write an idempotent core seeder**
@@ -174,6 +181,7 @@ Run: `npm run build`, then dev server. Expected: every core page shows seeded co
 ### Task 8: End-to-end dry run of the new-project experience
 
 **Files:**
+
 - Scratch only (a throwaway copy or branch); no permanent changes beyond confirming docs are accurate.
 
 - [ ] **Step 1: Simulate a real adoption on a scratch copy**
