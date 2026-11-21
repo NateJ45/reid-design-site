@@ -37,6 +37,7 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 import { getPrivacyPage, getSiteSettings } from '@/lib/queries';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
+import { formatDate } from '@/lib/format-date';
 import { hasCfAnalytics, hasGa } from '@/lib/analytics-config';
 import { eventsSentence } from '@/lib/event-kinds';
 import { eventsConfig } from '@/config/events';
@@ -67,19 +68,6 @@ const heroHeadline = page?.heroHeadline ?? 'Privacy Policy';
 const heroSubhead = page?.heroSubhead ?? '';
 
 // Format the lastUpdated date from Sanity or fall back to a static string.
-function formatDate(d?: string): string {
-  if (!d) return '';
-  const date = new Date(d);
-  if (Number.isNaN(date.getTime())) return '';
-  // timeZone UTC: Sanity's date is a calendar day ("2026-09-28"), parsed as UTC
-  // midnight; formatting it in a US zone printed the day before.
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  });
-}
 const lastUpdated = formatDate(page?.lastUpdated);
 
 const schemas = [

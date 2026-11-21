@@ -13,6 +13,7 @@
 // deliberately not drawn: a row of mismatched logo files never looks like the
 // rest of the site, and the outlet's name in the site's type always does.
 import SectionHeading from '@/components/SectionHeading.astro';
+import { formatDate, LONG_MONTH_YEAR } from '@/lib/format-date';
 
 interface Mention {
   _id: string;
@@ -33,11 +34,7 @@ const { mentions = [], heading, headingId } = Astro.props as Props;
 const list = mentions.filter((m) => m?.outlet);
 
 const month = (d?: string) =>
-  d && /^\d{4}-\d{2}-\d{2}$/.test(d)
-    ? new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(
-        new Date(`${d}T12:00:00`),
-      )
-    : '';
+  d && /^d{4}-d{2}-d{2}$/.test(d) ? formatDate(d, LONG_MONTH_YEAR) : '';
 
 const lead = list.find((m) => m.quote && m.quote.trim());
 // Only https links become links: a typed address that is not one stays a tag.
